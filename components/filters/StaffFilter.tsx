@@ -55,9 +55,10 @@ const StaffFilter: React.FC<StaffFilterProps> = ({ onFilterChange, currentStoreI
             onResetFilters={handleResetFilters}
             placeholder={t('placeholder_search_staff')}
             showStoreFilter={true}
-            showDateFilter={true}
+            showDateFilter={false}
             showSearch={true}
             customFilters={customFilters}
+            customActiveCount={selectedRole !== 'all' ? 1 : 0}
             initialFilters={{
                 dateRange: { type: 'none' }, // No default date filter
             }}

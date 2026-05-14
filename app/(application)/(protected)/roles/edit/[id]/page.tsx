@@ -3,6 +3,7 @@
 import PermissionSelector, { Permission } from '@/app/(application)/(protected)/employees/employees/PermissionSelector';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
+import { unwrapApiData } from '@/lib/api-response';
 import { showMessage } from '@/lib/toast';
 import { useGetAllPermissionsQuery, useGetRoleQuery, useUpdateRoleMutation } from '@/store/features/roles/rolesApi';
 import { ArrowLeft, Shield, Store } from 'lucide-react';
@@ -28,8 +29,7 @@ const RoleEditPage = () => {
     const [nameError, setNameError] = useState('');
 
     const role = useMemo(() => {
-        const d = roleData as any;
-        return d?.data ?? d ?? null;
+        return unwrapApiData(roleData, ['role']);
     }, [roleData]);
 
     const allPermissions = useMemo(() => {

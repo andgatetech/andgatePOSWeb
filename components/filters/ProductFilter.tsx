@@ -2,8 +2,9 @@
 import UniversalFilter, { FilterOptions } from '@/components/common/UniversalFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useUniversalFilter } from '@/hooks/useUniversalFilter';
+import { useGetBrandsQuery } from '@/store/features/brand/brandApi';
 import { useGetCategoryQuery } from '@/store/features/category/categoryApi';
-import { Package, Tag } from 'lucide-react';
+import { Boxes, Package, Tag } from 'lucide-react';
 import { getTranslation } from '@/i18n';
 import React from 'react';
 
@@ -14,7 +15,9 @@ interface ProductFilterProps {
 const ProductFilter: React.FC<ProductFilterProps> = ({ onFilterChange }) => {
     const { t } = getTranslation();
     const [selectedCategory, setSelectedCategory] = React.useState<number | 'all'>('all');
+    const [selectedBrand, setSelectedBrand] = React.useState<number | 'all'>('all');
     const [selectedStatus, setSelectedStatus] = React.useState<string>('all');
+    const [selectedStockStatus, setSelectedStockStatus] = React.useState<string>('all');
 
     const { currentStore, userStores } = useCurrentStore();
 
@@ -35,13 +38,21 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ onFilterChange }) => {
             additionalParams.category_id = selectedCategory;
         }
 
+        if (selectedBrand !== 'all') {
+            additionalParams.brand_id = selectedBrand;
+        }
+
         if (selectedStatus !== 'all') {
             additionalParams.status = selectedStatus;
         }
 
+        if (selectedStockStatus !== 'all') {
+            additionalParams.stock_status = selectedStockStatus;
+        }
+
         const apiParams = buildApiParams(additionalParams);
         onFilterChange(apiParams);
-    }, [filters, selectedCategory, selectedStatus, buildApiParams, onFilterChange]);
+    }, [filters, selectedCategory, selectedBrand, selectedStatus, selectedStockStatus, buildApiParams, onFilterChange]);
 
     // Build category query params based on selected store from filter
     const categoryQueryParams = React.useMemo(() => {
@@ -66,6 +77,7 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ onFilterChange }) => {
 
     // Get categories based on selected store(s)
     const { data: categoriesResponse } = useGetCategoryQuery(categoryQueryParams);
+    const { data: brandsResponse } = useGetBrandsQuery(categoryQueryParams);
     const categories = React.useMemo(() => {
         if (categoriesResponse?.data?.items && Array.isArray(categoriesResponse.data.items)) {
             return categoriesResponse.data.items;
@@ -73,16 +85,27 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ onFilterChange }) => {
         return categoriesResponse?.data || [];
     }, [categoriesResponse]);
 
+    const brands = React.useMemo(() => {
+        if (brandsResponse?.data?.items && Array.isArray(brandsResponse.data.items)) {
+            return brandsResponse.data.items;
+        }
+        return brandsResponse?.data || [];
+    }, [brandsResponse]);
+
     // Reset filters when store selection changes
     React.useEffect(() => {
         setSelectedCategory('all');
+        setSelectedBrand('all');
         setSelectedStatus('all');
+        setSelectedStockStatus('all');
     }, [filters.storeId]);
 
     // Handle reset callback from UniversalFilter
     const handleResetFilters = React.useCallback(() => {
         setSelectedCategory('all');
+        setSelectedBrand('all');
         setSelectedStatus('all');
+        setSelectedStockStatus('all');
     }, []);
 
     const customFilters = (
@@ -105,6 +128,24 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ onFilterChange }) => {
                 <Package className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
             </div>
 
+            {/* Brand Filter */}
+            <div className="relative">
+                <select
+                    value={selectedBrand}
+                    onChange={(e) => setSelectedBrand(e.target.value === 'all' ? 'all' : parseInt(e.target.value))}
+                    className="appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                    disabled={brands.length === 0}
+                >
+                    <option value="all">{brands.length === 0 ? t('msg_no_brands_available') : t('ecommerce_all_brands')}</option>
+                    {brands.map((brand: any) => (
+                        <option key={brand.id} value={brand.id}>
+                            {brand.name}
+                        </option>
+                    ))}
+                </select>
+                <Tag className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+            </div>
+
             {/* Status Filter - Updated to match backend (active/inactive for available yes/no) */}
             <div className="relative">
                 <select
@@ -118,6 +159,21 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ onFilterChange }) => {
                 </select>
                 <Tag className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
             </div>
+
+            {/* Stock Status Filter */}
+            <div className="relative">
+                <select
+                    value={selectedStockStatus}
+                    onChange={(e) => setSelectedStockStatus(e.target.value)}
+                    className="appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                >
+                    <option value="all">{t('lbl_all_stock_statuses')}</option>
+                    <option value="in_stock">{t('lbl_in_stock')}</option>
+                    <option value="low_stock">{t('status_low_stock')}</option>
+                    <option value="out_of_stock">{t('status_out_of_stock')}</option>
+                </select>
+                <Boxes className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+            </div>
         </>
     );
 
@@ -127,9 +183,10 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ onFilterChange }) => {
             onResetFilters={handleResetFilters}
             placeholder={t('placeholder_search_products')}
             showStoreFilter={true}
-            showDateFilter={true}
+            showDateFilter={false}
             showSearch={true}
             customFilters={customFilters}
+            customActiveCount={(selectedCategory !== 'all' ? 1 : 0) + (selectedBrand !== 'all' ? 1 : 0) + (selectedStatus !== 'all' ? 1 : 0) + (selectedStockStatus !== 'all' ? 1 : 0)}
         />
     );
 };

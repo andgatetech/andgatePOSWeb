@@ -54,9 +54,10 @@ const StoreFilter: React.FC<StoreFilterProps> = ({ onFilterChange }) => {
             onFilterChange={handleFilterChange}
             placeholder={t('placeholder_search_stores')}
             showStoreFilter={false} // Typically admin views all stores or list handles it. If user can filter by store active/inactive that's different.
-            showDateFilter={true}
+            showDateFilter={false}
             showSearch={true}
             customFilters={customFilters}
+            customActiveCount={selectedStatus !== 'all' ? 1 : 0}
             onResetFilters={handleReset}
         />
     );

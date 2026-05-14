@@ -57,9 +57,14 @@ const ProductTable = () => {
             }
 
             // Handle other filters
-            if (apiParams.search) params.search = apiParams.search;
+            if (apiParams.search) {
+                params.search = apiParams.search;
+                params.fast_pagination = 1;
+            }
             if (apiParams.status) params.status = apiParams.status;
             if (apiParams.category_id) params.category_id = apiParams.category_id;
+            if (apiParams.brand_id) params.brand_id = apiParams.brand_id;
+            if (apiParams.stock_status) params.stock_status = apiParams.stock_status;
             if (apiParams.start_date) params.start_date = apiParams.start_date;
             if (apiParams.end_date) params.end_date = apiParams.end_date;
         }
@@ -235,12 +240,14 @@ const ProductTable = () => {
     };
 
     const effectivePerPage = paginationMeta?.per_page && paginationMeta.per_page > 0 ? paginationMeta.per_page : itemsPerPage;
-    const totalRecords = paginationMeta?.total ?? products.length;
+    const hasKnownTotal = typeof paginationMeta?.total === 'number';
+    const hasMorePages = Boolean(paginationMeta?.has_more_pages);
+    const totalRecords = hasKnownTotal ? paginationMeta?.total : products.length;
     // Use currentPage state directly, not the API response (which may be stale during loading)
     const activePage = currentPage;
-    const totalPages = paginationMeta?.last_page ?? Math.max(1, effectivePerPage > 0 ? Math.ceil((totalRecords || 0) / effectivePerPage) : 1);
-    const startRecord = totalRecords === 0 ? 0 : (activePage - 1) * effectivePerPage + 1;
-    const endRecord = totalRecords === 0 ? 0 : Math.min(startRecord + products.length - 1, totalRecords);
+    const totalPages = hasKnownTotal ? paginationMeta?.last_page ?? Math.max(1, effectivePerPage > 0 ? Math.ceil((totalRecords || 0) / effectivePerPage) : 1) : activePage + (hasMorePages ? 1 : 0);
+    const startRecord = products.length === 0 ? 0 : (activePage - 1) * effectivePerPage + 1;
+    const endRecord = products.length === 0 ? 0 : startRecord + products.length - 1;
 
     const fallbackStats = useMemo(() => {
         let available = 0;
@@ -687,8 +694,12 @@ const ProductTable = () => {
                                     <span className="font-semibold text-gray-700">{formatNumber(startRecord)}</span>
                                     {' '}{t('lbl_to')}{' '}
                                     <span className="font-semibold text-gray-700">{formatNumber(endRecord)}</span>
-                                    {' '}{t('lbl_of')}{' '}
-                                    <span className="font-semibold text-gray-700">{formatNumber(totalRecords)}</span>
+                                    {hasKnownTotal && (
+                                        <>
+                                            {' '}{t('lbl_of')}{' '}
+                                            <span className="font-semibold text-gray-700">{formatNumber(totalRecords)}</span>
+                                        </>
+                                    )}
                                     {' '}{t('lbl_items')}
                                 </span>
                                 <div className="flex items-center gap-1.5">
@@ -714,31 +725,35 @@ const ProductTable = () => {
                                 >
                                     {t('btn_previous')}
                                 </button>
-                                {[...Array(Math.min(5, totalPages))].map((_, i) => {
-                                    let pageNum: number;
-                                    if (totalPages <= 5) pageNum = i + 1;
-                                    else if (activePage <= 3) pageNum = i + 1;
-                                    else if (activePage >= totalPages - 2) pageNum = totalPages - 4 + i;
-                                    else pageNum = activePage - 2 + i;
-                                    return (
-                                        <button
-                                            key={pageNum}
-                                            type="button"
-                                            onClick={() => goToPage(pageNum)}
-                                            className={`min-w-[32px] rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all ${
-                                                activePage === pageNum
-                                                    ? 'bg-primary text-white shadow-sm'
-                                                    : 'border border-gray-200 bg-white text-gray-600 hover:border-primary hover:text-primary'
-                                            }`}
-                                        >
-                                            {formatNumber(pageNum)}
-                                        </button>
-                                    );
-                                })}
+                                {hasKnownTotal ? (
+                                    [...Array(Math.min(5, totalPages))].map((_, i) => {
+                                        let pageNum: number;
+                                        if (totalPages <= 5) pageNum = i + 1;
+                                        else if (activePage <= 3) pageNum = i + 1;
+                                        else if (activePage >= totalPages - 2) pageNum = totalPages - 4 + i;
+                                        else pageNum = activePage - 2 + i;
+                                        return (
+                                            <button
+                                                key={pageNum}
+                                                type="button"
+                                                onClick={() => goToPage(pageNum)}
+                                                className={`min-w-[32px] rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all ${
+                                                    activePage === pageNum
+                                                        ? 'bg-primary text-white shadow-sm'
+                                                        : 'border border-gray-200 bg-white text-gray-600 hover:border-primary hover:text-primary'
+                                                }`}
+                                            >
+                                                {formatNumber(pageNum)}
+                                            </button>
+                                        );
+                                    })
+                                ) : (
+                                    <span className="min-w-[32px] rounded-lg bg-primary px-2.5 py-1.5 text-center text-xs font-semibold text-white shadow-sm">{formatNumber(activePage)}</span>
+                                )}
                                 <button
                                     type="button"
                                     onClick={() => goToPage(activePage + 1)}
-                                    disabled={activePage >= totalPages || totalRecords === 0}
+                                    disabled={hasKnownTotal ? activePage >= totalPages || totalRecords === 0 : !hasMorePages}
                                     className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
                                 >
                                     {t('btn_next')}

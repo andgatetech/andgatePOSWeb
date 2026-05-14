@@ -13,6 +13,7 @@ import OrderEditRightSide from './components/OrderEditRightSide';
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
+import { unwrapApiData } from '@/lib/api-response';
 
 const OrderEditPage = () => {
     const { t } = getTranslation();
@@ -34,12 +35,11 @@ const OrderEditPage = () => {
     });
 
     const [updateOrder, { isLoading: isUpdating }] = useUpdateOrderMutation();
+    const order = unwrapApiData(orderData, ['order']);
 
     // Load order data into Redux when fetched
     useEffect(() => {
-        if (orderData?.success && orderData?.data && currentStoreId) {
-            const order = orderData.data;
-
+        if (order && currentStoreId) {
             // Store original order data
             dispatch(setOrderData({ storeId: currentStoreId, orderId: order.id, order }));
 
@@ -86,7 +86,7 @@ const OrderEditPage = () => {
             dispatch(setItemsRedux({ storeId: currentStoreId, items: transformedItems }));
             setIsLoadingOrder(false);
         }
-    }, [orderData, dispatch, currentStoreId]);
+    }, [order, dispatch, currentStoreId]);
 
     // Cleanup on unmount
     useEffect(() => {
@@ -127,8 +127,6 @@ const OrderEditPage = () => {
             </div>
         );
     }
-
-    const order = orderData.data;
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">

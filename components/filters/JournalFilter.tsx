@@ -126,6 +126,7 @@ const JournalFilter: React.FC<JournalFilterProps> = ({ onFilterChange, currentSt
             showDateFilter={true}
             showSearch={true}
             customFilters={customFilters}
+            customActiveCount={(selectedType !== 'all' ? 1 : 0) + (minAmount ? 1 : 0) + (maxAmount ? 1 : 0)}
             onResetFilters={handleReset}
             initialFilters={{
                 dateRange: { type: 'none' },

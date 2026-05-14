@@ -6,7 +6,6 @@ import { showErrorDialog, showMessage } from '@/lib/toast';
 import type { RootState } from '@/store';
 import { useCreateExpenseMutation } from '@/store/features/expense/expenseApi';
 import { useGetAccountsQuery } from '@/store/features/accounting/accountingApi';
-import RichTextEditor from '@/components/common/RichTextEditor';
 import { ArrowLeft, Receipt, Store } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -115,10 +114,11 @@ const CreateExpensePage = () => {
                             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                                 {/* Title */}
                                 <div>
-                                    <label className="mb-2 block text-sm font-medium text-gray-700">
+                                    <label htmlFor="title" className="mb-2 block text-sm font-medium text-gray-700">
                                         {t('lbl_title')} <span className="text-red-500">*</span>
                                     </label>
                                     <input
+                                        id="title"
                                         type="text"
                                         value={formData.title}
                                         onChange={(e) => { setFormData({ ...formData, title: e.target.value }); if (errors.title) setErrors({ ...errors, title: '' }); }}
@@ -130,10 +130,11 @@ const CreateExpensePage = () => {
 
                                 {/* Amount */}
                                 <div>
-                                    <label className="mb-2 block text-sm font-medium text-gray-700">
+                                    <label htmlFor="debit" className="mb-2 block text-sm font-medium text-gray-700">
                                         {t('lbl_amount')} <span className="text-red-500">*</span>
                                     </label>
                                     <input
+                                        id="debit"
                                         type="number"
                                         value={formData.debit}
                                         onChange={(e) => { setFormData({ ...formData, debit: e.target.value }); if (errors.debit) setErrors({ ...errors, debit: '' }); }}
@@ -148,10 +149,11 @@ const CreateExpensePage = () => {
                                 {/* COA Account */}
                                 {coaAccounts.length > 0 && (
                                     <div>
-                                        <label className="mb-2 block text-sm font-medium text-gray-700">
+                                        <label htmlFor="coa_account_id" className="mb-2 block text-sm font-medium text-gray-700">
                                             {t('lbl_coa_account')}
                                         </label>
                                         <select
+                                            id="coa_account_id"
                                             value={formData.coa_account_id}
                                             onChange={(e) => setFormData({ ...formData, coa_account_id: e.target.value })}
                                             className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
@@ -166,16 +168,18 @@ const CreateExpensePage = () => {
                                 )}
 
                                 {/* Notes */}
-                                <div>
-                                    <label className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_notes')}</label>
-                                    <RichTextEditor
+                                <div className="lg:col-span-2">
+                                    <label htmlFor="notes" className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_notes')}</label>
+                                    <textarea
+                                        id="notes"
                                         value={formData.notes}
-                                        onChange={(value) => setFormData({ ...formData, notes: value })}
+                                        onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                                         placeholder={t('placeholder_notes')}
-                                        className="expense-notes-editor"
-                                        modules={{ toolbar: [['bold', 'italic', 'underline'], [{ list: 'ordered' }, { list: 'bullet' }], ['link', 'clean']] }}
-                                        formats={['bold', 'italic', 'underline', 'list', 'link']}
+                                        rows={3}
+                                        maxLength={1000}
+                                        className="w-full resize-none rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
                                     />
+                                    <p className="mt-1 text-xs text-gray-500">{formData.notes.length}/1000</p>
                                 </div>
                             </div>
 

@@ -137,6 +137,7 @@ const OrderFilter: React.FC<OrderFilterProps> = ({ onFilterChange }) => {
             showDateFilter={true}
             showSearch={true}
             customFilters={customFilters}
+            customActiveCount={(selectedPaymentStatus !== 'all' ? 1 : 0) + (selectedPaymentMethod !== 'all' ? 1 : 0) + (minAmount ? 1 : 0) + (maxAmount ? 1 : 0)}
             onResetFilters={handleReset}
         />
     );

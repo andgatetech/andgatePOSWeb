@@ -78,6 +78,7 @@ const CustomerFilter: React.FC<CustomerFilterProps> = ({ onFilterChange }) => {
             showDateFilter={false}
             showSearch={true}
             customFilters={customFilters}
+            customActiveCount={selectedMembership !== 'all' ? 1 : 0}
             onResetFilters={handleReset}
         />
     );

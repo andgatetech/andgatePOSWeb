@@ -176,8 +176,9 @@ const _ensureEcPdf = (): Promise<void> => {
             // pdfmake must load first so window.pdfMake is set before vfs_fonts runs
             const pmMod: any = await import('pdfmake/build/pdfmake');
             _ecPm = pmMod.default || pmMod;
-            // vfs_fonts registers Roboto into window.pdfMake — requires pdfmake loaded first
-            await import('pdfmake/build/vfs_fonts');
+            // Explicitly register Roboto VFS — do not rely on window.pdfMake side-effect (unreliable in Next.js ESM)
+            const vfsFonts: any = await import('pdfmake/build/vfs_fonts');
+            _ecPm.addVirtualFileSystem(vfsFonts.default ?? vfsFonts);
             const blobToBase64 = (blob: Blob): Promise<string> =>
                 new Promise((res, rej) => {
                     const r = new FileReader();

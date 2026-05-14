@@ -2,15 +2,17 @@
 
 import IconDownload from '@/components/icon/icon-download';
 import IconX from '@/components/icon/icon-x';
+import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useDownloadBulkUploadTemplateMutation, useProductBulkUploadMutation } from '@/store/features/Product/productApi';
-import { AlertCircle, CheckCircle2, FileSpreadsheet, Upload, XCircle } from 'lucide-react';
-import { useState } from 'react';
+import { AlertCircle, CheckCircle2, FileSpreadsheet, PackageCheck, RefreshCw, Upload, XCircle } from 'lucide-react';
+import { ReactNode, useMemo, useState } from 'react';
 
 interface UploadFailure {
     row: number;
+    sku?: string;
     error: string;
 }
 
@@ -20,9 +22,16 @@ interface UploadResult {
     failures: UploadFailure[];
 }
 
+const acceptedTypes = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'];
+
+const requiredColumns = ['store_name', 'product_name', 'sku', 'category_name', 'brand_name', 'unit', 'selling_price', 'purchase_price', 'quantity'];
+const stockColumns = ['barcode', 'wholesale_price', 'low_stock_quantity', 'tax_rate', 'tax_included', 'available', 'batch_no', 'purchase_date', 'expiry_date'];
+const advancedColumns = ['variant_attribute/value', 'serial_numbers', 'warranty_type', 'warranty_duration_days', 'ecommerce_visible'];
+
 const BulkUploadPage = () => {
     const { t } = getTranslation();
-    const { currentStoreId } = useCurrentStore();
+    const { currentStoreId, currentStore } = useCurrentStore();
+    const { formatNumber } = useCurrency();
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [uploadResult, setUploadResult] = useState<UploadResult | null>(null);
     const [dragActive, setDragActive] = useState(false);
@@ -30,73 +39,43 @@ const BulkUploadPage = () => {
     const [productBulkUpload, { isLoading: uploading }] = useProductBulkUploadMutation();
     const [downloadTemplate, { isLoading: downloadingTemplate }] = useDownloadBulkUploadTemplateMutation();
 
+    const totalProcessed = useMemo(() => {
+        if (!uploadResult) return 0;
+        return uploadResult.success_count + uploadResult.failed_count;
+    }, [uploadResult]);
+
+    const validateAndSetFile = (file?: File) => {
+        if (!file) return;
+
+        const fileName = file.name.toLowerCase();
+        const isExcel = acceptedTypes.includes(file.type) || fileName.endsWith('.xlsx') || fileName.endsWith('.xls');
+
+        if (!isExcel) {
+            showErrorDialog(t('msg_error'), t('bulk_upload_excel_only'));
+            return;
+        }
+
+        if (file.size > 10 * 1024 * 1024) {
+            showErrorDialog(t('msg_error'), t('bulk_upload_file_size_limit'));
+            return;
+        }
+
+        setSelectedFile(file);
+        setUploadResult(null);
+    };
+
     const handleDownloadTemplate = async () => {
         try {
             await downloadTemplate().unwrap();
-            showSuccessDialog(t('msg_success'), t('product_bulk_import'));
+            showSuccessDialog(t('msg_success'), t('bulk_upload_template_downloaded'));
         } catch (error: any) {
-            console.error('Download error:', error);
             showErrorDialog(t('msg_error'), error?.data?.message || error?.message || t('msg_error_occurred'));
-        }
-    };
-
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            // Validate file type
-            const validTypes = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel', 'text/csv'];
-            if (!validTypes.includes(file.type)) {
-                showErrorDialog(t('msg_error'), t('msg_warning'));
-                return;
-            }
-
-            // Validate file size (max 10MB)
-            if (file.size > 10 * 1024 * 1024) {
-                showErrorDialog(t('msg_error'), t('msg_warning'));
-                return;
-            }
-
-            setSelectedFile(file);
-            setUploadResult(null);
-        }
-    };
-
-    const handleDrag = (e: React.DragEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        if (e.type === 'dragenter' || e.type === 'dragover') {
-            setDragActive(true);
-        } else if (e.type === 'dragleave') {
-            setDragActive(false);
-        }
-    };
-
-    const handleDrop = (e: React.DragEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setDragActive(false);
-
-        const file = e.dataTransfer.files?.[0];
-        if (file) {
-            const validTypes = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel', 'text/csv'];
-            if (!validTypes.includes(file.type)) {
-                showErrorDialog(t('msg_error'), t('msg_warning'));
-                return;
-            }
-
-            if (file.size > 10 * 1024 * 1024) {
-                showErrorDialog(t('msg_error'), t('msg_warning'));
-                return;
-            }
-
-            setSelectedFile(file);
-            setUploadResult(null);
         }
     };
 
     const handleUpload = async () => {
         if (!selectedFile) {
-            showErrorDialog(t('msg_error'), t('msg_warning'));
+            showErrorDialog(t('msg_error'), t('bulk_upload_select_template_first'));
             return;
         }
 
@@ -116,307 +95,252 @@ const BulkUploadPage = () => {
 
             if (result.success && result.data) {
                 setUploadResult(result.data);
-
-                if (result.data.failed_count === 0) {
-                    showSuccessDialog(t('msg_success'), t('product_created'));
-                } else {
-                    showSuccessDialog(t('msg_success'), t('product_created'));
-                }
-            } else {
-                throw new Error(result.message || t('msg_error_occurred'));
+                showSuccessDialog(t('msg_success'), result.data.failed_count ? t('bulk_upload_finished_with_errors') : t('bulk_upload_success_message'));
+                return;
             }
+
+            throw new Error(result.message || t('msg_error_occurred'));
         } catch (error: any) {
+            const data = error?.data?.data;
+            if (data?.failures) {
+                setUploadResult(data);
+            }
             showErrorDialog(t('msg_error'), error?.data?.message || error?.message || t('msg_error_occurred'));
         }
     };
 
-    const handleRemoveFile = () => {
-        setSelectedFile(null);
-        setUploadResult(null);
+    const handleDrag = (event: React.DragEvent) => {
+        event.preventDefault();
+        event.stopPropagation();
+        setDragActive(event.type === 'dragenter' || event.type === 'dragover');
     };
 
-    const handleReset = () => {
+    const resetUpload = () => {
         setSelectedFile(null);
         setUploadResult(null);
     };
 
     return (
         <div className="space-y-6">
-            {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#046ca9] to-[#034d79] text-white shadow-sm">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-white shadow-sm">
                         <FileSpreadsheet className="h-5 w-5" />
                     </div>
                     <div>
                         <h1 className="text-xl font-bold text-gray-900">{t('product_bulk_import')}</h1>
-                        <p className="text-sm text-gray-500">{t('product_page_desc')}</p>
+                        <p className="text-sm text-gray-500">{t('bulk_upload_page_desc')}</p>
                     </div>
                 </div>
+
+                <button type="button" onClick={handleDownloadTemplate} disabled={downloadingTemplate} className="btn btn-primary gap-2">
+                    {downloadingTemplate ? <RefreshCw className="h-4 w-4 animate-spin" /> : <IconDownload className="h-5 w-5" />}
+                    {downloadingTemplate ? t('btn_loading') : t('bulk_upload_download_latest_template')}
+                </button>
             </div>
 
-            {/* Instructions Card */}
-            <div className="panel">
-                <div className="mb-4 flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100">
-                        <AlertCircle className="h-5 w-5 text-blue-600" />
+            <div className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+                <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+                    <div className="mb-4 flex items-start gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+                            <PackageCheck className="h-5 w-5" />
+                        </div>
+                        <div>
+                            <h2 className="text-base font-semibold text-gray-900">{t('bulk_upload_stock_format_title')}</h2>
+                            <p className="text-sm text-gray-600">{t('bulk_upload_stock_format_desc')}</p>
+                        </div>
                     </div>
+
+                    <div className="grid gap-3 md:grid-cols-3">
+                        <div className="rounded-lg border border-green-200 bg-green-50 p-4">
+                            <p className="mb-2 text-sm font-semibold text-green-800">{t('bulk_upload_required')}</p>
+                            <div className="flex flex-wrap gap-1.5">
+                                {requiredColumns.map((column) => (
+                                    <span key={column} className="rounded bg-white px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-green-100">
+                                        {column}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+                            <p className="mb-2 text-sm font-semibold text-blue-800">{t('bulk_upload_stock_details')}</p>
+                            <div className="flex flex-wrap gap-1.5">
+                                {stockColumns.map((column) => (
+                                    <span key={column} className="rounded bg-white px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-blue-100">
+                                        {column}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="rounded-lg border border-purple-200 bg-purple-50 p-4">
+                            <p className="mb-2 text-sm font-semibold text-purple-800">{t('bulk_upload_advanced')}</p>
+                            <div className="flex flex-wrap gap-1.5">
+                                {advancedColumns.map((column) => (
+                                    <span key={column} className="rounded bg-white px-2 py-1 text-xs font-medium text-purple-700 ring-1 ring-purple-100">
+                                        {column}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                        <div className="flex gap-2">
+                            <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+                            <p>{t('bulk_upload_fresh_template_note')}</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+                    <h2 className="mb-3 text-base font-semibold text-gray-900">{t('bulk_upload_import_rules')}</h2>
+                    <div className="space-y-3 text-sm text-gray-600">
+                        <Rule text={t('bulk_upload_rule_sku')} />
+                        <Rule text={t('bulk_upload_rule_variants')} />
+                        <Rule text={t('bulk_upload_rule_serials')} />
+                        <Rule text={t('bulk_upload_rule_auto_create')} />
+                        <Rule text={t('bulk_upload_rule_yes_no')} />
+                    </div>
+                </section>
+            </div>
+
+            <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+                <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <h3 className="text-lg font-semibold text-gray-900">How to Upload Products</h3>
-                        <p className="text-sm text-gray-600">Follow these steps for a successful bulk upload</p>
+                        <h2 className="text-base font-semibold text-gray-900">{t('bulk_upload_upload_excel_title')}</h2>
+                        <p className="text-sm text-gray-500">
+                            {t('bulk_upload_selected_store')}: {currentStore?.store_name || t('lbl_select_store')}
+                        </p>
                     </div>
+                    {selectedFile && (
+                        <button type="button" onClick={resetUpload} className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-700">
+                            <IconX className="h-4 w-4" />
+                            {t('btn_clear')}
+                        </button>
+                    )}
                 </div>
-
-                <div className="grid gap-4 md:grid-cols-3">
-                    <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-                        <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">1</div>
-                        <h4 className="mb-1 font-semibold text-gray-900">Download Template</h4>
-                        <p className="text-sm text-gray-600">Download the Excel template with the correct format and required columns.</p>
-                    </div>
-
-                    <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-                        <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">2</div>
-                        <h4 className="mb-1 font-semibold text-gray-900">Fill Product Data</h4>
-                        <p className="text-sm text-gray-600">Add your product information following the template structure and guidelines.</p>
-                    </div>
-
-                    <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-                        <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">3</div>
-                        <h4 className="mb-1 font-semibold text-gray-900">Upload File</h4>
-                        <p className="text-sm text-gray-600">Upload your completed file and review the results for any errors.</p>
-                    </div>
-                </div>
-
-                <div className="mt-6">
-                    <button type="button" onClick={handleDownloadTemplate} disabled={downloadingTemplate} className="btn btn-primary gap-2">
-                        <IconDownload className="h-5 w-5" />
-                        {downloadingTemplate ? t('btn_loading') : t('btn_download')}
-                    </button>
-                </div>
-            </div>
-
-            {/* Upload Area */}
-            <div className="panel">
-                <h3 className="mb-4 text-lg font-semibold text-gray-900">Upload File</h3>
 
                 {!selectedFile ? (
                     <div
                         onDragEnter={handleDrag}
                         onDragLeave={handleDrag}
                         onDragOver={handleDrag}
-                        onDrop={handleDrop}
-                        className={`relative rounded-lg border-2 border-dashed p-12 text-center transition-colors ${
-                            dragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 bg-gray-50 hover:border-gray-400 hover:bg-gray-100'
-                        }`}
+                        onDrop={(event) => {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            setDragActive(false);
+                            validateAndSetFile(event.dataTransfer.files?.[0]);
+                        }}
+                        className={`rounded-xl border-2 border-dashed p-8 text-center transition-colors ${dragActive ? 'border-primary bg-primary/5' : 'border-gray-300 bg-gray-50 hover:border-gray-400'}`}
                     >
-                        <input type="file" id="file-upload" className="hidden" accept=".xlsx,.xls,.csv" onChange={handleFileChange} />
-
-                        <div className="flex flex-col items-center">
-                            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-100">
-                                <Upload className="h-8 w-8 text-blue-600" />
-                            </div>
-
-                            <h4 className="mb-2 text-lg font-semibold text-gray-900">Drag and drop your file here</h4>
-                            <p className="mb-4 text-sm text-gray-600">or click to browse from your computer</p>
-
-                            <label htmlFor="file-upload" className="btn btn-primary cursor-pointer gap-2">
-                                <FileSpreadsheet className="h-5 w-5" />
-                                Select File
-                            </label>
-
-                            <p className="mt-4 text-xs text-gray-500">Supported formats: .xlsx, .xls, .csv (Max 10MB)</p>
+                        <input type="file" id="product-bulk-file" className="hidden" accept=".xlsx,.xls" onChange={(event) => validateAndSetFile(event.target.files?.[0])} />
+                        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                            <Upload className="h-7 w-7" />
                         </div>
+                        <h3 className="text-base font-semibold text-gray-900">{t('bulk_upload_drop_excel_here')}</h3>
+                        <p className="mt-1 text-sm text-gray-500">{t('bulk_upload_excel_file_hint')}</p>
+                        <label htmlFor="product-bulk-file" className="btn btn-primary mt-5 inline-flex cursor-pointer gap-2">
+                            <FileSpreadsheet className="h-5 w-5" />
+                            {t('bulk_upload_select_excel_file')}
+                        </label>
                     </div>
                 ) : (
-                    <div className="rounded-lg border border-gray-200 bg-white p-6">
-                        <div className="flex items-start justify-between">
-                            <div className="flex items-start gap-4">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
-                                    <FileSpreadsheet className="h-6 w-6 text-green-600" />
+                    <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                            <div className="flex min-w-0 items-center gap-3">
+                                <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg bg-green-100 text-green-600">
+                                    <FileSpreadsheet className="h-5 w-5" />
                                 </div>
-                                <div className="flex-1">
-                                    <h4 className="font-semibold text-gray-900">{selectedFile.name}</h4>
-                                    <p className="mt-1 text-sm text-gray-600">
-                                        {(selectedFile.size / 1024).toFixed(2)} KB • {selectedFile.type || 'Unknown type'}
-                                    </p>
-                                    {!uploadResult && (
-                                        <div className="mt-3 flex items-center gap-2">
-                                            <button type="button" onClick={handleUpload} disabled={uploading} className="btn btn-primary btn-sm gap-2">
-                                                <button type="button" onClick={handleUpload} disabled={uploading} className="btn btn-primary btn-sm gap-2">
-                                                    <Upload className="h-4 w-4" />
-                                                    {uploading ? t('btn_loading') : t('btn_upload')}
-                                                </button>
-                                                <IconX className="h-4 w-4" />
-                                                Remove
-                                            </button>
-                                        </div>
-                                    )}
+                                <div className="min-w-0">
+                                    <p className="truncate font-semibold text-gray-900">{selectedFile.name}</p>
+                                    <p className="text-sm text-gray-500">{(selectedFile.size / 1024).toFixed(1)} KB</p>
                                 </div>
                             </div>
-                            {!uploading && !uploadResult && (
-                                <button type="button" onClick={handleRemoveFile} className="text-gray-400 hover:text-gray-600">
-                                    <IconX className="h-5 w-5" />
-                                </button>
-                            )}
+                            <button type="button" onClick={handleUpload} disabled={uploading} className="btn btn-primary gap-2">
+                                {uploading ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                                {uploading ? t('bulk_upload_importing') : t('bulk_upload_import_products')}
+                            </button>
                         </div>
-
-                        {uploading && (
-                            <div className="mt-4">
-                                <div className="mb-2 flex items-center justify-between text-sm">
-                                    <span className="text-gray-600">Uploading...</span>
-                                    <span className="font-medium text-blue-600">Processing</span>
-                                </div>
-                                <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
-                                    <div className="h-full animate-pulse bg-primary" style={{ width: '100%' }}></div>
-                                </div>
-                            </div>
-                        )}
                     </div>
                 )}
-            </div>
+            </section>
 
-            {/* Results */}
             {uploadResult && (
-                <div className="panel">
-                    <div className="mb-6 flex items-center justify-between">
+                <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+                    <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                            <h3 className="text-lg font-semibold text-gray-900">Upload Results</h3>
-                            <p className="mt-1 text-sm text-gray-600">Summary of the upload operation</p>
+                            <h2 className="text-base font-semibold text-gray-900">{t('bulk_upload_import_result')}</h2>
+                            <p className="text-sm text-gray-500">{t('bulk_upload_import_result_desc')}</p>
                         </div>
-                        <button type="button" onClick={handleReset} className="btn btn-outline-primary btn-sm">
-                            Upload Another File
+                        <button type="button" onClick={resetUpload} className="btn btn-outline-primary btn-sm">
+                            {t('bulk_upload_upload_another_file')}
                         </button>
                     </div>
 
-                    {/* Summary Cards */}
-                    <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                        <div className="rounded-lg border border-gray-200 bg-gradient-to-br from-blue-50 to-blue-100 p-6">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-sm font-medium text-blue-700">Total Processed</p>
-                                    <p className="mt-2 text-3xl font-bold text-blue-900">{uploadResult.success_count + uploadResult.failed_count}</p>
-                                </div>
-                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary">
-                                    <FileSpreadsheet className="h-6 w-6 text-white" />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="rounded-lg border border-gray-200 bg-gradient-to-br from-green-50 to-green-100 p-6">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-sm font-medium text-green-700">Successful</p>
-                                    <p className="mt-2 text-3xl font-bold text-green-900">{uploadResult.success_count}</p>
-                                </div>
-                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-600">
-                                    <CheckCircle2 className="h-6 w-6 text-white" />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="rounded-lg border border-gray-200 bg-gradient-to-br from-red-50 to-red-100 p-6">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-sm font-medium text-red-700">Failed</p>
-                                    <p className="mt-2 text-3xl font-bold text-red-900">{uploadResult.failed_count}</p>
-                                </div>
-                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-600">
-                                    <XCircle className="h-6 w-6 text-white" />
-                                </div>
-                            </div>
-                        </div>
+                    <div className="mb-5 grid gap-3 sm:grid-cols-3">
+                        <ResultCard label={t('bulk_upload_processed')} value={formatNumber(totalProcessed)} tone="blue" icon={<FileSpreadsheet className="h-5 w-5" />} />
+                        <ResultCard label={t('bulk_upload_successful')} value={formatNumber(uploadResult.success_count)} tone="green" icon={<CheckCircle2 className="h-5 w-5" />} />
+                        <ResultCard label={t('bulk_upload_failed')} value={formatNumber(uploadResult.failed_count)} tone="red" icon={<XCircle className="h-5 w-5" />} />
                     </div>
 
-                    {/* Failure Details */}
-                    {uploadResult.failures.length > 0 && (
-                        <div className="rounded-lg border border-red-200 bg-red-50 p-6">
-                            <div className="mb-4 flex items-center gap-2">
-                                <AlertCircle className="h-5 w-5 text-red-600" />
-                                <h4 className="font-semibold text-red-900">Error Details</h4>
+                    {uploadResult.failures?.length > 0 ? (
+                        <div className="rounded-xl border border-red-200 bg-red-50 p-4">
+                            <div className="mb-3 flex items-center gap-2 font-semibold text-red-900">
+                                <AlertCircle className="h-5 w-5" />
+                                {t('bulk_upload_failed_rows')}
                             </div>
-
-                            <div className="space-y-2">
+                            <div className="max-h-80 space-y-2 overflow-auto pr-1">
                                 {uploadResult.failures.map((failure, index) => (
-                                    <div key={index} className="flex items-start gap-3 rounded-lg bg-white p-4">
-                                        <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-red-100 text-xs font-bold text-red-600">{failure.row}</div>
-                                        <div className="flex-1">
-                                            <p className="text-sm font-medium text-gray-900">Row {failure.row}</p>
-                                            <p className="mt-1 text-sm text-red-700">{failure.error}</p>
+                                    <div key={`${failure.row}-${index}`} className="rounded-lg bg-white p-3 text-sm shadow-sm">
+                                        <div className="flex flex-wrap items-center gap-2 font-semibold text-gray-900">
+                                            <span>
+                                                {t('lbl_row')} {formatNumber(failure.row)}
+                                            </span>
+                                            {failure.sku && <span className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600">{failure.sku}</span>}
                                         </div>
+                                        <p className="mt-1 text-red-700">{failure.error}</p>
                                     </div>
                                 ))}
                             </div>
-
-                            <div className="mt-4 rounded-lg bg-red-100 p-4">
-                                <p className="text-sm text-red-800">
-                                    <strong>Note:</strong> Please fix the errors in the highlighted rows and upload the file again. Only the failed rows need to be corrected.
-                                </p>
+                        </div>
+                    ) : (
+                        <div className="rounded-xl border border-green-200 bg-green-50 p-4">
+                            <div className="flex items-center gap-3 text-green-900">
+                                <CheckCircle2 className="h-5 w-5" />
+                                <p className="font-semibold">{t('bulk_upload_all_rows_success')}</p>
                             </div>
                         </div>
                     )}
-
-                    {/* Success Message */}
-                    {uploadResult.failed_count === 0 && (
-                        <div className="rounded-lg border border-green-200 bg-green-50 p-6">
-                            <div className="flex items-center gap-3">
-                                <CheckCircle2 className="h-6 w-6 text-green-600" />
-                                <div>
-                                    <h4 className="font-semibold text-green-900">All Products Uploaded Successfully!</h4>
-                                    <p className="mt-1 text-sm text-green-700">
-                                        {uploadResult.success_count} {uploadResult.success_count === 1 ? 'product has' : 'products have'} been added to your inventory.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </div>
+                </section>
             )}
+        </div>
+    );
+};
 
-            {/* Guidelines */}
-            <div className="panel">
-                <h3 className="mb-4 text-lg font-semibold text-gray-900">Upload Guidelines</h3>
+const Rule = ({ text }: { text: string }) => (
+    <div className="flex gap-2">
+        <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0 text-green-600" />
+        <p>{text}</p>
+    </div>
+);
 
-                <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                        <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-600" />
-                        <div>
-                            <p className="font-medium text-gray-900">Use the provided template</p>
-                            <p className="text-sm text-gray-600">Download and use our Excel template to ensure all required fields are included</p>
-                        </div>
-                    </div>
+const ResultCard = ({ label, value, tone, icon }: { label: string; value: string; tone: 'blue' | 'green' | 'red'; icon: ReactNode }) => {
+    const styles = {
+        blue: 'border-blue-200 bg-blue-50 text-blue-700',
+        green: 'border-green-200 bg-green-50 text-green-700',
+        red: 'border-red-200 bg-red-50 text-red-700',
+    };
 
-                    <div className="flex items-start gap-3">
-                        <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-600" />
-                        <div>
-                            <p className="font-medium text-gray-900">Fill all required fields</p>
-                            <p className="text-sm text-gray-600">Product name, SKU, price, and quantity are mandatory for each product</p>
-                        </div>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                        <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-600" />
-                        <div>
-                            <p className="font-medium text-gray-900">Match serial numbers with quantity</p>
-                            <p className="text-sm text-gray-600">If using serial numbers, ensure the count matches the product quantity</p>
-                        </div>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                        <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-600" />
-                        <div>
-                            <p className="font-medium text-gray-900">Verify store access</p>
-                            <p className="text-sm text-gray-600">Ensure you have permission to add products to the selected store</p>
-                        </div>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                        <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-600" />
-                        <div>
-                            <p className="font-medium text-gray-900">Check data format</p>
-                            <p className="text-sm text-gray-600">Use proper number formats for prices and quantities (no currency symbols or text)</p>
-                        </div>
-                    </div>
+    return (
+        <div className={`rounded-xl border p-4 ${styles[tone]}`}>
+            <div className="flex items-center justify-between">
+                <div>
+                    <p className="text-sm font-medium">{label}</p>
+                    <p className="mt-1 text-2xl font-bold">{value}</p>
                 </div>
+                <div className="rounded-lg bg-white/80 p-2">{icon}</div>
             </div>
         </div>
     );

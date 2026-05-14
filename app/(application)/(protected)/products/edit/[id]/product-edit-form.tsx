@@ -4,6 +4,7 @@ import SubscriptionError from '@/components/common/SubscriptionError';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import useSubscriptionError from '@/hooks/useSubscriptionError';
 import { getTranslation } from '@/i18n';
+import { unwrapApiData } from '@/lib/api-response';
 import Loader from '@/lib/Loader';
 import { resolveProductImageUrl } from '@/lib/image-url';
 import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
@@ -83,7 +84,7 @@ const ProductEditForm = () => {
 
     // Fetch the product data
     const { data: productResponse, isLoading: productLoading, error: productError } = useGetSingleProductQuery(productId);
-    const product = productResponse?.data;
+    const product = unwrapApiData(productResponse, ['product']);
 
     // Check for subscription errors
     const { hasSubscriptionError, subscriptionError } = useSubscriptionError(updateProductError as any);

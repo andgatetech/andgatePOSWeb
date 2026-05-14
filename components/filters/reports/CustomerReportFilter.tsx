@@ -44,6 +44,10 @@ const CustomerReportFilter: React.FC<CustomerReportFilterProps> = ({ onFilterCha
         setIsOnlyDue((prev) => !prev);
     }, []);
 
+    const handleReset = useCallback(() => {
+        setIsOnlyDue(false);
+    }, []);
+
     const customFiltersSlot = (
         <div className="flex items-center gap-2">
             <button
@@ -66,6 +70,8 @@ const CustomerReportFilter: React.FC<CustomerReportFilterProps> = ({ onFilterCha
             showDateFilter={true}
             showSearch={true}
             customFilters={customFiltersSlot}
+            customActiveCount={isOnlyDue ? 1 : 0}
+            onResetFilters={handleReset}
             initialFilters={filters}
         />
     );

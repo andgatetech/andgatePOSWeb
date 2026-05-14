@@ -3,7 +3,7 @@
 import UniversalFilter from '@/components/common/UniversalFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useUniversalFilter } from '@/hooks/useUniversalFilter';
-import { DollarSign, Package } from 'lucide-react';
+import { DollarSign, Package, WalletCards } from 'lucide-react';
 import { getTranslation } from '@/i18n';
 import React from 'react';
 
@@ -63,6 +63,12 @@ const PurchaseDuesFilter: React.FC<PurchaseDuesFilterProps> = ({ onFilterChange 
         setHasDueOnly(false);
     }, [filters.storeId]);
 
+    const handleReset = React.useCallback(() => {
+        setSelectedPaymentStatus('all');
+        setSelectedOrderStatus('all');
+        setHasDueOnly(false);
+    }, []);
+
     const customFilters = (
         <>
             {/* Order Status Filter */}
@@ -101,11 +107,31 @@ const PurchaseDuesFilter: React.FC<PurchaseDuesFilterProps> = ({ onFilterChange 
                 </select>
             </div>
 
-            
+            <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                <input
+                    type="checkbox"
+                    checked={hasDueOnly}
+                    onChange={(e) => setHasDueOnly(e.target.checked)}
+                    className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                />
+                <WalletCards className="h-4 w-4 text-gray-400" />
+                {t('lbl_filter_only_due')}
+            </label>
         </>
     );
 
-    return <UniversalFilter  onFilterChange={handleFilterChange} customFilters={customFilters} />;
+    return (
+        <UniversalFilter
+            onFilterChange={handleFilterChange}
+            placeholder={t('placeholder_search_purchases')}
+            showStoreFilter={true}
+            showDateFilter={true}
+            showSearch={true}
+            customFilters={customFilters}
+            customActiveCount={(selectedPaymentStatus !== 'all' ? 1 : 0) + (selectedOrderStatus !== 'all' ? 1 : 0) + (hasDueOnly ? 1 : 0)}
+            onResetFilters={handleReset}
+        />
+    );
 };
 
 export default PurchaseDuesFilter;

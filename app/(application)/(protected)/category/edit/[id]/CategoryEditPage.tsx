@@ -2,6 +2,7 @@
 
 import RichTextEditor from '@/components/common/RichTextEditor';
 import { getTranslation } from '@/i18n';
+import { unwrapApiData } from '@/lib/api-response';
 import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useGetCategoryByIdQuery, useUpdateCategoryMutation } from '@/store/features/category/categoryApi';
 import { ArrowLeft, Layers, Upload, X } from 'lucide-react';
@@ -24,8 +25,7 @@ export default function CategoryEditPage() {
     const [imagePreview, setImagePreview] = useState<string | null>(null);
 
     useEffect(() => {
-        const d = data as any;
-        const category = d?.data ?? d ?? null;
+        const category = unwrapApiData(data, ['category']);
         if (!category) return;
         setFormName(category.name || '');
         setFormDescription(category.description || '');

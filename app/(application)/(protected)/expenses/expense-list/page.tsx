@@ -88,19 +88,21 @@ const ExpenseListPage = () => {
     }, [deleteExpense, t]);
 
     return (
-        <div className="space-y-6 p-4 sm:p-6">
-            {/* Branded header */}
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-2xl bg-gradient-to-br from-[#046ca9] to-[#034d79] px-6 py-5 text-white shadow-lg">
+        <div className="space-y-6">
+            {/* Header */}
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-3">
-                    <Receipt className="h-8 w-8 flex-shrink-0 opacity-90" />
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white shadow-sm">
+                        <Receipt className="h-5 w-5" />
+                    </div>
                     <div>
-                        <h1 className="text-xl font-bold">{t('lbl_expenses')}</h1>
-                        <p className="text-sm opacity-80">{t('expense_page_desc')}</p>
+                        <h1 className="text-xl font-bold text-gray-900">{t('lbl_expenses')}</h1>
+                        <p className="text-sm text-gray-500">{t('expense_page_desc')}</p>
                     </div>
                 </div>
                 <button
                     onClick={() => router.push('/expenses/create')}
-                    className="inline-flex items-center gap-2 rounded-xl bg-white/20 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/30 hover:shadow-md"
+                    className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary/90"
                 >
                     <Plus className="h-4 w-4" />
                     {t('btn_add_expense')}

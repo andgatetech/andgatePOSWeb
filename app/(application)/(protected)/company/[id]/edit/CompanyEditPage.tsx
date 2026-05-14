@@ -1,6 +1,7 @@
 'use client';
 
 import { getTranslation } from '@/i18n';
+import { unwrapApiData } from '@/lib/api-response';
 import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useGetCompanyQuery, useUpdateCompanyMutation } from '@/store/features/company/companyApi';
 import { ArrowLeft, Building2, FileText } from 'lucide-react';
@@ -52,8 +53,7 @@ export default function CompanyEditPage() {
     const [formRjsc, setFormRjsc]       = useState('');
 
     useEffect(() => {
-        const d = data as any;
-        const company = d?.data ?? d ?? null;
+        const company = unwrapApiData(data, ['company']);
         if (!company) return;
         setFormName(company.name || '');
         setFormEmail(company.billing_email || '');
@@ -70,8 +70,7 @@ export default function CompanyEditPage() {
     }, [data]);
 
     const existingLogoUrl = (() => {
-        const d = data as any;
-        const company = d?.data ?? d ?? null;
+        const company = unwrapApiData(data, ['company']);
         return resolveLogoUrl(company?.logo_path);
     })();
 

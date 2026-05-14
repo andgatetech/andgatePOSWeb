@@ -119,6 +119,7 @@ const TransactionReportFilter: React.FC<TransactionReportFilterProps> = ({ onFil
             showDateFilter={true}
             showSearch={true}
             customFilters={customFilters}
+            customActiveCount={(selectedPaymentStatus !== 'all' ? 1 : 0) + (selectedPaymentMethod !== 'all' ? 1 : 0)}
             onResetFilters={handleReset}
         />
     );

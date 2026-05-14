@@ -118,6 +118,7 @@ const OrderReturnsReportFilter: React.FC<OrderReturnsReportFilterProps> = ({ onF
             showDateFilter={true}
             showSearch={true}
             customFilters={customFilters}
+            customActiveCount={(selectedReturnType !== 'all' ? 1 : 0) + (selectedPaymentStatus !== 'all' ? 1 : 0) + (selectedReturnReason !== 'all' ? 1 : 0)}
             onResetFilters={handleReset}
         />
     );

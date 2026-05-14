@@ -122,9 +122,10 @@ const LedgerFilter: React.FC<LedgerFilterProps> = ({ onFilterChange, currentStor
             onFilterChange={handleFilterChange}
             placeholder={t('placeholder_search_ledgers')}
             showStoreFilter={true}
-            showDateFilter={true}
+            showDateFilter={false}
             showSearch={true}
             customFilters={customFilters}
+            customActiveCount={(selectedType !== 'all' ? 1 : 0) + (selectedStatus !== 'all' ? 1 : 0)}
             onResetFilters={handleReset}
             initialFilters={{
                 dateRange: { type: 'none' },

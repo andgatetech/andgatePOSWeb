@@ -77,6 +77,7 @@ const SupplierFilter: React.FC<SupplierFilterProps> = ({ onFilterChange }) => {
             showDateFilter={false}
             showSearch={true}
             customFilters={customFilters}
+            customActiveCount={selectedStatus !== 'all' ? 1 : 0}
             onResetFilters={handleReset}
         />
     );

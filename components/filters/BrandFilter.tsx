@@ -69,9 +69,10 @@ const BrandFilter: React.FC<BrandFilterProps> = ({ onFilterChange }) => {
             onResetFilters={handleResetFilters}
             placeholder={t('placeholder_search_brands')}
             showStoreFilter={true}
-            showDateFilter={true}
+            showDateFilter={false}
             showSearch={true}
             customFilters={customFilters}
+            customActiveCount={selectedStatus !== 'all' ? 1 : 0}
             initialFilters={{
                 dateRange: { type: 'none' }, // No default date filter
             }}

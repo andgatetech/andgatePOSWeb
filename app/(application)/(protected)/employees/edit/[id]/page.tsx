@@ -4,10 +4,10 @@ import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import { showMessage } from '@/lib/toast';
 import { useAssignRoleMutation, useGetRolesQuery, useUnassignRoleMutation } from '@/store/features/roles/rolesApi';
-import { useStaffUpdateMutation } from '@/store/features/store/storeApi';
+import { useGetStaffMemberQuery, useStaffUpdateMutation } from '@/store/features/store/storeApi';
 import { ArrowLeft, Eye, EyeOff, Store, Users } from 'lucide-react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 const EmployeeEditPage = () => {
     const { t } = getTranslation();
@@ -40,6 +40,13 @@ const EmployeeEditPage = () => {
     const [staffUpdate, { isLoading: isSubmitting }] = useStaffUpdateMutation();
 
     const { data: rolesResponse } = useGetRolesQuery({ store_id: storeId }, { skip: !storeId });
+    const { data: staffResponse, isLoading: isLoadingStaff } = useGetStaffMemberQuery({ store_id: storeId }, { skip: !storeId });
+    const staffMember = useMemo(() => {
+        const data = (staffResponse as any)?.data;
+        const items = Array.isArray(data?.items) ? data.items : Array.isArray(data?.data) ? data.data : Array.isArray(data) ? data : [];
+
+        return items.find((member: any) => Number(member.id) === employeeId) || null;
+    }, [employeeId, staffResponse]);
     const availableRoles = useMemo(() => {
         const d = rolesResponse as any;
         if (Array.isArray(d?.data?.roles)) return d.data.roles as { id: number; name: string }[];
@@ -50,6 +57,20 @@ const EmployeeEditPage = () => {
 
     const [assignRole] = useAssignRoleMutation();
     const [unassignRole] = useUnassignRoleMutation();
+
+    useEffect(() => {
+        if (!staffMember) return;
+
+        setFormData((prev) => ({
+            ...prev,
+            name: staffMember.name || '',
+            phone: staffMember.phone || '',
+            address: staffMember.address || '',
+        }));
+
+        const loadedRoleId = staffMember.role_id ?? staffMember.role?.id ?? null;
+        setSelectedRoleId(loadedRoleId ? Number(loadedRoleId) : null);
+    }, [staffMember]);
 
     const handleRoleAssign = async (newRoleId: string) => {
         const next = newRoleId === '' ? null : Number(newRoleId);
@@ -111,6 +132,17 @@ const EmployeeEditPage = () => {
             showMessage(error?.data?.message || t('msg_failed_update_employee'), 'error');
         }
     };
+
+    if (isLoadingStaff && !formData.name) {
+        return (
+            <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#f4f9fc] via-white to-[#fff7ed]">
+                <div className="flex items-center gap-2 text-gray-600">
+                    <span className="h-5 w-5 animate-spin rounded-full border-2 border-[#046ca9] border-t-transparent" />
+                    {t('lbl_loading')}
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-[#f4f9fc] via-white to-[#fff7ed] p-2 sm:p-4 md:p-6">

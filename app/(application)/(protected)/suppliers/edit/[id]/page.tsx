@@ -2,6 +2,7 @@
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
+import { unwrapApiData } from '@/lib/api-response';
 import { showErrorDialog, showMessage, showSuccessDialog } from '@/lib/toast';
 import { useGetSingleSupplierQuery, useUpdateSupplierMutation } from '@/store/features/supplier/supplierApi';
 import { ArrowLeft, Store, User } from 'lucide-react';
@@ -65,6 +66,7 @@ const EditSupplierPage = () => {
     });
 
     const [errors, setErrors] = useState<Partial<SupplierFormData>>({});
+    const supplier = unwrapApiData(supplierResponse, ['supplier']);
 
     useEffect(() => {
         setIsClient(true);
@@ -72,8 +74,7 @@ const EditSupplierPage = () => {
 
     // Populate form when supplier data is loaded
     useEffect(() => {
-        if (supplierResponse?.data) {
-            const supplier = supplierResponse.data;
+        if (supplier) {
             setFormData({
                 name: supplier.name || '',
                 company_name: supplier.company_name || '',
@@ -97,7 +98,7 @@ const EditSupplierPage = () => {
                 status: supplier.status || 'active',
             });
         }
-    }, [supplierResponse]);
+    }, [supplier]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -235,8 +236,6 @@ const EditSupplierPage = () => {
             </div>
         );
     }
-
-    const supplier = supplierResponse?.data;
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">

@@ -3,6 +3,7 @@
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
+import { unwrapApiData } from '@/lib/api-response';
 import { showErrorDialog, showMessage, showSuccessDialog } from '@/lib/toast';
 import { useGetSingleCustomerQuery, useUpdateCustomerMutation } from '@/store/features/customer/customer';
 import { ArrowLeft, Store, User } from 'lucide-react';
@@ -71,6 +72,7 @@ const EditCustomerPage = () => {
     });
 
     const [errors, setErrors] = useState<Partial<CustomerFormData>>({});
+    const customer = unwrapApiData(customerResponse, ['customer']);
 
     useEffect(() => {
         setIsClient(true);
@@ -78,8 +80,7 @@ const EditCustomerPage = () => {
 
     // Populate form when customer data is loaded
     useEffect(() => {
-        if (customerResponse?.data) {
-            const customer = customerResponse.data;
+        if (customer) {
             setFormData({
                 name: customer.name || '',
                 customer_type: customer.customer_type || '',
@@ -105,7 +106,7 @@ const EditCustomerPage = () => {
                 delivery_note: customer.delivery_note || '',
             });
         }
-    }, [customerResponse]);
+    }, [customer]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value, type } = e.target;
@@ -235,8 +236,6 @@ const EditCustomerPage = () => {
             </div>
         );
     }
-
-    const customer = customerResponse?.data;
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">

@@ -58,6 +58,7 @@ const IdleProductFilter: React.FC<IdleProductFilterProps> = ({ onFilterChange })
             showDateFilter={false}
             showSearch={true}
             customFilters={customFilters}
+            customActiveCount={idleDays !== 30 ? 1 : 0}
             initialFilters={{
                 dateRange: { type: 'none' },
             }}

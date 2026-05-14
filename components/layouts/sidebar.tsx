@@ -109,16 +109,18 @@ const Sidebar = () => {
             {/* ── Logo ─────────────────────────────────────────────────── */}
             <div className="relative flex h-[68px] flex-shrink-0 items-center justify-center border-b border-white/[0.06] px-4">
                 <Link href="/dashboard" className="flex items-center justify-center">
-                    <Image
-                        src="/images/andgatePOS.jpeg"
-                        alt="AndGate POS"
-                        width={160}
-                        height={54}
-                        className="h-10 w-auto object-contain"
-                        style={{ width: 'auto' }}
-                        priority
-                        unoptimized
-                    />
+                    <div className="overflow-hidden rounded-xl border border-white/20 bg-white shadow-sm">
+                        <Image
+                            src="/images/andgatePOS.jpeg"
+                            alt="AndGate POS"
+                            width={140}
+                            height={40}
+                            className="h-10 w-auto object-contain px-3 py-1"
+                            style={{ width: 'auto' }}
+                            priority
+                            unoptimized
+                        />
+                    </div>
                 </Link>
                 <button
                     type="button"

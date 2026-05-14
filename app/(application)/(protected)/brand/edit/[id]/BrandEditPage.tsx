@@ -2,6 +2,7 @@
 
 import RichTextEditor from '@/components/common/RichTextEditor';
 import { getTranslation } from '@/i18n';
+import { unwrapApiData } from '@/lib/api-response';
 import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useGetBrandQuery, useUpdateBrandMutation } from '@/store/features/brand/brandApi';
 import { ArrowLeft, Image as ImageIcon, Upload, X } from 'lucide-react';
@@ -24,8 +25,7 @@ export default function BrandEditPage() {
     const [imagePreview, setImagePreview] = useState<string | null>(null);
 
     useEffect(() => {
-        const d = data as any;
-        const brand = d?.data ?? d ?? null;
+        const brand = unwrapApiData(data, ['brand']);
         if (!brand) return;
         setFormName(brand.name || '');
         setFormDescription(brand.description || '');

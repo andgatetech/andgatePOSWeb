@@ -7,9 +7,10 @@ const _ensureSlipPdf = (): Promise<void> => {
     if (_slipLoadPromise) return _slipLoadPromise;
     _slipLoadPromise = (async () => {
         try {
-            // pdfmake MUST be imported before vfs_fonts — vfs_fonts checks window.pdfMake on load
+            // Explicitly register Roboto VFS — do not rely on window.pdfMake side-effect (unreliable in Next.js ESM)
             const pdfMake = (await import('pdfmake/build/pdfmake')).default;
-            await import('pdfmake/build/vfs_fonts' as any);
+            const vfsFonts: any = await import('pdfmake/build/vfs_fonts');
+            pdfMake.addVirtualFileSystem(vfsFonts.default ?? vfsFonts);
 
             const toBase64 = (buf: ArrayBuffer) => {
                 const bytes = new Uint8Array(buf);

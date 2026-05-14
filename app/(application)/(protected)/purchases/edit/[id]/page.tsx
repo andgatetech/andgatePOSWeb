@@ -1,6 +1,7 @@
 'use client';
 import Loader from '@/lib/Loader';
 import { getTranslation } from '@/i18n';
+import { unwrapApiData } from '@/lib/api-response';
 import { useGetPurchaseDraftByIdQuery } from '@/store/features/PurchaseOrder/PurchaseOrderApi';
 import { setItemsRedux, setNotesRedux, setPurchaseTypeRedux, setSupplierDetailsRedux } from '@/store/features/PurchaseOrder/PurchaseOrderSlice';
 import { ArrowLeft, Box, Package } from 'lucide-react';
@@ -20,11 +21,10 @@ const EditPurchaseDraftPage = () => {
 
     // Fetch draft data
     const { data: draftResponse, isLoading, error } = useGetPurchaseDraftByIdQuery(draftId);
+    const draft = unwrapApiData(draftResponse, ['draft', 'purchase_draft', 'purchase_order']);
 
     useEffect(() => {
-        if (draftResponse?.data) {
-            const draft = draftResponse.data;
-
+        if (draft) {
             // Load purchase type
             dispatch(setPurchaseTypeRedux(draft.purchase_type || 'supplier'));
 
@@ -64,13 +64,13 @@ const EditPurchaseDraftPage = () => {
                 dispatch(setItemsRedux(items));
             }
         }
-    }, [draftResponse, dispatch]);
+    }, [draft, dispatch]);
 
     if (isLoading) {
         return <Loader message="Loading draft..." />;
     }
 
-    if (error || !draftResponse?.data) {
+    if (error || !draft) {
         return (
             <div className="flex h-screen items-center justify-center">
                 <div className="text-center">

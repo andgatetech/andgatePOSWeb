@@ -74,6 +74,7 @@ const AdjustmentReportFilter: React.FC<AdjustmentReportFilterProps> = ({ onFilte
             showDateFilter={true}
             showSearch={true}
             customFilters={customFilters}
+            customActiveCount={selectedDirection !== 'all' ? 1 : 0}
             onResetFilters={handleReset}
         />
     );

@@ -98,6 +98,7 @@ const IdleProductReportFilter: React.FC<IdleProductReportFilterProps> = ({ onFil
             showDateFilter={false}
             showSearch={true}
             customFilters={customFilters}
+            customActiveCount={(idleDays !== '30' ? 1 : 0) + (selectedCategory !== 'all' ? 1 : 0)}
             onResetFilters={handleReset}
         />
     );

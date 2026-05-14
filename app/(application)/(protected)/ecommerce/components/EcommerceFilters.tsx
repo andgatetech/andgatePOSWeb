@@ -60,6 +60,7 @@ export const EcommerceOrdersFilter = ({ onFilterChange }: FilterProps) => {
                 setPaymentStatus('all');
                 setPaymentMethod('all');
             }}
+            customActiveCount={(status !== 'all' ? 1 : 0) + (paymentStatus !== 'all' ? 1 : 0) + (paymentMethod !== 'all' ? 1 : 0)}
             customFilters={
                 <>
                     <SelectWrapper icon={<Tag className="h-5 w-5" />}>
@@ -116,6 +117,7 @@ export const EcommerceOrderItemsFilter = ({ onFilterChange }: FilterProps) => {
             showDateFilter
             showSearch
             onResetFilters={() => setOrderStatus('all')}
+            customActiveCount={orderStatus !== 'all' ? 1 : 0}
             customFilters={
                 <SelectWrapper icon={<Tag className="h-5 w-5" />}>
                     <select value={orderStatus} onChange={(event) => setOrderStatus(event.target.value)} className={baseSelectClass}>
@@ -154,6 +156,7 @@ export const EcommerceTransactionsFilter = ({ onFilterChange }: FilterProps) => 
                 setPaymentStatus('all');
                 setPaymentMethod('all');
             }}
+            customActiveCount={(paymentStatus !== 'all' ? 1 : 0) + (paymentMethod !== 'all' ? 1 : 0)}
             customFilters={
                 <>
                     <SelectWrapper icon={<CreditCard className="h-5 w-5" />}>
@@ -254,6 +257,7 @@ export const EcommerceProductsFilter = ({ onFilterChange }: FilterProps) => {
                 setCategoryId('all');
                 setBrandId('all');
             }}
+            customActiveCount={(visibility !== 'all' ? 1 : 0) + (categoryId !== 'all' ? 1 : 0) + (brandId !== 'all' ? 1 : 0)}
             customFilters={
                 <>
                     <SelectWrapper icon={<Tag className="h-5 w-5" />}>

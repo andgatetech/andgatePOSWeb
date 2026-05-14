@@ -94,6 +94,7 @@ const PurchaseReportFilter: React.FC<PurchaseReportFilterProps> = ({ onFilterCha
             showDateFilter={true}
             showSearch={true}
             customFilters={customFilters}
+            customActiveCount={(selectedStatus !== 'all' ? 1 : 0) + (selectedPaymentStatus !== 'all' ? 1 : 0)}
             onResetFilters={handleReset}
         />
     );

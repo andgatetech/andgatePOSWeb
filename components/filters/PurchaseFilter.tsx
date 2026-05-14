@@ -143,6 +143,7 @@ const PurchaseFilter: React.FC<PurchaseFilterProps> = ({ onFilterChange, showPur
             showDateFilter={true}
             showSearch={true}
             customFilters={customFilters}
+            customActiveCount={(selectedPurchaseType !== 'all' ? 1 : 0) + (selectedPaymentStatus !== 'all' ? 1 : 0) + (selectedOrderStatus !== 'all' ? 1 : 0)}
             onResetFilters={handleReset}
         />
     );

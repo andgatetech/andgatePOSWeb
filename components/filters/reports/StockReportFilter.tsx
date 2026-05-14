@@ -86,6 +86,7 @@ const StockReportFilter: React.FC<StockReportFilterProps> = ({ onFilterChange, c
             showDateFilter={false}
             showSearch={true}
             customFilters={customFilters}
+            customActiveCount={(selectedCategory !== 'all' ? 1 : 0) + (selectedBrand !== 'all' ? 1 : 0) + (selectedAvailable !== 'all' ? 1 : 0)}
             onResetFilters={handleReset}
         />
     );

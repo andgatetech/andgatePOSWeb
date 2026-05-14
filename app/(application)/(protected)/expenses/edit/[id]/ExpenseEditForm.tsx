@@ -2,11 +2,11 @@
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
+import { unwrapApiData } from '@/lib/api-response';
 import { showErrorDialog, showMessage } from '@/lib/toast';
 import type { RootState } from '@/store';
 import { useGetSingleExpenseQuery, useUpdateExpenseMutation } from '@/store/features/expense/expenseApi';
 import { useGetAccountsQuery } from '@/store/features/accounting/accountingApi';
-import RichTextEditor from '@/components/common/RichTextEditor';
 import { ArrowLeft, Receipt, Store } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -26,8 +26,7 @@ const ExpenseEditForm = ({ id }: Props) => {
     const paymentMethods = useSelector((state: RootState) => state.auth.currentStore?.payment_methods || []);
     const activePaymentMethods = paymentMethods.filter((pm) => pm.is_active);
 
-    const { data: expenseData, isLoading: isLoadingExpense } = useGetSingleExpenseQuery(id, { skip: !id });
-    const expense = expenseData?.data || expenseData;
+    const { data: expenseData, isLoading: isLoadingExpense, isFetching: isFetchingExpense } = useGetSingleExpenseQuery(id, { skip: !Number.isFinite(id) || id <= 0 });
 
     const { data: accountsResponse } = useGetAccountsQuery(
         { store_id: currentStoreId },
@@ -45,13 +44,14 @@ const ExpenseEditForm = ({ id }: Props) => {
         notes: '',
     });
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const expense = unwrapApiData(expenseData, ['expense']);
 
     useEffect(() => {
-        if (!expense) return;
+        if (!expense || Array.isArray(expense)) return;
         setFormData({
             title: expense.title || '',
-            coa_account_id: expense.coa_account_id ? String(expense.coa_account_id) : '',
-            debit: expense.debit ? String(expense.debit) : '',
+            coa_account_id: expense.coa_account_id != null ? String(expense.coa_account_id) : '',
+            debit: expense.debit != null ? String(expense.debit) : '',
             payment_type: expense.payment_type || '',
             notes: expense.notes || '',
         });
@@ -89,7 +89,7 @@ const ExpenseEditForm = ({ id }: Props) => {
         }
     };
 
-    if (isLoadingExpense) return <Loader message={t('expense_loading')} />;
+    if (isLoadingExpense || isFetchingExpense) return <Loader message={t('expense_loading')} />;
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-[#f4f9fc] via-white to-[#fff7ed] p-2 sm:p-4 md:p-6">
@@ -136,10 +136,11 @@ const ExpenseEditForm = ({ id }: Props) => {
                             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                                 {/* Title */}
                                 <div>
-                                    <label className="mb-2 block text-sm font-medium text-gray-700">
+                                    <label htmlFor="title" className="mb-2 block text-sm font-medium text-gray-700">
                                         {t('lbl_title')} <span className="text-red-500">*</span>
                                     </label>
                                     <input
+                                        id="title"
                                         type="text"
                                         value={formData.title}
                                         onChange={(e) => { setFormData({ ...formData, title: e.target.value }); if (errors.title) setErrors({ ...errors, title: '' }); }}
@@ -151,10 +152,11 @@ const ExpenseEditForm = ({ id }: Props) => {
 
                                 {/* Amount */}
                                 <div>
-                                    <label className="mb-2 block text-sm font-medium text-gray-700">
+                                    <label htmlFor="debit" className="mb-2 block text-sm font-medium text-gray-700">
                                         {t('lbl_amount')} <span className="text-red-500">*</span>
                                     </label>
                                     <input
+                                        id="debit"
                                         type="number"
                                         value={formData.debit}
                                         onChange={(e) => { setFormData({ ...formData, debit: e.target.value }); if (errors.debit) setErrors({ ...errors, debit: '' }); }}
@@ -169,10 +171,11 @@ const ExpenseEditForm = ({ id }: Props) => {
                                 {/* COA Account */}
                                 {coaAccounts.length > 0 && (
                                     <div>
-                                        <label className="mb-2 block text-sm font-medium text-gray-700">
+                                        <label htmlFor="coa_account_id" className="mb-2 block text-sm font-medium text-gray-700">
                                             {t('lbl_coa_account')}
                                         </label>
                                         <select
+                                            id="coa_account_id"
                                             value={formData.coa_account_id}
                                             onChange={(e) => setFormData({ ...formData, coa_account_id: e.target.value })}
                                             className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
@@ -187,16 +190,18 @@ const ExpenseEditForm = ({ id }: Props) => {
                                 )}
 
                                 {/* Notes */}
-                                <div>
-                                    <label className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_notes')}</label>
-                                    <RichTextEditor
+                                <div className="lg:col-span-2">
+                                    <label htmlFor="notes" className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_notes')}</label>
+                                    <textarea
+                                        id="notes"
                                         value={formData.notes}
-                                        onChange={(value) => setFormData({ ...formData, notes: value })}
+                                        onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                                         placeholder={t('placeholder_notes')}
-                                        className="expense-notes-editor"
-                                        modules={{ toolbar: [['bold', 'italic', 'underline'], [{ list: 'ordered' }, { list: 'bullet' }], ['link', 'clean']] }}
-                                        formats={['bold', 'italic', 'underline', 'list', 'link']}
+                                        rows={3}
+                                        maxLength={1000}
+                                        className="w-full resize-none rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
                                     />
+                                    <p className="mt-1 text-xs text-gray-500">{formData.notes.length}/1000</p>
                                 </div>
                             </div>
 

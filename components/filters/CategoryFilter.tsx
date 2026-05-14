@@ -3,6 +3,7 @@ import UniversalFilter from '@/components/common/UniversalFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useUniversalFilter } from '@/hooks/useUniversalFilter';
 import { getTranslation } from '@/i18n';
+import { Tag } from 'lucide-react';
 import React from 'react';
 
 interface CategoryFilterProps {
@@ -39,13 +40,35 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({ onFilterChange }) => {
         onFilterChange(apiParams);
     }, [filters, selectedStatus, buildApiParams, onFilterChange, userStores]);
 
+    const handleReset = React.useCallback(() => {
+        setSelectedStatus('all');
+    }, []);
+
+    const customFilters = (
+        <div className="relative">
+            <select
+                value={selectedStatus}
+                onChange={(e) => setSelectedStatus(e.target.value)}
+                className="appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+            >
+                <option value="all">{t('lbl_all_status')}</option>
+                <option value="active">{t('lbl_active')}</option>
+                <option value="inactive">{t('lbl_inactive')}</option>
+            </select>
+            <Tag className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+        </div>
+    );
+
     return (
         <UniversalFilter
             onFilterChange={handleFilterChange}
             placeholder={t('placeholder_search_categories')}
             showStoreFilter={true}
-            showDateFilter={true}
+            showDateFilter={false}
             showSearch={true}
+            customFilters={customFilters}
+            customActiveCount={selectedStatus !== 'all' ? 1 : 0}
+            onResetFilters={handleReset}
             initialFilters={{
                 dateRange: { type: 'none' }, // No default date filter
             }}
