@@ -325,7 +325,8 @@ export default function SectionFour() {
                         ) : (
                             <div className="w-full space-y-4">
                                 {currentPaymentMethods.map((method: any, index: number) => {
-                                    const percentageRaw = ((method.amount / totalAmount) * 100).toFixed(1);
+                                    const percentageValue = totalAmount > 0 ? (method.amount / totalAmount) * 100 : 0;
+                                    const percentageRaw = percentageValue.toFixed(1);
                                     return (
                                         <motion.div
                                             key={method.method}
@@ -346,7 +347,7 @@ export default function SectionFour() {
                                                     </div>
                                                     <div>
                                                         <p className="text-gray-900 font-semibold transition-colors duration-300 group-hover:text-gray-900">{getPaymentMethodLabel(method.method, t)}</p>
-                                                        <p className="text-gray-500 text-xs">{method.count} {t('lbl_transactions')}</p>
+                                                        <p className="text-gray-500 text-xs">{formatNumber(method.count)} {t('lbl_transactions')}</p>
                                                     </div>
                                                 </div>
                                                 <div className="text-right">
@@ -385,7 +386,7 @@ export default function SectionFour() {
                                     <div className="h-2 w-2 rounded-full bg-[#e79237]"></div>
                                     {t('lbl_total_transactions')}
                                 </div>
-                                <span className="font-bold text-gray-900 dark:text-white">{currentPaymentMethods.reduce((acc: number, m: any) => acc + m.count, 0)}</span>
+                                <span className="font-bold text-gray-900 dark:text-white">{formatNumber(currentPaymentMethods.reduce((acc: number, m: any) => acc + m.count, 0))}</span>
                             </div>
                         </div>
                     </div>

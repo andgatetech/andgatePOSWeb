@@ -1,4 +1,5 @@
 'use client';
+import GlobalDigitLocalizer from '@/components/i18n/GlobalDigitLocalizer';
 import { getTranslation } from '@/i18n';
 import { IRootState } from '@/store';
 import { toggleAnimation, toggleLayout, toggleMenu, toggleNavbar, toggleRTL, toggleSemidark, toggleTheme } from '@/store/themeConfigSlice';
@@ -27,6 +28,7 @@ function App({ children }: PropsWithChildren) {
                 themeConfig.rtlClass
             } main-section relative font-nunito text-sm font-normal antialiased`}
         >
+            <GlobalDigitLocalizer />
             {children}
         </div>
     );
