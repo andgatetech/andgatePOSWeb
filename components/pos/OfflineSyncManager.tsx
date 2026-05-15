@@ -112,6 +112,7 @@ export default function OfflineSyncManager() {
                 dispatch(markOrderSynced(order.localId));
                 await updateOfflineOrderStatus(order.localId, 'synced');
             } catch (err: any) {
+                console.error('[OfflineSync] order failed', order.localId, JSON.stringify(err));
                 const status = err?.status ?? err?.originalStatus;
                 if (status === 401) {
                     // Token expired — reset order to pending so it retries after re-login

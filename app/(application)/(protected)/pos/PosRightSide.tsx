@@ -1181,12 +1181,17 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                 showMessage(t('msg_customer_created_success'), 'success');
             } catch (customerErr: any) {
                 console.error('Failed to create customer:', customerErr);
-                // If customer creation fails, still proceed with order but without customer ID
                 orderData.customer_id = null;
-                orderData.is_walk_in = false;
-                orderData.customer_name = formData.customerName;
-                orderData.customer_number = formData.customerPhone;
-                orderData.customer_email = formData.customerEmail;
+                if (formData.customerName?.trim()) {
+                    // Has a name → pass as new-customer fields; backend will create on sync
+                    orderData.is_walk_in = false;
+                    orderData.customer_name = formData.customerName.trim();
+                    orderData.customer_number = formData.customerPhone?.trim() || null;
+                    orderData.customer_email = formData.customerEmail?.trim() || null;
+                } else {
+                    // No name at all → treat as walk-in (avoids "customer name required" 500)
+                    orderData.is_walk_in = true;
+                }
                 showMessage(t('msg_customer_create_failed_order_continue'), 'error');
             }
         }
