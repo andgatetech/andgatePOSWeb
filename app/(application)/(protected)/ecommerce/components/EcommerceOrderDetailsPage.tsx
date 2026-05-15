@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState, type ButtonHTMLAttributes, type ElementTy
 import { ArrowLeft, CheckCircle2, Circle, CreditCard, Download, FileText, Globe2, Loader2, MapPin, Package, Phone, Printer, ReceiptText, RotateCcw, ShoppingBag, Truck, User } from 'lucide-react';
 
 import Loader from '@/lib/Loader';
+import { closeReservedPdfWindow, reservePdfWindow } from '@/lib/pdf-mobile-download';
 import { cn } from '@/lib/utils';
 import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useCurrency } from '@/hooks/useCurrency';
@@ -288,10 +289,12 @@ const EcommerceOrderDetailsPage = () => {
     };
 
     const handleDownloadInvoice = async () => {
+        const invoiceNo = order?.order_number || parentOrder?.order_number || `STORE-ORDER-${order?.id || orderId}`;
+        const mobilePdfWindow = reservePdfWindow(`invoice-${invoiceNo || 'order'}.pdf`);
         try {
             setIsDownloading(true);
             await generateOrderInvoicePDF({
-                invoice: order?.order_number || parentOrder?.order_number || `STORE-ORDER-${order?.id || orderId}`,
+                invoice: invoiceNo,
                 order_id: order.id,
                 order_status: order.status,
                 customer: {
@@ -321,8 +324,9 @@ const EcommerceOrderDetailsPage = () => {
                     logo_base64: logoData?.data?.logo_base64,
                     currency,
                 },
-            });
+            }, mobilePdfWindow);
         } catch (e) {
+            closeReservedPdfWindow(mobilePdfWindow);
             showErrorDialog('Error', formatApiError(e, 'Failed to generate invoice.'));
         } finally {
             setIsDownloading(false);

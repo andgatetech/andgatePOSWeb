@@ -5,6 +5,7 @@
 import type { Content } from 'pdfmake/interfaces';
 import enLocale from '@/public/locales/en.json';
 import bnLocale from '@/public/locales/bn.json';
+import { downloadPdfMake } from '@/lib/pdf-mobile-download';
 
 export interface InvoiceStore {
     store_name?: string;
@@ -214,7 +215,7 @@ const _ensureEcPdf = (): Promise<void> => {
     return _ecLoadPromise;
 };
 
-export async function generateOrderInvoicePDF(payload: InvoicePayload) {
+export async function generateOrderInvoicePDF(payload: InvoicePayload, reservedPdfWindow?: Window | null) {
     await _ensureEcPdf();
 
     // Language detection from cookie
@@ -460,5 +461,5 @@ export async function generateOrderInvoicePDF(payload: InvoicePayload) {
     }
 
     // pdfMake 0.3: createPdf(docDef, options) — fonts/vfs already registered on singleton
-    _ecPm.createPdf(docDefinition).download(`invoice-${invoice || 'order'}.pdf`);
+    await downloadPdfMake(_ecPm.createPdf(docDefinition), `invoice-${invoice || 'order'}.pdf`, reservedPdfWindow);
 }

@@ -3,6 +3,7 @@
 import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { closeReservedPdfWindow, downloadPdfMake, reservePdfWindow } from '@/lib/pdf-mobile-download';
 import enLocale from '@/public/locales/en.json';
 import { RootState } from '@/store';
 import { format } from 'date-fns';
@@ -246,7 +247,7 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
 
     // Build and output PDF using pdfMake (proper OpenType shaping for Bengali)
     const generatePdf = useCallback(
-        async (mode: 'download' | 'print') => {
+        async (mode: 'download' | 'print', reservedPdfWindow?: Window | null) => {
             await _ensureRptPdf();
             if (!_rptPdf.pm) return;
 
@@ -434,16 +435,17 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
             if (mode === 'print') {
                 pdf.print();
             } else {
-                pdf.download(`${baseFileName}_${format(new Date(), 'yyyy-MM-dd')}.pdf`);
+                await downloadPdfMake(pdf, `${baseFileName}_${format(new Date(), 'yyyy-MM-dd')}.pdf`, reservedPdfWindow);
             }
         },
         [getExportData, getTotals, columns, isBn, t, storeDetails, reportTitle, storeDisplayText, filterSummary, summary, baseFileName, symbol, code]
     );
 
     const handlePdfExport = useCallback(async () => {
+        const mobilePdfWindow = reservePdfWindow(`${baseFileName}_${format(new Date(), 'yyyy-MM-dd')}.pdf`);
         setIsExporting(true);
-        try { await generatePdf('download'); } finally { setIsExporting(false); }
-    }, [generatePdf]);
+        try { await generatePdf('download', mobilePdfWindow); } catch (error) { closeReservedPdfWindow(mobilePdfWindow); console.error('[PDF] report export failed:', error); } finally { setIsExporting(false); }
+    }, [generatePdf, baseFileName]);
 
     const handlePrint = useCallback(async () => {
         setIsExporting(true);

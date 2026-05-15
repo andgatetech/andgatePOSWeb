@@ -3,6 +3,7 @@
 import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { closeReservedPdfWindow, downloadPdfMake, reservePdfWindow } from '@/lib/pdf-mobile-download';
 import { useGetStoreLogoQuery, useGetStoreQuery } from '@/store/features/store/storeApi';
 import { RootState } from '@/store';
 import Image from 'next/image';
@@ -527,12 +528,15 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
 
     // Generate PDF using pdfmake
     const exportPDF = async () => {
+        const filename = `invoice-${invoice || 'preview'}.pdf`;
+        const mobilePdfWindow = reservePdfWindow(filename);
         setIsPrinting(true);
 
         // Await fonts — resolves immediately if already cached, waits if still loading
         await _ensurePdfFonts();
 
         if (!_pdfCache.pm) {
+            closeReservedPdfWindow(mobilePdfWindow);
             alert(t('msg_pdf_loading'));
             setIsPrinting(false);
             return;
@@ -1022,8 +1026,9 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
             }
 
             // pdfMake 0.3: createPdf(docDef, options) — fonts/vfs already registered on singleton
-            _pdfCache.pm.createPdf(docDefinition).download(`invoice-${invoice || 'preview'}.pdf`);
+            await downloadPdfMake(_pdfCache.pm.createPdf(docDefinition), filename, mobilePdfWindow);
         } catch (error) {
+            closeReservedPdfWindow(mobilePdfWindow);
             console.error('[PDF] generation failed:', error);
             alert(t('msg_pdf_generate_failed'));
         } finally {

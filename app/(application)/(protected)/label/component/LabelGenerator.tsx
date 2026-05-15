@@ -3,6 +3,7 @@
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import Loader from '@/lib/Loader';
+import { closeReservedPdfWindow, downloadJsPdf, reservePdfWindow } from '@/lib/pdf-mobile-download';
 import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import type { RootState } from '@/store';
 import type { GeneratedLabel, LabelItem } from '@/store/features/Label/labelSlice';
@@ -245,6 +246,8 @@ const LabelGenerator = () => {
             showErrorDialog(t('msg_error'), t('msg_please_generate_labels_first'));
             return;
         }
+        const filename = `labels-${currentStore?.store_name || 'store'}.pdf`;
+        const mobilePdfWindow = reservePdfWindow(filename);
         try {
             const { jsPDF } = await import('jspdf');
             let selectedPaper = PAPER_SIZES.find((p) => p.value === paperSize) || PAPER_SIZES[0];
@@ -394,9 +397,10 @@ const LabelGenerator = () => {
                     doc.rect(xPos, yPos, labelSize.width, labelSize.height);
                 }
             }
-            doc.save(`labels-${currentStore?.store_name || 'store'}.pdf`);
+            downloadJsPdf(doc, filename, mobilePdfWindow);
             showSuccessDialog(t('msg_success'), t('msg_success'));
         } catch (error) {
+            closeReservedPdfWindow(mobilePdfWindow);
             console.error(error);
             showErrorDialog(t('msg_error'), t('msg_failed_generate_pdf'));
         }
