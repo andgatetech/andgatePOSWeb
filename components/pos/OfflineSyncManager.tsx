@@ -18,10 +18,13 @@ import {
     setLastSyncAt,
     setOfflineOrders,
 } from '@/store/features/offline/offlineOrdersSlice';
+import type { OfflineOrder } from '@/store/features/offline/offlineOrdersSlice';
 import type { RootState } from '@/store';
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+
+const SYNC_CONCURRENCY = 3; // sync up to 3 orders simultaneously
 
 export default function OfflineSyncManager() {
     const { t } = getTranslation();
@@ -29,9 +32,7 @@ export default function OfflineSyncManager() {
     const isOnline = useOnlineStatus();
     const [createOrder] = useCreateOrderMutation();
 
-    const { queue, isSyncing, lastSyncAt } = useSelector(
-        (state: RootState) => state.offlineOrders
-    );
+    const { queue, isSyncing } = useSelector((state: RootState) => state.offlineOrders);
 
     const pendingOrders = queue.filter((o) => o.status === 'pending');
     const failedOrders = queue.filter((o) => o.status === 'failed');
@@ -40,16 +41,18 @@ export default function OfflineSyncManager() {
 
     const [showSyncedFlash, setShowSyncedFlash] = useState(false);
     const [sessionExpired, setSessionExpired] = useState(false);
+    const [syncProgress, setSyncProgress] = useState({ done: 0, total: 0 });
+
     const prevOnlineRef = useRef(isOnline);
     const isSyncingRef = useRef(false);
 
+    // On mount: recover orders stuck in 'syncing' from a crashed previous session
     useEffect(() => {
         let cancelled = false;
 
         getOfflineOrders()
             .then(async (orders) => {
                 if (cancelled) return;
-                // Orders left in 'syncing' from a previous session (app closed mid-sync) — recover them
                 const stuckIds = orders.filter((o) => o.status === 'syncing').map((o) => o.localId);
                 if (stuckIds.length > 0) {
                     await Promise.all(
@@ -63,9 +66,7 @@ export default function OfflineSyncManager() {
             })
             .catch(() => {});
 
-        return () => {
-            cancelled = true;
-        };
+        return () => { cancelled = true; };
     }, [dispatch]);
 
     // Auto-sync when coming back online
@@ -73,61 +74,100 @@ export default function OfflineSyncManager() {
         const wasOffline = !prevOnlineRef.current;
         prevOnlineRef.current = isOnline;
 
-        if (isOnline && wasOffline && (pendingOrders.length > 0 || failedOrders.length > 0)) {
-            syncAll();
+        if (isOnline && wasOffline) {
+            // Came back online — reset session-expired flag and retry everything
+            setSessionExpired(false);
+            if (pendingOrders.length > 0 || failedOrders.length > 0) {
+                syncAll();
+            }
         }
-    }, [isOnline]);
+    }, [isOnline]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    // Sync whenever the durable queue is hydrated while online (covers post-mount recovery).
+    // Sync whenever the durable queue is hydrated while online (post-mount recovery)
     useEffect(() => {
         const toSync = pendingOrders.length + failedOrders.length;
         if (isOnline && toSync > 0 && !isSyncingRef.current) {
             syncAll();
         }
-    }, [isOnline, pendingOrders.length, failedOrders.length]);
+    }, [isOnline, pendingOrders.length, failedOrders.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const syncAll = async () => {
         if (isSyncingRef.current) return;
 
         isSyncingRef.current = true;
         dispatch(setIsSyncing(true));
+        setSessionExpired(false); // optimistic reset — re-set below only if 401
 
+        // Merge durable queue with Redux queue (covers post-crash recovery)
         const durableQueue = await getOfflineOrders().catch(() => queue);
-        const queueById = new Map(queue.map((order) => [order.localId, order]));
-        durableQueue.forEach((order) => queueById.set(order.localId, order));
+        const queueById = new Map(queue.map((o) => [o.localId, o]));
+        durableQueue.forEach((o) => queueById.set(o.localId, o));
         const mergedQueue = Array.from(queueById.values());
-        const ordersToSync = mergedQueue.filter((o) => o.status === 'pending' || o.status === 'failed' || o.status === 'syncing');
+        const ordersToSync = mergedQueue.filter(
+            (o) => o.status === 'pending' || o.status === 'failed' || o.status === 'syncing'
+        );
         dispatch(setOfflineOrders(mergedQueue));
+
         if (ordersToSync.length === 0) {
             dispatch(setIsSyncing(false));
             isSyncingRef.current = false;
             return;
         }
 
-        for (const order of ordersToSync) {
-            dispatch(markOrderSyncing(order.localId));
-            await updateOfflineOrderStatus(order.localId, 'syncing');
-            try {
-                await createOrder(order.payload).unwrap();
-                dispatch(markOrderSynced(order.localId));
-                await updateOfflineOrderStatus(order.localId, 'synced');
-            } catch (err: any) {
-                console.error('[OfflineSync] order failed', order.localId, JSON.stringify(err));
-                const status = err?.status ?? err?.originalStatus;
-                if (status === 401) {
-                    // Token expired — reset order to pending so it retries after re-login
-                    dispatch(markOrderFailed({ localId: order.localId, error: 'session_expired' }));
-                    await updateOfflineOrderStatus(order.localId, 'pending');
-                    setSessionExpired(true);
-                    break; // no point trying remaining orders with same expired token
+        setSyncProgress({ done: 0, total: ordersToSync.length });
+
+        let sessionExpiredDetected = false;
+        let doneCount = 0;
+
+        // Process in batches of SYNC_CONCURRENCY
+        for (let i = 0; i < ordersToSync.length; i += SYNC_CONCURRENCY) {
+            if (sessionExpiredDetected) break;
+
+            const batch = ordersToSync.slice(i, i + SYNC_CONCURRENCY);
+
+            // Mark whole batch as syncing
+            await Promise.all(
+                batch.map(async (order) => {
+                    dispatch(markOrderSyncing(order.localId));
+                    await updateOfflineOrderStatus(order.localId, 'syncing').catch(() => {});
+                })
+            );
+
+            // Sync batch concurrently
+            const results = await Promise.allSettled(
+                batch.map((order) => syncOneOrder(order))
+            );
+
+            for (let j = 0; j < batch.length; j++) {
+                const order = batch[j];
+                const result = results[j];
+
+                if (result.status === 'fulfilled') {
+                    const outcome = result.value;
+                    if (outcome.type === 'success' || outcome.type === 'duplicate') {
+                        dispatch(markOrderSynced(order.localId));
+                        await updateOfflineOrderStatus(order.localId, 'synced').catch(() => {});
+                        doneCount++;
+                        setSyncProgress((prev) => ({ ...prev, done: doneCount }));
+                    } else if (outcome.type === 'session_expired') {
+                        dispatch(markOrderFailed({ localId: order.localId, error: 'session_expired' }));
+                        await updateOfflineOrderStatus(order.localId, 'pending').catch(() => {});
+                        sessionExpiredDetected = true;
+                    } else {
+                        dispatch(markOrderFailed({ localId: order.localId, error: outcome.message }));
+                        await updateOfflineOrderStatus(order.localId, 'failed', outcome.message).catch(() => {});
+                    }
+                } else {
+                    // Promise itself rejected (network error, etc.)
+                    const msg = 'Network error — will retry';
+                    dispatch(markOrderFailed({ localId: order.localId, error: msg }));
+                    await updateOfflineOrderStatus(order.localId, 'failed', msg).catch(() => {});
                 }
-                const errors = err?.data?.errors;
-                const firstValidationError = errors
-                    ? (Object.values(errors).flat()[0] as string | undefined)
-                    : null;
-                const msg = firstValidationError || err?.data?.message || err?.data?.error || err?.error || 'Sync failed';
-                dispatch(markOrderFailed({ localId: order.localId, error: msg }));
-                await updateOfflineOrderStatus(order.localId, 'failed', msg);
+            }
+
+            if (sessionExpiredDetected) {
+                setSessionExpired(true);
+                break;
             }
         }
 
@@ -138,26 +178,67 @@ export default function OfflineSyncManager() {
         dispatch(setOfflineOrders(remainingOrders));
         dispatch(setIsSyncing(false));
         isSyncingRef.current = false;
+        setSyncProgress({ done: 0, total: 0 });
 
         const stillFailed = remainingOrders.filter((o) => o.status === 'failed').length;
-        if (stillFailed === 0) {
+        if (stillFailed === 0 && !sessionExpiredDetected) {
             setShowSyncedFlash(true);
             setTimeout(() => setShowSyncedFlash(false), 3000);
         }
     };
 
+    type SyncOutcome =
+        | { type: 'success' }
+        | { type: 'duplicate' }
+        | { type: 'session_expired' }
+        | { type: 'failure'; message: string };
+
+    const syncOneOrder = async (order: OfflineOrder): Promise<SyncOutcome> => {
+        try {
+            await createOrder(order.payload).unwrap();
+            return { type: 'success' };
+        } catch (err: any) {
+            console.error('[OfflineSync] order failed', order.localId, JSON.stringify(err));
+            const status = err?.status ?? err?.originalStatus;
+
+            if (status === 401) return { type: 'session_expired' };
+
+            // Idempotency duplicate — treat as success
+            if (status === 200 && err?.data?.idempotent) return { type: 'duplicate' };
+
+            // Collect ALL validation errors for debug visibility
+            const errors = err?.data?.errors;
+            const allValidationErrors = errors
+                ? (Object.entries(errors) as [string, string[]][])
+                    .map(([field, msgs]) => `${field}: ${(msgs as string[]).join(', ')}`)
+                    .join(' | ')
+                : null;
+            const message =
+                allValidationErrors ||
+                err?.data?.message ||
+                err?.data?.error ||
+                err?.error ||
+                `HTTP ${status ?? 'unknown'}`;
+
+            return { type: 'failure', message };
+        }
+    };
+
     const handleRetry = () => {
+        setSessionExpired(false);
         dispatch(retryFailedOrders());
         saveOfflineOrders(
-            queue.map((order) => (order.status === 'failed' ? { ...order, status: 'pending' } : order))
+            queue.map((o) => (o.status === 'failed' ? { ...o, status: 'pending' as const } : o))
         ).catch(() => {});
         syncAll();
     };
 
-    // Nothing to show when online, no queue, no flash, no session issue
-    if (isOnline && totalQueued === 0 && failedOrders.length === 0 && !showSyncedFlash && !sessionExpired) {
-        return null;
-    }
+    // Nothing to render when everything is fine
+    if (isOnline && totalQueued === 0 && !showSyncedFlash && !sessionExpired) return null;
+
+    const syncingCount = syncProgress.total > 0
+        ? `${syncProgress.done}/${syncProgress.total}`
+        : `${syncingOrders.length + pendingOrders.length}`;
 
     return (
         <div className="fixed left-0 right-0 top-0 z-[200] flex flex-col gap-0.5">
@@ -184,20 +265,17 @@ export default function OfflineSyncManager() {
                 <div className="flex items-center gap-2 bg-amber-500 px-4 py-2 text-white shadow-lg">
                     <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                     <span className="text-sm font-semibold">
-                        {t('pos_syncing_orders')} ({syncingOrders.length + pendingOrders.length}{' '}
-                        {t('pos_remaining')})
+                        {t('pos_syncing_orders')} ({syncingCount} {t('pos_remaining')})
                     </span>
                 </div>
             )}
 
-            {/* Pending queue reminder (online, not yet syncing) */}
+            {/* Pending queue reminder (online, not syncing yet) */}
             {isOnline && !isSyncing && totalQueued > 0 && failedOrders.length === 0 && (
                 <div className="flex items-center justify-between bg-primary px-4 py-2 text-white shadow-lg">
-                    <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold">
-                            {totalQueued} {t('pos_offline_queued_orders')}
-                        </span>
-                    </div>
+                    <span className="text-sm font-semibold">
+                        {totalQueued} {t('pos_offline_queued_orders')}
+                    </span>
                     <button
                         onClick={syncAll}
                         className="rounded-lg bg-white/20 px-3 py-1 text-xs font-bold transition hover:bg-white/30"
@@ -207,7 +285,7 @@ export default function OfflineSyncManager() {
                 </div>
             )}
 
-            {/* Session expired — orders safe, re-login required */}
+            {/* Session expired */}
             {sessionExpired && (
                 <div className="flex items-center justify-between bg-orange-600 px-4 py-2 text-white shadow-lg">
                     <div className="flex items-center gap-2">
@@ -224,13 +302,17 @@ export default function OfflineSyncManager() {
 
             {/* Failed orders */}
             {isOnline && failedOrders.length > 0 && !sessionExpired && (
-                <div className="flex items-center justify-between bg-danger px-4 py-2 text-white shadow-lg">
-                    <div className="flex flex-col">
+                <div className="flex items-start justify-between bg-danger px-4 py-2 text-white shadow-lg">
+                    <div className="flex flex-col gap-0.5 min-w-0 mr-2">
                         <span className="text-sm font-semibold">
                             {failedOrders.length} {t('pos_sync_failed')}
                         </span>
-                        {failedOrders[0]?.error && failedOrders[0].error !== 'session_expired' && (
-                            <span className="text-xs text-white/75">{failedOrders[0].error}</span>
+                        {failedOrders.map((o) =>
+                            o.error && o.error !== 'session_expired' ? (
+                                <span key={o.localId} className="break-all text-xs text-white/85">
+                                    [{o.localInvoice ?? o.localId}] {o.error}
+                                </span>
+                            ) : null
                         )}
                     </div>
                     <button

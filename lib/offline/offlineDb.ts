@@ -158,17 +158,26 @@ export async function updateOfflineOrderStatus(
     status: OfflineOrder['status'],
     error?: string
 ) {
-    const orders = await getOfflineOrders();
-    const order = orders.find((item) => item.localId === localId);
-    if (!order) return;
+    const db = await openOfflineDb();
+    await new Promise<void>((resolve, reject) => {
+        const tx = db.transaction(STORES.OFFLINE_ORDERS, 'readwrite');
+        const store = tx.objectStore(STORES.OFFLINE_ORDERS);
 
-    order.status = status;
-    order.error = error;
-    if (status === 'failed') {
-        order.retryCount += 1;
-    }
+        tx.onerror = () => reject(tx.error);
+        tx.onabort = () => reject(tx.error);
+        tx.oncomplete = () => resolve();
 
-    await saveOfflineOrder(order);
+        const getReq = store.get(localId);
+        getReq.onerror = () => reject(getReq.error);
+        getReq.onsuccess = () => {
+            const order = getReq.result as OfflineOrder | undefined;
+            if (!order) return; // already deleted
+            order.status = status;
+            order.error = error;
+            if (status === 'failed') order.retryCount = (order.retryCount ?? 0) + 1;
+            store.put(order);
+        };
+    });
 }
 
 export async function deleteSyncedOfflineOrders() {

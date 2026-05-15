@@ -1228,6 +1228,8 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             };
             await saveOfflineOrder(offlineOrder);
             dispatch(queueOfflineOrder(offlineOrder));
+            // Clear cart immediately — prevents duplicate queuing if app crashes before preview closes
+            dispatch(clearItemsRedux(currentStoreId!));
             setQuotePreview(null);
             setOrderResponse({
                 data: {

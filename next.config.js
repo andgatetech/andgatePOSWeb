@@ -15,7 +15,7 @@ const withPWA = require('@ducanh2912/next-pwa').default({
                 handler: 'NetworkFirst',
                 options: {
                     cacheName: 'api-cache',
-                    networkTimeoutSeconds: 10,
+                    networkTimeoutSeconds: 30,
                     expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 },
                 },
             },

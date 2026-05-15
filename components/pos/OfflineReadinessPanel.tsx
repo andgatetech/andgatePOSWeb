@@ -109,7 +109,7 @@ export default function OfflineReadinessPanel({
             <div className="mb-4 space-y-2">
                 <Row label={t('pos_cached_products')} value={productCount} ok={productCount > 0} />
                 <Row label={t('pos_cached_categories')} value={categoryCount} ok={categoryCount > 0} />
-                <Row label={t('pos_cached_brands')} value={brandCount} ok={brandCount >= 0} />
+                <Row label={t('pos_cached_brands')} value={brandCount} ok={brandCount > 0} />
                 <Row label={t('pos_cached_payment_methods')} value={paymentMethodCount} ok={paymentMethodCount > 0} />
             </div>
 

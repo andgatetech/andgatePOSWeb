@@ -119,32 +119,49 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
         };
     }, [currentStoreId, dispatch]);
 
-    // Background prefetch: fetch all store products when online, cache for offline use
+    // Background prefetch: fetch ALL store products in pages, cache for offline use
     const [triggerPrefetch] = useLazyGetAllProductsQuery();
     useEffect(() => {
         if (!isOnline || !currentStoreId) return;
+        let cancelled = false;
+        const PAGE_SIZE = 200;
+        const MAX_PRODUCTS = 5000;
+
         const prefetch = async () => {
             try {
-                const result = await triggerPrefetch({
-                    store_id: currentStoreId,
-                    per_page: 1000,
-                    page: 1,
-                    sort_field: 'product_name',
-                    sort_direction: 'asc',
-                    available: 'yes',
-                });
-                const data = result.data;
-                let allProducts: any[] = [];
+                const allProducts: any[] = [];
                 let total = 0;
-                if (data?.data && typeof data.data === 'object' && !Array.isArray(data.data)) {
-                    const obj = data.data as Record<string, any>;
-                    allProducts = Array.isArray(obj.items) ? obj.items : [];
-                    total = obj.pagination?.total ?? allProducts.length;
-                } else if (data?.data && Array.isArray(data.data)) {
-                    allProducts = data.data;
-                    total = allProducts.length;
+                let page = 1;
+
+                while (!cancelled) {
+                    const result = await triggerPrefetch({
+                        store_id: currentStoreId,
+                        per_page: PAGE_SIZE,
+                        page,
+                        sort_field: 'product_name',
+                        sort_direction: 'asc',
+                        available: 'yes',
+                    });
+                    const data = result.data;
+                    let pageProducts: any[] = [];
+
+                    if (data?.data && typeof data.data === 'object' && !Array.isArray(data.data)) {
+                        const obj = data.data as Record<string, any>;
+                        pageProducts = Array.isArray(obj.items) ? obj.items : [];
+                        total = obj.pagination?.total ?? pageProducts.length;
+                    } else if (data?.data && Array.isArray(data.data)) {
+                        pageProducts = data.data;
+                        total = total || pageProducts.length;
+                    }
+
+                    if (pageProducts.length === 0) break;
+                    allProducts.push(...pageProducts);
+
+                    if (allProducts.length >= total || allProducts.length >= MAX_PRODUCTS) break;
+                    page++;
                 }
-                if (allProducts.length > 0) {
+
+                if (!cancelled && allProducts.length > 0) {
                     dispatch(setProductCache({ storeId: currentStoreId, products: allProducts, total }));
                     saveProductCache({
                         storeId: currentStoreId,
@@ -155,8 +172,10 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                 }
             } catch {}
         };
+
         prefetch();
-    }, [currentStoreId, isOnline]);
+        return () => { cancelled = true; };
+    }, [currentStoreId, isOnline]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // Build query parameters for current store only - with pagination and sorting support
     const queryParams = useMemo(() => {

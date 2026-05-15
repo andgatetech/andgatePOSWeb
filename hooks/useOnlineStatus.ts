@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 
 const PING_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL ?? ''}/api/ping`;
 const PING_INTERVAL_MS = 30_000;
-const PING_TIMEOUT_MS = 5_000;
+const PING_TIMEOUT_MS = 10_000; // 10s — tolerates slow 3G connections
 
 async function checkConnectivity(): Promise<boolean> {
     try {

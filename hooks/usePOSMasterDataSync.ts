@@ -25,6 +25,8 @@ import { useGetStoreCustomersQuery } from '@/store/features/customer/customer';
 import { useGetStoreQuery } from '@/store/features/store/storeApi';
 import { useEffect, useState } from 'react';
 
+const CACHE_STALE_MS = 6 * 60 * 60 * 1000; // 6 hours
+
 interface POSMasterData {
     categories: any[];
     brands: any[];
@@ -45,17 +47,18 @@ export function usePOSMasterDataSync(storeId: number | undefined, isOnline: bool
 
     const skip = !storeId;
     const filterParams = storeId ? { store_id: storeId } : {};
+    const shouldFetch = !skip && isOnline;
 
     // Online API queries — only run when online and storeId is set
-    const { data: categoriesResponse } = useGetCategoryQuery(filterParams, { skip: skip || !isOnline });
-    const { data: brandsResponse } = useGetBrandsQuery(filterParams, { skip: skip || !isOnline });
+    const { data: categoriesResponse } = useGetCategoryQuery(filterParams, { skip: !shouldFetch });
+    const { data: brandsResponse } = useGetBrandsQuery(filterParams, { skip: !shouldFetch });
     const { data: customersResponse } = useGetStoreCustomersQuery(
-        { store_id: storeId!, per_page: 500, page: 1 } as any,
-        { skip: skip || !isOnline }
+        { store_id: storeId!, per_page: 1000, page: 1 } as any,
+        { skip: !shouldFetch }
     );
-    const { data: storeResponse } = useGetStoreQuery(storeId!, { skip: skip || !isOnline });
+    const { data: storeResponse } = useGetStoreQuery(storeId!, { skip: !shouldFetch });
 
-    // Hydrate from IndexedDB on mount / store switch
+    // Hydrate from IndexedDB on mount / store switch; flag stale caches
     useEffect(() => {
         if (!storeId) return;
         let cancelled = false;
