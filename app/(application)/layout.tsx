@@ -3,6 +3,7 @@ import CriticalBanner from '@/app/(application)/(protected)/notifications/compon
 import Footer from '@/components/layouts/footer';
 import Header from '@/components/layouts/header';
 import MainContainer from '@/components/layouts/main-container';
+import MobileBottomNav from '@/components/layouts/MobileBottomNav';
 import Overlay from '@/components/layouts/overlay';
 import ScrollToTop from '@/components/layouts/scroll-to-top';
 import Sidebar from '@/components/layouts/sidebar';
@@ -34,7 +35,8 @@ export default function DefaultLayout({ children }: { children: React.ReactNode 
                         {/* END CRITICAL NOTIFICATIONS BANNER */}
 
                         {/* BEGIN CONTENT AREA */}
-                        <div className="px-3 py-4 sm:px-4 lg:px-6">{children}</div>
+                        {/* pb-16 = space for fixed bottom nav on mobile */}
+                        <div className="px-3 py-4 pb-20 sm:px-4 lg:px-6 lg:pb-4">{children}</div>
                         {/* END CONTENT AREA */}
 
                         {/* BEGIN FOOTER */}
@@ -44,6 +46,9 @@ export default function DefaultLayout({ children }: { children: React.ReactNode 
                     </div>
                     {/* <WhatsAppButton /> */}
                 </MainContainer>
+
+                {/* Mobile bottom navigation — replaces hamburger on small screens */}
+                <MobileBottomNav />
             </div>
         </>
     );

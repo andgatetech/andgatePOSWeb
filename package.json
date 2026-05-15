@@ -8,6 +8,7 @@
         "check:i18n": "node scripts/check-i18n-keys.mjs",
         "screenshots:demo": "node scripts/capture-demo-screenshots.mjs",
         "video:demo": "node scripts/create-demo-video.mjs",
+        "video:voices:google": "node scripts/list-google-tts-voices.mjs",
         "start": "next start",
         "lint": "eslint .",
         "postinstall": "patch-package"
@@ -39,6 +40,7 @@
         "framer-motion": "^12.23.26",
         "highlight.js": "^11.7.0",
         "html2canvas": "^1.4.1",
+        "google-auth-library": "^10.0.0",
         "html2pdf.js": "^0.12.1",
         "html5-qrcode": "^2.3.8",
         "i18next": "^22.4.10",

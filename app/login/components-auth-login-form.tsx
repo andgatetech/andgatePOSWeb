@@ -51,7 +51,13 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
     const submitForm = async (e: FormEvent) => {
         e.preventDefault();
         try {
-            const result = await loginApi(credentials).unwrap();
+            // On mobile or PWA standalone, request a long-lived (30-day) token so the
+            // user stays logged in between app opens — same behaviour as Facebook / Google.
+            const rememberMe =
+                /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent) ||
+                window.matchMedia('(display-mode: standalone)').matches;
+
+            const result = await loginApi({ ...credentials, remember_me: rememberMe }).unwrap();
 
             const { user, token, permissions } = result.data;
             const tokenExpiresAt = getLoginTokenExpiresAt(result.data);

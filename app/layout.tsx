@@ -1,4 +1,5 @@
 import ProviderComponent from '@/components/layouts/provider-component';
+import OrientationLock from '@/components/layouts/OrientationLock';
 import { BD_KEYWORDS, getAppUrl } from '@/lib/seo-config';
 import { Metadata } from 'next';
 import Script from 'next/script';
@@ -256,6 +257,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     {children}
                     {/* <WhatsAppButton /> */}
                 </ProviderComponent>
+                <OrientationLock />
                 <ToastContainer position="top-right" autoClose={3000} />
 
                 {/* Google Tag Manager — must be inside <body> */}

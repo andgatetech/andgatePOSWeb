@@ -7,6 +7,7 @@ export default function manifest(): MetadataRoute.Manifest {
         description: 'Complete point of sale system for modern businesses',
         start_url: '/',
         display: 'standalone',
+        orientation: 'portrait',
         background_color: '#ffffff',
         theme_color: '#4f46e5',
         icons: [

@@ -10,8 +10,8 @@ import { MessagesSquare, ClipboardList } from 'lucide-react';
 import { RootState, persistor } from '@/store';
 import { useLogoutMutation } from '@/store/features/auth/authApi';
 import { logout as logoutAction } from '@/store/features/auth/authSlice';
-import { resetToggleSidebar, toggleSidebar } from '@/store/themeConfigSlice';
-import { Maximize, Menu, Minimize, ShoppingCart } from 'lucide-react';
+import { resetToggleSidebar } from '@/store/themeConfigSlice';
+import { Maximize, Minimize, ShoppingCart } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { getTranslation } from '@/i18n';
@@ -127,39 +127,30 @@ const Header = () => {
         <header className="sticky top-0 z-50">
             <div className="border-b border-white/[0.07] bg-[#034d79] shadow-md">
                 <div className="relative flex w-full items-center bg-[#034d79] px-3 py-2.5 sm:px-5">
-                    {/* Logo Section — mobile only (sidebar hides on desktop) */}
-                    <div className="horizontal-logo mr-2 flex items-center justify-between lg:hidden">
-                        <Link href="/dashboard" className="main-logo flex shrink-0 items-center">
+                    {/* Logo — mobile: small inline; desktop: hidden (sidebar has it) */}
+                    <div className="horizontal-logo mr-2 flex shrink-0 items-center lg:hidden">
+                        <Link href="/dashboard" className="main-logo flex items-center">
                             <Image
                                 src="/images/andgatePOS.jpeg"
                                 alt="logo icon"
-                                width={120}
-                                height={40}
-                                className="h-6 w-auto object-contain sm:h-8 sm:w-auto md:h-10"
+                                width={90}
+                                height={32}
+                                className="h-7 w-auto object-contain"
                                 style={{ width: 'auto' }}
                                 unoptimized
                             />
                         </Link>
-
-                        <button
-                            type="button"
-                            className="collapse-icon ml-2 flex flex-none rounded-md bg-white/[0.08] p-2 text-white transition-colors hover:bg-white/[0.15] lg:hidden"
-                            onClick={() => dispatch(toggleSidebar())}
-                        >
-                            <Menu size={20} color="currentColor" />
-                        </button>
                     </div>
 
-                    {/* Left Action Buttons — POS (primary) and Calculator (secondary) */}
-                    <div className="flex items-center gap-1.5 sm:gap-2 ltr:mr-2 rtl:ml-2">
+                    {/* Left Action Buttons — POS + Calculator (desktop only; mobile uses bottom nav) */}
+                    <div className="hidden items-center gap-1.5 sm:gap-2 ltr:mr-2 rtl:ml-2 lg:flex">
                         <Link
                             href="/pos"
                             className="ml-3 flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[#046ca9] to-[#034d79] px-3 py-2 text-base font-semibold text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:from-[#0580c5] hover:to-[#046ca9] hover:shadow-lg sm:gap-2 sm:px-4"
                         >
                             <ShoppingCart className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                            <span className="hidden sm:inline">{t('POS')}</span>
+                            <span>{t('POS')}</span>
                         </Link>
-
                         <CalculatorButton />
                     </div>
 

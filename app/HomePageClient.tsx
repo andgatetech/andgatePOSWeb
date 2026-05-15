@@ -49,11 +49,11 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 
 import { convertNumberByLanguage } from '@/components/custom/convertNumberByLanguage';
+import InstallAppButton from '@/components/custom/InstallAppButton';
 import { getTranslation } from '@/i18n';
 import { highIntentPages } from '@/lib/high-intent-pages';
 import { landingPages } from '@/lib/landing-pages';
 import { landingCopyBn } from '@/components/seo/LandingSeoPageView';
-import Footer from './terms-of-service/Footer';
 
 // Heavy sections loaded lazily — keeps initial JS bundle small
 const OverViewSection = dynamic(
@@ -314,6 +314,7 @@ export default function HomePageClient() {
                             >
                                 {t('free_package')}
                             </Link>
+                            <InstallAppButton variant="hero" />
                         </div>
 
                         <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -1084,7 +1085,6 @@ export default function HomePageClient() {
                 </div>
             </section>
 
-            <Footer />
         </MainLayout>
     );
 }
