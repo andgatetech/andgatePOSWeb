@@ -39,6 +39,7 @@ export default function OfflineSyncManager() {
     const totalQueued = pendingOrders.length + failedOrders.length + syncingOrders.length;
 
     const [showSyncedFlash, setShowSyncedFlash] = useState(false);
+    const [sessionExpired, setSessionExpired] = useState(false);
     const prevOnlineRef = useRef(isOnline);
     const isSyncingRef = useRef(false);
 
@@ -111,8 +112,15 @@ export default function OfflineSyncManager() {
                 dispatch(markOrderSynced(order.localId));
                 await updateOfflineOrderStatus(order.localId, 'synced');
             } catch (err: any) {
-                const msg =
-                    err?.data?.message || err?.data?.error || err?.error || 'Sync failed';
+                const status = err?.status ?? err?.originalStatus;
+                if (status === 401) {
+                    // Token expired — reset order to pending so it retries after re-login
+                    dispatch(markOrderFailed({ localId: order.localId, error: 'session_expired' }));
+                    await updateOfflineOrderStatus(order.localId, 'pending');
+                    setSessionExpired(true);
+                    break; // no point trying remaining orders with same expired token
+                }
+                const msg = err?.data?.message || err?.data?.error || err?.error || 'Sync failed';
                 dispatch(markOrderFailed({ localId: order.localId, error: msg }));
                 await updateOfflineOrderStatus(order.localId, 'failed', msg);
             }
@@ -141,8 +149,8 @@ export default function OfflineSyncManager() {
         syncAll();
     };
 
-    // Nothing to show when online, no queue, no flash
-    if (isOnline && totalQueued === 0 && failedOrders.length === 0 && !showSyncedFlash) {
+    // Nothing to show when online, no queue, no flash, no session issue
+    if (isOnline && totalQueued === 0 && failedOrders.length === 0 && !showSyncedFlash && !sessionExpired) {
         return null;
     }
 
@@ -194,15 +202,35 @@ export default function OfflineSyncManager() {
                 </div>
             )}
 
+            {/* Session expired — orders safe, re-login required */}
+            {sessionExpired && (
+                <div className="flex items-center justify-between bg-orange-600 px-4 py-2 text-white shadow-lg">
+                    <div className="flex items-center gap-2">
+                        <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                        </svg>
+                        <span className="text-sm font-semibold">Session expired — login again to sync your orders</span>
+                    </div>
+                    <a href="/login" className="shrink-0 rounded-lg bg-white/20 px-3 py-1 text-xs font-bold transition hover:bg-white/30">
+                        Login
+                    </a>
+                </div>
+            )}
+
             {/* Failed orders */}
-            {isOnline && failedOrders.length > 0 && (
+            {isOnline && failedOrders.length > 0 && !sessionExpired && (
                 <div className="flex items-center justify-between bg-danger px-4 py-2 text-white shadow-lg">
-                    <span className="text-sm font-semibold">
-                        {failedOrders.length} {t('pos_sync_failed')}
-                    </span>
+                    <div className="flex flex-col">
+                        <span className="text-sm font-semibold">
+                            {failedOrders.length} {t('pos_sync_failed')}
+                        </span>
+                        {failedOrders[0]?.error && failedOrders[0].error !== 'session_expired' && (
+                            <span className="text-xs text-white/75">{failedOrders[0].error}</span>
+                        )}
+                    </div>
                     <button
                         onClick={handleRetry}
-                        className="rounded-lg bg-white/20 px-3 py-1 text-xs font-bold transition hover:bg-white/30"
+                        className="shrink-0 rounded-lg bg-white/20 px-3 py-1 text-xs font-bold transition hover:bg-white/30"
                     >
                         {t('btn_retry')}
                     </button>
