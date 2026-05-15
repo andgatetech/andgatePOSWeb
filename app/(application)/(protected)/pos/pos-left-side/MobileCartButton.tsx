@@ -19,7 +19,7 @@ const MobileCartButton: React.FC<MobileCartButtonProps> = ({ showMobileCart, car
     const hideIcon = customConfig?.hideIcon || <Package className="h-6 w-6" />;
 
     return (
-        <button onClick={onToggle} className="hover:bg-primary-dark fixed bottom-4 right-4 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-lg lg:hidden">
+        <button onClick={onToggle} className="hover:bg-primary-dark fixed bottom-[66px] right-4 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-lg lg:hidden">
             {showMobileCart ? hideIcon : showIcon}
             {cartItemCount > 0 && <span className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">{cartItemCount}</span>}
         </button>

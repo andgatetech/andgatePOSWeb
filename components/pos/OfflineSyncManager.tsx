@@ -46,9 +46,19 @@ export default function OfflineSyncManager() {
         let cancelled = false;
 
         getOfflineOrders()
-            .then((orders) => {
+            .then(async (orders) => {
                 if (cancelled) return;
-                dispatch(setOfflineOrders(orders));
+                // Orders left in 'syncing' from a previous session (app closed mid-sync) — recover them
+                const stuckIds = orders.filter((o) => o.status === 'syncing').map((o) => o.localId);
+                if (stuckIds.length > 0) {
+                    await Promise.all(
+                        stuckIds.map((id) => updateOfflineOrderStatus(id, 'pending').catch(() => {}))
+                    );
+                    const refreshed = await getOfflineOrders().catch(() => orders);
+                    if (!cancelled) dispatch(setOfflineOrders(refreshed));
+                } else {
+                    dispatch(setOfflineOrders(orders));
+                }
             })
             .catch(() => {});
 
@@ -62,17 +72,18 @@ export default function OfflineSyncManager() {
         const wasOffline = !prevOnlineRef.current;
         prevOnlineRef.current = isOnline;
 
-        if (isOnline && wasOffline && pendingOrders.length > 0) {
+        if (isOnline && wasOffline && (pendingOrders.length > 0 || failedOrders.length > 0)) {
             syncAll();
         }
     }, [isOnline]);
 
-    // Sync whenever the durable queue is hydrated while online.
+    // Sync whenever the durable queue is hydrated while online (covers post-mount recovery).
     useEffect(() => {
-        if (isOnline && pendingOrders.length > 0 && !isSyncingRef.current) {
+        const toSync = pendingOrders.length + failedOrders.length;
+        if (isOnline && toSync > 0 && !isSyncingRef.current) {
             syncAll();
         }
-    }, [isOnline, pendingOrders.length]);
+    }, [isOnline, pendingOrders.length, failedOrders.length]);
 
     const syncAll = async () => {
         if (isSyncingRef.current) return;
@@ -84,7 +95,7 @@ export default function OfflineSyncManager() {
         const queueById = new Map(queue.map((order) => [order.localId, order]));
         durableQueue.forEach((order) => queueById.set(order.localId, order));
         const mergedQueue = Array.from(queueById.values());
-        const ordersToSync = mergedQueue.filter((o) => o.status === 'pending' || o.status === 'failed');
+        const ordersToSync = mergedQueue.filter((o) => o.status === 'pending' || o.status === 'failed' || o.status === 'syncing');
         dispatch(setOfflineOrders(mergedQueue));
         if (ordersToSync.length === 0) {
             dispatch(setIsSyncing(false));

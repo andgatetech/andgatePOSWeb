@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
@@ -11,6 +11,25 @@ const MobileBottomNav = () => {
     const pathname = usePathname();
     const dispatch = useDispatch();
     const sidebarOpen = useSelector((state: RootState) => state.themeConfig.sidebar);
+
+    const [visible, setVisible] = useState(true);
+    const lastScrollY = useRef(0);
+
+    useEffect(() => {
+        const onScroll = () => {
+            const current = window.scrollY;
+            if (current < 10) {
+                setVisible(true);
+            } else if (current > lastScrollY.current + 4) {
+                setVisible(false);
+            } else if (current < lastScrollY.current - 4) {
+                setVisible(true);
+            }
+            lastScrollY.current = current;
+        };
+        window.addEventListener('scroll', onScroll, { passive: true });
+        return () => window.removeEventListener('scroll', onScroll);
+    }, []);
 
     const isActive = (href: string) =>
         href === '/dashboard' ? pathname === '/dashboard' : pathname.startsWith(href);
@@ -74,7 +93,7 @@ const MobileBottomNav = () => {
     ];
 
     return (
-        <nav className="fixed bottom-0 left-0 right-0 z-50 lg:hidden">
+        <nav className={`fixed bottom-0 left-0 right-0 z-50 lg:hidden transition-transform duration-300 ${visible ? 'translate-y-0' : 'translate-y-full'}`}>
             {/* Safe area background extends under home indicator on iOS */}
             <div className="bg-[#034d79] border-t border-white/[0.1] shadow-[0_-4px_20px_rgba(0,0,0,0.3)]">
                 <div className="flex items-center h-14" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
