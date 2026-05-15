@@ -788,6 +788,20 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             return null;
         }
 
+        // Don't fire a quote with an invalid partial amount — backend would reject it.
+        // This happens transiently when switching payment method resets partialPaymentAmount to 0.
+        if (formData.paymentStatus === 'partial' && !(formData.partialPaymentAmount > 0)) {
+            return null;
+        }
+
+        const isCash = formData.paymentMethod.toLowerCase() === 'cash';
+        const amountPaid =
+            formData.paymentStatus === 'paid'
+                ? isCash ? formData.amountPaid : calculateTotal()
+                : formData.paymentStatus === 'partial'
+                  ? formData.partialPaymentAmount
+                  : 0;
+
         return {
             store_id: currentStoreId,
             customer_id: typeof formData.customerId === 'number' ? formData.customerId : undefined,
@@ -796,14 +810,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             discount: calculateDiscount() + calculateMembershipDiscount(),
             points_to_redeem: selectedCustomer && formData.usePoints ? formData.pointsToUse : 0,
             balance_to_redeem: selectedCustomer && formData.useBalance ? formData.balanceToUse : 0,
-            amount_paid:
-                formData.paymentStatus === 'paid'
-                    ? formData.paymentMethod.toLowerCase() === 'cash'
-                        ? formData.amountPaid
-                        : calculateTotal()
-                    : formData.paymentStatus === 'partial'
-                      ? formData.partialPaymentAmount
-                      : 0,
+            amount_paid: amountPaid,
             items: invoiceItems.map((item) => ({
                 product_id: item.productId,
                 stock_id: item.stockId,
@@ -1195,6 +1202,14 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                 localInvoice,
                 payload: {
                     ...orderData,
+                    // Sanitize: empty string fails nullable|email validation on API routes
+                    customer_email: orderData.customer_email || null,
+                    // Non-cash paid: send 0 so backend normalizes to fresh grand_total (avoids amount mismatch 422)
+                    amount_paid:
+                        orderData.payment_status === 'paid' &&
+                        orderData.payment_method?.toLowerCase() !== 'cash'
+                            ? 0
+                            : orderData.amount_paid,
                     local_order_id: localId,
                     idempotency_key: localId,
                     device_id: deviceId,
@@ -1803,9 +1818,13 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         };
     };
 
-    const now = new Date();
+    const [now, setNow] = useState(() => new Date());
+    useEffect(() => {
+        const timer = setInterval(() => setNow(new Date()), 1000);
+        return () => clearInterval(timer);
+    }, []);
     const currentDate = now.toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' });
-    const currentTime = now.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+    const currentTime = now.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
     return (
         <div className="relative mt-4 w-full xl:mt-0 xl:w-full">

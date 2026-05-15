@@ -125,15 +125,15 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
             <div className="hidden overflow-hidden rounded-xl border border-gray-200 shadow-sm md:block">
                 <table className="w-full border-collapse">
                     <thead>
-                        <tr className="bg-primary">
-                            <th className="px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide text-white/90">#</th>
-                            <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-white/90">{t('lbl_items')}</th>
-                            <th className="px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide text-white/90">{isReturnMode ? t('lbl_qty_returned') : t('lbl_qty')}</th>
-                            <th className="px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide text-white/90">{t('lbl_unit')}</th>
-                            <th className="px-3 py-3 text-right text-xs font-semibold uppercase tracking-wide text-white/90">{t('lbl_rate')}</th>
-                            <th className="px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide text-white/90">{t('lbl_tax')}</th>
-                            <th className="px-3 py-3 text-right text-xs font-semibold uppercase tracking-wide text-white/90">{isReturnMode ? t('lbl_return_value') : t('lbl_amount')}</th>
-                            <th className="px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide text-white/90">{t('lbl_action')}</th>
+                        <tr className="bg-gray-50 border-b border-gray-200">
+                            <th className="px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-600">#</th>
+                            <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">{t('lbl_items')}</th>
+                            <th className="px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-600">{isReturnMode ? t('lbl_qty_returned') : t('lbl_qty')}</th>
+                            <th className="px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-600">{t('lbl_unit')}</th>
+                            <th className="px-3 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-600">{t('lbl_rate')}</th>
+                            <th className="px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-600">{t('lbl_tax')}</th>
+                            <th className="px-3 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-600">{isReturnMode ? t('lbl_return_value') : t('lbl_amount')}</th>
+                            <th className="px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-600">{t('lbl_action')}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -315,7 +315,9 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                                 )}
                                                 {/* Only show warning for non-return items */}
                                                 {item.quantity === 0 && !(isReturnMode && item.isReturnItem) && (
-                                                    <div className="absolute left-0 top-full z-10 mt-1 whitespace-nowrap text-xs text-yellow-600">{t('msg_qty_at_least_1')}</div>
+                                                    <div className="absolute left-1/2 bottom-full z-20 mb-1.5 -translate-x-1/2 whitespace-nowrap rounded bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-700 shadow-sm ring-1 ring-yellow-300">
+                                                        {t('msg_qty_at_least_1')}
+                                                    </div>
                                                 )}
                                             </div>
                                         </td>

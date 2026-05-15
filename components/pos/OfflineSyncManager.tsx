@@ -120,7 +120,11 @@ export default function OfflineSyncManager() {
                     setSessionExpired(true);
                     break; // no point trying remaining orders with same expired token
                 }
-                const msg = err?.data?.message || err?.data?.error || err?.error || 'Sync failed';
+                const errors = err?.data?.errors;
+                const firstValidationError = errors
+                    ? (Object.values(errors).flat()[0] as string | undefined)
+                    : null;
+                const msg = firstValidationError || err?.data?.message || err?.data?.error || err?.error || 'Sync failed';
                 dispatch(markOrderFailed({ localId: order.localId, error: msg }));
                 await updateOfflineOrderStatus(order.localId, 'failed', msg);
             }
