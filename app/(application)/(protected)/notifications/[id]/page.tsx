@@ -1,5 +1,6 @@
 'use client';
 
+import Loader from '@/lib/Loader';
 import { useGetNotificationsQuery, useMarkAsReadMutation } from '@/store/features/notification/notificationApi';
 import { AlertTriangle, ArrowLeft, CheckCircle, CircleAlert, Clock, Info } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
@@ -33,13 +34,7 @@ export default function NotificationDetailPage() {
         }
     }, [notification, markAsRead]);
 
-    if (isLoading) {
-        return (
-            <div className="panel flex min-h-[400px] items-center justify-center">
-                <span className="m-auto mb-10 inline-block h-10 w-10 animate-spin rounded-full border-4 border-transparent border-l-primary border-r-primary align-middle"></span>
-            </div>
-        );
-    }
+    if (isLoading) return <Loader message={t('notification_loading')} />;
 
     if (!notification) {
         return (

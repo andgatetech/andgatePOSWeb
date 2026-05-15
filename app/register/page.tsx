@@ -50,20 +50,21 @@ const RegisterPage = () => {
                             <div className="relative mb-10">
                                 <div className="overflow-hidden rounded-2xl border border-white/15 bg-white/10 p-2 shadow-2xl shadow-black/20 backdrop-blur-sm">
                                     <Image
-                                        src="/assets/LandingImage/pos.png"
+                                        src="/assets/LandingImage/updated/pos.webp"
                                         alt="AndgatePOS point of sale preview"
-                                        width={1919}
-                                        height={1071}
+                                        width={1280}
+                                        height={800}
                                         sizes="(min-width: 1280px) 560px, 42vw"
+                                        priority
                                         className="h-auto w-full rounded-xl object-cover"
                                     />
                                 </div>
                                 <div className="absolute -bottom-8 right-5 w-[27%] min-w-[112px] overflow-hidden rounded-2xl border border-white/25 bg-white/15 p-1.5 shadow-xl shadow-black/25 backdrop-blur-sm">
                                     <Image
-                                        src="/assets/LandingImage/mobileResponside.png"
+                                        src="/assets/LandingImage/updated/mobile-pos.webp"
                                         alt="AndgatePOS mobile store preview"
-                                        width={935}
-                                        height={868}
+                                        width={520}
+                                        height={933}
                                         sizes="150px"
                                         className="h-auto w-full rounded-xl object-cover"
                                     />

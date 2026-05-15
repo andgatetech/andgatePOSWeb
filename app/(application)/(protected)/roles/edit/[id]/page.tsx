@@ -4,6 +4,7 @@ import PermissionSelector, { Permission } from '@/app/(application)/(protected)/
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import { unwrapApiData } from '@/lib/api-response';
+import Loader from '@/lib/Loader';
 import { showMessage } from '@/lib/toast';
 import { useGetAllPermissionsQuery, useGetRoleQuery, useUpdateRoleMutation } from '@/store/features/roles/rolesApi';
 import { ArrowLeft, Shield, Store } from 'lucide-react';
@@ -88,18 +89,7 @@ const RoleEditPage = () => {
         }
     };
 
-    if (isLoadingRole) {
-        return (
-            <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
-                <div className="flex items-center justify-center py-12">
-                    <div className="flex items-center gap-2 text-gray-600">
-                        <span className="h-5 w-5 animate-spin rounded-full border-2 border-[#046ca9] border-t-transparent" />
-                        {t('roles_loading')}
-                    </div>
-                </div>
-            </div>
-        );
-    }
+    if (isLoadingRole) return <Loader message={t('roles_loading')} />;
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">

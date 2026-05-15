@@ -28,7 +28,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 
-const ReactPlayer = dynamic(() => import('react-player'), { ssr: false });
+const ReactPlayer = dynamic(() => import('react-player').then((mod) => mod.default), { ssr: false });
 
 const PLACEHOLDER_VID = 'EwQRFTYUXn0';
 const vid = (_i: number) => PLACEHOLDER_VID;
@@ -601,6 +601,19 @@ export default function TrainingPage() {
         },
     ];
 
+    const modulePreviews: Record<string, string> = {
+        'getting-started': '/assets/LandingImage/updated/dashboard.webp',
+        'store-config': '/assets/LandingImage/updated/store-list.webp',
+        inventory: '/assets/LandingImage/updated/products.webp',
+        purchases: '/assets/LandingImage/updated/purchase-create.webp',
+        'pos-operations': '/assets/LandingImage/updated/pos.webp',
+        customers: '/assets/LandingImage/updated/customer-due.webp',
+        'expenses-accounting': '/assets/LandingImage/updated/profit-loss.webp',
+        reports: '/assets/LandingImage/updated/sales-report.webp',
+        'multi-store': '/assets/LandingImage/updated/store-list.webp',
+        'online-store': '/assets/LandingImage/updated/mobile-dashboard.webp',
+    };
+
     return (
         <MainLayout>
 
@@ -655,6 +668,15 @@ export default function TrainingPage() {
                                 href={`#${mod.id}`}
                                 className="group relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg"
                             >
+                                <div className="relative mb-4 aspect-[16/10] overflow-hidden rounded-xl border border-gray-100 bg-gray-50">
+                                    <Image
+                                        src={modulePreviews[mod.id]}
+                                        alt={mod.title}
+                                        fill
+                                        sizes="(min-width: 1024px) 260px, (min-width: 640px) 45vw, 100vw"
+                                        className={`${mod.id === 'online-store' ? 'object-contain p-2' : 'object-cover object-top'} transition-transform duration-500 group-hover:scale-105`}
+                                    />
+                                </div>
                                 {mod.isStartHere && (
                                     <div className="absolute right-3 top-3 rounded-full bg-[#e79237] px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wide text-white">
                                         {t('training.start_here')}

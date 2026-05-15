@@ -183,10 +183,10 @@ hover:text-primary hover:before:!bg-primary dark:before:bg-gray-500 dark:hover:b
         @apply ltr:ml-0 rtl:mr-0;
     }
     .vertical .sidebar {
-        @apply ltr:-left-[260px] lg:ltr:left-0 rtl:-right-[260px] lg:rtl:right-0;
+        @apply left-0;
     }
     .vertical.toggle-sidebar .sidebar {
-        @apply ltr:left-0 lg:ltr:-left-[260px] rtl:right-0 lg:rtl:-right-[260px];
+        @apply left-0;
     }
 
     /* Collapsible vertical layouts */

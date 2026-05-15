@@ -19,6 +19,7 @@ import {
     Users,
     Zap,
 } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 
 export default function ReportsFeaturePage() {
@@ -177,6 +178,24 @@ export default function ReportsFeaturePage() {
         },
     ];
 
+    const screenshots = [
+        {
+            src: '/assets/LandingImage/updated/sales-report.webp',
+            title: isBn ? 'বিক্রয় রিপোর্ট' : 'Sales Report',
+            desc: isBn ? 'তারিখ, দোকান ও পেমেন্ট ধরে বিক্রির অবস্থা দেখুন।' : 'Track sales by date, store and payment method.',
+        },
+        {
+            src: '/assets/LandingImage/updated/profit-loss.webp',
+            title: isBn ? 'লাভ-ক্ষতি রিপোর্ট' : 'Profit & Loss',
+            desc: isBn ? 'আয়, খরচ ও লাভ এক জায়গায় বুঝুন।' : 'Understand income, expenses and profit in one place.',
+        },
+        {
+            src: '/assets/LandingImage/updated/tax-report.webp',
+            title: isBn ? 'ট্যাক্স রিপোর্ট' : 'Tax Report',
+            desc: isBn ? 'Tax/VAT হিসাব export করার মতো করে দেখুন।' : 'Review tax/VAT data in an export-ready view.',
+        },
+    ];
+
     return (
         <MainLayout>
             {/* Hero */}
@@ -225,6 +244,32 @@ export default function ReportsFeaturePage() {
                             <div key={i} className="rounded-2xl border border-gray-100 bg-white p-6 text-center shadow-sm">
                                 <p className="text-2xl font-black text-[#046ca9]">{s.value}</p>
                                 <p className="mt-1 text-sm text-gray-500">{s.label}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* Product Screens */}
+            <section className="bg-white py-16">
+                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <div className="mb-10 max-w-2xl">
+                        <p className="text-xs font-bold uppercase tracking-widest text-[#046ca9]">{isBn ? 'প্রোডাক্ট প্রিভিউ' : 'Product Preview'}</p>
+                        <h2 className="mt-3 text-3xl font-black text-gray-900">{isBn ? 'রিপোর্ট শুধু সংখ্যা নয়, সিদ্ধান্তের সহায়তা' : 'Reports Built for Decisions'}</h2>
+                        <p className="mt-3 text-sm leading-6 text-gray-500">
+                            {isBn ? 'বিক্রি, লাভ-ক্ষতি ও ট্যাক্স রিপোর্টের বাস্তব স্ক্রিন দেখে বুঝুন তথ্য কতটা পরিষ্কার।' : 'Real report screens show how sales, profit and tax data become clear.'}
+                        </p>
+                    </div>
+                    <div className="grid gap-5 lg:grid-cols-3">
+                        {screenshots.map((shot) => (
+                            <div key={shot.src} className="overflow-hidden rounded-2xl border border-gray-100 bg-gray-50 shadow-sm">
+                                <div className="relative aspect-[16/10]">
+                                    <Image src={shot.src} alt={shot.title} fill sizes="(min-width: 1024px) 360px, 100vw" className="object-cover object-top" />
+                                </div>
+                                <div className="border-t border-gray-100 bg-white p-4">
+                                    <h3 className="text-sm font-black text-gray-900">{shot.title}</h3>
+                                    <p className="mt-1 text-xs leading-5 text-gray-500">{shot.desc}</p>
+                                </div>
                             </div>
                         ))}
                     </div>

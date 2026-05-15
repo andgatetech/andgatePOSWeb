@@ -103,8 +103,10 @@ const Sidebar = () => {
 
     const storeInitial = currentStore?.store_name?.[0]?.toUpperCase() || 'S';
 
+    const sidebarOpen = themeConfig.sidebar;
+
     return (
-        <nav className="sidebar fixed bottom-0 top-0 z-50 flex h-full min-h-screen w-[260px] flex-col bg-[#034d79] border-r border-white/[0.07] transition-all duration-300">
+        <nav className={`sidebar fixed bottom-0 top-0 z-[60] flex h-full min-h-screen w-[260px] flex-col bg-[#034d79] border-r border-white/[0.07] transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0 lg:-translate-x-full' : '-translate-x-full lg:translate-x-0'}`}>
 
             {/* ── Logo ─────────────────────────────────────────────────── */}
             <div className="relative flex h-[68px] flex-shrink-0 items-center justify-center border-b border-white/[0.06] px-4">

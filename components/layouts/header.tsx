@@ -64,9 +64,7 @@ const Header = () => {
             clearCookie(name);
         });
 
-        router.replace('/');
-        router.refresh();
-        window.location.replace('/');
+        window.location.replace('/login');
     };
 
     // Fullscreen toggle function

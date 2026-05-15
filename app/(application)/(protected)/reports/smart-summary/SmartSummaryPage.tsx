@@ -1,5 +1,6 @@
 'use client';
 
+import Loader from '@/lib/Loader';
 import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetDailySummaryQuery, useGetWeeklySummaryQuery } from '@/store/features/aiReports/aiReportsApi';
@@ -55,9 +56,7 @@ const SmartSummaryPage = () => {
             </div>
 
             {isLoading ? (
-                <div className="flex h-32 items-center justify-center">
-                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                </div>
+                <Loader fullScreen={false} className="py-10" />
             ) : (
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     {stats.map((stat) => (

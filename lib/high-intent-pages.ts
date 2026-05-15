@@ -41,7 +41,7 @@ export const highIntentPages: HighIntentSeoPage[] = [
             'খাতায় হিসাব রাখা ছোট দোকানে শুরুতে চলে, কিন্তু দোকান বড় হলে স্টক, বাকি, লাভ আর দৈনিক বিক্রির হিসাব মেলানো কঠিন হয়ে যায়।',
         primaryKeyword: 'AndgatePOS vs manual register',
         secondaryKeywords: ['digital POS vs manual register Bangladesh', 'shop register alternative Bangladesh', 'POS software for shop accounting', 'manual khata alternative Bangladesh'],
-        image: '/assets/LandingImage/pos.png',
+        image: '/assets/LandingImage/updated/pos.webp',
         verdict:
             'Choose AndgatePOS if you want searchable sales records, stock alerts, payment tracking and reports without depending on handwritten khata.',
         comparison: [
@@ -98,7 +98,7 @@ export const highIntentPages: HighIntentSeoPage[] = [
             'Excel পণ্যের তালিকা রাখার জন্য ভালো, কিন্তু লাইভ বিল, স্টক আপডেট, রসিদ, কর্মচারী অ্যাক্সেস আর রিপোর্টের জন্য POS সফটওয়্যার বেশি কার্যকর।',
         primaryKeyword: 'POS vs Excel',
         secondaryKeywords: ['POS software vs Excel Bangladesh', 'Excel inventory alternative Bangladesh', 'shop management software vs spreadsheet', 'Excel stock management alternative Bangladesh'],
-        image: '/assets/LandingImage/sales-reporrt.png',
+        image: '/assets/LandingImage/updated/bulk-upload.webp',
         verdict:
             'Use Excel for planning. Use AndgatePOS when billing, inventory, payments and reports need to happen during real business operations.',
         comparison: [
@@ -155,7 +155,7 @@ export const highIntentPages: HighIntentSeoPage[] = [
             'বাংলাদেশে ভালো POS সফটওয়্যার হতে হলে দোকানের বাস্তব কাজের সাথে মিল থাকতে হবে — দ্রুত বিল, স্টক, পেমেন্ট, রিপোর্ট আর সহজ ব্যবহার।',
         primaryKeyword: 'best POS software in Bangladesh',
         secondaryKeywords: ['top POS software Bangladesh', 'best retail POS Bangladesh', 'best shop management software Bangladesh', 'POS software price in Bangladesh', 'POS software for small business Bangladesh'],
-        image: '/assets/LandingImage/dashboard.png',
+        image: '/assets/LandingImage/updated/dashboard.webp',
         verdict:
             'AndgatePOS is built for Bangladeshi retailers that need POS, inventory, accounting, payments, reports and a free online store in one system.',
         comparison: [
@@ -212,7 +212,7 @@ export const highIntentPages: HighIntentSeoPage[] = [
             'ফ্রি POS প্ল্যান দিয়ে দোকানদাররা আগে ডিজিটাল বিল, পণ্য সেটআপ, স্টক আর দৈনিক রিপোর্ট ব্যবহার করে দেখতে পারেন।',
         primaryKeyword: 'free POS software Bangladesh',
         secondaryKeywords: ['free POS software in Bangladesh', 'free billing software Bangladesh', 'free shop management software Bangladesh', 'free inventory software Bangladesh'],
-        image: '/assets/LandingImage/mobileResponside.png',
+        image: '/assets/LandingImage/updated/mobile-pos.webp',
         verdict:
             'Start free with AndgatePOS if you want to try digital POS first, then upgrade when you need more scale, users or advanced controls.',
         comparison: [

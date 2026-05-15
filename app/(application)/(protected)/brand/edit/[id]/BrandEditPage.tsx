@@ -3,6 +3,7 @@
 import RichTextEditor from '@/components/common/RichTextEditor';
 import { getTranslation } from '@/i18n';
 import { unwrapApiData } from '@/lib/api-response';
+import Loader from '@/lib/Loader';
 import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useGetBrandQuery, useUpdateBrandMutation } from '@/store/features/brand/brandApi';
 import { ArrowLeft, Image as ImageIcon, Upload, X } from 'lucide-react';
@@ -66,13 +67,7 @@ export default function BrandEditPage() {
         }
     };
 
-    if (isLoading) {
-        return (
-            <div className="flex items-center justify-center py-12">
-                <span className="h-5 w-5 animate-spin rounded-full border-2 border-[#046ca9] border-t-transparent" />
-            </div>
-        );
-    }
+    if (isLoading) return <Loader message={t('brand_loading')} />;
 
     return (
         <div className="space-y-6">

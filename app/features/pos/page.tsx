@@ -20,6 +20,7 @@ import {
     Tag,
     Zap,
 } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 
 export default function POSFeaturePage() {
@@ -134,6 +135,24 @@ export default function POSFeaturePage() {
         { emoji: '📚', title: isBn ? 'স্টেশনারি' : 'Stationery' },
     ];
 
+    const screenshots = [
+        {
+            src: '/assets/LandingImage/updated/pos.webp',
+            title: isBn ? 'লাইভ POS কাউন্টার' : 'Live POS Counter',
+            desc: isBn ? 'পণ্য খোঁজা, কার্ট, পেমেন্ট ও রসিদ একই স্ক্রিনে।' : 'Product search, cart, payment and receipt in one screen.',
+        },
+        {
+            src: '/assets/LandingImage/updated/orders.webp',
+            title: isBn ? 'অর্ডার ইতিহাস' : 'Order History',
+            desc: isBn ? 'পুরনো বিক্রি খুঁজুন, পেমেন্ট দেখুন, রিটার্ন শুরু করুন।' : 'Find old sales, check payments, start returns.',
+        },
+        {
+            src: '/assets/LandingImage/updated/mobile-pos.webp',
+            title: isBn ? 'মোবাইল POS' : 'Mobile POS',
+            desc: isBn ? 'ফোন থেকেও দ্রুত বিক্রি নেওয়ার অভিজ্ঞতা।' : 'A fast selling experience from phone too.',
+        },
+    ];
+
     return (
         <MainLayout>
             {/* Hero */}
@@ -182,6 +201,32 @@ export default function POSFeaturePage() {
                             <div key={i} className="rounded-2xl border border-gray-100 bg-white p-6 text-center shadow-sm">
                                 <p className="text-3xl font-black text-[#046ca9]">{s.value}</p>
                                 <p className="mt-1 text-sm text-gray-500">{s.label}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* Product Screens */}
+            <section className="bg-white py-16">
+                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <div className="mb-10 max-w-2xl">
+                        <p className="text-xs font-bold uppercase tracking-widest text-[#046ca9]">{isBn ? 'প্রোডাক্ট প্রিভিউ' : 'Product Preview'}</p>
+                        <h2 className="mt-3 text-3xl font-black text-gray-900">{isBn ? 'কাউন্টারে যেভাবে কাজ করবেন' : 'See the Counter Workflow'}</h2>
+                        <p className="mt-3 text-sm leading-6 text-gray-500">
+                            {isBn ? 'বাস্তব স্ক্রিনশট দেখে বুঝুন বিক্রি, অর্ডার ও মোবাইল POS ফ্লো কতটা সহজ।' : 'Real screenshots show how sales, order history and mobile POS work in practice.'}
+                        </p>
+                    </div>
+                    <div className="grid gap-5 lg:grid-cols-[1.25fr_0.85fr_0.55fr]">
+                        {screenshots.map((shot, index) => (
+                            <div key={shot.src} className="overflow-hidden rounded-2xl border border-gray-100 bg-gray-50 shadow-sm">
+                                <div className={`relative ${index === 2 ? 'mx-auto aspect-[9/16] max-w-[260px]' : 'aspect-[16/10]'}`}>
+                                    <Image src={shot.src} alt={shot.title} fill sizes={index === 2 ? '260px' : '(min-width: 1024px) 420px, 100vw'} className="object-cover object-top" />
+                                </div>
+                                <div className="border-t border-gray-100 bg-white p-4">
+                                    <h3 className="text-sm font-black text-gray-900">{shot.title}</h3>
+                                    <p className="mt-1 text-xs leading-5 text-gray-500">{shot.desc}</p>
+                                </div>
                             </div>
                         ))}
                     </div>

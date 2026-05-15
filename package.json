@@ -6,6 +6,8 @@
         "dev": "next dev",
         "build": "next build --webpack",
         "check:i18n": "node scripts/check-i18n-keys.mjs",
+        "screenshots:demo": "node scripts/capture-demo-screenshots.mjs",
+        "video:demo": "node scripts/create-demo-video.mjs",
         "start": "next start",
         "lint": "eslint .",
         "postinstall": "patch-package"
@@ -104,6 +106,7 @@
         "baseline-browser-mapping": "^2.9.0",
         "eslint": "^9.39.4",
         "patch-package": "^8.0.1",
+        "playwright": "^1.60.0",
         "postcss": "^8.4.35",
         "prettier": "^2.8.0",
         "prettier-plugin-tailwindcss": "^0.2.0",

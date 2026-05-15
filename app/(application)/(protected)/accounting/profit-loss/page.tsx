@@ -59,7 +59,7 @@ const ProfitLossPage = () => {
             </div>
 
             {isLoading ? (
-                <div className="py-20 flex justify-center"><Loader /></div>
+                <Loader fullScreen={false} className="py-20" />
             ) : !pl ? null : (
                 <>
                     {/* Net Profit Banner */}

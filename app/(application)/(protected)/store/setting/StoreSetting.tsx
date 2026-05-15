@@ -25,6 +25,7 @@ import {
     useUpdatePaymentStatusMutation,
     useUpdateStoreMutation,
 } from '@/store/features/store/storeApi';
+import Loader from '@/lib/Loader';
 import { AlertCircle, CheckCircle, Loader2, Save, Settings, Store, X } from 'lucide-react';
 
 // Import Tab Components
@@ -1404,16 +1405,7 @@ const StoreSetting = () => {
         }
     };
 
-    if (isLoading) {
-        return (
-            <div className="flex min-h-screen items-center justify-center bg-gray-50">
-                <div className="text-center">
-                    <Loader2 className="mx-auto h-12 w-12 animate-spin text-[#046ca9]" />
-                    <p className="mt-4 text-gray-600">{t('msg_loading_store_settings')}</p>
-                </div>
-            </div>
-        );
-    }
+    if (isLoading) return <Loader message={t('msg_loading_store_settings')} />;
 
     if (!storeId) {
         return (

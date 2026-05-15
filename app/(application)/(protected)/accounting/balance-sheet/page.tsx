@@ -60,7 +60,7 @@ const BalanceSheetPage = () => {
             </div>
 
             {isLoading ? (
-                <div className="py-20 flex justify-center"><Loader /></div>
+                <Loader fullScreen={false} className="py-20" />
             ) : !bs ? null : (
                 <>
                     {/* Top summary */}

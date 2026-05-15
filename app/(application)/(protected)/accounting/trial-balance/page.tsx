@@ -128,7 +128,7 @@ const TrialBalancePage = () => {
             {/* Table */}
             <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 overflow-hidden">
                 {isLoading ? (
-                    <div className="py-20 flex justify-center"><Loader /></div>
+                    <Loader fullScreen={false} className="py-20" />
                 ) : rows.length === 0 ? (
                     <div className="py-20 text-center text-gray-400 dark:text-gray-500">{t('msg_no_records')}</div>
                 ) : (

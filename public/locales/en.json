@@ -1,4 +1,7 @@
 {
+  "404": "404",
+  "500": "500",
+  "503": "503",
   "dashboard": "Dashboard",
   "sales": "Sales",
   "analytics": "Analytics",
@@ -109,9 +112,6 @@
   "lockscreen": "Lockscreen",
   "password_recovery": "Password Recovery",
   "register": "Register",
-  "404": "404",
-  "500": "500",
-  "503": "503",
   "user_interface": "User Interface",
   "tables_and_forms": "Tables And Forms",
   "columns_filter": "Columns Filter",
@@ -435,151 +435,141 @@
     }
   },
   "overview": {
-    "sectionTitle": "System Overview",
-    "sectionSubtitle": "Here's what you can do with AndgatePOS — built for shop owners who need something practical, not complicated.",
+    "sectionTitle": "See Features by Daily Shop Work",
+    "sectionSubtitle": "Sales, stock, dues, purchases, returns, and reports — see how AndgatePOS handles everyday shop work with real product screenshots.",
     "sections": [
       {
-        "title": "Sales Reports, Stock & Profit — All in One Place",
-        "subtitle": "Reports & Dashboard",
-        "features": [
-          "20+ built-in reports: sales, stock, P&L, tax, supplier dues",
-          "See today's revenue and top-selling products at a glance",
-          "Filter reports by date range, store, and product",
-          "Export any report anytime"
+        "title": "Fast Counter Sales, Receipts & Payments",
+        "subtitle": "Sales & Billing",
+        "outcome": "When a customer is waiting, checkout must stay fast. Search products, scan barcodes, apply discounts, take payment, and issue invoices from one POS screen.",
+        "highlights": [
+          "Offline POS ready",
+          "Cash/bKash/Nagad/Card",
+          "Invoice & receipt"
         ],
-        "ctaText": "View Dashboard"
+        "features": [
+          "Add products quickly by search or barcode scan",
+          "Accept cash, bKash, Nagad, card, and other payment methods",
+          "Handle discounts, tax, partial payment, and due sales",
+          "Open or download PDF invoices and receipts on mobile",
+          "Prepared for offline selling when internet is unstable",
+          "Stock and reports update as sales happen"
+        ],
+        "ctaText": "Start with POS"
       },
       {
-        "title": "Run Multiple Shops & Manage Staff in One Place",
-        "subtitle": "Store",
-        "features": [
-          "Multi-store management system",
-          "Store settings & configuration",
-          "Employee management & permissions",
-          "Stock adjustment & inventory control"
+        "title": "Products, Stock, Barcode Labels & Bulk Upload",
+        "subtitle": "Stock & Products",
+        "outcome": "As your catalog grows, product control matters. Manage categories, brands, stock, barcode labels, and Excel bulk upload from one place.",
+        "highlights": [
+          "Excel bulk upload",
+          "Low stock alert",
+          "Barcode label"
         ],
-        "ctaText": "Manage Store"
-      },
-      {
-        "title": "Organize Your Products",
-        "subtitle": "Categories & Brands",
         "features": [
-          "Category management system",
-          "Brand organization & tracking",
-          "Hierarchical product structure",
-          "Easy product categorization"
-        ],
-        "ctaText": "Organize Products"
-      },
-      {
-        "title": "Add Products, Track Stock, Print Barcodes",
-        "subtitle": "Products",
-        "features": [
-          "Easy product addition & management",
-          "Stock adjustment & tracking",
-          "Product QR code generation",
-          "Barcode label printing"
+          "Create products with variants, SKU, unit, and pricing",
+          "Upload many products at once from Excel",
+          "Get alerts before important items run out",
+          "Organize products by category and brand",
+          "Generate and print barcode or QR labels",
+          "Track purchases, sales, and stock adjustments"
         ],
         "ctaText": "Manage Products"
       },
       {
-        "title": "Fast & Efficient POS",
-        "subtitle": "POS",
-        "features": [
-          "Quick POS interface",
-          "Barcode scanning support",
-          "Multiple payment methods",
-          "Fast checkout process"
+        "title": "Customer Due & Supplier Due in Clear View",
+        "subtitle": "Due & Payments",
+        "outcome": "Due management is critical for Bangladesh SME shops. Track who owes you, whom you owe, and which payments have already been made.",
+        "highlights": [
+          "Customer due",
+          "Supplier due",
+          "Partial payment"
         ],
-        "ctaText": "Try POS"
+        "features": [
+          "Track customer dues, payments, and outstanding balances",
+          "See supplier dues and payment history",
+          "Keep partial payments and due sale status clear",
+          "Review customer-wise and supplier-wise reports",
+          "Check due lists quickly from mobile",
+          "Understand cashflow from receivable and payable summaries"
+        ],
+        "ctaText": "View Due Management"
       },
       {
-        "title": "Mobile & Tablet Responsive Design",
-        "subtitle": "Responsive",
-        "features": [
-          "Works on phone, tablet, or computer",
-          "Easy to use on smaller screens too",
-          "Set up a tablet as your shop counter",
-          "Works anywhere you have internet"
+        "title": "Purchasing, Stock Receiving & Supplier Records",
+        "subtitle": "Purchases & Suppliers",
+        "outcome": "Record what you bought, from which supplier, how much was received, and how much remains unpaid.",
+        "highlights": [
+          "Purchase order",
+          "Receive stock",
+          "Supplier profile"
         ],
-        "ctaText": "Try on Mobile"
-      },
-      {
-        "title": "No Barcode Scanner Needed - Use Mobile!",
-        "subtitle": "Mobile Scanning",
         "features": [
-          "Scan barcodes with phone camera",
-          "No expensive scanner hardware needed",
-          "Automatic barcode recognition",
-          "Works on any smartphone or tablet"
-        ],
-        "ctaText": "Try Mobile Scanning"
-      },
-      {
-        "title": "All Orders in One Place — Nothing Gets Missed",
-        "subtitle": "Orders",
-        "features": [
-          "View all sales orders in one place",
-          "Track order status from pending to completed",
-          "Process order returns and issue refunds",
-          "Print invoices and receipts"
-        ],
-        "ctaText": "Manage Orders"
-      },
-      {
-        "title": "Purchase Order System",
-        "subtitle": "Purchases",
-        "features": [
-          "Create purchase orders easily",
-          "Track all purchases",
-          "Supplier management",
-          "Purchase history & reports"
+          "Create purchase orders with supplier details",
+          "Receive purchased items and update stock",
+          "Store supplier phone, address, bank, and payment details",
+          "Review purchase list, item, and transaction reports",
+          "Understand supplier-wise buying volume",
+          "Follow supplier due and payment terms more easily"
         ],
         "ctaText": "Manage Purchases"
       },
       {
-        "title": "Supplier Management",
-        "subtitle": "Suppliers",
-        "features": [
-          "Add and manage all your suppliers",
-          "Track outstanding dues and payment terms",
-          "Supplier contact information and history",
-          "Supplier performance metrics and reports"
+        "title": "Orders, Partial Returns, Exchanges & Refunds",
+        "subtitle": "Returns & Orders",
+        "outcome": "A customer may return one item from a larger order. Handle partial return, refund method, stock impact, and return history cleanly.",
+        "highlights": [
+          "Partial return",
+          "Refund method",
+          "Return report"
         ],
-        "ctaText": "Manage Suppliers"
+        "features": [
+          "View invoices, order status, and payment details from order list",
+          "Return selected items or partial quantity from an order",
+          "Track refund method such as cash or bKash",
+          "Keep stock impact of returned items clear",
+          "Use return reports to spot problematic products",
+          "View invoices and return details on mobile"
+        ],
+        "ctaText": "Manage Orders"
       },
       {
-        "title": "Financial Accounting",
-        "subtitle": "Accounts",
-        "features": [
-          "Ledger management system",
-          "Journal entry tracking",
-          "Financial reports",
-          "Account reconciliation"
+        "title": "Sales, Stock, Profit, Tax & Accounting Reports",
+        "subtitle": "Reports & Accounts",
+        "outcome": "Daily sales alone are not enough. See product performance, stock, profit/loss, tax, expense, cash book, and journals in one reporting area.",
+        "highlights": [
+          "20+ reports",
+          "Profit & loss",
+          "Cash book"
         ],
-        "ctaText": "Manage Accounts"
+        "features": [
+          "Sales, sales item, stock, low stock, and tax reports",
+          "Cash book, journal, ledger, and profit/loss reports",
+          "Filter by date, store, product, customer, or supplier",
+          "Export reports to PDF, print, and Excel",
+          "Connect expenses, income, and accounting data",
+          "Use smart reports to support restocking and anomaly checks"
+        ],
+        "ctaText": "View Reports"
       },
       {
-        "title": "Expense Tracking",
-        "subtitle": "Expenses",
-        "features": [
-          "Track all business expenses",
-          "Expense categorization",
-          "Receipt management",
-          "Expense reports & analysis"
+        "title": "Multi-store, Staff Roles, Mobile Use & Ecommerce",
+        "subtitle": "Multi-store & Online",
+        "outcome": "Bring multiple branches, staff permissions, ecommerce orders, and mobile usage into one system as your business grows.",
+        "highlights": [
+          "Multi-store",
+          "Role permission",
+          "Ecommerce"
         ],
-        "ctaText": "Track Expenses"
-      },
-      {
-        "title": "Keep Track of Your Regular Customers",
-        "subtitle": "Customers",
         "features": [
-          "Save customer names, numbers, and purchase history",
-          "See what your regulars buy most",
-          "Give loyal customers special discounts",
-          "Find out which customers spend the most"
+          "Run multiple shops and branches under one account",
+          "Set employee roles and permissions",
+          "Manage ecommerce store, products, and orders",
+          "Use the system on phone, tablet, or desktop",
+          "Support Bangla UI and localized number experience",
+          "Keep control with audit logs and data export"
         ],
-        "ctaText": "Manage Customers"
+        "ctaText": "See Full System"
       }
     ]
   },
