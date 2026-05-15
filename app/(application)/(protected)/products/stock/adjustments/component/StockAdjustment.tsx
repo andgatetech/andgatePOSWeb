@@ -15,6 +15,7 @@ import {
     updateStockItemQuantity,
 } from '@/store/features/StockAdjustment/stockAdjustmentSlice';
 import { useDispatch, useSelector } from 'react-redux';
+import { closeReservedPdfWindow, reservePdfWindow } from '@/lib/pdf-mobile-download';
 import { printStockAdjustmentSlip } from './printStockAdjustmentSlip';
 import AdjustmentHeader from './AdjustmentHeader';
 import AdjustmentItem from './AdjustmentItem';
@@ -165,6 +166,9 @@ const StockAdjustment = () => {
         const configsSnapshot = { ...configsByItem };
         const globalSnapshot = { ...globalConfig };
 
+        // Reserve PDF window synchronously before any await — mobile popup blocker fires after async gaps
+        const slipWindow = reservePdfWindow(`stock-adjustment-${new Date().toISOString().slice(0, 10)}.pdf`);
+
         try {
             await createBatchAdjustment({
                 store_id: currentStore?.id,
@@ -175,14 +179,14 @@ const StockAdjustment = () => {
 
             if (currentStoreId) dispatch(clearStockItems(currentStoreId));
 
-            // Print slip asynchronously — don't block UI
             printStockAdjustmentSlip(itemsSnapshot, configsSnapshot, globalSnapshot, {
                 store_name: currentStore?.store_name,
                 store_location: currentStore?.store_location,
                 store_contact: currentStore?.store_contact,
                 store_email: currentStore?.store_email,
-            }).catch(() => {});
+            }, {}, slipWindow).catch(() => { closeReservedPdfWindow(slipWindow); });
         } catch (error: any) {
+            closeReservedPdfWindow(slipWindow);
             showErrorDialog(
                 t('msg_error'),
                 error?.data?.detail || error?.data?.message || error?.message || 'Failed to save stock adjustments'

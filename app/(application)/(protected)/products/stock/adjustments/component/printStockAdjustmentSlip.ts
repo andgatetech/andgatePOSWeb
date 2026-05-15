@@ -1,3 +1,4 @@
+import { downloadPdfMake, isMobilePdfDownloadRisk } from '@/lib/pdf-mobile-download';
 import type { StockAdjustmentItem, AdjustmentConfig, GlobalAdjustmentConfig } from '@/store/features/StockAdjustment/stockAdjustmentSlice';
 
 let _slipLoadPromise: Promise<void> | null = null;
@@ -93,7 +94,8 @@ export async function printStockAdjustmentSlip(
     configsByItem: { [itemId: number]: AdjustmentConfig },
     globalConfig: GlobalAdjustmentConfig,
     store: SlipStore,
-    reasonLabels: { [id: string]: string } = {}
+    reasonLabels: { [id: string]: string } = {},
+    reservedWindow?: Window | null
 ) {
     await _ensureSlipPdf();
     const pdfMake = (await import('pdfmake/build/pdfmake')).default;
@@ -266,5 +268,10 @@ export async function printStockAdjustmentSlip(
     }
 
     const pdf = pdfMake.createPdf(docDef);
-    pdf.print();
+    const filename = `stock-adjustment-${new Date().toISOString().slice(0, 10)}.pdf`;
+    if (reservedWindow !== undefined || isMobilePdfDownloadRisk()) {
+        await downloadPdfMake(pdf, filename, reservedWindow);
+    } else {
+        pdf.print();
+    }
 }

@@ -3,7 +3,7 @@
 import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
-import { closeReservedPdfWindow, downloadPdfMake, reservePdfWindow } from '@/lib/pdf-mobile-download';
+import { closeReservedPdfWindow, downloadPdfMake, isMobilePdfDownloadRisk, reservePdfWindow } from '@/lib/pdf-mobile-download';
 import enLocale from '@/public/locales/en.json';
 import { RootState } from '@/store';
 import { format } from 'date-fns';
@@ -432,7 +432,7 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
 
             // pdfMake 0.3: createPdf(docDef, options) — fonts/vfs already registered on singleton
             const pdf = _rptPdf.pm.createPdf(docDefinition);
-            if (mode === 'print') {
+            if (mode === 'print' && !isMobilePdfDownloadRisk()) {
                 pdf.print();
             } else {
                 await downloadPdfMake(pdf, `${baseFileName}_${format(new Date(), 'yyyy-MM-dd')}.pdf`, reservedPdfWindow);
@@ -448,9 +448,19 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
     }, [generatePdf, baseFileName]);
 
     const handlePrint = useCallback(async () => {
+        const mobilePdfWindow = isMobilePdfDownloadRisk()
+            ? reservePdfWindow(`${baseFileName}_${format(new Date(), 'yyyy-MM-dd')}.pdf`)
+            : null;
         setIsExporting(true);
-        try { await generatePdf('print'); } finally { setIsExporting(false); }
-    }, [generatePdf]);
+        try {
+            await generatePdf('print', mobilePdfWindow);
+        } catch (error) {
+            closeReservedPdfWindow(mobilePdfWindow);
+            console.error('[PDF] print failed:', error);
+        } finally {
+            setIsExporting(false);
+        }
+    }, [generatePdf, baseFileName]);
 
     return (
         <div className="mb-6">
