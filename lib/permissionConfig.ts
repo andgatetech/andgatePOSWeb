@@ -90,6 +90,7 @@ export const PERMISSION_MENU_MAP: Record<string, string[]> = {
     'feedbacks.edit': [],
     'feedbacks.delete': [],
     'feedbacks.view': [],
+    'affiliate.manage': ['Affiliate Program', 'Affiliate Admin', 'Affiliate Dashboard'],
 };
 
 // ─── Action Labels ────────────────────────────────────────────────────────────

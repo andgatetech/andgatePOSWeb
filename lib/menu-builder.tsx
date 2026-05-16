@@ -1,5 +1,5 @@
 // lib/menu-builder.tsx
-import { Activity, BarChart, Bell, BookOpen, BrainCircuit, Building2, Database, FileText, Home, Layers, MessagesSquare, Package, Receipt, Shield, ShoppingBag, ShoppingCart, Tag, Truck, Users, Wallet } from 'lucide-react';
+import { Activity, BarChart, Bell, BookOpen, BrainCircuit, Building2, Database, FileText, Home, Layers, Link2, MessagesSquare, Package, Receipt, Shield, ShoppingBag, ShoppingCart, Tag, Truck, Users, Wallet } from 'lucide-react';
 import React from 'react';
 
 export interface MenuItem {
@@ -361,6 +361,25 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         icon: React.createElement(Bell),
         href: '/notifications',
         requiredPermissions: ['notifications.index'],
+    },
+    {
+        label: 'Affiliate Program',
+        icon: React.createElement(Link2),
+        sectionBreak: true,
+        requiredPermissions: ['affiliate.manage'],
+        subMenu: [
+            {
+                label: 'Affiliate Dashboard',
+                href: '/affiliate',
+                requiredPermissions: ['affiliate.manage'],
+            },
+            {
+                label: 'Affiliate Admin',
+                href: '/affiliate/admin',
+                requiredPermissions: ['affiliate.manage'],
+                ownerOnly: true,
+            },
+        ],
     },
     {
         label: 'Ecommerce Management',
