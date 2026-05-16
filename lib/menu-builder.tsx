@@ -370,7 +370,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         subMenu: [
             {
                 label: 'Affiliate Dashboard',
-                href: '/affiliate',
+                href: '/affiliate/portal',
                 requiredPermissions: ['affiliate.manage'],
             },
             {
