@@ -6,6 +6,7 @@ import { BarChart3, CheckCircle, ShoppingCart, Store, TrendingUp, Zap } from 'lu
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRef } from 'react';
+import { Suspense } from 'react';
 import ComponentsAuthLoginForm from './components-auth-login-form';
 
 const LoginPage = () => {
@@ -139,7 +140,9 @@ const LoginPage = () => {
                         <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-xl shadow-gray-200/70">
                             <div className="h-1 w-full bg-gradient-to-r from-[#046ca9] to-[#034d79]" />
                             <div className="p-7">
-                                <ComponentsAuthLoginForm ref={loginFormRef} />
+                                <Suspense fallback={null}>
+                                    <ComponentsAuthLoginForm ref={loginFormRef} />
+                                </Suspense>
 
                                 <div className="relative my-5">
                                     <div className="absolute inset-0 flex items-center">

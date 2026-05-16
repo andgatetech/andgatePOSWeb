@@ -35,6 +35,13 @@ const Footer = () => {
         { label: t('footer.nav.cookie_policy'), href: '/cookie-policy' },
     ];
 
+    const affiliateLinks = [
+        { label: 'Affiliate হোম', href: '/affiliate' },
+        { label: 'কমিশন ক্যালকুলেটর', href: '/affiliate/calculator' },
+        { label: 'লিডারবোর্ড', href: '/affiliate/leaderboard' },
+        { label: 'আমার ড্যাশবোর্ড', href: '/affiliate/portal' },
+    ];
+
     const socialLinks = [
         { icon: <Facebook className="h-4 w-4" />, href: '#', label: 'Facebook' },
         { icon: <Twitter className="h-4 w-4" />, href: '#', label: 'Twitter' },
@@ -75,7 +82,7 @@ const Footer = () => {
 
             {/* Main Footer Body */}
             <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-                <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
+                <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-5">
 
                     {/* Brand Column */}
                     <div className="lg:col-span-1">
@@ -134,6 +141,28 @@ const Footer = () => {
                                 </li>
                             ))}
                         </ul>
+                    </div>
+
+                    {/* Affiliate Links */}
+                    <div>
+                        <h4 className="mb-5 flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-[#e79237]">
+                            💰 Affiliate
+                        </h4>
+                        <ul className="space-y-3">
+                            {affiliateLinks.map((link) => (
+                                <li key={link.href}>
+                                    <Link href={link.href} className="text-sm text-slate-400 transition-colors hover:text-[#e79237]">
+                                        {link.label}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                        <Link
+                            href="/affiliate"
+                            className="mt-4 inline-block rounded-lg border border-[#e79237]/40 bg-[#e79237]/10 px-3 py-1.5 text-xs font-semibold text-[#e79237] transition hover:bg-[#e79237]/20"
+                        >
+                            Affiliate হন →
+                        </Link>
                     </div>
 
                     {/* Contact Info */}

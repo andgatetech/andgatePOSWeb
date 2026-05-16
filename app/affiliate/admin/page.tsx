@@ -1,25 +1,46 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
-    useGetAffiliateStatsQuery,
-    useGetAffiliateMembersQuery,
-    useApproveAffiliateMemberMutation,
-    useSuspendAffiliateMemberMutation,
-    useGetAdminAffiliateLedgerQuery,
-    useLockAffiliateCommissionsMutation,
-    useGetAdminAffiliatePayoutsQuery,
-    useTriggerAffiliatePayoutMutation,
-    useMarkAffiliatePayoutFailedMutation,
+    useGetAdminStatsQuery,
+    useGetAdminMembersQuery,
+    useApproveAdminMemberMutation,
+    useSuspendAdminMemberMutation,
+    useGetAdminLedgerQuery,
+    useLockAdminCommissionsMutation,
+    useGetAdminPayoutsQuery,
+    useTriggerAdminPayoutMutation,
+    useMarkAdminPayoutFailedMutation,
     useGetAdminDemoBookingsQuery,
-    useCompleteDemoBookingMutation,
-    useRunAffiliateTierProgressionMutation,
-    useAddAffiliateBonusMutation,
-} from '@/store/features/affiliate/affiliateApi';
-import { useState } from 'react';
+    useCompleteAdminDemoBookingMutation,
+    useRunAdminTierProgressionMutation,
+    useAddAdminBonusMutation,
+    useLogoutAffiliateAdminMutation,
+    getAffiliateAdminToken,
+    removeAffiliateAdminToken,
+} from '@/store/features/affiliate/affiliateAdminApi';
 
 type AdminTab = 'overview' | 'members' | 'ledger' | 'payouts' | 'demos';
 
-export default function AdminAffiliatePage() {
+export default function AffiliateAdminPage() {
+    const router = useRouter();
+    const [ready, setReady] = useState(false);
+
+    useEffect(() => {
+        if (!getAffiliateAdminToken()) {
+            router.replace('/affiliate/admin/login');
+        } else {
+            setReady(true);
+        }
+    }, [router]);
+
+    if (!ready) return null;
+    return <AdminDashboard />;
+}
+
+function AdminDashboard() {
+    const router = useRouter();
     const [tab, setTab] = useState<AdminTab>('overview');
     const [memberSearch, setMemberSearch] = useState('');
     const [memberStatus, setMemberStatus] = useState('');
@@ -28,22 +49,29 @@ export default function AdminAffiliatePage() {
     const [bonusModal, setBonusModal] = useState<{ id: number; name: string } | null>(null);
     const [bonusForm, setBonusForm] = useState({ amount: '', note: '' });
 
-    const { data: statsData, refetch: refetchStats } = useGetAffiliateStatsQuery();
-    const { data: membersData, refetch: refetchMembers } = useGetAffiliateMembersQuery({ search: memberSearch, status: memberStatus });
-    const { data: ledgerData }  = useGetAdminAffiliateLedgerQuery({}, { skip: tab !== 'ledger' });
-    const { data: payoutsData } = useGetAdminAffiliatePayoutsQuery({}, { skip: tab !== 'payouts' });
+    const { data: statsData, refetch: refetchStats } = useGetAdminStatsQuery();
+    const { data: membersData, refetch: refetchMembers } = useGetAdminMembersQuery({ search: memberSearch, status: memberStatus });
+    const { data: ledgerData }  = useGetAdminLedgerQuery({}, { skip: tab !== 'ledger' });
+    const { data: payoutsData } = useGetAdminPayoutsQuery({}, { skip: tab !== 'payouts' });
     const { data: demosData }   = useGetAdminDemoBookingsQuery({}, { skip: tab !== 'demos' });
 
-    const [approveMember]       = useApproveAffiliateMemberMutation();
-    const [suspendMember]       = useSuspendAffiliateMemberMutation();
-    const [lockCommissions, { isLoading: locking }] = useLockAffiliateCommissionsMutation();
-    const [triggerPayout, { isLoading: payingOut }] = useTriggerAffiliatePayoutMutation();
-    const [markFailed]          = useMarkAffiliatePayoutFailedMutation();
-    const [completeDemo]        = useCompleteDemoBookingMutation();
-    const [runTierProgression, { isLoading: progressionRunning }] = useRunAffiliateTierProgressionMutation();
-    const [addBonus, { isLoading: bonusLoading }] = useAddAffiliateBonusMutation();
+    const [approveMember]       = useApproveAdminMemberMutation();
+    const [suspendMember]       = useSuspendAdminMemberMutation();
+    const [lockCommissions, { isLoading: locking }] = useLockAdminCommissionsMutation();
+    const [triggerPayout, { isLoading: payingOut }] = useTriggerAdminPayoutMutation();
+    const [markFailed]          = useMarkAdminPayoutFailedMutation();
+    const [completeDemo]        = useCompleteAdminDemoBookingMutation();
+    const [runTierProgression, { isLoading: progressionRunning }] = useRunAdminTierProgressionMutation();
+    const [addBonus, { isLoading: bonusLoading }] = useAddAdminBonusMutation();
+    const [logoutAdmin]         = useLogoutAffiliateAdminMutation();
 
     const stats = statsData?.data;
+
+    const handleLogout = async () => {
+        try { await logoutAdmin().unwrap(); } catch {}
+        removeAffiliateAdminToken();
+        router.push('/affiliate/admin/login');
+    };
 
     const TABS: { key: AdminTab; label: string }[] = [
         { key: 'overview', label: 'ওভারভিউ' },
@@ -57,7 +85,7 @@ export default function AdminAffiliatePage() {
         <div className="p-4 sm:p-6 max-w-6xl mx-auto">
             <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <h1 className="text-2xl font-bold">অ্যাফিলিয়েট অ্যাডমিন</h1>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
                     <button
                         onClick={() => runTierProgression().then(() => refetchMembers())}
                         disabled={progressionRunning}
@@ -71,6 +99,12 @@ export default function AdminAffiliatePage() {
                         className="rounded-xl bg-primary text-white px-4 py-2 text-sm font-semibold hover:opacity-90 disabled:opacity-50"
                     >
                         {locking ? 'লক হচ্ছে...' : 'কমিশন লক করুন'}
+                    </button>
+                    <button
+                        onClick={handleLogout}
+                        className="rounded-xl border border-danger/30 text-danger px-4 py-2 text-sm font-semibold hover:bg-danger/5"
+                    >
+                        লগআউট
                     </button>
                 </div>
             </div>
@@ -134,7 +168,7 @@ export default function AdminAffiliatePage() {
                         <div className="overflow-x-auto">
                             <table className="w-full text-sm">
                                 <thead className="bg-slate-50 text-xs text-slate-500 uppercase">
-                                    <tr>{['নাম', 'মোবাইল', 'কোড', 'টায়ার', 'রেফারেল', 'ব্যালেন্স', 'স্ট্যাটাস', 'অ্যাকশন'].map(h => <th key={h} className="px-4 py-3 text-left">{h}</th>)}</tr>
+                                    <tr>{['নাম', 'মোবাইল', 'কোড', 'টায়ার', 'রেফারেল', 'ব্যালেন্স', 'স্ট্যাটাস', 'অ্যাকশন'].map(h => <th key={h} className="px-3 py-3 text-left whitespace-nowrap">{h}</th>)}</tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
                                     {membersData?.data?.data?.map((m: any) => (
@@ -181,7 +215,7 @@ export default function AdminAffiliatePage() {
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm">
                             <thead className="bg-slate-50 text-xs text-slate-500 uppercase">
-                                <tr>{['তারিখ', 'অ্যাফিলিয়েট', 'ধরন', 'পরিমাণ', 'স্ট্যাটাস', 'লক তারিখ'].map(h => <th key={h} className="px-4 py-3 text-left">{h}</th>)}</tr>
+                                <tr>{['তারিখ', 'অ্যাফিলিয়েট', 'ধরন', 'পরিমাণ', 'স্ট্যাটাস', 'লক তারিখ'].map(h => <th key={h} className="px-3 py-3 text-left whitespace-nowrap">{h}</th>)}</tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
                                 {ledgerData?.data?.data?.map((e: any) => (
@@ -210,7 +244,7 @@ export default function AdminAffiliatePage() {
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm">
                             <thead className="bg-slate-50 text-xs text-slate-500 uppercase">
-                                <tr>{['তারিখ', 'অ্যাফিলিয়েট', 'পরিমাণ', 'মাধ্যম', 'একাউন্ট', 'TrxID', 'স্ট্যাটাস', 'অ্যাকশন'].map(h => <th key={h} className="px-4 py-3 text-left">{h}</th>)}</tr>
+                                <tr>{['তারিখ', 'অ্যাফিলিয়েট', 'পরিমাণ', 'মাধ্যম', 'একাউন্ট', 'TrxID', 'স্ট্যাটাস', 'অ্যাকশন'].map(h => <th key={h} className="px-3 py-3 text-left whitespace-nowrap">{h}</th>)}</tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
                                 {payoutsData?.data?.data?.map((p: any) => (
@@ -244,7 +278,7 @@ export default function AdminAffiliatePage() {
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm">
                             <thead className="bg-slate-50 text-xs text-slate-500 uppercase">
-                                <tr>{['অ্যাফিলিয়েট', 'কাস্টমার', 'মোবাইল', 'ব্যবসা', 'তারিখ', 'স্ট্যাটাস', 'অ্যাকশন'].map(h => <th key={h} className="px-4 py-3 text-left">{h}</th>)}</tr>
+                                <tr>{['অ্যাফিলিয়েট', 'কাস্টমার', 'মোবাইল', 'ব্যবসা', 'তারিখ', 'স্ট্যাটাস', 'অ্যাকশন'].map(h => <th key={h} className="px-3 py-3 text-left whitespace-nowrap">{h}</th>)}</tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
                                 {demosData?.data?.data?.map((d: any) => (
@@ -289,6 +323,10 @@ export default function AdminAffiliatePage() {
                             ))}
                         </div>
                     </div>
+                )}
+
+                {tab === 'overview' && !stats && (
+                    <div className="p-12 text-center text-slate-400">লোড হচ্ছে...</div>
                 )}
             </div>
 

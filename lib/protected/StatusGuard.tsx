@@ -2,7 +2,7 @@
 import { clearAuthCookies, clearAuthLocalStorage, isTokenExpired } from '@/lib/auth-session';
 import { RootState, persistor } from '@/store';
 import { logout as logoutAction } from '@/store/features/auth/authSlice';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import StoreDisabledScreen from './StoreDisabledScreen';
@@ -17,6 +17,7 @@ interface StatusGuardProps {
 
 export default function StatusGuard({ children }: StatusGuardProps) {
     const router = useRouter();
+    const pathname = usePathname();
     const dispatch = useDispatch();
     const { user, token, tokenExpiresAt, isAuthenticated } = useSelector((state: RootState) => state.auth);
     const currentStore = useSelector((state: RootState) => state.auth.currentStore);
@@ -27,8 +28,9 @@ export default function StatusGuard({ children }: StatusGuardProps) {
         persistor.purge();
         clearAuthCookies();
         clearAuthLocalStorage();
-        router.replace('/login');
-    }, [dispatch, router]);
+        const redirect = pathname && pathname !== '/login' ? `?redirect=${encodeURIComponent(pathname)}` : '';
+        router.replace(`/login${redirect}`);
+    }, [dispatch, router, pathname]);
 
     // Force logout if the saved token expiry is missing or expired while the tab is open.
     useEffect(() => {
@@ -57,7 +59,8 @@ export default function StatusGuard({ children }: StatusGuardProps) {
         }
 
         if (!isAuthenticated || !user) {
-            router.push('/login');
+            const redirect = pathname && pathname !== '/login' ? `?redirect=${encodeURIComponent(pathname)}` : '';
+            router.push(`/login${redirect}`);
             return;
         }
 

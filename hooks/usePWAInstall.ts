@@ -8,6 +8,7 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 export interface PWAInstallState {
+    isReady:       boolean;
     isInstallable: boolean;
     isInstalled:   boolean;
     isIOS:         boolean;
@@ -17,6 +18,7 @@ export interface PWAInstallState {
 
 export const usePWAInstall = (): PWAInstallState => {
     const [promptEvent, setPromptEvent] = useState<BeforeInstallPromptEvent | null>(null);
+    const [isReady, setIsReady]           = useState(false);
     const [isInstalled, setIsInstalled]   = useState(false);
     const [isIOS, setIsIOS]               = useState(false);
 
@@ -28,12 +30,14 @@ export const usePWAInstall = (): PWAInstallState => {
 
         if (standalone) {
             setIsInstalled(true);
+            setIsReady(true);
             return;
         }
 
         // iOS/iPadOS: Safari doesn't fire beforeinstallprompt
         const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) && !(window as any).MSStream;
         setIsIOS(ios);
+        setIsReady(true);
 
         const onPrompt = (e: Event) => {
             e.preventDefault();
@@ -64,7 +68,8 @@ export const usePWAInstall = (): PWAInstallState => {
     };
 
     return {
-        isInstallable:   !isInstalled && (!!promptEvent || isIOS),
+        isReady,
+        isInstallable:   isReady && !isInstalled,
         isInstalled,
         isIOS,
         hasNativePrompt: !!promptEvent,

@@ -6,7 +6,7 @@ import { RootState } from '@/store';
 import { useRegisterMutation } from '@/store/features/auth/authApi';
 import { login } from '@/store/features/auth/authSlice';
 import { Building as IconBuilding, Eye as IconEye, EyeOff as IconEyeOff, Lock as IconLockDots, Mail as IconMail, Phone as IconPhone, User as IconUser } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { FormEvent, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
@@ -16,12 +16,14 @@ const ComponentsAuthRegisterForm = () => {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [runTour, setRunTour] = useState(false);
 
-
     const router = useRouter();
+    const searchParams = useSearchParams();
     const dispatch = useDispatch();
     const { t } = getTranslation();
     const { isAuthenticated } = useSelector((state: RootState) => state.auth);
     const [registerApi, { isLoading }] = useRegisterMutation();
+
+    const refCode = searchParams.get('ref') ?? '';
 
     const [credentials, setCredentials] = useState({
         store_name: '',
@@ -30,7 +32,12 @@ const ComponentsAuthRegisterForm = () => {
         email: '',
         password: '',
         password_confirmation: '',
+        ref_code: refCode,
     });
+
+    useEffect(() => {
+        if (refCode) setCredentials((prev) => ({ ...prev, ref_code: refCode }));
+    }, [refCode]);
 
     // Start tour on component mount (optional - you can trigger this differently)
     useEffect(() => {
@@ -88,6 +95,12 @@ const ComponentsAuthRegisterForm = () => {
 
     return (
         <form className="space-y-5 dark:text-white" onSubmit={submitForm}>
+            {refCode && (
+                <div className="flex items-center gap-2 rounded-lg bg-success/10 border border-success/20 px-3 py-2 text-sm text-success font-medium">
+                    <span>🤝</span>
+                    <span>রেফারেল কোড: <strong lang="en" dir="ltr">{refCode.toUpperCase()}</strong> — কমিশন ট্র্যাক হবে</span>
+                </div>
+            )}
             <div>
                 <label htmlFor="Name">{t('register-page.form.name_label')}</label>
                 <div className="relative text-white-dark">

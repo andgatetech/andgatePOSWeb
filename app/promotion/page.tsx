@@ -1,7 +1,9 @@
 'use client';
 
 import Navbar from './components/navbar';
+import PromoAffiliate from './components/promo-affiliate';
 import PromoFAQ from './components/promo-faq';
+import PromoFooter from './components/promo-footer';
 import PromoHero from './components/promo-hero';
 import PromoLossHook from './components/promo-loss-hook';
 import PromoPricing from './components/promo-pricing';
@@ -38,12 +40,17 @@ export default function PromotionPage() {
                 {/* 6. Pricing plans */}
                 <PromoPricing />
 
-                {/* 7. FAQ — objection handling */}
+                {/* 7. Affiliate program */}
+                <PromoAffiliate />
+
+                {/* 8. FAQ — objection handling */}
                 <PromoFAQ />
 
                 {/* 8. Registration form — final CTA */}
                 <PromoRegisterForm />
             </main>
+
+            <PromoFooter />
         </div>
     );
 }

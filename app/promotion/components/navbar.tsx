@@ -23,6 +23,15 @@ export default function Navbar() {
                     </svg>
                     আমাদের কল করুন: +880 1577303608
                 </a>
+                <Link
+                    href="/affiliate"
+                    className="hidden items-center gap-1.5 rounded-lg border border-[#e79237]/40 bg-[#e79237]/10 px-3 py-1.5 text-sm font-semibold text-[#c47920] transition-colors hover:bg-[#e79237]/20 sm:flex"
+                >
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                    </svg>
+                    Affiliate হন
+                </Link>
                 <PromoButton href="#register-section" className="px-4 py-2 text-sm">
                     ফ্রিতে শুরু করুন
                 </PromoButton>

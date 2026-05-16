@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Download, Share2, X } from 'lucide-react';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
 
 type Variant = 'hero' | 'outline' | 'banner';
@@ -10,8 +11,8 @@ interface Props {
     className?: string;
 }
 
-// ── iOS step-by-step guide modal ─────────────────────────────────────────────
-const IOSGuide = ({ onClose }: { onClose: () => void }) => (
+// ── Browser fallback guide modal ─────────────────────────────────────────────
+const InstallGuide = ({ isIOS, onClose }: { isIOS: boolean; onClose: () => void }) => (
     <div
         className="fixed inset-0 z-[9999] flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center"
         onClick={onClose}
@@ -21,11 +22,14 @@ const IOSGuide = ({ onClose }: { onClose: () => void }) => (
             onClick={(e) => e.stopPropagation()}
         >
             <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-base font-bold text-gray-900">Add to Home Screen</h3>
-                <button onClick={onClose} className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600">
-                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                <h3 className="text-base font-bold text-gray-900">Install AndgatePOS</h3>
+                <button
+                    type="button"
+                    onClick={onClose}
+                    className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                    aria-label="Close install guide"
+                >
+                    <X className="h-5 w-5" />
                 </button>
             </div>
 
@@ -33,25 +37,30 @@ const IOSGuide = ({ onClose }: { onClose: () => void }) => (
                 <li className="flex items-start gap-3">
                     <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[#046ca9] text-xs font-bold text-white">1</span>
                     <div>
-                        <p className="text-sm font-medium text-gray-800">Tap the Share button</p>
-                        <p className="text-xs text-gray-500">Bottom centre of Safari browser</p>
+                        <p className="text-sm font-medium text-gray-800">
+                            {isIOS ? 'Tap the Share button' : 'Open the browser menu'}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                            {isIOS ? 'Bottom centre of Safari browser' : 'Usually the three-dot menu near the address bar'}
+                        </p>
                     </div>
-                    {/* Share icon */}
-                    <svg className="ml-auto h-7 w-7 flex-shrink-0 text-[#046ca9]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                    </svg>
+                    <Share2 className="ml-auto h-7 w-7 flex-shrink-0 text-[#046ca9]" />
                 </li>
                 <li className="flex items-start gap-3">
                     <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[#046ca9] text-xs font-bold text-white">2</span>
                     <div>
-                        <p className="text-sm font-medium text-gray-800">Scroll down and tap</p>
-                        <p className="text-xs font-semibold text-[#046ca9]">"Add to Home Screen"</p>
+                        <p className="text-sm font-medium text-gray-800">
+                            {isIOS ? 'Scroll down and tap' : 'Tap the install option'}
+                        </p>
+                        <p className="text-xs font-semibold text-[#046ca9]">
+                            {isIOS ? '"Add to Home Screen"' : '"Install app" or "Add to Home screen"'}
+                        </p>
                     </div>
                 </li>
                 <li className="flex items-start gap-3">
                     <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[#046ca9] text-xs font-bold text-white">3</span>
                     <div>
-                        <p className="text-sm font-medium text-gray-800">Tap <strong>Add</strong> in the top right</p>
+                        <p className="text-sm font-medium text-gray-800">Confirm the install</p>
                         <p className="text-xs text-gray-500">The app icon appears on your home screen</p>
                     </div>
                 </li>
@@ -70,7 +79,7 @@ const IOSGuide = ({ onClose }: { onClose: () => void }) => (
 // ── Main button ───────────────────────────────────────────────────────────────
 const InstallAppButton = ({ variant = 'hero', className = '' }: Props) => {
     const { isInstallable, isInstalled, isIOS, hasNativePrompt, install } = usePWAInstall();
-    const [showIOSGuide, setShowIOSGuide] = useState(false);
+    const [showInstallGuide, setShowInstallGuide] = useState(false);
     const [installing, setInstalling]     = useState(false);
 
     // Don't render if not installable or already installed
@@ -78,10 +87,13 @@ const InstallAppButton = ({ variant = 'hero', className = '' }: Props) => {
 
     const handleClick = async () => {
         if (isIOS) {
-            setShowIOSGuide(true);
+            setShowInstallGuide(true);
             return;
         }
-        if (!hasNativePrompt) return;
+        if (!hasNativePrompt) {
+            setShowInstallGuide(true);
+            return;
+        }
         setInstalling(true);
         await install();
         setInstalling(false);
@@ -89,15 +101,9 @@ const InstallAppButton = ({ variant = 'hero', className = '' }: Props) => {
 
     const label = isIOS ? 'Add to Home Screen' : installing ? 'Installing…' : 'Install App';
     const icon = isIOS ? (
-        // Share icon for iOS
-        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-        </svg>
+        <Share2 className="h-4 w-4" />
     ) : (
-        // Download icon for Android/Desktop
-        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-        </svg>
+        <Download className="h-4 w-4" />
     );
 
     const base = 'inline-flex items-center justify-center gap-2 font-semibold transition-all active:scale-[0.98] disabled:opacity-60';
@@ -120,7 +126,9 @@ const InstallAppButton = ({ variant = 'hero', className = '' }: Props) => {
                 {label}
             </button>
 
-            {showIOSGuide && <IOSGuide onClose={() => setShowIOSGuide(false)} />}
+            {showInstallGuide && (
+                <InstallGuide isIOS={isIOS} onClose={() => setShowInstallGuide(false)} />
+            )}
         </>
     );
 };

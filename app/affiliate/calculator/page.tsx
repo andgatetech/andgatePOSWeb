@@ -1,0 +1,210 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useGetAffiliateCalculatorQuery } from '@/store/features/affiliate/affiliateApi';
+import { useGetPlansQuery, type Plan } from '@/store/features/plans/plansApi';
+
+const TIERS = [
+    { value: 'bronze',   label: 'ব্রোঞ্জ',   pct: '২৫% + ৫%' },
+    { value: 'silver',   label: 'সিলভার',   pct: '৩০% + ৮%' },
+    { value: 'gold',     label: 'গোল্ড',     pct: '৩৫% + ১০%' },
+    { value: 'platinum', label: 'প্লাটিনাম', pct: '৪০% + ১২%' },
+];
+
+function formatBDT(amount: number) {
+    return '৳' + Math.round(amount).toLocaleString('en-IN');
+}
+
+export default function AffiliateCalculatorPage() {
+    const [tier, setTier] = useState('bronze');
+    const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
+    const [customFee, setCustomFee] = useState('');
+    const [isCustom, setIsCustom] = useState(false);
+    const [customers, setCustomers] = useState(10);
+
+    const { data: plansData, isLoading: plansLoading } = useGetPlansQuery();
+    const plans: Plan[] = plansData?.data ?? [];
+
+    // Auto-select first plan once loaded
+    useEffect(() => {
+        if (plans.length > 0 && selectedPlanId === null && !isCustom) {
+            setSelectedPlanId(plans[0].id);
+        }
+    }, [plans, selectedPlanId, isCustom]);
+
+    const selectedPlan = plans.find((p) => p.id === selectedPlanId);
+    const monthlyFee = isCustom
+        ? Number(customFee) || 0
+        : selectedPlan
+        ? Math.round(parseFloat(selectedPlan.monthly_price))
+        : 0;
+
+    const { data: calcData, isFetching } = useGetAffiliateCalculatorQuery(
+        { tier, monthly_fee: monthlyFee, customers },
+        { skip: monthlyFee <= 0 || customers <= 0 }
+    );
+
+    const result = calcData?.data;
+
+    return (
+        <div className="flex items-center justify-center p-3 sm:p-4 pb-12">
+            <div className="w-full max-w-2xl">
+
+                {/* Header */}
+                <div className="text-center mb-8">
+                    <h1 className="text-3xl font-bold mb-2">কমিশন ক্যালকুলেটর</h1>
+                    <p className="text-slate-500">রিয়েল প্ল্যান দিয়ে হিসাব করুন — আপনি কত আয় করতে পারবেন</p>
+                </div>
+
+                <div className="rounded-2xl bg-white shadow-md border border-slate-200 p-6 mb-6 space-y-6">
+
+                    {/* Tier selector */}
+                    <div>
+                        <label className="block text-sm font-semibold mb-2 text-slate-700">আপনার টায়ার</label>
+                        <div className="grid grid-cols-2 gap-2">
+                            {TIERS.map(({ value, label, pct }) => (
+                                <button
+                                    key={value}
+                                    onClick={() => setTier(value)}
+                                    className={`rounded-xl py-2.5 px-3 text-sm font-medium border-2 transition text-left ${
+                                        tier === value
+                                            ? 'border-primary bg-primary/10 text-primary'
+                                            : 'border-slate-200 text-slate-600 hover:border-primary/40'
+                                    }`}
+                                >
+                                    <span className="font-bold">{label}</span>
+                                    <span className="ml-1.5 text-xs opacity-70">({pct})</span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Plan selector — real plans from API */}
+                    <div>
+                        <label className="block text-sm font-semibold mb-2 text-slate-700">সাবস্ক্রিপশন প্ল্যান</label>
+                        {plansLoading ? (
+                            <div className="text-sm text-slate-400 py-2">প্ল্যান লোড হচ্ছে...</div>
+                        ) : (
+                            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                                {plans.map((plan) => {
+                                    const price = Math.round(parseFloat(plan.monthly_price));
+                                    const isSelected = !isCustom && selectedPlanId === plan.id;
+                                    return (
+                                        <button
+                                            key={plan.id}
+                                            onClick={() => { setIsCustom(false); setSelectedPlanId(plan.id); }}
+                                            className={`rounded-xl py-2.5 px-3 border-2 transition text-left ${
+                                                isSelected
+                                                    ? 'border-primary bg-primary/10'
+                                                    : 'border-slate-200 hover:border-primary/40'
+                                            }`}
+                                        >
+                                            <div className={`text-sm font-semibold ${isSelected ? 'text-primary' : 'text-slate-700'}`}>
+                                                {plan.name_bn || plan.name_en}
+                                            </div>
+                                            <div className={`text-xs mt-0.5 ${isSelected ? 'text-primary/80' : 'text-slate-500'}`}>
+                                                {formatBDT(price)}/মাস
+                                            </div>
+                                        </button>
+                                    );
+                                })}
+
+                                {/* Custom option */}
+                                <button
+                                    onClick={() => { setIsCustom(true); setSelectedPlanId(null); }}
+                                    className={`rounded-xl py-2.5 px-3 border-2 transition text-left ${
+                                        isCustom
+                                            ? 'border-primary bg-primary/10 text-primary'
+                                            : 'border-slate-200 text-slate-600 hover:border-primary/40'
+                                    }`}
+                                >
+                                    <div className="text-sm font-semibold">কাস্টম</div>
+                                    <div className="text-xs mt-0.5 opacity-70">নিজে মূল্য দিন</div>
+                                </button>
+                            </div>
+                        )}
+
+                        {isCustom && (
+                            <input
+                                type="number"
+                                min="100"
+                                placeholder="মাসিক ফি লিখুন (৳)"
+                                className="mt-2 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary"
+                                value={customFee}
+                                onChange={(e) => setCustomFee(e.target.value)}
+                            />
+                        )}
+                    </div>
+
+                    {/* Customer slider */}
+                    <div>
+                        <label className="block text-sm font-semibold mb-2 text-slate-700">
+                            কতজন কাস্টমার রেফার করবেন?{' '}
+                            <span className="text-primary font-bold">{customers} জন</span>
+                        </label>
+                        <input
+                            type="range"
+                            min={1}
+                            max={200}
+                            value={customers}
+                            onChange={(e) => setCustomers(Number(e.target.value))}
+                            className="w-full accent-primary"
+                        />
+                        <div className="flex justify-between text-xs text-slate-400 mt-1">
+                            <span>১</span><span>৫০</span><span>১০০</span><span>২০০</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Results */}
+                {result && !isFetching && monthlyFee > 0 && (
+                    <div className="rounded-2xl bg-gradient-to-br from-primary to-[#034d79] text-white p-6 shadow-xl">
+                        <h2 className="text-lg font-bold mb-4 text-white/90">আপনার আনুমানিক আয়</h2>
+                        <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-5">
+                            {[
+                                { label: 'প্রথম মাস',  value: Number(result.first_month),       sub: 'এককালীন' },
+                                { label: 'প্রতি মাস',  value: Number(result.monthly_recurring),  sub: 'রিকারিং' },
+                                { label: 'প্রথম বছর', value: Number(result.total_year_1),       sub: 'মোট আয়' },
+                            ].map(({ label, value, sub }) => (
+                                <div key={label} className="text-center">
+                                    <div className="text-xl sm:text-2xl font-bold text-yellow-300">
+                                        {formatBDT(value)}
+                                    </div>
+                                    <div className="text-xs text-white/70 mt-0.5">{label}</div>
+                                    <div className="text-xs text-white/50">{sub}</div>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="rounded-xl bg-white/10 px-3 py-2.5 text-xs sm:text-sm text-center text-white/80">
+                            {customers} জন কাস্টমার × {formatBDT(monthlyFee)}/মাস ×{' '}
+                            <strong className="text-white">
+                                {TIERS.find((t) => t.value === tier)?.label}
+                            </strong>{' '}
+                            টায়ার
+                        </div>
+                        <div className="mt-4 text-center">
+                            <a
+                                href="/affiliate"
+                                className="inline-block rounded-xl bg-yellow-400 text-slate-900 font-bold px-8 py-2.5 hover:bg-yellow-300 transition"
+                            >
+                                এখনই Affiliate হন →
+                            </a>
+                        </div>
+                    </div>
+                )}
+
+                {isFetching && monthlyFee > 0 && (
+                    <div className="rounded-2xl bg-white border border-slate-200 p-6 text-center text-slate-400 text-sm">
+                        হিসাব করা হচ্ছে...
+                    </div>
+                )}
+
+                {!isCustom && monthlyFee <= 0 && !plansLoading && plans.length === 0 && (
+                    <div className="rounded-2xl bg-slate-100 p-6 text-center text-slate-400 text-sm">
+                        প্ল্যান লোড হয়নি। পেজ রিফ্রেশ করুন।
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}

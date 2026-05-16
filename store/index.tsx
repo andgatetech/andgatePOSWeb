@@ -3,6 +3,8 @@ import { FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, R
 import createWebStorage from 'redux-persist/lib/storage/createWebStorage';
 
 import { baseApi } from '@/store/api/baseApi';
+import { affiliateAdminApi } from '@/store/features/affiliate/affiliateAdminApi';
+import { affiliatePortalApi } from '@/store/features/affiliate/affiliatePortalApi';
 import authReducer from '@/store/features/auth/authSlice';
 import labelReducer from '@/store/features/Label/labelSlice';
 import cachedProductsReducer from '@/store/features/offline/cachedProductsSlice';
@@ -29,7 +31,7 @@ const persistConfig = {
     key: 'root',
     storage,
     whitelist: ['auth', 'invoice', 'orderEdit', 'orderReturn'], // durable offline POS data is stored in IndexedDB
-    blacklist: [baseApi.reducerPath], // do not persist API cache
+    blacklist: [baseApi.reducerPath, affiliatePortalApi.reducerPath, affiliateAdminApi.reducerPath], // do not persist API cache
 };
 
 // --- root reducer ---
@@ -46,6 +48,8 @@ const rootReducer = combineReducers({
     offlineOrders: offlineOrdersReducer,
     cachedProducts: cachedProductsReducer,
     [baseApi.reducerPath]: baseApi.reducer,
+    [affiliatePortalApi.reducerPath]: affiliatePortalApi.reducer,
+    [affiliateAdminApi.reducerPath]: affiliateAdminApi.reducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -58,7 +62,7 @@ export const store = configureStore({
             serializableCheck: {
                 ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
             },
-        }).concat(baseApi.middleware),
+        }).concat(baseApi.middleware, affiliatePortalApi.middleware, affiliateAdminApi.middleware),
     devTools: process.env.NODE_ENV !== 'production',
 });
 

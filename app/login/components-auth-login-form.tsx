@@ -4,7 +4,7 @@ import { getTranslation } from '@/i18n';
 import { useLoginMutation } from '@/store/features/auth/authApi';
 import { Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { FormEvent, forwardRef, useImperativeHandle, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
@@ -16,6 +16,7 @@ import { login } from '@/store/features/auth/authSlice';
 
 const ComponentsAuthLoginForm = forwardRef((props, ref) => {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const dispatch = useDispatch();
     const { t } = getTranslation();
 
@@ -88,7 +89,9 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
             // Save **full user details + permissions** in Redux
             dispatch(login({ user, token, tokenExpiresAt: validTokenExpiresAt, permissions }));
 
-            router.push('/dashboard');
+            const redirectTo = searchParams.get('redirect');
+            const safePath = redirectTo && redirectTo.startsWith('/') ? redirectTo : '/dashboard';
+            router.push(safePath);
         } catch (error: any) {
             console.error('Login failed:', error);
 
