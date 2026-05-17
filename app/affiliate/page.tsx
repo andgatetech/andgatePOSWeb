@@ -22,11 +22,18 @@ const AFFILIATE_TYPES = [
     { emoji: '🎓', label: 'ইউনিভার্সিটি অ্যাম্বাসেডর', desc: 'BBA/MBA ছাত্র' },
 ];
 
-const FAQS = [
-    { q: 'কিভাবে পেমেন্ট পাব?',     a: 'bKash / Nagad এ সরাসরি পেমেন্ট। প্রতি মাসে ৳৫০০+ ব্যালেন্স হলে উইথড্র করুন।' },
-    { q: 'কমিশন কতদিন পাব?',        a: 'প্রথম পেমেন্টে সেলস কমিশন, তারপর যোগ্য সক্রিয় সাবস্ক্রিপশন রিনিউ হলে ১২ মাস পর্যন্ত কাস্টমার রিটেনশন বোনাস।' },
-    { q: 'কিভাবে প্রোডাক্ট দেখাব?', a: 'রেজিস্ট্রেশনের পর একটি ফুল ডেমো একাউন্ট পাবেন — রিয়েল ডেটাসহ। যেকোনো দোকানে ফোনেই দেখাতে পারবেন।' },
-    { q: 'নিজে কি রেফার করতে পারব?', a: 'না। নিজেকে, একই ফোন/ইমেইল, বা সন্দেহজনক রেফারেল অনুমোদন হয় না। সফল পেমেন্টের ৩০ দিন পর কমিশন পেআউটযোগ্য হয়।' },
+const FAQ_KEYS = [
+    { qk: 'aff_faq_q1',  ak: 'aff_faq_a1'  },
+    { qk: 'aff_faq_q2',  ak: 'aff_faq_a2'  },
+    { qk: 'aff_faq_q3',  ak: 'aff_faq_a3'  },
+    { qk: 'aff_faq_q4',  ak: 'aff_faq_a4'  },
+    { qk: 'aff_faq_q5',  ak: 'aff_faq_a5'  },
+    { qk: 'aff_faq_q6',  ak: 'aff_faq_a6'  },
+    { qk: 'aff_faq_q7',  ak: 'aff_faq_a7'  },
+    { qk: 'aff_faq_q8',  ak: 'aff_faq_a8'  },
+    { qk: 'aff_faq_q9',  ak: 'aff_faq_a9'  },
+    { qk: 'aff_faq_q10', ak: 'aff_faq_a10' },
+    { qk: 'aff_faq_q11', ak: 'aff_faq_a11' },
 ];
 
 export default function AffiliateLandingPage() {
@@ -175,16 +182,16 @@ export default function AffiliateLandingPage() {
                 <div className="mx-auto max-w-2xl">
                     <h2 className="text-2xl font-bold text-center mb-8">{t('aff_faq_title')}</h2>
                     <div className="space-y-3">
-                        {FAQS.map(({ q, a }, i) => (
-                            <div key={i} className="rounded-xl border border-slate-200">
+                        {FAQ_KEYS.map(({ qk, ak }, i) => (
+                            <div key={qk} className="rounded-xl border border-slate-200">
                                 <button
                                     className="w-full flex items-center justify-between px-5 py-4 text-left font-medium"
                                     onClick={() => setOpenFaq(openFaq === i ? null : i)}
                                 >
-                                    <span>{q}</span>
+                                    <span>{t(qk)}</span>
                                     {openFaq === i ? <ChevronUp className="h-4 w-4 text-primary" /> : <ChevronDown className="h-4 w-4 text-slate-400" />}
                                 </button>
-                                {openFaq === i && <div className="px-5 pb-4 text-sm text-slate-600">{a}</div>}
+                                {openFaq === i && <div className="px-5 pb-4 text-sm text-slate-600">{t(ak)}</div>}
                             </div>
                         ))}
                     </div>
