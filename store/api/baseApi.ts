@@ -125,6 +125,7 @@ export const baseApi = createApi({
         'AffiliateConversions',
         'AffiliateDemoBookings',
         'AffiliateStats',
+        'ManualPayments',
     ],
     endpoints: () => ({}),
 });

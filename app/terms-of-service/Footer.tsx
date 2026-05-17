@@ -36,7 +36,7 @@ const Footer = () => {
     ];
 
     const affiliateLinks = [
-        { label: 'Affiliate হোম', href: '/affiliate' },
+        { label: 'Partner হোম', href: '/affiliate' },
         { label: 'কমিশন ক্যালকুলেটর', href: '/affiliate/calculator' },
         { label: 'লিডারবোর্ড', href: '/affiliate/leaderboard' },
         { label: 'আমার ড্যাশবোর্ড', href: '/affiliate/portal' },
@@ -143,10 +143,10 @@ const Footer = () => {
                         </ul>
                     </div>
 
-                    {/* Affiliate Links */}
+                    {/* Partner Program Links */}
                     <div>
                         <h4 className="mb-5 flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-[#e79237]">
-                            💰 Affiliate
+                            Partner Program
                         </h4>
                         <ul className="space-y-3">
                             {affiliateLinks.map((link) => (
@@ -161,7 +161,7 @@ const Footer = () => {
                             href="/affiliate"
                             className="mt-4 inline-block rounded-lg border border-[#e79237]/40 bg-[#e79237]/10 px-3 py-1.5 text-xs font-semibold text-[#e79237] transition hover:bg-[#e79237]/20"
                         >
-                            Affiliate হন →
+                            Partner হন →
                         </Link>
                     </div>
 

@@ -11,7 +11,7 @@ const LINKS = {
         { label: 'ডেমো বুক করুন', href: 'https://wa.me/8801577303608' },
     ],
     affiliate: [
-        { label: 'Affiliate হোম', href: '/affiliate' },
+        { label: 'Partner হোম', href: '/affiliate' },
         { label: 'কমিশন ক্যালকুলেটর', href: '/affiliate/calculator' },
         { label: 'লিডারবোর্ড', href: '/affiliate/leaderboard' },
         { label: 'আমার ড্যাশবোর্ড', href: '/affiliate/portal' },
@@ -70,10 +70,10 @@ export default function PromoFooter() {
                         </ul>
                     </div>
 
-                    {/* Affiliate — highlighted */}
+                    {/* Partner Program — highlighted */}
                     <div>
                         <h4 className="mb-4 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#e79237]">
-                            <span>💰</span> Affiliate
+                            Partner Program
                         </h4>
                         <ul className="space-y-2.5">
                             {LINKS.affiliate.map(({ label, href }) => (
@@ -89,7 +89,7 @@ export default function PromoFooter() {
                                 href="/affiliate"
                                 className="inline-block rounded-lg bg-[#e79237]/20 border border-[#e79237]/40 px-3 py-1.5 text-xs font-semibold text-[#e79237] hover:bg-[#e79237]/30 transition"
                             >
-                                Affiliate হন →
+                                Partner হন →
                             </Link>
                         </div>
                     </div>

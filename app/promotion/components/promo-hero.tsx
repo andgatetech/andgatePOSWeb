@@ -106,7 +106,7 @@ export default function PromoHero() {
                         {/* Headline */}
                         <h1 className="mb-4 text-4xl font-extrabold leading-[1.1] tracking-tight text-gray-900 sm:text-5xl lg:text-[3.2rem]">
                             দোকান চালান <span className="text-primary">স্মার্টভাবে।</span>
-                            <br className="hidden sm:block" /> আয় বাড়ান <span className="text-primary">নিশ্চিতভাবে।</span>
+                            <br className="hidden sm:block" /> বিক্রি ও হিসাব দেখুন <span className="text-primary">পরিষ্কারভাবে।</span>
                         </h1>
 
                         <p className="mb-6 text-lg leading-relaxed text-gray-600">

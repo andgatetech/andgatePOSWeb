@@ -38,6 +38,10 @@ export const affiliatePortalApi = createApi({
             providesTags: ['AffiliatePortalStats'],
         }),
 
+        changeAffiliatePassword: builder.mutation<any, { current_password: string; password: string; password_confirmation: string }>({
+            query: (body) => ({ url: '/affiliate/auth/change-password', method: 'POST', body }),
+        }),
+
         logoutAffiliate: builder.mutation<any, void>({
             query: () => ({ url: '/affiliate/auth/logout', method: 'POST' }),
         }),
@@ -88,6 +92,7 @@ export const {
     useLoginAffiliateMutation,
     useSetAffiliatePasswordMutation,
     useGetAffiliateMeQuery,
+    useChangeAffiliatePasswordMutation,
     useLogoutAffiliateMutation,
     useGetPortalDashboardQuery,
     useGetPortalConversionsQuery,

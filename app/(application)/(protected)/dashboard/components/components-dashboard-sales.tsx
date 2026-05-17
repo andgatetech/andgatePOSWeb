@@ -15,6 +15,7 @@ import ProfitExpenseWidget from './ProfitExpenseWidget';
 import QuickActions from './QuickActions';
 import SectionFour from './SectionFour';
 import SectionsFive from './SectionsFive';
+import SubscriptionPaymentStatus from './SubscriptionPaymentStatus';
 import Summary from './Summary';
 import TopCustomers from './TopCustomers';
 
@@ -65,6 +66,8 @@ const ComponentsDashboardSales = () => {
 
             {/* Quick Actions */}
             <QuickActions />
+
+            <SubscriptionPaymentStatus />
 
             {/* Alert Strip */}
             <AlertStrip />

@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import AffiliateNav from './components/affiliate-nav';
 
 export const metadata: Metadata = {
-    title: 'Affiliate Program | AndgatePOS',
-    description: 'Join the andgatePOS affiliate program and earn up to 40% commission per referral. bKash/Nagad payout.',
+    title: 'Partner Program | AndgatePOS',
+    description: 'Join the AndgatePOS Partner Program. Earn sales commission from successful customer subscriptions after approval and lock period.',
 };
 
 export default function AffiliateLayout({ children }: { children: React.ReactNode }) {

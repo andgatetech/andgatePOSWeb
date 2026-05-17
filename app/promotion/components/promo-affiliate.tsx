@@ -12,7 +12,7 @@ const tiers = [
 const steps = [
     { num: '১', title: 'রেজিস্ট্রেশন করুন', desc: 'ফর্ম পূরণ করুন, অনুমোদন পান' },
     { num: '২', title: 'লিংক শেয়ার করুন', desc: 'আপনার unique ref লিংক দিয়ে বন্ধু-ব্যবসায়ীদের পাঠান' },
-    { num: '৩', title: 'কমিশন আয় করুন', desc: 'প্রতি সাবস্ক্রিপশনে সরাসরি bKash/Nagad-এ পেমেন্ট' },
+    { num: '৩', title: 'সেলস কমিশন পান', desc: 'সফল সাবস্ক্রিপশন পেমেন্ট ও লক পিরিয়ড শেষে bKash/Nagad পেমেন্ট' },
 ];
 
 export default function PromoAffiliate() {
@@ -22,13 +22,13 @@ export default function PromoAffiliate() {
                 {/* Header */}
                 <div className="mb-10 text-center">
                     <span className="mb-3 inline-block rounded-full border border-[#e79237]/50 bg-[#e79237]/20 px-4 py-1 text-sm font-semibold text-[#e79237]">
-                        💰 Affiliate Program
+                        Partner Program
                     </span>
                     <h2 className="text-3xl font-bold text-white sm:text-4xl">
-                        আয় করুন — প্রতি মাসে, বারবার
+                        বাস্তব AndgatePOS subscription sales থেকে কমিশন পান
                     </h2>
                     <p className="mt-3 text-lg text-blue-100">
-                        একজন ব্যবসায়ীকে andgatePOS-এ আনুন। সে সাবস্ক্রাইব করলে আপনি পান প্রথম মাসে বড় কমিশন + প্রতি মাসে recurring আয়।
+                        একজন ব্যবসায়ীকে AndgatePOS-এ আনুন। সফল পেইড সাবস্ক্রিপশন হলে সেলস কমিশন এবং যোগ্য রিনিউয়ালে customer retention bonus পান।
                     </p>
                 </div>
 
@@ -45,7 +45,7 @@ export default function PromoAffiliate() {
                             </div>
                             <div className="mt-1">
                                 <div className="text-lg font-semibold text-[#e79237]">{tier.recurring}</div>
-                                <div className="text-xs text-blue-200">প্রতি মাস</div>
+                                <div className="text-xs text-blue-200">রিটেনশন</div>
                             </div>
                         </div>
                     ))}
@@ -72,7 +72,7 @@ export default function PromoAffiliate() {
                         '✅ কোনো বিনিয়োগ নেই',
                         '✅ bKash / Nagad পেমেন্ট',
                         '✅ ৳৫০০ থেকে উত্তোলন',
-                        '✅ Tier upgrade হলে বেশি কমিশন',
+                        '✅ পারফরম্যান্স রিভিউতে টায়ার আপগ্রেড',
                         '✅ Demo booking-এ ৳২০০ বোনাস',
                     ].map((item) => (
                         <span key={item} className="rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-white">
@@ -87,13 +87,13 @@ export default function PromoAffiliate() {
                         href="/affiliate"
                         className="rounded-xl bg-[#e79237] px-8 py-3 text-base font-bold text-white shadow-lg transition-all hover:bg-[#c47920] hover:shadow-xl"
                     >
-                        এখনই Affiliate হন →
+                        Partner Program এ যোগ দিন →
                     </Link>
                     <Link
                         href="/affiliate/calculator"
                         className="rounded-xl border border-white/30 bg-white/10 px-8 py-3 text-base font-semibold text-white transition-all hover:bg-white/20"
                     >
-                        কমিশন Calculator দেখুন
+                        কমিশন ক্যালকুলেটর দেখুন
                     </Link>
                 </div>
             </div>

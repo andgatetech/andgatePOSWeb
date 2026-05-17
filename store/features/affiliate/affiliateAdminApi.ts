@@ -33,6 +33,10 @@ export const affiliateAdminApi = createApi({
             query: () => '/affiliate/admin/auth/me',
         }),
 
+        changeAffiliateAdminPassword: builder.mutation<any, { current_password: string; password: string; password_confirmation: string }>({
+            query: (body) => ({ url: '/affiliate/admin/auth/change-password', method: 'POST', body }),
+        }),
+
         logoutAffiliateAdmin: builder.mutation<any, void>({
             query: () => ({ url: '/affiliate/admin/auth/logout', method: 'POST' }),
         }),
@@ -108,6 +112,7 @@ export const affiliateAdminApi = createApi({
 export const {
     useLoginAffiliateAdminMutation,
     useGetAffiliateAdminMeQuery,
+    useChangeAffiliateAdminPasswordMutation,
     useLogoutAffiliateAdminMutation,
     useGetAdminStatsQuery,
     useGetAdminMembersQuery,

@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { showErrorDialog, showMessage } from '@/lib/toast';
+import { KeyRound } from 'lucide-react';
 import {
     useGetAdminStatsQuery,
     useGetAdminMembersQuery,
@@ -16,6 +18,7 @@ import {
     useCompleteAdminDemoBookingMutation,
     useRunAdminTierProgressionMutation,
     useAddAdminBonusMutation,
+    useChangeAffiliateAdminPasswordMutation,
     useLogoutAffiliateAdminMutation,
     getAffiliateAdminToken,
     removeAffiliateAdminToken,
@@ -48,10 +51,13 @@ function AdminDashboard() {
     const [payoutForm, setPayoutForm] = useState({ method: 'bkash', account_number: '', transaction_id: '' });
     const [bonusModal, setBonusModal] = useState<{ id: number; name: string } | null>(null);
     const [bonusForm, setBonusForm] = useState({ amount: '', note: '' });
+    const [passwordModal, setPasswordModal] = useState(false);
+    const [passwordForm, setPasswordForm] = useState({ current_password: '', password: '', password_confirmation: '' });
+    const [actionNotice, setActionNotice] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
     const { data: statsData, refetch: refetchStats } = useGetAdminStatsQuery();
     const { data: membersData, refetch: refetchMembers } = useGetAdminMembersQuery({ search: memberSearch, status: memberStatus });
-    const { data: ledgerData }  = useGetAdminLedgerQuery({}, { skip: tab !== 'ledger' });
+    const { data: ledgerData, refetch: refetchLedger }  = useGetAdminLedgerQuery({}, { skip: tab !== 'ledger' });
     const { data: payoutsData } = useGetAdminPayoutsQuery({}, { skip: tab !== 'payouts' });
     const { data: demosData }   = useGetAdminDemoBookingsQuery({}, { skip: tab !== 'demos' });
 
@@ -63,14 +69,73 @@ function AdminDashboard() {
     const [completeDemo]        = useCompleteAdminDemoBookingMutation();
     const [runTierProgression, { isLoading: progressionRunning }] = useRunAdminTierProgressionMutation();
     const [addBonus, { isLoading: bonusLoading }] = useAddAdminBonusMutation();
+    const [changeAdminPassword, { isLoading: passwordLoading }] = useChangeAffiliateAdminPasswordMutation();
     const [logoutAdmin]         = useLogoutAffiliateAdminMutation();
 
     const stats = statsData?.data;
+
+    const apiMessage = (error: any, fallback: string) =>
+        error?.data?.message || error?.error || error?.message || fallback;
+
+    const showActionSuccess = (text: string) => {
+        setActionNotice({ type: 'success', text });
+        showMessage(text, 'success');
+    };
+
+    const showActionError = (error: any, fallback: string) => {
+        const message = apiMessage(error, fallback);
+        setActionNotice({ type: 'error', text: message });
+        showErrorDialog('অ্যাকশন ব্যর্থ', message);
+    };
+
+    const handleRunTierProgression = async () => {
+        setActionNotice(null);
+        try {
+            const result = await runTierProgression().unwrap();
+            const upgraded = Number(result?.data?.upgraded ?? 0);
+            const reviewRequired = Number(result?.data?.review_required ?? 0);
+            await Promise.all([refetchStats(), refetchMembers()]);
+            const message = upgraded > 0
+                ? `${upgraded} জন অ্যাফিলিয়েট আপগ্রেড হয়েছে।`
+                : 'কোনো নতুন টায়ার আপগ্রেড নেই।';
+            showActionSuccess(reviewRequired > 0 ? `${message} ${reviewRequired} জন ম্যানুয়াল রিভিউ দরকার।` : message);
+        } catch (error) {
+            showActionError(error, 'টায়ার আপগ্রেড চালানো যায়নি।');
+        }
+    };
+
+    const handleLockCommissions = async () => {
+        setActionNotice(null);
+        try {
+            const result = await lockCommissions().unwrap();
+            const locked = Number(result?.data?.locked ?? 0);
+            await refetchStats();
+            if (tab === 'ledger') await refetchLedger();
+            showActionSuccess(locked > 0 ? `${locked} টি কমিশন লক হয়েছে।` : 'লক করার মতো matured কমিশন নেই।');
+        } catch (error) {
+            showActionError(error, 'কমিশন লক করা যায়নি।');
+        }
+    };
 
     const handleLogout = async () => {
         try { await logoutAdmin().unwrap(); } catch {}
         removeAffiliateAdminToken();
         router.push('/affiliate/admin/login');
+    };
+
+    const openPasswordModal = () => {
+        setPasswordForm({ current_password: '', password: '', password_confirmation: '' });
+        setPasswordModal(true);
+    };
+
+    const handleChangePassword = async () => {
+        try {
+            await changeAdminPassword(passwordForm).unwrap();
+            setPasswordModal(false);
+            showMessage('পাসওয়ার্ড পরিবর্তন হয়েছে।', 'success');
+        } catch (error) {
+            showActionError(error, 'পাসওয়ার্ড পরিবর্তন করা যায়নি।');
+        }
     };
 
     const TABS: { key: AdminTab; label: string }[] = [
@@ -87,14 +152,14 @@ function AdminDashboard() {
                 <h1 className="text-2xl font-bold">অ্যাফিলিয়েট অ্যাডমিন</h1>
                 <div className="flex gap-2 flex-wrap">
                     <button
-                        onClick={() => runTierProgression().then(() => refetchMembers())}
+                        onClick={handleRunTierProgression}
                         disabled={progressionRunning}
                         className="rounded-xl border border-primary text-primary px-4 py-2 text-sm font-semibold hover:bg-primary/5 disabled:opacity-50"
                     >
                         {progressionRunning ? 'চলছে...' : 'টায়ার আপগ্রেড চালান'}
                     </button>
                     <button
-                        onClick={() => lockCommissions().then(() => refetchStats())}
+                        onClick={handleLockCommissions}
                         disabled={locking}
                         className="rounded-xl bg-primary text-white px-4 py-2 text-sm font-semibold hover:opacity-90 disabled:opacity-50"
                     >
@@ -106,8 +171,25 @@ function AdminDashboard() {
                     >
                         লগআউট
                     </button>
+                    <button
+                        onClick={openPasswordModal}
+                        className="rounded-xl border border-slate-200 text-slate-600 px-3 py-2 text-sm font-semibold hover:bg-slate-50"
+                        title="পাসওয়ার্ড পরিবর্তন"
+                    >
+                        <KeyRound className="h-4 w-4" />
+                    </button>
                 </div>
             </div>
+
+            {actionNotice && (
+                <div className={`mb-4 rounded-xl border px-4 py-3 text-sm font-semibold ${
+                    actionNotice.type === 'success'
+                        ? 'border-success/20 bg-success/10 text-success'
+                        : 'border-danger/20 bg-danger/10 text-danger'
+                }`}>
+                    {actionNotice.text}
+                </div>
+            )}
 
             {/* Stats */}
             {stats && (
@@ -331,6 +413,39 @@ function AdminDashboard() {
             </div>
 
             {/* Payout trigger modal */}
+            {passwordModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={(e) => { if (e.target === e.currentTarget) setPasswordModal(false); }}>
+                    <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl p-6">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="font-bold text-lg">অ্যাডমিন পাসওয়ার্ড পরিবর্তন</h3>
+                            <button onClick={() => setPasswordModal(false)} className="text-slate-400 hover:text-slate-600 text-xl">×</button>
+                        </div>
+                        <div className="space-y-3">
+                            <div>
+                                <label className="block text-sm font-medium mb-1">বর্তমান পাসওয়ার্ড</label>
+                                <input type="password" className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm" value={passwordForm.current_password}
+                                    onChange={(e) => setPasswordForm({ ...passwordForm, current_password: e.target.value })} />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium mb-1">নতুন পাসওয়ার্ড</label>
+                                <input type="password" className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm" value={passwordForm.password}
+                                    onChange={(e) => setPasswordForm({ ...passwordForm, password: e.target.value })} />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium mb-1">নতুন পাসওয়ার্ড আবার দিন</label>
+                                <input type="password" className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm" value={passwordForm.password_confirmation}
+                                    onChange={(e) => setPasswordForm({ ...passwordForm, password_confirmation: e.target.value })} />
+                            </div>
+                            <button disabled={passwordLoading || !passwordForm.current_password || !passwordForm.password || !passwordForm.password_confirmation}
+                                onClick={handleChangePassword}
+                                className="w-full rounded-xl bg-primary text-white font-bold py-3 hover:opacity-90 disabled:opacity-50">
+                                {passwordLoading ? 'পরিবর্তন হচ্ছে...' : 'পাসওয়ার্ড পরিবর্তন করুন'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {payoutModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
                     <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl p-6">
@@ -354,11 +469,11 @@ function AdminDashboard() {
                                     onChange={(e) => setPayoutForm({ ...payoutForm, account_number: e.target.value })} placeholder="01XXXXXXXXX" />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium mb-1">ট্রানজেকশন ID (ঐচ্ছিক)</label>
+                                <label className="block text-sm font-medium mb-1">ট্রানজেকশন ID *</label>
                                 <input className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm" value={payoutForm.transaction_id}
                                     onChange={(e) => setPayoutForm({ ...payoutForm, transaction_id: e.target.value })} placeholder="TrxID123" />
                             </div>
-                            <button disabled={payingOut || !payoutForm.account_number}
+                            <button disabled={payingOut || !payoutForm.account_number || !payoutForm.transaction_id}
                                 onClick={() => triggerPayout({ affiliateId: payoutModal.id, ...payoutForm }).then(() => { setPayoutModal(null); refetchStats(); refetchMembers(); })}
                                 className="w-full rounded-xl bg-primary text-white font-bold py-3 hover:opacity-90 disabled:opacity-50">
                                 {payingOut ? 'প্রসেস হচ্ছে...' : 'পেআউট নিশ্চিত করুন'}
@@ -387,7 +502,7 @@ function AdminDashboard() {
                                 <input className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm" value={bonusForm.note}
                                     onChange={(e) => setBonusForm({ ...bonusForm, note: e.target.value })} placeholder="ঈদ বোনাস" />
                             </div>
-                            <button disabled={bonusLoading || !bonusForm.amount}
+                            <button disabled={bonusLoading || !bonusForm.amount || !bonusForm.note}
                                 onClick={() => addBonus({ affiliateId: bonusModal.id, amount: Number(bonusForm.amount), note: bonusForm.note }).then(() => { setBonusModal(null); refetchStats(); refetchMembers(); })}
                                 className="w-full rounded-xl bg-warning text-white font-bold py-3 hover:opacity-90 disabled:opacity-50">
                                 {bonusLoading ? 'যোগ হচ্ছে...' : 'বোনাস যোগ করুন'}
