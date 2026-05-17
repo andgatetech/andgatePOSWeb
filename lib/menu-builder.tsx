@@ -1,5 +1,5 @@
 // lib/menu-builder.tsx
-import { Activity, BarChart, Bell, BookOpen, BrainCircuit, Building2, Database, FileText, Home, Layers, Link2, MessagesSquare, Package, Receipt, Shield, ShoppingBag, ShoppingCart, Tag, Truck, Users, Wallet } from 'lucide-react';
+import { BarChart, Bell, BookOpen, BrainCircuit, FileText, Home, Layers, Link2, MessagesSquare, Package, Receipt, Shield, ShoppingBag, ShoppingCart, Tag, Truck, Users } from 'lucide-react';
 import React from 'react';
 
 export interface MenuItem {
@@ -446,6 +446,11 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                 label: 'Company',
                 href: '/company',
                 requiredPermissions: ['stores.view'],
+            },
+            {
+                label: 'Package & Payments',
+                href: '/manual-payments',
+                ownerOnly: true,
             },
             {
                 label: 'Data Export',
