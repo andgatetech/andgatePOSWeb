@@ -8,7 +8,15 @@ import { cn } from '@/lib/utils';
 import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
-import { useGetEcommerceOrderQuery, useUpdateEcommerceOrderPaymentMutation, useUpdateEcommerceOrderStatusMutation } from '@/store/features/ecommerce/ecommerceManagementApi';
+import {
+    useCalculateCourierPriceMutation,
+    useCreateCourierShipmentMutation,
+    useGetCourierCredentialsQuery,
+    useGetEcommerceOrderQuery,
+    useRefreshCourierStatusMutation,
+    useUpdateEcommerceOrderPaymentMutation,
+    useUpdateEcommerceOrderStatusMutation,
+} from '@/store/features/ecommerce/ecommerceManagementApi';
 import { useGetStoreLogoQuery } from '@/store/features/store/storeApi';
 import { useParams, useRouter } from 'next/navigation';
 import { generateOrderInvoicePDF } from './generate-order-invoice-pdf';
@@ -216,12 +224,27 @@ const EcommerceOrderDetailsPage = () => {
     const [paymentAmount, setPaymentAmount] = useState('');
     const [paymentNote, setPaymentNote] = useState('');
     const [isDownloading, setIsDownloading] = useState(false);
+    const [courierProvider, setCourierProvider] = useState('pathao');
+    const [courierForm, setCourierForm] = useState({
+        delivery_area: '',
+        delivery_area_id: '',
+        pickup_area_id: '',
+        parcel_weight: '500',
+        item_weight: '0.5',
+        recipient_city: '',
+        recipient_zone: '',
+        cod_amount: '',
+        note: '',
+    });
     const { data, isLoading, error } = useGetEcommerceOrderQuery(orderId, {
         skip: !hasValidOrderId,
         refetchOnMountOrArgChange: 30,
     });
     const [updateOrderStatus, { isLoading: isUpdating }] = useUpdateEcommerceOrderStatusMutation();
     const [updateOrderPayment, { isLoading: isUpdatingPayment }] = useUpdateEcommerceOrderPaymentMutation();
+    const [calculateCourierPrice, { isLoading: isCalculatingCourier }] = useCalculateCourierPriceMutation();
+    const [createCourierShipment, { isLoading: isCreatingCourier }] = useCreateCourierShipmentMutation();
+    const [refreshCourierStatus, { isLoading: isRefreshingCourier }] = useRefreshCourierStatusMutation();
 
     const order = resolveStoreOrder(data);
     const parentOrder = order?.parent_order || order?.ecommerce_order || order?.order || {};
@@ -238,6 +261,14 @@ const EcommerceOrderDetailsPage = () => {
     const itemsSubtotal = useMemo(() => items.reduce((sum: number, item: any) => sum + Number(item?.subtotal || 0), 0), [items]);
     const storeItemsSubtotal = Number(order?.store_items_subtotal ?? order?.subtotal ?? itemsSubtotal ?? 0);
     const storeTotal = Number(order?.store_total ?? order?.total ?? storeItemsSubtotal ?? 0);
+    const courierStoreId = Number(order?.store_id || order?.store?.id || currentStoreId || 0);
+    const { data: courierCredentialsData } = useGetCourierCredentialsQuery({ store_id: courierStoreId }, { skip: !courierStoreId });
+    const courierCredentials = useMemo(() => {
+        const items = courierCredentialsData?.data?.items || courierCredentialsData?.items || [];
+        return Array.isArray(items) ? items : [];
+    }, [courierCredentialsData]);
+    const availableCouriers = useMemo(() => courierCredentials.filter((item: any) => item.is_active), [courierCredentials]);
+    const latestCourier = order?.courier || order?.latest_courier_shipment || order?.courier_shipments?.[0] || null;
     const totalQty = useMemo(() => items.reduce((sum: number, item: any) => sum + Number(item?.quantity || 0), 0), [items]);
     const paymentMethod = order?.payment_method || order?.latest_payment_method || primaryTransaction?.payment_method;
     const paymentStatus = order?.payment_status || order?.latest_payment_status || primaryTransaction?.payment_status;
@@ -259,6 +290,20 @@ const EcommerceOrderDetailsPage = () => {
         setPaymentAmount(String(order?.payment_amount ?? order?.amount_paid ?? order?.paid_amount ?? storeTotal ?? ''));
         setPaymentNote(order?.payment_note || primaryTransaction?.payment_note || primaryTransaction?.notes || '');
     }, [order?.amount_paid, order?.paid_amount, order?.payment_amount, order?.payment_note, paymentMethod, paymentStatus, primaryTransaction?.notes, primaryTransaction?.payment_note, storeTotal]);
+
+    useEffect(() => {
+        if (availableCouriers.length > 0 && !availableCouriers.some((item: any) => item.provider === courierProvider)) {
+            setCourierProvider(availableCouriers[0].provider);
+        }
+    }, [availableCouriers, courierProvider]);
+
+    useEffect(() => {
+        setCourierForm((prev) => ({
+            ...prev,
+            cod_amount: prev.cod_amount || String(order?.due_amount ?? storeTotal ?? 0),
+            note: prev.note || order?.notes || parentOrder?.notes || '',
+        }));
+    }, [order?.due_amount, order?.notes, parentOrder?.notes, storeTotal]);
 
     const handleStatusUpdate = async () => {
         if (!order?.id) return;
@@ -285,6 +330,71 @@ const EcommerceOrderDetailsPage = () => {
             showSuccessDialog('Success', `Store order payment updated to ${getEcommerceStatusLabel(paymentStatusForm)}.`);
         } catch (updateError) {
             showErrorDialog('Error', formatApiError(updateError));
+        }
+    };
+
+    const setCourierField = (field: keyof typeof courierForm, value: string) => {
+        setCourierForm((prev) => ({ ...prev, [field]: value }));
+    };
+
+    const courierPayload = () => {
+        const common: Record<string, any> = {
+            provider: courierProvider,
+            cod_amount: Number(courierForm.cod_amount || order?.due_amount || storeTotal || 0),
+            note: courierForm.note || undefined,
+        };
+
+        if (courierProvider === 'pathao') {
+            return {
+                ...common,
+                recipient_city: Number(courierForm.recipient_city),
+                recipient_zone: Number(courierForm.recipient_zone),
+                item_weight: Number(courierForm.item_weight || 0.5),
+            };
+        }
+
+        if (courierProvider === 'redx') {
+            return {
+                ...common,
+                delivery_area: courierForm.delivery_area,
+                delivery_area_id: Number(courierForm.delivery_area_id),
+                pickup_area_id: courierForm.pickup_area_id ? Number(courierForm.pickup_area_id) : undefined,
+                parcel_weight: Number(courierForm.parcel_weight || 500),
+            };
+        }
+
+        return common;
+    };
+
+    const handleCourierPrice = async () => {
+        if (!order?.id) return;
+        try {
+            const response = await calculateCourierPrice({ id: order.id, ...courierPayload() }).unwrap();
+            const payload = response?.data || response;
+            const price = payload?.data?.final_price ?? payload?.deliveryCharge ?? payload?.final_price ?? payload?.price;
+            showSuccessDialog('Courier charge', price !== undefined ? `Estimated charge: ${formatCurrency(Number(price))}` : 'Courier returned a charge response.');
+        } catch (priceError) {
+            showErrorDialog('Price failed', formatApiError(priceError));
+        }
+    };
+
+    const handleCourierCreate = async () => {
+        if (!order?.id) return;
+        try {
+            await createCourierShipment({ id: order.id, ...courierPayload() }).unwrap();
+            showSuccessDialog('Parcel created', 'Courier parcel has been created for this store order.');
+        } catch (createError) {
+            showErrorDialog('Create failed', formatApiError(createError));
+        }
+    };
+
+    const handleCourierStatus = async () => {
+        if (!order?.id || !latestCourier?.provider) return;
+        try {
+            await refreshCourierStatus({ id: order.id, provider: latestCourier.provider }).unwrap();
+            showSuccessDialog('Status refreshed', 'Courier status has been updated.');
+        } catch (statusError) {
+            showErrorDialog('Status failed', formatApiError(statusError));
         }
     };
 
@@ -550,6 +660,112 @@ const EcommerceOrderDetailsPage = () => {
                         </CardContent>
                     </Card>
                 </div>
+
+                <Card className="border-gray-200">
+                    <CardHeader className="flex-row items-center justify-between gap-3 space-y-0 pb-4">
+                        <div className="flex items-center gap-2">
+                            <Truck className="h-5 w-5 text-slate-700" />
+                            <CardTitle className="text-base font-semibold">Courier Parcel</CardTitle>
+                        </div>
+                        {latestCourier && (
+                            <Badge variant="secondary" className="capitalize">
+                                {latestCourier.provider} {latestCourier.courier_status || latestCourier.tracking_code || latestCourier.consignment_id}
+                            </Badge>
+                        )}
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        {availableCouriers.length === 0 ? (
+                            <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+                                No courier credentials are active for this store. Add Pathao, Steadfast, or RedX credentials in Store Settings.
+                            </div>
+                        ) : (
+                            <>
+                                <div className="grid gap-4 md:grid-cols-4">
+                                    <label className="block">
+                                        <span className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500">Provider</span>
+                                        <select
+                                            value={courierProvider}
+                                            onChange={(event) => setCourierProvider(event.target.value)}
+                                            className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-primary"
+                                        >
+                                            {availableCouriers.map((credential: any) => (
+                                                <option key={credential.provider} value={credential.provider}>
+                                                    {String(credential.provider).toUpperCase()}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </label>
+                                    <label className="block">
+                                        <span className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500">COD Amount</span>
+                                        <input value={courierForm.cod_amount} onChange={(event) => setCourierField('cod_amount', event.target.value)} className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-primary" />
+                                    </label>
+
+                                    {courierProvider === 'pathao' && (
+                                        <>
+                                            <label className="block">
+                                                <span className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500">City ID</span>
+                                                <input value={courierForm.recipient_city} onChange={(event) => setCourierField('recipient_city', event.target.value)} className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-primary" />
+                                            </label>
+                                            <label className="block">
+                                                <span className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500">Zone ID</span>
+                                                <input value={courierForm.recipient_zone} onChange={(event) => setCourierField('recipient_zone', event.target.value)} className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-primary" />
+                                            </label>
+                                            <label className="block">
+                                                <span className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500">Weight KG</span>
+                                                <input value={courierForm.item_weight} onChange={(event) => setCourierField('item_weight', event.target.value)} className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-primary" />
+                                            </label>
+                                        </>
+                                    )}
+
+                                    {courierProvider === 'redx' && (
+                                        <>
+                                            <label className="block">
+                                                <span className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500">Delivery Area</span>
+                                                <input value={courierForm.delivery_area} onChange={(event) => setCourierField('delivery_area', event.target.value)} placeholder="Mirpur DOHS" className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-primary" />
+                                            </label>
+                                            <label className="block">
+                                                <span className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500">Delivery Area ID</span>
+                                                <input value={courierForm.delivery_area_id} onChange={(event) => setCourierField('delivery_area_id', event.target.value)} className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-primary" />
+                                            </label>
+                                            <label className="block">
+                                                <span className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500">Pickup Area ID</span>
+                                                <input value={courierForm.pickup_area_id} onChange={(event) => setCourierField('pickup_area_id', event.target.value)} placeholder="Optional if saved" className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-primary" />
+                                            </label>
+                                            <label className="block">
+                                                <span className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500">Weight Gram</span>
+                                                <input value={courierForm.parcel_weight} onChange={(event) => setCourierField('parcel_weight', event.target.value)} className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-primary" />
+                                            </label>
+                                        </>
+                                    )}
+                                </div>
+
+                                <label className="block">
+                                    <span className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-500">Courier Note</span>
+                                    <input value={courierForm.note} onChange={(event) => setCourierField('note', event.target.value)} className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-primary" />
+                                </label>
+
+                                <div className="flex flex-wrap gap-2">
+                                    {courierProvider !== 'steadfast' && (
+                                        <Button variant="outline" onClick={handleCourierPrice} disabled={isCalculatingCourier}>
+                                            {isCalculatingCourier && <Loader2 className="h-4 w-4 animate-spin" />}
+                                            Calculate charge
+                                        </Button>
+                                    )}
+                                    <Button onClick={handleCourierCreate} disabled={isCreatingCourier}>
+                                        {isCreatingCourier && <Loader2 className="h-4 w-4 animate-spin" />}
+                                        Create parcel
+                                    </Button>
+                                    {latestCourier && (
+                                        <Button variant="secondary" onClick={handleCourierStatus} disabled={isRefreshingCourier}>
+                                            {isRefreshingCourier && <Loader2 className="h-4 w-4 animate-spin" />}
+                                            Refresh status
+                                        </Button>
+                                    )}
+                                </div>
+                            </>
+                        )}
+                    </CardContent>
+                </Card>
 
                 {/* Info grid */}
                 <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_420px]">

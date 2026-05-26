@@ -87,8 +87,14 @@ const ComponentsAuthRegisterForm = () => {
         } catch (error: any) {
             console.error('Registration failed:', error);
 
-            // Show only the top-level message
-            const message = error?.data?.message || 'Registration failed. Please try again.';
+            // Handle all RTK Query error shapes
+            const message =
+                error?.data?.message ||
+                error?.data?.errors?.email?.[0] ||
+                error?.data?.errors?.phone?.[0] ||
+                error?.data?.errors?.password?.[0] ||
+                (error?.status === 'FETCH_ERROR' ? 'Cannot connect to server. Please check your connection.' : null) ||
+                'Registration failed. Please try again.';
             toast.error(message);
         }
     };

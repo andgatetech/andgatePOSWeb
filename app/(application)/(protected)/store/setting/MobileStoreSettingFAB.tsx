@@ -1,6 +1,6 @@
 'use client';
 
-import { Camera, Clock, Coins, CreditCard, Flag, Gift, ListChecks, Package, RotateCcw, Settings, Shield, Store, Tag, X } from 'lucide-react';
+import { Camera, Clock, Coins, CreditCard, Flag, Gift, ListChecks, Package, RotateCcw, Settings, Shield, Store, Tag, Truck, X } from 'lucide-react';
 import Image from 'next/image';
 import React, { useState } from 'react';
 import { getTranslation } from '@/i18n';
@@ -20,6 +20,7 @@ const MobileStoreSettingFAB: React.FC<MobileStoreSettingFABProps> = ({ activeTab
         { id: 'units', label: t('lbl_units'), icon: Package },
         { id: 'attributes', label: t('store_attributes_title'), icon: Tag },
         { id: 'payment', label: t('lbl_payment_method'), icon: CreditCard },
+        { id: 'courier', label: 'Courier', icon: Truck },
         { id: 'currency', label: t('store_currency_title'), icon: Coins },
         { id: 'paymentstatus', label: t('order_payment_status'), icon: Flag },
         { id: 'warranty', label: t('lbl_warranty'), icon: Shield },

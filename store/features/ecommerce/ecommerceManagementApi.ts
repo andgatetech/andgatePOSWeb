@@ -117,6 +117,74 @@ const ecommerceManagementApi = baseApi.injectEndpoints({
             }),
             providesTags: [{ type: 'EcommerceManagement', id: 'WISHLISTS' }],
         }),
+
+        getCourierCredentials: builder.query({
+            query: (params = {}) => ({
+                url: '/ecommerce/management/couriers/credentials',
+                method: 'GET',
+                params,
+            }),
+            providesTags: [{ type: 'EcommerceManagement', id: 'COURIER-CREDENTIALS' }],
+        }),
+
+        saveCourierCredential: builder.mutation({
+            query: (body: Record<string, any>) => ({
+                url: '/ecommerce/management/couriers/credentials',
+                method: 'POST',
+                body,
+            }),
+            invalidatesTags: [{ type: 'EcommerceManagement', id: 'COURIER-CREDENTIALS' }],
+        }),
+
+        updateCourierCredential: builder.mutation({
+            query: ({ id, ...body }: Record<string, any> & { id: number }) => ({
+                url: `/ecommerce/management/couriers/credentials/${id}`,
+                method: 'PATCH',
+                body,
+            }),
+            invalidatesTags: [{ type: 'EcommerceManagement', id: 'COURIER-CREDENTIALS' }],
+        }),
+
+        calculateCourierPrice: builder.mutation({
+            query: ({ id, ...body }: Record<string, any> & { id: number }) => ({
+                url: `/ecommerce/management/store-orders/${id}/courier/price`,
+                method: 'POST',
+                body,
+            }),
+        }),
+
+        createCourierShipment: builder.mutation({
+            query: ({ id, ...body }: Record<string, any> & { id: number }) => ({
+                url: `/ecommerce/management/store-orders/${id}/courier/create`,
+                method: 'POST',
+                body,
+            }),
+            invalidatesTags: (result, error, { id }) => [
+                { type: 'EcommerceManagement', id: 'ORDERS' },
+                { type: 'EcommerceManagement', id: `ORDER-${id}` },
+            ],
+        }),
+
+        bulkCreateCourierShipments: builder.mutation({
+            query: (body: Record<string, any>) => ({
+                url: '/ecommerce/management/store-orders/courier/bulk-create',
+                method: 'POST',
+                body,
+            }),
+            invalidatesTags: [{ type: 'EcommerceManagement', id: 'ORDERS' }],
+        }),
+
+        refreshCourierStatus: builder.mutation({
+            query: ({ id, provider }: { id: number; provider: string }) => ({
+                url: `/ecommerce/management/store-orders/${id}/courier/status`,
+                method: 'GET',
+                params: { provider },
+            }),
+            invalidatesTags: (result, error, { id }) => [
+                { type: 'EcommerceManagement', id: 'ORDERS' },
+                { type: 'EcommerceManagement', id: `ORDER-${id}` },
+            ],
+        }),
     }),
 });
 
@@ -132,4 +200,11 @@ export const {
     useBulkUpdateEcommerceProductVisibilityMutation,
     useGetEcommerceCartsQuery,
     useGetEcommerceWishlistsQuery,
+    useGetCourierCredentialsQuery,
+    useSaveCourierCredentialMutation,
+    useUpdateCourierCredentialMutation,
+    useCalculateCourierPriceMutation,
+    useCreateCourierShipmentMutation,
+    useBulkCreateCourierShipmentsMutation,
+    useRefreshCourierStatusMutation,
 } = ecommerceManagementApi;

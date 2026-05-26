@@ -5,14 +5,15 @@ import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import Loader from '@/lib/Loader';
-import { useGetEcommerceOrdersQuery, useGetEcommerceStoresQuery } from '@/store/features/ecommerce/ecommerceManagementApi';
-import { Eye, Globe2, ShoppingBag } from 'lucide-react';
+import { useBulkCreateCourierShipmentsMutation, useGetCourierCredentialsQuery, useGetEcommerceOrdersQuery, useGetEcommerceStoresQuery } from '@/store/features/ecommerce/ecommerceManagementApi';
+import { Eye, Globe2, Loader2, ShoppingBag, Truck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
 import { EcommerceOrdersFilter } from './EcommerceFilters';
 import EcommerceServiceRequest from './EcommerceServiceRequest';
 import { StatusBadge } from './EcommerceBadges';
 import { formatApiError, getCustomerLabel, getEcommercePaymentMethodLabel, getEcommerceSourceLabel, getResponseItems, getResponsePagination, resolveCurrentStoreGate } from './ecommerceUtils';
+import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
 
 const EcommerceOrdersPage = () => {
     const { t } = getTranslation();
@@ -25,6 +26,16 @@ const EcommerceOrdersPage = () => {
     const [itemsPerPage, setItemsPerPage] = useState(20);
     const [sortField, setSortField] = useState('created_at');
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+    const [bulkCourierProvider, setBulkCourierProvider] = useState('redx');
+    const [bulkCourierForm, setBulkCourierForm] = useState({
+        delivery_area: '',
+        delivery_area_id: '',
+        pickup_area_id: '',
+        parcel_weight: '500',
+        item_weight: '0.5',
+        recipient_city: '',
+        recipient_zone: '',
+    });
 
     const queryParams = useMemo(() => {
         const params: Record<string, any> = {
@@ -47,8 +58,14 @@ const EcommerceOrdersPage = () => {
         refetchOnMountOrArgChange: 30,
         skip: storesLoading || gate.blocked,
     });
+    const { data: courierCredentialsData } = useGetCourierCredentialsQuery({ store_id: queryParams.store_id }, { skip: !queryParams.store_id || storesLoading || gate.blocked });
+    const [bulkCreateCourierShipments, { isLoading: isBulkCreatingCourier }] = useBulkCreateCourierShipmentsMutation();
 
     const orders = useMemo(() => getResponseItems(data), [data]);
+    const courierCredentials = useMemo(() => {
+        const items = courierCredentialsData?.data?.items || courierCredentialsData?.items || [];
+        return Array.isArray(items) ? items.filter((item: any) => item.is_active) : [];
+    }, [courierCredentialsData]);
     const paginationMeta = useMemo(() => getResponsePagination(data), [data]);
     const totalItems = paginationMeta?.total || 0;
     const totalPages = paginationMeta?.last_page || 1;
@@ -77,6 +94,45 @@ const EcommerceOrdersPage = () => {
         },
         [router]
     );
+
+    const handleBulkCourierCreate = async () => {
+        const eligibleOrders = orders.filter((order: any) => order?.id && !order?.courier && !order?.latest_courier_shipment);
+        if (eligibleOrders.length === 0) {
+            showErrorDialog('No orders', 'No visible store orders are eligible for courier parcel creation.');
+            return;
+        }
+
+        const overrides = Object.fromEntries(
+            eligibleOrders.map((order: any) => [
+                order.id,
+                bulkCourierProvider === 'redx'
+                    ? {
+                          delivery_area: bulkCourierForm.delivery_area,
+                          delivery_area_id: Number(bulkCourierForm.delivery_area_id),
+                          pickup_area_id: bulkCourierForm.pickup_area_id ? Number(bulkCourierForm.pickup_area_id) : undefined,
+                          parcel_weight: Number(bulkCourierForm.parcel_weight || 500),
+                      }
+                    : bulkCourierProvider === 'pathao'
+                    ? {
+                          recipient_city: Number(bulkCourierForm.recipient_city),
+                          recipient_zone: Number(bulkCourierForm.recipient_zone),
+                          item_weight: Number(bulkCourierForm.item_weight || 0.5),
+                      }
+                    : {},
+            ])
+        );
+
+        try {
+            await bulkCreateCourierShipments({
+                provider: bulkCourierProvider,
+                store_order_ids: eligibleOrders.map((order: any) => order.id),
+                overrides,
+            }).unwrap();
+            showSuccessDialog('Bulk parcels created', `${eligibleOrders.length} courier parcel request(s) completed.`);
+        } catch (bulkError) {
+            showErrorDialog('Bulk create failed', formatApiError(bulkError));
+        }
+    };
 
     const renderDateTime = useCallback(
         (value?: string) => {
@@ -221,6 +277,58 @@ const EcommerceOrdersPage = () => {
             <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
                 <EcommerceOrdersFilter onFilterChange={handleFilterChange} />
             </div>
+
+            {!gate.blocked && courierCredentials.length > 0 && (
+                <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                    <div className="mb-4 flex items-center gap-2">
+                        <Truck className="h-5 w-5 text-[#046ca9]" />
+                        <div>
+                            <h2 className="text-sm font-semibold text-gray-900">Bulk courier parcel creation</h2>
+                            <p className="text-xs text-gray-500">Creates parcels for visible orders on this page that do not already have a courier shipment.</p>
+                        </div>
+                    </div>
+                    <div className="grid gap-3 md:grid-cols-6">
+                        <select
+                            value={bulkCourierProvider}
+                            onChange={(event) => setBulkCourierProvider(event.target.value)}
+                            className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm outline-none focus:border-[#046ca9]"
+                        >
+                            {courierCredentials.map((credential: any) => (
+                                <option key={credential.provider} value={credential.provider}>
+                                    {String(credential.provider).toUpperCase()}
+                                </option>
+                            ))}
+                        </select>
+
+                        {bulkCourierProvider === 'redx' && (
+                            <>
+                                <input value={bulkCourierForm.delivery_area} onChange={(event) => setBulkCourierForm((prev) => ({ ...prev, delivery_area: event.target.value }))} placeholder="Delivery area" className="h-10 rounded-lg border border-gray-300 px-3 text-sm outline-none focus:border-[#046ca9]" />
+                                <input value={bulkCourierForm.delivery_area_id} onChange={(event) => setBulkCourierForm((prev) => ({ ...prev, delivery_area_id: event.target.value }))} placeholder="Area ID" className="h-10 rounded-lg border border-gray-300 px-3 text-sm outline-none focus:border-[#046ca9]" />
+                                <input value={bulkCourierForm.pickup_area_id} onChange={(event) => setBulkCourierForm((prev) => ({ ...prev, pickup_area_id: event.target.value }))} placeholder="Pickup area ID" className="h-10 rounded-lg border border-gray-300 px-3 text-sm outline-none focus:border-[#046ca9]" />
+                                <input value={bulkCourierForm.parcel_weight} onChange={(event) => setBulkCourierForm((prev) => ({ ...prev, parcel_weight: event.target.value }))} placeholder="Weight gram" className="h-10 rounded-lg border border-gray-300 px-3 text-sm outline-none focus:border-[#046ca9]" />
+                            </>
+                        )}
+
+                        {bulkCourierProvider === 'pathao' && (
+                            <>
+                                <input value={bulkCourierForm.recipient_city} onChange={(event) => setBulkCourierForm((prev) => ({ ...prev, recipient_city: event.target.value }))} placeholder="City ID" className="h-10 rounded-lg border border-gray-300 px-3 text-sm outline-none focus:border-[#046ca9]" />
+                                <input value={bulkCourierForm.recipient_zone} onChange={(event) => setBulkCourierForm((prev) => ({ ...prev, recipient_zone: event.target.value }))} placeholder="Zone ID" className="h-10 rounded-lg border border-gray-300 px-3 text-sm outline-none focus:border-[#046ca9]" />
+                                <input value={bulkCourierForm.item_weight} onChange={(event) => setBulkCourierForm((prev) => ({ ...prev, item_weight: event.target.value }))} placeholder="Weight KG" className="h-10 rounded-lg border border-gray-300 px-3 text-sm outline-none focus:border-[#046ca9]" />
+                            </>
+                        )}
+
+                        <button
+                            type="button"
+                            onClick={handleBulkCourierCreate}
+                            disabled={isBulkCreatingCourier}
+                            className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-[#046ca9] px-4 text-sm font-semibold text-white transition hover:bg-[#035f95] disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                            {isBulkCreatingCourier && <Loader2 className="h-4 w-4 animate-spin" />}
+                            Bulk create
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {gate.blocked ? (
                 <EcommerceServiceRequest store={gate.store} requestedStatus="enable" />

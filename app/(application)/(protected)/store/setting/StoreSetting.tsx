@@ -35,6 +35,7 @@ import AdjustmentReasonsTab from './tabs/AdjustmentReasonsTab';
 import AttributesTab from './tabs/AttributesTab';
 import BasicInfoTab from './tabs/BasicInfoTab';
 import BrandingTab from './tabs/BrandingTab';
+import CourierCredentialsTab from './tabs/CourierCredentialsTab';
 import CurrencyTab, { CurrencyForm } from './tabs/CurrencyTab';
 import LoyaltyProgramTab from './tabs/LoyaltyProgramTab';
 import OperatingHoursTab from './tabs/OperatingHoursTab';
@@ -72,7 +73,7 @@ const createEmptyPaymentStatusForm = (): PaymentStatusForm => ({
     is_active: true,
 });
 
-const VALID_SETTING_TABS = ['basic', 'hours', 'units', 'attributes', 'payment', 'currency', 'paymentstatus', 'warranty', 'adjustment', 'returnreasons', 'loyalty', 'branding', 'status'] as const;
+const VALID_SETTING_TABS = ['basic', 'hours', 'units', 'attributes', 'payment', 'courier', 'currency', 'paymentstatus', 'warranty', 'adjustment', 'returnreasons', 'loyalty', 'branding', 'status'] as const;
 
 const StoreSetting = () => {
     const { t } = getTranslation();
@@ -1495,6 +1496,8 @@ const StoreSetting = () => {
                         handleTogglePaymentMethodActive={handleTogglePaymentMethodActive}
                     />
                 );
+            case 'courier':
+                return <CourierCredentialsTab storeId={storeId} />;
             case 'currency':
                 return (
                     <CurrencyTab
