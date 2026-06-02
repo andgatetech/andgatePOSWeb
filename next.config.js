@@ -3,9 +3,13 @@ const withPWA = require('@ducanh2912/next-pwa').default({
     disable: process.env.NODE_ENV === 'development',
     register: true,
     skipWaiting: true,
-    cacheOnFrontEndNav: true,
-    aggressiveFrontEndNavCaching: true,
+    cacheOnFrontEndNav: false,
+    aggressiveFrontEndNavCaching: false,
     reloadOnOnline: false,
+    publicExcludes: [
+        '!assets/**/*',
+        '!demo-prepare.html',
+    ],
     workboxOptions: {
         disableDevLogs: true,
         runtimeCaching: [
@@ -97,6 +101,36 @@ const nextConfig = {
     generateEtags: true,
     async headers() {
         return [
+            // Service workers must always revalidate. A stale SW can serve old
+            // Turbopack chunks and trigger "module factory is not available".
+            {
+                source: '/sw.js',
+                headers: [
+                    { key: 'Cache-Control', value: 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0' },
+                ],
+            },
+            {
+                source: '/workbox-:hash.js',
+                headers: [
+                    { key: 'Cache-Control', value: 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0' },
+                ],
+            },
+            {
+                source: '/swe-worker-:hash.js',
+                headers: [
+                    { key: 'Cache-Control', value: 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0' },
+                ],
+            },
+            ...(process.env.NODE_ENV === 'development'
+                ? [
+                    {
+                        source: '/_next/static/:path*',
+                        headers: [
+                            { key: 'Cache-Control', value: 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0' },
+                        ],
+                    },
+                ]
+                : []),
             // Security headers — all pages
             {
                 source: '/(.*)',

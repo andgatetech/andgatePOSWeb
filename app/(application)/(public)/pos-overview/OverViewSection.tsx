@@ -1,6 +1,5 @@
 'use client';
 import { getTranslation } from '@/i18n';
-import { ArrowRight, BarChart3, Check, CreditCard, Package, RotateCcw, ShoppingCart, Store, Truck, ZoomIn } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -9,6 +8,107 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { Swiper, SwiperSlide } from 'swiper/react';
+
+type IconProps = React.SVGProps<SVGSVGElement>;
+
+const IconBase = ({ children, ...props }: IconProps) => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        {...props}
+    >
+        {children}
+    </svg>
+);
+
+const ArrowRight = (props: IconProps) => (
+    <IconBase {...props}>
+        <path d="M5 12h14" />
+        <path d="m12 5 7 7-7 7" />
+    </IconBase>
+);
+
+const BarChart3 = (props: IconProps) => (
+    <IconBase {...props}>
+        <path d="M3 3v16a2 2 0 0 0 2 2h16" />
+        <path d="M18 17V9" />
+        <path d="M13 17V5" />
+        <path d="M8 17v-3" />
+    </IconBase>
+);
+
+const Check = (props: IconProps) => (
+    <IconBase {...props}>
+        <path d="M20 6 9 17l-5-5" />
+    </IconBase>
+);
+
+const CreditCard = (props: IconProps) => (
+    <IconBase {...props}>
+        <rect width="20" height="14" x="2" y="5" rx="2" />
+        <line x1="2" x2="22" y1="10" y2="10" />
+    </IconBase>
+);
+
+const Package = (props: IconProps) => (
+    <IconBase {...props}>
+        <path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z" />
+        <path d="M12 22V12" />
+        <polyline points="3.29 7 12 12 20.71 7" />
+        <path d="m7.5 4.27 9 5.15" />
+    </IconBase>
+);
+
+const RotateCcw = (props: IconProps) => (
+    <IconBase {...props}>
+        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+        <path d="M3 3v5h5" />
+    </IconBase>
+);
+
+const ShoppingCart = (props: IconProps) => (
+    <IconBase {...props}>
+        <circle cx="8" cy="21" r="1" />
+        <circle cx="19" cy="21" r="1" />
+        <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
+    </IconBase>
+);
+
+const Store = (props: IconProps) => (
+    <IconBase {...props}>
+        <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7" />
+        <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+        <path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4" />
+        <path d="M2 7h20" />
+        <path d="M22 7v3a2 2 0 0 1-2 2a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7" />
+    </IconBase>
+);
+
+const Truck = (props: IconProps) => (
+    <IconBase {...props}>
+        <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2" />
+        <path d="M15 18H9" />
+        <path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14" />
+        <circle cx="17" cy="18" r="2" />
+        <circle cx="7" cy="18" r="2" />
+    </IconBase>
+);
+
+const ZoomIn = (props: IconProps) => (
+    <IconBase {...props}>
+        <circle cx="11" cy="11" r="8" />
+        <line x1="21" x2="16.65" y1="21" y2="16.65" />
+        <line x1="11" x2="11" y1="8" y2="14" />
+        <line x1="8" x2="14" y1="11" y2="11" />
+    </IconBase>
+);
 
 const shimmer = (w: number, h: number) => `
   <svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">

@@ -199,6 +199,37 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <link rel="icon" type="image/png" sizes="512x512" href="/icon-512x512.png" />
                 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
                 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+                {process.env.NODE_ENV === 'development' && (
+                    <Script id="dev-service-worker-cleanup" strategy="beforeInteractive">
+                        {`
+                            (function () {
+                                if (!('serviceWorker' in navigator)) return;
+
+                                window.addEventListener('load', function () {
+                                    Promise.all([
+                                        navigator.serviceWorker.getRegistrations()
+                                            .then(function (registrations) {
+                                                return Promise.all(registrations.map(function (registration) {
+                                                    return registration.unregister();
+                                                }));
+                                            }),
+                                        'caches' in window
+                                            ? caches.keys().then(function (keys) {
+                                                return Promise.all(keys.map(function (key) {
+                                                    return caches.delete(key);
+                                                }));
+                                            })
+                                            : Promise.resolve()
+                                    ]).then(function () {
+                                        if (navigator.serviceWorker.controller) {
+                                            window.location.reload();
+                                        }
+                                    }).catch(function () {});
+                                });
+                            })();
+                        `}
+                    </Script>
+                )}
                 {/* <Script
                 id="facebook-pixel"
                 strategy="afterInteractive"
@@ -257,7 +288,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     {children}
                     {/* <WhatsAppButton /> */}
                 </ProviderComponent>
-                <OrientationLock />
+                {process.env.NODE_ENV !== 'development' && <OrientationLock />}
                 <ToastContainer position="top-right" autoClose={3000} />
 
                 {/* Google Tag Manager — must be inside <body> */}

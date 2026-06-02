@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Clear App Cache</title>
+        <style>
+            body {
+                align-items: center;
+                background: #f8fafc;
+                color: #0f172a;
+                display: flex;
+                font-family: Arial, sans-serif;
+                justify-content: center;
+                min-height: 100vh;
+                margin: 0;
+            }
+
+            main {
+                max-width: 420px;
+                padding: 24px;
+                text-align: center;
+            }
+
+            h1 {
+                font-size: 22px;
+                margin: 0 0 12px;
+            }
+
+            p {
+                color: #475569;
+                line-height: 1.5;
+                margin: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <main>
+            <h1>Clearing cache...</h1>
+            <p>The app will reload automatically.</p>
+        </main>
+        <script>
+            (async function () {
+                try {
+                    if ('serviceWorker' in navigator) {
+                        const registrations = await navigator.serviceWorker.getRegistrations();
+                        await Promise.all(registrations.map((registration) => registration.unregister()));
+                    }
+
+                    if ('caches' in window) {
+                        const keys = await caches.keys();
+                        await Promise.all(keys.map((key) => caches.delete(key)));
+                    }
+                } finally {
+                    window.location.replace('/?cache-cleared=' + Date.now());
+                }
+            })();
+        </script>
+    </body>
+</html>
