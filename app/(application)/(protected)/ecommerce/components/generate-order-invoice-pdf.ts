@@ -55,6 +55,8 @@ export interface InvoicePayload {
     store: InvoiceStore;
 }
 
+export type InvoicePdfAction = 'download' | 'print';
+
 const DEFAULT_CURRENCY = {
     currency_code: 'USD',
     decimal_places: 2,
@@ -125,6 +127,32 @@ const getStatusColor = (status?: string) => {
     if (s === 'failed' || s === 'cancelled') return '#dc2626';
     if (s === 'partial') return '#ea580c';
     return '#6b7280';
+};
+
+const escapeHtml = (value: string) =>
+    value
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+
+const getClientLanguage = () => {
+    if (typeof document === 'undefined') return 'bn';
+    const cookieLang = document.cookie
+        .split(';')
+        .map((item) => item.trim())
+        .find((item) => item.startsWith('i18nextLng='))
+        ?.split('=')[1];
+    const storedLang = typeof window !== 'undefined' ? window.localStorage.getItem('i18nextLng') : null;
+    return (cookieLang || storedLang || 'bn').replace('_', '-').split('-')[0];
+};
+
+const hasBanglaText = (value: unknown): boolean => {
+    if (typeof value === 'string') return /[ঀ-৿]/.test(value);
+    if (Array.isArray(value)) return value.some(hasBanglaText);
+    if (value && typeof value === 'object') return Object.values(value as Record<string, unknown>).some(hasBanglaText);
+    return false;
 };
 
 const formatWarranty = (warranty?: InvoiceItem['warranty'], daysLabel = 'Day(s)') => {
@@ -215,24 +243,113 @@ const _ensureEcPdf = (): Promise<void> => {
     return _ecLoadPromise;
 };
 
-export async function generateOrderInvoicePDF(payload: InvoicePayload, reservedPdfWindow?: Window | null) {
+const writePrintPreparingPage = (printWindow: Window, filename: string) => {
+    const safeFilename = escapeHtml(filename);
+    printWindow.document.open();
+    printWindow.document.write(`<!doctype html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>${safeFilename}</title>
+    <style>
+        body{margin:0;min-height:100vh;display:grid;place-items:center;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f8fafc;color:#0f172a}
+        div{padding:24px;text-align:center}
+        p{margin:8px 0 0;color:#64748b}
+    </style>
+</head>
+<body><div><strong>Preparing invoice...</strong><p>Print dialog will open shortly.</p></div></body>
+</html>`);
+    printWindow.document.close();
+};
+
+export const reserveInvoicePrintWindow = (filename = 'invoice.pdf'): Window | null => {
+    if (typeof window === 'undefined') return null;
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return null;
+    writePrintPreparingPage(printWindow, filename);
+    return printWindow;
+};
+
+const printPdfMake = (pdfDoc: any, filename: string, printWindow?: Window | null): Promise<void> =>
+    new Promise((resolve, reject) => {
+        if (!pdfDoc) {
+            reject(new Error('PDF document is not ready.'));
+            return;
+        }
+
+        if (!printWindow || printWindow.closed) {
+            try {
+                pdfDoc.print();
+                resolve();
+                return;
+            } catch (error) {
+                reject(error);
+                return;
+            }
+        }
+
+        pdfDoc.getBlob((blob: Blob) => {
+            const pdfBlob = blob.type === 'application/pdf' ? blob : new Blob([blob], { type: 'application/pdf' });
+            const url = URL.createObjectURL(pdfBlob);
+            const escapedName = escapeHtml(filename);
+
+            try {
+                printWindow.document.open();
+                printWindow.document.write(`<!doctype html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>${escapedName}</title>
+    <style>
+        html,body{margin:0;width:100%;height:100%;background:#111827}
+        iframe{border:0;width:100%;height:100%}
+    </style>
+</head>
+<body>
+    <iframe id="invoicePdf" src="${url}" title="${escapedName}"></iframe>
+    <script>
+        var frame = document.getElementById('invoicePdf');
+        frame.onload = function() {
+            setTimeout(function() {
+                try {
+                    frame.contentWindow.focus();
+                    frame.contentWindow.print();
+                } catch (e) {
+                    window.focus();
+                    window.print();
+                }
+            }, 350);
+        };
+    </script>
+</body>
+</html>`);
+                printWindow.document.close();
+                setTimeout(() => URL.revokeObjectURL(url), 120_000);
+                resolve();
+            } catch (error) {
+                URL.revokeObjectURL(url);
+                reject(error);
+            }
+        });
+    });
+
+export async function generateOrderInvoicePDF(payload: InvoicePayload, reservedPdfWindow?: Window | null, options: { action?: InvoicePdfAction } = {}) {
     await _ensureEcPdf();
 
-    // Language detection from cookie
-    const isBn = typeof document !== 'undefined'
-        ? document.cookie.split(';').some((c) => c.trim().startsWith('i18nextLng=bn'))
-        : false;
+    const isBn = getClientLanguage() === 'bn';
 
     // Translation helper — falls back to English key if translation missing
     const locale = isBn ? (bnLocale as unknown as Record<string, string>) : (enLocale as unknown as Record<string, string>);
     const t = (key: string): string => locale[key] || (enLocale as unknown as Record<string, string>)[key] || key;
 
-    const useBnFont = isBn && _ecBnLoaded;
+    const payloadHasBangla = hasBanglaText(payload);
+    const shouldRouteBanglaText = _ecBnLoaded && (isBn || payloadHasBangla);
+    const useBnWords = isBn && _ecBnLoaded;
 
     const { invoice, order_id, order_status, customer, items, store_items_count, store_items_subtotal, store_total, paymentMethod, paymentStatus, notes, store } = payload;
     const currency = { ...DEFAULT_CURRENCY, ...(store.currency || {}) } as typeof DEFAULT_CURRENCY;
     const fmt = (n: number) => formatCurrency(n, currency);
-    const numberToWords = useBnFont ? numberToWordsBn : numberToWordsEn;
+    const numberToWords = useBnWords ? numberToWordsBn : numberToWordsEn;
     const daysLabel = t('lbl_days');
 
     const now = new Date();
@@ -455,11 +572,18 @@ export async function generateOrderInvoicePDF(payload: InvoicePayload, reservedP
         defaultStyle: { fontSize: 9, font: 'Roboto' },
     };
 
-    // Route Bengali text nodes to NotoSansBengali; Latin inherits Roboto defaultStyle
-    if (useBnFont) {
+    // Route Bengali text nodes to NotoSansBengali; Latin inherits Roboto defaultStyle.
+    // This is intentionally payload-aware so Bangla names render even when the UI language is English.
+    if (shouldRouteBanglaText) {
         docDefinition.content = (docDefinition.content as any[]).map(_fixPdfNode);
     }
 
     // pdfMake 0.3: createPdf(docDef, options) — fonts/vfs already registered on singleton
-    await downloadPdfMake(_ecPm.createPdf(docDefinition), `invoice-${invoice || 'order'}.pdf`, reservedPdfWindow);
+    const filename = `invoice-${invoice || 'order'}.pdf`;
+    const pdf = _ecPm.createPdf(docDefinition);
+    if (options.action === 'print') {
+        await printPdfMake(pdf, filename, reservedPdfWindow);
+        return;
+    }
+    await downloadPdfMake(pdf, filename, reservedPdfWindow);
 }

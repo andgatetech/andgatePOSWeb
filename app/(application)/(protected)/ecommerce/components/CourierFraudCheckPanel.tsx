@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { AlertTriangle, CheckCircle2, Loader2, RefreshCw, ShieldCheck } from 'lucide-react';
 
+import { getTranslation } from '@/i18n';
 import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { cn } from '@/lib/utils';
 import { useRunCourierFraudCheckMutation, useRunStoreOrderFraudCheckMutation } from '@/store/features/ecommerce/ecommerceManagementApi';
@@ -36,6 +37,7 @@ const resolveCheckPayload = (response: any) => response?.data || response?.data?
 const providerLabel = (provider: string) => PROVIDERS.find((item) => item.value === provider)?.label || provider;
 
 const CourierFraudCheckPanel = ({ storeId, storeOrderId, defaultPhone = '', title = 'Courier fraud checker', description }: CourierFraudCheckPanelProps) => {
+    const { t } = getTranslation();
     const [phone, setPhone] = useState(defaultPhone || '');
     const [forceRefresh, setForceRefresh] = useState(false);
     const [result, setResult] = useState<any>(null);
@@ -55,7 +57,7 @@ const CourierFraudCheckPanel = ({ storeId, storeOrderId, defaultPhone = '', titl
 
     const handleRunCheck = async () => {
         if (!canRun) {
-            showErrorDialog('Missing data', storeOrderId ? 'Order information is not ready yet.' : 'Select a store and enter a Bangladeshi phone number.');
+            showErrorDialog(t('ecommerce_fraud_missing_data'), storeOrderId ? t('ecommerce_fraud_order_not_ready') : t('ecommerce_fraud_select_store_phone'));
             return;
         }
 
@@ -69,9 +71,9 @@ const CourierFraudCheckPanel = ({ storeId, storeOrderId, defaultPhone = '', titl
                 : await runManualCheck({ store_id: Number(storeId), phone: phone.trim(), ...body }).unwrap();
             const payload = resolveCheckPayload(response);
             setResult(payload);
-            showSuccessDialog('Fraud check complete', `Risk level: ${String(payload?.risk_level || 'unknown').toUpperCase()}`);
+            showSuccessDialog(t('ecommerce_fraud_check_complete'), t('ecommerce_fraud_risk_level', { level: String(payload?.risk_level || 'unknown').toUpperCase() }));
         } catch (error) {
-            showErrorDialog('Fraud check failed', formatApiError(error));
+            showErrorDialog(t('ecommerce_fraud_check_failed'), formatApiError(error));
         }
     };
 
@@ -83,8 +85,8 @@ const CourierFraudCheckPanel = ({ storeId, storeOrderId, defaultPhone = '', titl
                         <ShieldCheck className="h-5 w-5" />
                     </div>
                     <div>
-                        <h2 className="text-sm font-semibold text-slate-950">{title}</h2>
-                        <p className="mt-0.5 text-xs text-slate-500">{description || 'Check courier delivery history before dispatching COD or high-value orders.'}</p>
+                        <h2 className="text-sm font-semibold text-slate-950">{title === 'Courier fraud checker' ? t('ecommerce_fraud_title') : title}</h2>
+                        <p className="mt-0.5 text-xs text-slate-500">{description || t('ecommerce_fraud_desc')}</p>
                     </div>
                 </div>
 
@@ -109,7 +111,7 @@ const CourierFraudCheckPanel = ({ storeId, storeOrderId, defaultPhone = '', titl
                 <div className="flex flex-wrap items-center gap-2">
                     <label className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-200 px-3 text-xs font-medium text-slate-700">
                         <input type="checkbox" checked={forceRefresh} onChange={(event) => setForceRefresh(event.target.checked)} className="h-4 w-4 rounded border-slate-300 text-primary" />
-                        Refresh
+                        {t('ecommerce_fraud_refresh')}
                     </label>
                     <button
                         type="button"
@@ -118,7 +120,7 @@ const CourierFraudCheckPanel = ({ storeId, storeOrderId, defaultPhone = '', titl
                         className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                         {isRunning ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-                        Run check
+                        {t('ecommerce_fraud_run_check')}
                     </button>
                 </div>
             </div>
@@ -126,25 +128,25 @@ const CourierFraudCheckPanel = ({ storeId, storeOrderId, defaultPhone = '', titl
             {result && (
                 <div className="mt-4 space-y-4 border-t border-slate-100 pt-4">
                     <div className="grid gap-3 sm:grid-cols-4">
-                        <Metric label="Success" value={result.summary?.success ?? 0} />
-                        <Metric label="Cancel" value={result.summary?.cancel ?? 0} />
-                        <Metric label="Total" value={result.summary?.total ?? 0} />
-                        <Metric label="Success ratio" value={`${Number(result.summary?.success_ratio || 0).toFixed(2)}%`} />
+                        <Metric label={t('ecommerce_fraud_success')} value={result.summary?.success ?? 0} />
+                        <Metric label={t('ecommerce_fraud_cancel')} value={result.summary?.cancel ?? 0} />
+                        <Metric label={t('ecommerce_fraud_total')} value={result.summary?.total ?? 0} />
+                        <Metric label={t('ecommerce_fraud_success_ratio')} value={`${Number(result.summary?.success_ratio || 0).toFixed(2)}%`} />
                     </div>
 
-                    <p className="rounded-lg bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700">{result.recommendation || 'Review this customer before dispatch.'}</p>
+                    <p className="rounded-lg bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700">{result.recommendation || t('ecommerce_fraud_review_before_dispatch')}</p>
 
                     {providerResults.length > 0 && (
                         <div className="overflow-x-auto">
                             <table className="w-full min-w-[620px] text-sm">
                                 <thead>
                                     <tr className="border-b border-slate-200 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                        <th className="py-2 pr-3">Provider</th>
-                                        <th className="py-2 pr-3">Status</th>
-                                        <th className="py-2 pr-3 text-right">Success</th>
-                                        <th className="py-2 pr-3 text-right">Cancel</th>
-                                        <th className="py-2 pr-3 text-right">Ratio</th>
-                                        <th className="py-2">Error</th>
+                                        <th className="py-2 pr-3">{t('ecommerce_detail_provider')}</th>
+                                        <th className="py-2 pr-3">{t('lbl_status')}</th>
+                                        <th className="py-2 pr-3 text-right">{t('ecommerce_fraud_success')}</th>
+                                        <th className="py-2 pr-3 text-right">{t('ecommerce_fraud_cancel')}</th>
+                                        <th className="py-2 pr-3 text-right">{t('ecommerce_fraud_ratio')}</th>
+                                        <th className="py-2">{t('error')}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
