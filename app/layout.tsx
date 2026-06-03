@@ -177,7 +177,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     };
 
     return (
-        <html lang="en" suppressHydrationWarning>
+        <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning>
             <head>
                 <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareJsonLd) }} />
                 <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }} />

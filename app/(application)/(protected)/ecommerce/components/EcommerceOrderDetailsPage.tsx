@@ -21,6 +21,7 @@ import { useGetStoreLogoQuery } from '@/store/features/store/storeApi';
 import { useParams, useRouter } from 'next/navigation';
 import { generateOrderInvoicePDF } from './generate-order-invoice-pdf';
 import { StatusBadge } from './EcommerceBadges';
+import CourierFraudCheckPanel from './CourierFraudCheckPanel';
 import {
     ECOMMERCE_ORDER_STATUSES,
     ECOMMERCE_ORDER_TIMESTAMPS,
@@ -866,6 +867,14 @@ const EcommerceOrderDetailsPage = () => {
                         </div>
                     </Card>
                 </div>
+
+                <CourierFraudCheckPanel
+                    storeId={courierStoreId || null}
+                    storeOrderId={order?.id || orderId}
+                    defaultPhone={shipping?.phone || customer?.mobile_number || customer?.phone || ''}
+                    title="Order fraud check"
+                    description="Uses this order phone automatically and checks all active platform courier providers."
+                />
 
                 {ECOMMERCE_ORDER_TIMESTAMPS.some(({ key }) => order?.[key]) && (
                     <Card className="border-gray-200">

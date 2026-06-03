@@ -127,6 +127,26 @@ const ecommerceManagementApi = baseApi.injectEndpoints({
             providesTags: [{ type: 'EcommerceManagement', id: 'COURIER-CREDENTIALS' }],
         }),
 
+        runCourierFraudCheck: builder.mutation({
+            query: (body: Record<string, any>) => ({
+                url: '/ecommerce/management/fraud-checks',
+                method: 'POST',
+                body,
+            }),
+        }),
+
+        runStoreOrderFraudCheck: builder.mutation({
+            query: ({ id, ...body }: Record<string, any> & { id: number }) => ({
+                url: `/ecommerce/management/store-orders/${id}/fraud-check`,
+                method: 'POST',
+                body,
+            }),
+            invalidatesTags: (result, error, { id }) => [
+                { type: 'EcommerceManagement', id: 'ORDERS' },
+                { type: 'EcommerceManagement', id: `ORDER-${id}` },
+            ],
+        }),
+
         saveCourierCredential: builder.mutation({
             query: (body: Record<string, any>) => ({
                 url: '/ecommerce/management/couriers/credentials',
@@ -201,6 +221,8 @@ export const {
     useGetEcommerceCartsQuery,
     useGetEcommerceWishlistsQuery,
     useGetCourierCredentialsQuery,
+    useRunCourierFraudCheckMutation,
+    useRunStoreOrderFraudCheckMutation,
     useSaveCourierCredentialMutation,
     useUpdateCourierCredentialMutation,
     useCalculateCourierPriceMutation,

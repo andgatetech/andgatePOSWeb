@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
 import { EcommerceOrdersFilter } from './EcommerceFilters';
 import EcommerceServiceRequest from './EcommerceServiceRequest';
+import CourierFraudCheckPanel from './CourierFraudCheckPanel';
 import { StatusBadge } from './EcommerceBadges';
 import { formatApiError, getCustomerLabel, getEcommercePaymentMethodLabel, getEcommerceSourceLabel, getResponseItems, getResponsePagination, resolveCurrentStoreGate } from './ecommerceUtils';
 import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
@@ -277,6 +278,14 @@ const EcommerceOrdersPage = () => {
             <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
                 <EcommerceOrdersFilter onFilterChange={handleFilterChange} />
             </div>
+
+            {!gate.blocked && (
+                <CourierFraudCheckPanel
+                    storeId={queryParams.store_id ? Number(queryParams.store_id) : null}
+                    title="Manual courier fraud check"
+                    description="Check any customer phone number against the central courier fraud providers before confirming ecommerce orders."
+                />
+            )}
 
             {!gate.blocked && courierCredentials.length > 0 && (
                 <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">

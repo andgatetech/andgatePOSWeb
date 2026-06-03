@@ -42,10 +42,6 @@ const nextConfig = {
         removeConsole: process.env.NODE_ENV === 'production'
     },
     turbopack: {},
-    experimental: {
-        // Tree-shake lucide-react so only imported icons are bundled
-        optimizePackageImports: ['lucide-react'],
-    },
     images: {
         // Serve modern formats (WebP/AVIF) automatically
         formats: ['image/avif', 'image/webp'],
@@ -121,16 +117,6 @@ const nextConfig = {
                     { key: 'Cache-Control', value: 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0' },
                 ],
             },
-            ...(process.env.NODE_ENV === 'development'
-                ? [
-                    {
-                        source: '/_next/static/:path*',
-                        headers: [
-                            { key: 'Cache-Control', value: 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0' },
-                        ],
-                    },
-                ]
-                : []),
             // Security headers — all pages
             {
                 source: '/(.*)',
