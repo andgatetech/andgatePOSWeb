@@ -1,5 +1,5 @@
 // lib/menu-builder.tsx
-import { BarChart, Bell, BookOpen, BrainCircuit, FileText, Home, Layers, Link2, MessagesSquare, Package, Receipt, Shield, ShoppingBag, ShoppingCart, Tag, Truck, Users } from 'lucide-react';
+import { BarChart, Bell, BookOpen, BrainCircuit, FileText, Home, Layers, Link2, MessagesSquare, Package, Receipt, Settings, Shield, ShoppingBag, ShoppingCart, Tag, Truck, Users } from 'lucide-react';
 import React from 'react';
 
 export interface MenuItem {
@@ -401,6 +401,18 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                 label: 'Ecommerce Products',
                 href: '/ecommerce/products',
                 requiredPermissions: ['orders.index'],
+            },
+            {
+                label: 'Settings',
+                icon: React.createElement(Settings),
+                requiredPermissions: ['orders.index'],
+                subMenu: [
+                    {
+                        label: 'Credentials',
+                        href: '/ecommerce/setting/credentials',
+                        requiredPermissions: ['orders.index'],
+                    },
+                ],
             },
         ],
     },

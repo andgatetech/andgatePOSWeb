@@ -1,6 +1,6 @@
 'use client';
 
-import { Camera, Clock, Coins, CreditCard, Flag, Gift, ListChecks, Package, RotateCcw, Settings as SettingsIcon, Shield, Store, Tag, Truck } from 'lucide-react';
+import { Camera, Clock, Coins, CreditCard, Flag, Gift, ListChecks, Package, RotateCcw, Settings as SettingsIcon, Shield, Store, Tag } from 'lucide-react';
 import React from 'react';
 import { getTranslation } from '@/i18n';
 
@@ -24,7 +24,6 @@ const StoreSettingTabs: React.FC<StoreSettingTabsProps> = ({ activeTab, onTabCha
         { id: 'units', label: t('lbl_units'), icon: Package, description: t('store_tab_desc_units') },
         { id: 'attributes', label: t('store_attributes_title'), icon: Tag, description: t('store_tab_desc_attributes') },
         { id: 'payment', label: t('store_payment_methods'), icon: CreditCard, description: t('store_tab_desc_payment') },
-        { id: 'courier', label: 'Courier', icon: Truck, description: 'API credentials' },
         { id: 'currency', label: t('store_currency_title'), icon: Coins, description: t('store_tab_desc_currency') },
         { id: 'paymentstatus', label: t('order_payment_status'), icon: Flag, description: t('store_tab_desc_payment_status') },
         { id: 'warranty', label: t('lbl_warranty_types'), icon: Shield, description: t('store_tab_desc_warranty') },
