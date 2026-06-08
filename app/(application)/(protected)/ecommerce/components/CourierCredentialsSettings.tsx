@@ -2,9 +2,9 @@
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
-import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
-import { useGetCourierCredentialsQuery, useSaveCourierCredentialMutation, useUpdateCourierCredentialMutation } from '@/store/features/ecommerce/ecommerceManagementApi';
-import { CheckCircle2, ExternalLink, KeyRound, Loader2, PackageCheck, Save, Store, Truck } from 'lucide-react';
+import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
+import { useDeleteCourierCredentialMutation, useGetCourierCredentialsQuery, useSaveCourierCredentialMutation, useUpdateCourierCredentialMutation } from '@/store/features/ecommerce/ecommerceManagementApi';
+import { AlertCircle, CheckCircle2, ExternalLink, KeyRound, Loader2, PackageCheck, Save, Store, Trash2, Truck } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -23,6 +23,35 @@ const emptyForm = {
     secret_key: '',
     token: '',
     pickup_area_id: '',
+};
+
+type CredentialForm = typeof emptyForm;
+type CredentialFieldKey = keyof CredentialForm;
+type CredentialField = {
+    field: CredentialFieldKey;
+    labelKey: string;
+    aliases: string[];
+    secret?: boolean;
+    optional?: boolean;
+};
+
+const providerFields: Record<Provider, CredentialField[]> = {
+    pathao: [
+        { field: 'provider_store_id', labelKey: 'ecommerce_courier_pathao_store_id', aliases: ['provider_store_id', 'store_id', 'pathao_store_id'] },
+        { field: 'client_id', labelKey: 'ecommerce_courier_client_id', aliases: ['client_id'] },
+        { field: 'client_secret', labelKey: 'ecommerce_courier_client_secret', aliases: ['client_secret'], secret: true },
+        { field: 'username', labelKey: 'ecommerce_courier_username', aliases: ['username', 'email'] },
+        { field: 'password', labelKey: 'ecommerce_courier_password', aliases: ['password'], secret: true },
+    ],
+    steadfast: [
+        { field: 'api_key', labelKey: 'ecommerce_courier_api_key', aliases: ['api_key'], secret: true },
+        { field: 'secret_key', labelKey: 'ecommerce_courier_secret_key', aliases: ['secret_key'], secret: true },
+    ],
+    redx: [
+        { field: 'provider_store_id', labelKey: 'ecommerce_courier_pickup_store_id', aliases: ['provider_store_id', 'pickup_store_id', 'store_id', 'shop_id'] },
+        { field: 'pickup_area_id', labelKey: 'ecommerce_courier_pickup_area_id', aliases: ['pickup_area_id'], optional: true },
+        { field: 'token', labelKey: 'ecommerce_courier_openapi_token', aliases: ['token', 'openapi_token', 'api_token'], secret: true },
+    ],
 };
 
 const instructionImages: Record<Provider, { src: string; key: string }[]> = {
@@ -54,6 +83,62 @@ const providerLinks: Record<Provider, { labelKey: string; href: string }[]> = {
     ],
 };
 
+const credentialContainers = (credential: any) =>
+    [
+        credential,
+        credential?.credentials,
+        credential?.credential,
+        credential?.credential_values,
+        credential?.masked_credentials,
+        credential?.masked,
+        credential?.data?.credentials,
+        credential?.metadata?.credentials,
+        credential?.metadata?.masked_credentials,
+    ].filter(Boolean);
+
+const hasUsableValue = (value: any) => value !== undefined && value !== null && String(value).trim() !== '';
+
+const credentialHasField = (credential: any, field: CredentialField) => {
+    if (!credential) return false;
+
+    if (field.field === 'provider_store_id' && hasUsableValue(credential.provider_store_id)) return true;
+
+    const flagContainers = [credential?.filled_fields, credential?.configured_fields, credential?.credential_fields, credential?.credential_keys, credential?.credentials_keys, credential?.metadata?.filled_fields].filter(Boolean);
+
+    if (
+        flagContainers.some((container: any) => {
+            if (Array.isArray(container)) return field.aliases.some((alias) => container.includes(alias));
+            if (typeof container === 'object') return field.aliases.some((alias) => Boolean(container[alias]));
+            return false;
+        })
+    ) {
+        return true;
+    }
+
+    return credentialContainers(credential).some((container: any) => field.aliases.some((alias) => hasUsableValue(container?.[alias])));
+};
+
+const getCredentialFieldValue = (credential: any, field: CredentialField) => {
+    for (const container of credentialContainers(credential)) {
+        const alias = field.aliases.find((fieldAlias) => hasUsableValue(container?.[fieldAlias]));
+        if (alias) return container[alias];
+    }
+
+    return '';
+};
+
+const isFieldFilled = (credential: any, field: CredentialField, form?: CredentialForm) => {
+    if (form && hasUsableValue(form[field.field])) return true;
+    if (credentialHasField(credential, field)) return true;
+    return Boolean(credential?.id && field.secret);
+};
+
+const getProviderCompletion = (provider: Provider, credential: any, form?: CredentialForm) => {
+    const requiredFields = providerFields[provider].filter((field) => !field.optional);
+    const filled = requiredFields.filter((field) => isFieldFilled(credential, field, form)).length;
+    return { filled, total: requiredFields.length, complete: requiredFields.length > 0 && filled === requiredFields.length };
+};
+
 const CourierCredentialsSettings = () => {
     const { t } = getTranslation();
     const { currentStore } = useCurrentStore();
@@ -63,6 +148,7 @@ const CourierCredentialsSettings = () => {
     const { data, isFetching } = useGetCourierCredentialsQuery({ store_id: storeId }, { skip: !storeId });
     const [saveCredential, { isLoading: isSaving }] = useSaveCourierCredentialMutation();
     const [updateCredential, { isLoading: isUpdating }] = useUpdateCourierCredentialMutation();
+    const [deleteCredential, { isLoading: isDeleting }] = useDeleteCourierCredentialMutation();
 
     const credentials = useMemo(() => {
         const items = (data as any)?.data?.items || (data as any)?.items || [];
@@ -70,14 +156,18 @@ const CourierCredentialsSettings = () => {
     }, [data]);
 
     const activeCredential = useMemo(() => credentials.find((item: any) => item.provider === activeProvider), [activeProvider, credentials]);
+    const activeCompletion = useMemo(() => getProviderCompletion(activeProvider, activeCredential, form), [activeCredential, activeProvider, form]);
 
     useEffect(() => {
+        const providerStoreField = providerFields[activeProvider].find((field) => field.field === 'provider_store_id');
+        const storedProviderStoreId = providerStoreField ? getCredentialFieldValue(activeCredential, providerStoreField) : '';
+
         setForm({
             ...emptyForm,
             is_active: activeCredential?.is_active ?? true,
-            provider_store_id: activeCredential?.provider_store_id || '',
+            provider_store_id: activeCredential?.provider_store_id || storedProviderStoreId || '',
         });
-    }, [activeCredential?.id, activeCredential?.is_active, activeCredential?.provider_store_id]);
+    }, [activeCredential, activeProvider]);
 
     const setField = (field: keyof typeof emptyForm, value: string | boolean) => {
         setForm((prev) => ({ ...prev, [field]: value }));
@@ -87,6 +177,28 @@ const CourierCredentialsSettings = () => {
     const providerStatus = (credential: any) => {
         if (!credential) return t('ecommerce_courier_status_not_configured');
         return credential.is_active ? t('ecommerce_courier_status_active') : t('ecommerce_courier_status_inactive');
+    };
+
+    const handleDelete = async () => {
+        if (!activeCredential?.id) return;
+
+        const confirmed = await showConfirmDialog(
+            t('ecommerce_courier_delete_confirm_title'),
+            t('ecommerce_courier_delete_confirm_desc', { provider: providerLabel(activeProvider) }),
+            t('ecommerce_courier_delete_confirm_btn'),
+            t('btn_cancel'),
+            false
+        );
+
+        if (!confirmed) return;
+
+        try {
+            await deleteCredential(activeCredential.id).unwrap();
+            setForm(emptyForm);
+            showSuccessDialog(t('ecommerce_courier_deleted_title'), t('ecommerce_courier_deleted_desc', { provider: providerLabel(activeProvider) }));
+        } catch (error: any) {
+            showErrorDialog(t('ecommerce_courier_delete_failed_title'), error?.data?.message || t('ecommerce_courier_delete_failed_desc'));
+        }
     };
 
     const handleSave = async () => {
@@ -216,6 +328,7 @@ const CourierCredentialsSettings = () => {
                         {providerIds.map((provider) => {
                             const credential = credentials.find((item: any) => item.provider === provider);
                             const active = activeProvider === provider;
+                            const completion = getProviderCompletion(provider, credential, active ? form : undefined);
                             return (
                                 <button
                                     key={provider}
@@ -225,9 +338,14 @@ const CourierCredentialsSettings = () => {
                                 >
                                     <div className="flex items-center justify-between gap-3">
                                         <span className="font-semibold text-gray-900">{providerLabel(provider)}</span>
-                                        {credential ? <CheckCircle2 className="h-4 w-4 text-emerald-600" /> : <KeyRound className="h-4 w-4 text-gray-400" />}
+                                        {completion.complete ? <CheckCircle2 className="h-4 w-4 text-emerald-600" /> : <KeyRound className="h-4 w-4 text-gray-400" />}
                                     </div>
-                                    <p className="mt-1 text-xs text-gray-500">{providerStatus(credential)}</p>
+                                    <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+                                        <span className={credential?.is_active ? 'font-medium text-emerald-700' : 'text-gray-500'}>{providerStatus(credential)}</span>
+                                        <span className={completion.complete ? 'rounded-full bg-emerald-50 px-2 py-0.5 font-medium text-emerald-700' : 'rounded-full bg-amber-50 px-2 py-0.5 font-medium text-amber-700'}>
+                                            {t('ecommerce_courier_required_count', { filled: completion.filled, total: completion.total })}
+                                        </span>
+                                    </div>
                                 </button>
                             );
                         })}
@@ -240,10 +358,16 @@ const CourierCredentialsSettings = () => {
                             <h2 className="text-base font-semibold text-gray-900">{t('ecommerce_courier_setup_title', { provider: providerLabel(activeProvider) })}</h2>
                             <p className="mt-1 text-sm text-gray-500">{t(`ecommerce_courier_${activeProvider}_helper`)}</p>
                         </div>
-                        <label className="inline-flex items-center gap-2 text-sm font-medium text-gray-700">
-                            <input type="checkbox" checked={form.is_active} onChange={(event) => setField('is_active', event.target.checked)} className="h-4 w-4 rounded border-gray-300 text-[#046ca9]" />
-                            {t('lbl_active')}
-                        </label>
+                        <div className="flex flex-wrap items-center gap-3">
+                            <span className={activeCompletion.complete ? 'inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700' : 'inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700'}>
+                                {activeCompletion.complete ? <CheckCircle2 className="h-3.5 w-3.5" /> : <AlertCircle className="h-3.5 w-3.5" />}
+                                {activeCompletion.complete ? t('ecommerce_courier_status_complete') : t('ecommerce_courier_status_missing')}
+                            </span>
+                            <label className="inline-flex items-center gap-2 text-sm font-medium text-gray-700">
+                                <input type="checkbox" checked={form.is_active} onChange={(event) => setField('is_active', event.target.checked)} className="h-4 w-4 rounded border-gray-300 text-[#046ca9]" />
+                                {t('lbl_active')}
+                            </label>
+                        </div>
                     </div>
 
                     {isFetching ? (
@@ -252,7 +376,23 @@ const CourierCredentialsSettings = () => {
                             {t('ecommerce_courier_loading')}
                         </div>
                     ) : (
-                        <div className="grid gap-4 md:grid-cols-2">{renderFields()}</div>
+                        <>
+                            <div className="grid gap-4 md:grid-cols-2">{renderFields()}</div>
+                            <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                                {providerFields[activeProvider].map((field) => {
+                                    const filled = isFieldFilled(activeCredential, field, form);
+                                    return (
+                                        <div key={field.field} className={`flex min-h-11 items-center justify-between gap-3 rounded-lg border px-3 py-2 text-sm ${filled ? 'border-emerald-100 bg-emerald-50/60' : 'border-amber-100 bg-amber-50/70'}`}>
+                                            <span className="min-w-0 truncate font-medium text-gray-700">{t(field.labelKey)}</span>
+                                            <span className={`inline-flex shrink-0 items-center gap-1 text-xs font-semibold ${filled ? 'text-emerald-700' : 'text-amber-700'}`}>
+                                                {filled ? <CheckCircle2 className="h-3.5 w-3.5" /> : <AlertCircle className="h-3.5 w-3.5" />}
+                                                {filled ? t('ecommerce_courier_field_filled') : field.optional ? t('ecommerce_courier_field_optional') : t('ecommerce_courier_field_missing')}
+                                            </span>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </>
                     )}
 
                     <div className="mt-5 flex flex-col gap-3 rounded-lg bg-slate-50 p-4 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between">
@@ -260,15 +400,28 @@ const CourierCredentialsSettings = () => {
                             <PackageCheck className="h-4 w-4 text-[#046ca9]" />
                             {t('ecommerce_courier_secret_notice')}
                         </span>
-                        <button
-                            type="button"
-                            disabled={isSaving || isUpdating}
-                            onClick={handleSave}
-                            className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#046ca9] px-4 py-2 font-semibold text-white transition hover:bg-[#035f95] disabled:cursor-not-allowed disabled:opacity-60"
-                        >
-                            {isSaving || isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                            {t('ecommerce_courier_save')}
-                        </button>
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                            {activeCredential?.id && (
+                                <button
+                                    type="button"
+                                    disabled={isSaving || isUpdating || isDeleting}
+                                    onClick={handleDelete}
+                                    className="inline-flex items-center justify-center gap-2 rounded-lg border border-red-200 bg-white px-4 py-2 font-semibold text-red-600 transition hover:border-red-300 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                    {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                                    {t('ecommerce_courier_delete')}
+                                </button>
+                            )}
+                            <button
+                                type="button"
+                                disabled={isSaving || isUpdating || isDeleting}
+                                onClick={handleSave}
+                                className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#046ca9] px-4 py-2 font-semibold text-white transition hover:bg-[#035f95] disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                                {isSaving || isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                                {t('ecommerce_courier_save')}
+                            </button>
+                        </div>
                     </div>
                 </div>
 

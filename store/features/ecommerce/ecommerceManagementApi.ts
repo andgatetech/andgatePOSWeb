@@ -205,6 +205,14 @@ const ecommerceManagementApi = baseApi.injectEndpoints({
             invalidatesTags: [{ type: 'EcommerceManagement', id: 'COURIER-CREDENTIALS' }],
         }),
 
+        deleteCourierCredential: builder.mutation({
+            query: (id: number) => ({
+                url: `/ecommerce/management/couriers/credentials/${id}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: [{ type: 'EcommerceManagement', id: 'COURIER-CREDENTIALS' }],
+        }),
+
         calculateCourierPrice: builder.mutation({
             query: ({ id, ...body }: Record<string, any> & { id: number }) => ({
                 url: `/ecommerce/management/store-orders/${id}/courier/price`,
@@ -270,6 +278,7 @@ export const {
     useRunStoreOrderFraudCheckMutation,
     useSaveCourierCredentialMutation,
     useUpdateCourierCredentialMutation,
+    useDeleteCourierCredentialMutation,
     useCalculateCourierPriceMutation,
     useCreateCourierShipmentMutation,
     useBulkCreateCourierShipmentsMutation,
