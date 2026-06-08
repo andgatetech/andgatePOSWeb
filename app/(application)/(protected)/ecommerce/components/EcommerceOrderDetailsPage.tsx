@@ -908,40 +908,40 @@ const EcommerceOrderDetailsPage = () => {
                                     </div>
                                 ) : (
                                     <div className="space-y-4">
-                                        <div className="grid gap-4 md:grid-cols-4">
-                                            <InputLabel label={t('ecommerce_detail_provider')}>
-                                                <select value={courierProvider} onChange={(event) => setCourierProvider(event.target.value)} className={controlClass}>
-                                                    {availableCouriers.map((credential: any) => (
-                                                        <option key={credential.provider} value={credential.provider}>
-                                                            {String(credential.provider).toUpperCase()}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </InputLabel>
-                                            <InputLabel label={t('ecommerce_detail_cod_amount')}>
-                                                <input value={courierForm.cod_amount} onChange={(event) => setCourierField('cod_amount', event.target.value)} className={controlClass} />
-                                            </InputLabel>
-
-                                            {courierProvider === 'redx' && (
-                                                <>
-                                                    <InputLabel label={t('ecommerce_detail_delivery_area')}>
-                                                        <input value={courierForm.delivery_area} onChange={(event) => setCourierField('delivery_area', event.target.value)} placeholder={t('ecommerce_detail_delivery_area_placeholder')} className={cn(controlClass, 'placeholder:text-slate-400')} />
-                                                    </InputLabel>
-                                                    <InputLabel label={t('ecommerce_detail_delivery_area_id')}>
-                                                        <input value={courierForm.delivery_area_id} onChange={(event) => setCourierField('delivery_area_id', event.target.value)} className={controlClass} />
-                                                    </InputLabel>
-                                                    <InputLabel label={t('ecommerce_detail_pickup_area_id')}>
-                                                        <input value={courierForm.pickup_area_id} onChange={(event) => setCourierField('pickup_area_id', event.target.value)} placeholder={t('ecommerce_detail_optional_if_saved')} className={cn(controlClass, 'placeholder:text-slate-400')} />
-                                                    </InputLabel>
-                                                    <InputLabel label={t('ecommerce_detail_weight_gram')}>
-                                                        <input value={courierForm.parcel_weight} onChange={(event) => setCourierField('parcel_weight', event.target.value)} className={controlClass} />
-                                                    </InputLabel>
-                                                </>
-                                            )}
-                                        </div>
-
                                         {!latestCourier && (
                                             <>
+                                                <div className="grid gap-4 md:grid-cols-4">
+                                                    <InputLabel label={t('ecommerce_detail_provider')}>
+                                                        <select value={courierProvider} onChange={(event) => setCourierProvider(event.target.value)} className={controlClass}>
+                                                            {availableCouriers.map((credential: any) => (
+                                                                <option key={credential.provider} value={credential.provider}>
+                                                                    {String(credential.provider).toUpperCase()}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                    </InputLabel>
+                                                    <InputLabel label={t('ecommerce_detail_cod_amount')}>
+                                                        <input value={courierForm.cod_amount} onChange={(event) => setCourierField('cod_amount', event.target.value)} className={controlClass} />
+                                                    </InputLabel>
+
+                                                    {courierProvider === 'redx' && (
+                                                        <>
+                                                            <InputLabel label={t('ecommerce_detail_delivery_area')}>
+                                                                <input value={courierForm.delivery_area} onChange={(event) => setCourierField('delivery_area', event.target.value)} placeholder={t('ecommerce_detail_delivery_area_placeholder')} className={cn(controlClass, 'placeholder:text-slate-400')} />
+                                                            </InputLabel>
+                                                            <InputLabel label={t('ecommerce_detail_delivery_area_id')}>
+                                                                <input value={courierForm.delivery_area_id} onChange={(event) => setCourierField('delivery_area_id', event.target.value)} className={controlClass} />
+                                                            </InputLabel>
+                                                            <InputLabel label={t('ecommerce_detail_pickup_area_id')}>
+                                                                <input value={courierForm.pickup_area_id} onChange={(event) => setCourierField('pickup_area_id', event.target.value)} placeholder={t('ecommerce_detail_optional_if_saved')} className={cn(controlClass, 'placeholder:text-slate-400')} />
+                                                            </InputLabel>
+                                                            <InputLabel label={t('ecommerce_detail_weight_gram')}>
+                                                                <input value={courierForm.parcel_weight} onChange={(event) => setCourierField('parcel_weight', event.target.value)} className={controlClass} />
+                                                            </InputLabel>
+                                                        </>
+                                                    )}
+                                                </div>
+
                                                 <InputLabel label={t('ecommerce_detail_courier_note')}>
                                                     <input value={courierForm.note} onChange={(event) => setCourierField('note', event.target.value)} className={controlClass} />
                                                 </InputLabel>

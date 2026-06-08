@@ -5189,7 +5189,7 @@
   "ecommerce_detail_select_city": "Select city",
   "ecommerce_detail_select_zone": "Select zone",
   "ecommerce_detail_courier_tracking": "Courier tracking",
-  "ecommerce_detail_courier_tracking_note": "Refresh courier status to sync the latest Pathao short info, then update fulfillment when needed.",
+  "ecommerce_detail_courier_tracking_note": "Refresh courier status to sync the latest courier information, then update fulfillment when needed.",
   "ecommerce_detail_courier_fulfillment_check": "Courier and fulfillment check",
   "ecommerce_detail_courier_signal_delivered": "Courier says the parcel is delivered. Update fulfillment to Delivered if the order is complete.",
   "ecommerce_detail_courier_signal_returned": "Courier says the parcel is in return flow. Update fulfillment to Returned when the stock/order return is confirmed.",

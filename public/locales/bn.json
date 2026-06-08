@@ -5189,7 +5189,7 @@
   "ecommerce_detail_select_city": "সিটি নির্বাচন করুন",
   "ecommerce_detail_select_zone": "জোন নির্বাচন করুন",
   "ecommerce_detail_courier_tracking": "কুরিয়ার ট্র্যাকিং",
-  "ecommerce_detail_courier_tracking_note": "সর্বশেষ Pathao শর্ট ইনফো সিঙ্ক করতে কুরিয়ার স্ট্যাটাস রিফ্রেশ করুন, তারপর প্রয়োজনে fulfillment আপডেট করুন।",
+  "ecommerce_detail_courier_tracking_note": "সর্বশেষ কুরিয়ার তথ্য সিঙ্ক করতে কুরিয়ার স্ট্যাটাস রিফ্রেশ করুন, তারপর প্রয়োজনে fulfillment আপডেট করুন।",
   "ecommerce_detail_courier_fulfillment_check": "কুরিয়ার ও ফালফিলমেন্ট চেক",
   "ecommerce_detail_courier_signal_delivered": "কুরিয়ার বলছে পার্সেল ডেলিভারি হয়েছে। অর্ডার সম্পন্ন হলে fulfillment ডেলিভারি হয়েছে করুন।",
   "ecommerce_detail_courier_signal_returned": "কুরিয়ার বলছে পার্সেল রিটার্ন ফ্লোতে আছে। স্টক/অর্ডার রিটার্ন নিশ্চিত হলে fulfillment ফেরত করুন।",
