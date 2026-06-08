@@ -151,6 +151,22 @@ const ecommerceManagementApi = baseApi.injectEndpoints({
             }),
         }),
 
+        getRedxAreas: builder.query({
+            query: (params = {}) => ({
+                url: '/ecommerce/management/couriers/redx/areas',
+                method: 'GET',
+                params,
+            }),
+        }),
+
+        getRedxPickupStores: builder.query({
+            query: (params = {}) => ({
+                url: '/ecommerce/management/couriers/redx/pickup-stores',
+                method: 'GET',
+                params,
+            }),
+        }),
+
         runCourierFraudCheck: builder.mutation({
             query: (body: Record<string, any>) => ({
                 url: '/ecommerce/management/fraud-checks',
@@ -248,6 +264,8 @@ export const {
     useGetPathaoCitiesQuery,
     useGetPathaoZonesQuery,
     useGetPathaoAreasQuery,
+    useLazyGetRedxAreasQuery,
+    useGetRedxPickupStoresQuery,
     useRunCourierFraudCheckMutation,
     useRunStoreOrderFraudCheckMutation,
     useSaveCourierCredentialMutation,

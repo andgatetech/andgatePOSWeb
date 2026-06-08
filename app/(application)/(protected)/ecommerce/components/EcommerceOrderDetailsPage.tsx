@@ -38,6 +38,8 @@ import {
     useGetEcommerceOrderQuery,
     useGetPathaoCitiesQuery,
     useGetPathaoZonesQuery,
+    useGetRedxPickupStoresQuery,
+    useLazyGetRedxAreasQuery,
     useRefreshCourierStatusMutation,
     useUpdateEcommerceOrderPaymentMutation,
     useUpdateEcommerceOrderStatusMutation,
@@ -227,6 +229,8 @@ const getStoreLabel = (stores: any[]) => {
 
 const getCourierResponseData = (courier: any) => courier?.provider_response?.data || courier?.response_payload?.data || {};
 
+const getRedxParcel = (courier: any) => courier?.provider_response?.parcel || courier?.response_payload?.parcel || null;
+
 const resolveStoreOrder = (response: any) => {
     const data = response?.data;
     return data?.store_order || data?.order || data?.data?.store_order || data?.data?.order || response?.store_order || response?.order || data || null;
@@ -242,6 +246,32 @@ const resolveStoreOrderItems = (storeOrder: any) => {
 const resolvePathaoList = (response: any) => {
     const candidates = [response?.data?.data?.data, response?.data?.data, response?.data?.items, response?.data, response?.items];
     return candidates.find(Array.isArray) || [];
+};
+
+const resolveRedxAreas = (response: any) => {
+    const candidates = [response?.data?.data?.areas, response?.data?.data?.data, response?.data?.areas, response?.data?.data, response?.data?.items, response?.data, response?.items];
+    return candidates.find(Array.isArray) || [];
+};
+
+const redxAreaId = (area: any) => area?.area_id ?? area?.id ?? area?.delivery_area_id;
+
+const redxAreaName = (area: any) => area?.area_name ?? area?.name ?? area?.delivery_area ?? area?.title ?? '';
+
+const redxAreaLabel = (area: any) => {
+    const name = redxAreaName(area);
+    const district = area?.district_name ?? area?.district ?? area?.city_name ?? area?.city;
+    const id = redxAreaId(area);
+    return [name, district, id ? `#${id}` : null].filter(Boolean).join(' - ');
+};
+
+const resolveRedxPickupStores = (response: any) => {
+    const candidates = [response?.data?.data?.pickup_stores, response?.data?.pickup_stores, response?.data?.data, response?.data?.items, response?.data, response?.items];
+    return candidates.find(Array.isArray) || [];
+};
+
+const redxPickupStoreLabel = (store: any) => {
+    const area = store?.area_name || store?.area;
+    return [store?.name, area, store?.phone, store?.id ? `#${store.id}` : null].filter(Boolean).join(' - ');
 };
 
 const normalizePaymentStatus = (value?: string): PaymentStatus => {
@@ -332,14 +362,21 @@ const EcommerceOrderDetailsPage = () => {
     const [isCourierConfirmOpen, setIsCourierConfirmOpen] = useState(false);
     const [courierProvider, setCourierProvider] = useState('pathao');
     const [courierForm, setCourierForm] = useState({
+        merchant_order_id: '',
+        recipient_name: '',
+        recipient_phone: '',
+        recipient_address: '',
         delivery_area: '',
         delivery_area_id: '',
+        pickup_store_id: '',
         pickup_area_id: '',
         parcel_weight: '500',
         item_weight: '0.5',
         recipient_city: '',
         recipient_zone: '',
         cod_amount: '',
+        item_quantity: '',
+        item_description: '',
         note: '',
     });
     const [courierChargeForm, setCourierChargeForm] = useState({
@@ -350,6 +387,7 @@ const EcommerceOrderDetailsPage = () => {
         pickup_area_id: '',
         parcel_weight: '500',
     });
+    const [redxAreaSearch, setRedxAreaSearch] = useState('');
     const { data, isLoading, error } = useGetEcommerceOrderQuery(orderId, {
         skip: !hasValidOrderId,
         refetchOnMountOrArgChange: 30,
@@ -359,6 +397,7 @@ const EcommerceOrderDetailsPage = () => {
     const [calculateCourierPrice, { isLoading: isCalculatingCourier }] = useCalculateCourierPriceMutation();
     const [createCourierShipment, { isLoading: isCreatingCourier }] = useCreateCourierShipmentMutation();
     const [refreshCourierStatus, { isLoading: isRefreshingCourier }] = useRefreshCourierStatusMutation();
+    const [searchRedxAreas, { data: redxAreasData, isFetching: isLoadingRedxAreas }] = useLazyGetRedxAreasQuery();
 
     const order = resolveStoreOrder(data);
     const parentOrder = order?.parent_order || order?.ecommerce_order || order?.order || {};
@@ -384,16 +423,22 @@ const EcommerceOrderDetailsPage = () => {
         return Array.isArray(items) ? items : [];
     }, [courierCredentialsData]);
     const availableCouriers = useMemo(() => courierCredentials.filter((item: any) => item.is_active), [courierCredentials]);
+    const activeCourierCredential = useMemo(() => availableCouriers.find((item: any) => item.provider === courierProvider), [availableCouriers, courierProvider]);
     const canLoadPathaoLocations = courierProvider === 'pathao' && courierStoreId > 0 && availableCouriers.some((item: any) => item.provider === 'pathao');
+    const canLoadRedxPickupStores = courierProvider === 'redx' && courierStoreId > 0 && availableCouriers.some((item: any) => item.provider === 'redx');
     const { data: pathaoCitiesData, isFetching: isLoadingPathaoCities } = useGetPathaoCitiesQuery({ store_id: courierStoreId }, { skip: !canLoadPathaoLocations });
+    const { data: redxPickupStoresData, isFetching: isLoadingRedxPickupStores } = useGetRedxPickupStoresQuery({ store_id: courierStoreId }, { skip: !canLoadRedxPickupStores });
     const { data: pathaoZonesData, isFetching: isLoadingPathaoZones } = useGetPathaoZonesQuery(
         { cityId: courierChargeForm.recipient_city, store_id: courierStoreId },
         { skip: !canLoadPathaoLocations || !courierChargeForm.recipient_city }
     );
     const pathaoCities = useMemo(() => resolvePathaoList(pathaoCitiesData), [pathaoCitiesData]);
     const pathaoZones = useMemo(() => resolvePathaoList(pathaoZonesData), [pathaoZonesData]);
+    const redxAreas = useMemo(() => resolveRedxAreas(redxAreasData), [redxAreasData]);
+    const redxPickupStores = useMemo(() => resolveRedxPickupStores(redxPickupStoresData), [redxPickupStoresData]);
     const latestCourier = order?.courier || order?.latest_courier_shipment || order?.courier_shipments?.[0] || null;
     const latestCourierResponseData = getCourierResponseData(latestCourier);
+    const latestRedxParcel = getRedxParcel(latestCourier);
     const latestCourierStatus = latestCourierResponseData?.order_status_slug || latestCourierResponseData?.order_status || latestCourier?.courier_status;
     const courierFulfillmentSignal = getCourierFulfillmentSignal(latestCourierStatus);
     const totalQty = useMemo(() => items.reduce((sum: number, item: any) => sum + Number(item?.quantity || 0), 0), [items]);
@@ -405,6 +450,17 @@ const EcommerceOrderDetailsPage = () => {
     }, [currentStore, stores, userStores]);
     const invoiceStoreId = Number(matchedStore?.id || currentStoreId || 0);
     const { data: logoData } = useGetStoreLogoQuery(invoiceStoreId, { skip: !invoiceStoreId });
+    const defaultMerchantOrderId = `${order?.order_number || parentOrder?.order_number || `STORE-ORDER-${order?.id || orderId}`}-${order?.id || orderId}`;
+    const defaultRecipientAddress = [shipping?.address_line, shipping?.area, shipping?.zone, shipping?.city, shipping?.postal_code].filter(Boolean).join(', ') || shipping?.address || '';
+    const defaultItemDescription = useMemo(
+        () =>
+            items
+                .slice(0, 5)
+                .map((item: any) => item.product_name || item?.product?.product_name || item?.product?.name)
+                .filter(Boolean)
+                .join(', ') || 'Ecommerce order items',
+        [items]
+    );
 
     useEffect(() => {
         const nextStatus = normalizeEcommerceOrderStatus(order?.status);
@@ -425,12 +481,55 @@ const EcommerceOrderDetailsPage = () => {
     }, [availableCouriers, courierProvider]);
 
     useEffect(() => {
+        if (!order?.id) return;
+
         setCourierForm((prev) => ({
             ...prev,
+            merchant_order_id: prev.merchant_order_id || defaultMerchantOrderId,
+            recipient_name: prev.recipient_name || shipping?.name || customer?.name || 'Customer',
+            recipient_phone: prev.recipient_phone || shipping?.phone || customer?.mobile_number || customer?.phone || '',
+            recipient_address: prev.recipient_address || defaultRecipientAddress,
             cod_amount: prev.cod_amount || String(order?.due_amount ?? storeTotal ?? 0),
+            item_quantity: prev.item_quantity || String(Math.max(Number(totalQty || 0), 1)),
+            item_description: prev.item_description || defaultItemDescription,
             note: prev.note || order?.notes || parentOrder?.notes || '',
         }));
-    }, [order?.due_amount, order?.notes, parentOrder?.notes, storeTotal]);
+    }, [
+        customer?.mobile_number,
+        customer?.name,
+        customer?.phone,
+        defaultItemDescription,
+        defaultMerchantOrderId,
+        defaultRecipientAddress,
+        order?.due_amount,
+        order?.id,
+        order?.notes,
+        parentOrder?.notes,
+        shipping?.name,
+        shipping?.phone,
+        storeTotal,
+        totalQty,
+    ]);
+
+    useEffect(() => {
+        if (!redxAreaSearch) {
+            setRedxAreaSearch(shipping?.city || shipping?.district || '');
+        }
+    }, [redxAreaSearch, shipping?.city, shipping?.district]);
+
+    useEffect(() => {
+        if (courierProvider !== 'redx' || courierForm.pickup_store_id) return;
+
+        const savedPickupStoreId = activeCourierCredential?.provider_store_id;
+        if (savedPickupStoreId) {
+            setCourierForm((prev) => ({ ...prev, pickup_store_id: String(savedPickupStoreId) }));
+            return;
+        }
+
+        if (redxPickupStores.length === 1 && redxPickupStores[0]?.id) {
+            setCourierForm((prev) => ({ ...prev, pickup_store_id: String(redxPickupStores[0].id) }));
+        }
+    }, [activeCourierCredential?.provider_store_id, courierForm.pickup_store_id, courierProvider, redxPickupStores]);
 
     const handleStatusUpdate = async () => {
         if (!order?.id) return;
@@ -472,33 +571,57 @@ const EcommerceOrderDetailsPage = () => {
         }));
     };
 
+    const handleRedxAreaSearch = async () => {
+        if (!courierStoreId) return;
+
+        const params: Record<string, any> = { store_id: courierStoreId };
+        const search = redxAreaSearch.trim();
+
+        if (/^\d+$/.test(search)) {
+            params.post_code = Number(search);
+        } else if (search) {
+            params.district_name = search;
+        }
+
+        try {
+            await searchRedxAreas(params).unwrap();
+        } catch (areaError) {
+            showErrorDialog(t('error'), formatApiError(areaError));
+        }
+    };
+
+    const handleRedxAreaSelect = (selectedIndex: string) => {
+        const area = redxAreas[Number(selectedIndex)];
+        if (!area) return;
+
+        const areaId = redxAreaId(area);
+        const areaName = redxAreaName(area);
+
+        if (areaName) setCourierField('delivery_area', String(areaName));
+        if (areaId) {
+            setCourierField('delivery_area_id', String(areaId));
+            setCourierChargeField('delivery_area_id', String(areaId));
+        }
+    };
+
     const courierCreatePayload = () => {
         const common: Record<string, any> = {
             provider: courierProvider,
+            merchant_order_id: courierForm.merchant_order_id || defaultMerchantOrderId,
+            recipient_name: courierForm.recipient_name || shipping?.name || customer?.name || 'Customer',
+            recipient_phone: courierForm.recipient_phone || shipping?.phone || customer?.mobile_number || customer?.phone || '',
+            recipient_address: courierForm.recipient_address || defaultRecipientAddress,
             cod_amount: Number(courierForm.cod_amount || order?.due_amount || storeTotal || 0),
+            item_quantity: Math.max(Number(courierForm.item_quantity || totalQty || 0), 1),
+            item_description: courierForm.item_description || defaultItemDescription,
             note: courierForm.note || undefined,
         };
 
         if (courierProvider === 'pathao') {
-            const recipientAddress = [shipping?.address_line, shipping?.area, shipping?.zone, shipping?.city, shipping?.postal_code].filter(Boolean).join(', ');
-            const merchantOrderId = `${order?.order_number || parentOrder?.order_number || `STORE-ORDER-${order?.id || orderId}`}-${order?.id || orderId}`;
-            const itemDescription =
-                items
-                    .slice(0, 5)
-                    .map((item: any) => item.product_name || item?.product?.product_name || item?.product?.name)
-                    .filter(Boolean)
-                    .join(', ') || 'Ecommerce order items';
-
             return {
                 ...common,
-                merchant_order_id: merchantOrderId,
-                recipient_name: shipping?.name || customer?.name || 'Customer',
-                recipient_phone: shipping?.phone || customer?.mobile_number || customer?.phone || '',
-                recipient_address: recipientAddress || shipping?.address || '',
                 special_instruction: courierForm.note || undefined,
-                item_quantity: Math.max(Number(totalQty || 0), 1),
                 item_weight: Number(courierChargeForm.item_weight || courierForm.item_weight || 0.5),
-                item_description: itemDescription,
             };
         }
 
@@ -507,7 +630,7 @@ const EcommerceOrderDetailsPage = () => {
                 ...common,
                 delivery_area: courierForm.delivery_area,
                 delivery_area_id: Number(courierForm.delivery_area_id),
-                pickup_area_id: courierForm.pickup_area_id ? Number(courierForm.pickup_area_id) : undefined,
+                pickup_store_id: courierForm.pickup_store_id ? Number(courierForm.pickup_store_id) : undefined,
                 parcel_weight: Number(courierForm.parcel_weight || 500),
             };
         }
@@ -681,6 +804,7 @@ const EcommerceOrderDetailsPage = () => {
     const customerPhone = shipping?.phone || customer?.mobile_number || customer?.phone || '';
     const shippingAddress = [shipping?.address_line, shipping?.area, shipping?.zone, shipping?.city, shipping?.postal_code].filter(Boolean).join(', ');
     const courierCreatePreview = courierCreatePayload();
+    const previewProvider = String(courierCreatePreview.provider || '').toLowerCase();
     const courierPreviewRows: { label: string; value: ReactNode }[] = [
         { label: t('ecommerce_detail_provider'), value: String(courierCreatePreview.provider || '').toUpperCase() },
         { label: t('ecommerce_detail_merchant_order_id'), value: courierCreatePreview.merchant_order_id },
@@ -691,8 +815,35 @@ const EcommerceOrderDetailsPage = () => {
         { label: t('ecommerce_detail_item_weight'), value: courierCreatePreview.item_weight ? `${courierCreatePreview.item_weight} KG` : courierCreatePreview.parcel_weight ? `${courierCreatePreview.parcel_weight} g` : '' },
         { label: t('ecommerce_detail_item_quantity'), value: courierCreatePreview.item_quantity },
         { label: t('lbl_description'), value: courierCreatePreview.item_description || courierCreatePreview.delivery_area },
+        ...(previewProvider === 'redx'
+            ? [
+                  { label: t('ecommerce_detail_delivery_area'), value: courierCreatePreview.delivery_area },
+                  { label: t('ecommerce_detail_delivery_area_id'), value: courierCreatePreview.delivery_area_id },
+                  { label: t('ecommerce_detail_pickup_store_id'), value: courierCreatePreview.pickup_store_id },
+              ]
+            : []),
         { label: t('ecommerce_detail_courier_note'), value: courierCreatePreview.special_instruction || courierCreatePreview.note },
     ].filter((row) => row.value !== undefined && row.value !== null && row.value !== '');
+    const redxPickupLocation = latestRedxParcel?.pickup_location;
+    const redxParcelRows: { label: string; value: ReactNode }[] = latestRedxParcel
+        ? [
+              { label: t('ecommerce_detail_tracking_id'), value: latestRedxParcel.tracking_id || latestCourier?.tracking_code },
+              { label: t('ecommerce_detail_courier_status'), value: latestRedxParcel.status || latestCourier?.courier_status },
+              { label: t('ecommerce_detail_delivery_fee'), value: latestRedxParcel.charge !== undefined && latestRedxParcel.charge !== null ? formatCurrency(Number(latestRedxParcel.charge)) : '' },
+              { label: t('ecommerce_detail_recipient'), value: latestRedxParcel.customer_name },
+              { label: t('lbl_phone'), value: latestRedxParcel.customer_phone },
+              { label: t('ecommerce_detail_address'), value: latestRedxParcel.customer_address },
+              { label: t('ecommerce_detail_delivery_area'), value: latestRedxParcel.delivery_area },
+              { label: t('ecommerce_detail_delivery_area_id'), value: latestRedxParcel.delivery_area_id },
+              { label: t('ecommerce_detail_cod_amount'), value: latestRedxParcel.cash_collection_amount !== undefined && latestRedxParcel.cash_collection_amount !== null ? formatCurrency(Number(latestRedxParcel.cash_collection_amount)) : '' },
+              { label: t('ecommerce_detail_weight_gram'), value: latestRedxParcel.parcel_weight ? `${latestRedxParcel.parcel_weight} g` : '' },
+              { label: t('ecommerce_detail_merchant_order_id'), value: latestRedxParcel.merchant_invoice_id },
+              { label: t('ecommerce_detail_delivery_type'), value: latestRedxParcel.delivery_type },
+              { label: t('ecommerce_detail_courier_note'), value: latestRedxParcel.instruction },
+              { label: t('ecommerce_detail_redx_created_at'), value: latestRedxParcel.created_at },
+              { label: t('ecommerce_detail_pickup_location'), value: redxPickupLocation ? [redxPickupLocation.name, redxPickupLocation.address, redxPickupLocation.area_name, redxPickupLocation.area_id ? `#${redxPickupLocation.area_id}` : null].filter(Boolean).join(' - ') : '' },
+          ].filter((row) => row.value !== undefined && row.value !== null && row.value !== '')
+        : [];
     const hasTimeline = ECOMMERCE_ORDER_TIMESTAMPS.some(({ key }) => order?.[key]);
 
     return (
@@ -923,17 +1074,73 @@ const EcommerceOrderDetailsPage = () => {
                                                     <InputLabel label={t('ecommerce_detail_cod_amount')}>
                                                         <input value={courierForm.cod_amount} onChange={(event) => setCourierField('cod_amount', event.target.value)} className={controlClass} />
                                                     </InputLabel>
+                                                    <InputLabel label={t('ecommerce_detail_merchant_order_id')}>
+                                                        <input value={courierForm.merchant_order_id} onChange={(event) => setCourierField('merchant_order_id', event.target.value)} className={controlClass} />
+                                                    </InputLabel>
+                                                    <InputLabel label={t('ecommerce_detail_recipient')}>
+                                                        <input value={courierForm.recipient_name} onChange={(event) => setCourierField('recipient_name', event.target.value)} className={controlClass} />
+                                                    </InputLabel>
+                                                    <InputLabel label={t('lbl_phone')}>
+                                                        <input value={courierForm.recipient_phone} onChange={(event) => setCourierField('recipient_phone', event.target.value)} className={controlClass} />
+                                                    </InputLabel>
+                                                    <InputLabel label={t('ecommerce_detail_item_quantity')}>
+                                                        <input type="number" min="1" step="1" value={courierForm.item_quantity} onChange={(event) => setCourierField('item_quantity', event.target.value)} className={controlClass} />
+                                                    </InputLabel>
+                                                    <InputLabel label={t('ecommerce_detail_address')} className="md:col-span-2">
+                                                        <input value={courierForm.recipient_address} onChange={(event) => setCourierField('recipient_address', event.target.value)} className={controlClass} />
+                                                    </InputLabel>
+                                                    <InputLabel label={t('lbl_description')} className="md:col-span-2">
+                                                        <input value={courierForm.item_description} onChange={(event) => setCourierField('item_description', event.target.value)} className={controlClass} />
+                                                    </InputLabel>
 
                                                     {courierProvider === 'redx' && (
                                                         <>
+                                                            <div className="md:col-span-4">
+                                                                <InputLabel label={t('ecommerce_detail_redx_area_lookup')}>
+                                                                    <div className="grid gap-2 md:grid-cols-[1fr_auto]">
+                                                                        <input
+                                                                            value={redxAreaSearch}
+                                                                            onChange={(event) => setRedxAreaSearch(event.target.value)}
+                                                                            placeholder={t('ecommerce_detail_redx_area_lookup_placeholder')}
+                                                                            className={cn(controlClass, 'placeholder:text-slate-400')}
+                                                                        />
+                                                                        <Button type="button" variant="outline" onClick={handleRedxAreaSearch} disabled={isLoadingRedxAreas}>
+                                                                            {isLoadingRedxAreas && <Loader2 className="h-4 w-4 animate-spin" />}
+                                                                            {t('search')}
+                                                                        </Button>
+                                                                    </div>
+                                                                </InputLabel>
+                                                                {redxAreas.length > 0 && (
+                                                                    <select onChange={(event) => handleRedxAreaSelect(event.target.value)} className={cn(controlClass, 'mt-2')}>
+                                                                        <option value="">{t('ecommerce_detail_select_redx_area')}</option>
+                                                                        {redxAreas.map((area: any, index: number) => (
+                                                                            <option key={`${redxAreaId(area) || index}-${redxAreaName(area)}`} value={index}>
+                                                                                {redxAreaLabel(area)}
+                                                                            </option>
+                                                                        ))}
+                                                                    </select>
+                                                                )}
+                                                            </div>
                                                             <InputLabel label={t('ecommerce_detail_delivery_area')}>
                                                                 <input value={courierForm.delivery_area} onChange={(event) => setCourierField('delivery_area', event.target.value)} placeholder={t('ecommerce_detail_delivery_area_placeholder')} className={cn(controlClass, 'placeholder:text-slate-400')} />
                                                             </InputLabel>
                                                             <InputLabel label={t('ecommerce_detail_delivery_area_id')}>
                                                                 <input value={courierForm.delivery_area_id} onChange={(event) => setCourierField('delivery_area_id', event.target.value)} className={controlClass} />
                                                             </InputLabel>
-                                                            <InputLabel label={t('ecommerce_detail_pickup_area_id')}>
-                                                                <input value={courierForm.pickup_area_id} onChange={(event) => setCourierField('pickup_area_id', event.target.value)} placeholder={t('ecommerce_detail_optional_if_saved')} className={cn(controlClass, 'placeholder:text-slate-400')} />
+                                                            {redxPickupStores.length > 0 && (
+                                                                <InputLabel label={t('ecommerce_detail_pickup_store_id')} className="md:col-span-2">
+                                                                    <select value={courierForm.pickup_store_id} onChange={(event) => setCourierField('pickup_store_id', event.target.value)} className={controlClass}>
+                                                                        <option value="">{isLoadingRedxPickupStores ? t('lbl_loading') : t('ecommerce_detail_select_redx_pickup_store')}</option>
+                                                                        {redxPickupStores.map((pickupStore: any) => (
+                                                                            <option key={pickupStore.id} value={pickupStore.id}>
+                                                                                {redxPickupStoreLabel(pickupStore)}
+                                                                            </option>
+                                                                        ))}
+                                                                    </select>
+                                                                </InputLabel>
+                                                            )}
+                                                            <InputLabel label={t('ecommerce_detail_pickup_store_id')}>
+                                                                <input value={courierForm.pickup_store_id} onChange={(event) => setCourierField('pickup_store_id', event.target.value)} placeholder={t('ecommerce_detail_optional_if_saved')} className={cn(controlClass, 'placeholder:text-slate-400')} />
                                                             </InputLabel>
                                                             <InputLabel label={t('ecommerce_detail_weight_gram')}>
                                                                 <input value={courierForm.parcel_weight} onChange={(event) => setCourierField('parcel_weight', event.target.value)} className={controlClass} />
@@ -974,6 +1181,16 @@ const EcommerceOrderDetailsPage = () => {
                                                     <InfoLine label={t('ecommerce_detail_courier_updated_at')} value={latestCourier.courier_status_updated_at || latestCourierResponseData?.updated_at || latestCourier.updated_at} />
                                                     <InfoLine label={t('ecommerce_detail_invoice_id')} value={latestCourier.invoice_id || latestCourierResponseData?.invoice_id} />
                                                 </div>
+                                                {redxParcelRows.length > 0 && (
+                                                    <div className="space-y-3 rounded-md border border-emerald-100 bg-white/80 p-4">
+                                                        <h3 className="text-sm font-semibold text-emerald-950">{t('ecommerce_detail_redx_parcel_details')}</h3>
+                                                        <div className="grid gap-4 md:grid-cols-3">
+                                                            {redxParcelRows.map((row) => (
+                                                                <InfoLine key={row.label} label={row.label} value={row.value} />
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
                                         )}
 
