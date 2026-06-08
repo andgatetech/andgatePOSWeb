@@ -127,6 +127,30 @@ const ecommerceManagementApi = baseApi.injectEndpoints({
             providesTags: [{ type: 'EcommerceManagement', id: 'COURIER-CREDENTIALS' }],
         }),
 
+        getPathaoCities: builder.query({
+            query: (params = {}) => ({
+                url: '/ecommerce/management/couriers/pathao/cities',
+                method: 'GET',
+                params,
+            }),
+        }),
+
+        getPathaoZones: builder.query({
+            query: ({ cityId, store_id }: { cityId: number | string; store_id: number }) => ({
+                url: `/ecommerce/management/couriers/pathao/cities/${cityId}/zones`,
+                method: 'GET',
+                params: { store_id },
+            }),
+        }),
+
+        getPathaoAreas: builder.query({
+            query: ({ zoneId, store_id }: { zoneId: number | string; store_id: number }) => ({
+                url: `/ecommerce/management/couriers/pathao/zones/${zoneId}/areas`,
+                method: 'GET',
+                params: { store_id },
+            }),
+        }),
+
         runCourierFraudCheck: builder.mutation({
             query: (body: Record<string, any>) => ({
                 url: '/ecommerce/management/fraud-checks',
@@ -221,6 +245,9 @@ export const {
     useGetEcommerceCartsQuery,
     useGetEcommerceWishlistsQuery,
     useGetCourierCredentialsQuery,
+    useGetPathaoCitiesQuery,
+    useGetPathaoZonesQuery,
+    useGetPathaoAreasQuery,
     useRunCourierFraudCheckMutation,
     useRunStoreOrderFraudCheckMutation,
     useSaveCourierCredentialMutation,

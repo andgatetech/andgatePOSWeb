@@ -36,6 +36,8 @@ import {
     useCreateCourierShipmentMutation,
     useGetCourierCredentialsQuery,
     useGetEcommerceOrderQuery,
+    useGetPathaoCitiesQuery,
+    useGetPathaoZonesQuery,
     useRefreshCourierStatusMutation,
     useUpdateEcommerceOrderPaymentMutation,
     useUpdateEcommerceOrderStatusMutation,
@@ -66,6 +68,33 @@ type OrderStatus = (typeof ECOMMERCE_ORDER_STATUSES)[number];
 type PaymentStatus = (typeof ECOMMERCE_PAYMENT_STATUSES)[number];
 
 const STEPPER_FLOW: OrderStatus[] = ['pending', 'confirmed', 'packed', 'shipped', 'delivered', 'returned'];
+
+const getCourierFulfillmentSignal = (courierStatus?: string): { tone: 'info' | 'warning' | 'success'; suggestedStatus?: OrderStatus; messageKey: string } | null => {
+    const status = String(courierStatus || '').toLowerCase();
+    if (!status) return null;
+
+    if (status.includes('delivered')) {
+        return { tone: 'success', suggestedStatus: 'delivered', messageKey: 'ecommerce_detail_courier_signal_delivered' };
+    }
+
+    if (status.includes('return')) {
+        return { tone: 'warning', suggestedStatus: 'returned', messageKey: 'ecommerce_detail_courier_signal_returned' };
+    }
+
+    if (status.includes('pickup_cancelled') || status.includes('cancel')) {
+        return { tone: 'warning', messageKey: 'ecommerce_detail_courier_signal_pickup_cancelled' };
+    }
+
+    if (status.includes('picked') || status.includes('sorting') || status.includes('transit') || status.includes('last_mile') || status.includes('assigned_for_delivery')) {
+        return { tone: 'info', suggestedStatus: 'shipped', messageKey: 'ecommerce_detail_courier_signal_in_transit' };
+    }
+
+    if (status.includes('pending') || status.includes('pickup_requested') || status.includes('assigned_for_pickup')) {
+        return { tone: 'info', suggestedStatus: 'packed', messageKey: 'ecommerce_detail_courier_signal_pending_pickup' };
+    }
+
+    return null;
+};
 
 /* ------------------------------------------------------------------ */
 /*  Atoms                                                              */
@@ -196,6 +225,8 @@ const getStoreLabel = (stores: any[]) => {
     );
 };
 
+const getCourierResponseData = (courier: any) => courier?.provider_response?.data || courier?.response_payload?.data || {};
+
 const resolveStoreOrder = (response: any) => {
     const data = response?.data;
     return data?.store_order || data?.order || data?.data?.store_order || data?.data?.order || response?.store_order || response?.order || data || null;
@@ -206,6 +237,11 @@ const resolveStoreOrderItems = (storeOrder: any) => {
     if (Array.isArray(storeOrder?.order_items)) return storeOrder.order_items;
     if (Array.isArray(storeOrder?.store_items)) return storeOrder.store_items;
     return [];
+};
+
+const resolvePathaoList = (response: any) => {
+    const candidates = [response?.data?.data?.data, response?.data?.data, response?.data?.items, response?.data, response?.items];
+    return candidates.find(Array.isArray) || [];
 };
 
 const normalizePaymentStatus = (value?: string): PaymentStatus => {
@@ -293,6 +329,7 @@ const EcommerceOrderDetailsPage = () => {
     const [paymentAmount, setPaymentAmount] = useState('');
     const [paymentNote, setPaymentNote] = useState('');
     const [isDownloading, setIsDownloading] = useState(false);
+    const [isCourierConfirmOpen, setIsCourierConfirmOpen] = useState(false);
     const [courierProvider, setCourierProvider] = useState('pathao');
     const [courierForm, setCourierForm] = useState({
         delivery_area: '',
@@ -304,6 +341,14 @@ const EcommerceOrderDetailsPage = () => {
         recipient_zone: '',
         cod_amount: '',
         note: '',
+    });
+    const [courierChargeForm, setCourierChargeForm] = useState({
+        recipient_city: '',
+        recipient_zone: '',
+        item_weight: '0.5',
+        delivery_area_id: '',
+        pickup_area_id: '',
+        parcel_weight: '500',
     });
     const { data, isLoading, error } = useGetEcommerceOrderQuery(orderId, {
         skip: !hasValidOrderId,
@@ -329,6 +374,8 @@ const EcommerceOrderDetailsPage = () => {
     const shipping = order?.shipping_address || parentOrder?.shipping_address || {};
     const itemsSubtotal = useMemo(() => items.reduce((sum: number, item: any) => sum + Number(item?.subtotal || 0), 0), [items]);
     const storeItemsSubtotal = Number(order?.store_items_subtotal ?? order?.subtotal ?? itemsSubtotal ?? 0);
+    const storeOrderAmount = Number(order?.store_order_amount ?? storeItemsSubtotal ?? 0);
+    const storeShippingFee = Number(order?.store_shipping_fee ?? order?.shipping_fee ?? 0);
     const storeTotal = Number(order?.store_total ?? order?.total ?? storeItemsSubtotal ?? 0);
     const courierStoreId = Number(order?.store_id || order?.store?.id || currentStoreId || 0);
     const { data: courierCredentialsData } = useGetCourierCredentialsQuery({ store_id: courierStoreId }, { skip: !courierStoreId });
@@ -337,7 +384,18 @@ const EcommerceOrderDetailsPage = () => {
         return Array.isArray(items) ? items : [];
     }, [courierCredentialsData]);
     const availableCouriers = useMemo(() => courierCredentials.filter((item: any) => item.is_active), [courierCredentials]);
+    const canLoadPathaoLocations = courierProvider === 'pathao' && courierStoreId > 0 && availableCouriers.some((item: any) => item.provider === 'pathao');
+    const { data: pathaoCitiesData, isFetching: isLoadingPathaoCities } = useGetPathaoCitiesQuery({ store_id: courierStoreId }, { skip: !canLoadPathaoLocations });
+    const { data: pathaoZonesData, isFetching: isLoadingPathaoZones } = useGetPathaoZonesQuery(
+        { cityId: courierChargeForm.recipient_city, store_id: courierStoreId },
+        { skip: !canLoadPathaoLocations || !courierChargeForm.recipient_city }
+    );
+    const pathaoCities = useMemo(() => resolvePathaoList(pathaoCitiesData), [pathaoCitiesData]);
+    const pathaoZones = useMemo(() => resolvePathaoList(pathaoZonesData), [pathaoZonesData]);
     const latestCourier = order?.courier || order?.latest_courier_shipment || order?.courier_shipments?.[0] || null;
+    const latestCourierResponseData = getCourierResponseData(latestCourier);
+    const latestCourierStatus = latestCourierResponseData?.order_status_slug || latestCourierResponseData?.order_status || latestCourier?.courier_status;
+    const courierFulfillmentSignal = getCourierFulfillmentSignal(latestCourierStatus);
     const totalQty = useMemo(() => items.reduce((sum: number, item: any) => sum + Number(item?.quantity || 0), 0), [items]);
     const paymentMethod = order?.payment_method || order?.latest_payment_method || primaryTransaction?.payment_method;
     const paymentStatus = order?.payment_status || order?.latest_payment_status || primaryTransaction?.payment_status;
@@ -406,7 +464,15 @@ const EcommerceOrderDetailsPage = () => {
         setCourierForm((prev) => ({ ...prev, [field]: value }));
     };
 
-    const courierPayload = () => {
+    const setCourierChargeField = (field: keyof typeof courierChargeForm, value: string) => {
+        setCourierChargeForm((prev) => ({
+            ...prev,
+            [field]: value,
+            ...(field === 'recipient_city' ? { recipient_zone: '' } : {}),
+        }));
+    };
+
+    const courierCreatePayload = () => {
         const common: Record<string, any> = {
             provider: courierProvider,
             cod_amount: Number(courierForm.cod_amount || order?.due_amount || storeTotal || 0),
@@ -414,11 +480,25 @@ const EcommerceOrderDetailsPage = () => {
         };
 
         if (courierProvider === 'pathao') {
+            const recipientAddress = [shipping?.address_line, shipping?.area, shipping?.zone, shipping?.city, shipping?.postal_code].filter(Boolean).join(', ');
+            const merchantOrderId = `${order?.order_number || parentOrder?.order_number || `STORE-ORDER-${order?.id || orderId}`}-${order?.id || orderId}`;
+            const itemDescription =
+                items
+                    .slice(0, 5)
+                    .map((item: any) => item.product_name || item?.product?.product_name || item?.product?.name)
+                    .filter(Boolean)
+                    .join(', ') || 'Ecommerce order items';
+
             return {
                 ...common,
-                recipient_city: Number(courierForm.recipient_city),
-                recipient_zone: Number(courierForm.recipient_zone),
-                item_weight: Number(courierForm.item_weight || 0.5),
+                merchant_order_id: merchantOrderId,
+                recipient_name: shipping?.name || customer?.name || 'Customer',
+                recipient_phone: shipping?.phone || customer?.mobile_number || customer?.phone || '',
+                recipient_address: recipientAddress || shipping?.address || '',
+                special_instruction: courierForm.note || undefined,
+                item_quantity: Math.max(Number(totalQty || 0), 1),
+                item_weight: Number(courierChargeForm.item_weight || courierForm.item_weight || 0.5),
+                item_description: itemDescription,
             };
         }
 
@@ -435,10 +515,37 @@ const EcommerceOrderDetailsPage = () => {
         return common;
     };
 
+    const courierPricePayload = () => {
+        const common: Record<string, any> = {
+            provider: courierProvider,
+            cod_amount: Number(courierForm.cod_amount || order?.due_amount || storeTotal || 0),
+        };
+
+        if (courierProvider === 'pathao') {
+            return {
+                ...common,
+                recipient_city: Number(courierChargeForm.recipient_city),
+                recipient_zone: Number(courierChargeForm.recipient_zone),
+                item_weight: Number(courierChargeForm.item_weight || 0.5),
+            };
+        }
+
+        if (courierProvider === 'redx') {
+            return {
+                ...common,
+                delivery_area_id: Number(courierChargeForm.delivery_area_id),
+                pickup_area_id: courierChargeForm.pickup_area_id ? Number(courierChargeForm.pickup_area_id) : undefined,
+                parcel_weight: Number(courierChargeForm.parcel_weight || 500),
+            };
+        }
+
+        return common;
+    };
+
     const handleCourierPrice = async () => {
         if (!order?.id) return;
         try {
-            const response = await calculateCourierPrice({ id: order.id, ...courierPayload() }).unwrap();
+            const response = await calculateCourierPrice({ id: order.id, ...courierPricePayload() }).unwrap();
             const payload = response?.data || response;
             const price = payload?.data?.final_price ?? payload?.deliveryCharge ?? payload?.final_price ?? payload?.price;
             showSuccessDialog(t('ecommerce_detail_courier_charge'), price !== undefined ? t('ecommerce_detail_estimated_charge', { amount: formatCurrency(Number(price)) }) : t('ecommerce_detail_courier_charge_returned'));
@@ -450,8 +557,11 @@ const EcommerceOrderDetailsPage = () => {
     const handleCourierCreate = async () => {
         if (!order?.id) return;
         try {
-            await createCourierShipment({ id: order.id, ...courierPayload() }).unwrap();
-            showSuccessDialog(t('ecommerce_detail_parcel_created'), t('ecommerce_detail_parcel_created_desc'));
+            const response = await createCourierShipment({ id: order.id, ...courierCreatePayload() }).unwrap();
+            const payload = response?.data || response;
+            const consignment = payload?.consignment_id || payload?.data?.consignment_id;
+            setIsCourierConfirmOpen(false);
+            showSuccessDialog(t('ecommerce_detail_parcel_created'), consignment ? t('ecommerce_detail_parcel_created_with_consignment', { consignment }) : t('ecommerce_detail_parcel_created_desc'));
         } catch (createError) {
             showErrorDialog(t('ecommerce_detail_create_failed'), formatApiError(createError));
         }
@@ -460,8 +570,10 @@ const EcommerceOrderDetailsPage = () => {
     const handleCourierStatus = async () => {
         if (!order?.id || !latestCourier?.provider) return;
         try {
-            await refreshCourierStatus({ id: order.id, provider: latestCourier.provider }).unwrap();
-            showSuccessDialog(t('ecommerce_detail_status_refreshed'), t('ecommerce_detail_courier_status_updated'));
+            const response = await refreshCourierStatus({ id: order.id, provider: latestCourier.provider }).unwrap();
+            const providerResponse = response?.data?.provider_response || response?.provider_response;
+            const refreshedStatus = providerResponse?.data?.order_status_slug || providerResponse?.data?.order_status || response?.data?.shipment?.courier_status;
+            showSuccessDialog(t('ecommerce_detail_status_refreshed'), refreshedStatus ? t('ecommerce_detail_courier_status_now', { status: refreshedStatus }) : t('ecommerce_detail_courier_status_updated'));
         } catch (statusError) {
             showErrorDialog(t('ecommerce_detail_status_failed'), formatApiError(statusError));
         }
@@ -568,6 +680,19 @@ const EcommerceOrderDetailsPage = () => {
     const orderNumber = order.order_number || parentOrder?.order_number || `STORE-ORDER-${order.id || orderId}`;
     const customerPhone = shipping?.phone || customer?.mobile_number || customer?.phone || '';
     const shippingAddress = [shipping?.address_line, shipping?.area, shipping?.zone, shipping?.city, shipping?.postal_code].filter(Boolean).join(', ');
+    const courierCreatePreview = courierCreatePayload();
+    const courierPreviewRows: { label: string; value: ReactNode }[] = [
+        { label: t('ecommerce_detail_provider'), value: String(courierCreatePreview.provider || '').toUpperCase() },
+        { label: t('ecommerce_detail_merchant_order_id'), value: courierCreatePreview.merchant_order_id },
+        { label: t('ecommerce_detail_recipient'), value: courierCreatePreview.recipient_name },
+        { label: t('lbl_phone'), value: courierCreatePreview.recipient_phone },
+        { label: t('ecommerce_detail_address'), value: courierCreatePreview.recipient_address },
+        { label: t('ecommerce_detail_cod_amount'), value: formatCurrency(Number(courierCreatePreview.cod_amount || 0)) },
+        { label: t('ecommerce_detail_item_weight'), value: courierCreatePreview.item_weight ? `${courierCreatePreview.item_weight} KG` : courierCreatePreview.parcel_weight ? `${courierCreatePreview.parcel_weight} g` : '' },
+        { label: t('ecommerce_detail_item_quantity'), value: courierCreatePreview.item_quantity },
+        { label: t('lbl_description'), value: courierCreatePreview.item_description || courierCreatePreview.delivery_area },
+        { label: t('ecommerce_detail_courier_note'), value: courierCreatePreview.special_instruction || courierCreatePreview.note },
+    ].filter((row) => row.value !== undefined && row.value !== null && row.value !== '');
     const hasTimeline = ECOMMERCE_ORDER_TIMESTAMPS.some(({ key }) => order?.[key]);
 
     return (
@@ -589,11 +714,11 @@ const EcommerceOrderDetailsPage = () => {
                                         <Globe2 className="h-3.5 w-3.5" />
                                         {t('ecommerce_detail_badge')}
                                     </span>
-                                    <StatusBadge status={order.status} />
-                                    <StatusBadge status={paymentStatus} />
+                                    <StatusBadge status={order.status} label={`${t('ecommerce_detail_fulfillment')}: ${getEcommerceStatusLabel(order.status)}`} />
+                                    <StatusBadge status={paymentStatus} label={`${t('ecommerce_detail_payment')}: ${getEcommerceStatusLabel(paymentStatus)}`} />
                                     {latestCourier && (
                                         <Badge variant="outline" className="capitalize">
-                                            {latestCourier.provider} {t('ecommerce_detail_parcel')}
+                                            {t('ecommerce_detail_courier')}: {latestCourier.provider} {t('ecommerce_detail_parcel')}
                                         </Badge>
                                     )}
                                 </div>
@@ -617,7 +742,7 @@ const EcommerceOrderDetailsPage = () => {
                     </div>
 
                     <div className="grid sm:grid-cols-2 xl:grid-cols-4">
-                        <SummaryMetric label={t('ecommerce_detail_store_total')} value={formatCurrency(storeTotal)} icon={Banknote} tone="primary" />
+                        <SummaryMetric label={t('ecommerce_detail_store_order_amount')} value={formatCurrency(storeOrderAmount)} icon={Banknote} tone="primary" />
                         <SummaryMetric label={t('ecommerce_detail_items')} value={t('ecommerce_detail_items_metric', { lines: items.length, units: totalQty })} icon={Package} />
                         <SummaryMetric label={t('ecommerce_detail_payment')} value={getEcommercePaymentMethodLabel(paymentMethod)} icon={CreditCard} tone={normalizePaymentStatus(paymentStatus) === 'paid' ? 'success' : 'warning'} />
                         <SummaryMetric label={t('ecommerce_detail_source')} value={getEcommerceSourceLabel(order?.source || parentOrder?.source)} icon={Store} />
@@ -626,6 +751,52 @@ const EcommerceOrderDetailsPage = () => {
 
                 <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_390px]">
                     <main className="space-y-5">
+                        <Card>
+                            <CardHeader className="flex-row items-center justify-between p-5">
+                                <SectionTitle icon={ShoppingBag} title={t('ecommerce_detail_items_count', { count: items.length })} description={t('ecommerce_detail_items_desc', { count: totalQty })} />
+                                <span className="text-sm font-semibold text-slate-900">{formatCurrency(storeItemsSubtotal)}</span>
+                            </CardHeader>
+                            <CardContent className="p-0">
+                                <div className="overflow-x-auto">
+                                    <table className="w-full min-w-[760px] text-sm">
+                                        <thead className="bg-slate-50">
+                                            <tr className="border-y border-slate-200 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                                                <th className="px-5 py-3">{t('ecommerce_detail_product')}</th>
+                                                <th className="px-5 py-3">{t('ecommerce_detail_sku')}</th>
+                                                <th className="px-5 py-3 text-center">{t('lbl_qty')}</th>
+                                                <th className="px-5 py-3 text-right">{t('lbl_unit_price')}</th>
+                                                <th className="px-5 py-3 text-right">{t('lbl_subtotal')}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-100">
+                                            {items.map((item: any) => (
+                                                <tr key={item.id} className="transition hover:bg-primary/5">
+                                                    <td className="px-5 py-4">
+                                                        <div className="font-semibold text-slate-950">{item.product_name || item?.product?.product_name || item?.product?.name || getEcommerceFallbackText()}</div>
+                                                        {formatVariantText(item.variant_data) && <div className="mt-1 text-xs text-slate-500">{formatVariantText(item.variant_data)}</div>}
+                                                    </td>
+                                                    <td className="px-5 py-4">
+                                                        <span className="font-mono text-xs text-slate-600">{item.sku || item?.product?.sku || getEcommerceFallbackText()}</span>
+                                                    </td>
+                                                    <td className="px-5 py-4 text-center font-semibold text-slate-900">{item.quantity}</td>
+                                                    <td className="px-5 py-4 text-right text-slate-700">{formatCurrency(item.unit_price)}</td>
+                                                    <td className="px-5 py-4 text-right font-semibold text-slate-950">{formatCurrency(item.subtotal)}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                        <tfoot className="bg-slate-50">
+                                            <tr>
+                                                <td colSpan={4} className="px-5 py-3 text-right text-sm font-semibold text-slate-600">
+                                                    {t('ecommerce_store_items_subtotal')}
+                                                </td>
+                                                <td className="px-5 py-3 text-right text-sm font-bold text-slate-950">{formatCurrency(storeItemsSubtotal)}</td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </CardContent>
+                        </Card>
+
                         <Card className="animate-slide-up">
                             <CardHeader className="flex-row items-start justify-between gap-4 p-5">
                                 <SectionTitle icon={Truck} title={t('ecommerce_detail_fulfillment')} description={t('ecommerce_detail_fulfillment_desc')} />
@@ -645,6 +816,34 @@ const EcommerceOrderDetailsPage = () => {
                             </CardHeader>
                             <CardContent className="border-t border-slate-100 p-5">
                                 <OrderStatusStepper status={status} />
+                                {latestCourier && (
+                                    <div className="mt-4 rounded-md border border-sky-100 bg-sky-50 px-4 py-3 text-sm text-sky-900">
+                                        <span className="font-semibold">{t('ecommerce_detail_courier_tracking')}:</span>{' '}
+                                        <span className="capitalize">{latestCourier.provider}</span> {latestCourierStatus || t('ecommerce_detail_waiting_for_courier_status')}
+                                        {latestCourier.consignment_id ? ` (${latestCourier.consignment_id})` : ''}
+                                        <span className="ml-1 text-sky-700">{t('ecommerce_detail_courier_tracking_note')}</span>
+                                    </div>
+                                )}
+                                {courierFulfillmentSignal && (
+                                    <div
+                                        className={cn(
+                                            'mt-3 flex flex-col gap-3 rounded-md border px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between',
+                                            courierFulfillmentSignal.tone === 'success' && 'border-emerald-100 bg-emerald-50 text-emerald-900',
+                                            courierFulfillmentSignal.tone === 'warning' && 'border-amber-100 bg-amber-50 text-amber-900',
+                                            courierFulfillmentSignal.tone === 'info' && 'border-sky-100 bg-sky-50 text-sky-900'
+                                        )}
+                                    >
+                                        <div>
+                                            <p className="font-semibold">{t('ecommerce_detail_courier_fulfillment_check')}</p>
+                                            <p className="mt-1 leading-5">{t(courierFulfillmentSignal.messageKey)}</p>
+                                        </div>
+                                        {courierFulfillmentSignal.suggestedStatus && status !== courierFulfillmentSignal.suggestedStatus && (
+                                            <Button variant="outline" onClick={() => setStatus(courierFulfillmentSignal.suggestedStatus as OrderStatus)} className="shrink-0">
+                                                {t('ecommerce_detail_set_fulfillment_to', { status: getEcommerceStatusLabel(courierFulfillmentSignal.suggestedStatus) })}
+                                            </Button>
+                                        )}
+                                    </div>
+                                )}
                             </CardContent>
                         </Card>
 
@@ -723,20 +922,6 @@ const EcommerceOrderDetailsPage = () => {
                                                 <input value={courierForm.cod_amount} onChange={(event) => setCourierField('cod_amount', event.target.value)} className={controlClass} />
                                             </InputLabel>
 
-                                            {courierProvider === 'pathao' && (
-                                                <>
-                                                    <InputLabel label={t('ecommerce_detail_city_id')}>
-                                                        <input value={courierForm.recipient_city} onChange={(event) => setCourierField('recipient_city', event.target.value)} className={controlClass} />
-                                                    </InputLabel>
-                                                    <InputLabel label={t('ecommerce_detail_zone_id')}>
-                                                        <input value={courierForm.recipient_zone} onChange={(event) => setCourierField('recipient_zone', event.target.value)} className={controlClass} />
-                                                    </InputLabel>
-                                                    <InputLabel label={t('ecommerce_detail_weight_kg')}>
-                                                        <input value={courierForm.item_weight} onChange={(event) => setCourierField('item_weight', event.target.value)} className={controlClass} />
-                                                    </InputLabel>
-                                                </>
-                                            )}
-
                                             {courierProvider === 'redx' && (
                                                 <>
                                                     <InputLabel label={t('ecommerce_detail_delivery_area')}>
@@ -755,22 +940,50 @@ const EcommerceOrderDetailsPage = () => {
                                             )}
                                         </div>
 
-                                        <InputLabel label={t('ecommerce_detail_courier_note')}>
-                                            <input value={courierForm.note} onChange={(event) => setCourierField('note', event.target.value)} className={controlClass} />
-                                        </InputLabel>
+                                        {!latestCourier && (
+                                            <>
+                                                <InputLabel label={t('ecommerce_detail_courier_note')}>
+                                                    <input value={courierForm.note} onChange={(event) => setCourierField('note', event.target.value)} className={controlClass} />
+                                                </InputLabel>
 
-                                        <div className="flex flex-wrap gap-2">
-                                            {courierProvider !== 'steadfast' && (
-                                                <Button variant="outline" onClick={handleCourierPrice} disabled={isCalculatingCourier}>
-                                                    {isCalculatingCourier && <Loader2 className="h-4 w-4 animate-spin" />}
-                                                    {t('ecommerce_detail_calculate_charge')}
+                                                <div className="space-y-3 rounded-md border border-slate-100 bg-slate-50 p-4">
+                                                    <div>
+                                                        <h3 className="text-sm font-semibold text-slate-950">{t('ecommerce_detail_create_parcel_details')}</h3>
+                                                        <p className="mt-1 text-xs leading-5 text-slate-500">{t('ecommerce_detail_create_parcel_details_desc')}</p>
+                                                    </div>
+                                                    <div className="grid gap-4 md:grid-cols-3">
+                                                        {courierPreviewRows.map((row) => (
+                                                            <InfoLine key={row.label} label={row.label} value={row.value} />
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </>
+                                        )}
+
+                                        {latestCourier && (
+                                            <div className="space-y-3 rounded-md border border-emerald-100 bg-emerald-50 p-4">
+                                                <div>
+                                                    <h3 className="text-sm font-semibold text-emerald-950">{t('ecommerce_detail_existing_parcel')}</h3>
+                                                    <p className="mt-1 text-xs leading-5 text-emerald-700">{t('ecommerce_detail_existing_parcel_desc')}</p>
+                                                </div>
+                                                <div className="grid gap-4 md:grid-cols-3">
+                                                    <InfoLine label={t('ecommerce_detail_consignment_id')} value={latestCourier.consignment_id} />
+                                                    <InfoLine label={t('ecommerce_detail_merchant_order_id')} value={latestCourier.merchant_order_id} />
+                                                    <InfoLine label={t('ecommerce_detail_courier_status')} value={latestCourierStatus} />
+                                                    <InfoLine label={t('ecommerce_detail_delivery_fee')} value={latestCourier.delivery_fee !== null && latestCourier.delivery_fee !== undefined ? formatCurrency(Number(latestCourier.delivery_fee)) : ''} />
+                                                    <InfoLine label={t('ecommerce_detail_courier_updated_at')} value={latestCourier.courier_status_updated_at || latestCourierResponseData?.updated_at || latestCourier.updated_at} />
+                                                    <InfoLine label={t('ecommerce_detail_invoice_id')} value={latestCourier.invoice_id || latestCourierResponseData?.invoice_id} />
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        <div className="flex flex-wrap gap-2 border-t border-slate-100 pt-4">
+                                            {!latestCourier ? (
+                                                <Button onClick={() => setIsCourierConfirmOpen(true)} disabled={isCreatingCourier}>
+                                                    {isCreatingCourier && <Loader2 className="h-4 w-4 animate-spin" />}
+                                                    {t('ecommerce_detail_create_parcel')}
                                                 </Button>
-                                            )}
-                                            <Button onClick={handleCourierCreate} disabled={isCreatingCourier}>
-                                                {isCreatingCourier && <Loader2 className="h-4 w-4 animate-spin" />}
-                                                {t('ecommerce_detail_create_parcel')}
-                                            </Button>
-                                            {latestCourier && (
+                                            ) : (
                                                 <Button variant="secondary" onClick={handleCourierStatus} disabled={isRefreshingCourier}>
                                                     {isRefreshingCourier && <Loader2 className="h-4 w-4 animate-spin" />}
                                                     {t('ecommerce_detail_refresh_status')}
@@ -782,6 +995,72 @@ const EcommerceOrderDetailsPage = () => {
                             </CardContent>
                         </Card>
 
+                        {availableCouriers.length > 0 && courierProvider !== 'steadfast' && (
+                            <Card>
+                                <CardHeader className="p-5">
+                                    <SectionTitle icon={Truck} title={t('ecommerce_detail_delivery_charge_check')} description={t('ecommerce_detail_delivery_charge_check_desc')} />
+                                </CardHeader>
+                                <CardContent className="space-y-4 border-t border-slate-100 p-5">
+                                    {courierProvider === 'pathao' && (
+                                        <div className="grid gap-4 md:grid-cols-3">
+                                            <InputLabel label={t('ecommerce_detail_city')}>
+                                                <select
+                                                    value={courierChargeForm.recipient_city}
+                                                    onChange={(event) => setCourierChargeField('recipient_city', event.target.value)}
+                                                    className={controlClass}
+                                                    disabled={isLoadingPathaoCities}
+                                                >
+                                                    <option value="">{isLoadingPathaoCities ? t('lbl_loading') : t('ecommerce_detail_select_city')}</option>
+                                                    {pathaoCities.map((city: any) => (
+                                                        <option key={city.city_id} value={city.city_id}>
+                                                            {city.city_name} ({city.city_id})
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </InputLabel>
+                                            <InputLabel label={t('ecommerce_detail_zone')}>
+                                                <select
+                                                    value={courierChargeForm.recipient_zone}
+                                                    onChange={(event) => setCourierChargeField('recipient_zone', event.target.value)}
+                                                    className={controlClass}
+                                                    disabled={!courierChargeForm.recipient_city || isLoadingPathaoZones}
+                                                >
+                                                    <option value="">{isLoadingPathaoZones ? t('lbl_loading') : t('ecommerce_detail_select_zone')}</option>
+                                                    {pathaoZones.map((zone: any) => (
+                                                        <option key={zone.zone_id} value={zone.zone_id}>
+                                                            {zone.zone_name} ({zone.zone_id})
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </InputLabel>
+                                            <InputLabel label={t('ecommerce_detail_weight_kg')}>
+                                                <input value={courierChargeForm.item_weight} onChange={(event) => setCourierChargeField('item_weight', event.target.value)} className={controlClass} />
+                                            </InputLabel>
+                                        </div>
+                                    )}
+
+                                    {courierProvider === 'redx' && (
+                                        <div className="grid gap-4 md:grid-cols-3">
+                                            <InputLabel label={t('ecommerce_detail_delivery_area_id')}>
+                                                <input value={courierChargeForm.delivery_area_id} onChange={(event) => setCourierChargeField('delivery_area_id', event.target.value)} className={controlClass} />
+                                            </InputLabel>
+                                            <InputLabel label={t('ecommerce_detail_pickup_area_id')}>
+                                                <input value={courierChargeForm.pickup_area_id} onChange={(event) => setCourierChargeField('pickup_area_id', event.target.value)} placeholder={t('ecommerce_detail_optional_if_saved')} className={cn(controlClass, 'placeholder:text-slate-400')} />
+                                            </InputLabel>
+                                            <InputLabel label={t('ecommerce_detail_weight_gram')}>
+                                                <input value={courierChargeForm.parcel_weight} onChange={(event) => setCourierChargeField('parcel_weight', event.target.value)} className={controlClass} />
+                                            </InputLabel>
+                                        </div>
+                                    )}
+
+                                    <Button variant="outline" onClick={handleCourierPrice} disabled={isCalculatingCourier}>
+                                        {isCalculatingCourier && <Loader2 className="h-4 w-4 animate-spin" />}
+                                        {t('ecommerce_detail_calculate_charge')}
+                                    </Button>
+                                </CardContent>
+                            </Card>
+                        )}
+
                         <CourierFraudCheckPanel
                             storeId={courierStoreId || null}
                             storeOrderId={order?.id || orderId}
@@ -789,52 +1068,6 @@ const EcommerceOrderDetailsPage = () => {
                             title={t('ecommerce_detail_order_fraud_check')}
                             description={t('ecommerce_detail_order_fraud_check_desc')}
                         />
-
-                        <Card>
-                            <CardHeader className="flex-row items-center justify-between p-5">
-                                <SectionTitle icon={ShoppingBag} title={t('ecommerce_detail_items_count', { count: items.length })} description={t('ecommerce_detail_items_desc', { count: totalQty })} />
-                                <span className="text-sm font-semibold text-slate-900">{formatCurrency(storeItemsSubtotal)}</span>
-                            </CardHeader>
-                            <CardContent className="p-0">
-                                <div className="overflow-x-auto">
-                                    <table className="w-full min-w-[760px] text-sm">
-                                        <thead className="bg-slate-50">
-                                            <tr className="border-y border-slate-200 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                                                <th className="px-5 py-3">{t('ecommerce_detail_product')}</th>
-                                                <th className="px-5 py-3">{t('ecommerce_detail_sku')}</th>
-                                                <th className="px-5 py-3 text-center">{t('lbl_qty')}</th>
-                                                <th className="px-5 py-3 text-right">{t('lbl_unit_price')}</th>
-                                                <th className="px-5 py-3 text-right">{t('lbl_subtotal')}</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-slate-100">
-                                            {items.map((item: any) => (
-                                                <tr key={item.id} className="transition hover:bg-primary/5">
-                                                    <td className="px-5 py-4">
-                                                        <div className="font-semibold text-slate-950">{item.product_name || item?.product?.product_name || item?.product?.name || getEcommerceFallbackText()}</div>
-                                                        {formatVariantText(item.variant_data) && <div className="mt-1 text-xs text-slate-500">{formatVariantText(item.variant_data)}</div>}
-                                                    </td>
-                                                    <td className="px-5 py-4">
-                                                        <span className="font-mono text-xs text-slate-600">{item.sku || item?.product?.sku || getEcommerceFallbackText()}</span>
-                                                    </td>
-                                                    <td className="px-5 py-4 text-center font-semibold text-slate-900">{item.quantity}</td>
-                                                    <td className="px-5 py-4 text-right text-slate-700">{formatCurrency(item.unit_price)}</td>
-                                                    <td className="px-5 py-4 text-right font-semibold text-slate-950">{formatCurrency(item.subtotal)}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                        <tfoot className="bg-slate-50">
-                                            <tr>
-                                                <td colSpan={4} className="px-5 py-3 text-right text-sm font-semibold text-slate-600">
-                                                    {t('ecommerce_store_items_subtotal')}
-                                                </td>
-                                                <td className="px-5 py-3 text-right text-sm font-bold text-slate-950">{formatCurrency(storeItemsSubtotal)}</td>
-                                            </tr>
-                                        </tfoot>
-                                    </table>
-                                </div>
-                            </CardContent>
-                        </Card>
 
                         <Card>
                             <CardHeader className="p-5">
@@ -880,17 +1113,15 @@ const EcommerceOrderDetailsPage = () => {
                     <aside className="space-y-5 xl:sticky xl:top-5 xl:self-start">
                         <Card className="overflow-hidden">
                             <div className="bg-slate-950 px-5 py-4 text-white">
-                                <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-300">{t('ecommerce_detail_order_total')}</p>
-                                <p className="mt-1 text-3xl font-semibold tracking-tight">{formatCurrency(storeTotal)}</p>
-                                <div className="mt-3 flex flex-wrap gap-2">
-                                    <StatusBadge status={order.status} />
-                                    <StatusBadge status={paymentStatus} />
-                                </div>
+                                <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-300">{t('ecommerce_detail_store_order_amount')}</p>
+                                <p className="mt-1 text-3xl font-semibold tracking-tight">{formatCurrency(storeOrderAmount)}</p>
+                                <p className="mt-2 text-xs leading-5 text-slate-300">{t('ecommerce_detail_store_order_amount_desc')}</p>
                             </div>
                             <div className="divide-y divide-slate-100">
                                 <CompactInfoRow label={t('ecommerce_detail_store_shop')} value={getStoreLabel(stores)} />
                                 <CompactInfoRow label={t('ecommerce_detail_source')} value={getEcommerceSourceLabel(order?.source || parentOrder?.source)} />
-                                <CompactInfoRow label={t('lbl_subtotal')} value={formatCurrency(storeItemsSubtotal)} />
+                                <CompactInfoRow label={t('ecommerce_store_items_subtotal')} value={formatCurrency(storeItemsSubtotal)} />
+                                <CompactInfoRow label={t('ecommerce_detail_shipping')} value={formatCurrency(storeShippingFee)} />
                                 <CompactInfoRow label={t('ecommerce_detail_payment')} value={getEcommercePaymentMethodLabel(paymentMethod)} />
                                 <CompactInfoRow label={t('lbl_created')} value={order.created_at} />
                             </div>
@@ -976,6 +1207,33 @@ const EcommerceOrderDetailsPage = () => {
                         )}
                     </aside>
             </div>
+
+            {isCourierConfirmOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4">
+                    <div className="w-full max-w-2xl overflow-hidden rounded-lg bg-white shadow-2xl">
+                        <div className="border-b border-slate-100 p-5">
+                            <h2 className="text-base font-semibold text-slate-950">{t('ecommerce_detail_confirm_create_parcel')}</h2>
+                            <p className="mt-1 text-sm leading-6 text-slate-500">{t('ecommerce_detail_confirm_create_parcel_desc')}</p>
+                        </div>
+                        <div className="max-h-[65vh] overflow-y-auto p-5">
+                            <div className="grid gap-4 md:grid-cols-2">
+                                {courierPreviewRows.map((row) => (
+                                    <InfoLine key={row.label} label={row.label} value={row.value} />
+                                ))}
+                            </div>
+                        </div>
+                        <div className="flex flex-wrap justify-end gap-2 border-t border-slate-100 p-5">
+                            <Button variant="outline" onClick={() => setIsCourierConfirmOpen(false)} disabled={isCreatingCourier}>
+                                {t('lbl_cancel')}
+                            </Button>
+                            <Button onClick={handleCourierCreate} disabled={isCreatingCourier}>
+                                {isCreatingCourier && <Loader2 className="h-4 w-4 animate-spin" />}
+                                {t('ecommerce_detail_confirm_create_parcel_action')}
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
