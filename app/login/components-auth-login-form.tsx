@@ -90,7 +90,22 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
             dispatch(login({ user, token, tokenExpiresAt: validTokenExpiresAt, permissions }));
 
             const redirectTo = searchParams.get('redirect');
-            const safePath = redirectTo && redirectTo.startsWith('/') ? redirectTo : '/dashboard';
+            const safePath = (() => {
+                if (!redirectTo || !redirectTo.startsWith('/') || redirectTo.startsWith('//')) {
+                    return '/dashboard';
+                }
+
+                try {
+                    const redirectUrl = new URL(redirectTo, window.location.origin);
+                    if (redirectUrl.origin !== window.location.origin || redirectUrl.pathname === '/login') {
+                        return '/dashboard';
+                    }
+
+                    return `${redirectUrl.pathname}${redirectUrl.search}`;
+                } catch {
+                    return '/dashboard';
+                }
+            })();
             router.push(safePath);
         } catch (error: any) {
             console.error('Login failed:', error);

@@ -32,6 +32,33 @@ const PUBLIC_PATHS = [
 const isPublicPath = (path: string) =>
     PUBLIC_PATHS.some(p => path === p || (p !== '/' && path.startsWith(p + '/')));
 
+const getOriginalPath = (request: NextRequest) => `${request.nextUrl.pathname}${request.nextUrl.search}`;
+
+const getLoginRedirectUrl = (request: NextRequest) => {
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('redirect', getOriginalPath(request));
+    return loginUrl;
+};
+
+const getSafePostLoginPath = (request: NextRequest) => {
+    const redirect = request.nextUrl.searchParams.get('redirect');
+    if (!redirect || !redirect.startsWith('/') || redirect.startsWith('//')) {
+        return '/dashboard';
+    }
+
+    const redirectUrl = new URL(redirect, request.url);
+    if (redirectUrl.origin !== request.nextUrl.origin) {
+        return '/dashboard';
+    }
+
+    const normalizedRedirectPath = normalizeRoutePath(redirectUrl.pathname);
+    if (isPublicPath(normalizedRedirectPath)) {
+        return '/dashboard';
+    }
+
+    return `${redirectUrl.pathname}${redirectUrl.search}`;
+};
+
 export function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
@@ -79,17 +106,17 @@ export function proxy(request: NextRequest) {
             return clearAuthCookies(response);
         }
 
-        return clearAuthCookies(NextResponse.redirect(new URL('/login', request.url)));
+        return clearAuthCookies(NextResponse.redirect(getLoginRedirectUrl(request)));
     }
 
     // Logged-in users don't need the login page
     if (hasValidToken && normalizedPath === '/login') {
-        return NextResponse.redirect(new URL('/dashboard', request.url));
+        return NextResponse.redirect(new URL(getSafePostLoginPath(request), request.url));
     }
 
     // Unauthenticated users can only access public paths
     if (!hasValidToken && !isPublicPath(normalizedPath)) {
-        return NextResponse.redirect(new URL('/login', request.url));
+        return NextResponse.redirect(getLoginRedirectUrl(request));
     }
 
     // Allow all public paths
