@@ -10,12 +10,18 @@ import {
     MapPin,
     Phone,
     Twitter,
+    Truck,
     Youtube,
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
 const AndGate = '/images/andgatePOS.jpeg';
+const courierPartners = [
+    { name: 'Pathao', className: 'border-[#e2231a]/25 bg-[#e2231a]/10 text-[#ff6b64]' },
+    { name: 'REDX', className: 'border-[#ed1c24]/25 bg-[#ed1c24]/10 text-[#ff5b62]' },
+    { name: 'Steadfast', className: 'border-emerald-400/25 bg-emerald-400/10 text-emerald-300' },
+];
 
 const Footer = () => {
     const { t, data } = getTranslation();
@@ -182,25 +188,45 @@ const Footer = () => {
 
             {/* Footer Bottom Bar */}
             <div className="border-t border-white/10">
-                <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-6 sm:flex-row sm:px-6 lg:px-8">
-                    <p className="text-xs text-slate-500">
-                        © {convertNumberByLanguage(new Date().getFullYear().toString())}{' '}
-                        <a href="https://andgatetech.net" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-slate-300">
-                            Andgate Technologies
-                        </a>. {t('footer.footerNote')}
-                    </p>
-                    <div className="flex gap-5">
-                        {data?.footer?.policies?.map((policy: { href: string; label: string }, idx: number) => (
-                            <Link key={idx} href={policy.href} className="text-xs text-slate-500 transition-colors hover:text-slate-300">
-                                {policy.label}
-                            </Link>
-                        )) ?? (
-                            <>
-                                <Link href="/privacy-policy" className="text-xs text-slate-500 transition-colors hover:text-slate-300">{t('footer.nav.privacy_policy')}</Link>
-                                <Link href="/terms-of-service" className="text-xs text-slate-500 transition-colors hover:text-slate-300">{t('footer.nav.terms_of_service')}</Link>
-                                <Link href="/cookie-policy" className="text-xs text-slate-500 transition-colors hover:text-slate-300">{t('footer.nav.cookie_policy')}</Link>
-                            </>
-                        )}
+                <div className="mx-auto flex max-w-7xl flex-col gap-5 px-4 py-6 sm:px-6 lg:px-8">
+                    <div className="flex flex-col items-center justify-between gap-4 rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3 md:flex-row">
+                        <div className="flex items-center gap-2 text-sm font-medium text-slate-300">
+                            <Truck className="h-4 w-4 text-[#4db8f2]" aria-hidden="true" />
+                            <span>We support courier delivery with</span>
+                        </div>
+
+                        <div className="flex flex-wrap items-center justify-center gap-2">
+                            {courierPartners.map((partner) => (
+                                <span
+                                    key={partner.name}
+                                    className={`inline-flex h-8 items-center rounded-md border px-3 text-[11px] font-black uppercase tracking-normal ${partner.className}`}
+                                >
+                                    {partner.name}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+                        <p className="text-xs text-slate-500">
+                            © {convertNumberByLanguage(new Date().getFullYear().toString())}{' '}
+                            <a href="https://andgatetech.net" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-slate-300">
+                                Andgate Technologies
+                            </a>. {t('footer.footerNote')}
+                        </p>
+                        <div className="flex gap-5">
+                            {data?.footer?.policies?.map((policy: { href: string; label: string }, idx: number) => (
+                                <Link key={idx} href={policy.href} className="text-xs text-slate-500 transition-colors hover:text-slate-300">
+                                    {policy.label}
+                                </Link>
+                            )) ?? (
+                                <>
+                                    <Link href="/privacy-policy" className="text-xs text-slate-500 transition-colors hover:text-slate-300">{t('footer.nav.privacy_policy')}</Link>
+                                    <Link href="/terms-of-service" className="text-xs text-slate-500 transition-colors hover:text-slate-300">{t('footer.nav.terms_of_service')}</Link>
+                                    <Link href="/cookie-policy" className="text-xs text-slate-500 transition-colors hover:text-slate-300">{t('footer.nav.cookie_policy')}</Link>
+                                </>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
