@@ -412,6 +412,11 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                         href: '/ecommerce/setting/credentials',
                         requiredPermissions: ['orders.index'],
                     },
+                    {
+                        label: 'Marketing & Pixel',
+                        href: '/ecommerce/setting/marketing',
+                        requiredPermissions: ['orders.index'],
+                    },
                 ],
             },
         ],

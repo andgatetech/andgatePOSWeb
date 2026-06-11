@@ -1313,6 +1313,7 @@ const StoreSetting = () => {
                 return;
             }
         }
+
         const formatComparableTime = (value: any) => {
             if (!value) return '';
             return formatTimeToHi(String(value));

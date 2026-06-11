@@ -43,6 +43,7 @@ export interface ReturnReason {
 export interface Store {
     id: number;
     store_name: string;
+    slug?: string | null;
     logo_path?: string | null;
     store_contact?: string;
     store_location?: string;
@@ -54,6 +55,10 @@ export interface Store {
     time_format?: string;
     is_active?: boolean | number;
     store_disabled?: boolean | number;
+    meta_pixel_enabled?: boolean | number;
+    meta_pixel_id?: string | null;
+    seo_title?: string | null;
+    seo_description?: string | null;
     currency?: Currency;
     payment_methods?: PaymentMethod[];
     payment_statuses?: PaymentStatus[];

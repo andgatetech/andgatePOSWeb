@@ -35,6 +35,10 @@ const StoreApi = baseApi.injectEndpoints({
                 appendIfPresent('loyalty_points_enabled', updateData.loyalty_points_enabled);
                 appendIfPresent('loyalty_points_rate', updateData.loyalty_points_rate);
                 appendIfPresent('is_active', updateData.is_active);
+                appendIfPresent('meta_pixel_enabled', updateData.meta_pixel_enabled);
+                appendIfPresent('meta_pixel_id', updateData.meta_pixel_id);
+                appendIfPresent('seo_title', updateData.seo_title);
+                appendIfPresent('seo_description', updateData.seo_description);
                 appendIfPresent('logo', updateData.logo);
                 appendIfPresent('sync_units', updateData.sync_units);
                 //Append pos_units (backend expects pos_units, not units)
@@ -86,10 +90,15 @@ const StoreApi = baseApi.injectEndpoints({
                             updateCurrentStoreData({
                                 id: storeData.id,
                                 store_name: storeData.store_name,
+                                slug: storeData.slug,
                                 logo_path: storeData.logo_path,
                                 store_contact: storeData.store_contact,
                                 store_location: storeData.store_location,
                                 is_active: storeData.is_active,
+                                meta_pixel_enabled: storeData.meta_pixel_enabled,
+                                meta_pixel_id: storeData.meta_pixel_id,
+                                seo_title: storeData.seo_title,
+                                seo_description: storeData.seo_description,
                                 payment_methods: storeData.payment_methods || [],
                                 payment_statuses: storeData.payment_statuses || [],
                                 currency: storeData.currencies?.[0] || undefined,
