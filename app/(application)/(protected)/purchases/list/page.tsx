@@ -440,6 +440,10 @@ const PurchaseOrderListPage = () => {
         setTransactionModalOpen(true);
     };
 
+    const handleReturn = (order: any) => {
+        router.push(`/purchases/return/${order.id}`);
+    };
+
     // ─── Draft handlers ───
     const handleConvertToPurchaseOrder = async (draft: any) => {
         const isConfirmed = await showConfirmDialog(
@@ -886,6 +890,7 @@ const PurchaseOrderListPage = () => {
                         onViewItems={handleViewItems}
                         onPrint={handlePrint}
                         onViewTransactions={handleViewTransactions}
+                        onReturn={handleReturn}
                     />
                 )}
             </div>

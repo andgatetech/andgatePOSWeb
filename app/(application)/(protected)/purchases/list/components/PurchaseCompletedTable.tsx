@@ -4,7 +4,7 @@ import DateColumn from '@/components/common/DateColumn';
 import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
 import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
-import { CheckCircle, Clock, Eye, Printer } from 'lucide-react';
+import { CheckCircle, Clock, Eye, Printer, RotateCcw } from 'lucide-react';
 import { useMemo } from 'react';
 
 interface PurchaseCompletedTableProps {
@@ -26,9 +26,10 @@ interface PurchaseCompletedTableProps {
     onViewItems: (order: any) => void;
     onPrint: (order: any) => void;
     onViewTransactions: (order: any) => void;
+    onReturn: (order: any) => void;
 }
 
-const PurchaseCompletedTable: React.FC<PurchaseCompletedTableProps> = ({ orders, isLoading, pagination, sorting, onViewItems, onPrint, onViewTransactions }) => {
+const PurchaseCompletedTable: React.FC<PurchaseCompletedTableProps> = ({ orders, isLoading, pagination, sorting, onViewItems, onPrint, onViewTransactions, onReturn }) => {
     const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
 
@@ -133,8 +134,14 @@ const PurchaseCompletedTable: React.FC<PurchaseCompletedTableProps> = ({ orders,
                 className: 'text-gray-600',
                 icon: <Printer className="h-4 w-4" />,
             },
+            {
+                label: t('purchase_action_return') || 'Return',
+                onClick: onReturn,
+                className: 'text-danger',
+                icon: <RotateCcw className="h-4 w-4" />,
+            },
         ],
-        [t, onViewItems, onViewTransactions, onPrint]
+        [t, onViewItems, onViewTransactions, onPrint, onReturn]
     );
 
     return (

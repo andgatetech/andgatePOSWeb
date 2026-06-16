@@ -163,6 +163,43 @@ const PurchaseOrderApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['PurchaseOrders', 'Products', 'Orders'],
         }),
+
+        // WAC dry-run preview (no DB writes)
+        receivePurchaseOrderPreview: builder.mutation({
+            query: ({ id, ...data }) => ({
+                url: `/purchase-order/${id}/receive-preview`,
+                method: 'POST',
+                body: data,
+            }),
+        }),
+
+        // ========== PURCHASE RETURNS ==========
+
+        getPurchaseReturns: builder.query({
+            query: (params: any = {}) => ({
+                url: '/purchase-return',
+                method: 'GET',
+                params,
+            }),
+            providesTags: ['PurchaseReturns'],
+        }),
+
+        getPurchaseReturnById: builder.query({
+            query: (id: number | string) => ({
+                url: `/purchase-return/${id}`,
+                method: 'GET',
+            }),
+            providesTags: ['PurchaseReturns'],
+        }),
+
+        createPurchaseReturn: builder.mutation({
+            query: (data: any) => ({
+                url: '/purchase-return',
+                method: 'POST',
+                body: data,
+            }),
+            invalidatesTags: ['PurchaseReturns', 'PurchaseOrders', 'Products'],
+        }),
     }),
 });
 
@@ -189,4 +226,12 @@ export const {
     // Payment endpoints
     useMakePartialPaymentMutation,
     useClearFullDueMutation,
+
+    // Receive preview
+    useReceivePurchaseOrderPreviewMutation,
+
+    // Purchase return endpoints
+    useGetPurchaseReturnsQuery,
+    useGetPurchaseReturnByIdQuery,
+    useCreatePurchaseReturnMutation,
 } = PurchaseOrderApi;
