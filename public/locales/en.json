@@ -5319,5 +5319,41 @@
   "ecommerce_fraud_total": "Total",
   "ecommerce_fraud_success_ratio": "Success ratio",
   "ecommerce_fraud_ratio": "Ratio",
-  "ecommerce_fraud_review_before_dispatch": "Review this customer before dispatch."
+  "ecommerce_fraud_review_before_dispatch": "Review this customer before dispatch.",
+
+  "aff_policy_page_title": "Partner Program Policies",
+  "aff_policy_page_subtitle": "Compliance-safe rules for AndgatePOS Referral Partner, Channel Partner, and Reseller Partner activity in Bangladesh.",
+
+  "aff_policy_s1_title": "Partner Terms & Conditions",
+  "aff_policy_s1_p1": "AndgatePOS Partner Program is a SaaS referral, reseller, and channel partner program for Bangladesh SMEs.",
+  "aff_policy_s1_p2": "No partner earns money for recruiting another partner. Commission is linked only to verified AndgatePOS software subscription sales, renewals, approved demos, or approved sales performance bonuses.",
+  "aff_policy_s1_p3": "Partners must not present AndgatePOS as investment income, fixed income, MLM, pyramid selling, or passive income.",
+
+  "aff_policy_s2_title": "Commission Policy",
+  "aff_policy_s2_p1": "Sales commission is generated only after a real customer subscription payment is recorded.",
+  "aff_policy_s2_p2": "Customer retention bonus is generated only from valid renewal payments of active subscriptions.",
+  "aff_policy_s2_p3": "Commission is not generated from partner signup, partner recruitment, package purchase, or tier unlock payment.",
+
+  "aff_policy_s3_title": "Payout Policy",
+  "aff_policy_s3_p1": "Commission remains pending for 30 days after customer payment, then becomes payable if no refund, chargeback, or fraud issue exists.",
+  "aff_policy_s3_p2": "Minimum payout is ৳500. NID may be required for larger payouts and compliance review.",
+  "aff_policy_s3_p3": "Admin must record bKash/Nagad/bank transaction ID before completing payout.",
+
+  "aff_policy_s4_title": "Fraud & Abuse Policy",
+  "aff_policy_s4_p1": "Self-referral, same phone/email abuse, fake customer signup, repeated suspicious referrals, or misleading promotion can be rejected.",
+  "aff_policy_s4_p2": "Suspicious referrals may be placed under manual review. Under-review conversions do not generate payoutable commission.",
+  "aff_policy_s4_p3": "AndgatePOS may suspend partner accounts for abuse or false promotional claims.",
+
+  "aff_policy_s5_title": "Promotional Guidelines",
+  "aff_policy_s5_p1": "Allowed: \"Earn commission by referring real businesses to AndgatePOS.\"",
+  "aff_policy_s5_p2": "Allowed: \"Commission is paid after successful subscription payment and lock period.\"",
+  "aff_policy_s5_p3": "Not allowed: guaranteed income, passive income, recruit and earn, fixed monthly income, investment return, or unlimited income promises.",
+
+  "aff_policy_s6_title": "Refund / Chargeback Commission Policy",
+  "aff_policy_s6_p1": "If a customer payment is refunded or charged back, related commission can be clawed back.",
+  "aff_policy_s6_p2": "Clawback entries stay visible in the commission ledger for audit trail.",
+  "aff_policy_s6_p3": "Paid payouts may be adjusted against future payable commission if needed.",
+
+  "aff_policy_s7_title": "Earnings Disclaimer",
+  "aff_policy_s7_p1": "Income depends on actual successful customer subscriptions. AndgatePOS does not guarantee any fixed income."
 }
