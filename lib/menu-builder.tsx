@@ -373,12 +373,6 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                 href: '/affiliate/portal',
                 requiredPermissions: ['affiliate.manage'],
             },
-            {
-                label: 'Affiliate Admin',
-                href: '/affiliate/admin',
-                requiredPermissions: ['affiliate.manage'],
-                ownerOnly: true,
-            },
         ],
     },
     {

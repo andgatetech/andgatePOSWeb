@@ -31,11 +31,7 @@ const PUBLIC_PATHS = [
     '/affiliate', '/features', '/landing', '/seo', '/pos-overview',
     '/privacy-policy', '/terms-of-service', '/cookie-policy',
 ];
-const PROTECTED_PATHS = [
-    '/affiliate/admin',
-];
 const isPublicPath = (path: string) =>
-    !PROTECTED_PATHS.some(p => path === p || path.startsWith(p + '/')) &&
     PUBLIC_PATHS.some(p => path === p || (p !== '/' && path.startsWith(p + '/')));
 
 const getOriginalPath = (request: NextRequest) => `${request.nextUrl.pathname}${request.nextUrl.search}`;
@@ -135,16 +131,6 @@ export function proxy(request: NextRequest) {
     const tokenExpiresAt = decodeAuthCookieValue(request.cookies.get(AUTH_TOKEN_EXPIRES_AT_COOKIE)?.value);
     const hasValidToken = Boolean(token) && !isTokenExpired(tokenExpiresAt);
     const normalizedPath = normalizeRoutePath(pathname);
-
-    if (normalizedPath === '/affiliate/admin/login') {
-        if (hasValidToken) {
-            return NextResponse.redirect(new URL('/affiliate/admin', request.url));
-        }
-
-        const loginUrl = new URL('/login', request.url);
-        loginUrl.searchParams.set('redirect', '/affiliate/admin');
-        return NextResponse.redirect(loginUrl);
-    }
 
     if (token && !hasValidToken) {
         if (isPublicPath(normalizedPath)) {

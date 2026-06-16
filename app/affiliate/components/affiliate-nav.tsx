@@ -17,7 +17,6 @@ const LINKS = [
     { href: '/affiliate/assets',      labelKey: 'aff_nav_assets',      icon: '📦', desc: 'ব্রোশার, সোশ্যাল ছবি ও পিচ স্ক্রিপ্ট',       public: true  },
     { href: '/affiliate/policies',    labelKey: 'aff_nav_policies',    icon: '🛡️', desc: 'কমিশন, পেআউট ও প্রোমোশন নীতি',               public: true  },
     { href: '/affiliate/portal',      labelKey: 'aff_nav_portal',      icon: '📊', desc: 'ব্যালেন্স, কমিশন ও পেআউট (লগইন লাগবে)',       public: false },
-    { href: '/affiliate/admin',       labelKey: 'aff_nav_admin',       icon: '⚙️', desc: 'সদস্য অনুমোদন ও পেআউট ম্যানেজ (অ্যাডমিন)',   public: false },
 ];
 
 export default function AffiliateNav() {
