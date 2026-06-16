@@ -1,49 +1,30 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { showErrorDialog, showMessage } from '@/lib/toast';
-import { KeyRound } from 'lucide-react';
 import {
-    useGetAdminStatsQuery,
-    useGetAdminMembersQuery,
-    useApproveAdminMemberMutation,
-    useSuspendAdminMemberMutation,
-    useGetAdminLedgerQuery,
-    useLockAdminCommissionsMutation,
-    useGetAdminPayoutsQuery,
-    useTriggerAdminPayoutMutation,
-    useMarkAdminPayoutFailedMutation,
+    useGetAffiliateStatsQuery,
+    useGetAffiliateMembersQuery,
+    useApproveAffiliateMemberMutation,
+    useSuspendAffiliateMemberMutation,
+    useGetAdminAffiliateLedgerQuery,
+    useLockAffiliateCommissionsMutation,
+    useGetAdminAffiliatePayoutsQuery,
+    useTriggerAffiliatePayoutMutation,
+    useMarkAffiliatePayoutFailedMutation,
     useGetAdminDemoBookingsQuery,
-    useCompleteAdminDemoBookingMutation,
-    useRunAdminTierProgressionMutation,
-    useAddAdminBonusMutation,
-    useChangeAffiliateAdminPasswordMutation,
-    useLogoutAffiliateAdminMutation,
-    getAffiliateAdminToken,
-    removeAffiliateAdminToken,
-} from '@/store/features/affiliate/affiliateAdminApi';
+    useCompleteDemoBookingMutation,
+    useRunAffiliateTierProgressionMutation,
+    useAddAffiliateBonusMutation,
+} from '@/store/features/affiliate/affiliateApi';
 
 type AdminTab = 'overview' | 'members' | 'ledger' | 'payouts' | 'demos';
 
 export default function AffiliateAdminPage() {
-    const router = useRouter();
-    const [ready, setReady] = useState(false);
-
-    useEffect(() => {
-        if (!getAffiliateAdminToken()) {
-            router.replace('/affiliate/admin/login');
-        } else {
-            setReady(true);
-        }
-    }, [router]);
-
-    if (!ready) return null;
     return <AdminDashboard />;
 }
 
 function AdminDashboard() {
-    const router = useRouter();
     const [tab, setTab] = useState<AdminTab>('overview');
     const [memberSearch, setMemberSearch] = useState('');
     const [memberStatus, setMemberStatus] = useState('');
@@ -51,26 +32,22 @@ function AdminDashboard() {
     const [payoutForm, setPayoutForm] = useState({ method: 'bkash', account_number: '', transaction_id: '' });
     const [bonusModal, setBonusModal] = useState<{ id: number; name: string } | null>(null);
     const [bonusForm, setBonusForm] = useState({ amount: '', note: '' });
-    const [passwordModal, setPasswordModal] = useState(false);
-    const [passwordForm, setPasswordForm] = useState({ current_password: '', password: '', password_confirmation: '' });
     const [actionNotice, setActionNotice] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-    const { data: statsData, refetch: refetchStats } = useGetAdminStatsQuery();
-    const { data: membersData, refetch: refetchMembers } = useGetAdminMembersQuery({ search: memberSearch, status: memberStatus });
-    const { data: ledgerData, refetch: refetchLedger }  = useGetAdminLedgerQuery({}, { skip: tab !== 'ledger' });
-    const { data: payoutsData } = useGetAdminPayoutsQuery({}, { skip: tab !== 'payouts' });
+    const { data: statsData, refetch: refetchStats } = useGetAffiliateStatsQuery();
+    const { data: membersData, refetch: refetchMembers } = useGetAffiliateMembersQuery({ search: memberSearch, status: memberStatus });
+    const { data: ledgerData, refetch: refetchLedger }  = useGetAdminAffiliateLedgerQuery({}, { skip: tab !== 'ledger' });
+    const { data: payoutsData } = useGetAdminAffiliatePayoutsQuery({}, { skip: tab !== 'payouts' });
     const { data: demosData }   = useGetAdminDemoBookingsQuery({}, { skip: tab !== 'demos' });
 
-    const [approveMember]       = useApproveAdminMemberMutation();
-    const [suspendMember]       = useSuspendAdminMemberMutation();
-    const [lockCommissions, { isLoading: locking }] = useLockAdminCommissionsMutation();
-    const [triggerPayout, { isLoading: payingOut }] = useTriggerAdminPayoutMutation();
-    const [markFailed]          = useMarkAdminPayoutFailedMutation();
-    const [completeDemo]        = useCompleteAdminDemoBookingMutation();
-    const [runTierProgression, { isLoading: progressionRunning }] = useRunAdminTierProgressionMutation();
-    const [addBonus, { isLoading: bonusLoading }] = useAddAdminBonusMutation();
-    const [changeAdminPassword, { isLoading: passwordLoading }] = useChangeAffiliateAdminPasswordMutation();
-    const [logoutAdmin]         = useLogoutAffiliateAdminMutation();
+    const [approveMember]       = useApproveAffiliateMemberMutation();
+    const [suspendMember]       = useSuspendAffiliateMemberMutation();
+    const [lockCommissions, { isLoading: locking }] = useLockAffiliateCommissionsMutation();
+    const [triggerPayout, { isLoading: payingOut }] = useTriggerAffiliatePayoutMutation();
+    const [markFailed]          = useMarkAffiliatePayoutFailedMutation();
+    const [completeDemo]        = useCompleteDemoBookingMutation();
+    const [runTierProgression, { isLoading: progressionRunning }] = useRunAffiliateTierProgressionMutation();
+    const [addBonus, { isLoading: bonusLoading }] = useAddAffiliateBonusMutation();
 
     const stats = statsData?.data;
 
@@ -117,27 +94,6 @@ function AdminDashboard() {
         }
     };
 
-    const handleLogout = async () => {
-        try { await logoutAdmin().unwrap(); } catch {}
-        removeAffiliateAdminToken();
-        router.push('/affiliate/admin/login');
-    };
-
-    const openPasswordModal = () => {
-        setPasswordForm({ current_password: '', password: '', password_confirmation: '' });
-        setPasswordModal(true);
-    };
-
-    const handleChangePassword = async () => {
-        try {
-            await changeAdminPassword(passwordForm).unwrap();
-            setPasswordModal(false);
-            showMessage('পাসওয়ার্ড পরিবর্তন হয়েছে।', 'success');
-        } catch (error) {
-            showActionError(error, 'পাসওয়ার্ড পরিবর্তন করা যায়নি।');
-        }
-    };
-
     const TABS: { key: AdminTab; label: string }[] = [
         { key: 'overview', label: 'ওভারভিউ' },
         { key: 'members',  label: 'মেম্বার' },
@@ -164,19 +120,6 @@ function AdminDashboard() {
                         className="rounded-xl bg-primary text-white px-4 py-2 text-sm font-semibold hover:opacity-90 disabled:opacity-50"
                     >
                         {locking ? 'লক হচ্ছে...' : 'কমিশন লক করুন'}
-                    </button>
-                    <button
-                        onClick={handleLogout}
-                        className="rounded-xl border border-danger/30 text-danger px-4 py-2 text-sm font-semibold hover:bg-danger/5"
-                    >
-                        লগআউট
-                    </button>
-                    <button
-                        onClick={openPasswordModal}
-                        className="rounded-xl border border-slate-200 text-slate-600 px-3 py-2 text-sm font-semibold hover:bg-slate-50"
-                        title="পাসওয়ার্ড পরিবর্তন"
-                    >
-                        <KeyRound className="h-4 w-4" />
                     </button>
                 </div>
             </div>
@@ -411,40 +354,6 @@ function AdminDashboard() {
                     <div className="p-12 text-center text-slate-400">লোড হচ্ছে...</div>
                 )}
             </div>
-
-            {/* Payout trigger modal */}
-            {passwordModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={(e) => { if (e.target === e.currentTarget) setPasswordModal(false); }}>
-                    <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl p-6">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="font-bold text-lg">অ্যাডমিন পাসওয়ার্ড পরিবর্তন</h3>
-                            <button onClick={() => setPasswordModal(false)} className="text-slate-400 hover:text-slate-600 text-xl">×</button>
-                        </div>
-                        <div className="space-y-3">
-                            <div>
-                                <label className="block text-sm font-medium mb-1">বর্তমান পাসওয়ার্ড</label>
-                                <input type="password" className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm" value={passwordForm.current_password}
-                                    onChange={(e) => setPasswordForm({ ...passwordForm, current_password: e.target.value })} />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium mb-1">নতুন পাসওয়ার্ড</label>
-                                <input type="password" className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm" value={passwordForm.password}
-                                    onChange={(e) => setPasswordForm({ ...passwordForm, password: e.target.value })} />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium mb-1">নতুন পাসওয়ার্ড আবার দিন</label>
-                                <input type="password" className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm" value={passwordForm.password_confirmation}
-                                    onChange={(e) => setPasswordForm({ ...passwordForm, password_confirmation: e.target.value })} />
-                            </div>
-                            <button disabled={passwordLoading || !passwordForm.current_password || !passwordForm.password || !passwordForm.password_confirmation}
-                                onClick={handleChangePassword}
-                                className="w-full rounded-xl bg-primary text-white font-bold py-3 hover:opacity-90 disabled:opacity-50">
-                                {passwordLoading ? 'পরিবর্তন হচ্ছে...' : 'পাসওয়ার্ড পরিবর্তন করুন'}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
 
             {payoutModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
