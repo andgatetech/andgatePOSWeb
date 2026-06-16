@@ -1,15 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useGetAffiliateCalculatorQuery } from '@/store/features/affiliate/affiliateApi';
 import { useGetPlansQuery, type Plan } from '@/store/features/plans/plansApi';
 import { getTranslation } from '@/i18n';
 
 const TIERS = [
-    { value: 'bronze',   label: 'ব্রোঞ্জ',   pct: '২৫% + ৫%'  },
-    { value: 'silver',   label: 'সিলভার',   pct: '৩০% + ৮%'  },
-    { value: 'gold',     label: 'গোল্ড',     pct: '৩৫% + ১০%' },
-    { value: 'platinum', label: 'প্লাটিনাম', pct: '৪০% + ১২%' },
+    { value: 'bronze',   label: 'ব্রোঞ্জ',   pct: '৫০% + ১০%' },
+    { value: 'silver',   label: 'সিলভার',   pct: '৬০% + ১২%' },
+    { value: 'gold',     label: 'গোল্ড',     pct: '৭০% + ১৫%' },
+    { value: 'platinum', label: 'প্লাটিনাম', pct: '৮০% + ১৮%' },
 ];
 
 function formatBDT(amount: number) {
@@ -25,7 +25,7 @@ export default function AffiliateCalculatorPage() {
     const [customers, setCustomers] = useState(10);
 
     const { data: plansData, isLoading: plansLoading } = useGetPlansQuery();
-    const plans: Plan[] = plansData?.data ?? [];
+    const plans: Plan[] = useMemo(() => plansData?.data ?? [], [plansData?.data]);
 
     useEffect(() => {
         if (plans.length > 0 && selectedPlanId === null && !isCustom) {

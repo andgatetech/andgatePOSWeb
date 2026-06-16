@@ -6,10 +6,10 @@ import { CheckCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import { getTranslation } from '@/i18n';
 
 const TIERS = [
-    { name: 'Bronze',   labelKey: 'ব্রোঞ্জ',   color: 'bg-amber-700', first: 25, recurring: 5,  unlock: 'যেকোনো ব্যক্তি',                       customers: 10,  year1: 16000  },
-    { name: 'Silver',   labelKey: 'সিলভার',   color: 'bg-slate-400', first: 30, recurring: 8,  unlock: '৫টি সক্রিয় কাস্টমার',                  customers: 20,  year1: 38400  },
-    { name: 'Gold',     labelKey: 'গোল্ড',     color: 'bg-amber-400', first: 35, recurring: 10, unlock: '২০টি সক্রিয় কাস্টমার + রিভিউ',         customers: 50,  year1: 132000 },
-    { name: 'Platinum', labelKey: 'প্লাটিনাম', color: 'bg-primary',   first: 40, recurring: 12, unlock: '৫০+ সক্রিয় কাস্টমার + অনুমোদন',        customers: 100, year1: 292800 },
+    { name: 'Bronze',   labelKey: 'ব্রোঞ্জ',   color: 'bg-amber-700', first: 50, recurring: 10, unlock: 'যেকোনো ব্যক্তি',                       customers: 10,  year1: 32000  },
+    { name: 'Silver',   labelKey: 'সিলভার',   color: 'bg-slate-400', first: 60, recurring: 12, unlock: '৫টি সক্রিয় কাস্টমার',                  customers: 20,  year1: 76800  },
+    { name: 'Gold',     labelKey: 'গোল্ড',     color: 'bg-amber-400', first: 70, recurring: 15, unlock: '২০টি সক্রিয় কাস্টমার + রিভিউ',         customers: 50,  year1: 235000 },
+    { name: 'Platinum', labelKey: 'প্লাটিনাম', color: 'bg-primary',   first: 80, recurring: 18, unlock: '৫০+ সক্রিয় কাস্টমার + অনুমোদন',        customers: 100, year1: 556000 },
 ];
 
 const AFFILIATE_TYPES = [
