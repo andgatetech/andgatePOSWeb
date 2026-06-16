@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: LandingPageProps): Promise<Me
     if (!page) return {};
 
     const baseUrl = getAppUrl();
-    const url = `${baseUrl}/landing/${page.slug}`;
+    const url = `${baseUrl}/${page.slug}`;
 
     return {
         title: page.metaTitle,
@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: LandingPageProps): Promise<Me
             canonical: url,
             languages: {
                 'en-BD': url,
-                'bn-BD': `${url}?lang=bn`,
+                'bn-BD': `${baseUrl}/bn/${page.slug}`,
                 'x-default': url,
             },
         },
@@ -66,7 +66,7 @@ export default async function LandingPage({ params }: LandingPageProps) {
     if (!page) notFound();
 
     const baseUrl = getAppUrl();
-    const pageUrl = `${baseUrl}/landing/${page.slug}`;
+    const pageUrl = `${baseUrl}/${page.slug}`;
     const breadcrumbs = [
         { name: 'Home', url: baseUrl },
         { name: 'Landing', url: `${baseUrl}/landing` },

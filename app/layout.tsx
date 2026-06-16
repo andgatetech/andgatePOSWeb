@@ -66,7 +66,7 @@ export const metadata: Metadata = {
         canonical: BASE_URL,
         languages: {
             'en-BD': BASE_URL,
-            'bn-BD': `${BASE_URL}/?lang=bn`,
+            'bn-BD': `${BASE_URL}/bn/pos-software-bangladesh`,
             'x-default': BASE_URL,
         },
     },
@@ -74,57 +74,6 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-    const softwareJsonLd = {
-        '@context': 'https://schema.org',
-        '@type': 'SoftwareApplication',
-        name: 'AndgatePOS',
-        applicationCategory: 'BusinessApplication',
-        applicationSubCategory: 'Point of Sale System',
-        operatingSystem: 'Web Browser',
-        description:
-            'AndgatePOS is Bangladesh\'s leading cloud POS software for retail shops, grocery stores, pharmacies, and fashion stores. Features inventory management, billing, purchase orders, 20+ business reports, staff management, and a free integrated online store powered by Hawkeri.',
-        url: BASE_URL,
-        image: `${BASE_URL}/images/pos.png`,
-        inLanguage: ['en', 'bn'],
-        author: {
-            '@type': 'Organization',
-            name: 'Andgate Technologies',
-            url: BASE_URL,
-            address: {
-                '@type': 'PostalAddress',
-                addressCountry: 'BD',
-                addressLocality: 'Dhaka',
-            },
-        },
-        offers: {
-            '@type': 'Offer',
-            price: '0',
-            priceCurrency: 'BDT',
-            description: 'Free plan available. Paid plans starting from BDT 0/month.',
-        },
-        featureList: [
-            'POS Terminal with barcode & camera scanning',
-            'Inventory & stock management',
-            'Purchase order lifecycle management',
-            'Customer loyalty & CRM',
-            'Supplier management & dues tracking',
-            'Double-entry accounting & bookkeeping',
-            'Expense tracking',
-            '20+ business reports (sales, P&L, tax, stock, supplier dues)',
-            'Multi-store management',
-            'Staff roles & permissions',
-            'Barcode label printing',
-            'Free integrated online store (Hawkeri)',
-            'Real-time notifications',
-        ],
-        aggregateRating: {
-            '@type': 'AggregateRating',
-            ratingValue: '4.9',
-            ratingCount: '100',
-            bestRating: '5',
-        },
-    };
-
     const organizationJsonLd = {
         '@context': 'https://schema.org',
         '@type': 'Organization',
@@ -153,35 +102,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         },
     };
 
-    const localBusinessJsonLd = {
-        '@context': 'https://schema.org',
-        '@type': 'LocalBusiness',
-        name: 'Andgate Technologies',
-        url: BASE_URL,
-        image: `${BASE_URL}/images/pos.png`,
-        description: 'POS software provider for retail, inventory, billing and ecommerce businesses in Bangladesh.',
-        telephone: '+8801577303608',
-        email: 'support@andgatetech.net',
-        priceRange: 'Free and paid POS software plans',
-        address: {
-            '@type': 'PostalAddress',
-            streetAddress: 'House 34, Road 3, Block B, Aftabnagar, Badda',
-            addressLocality: 'Dhaka',
-            addressRegion: 'Dhaka Division',
-            addressCountry: 'BD',
-        },
-        areaServed: {
-            '@type': 'Country',
-            name: 'Bangladesh',
-        },
-    };
-
     return (
-        <html lang="bn" data-scroll-behavior="smooth" suppressHydrationWarning>
+        <html lang="en-BD" data-scroll-behavior="smooth" suppressHydrationWarning>
             <head>
-                <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareJsonLd) }} />
                 <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }} />
-                <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }} />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <meta name="theme-color" content="#046ca9" />
                 {/* Geo targeting — Bangladesh */}

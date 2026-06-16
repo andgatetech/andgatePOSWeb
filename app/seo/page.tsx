@@ -26,7 +26,7 @@ const pageGroups = [
         description: 'Keyword-specific pages under /landing for POS software searches in Bangladesh. / বাংলাদেশে POS সফটওয়্যার সার্চের জন্য তৈরি ল্যান্ডিং পেজ।',
         pages: landingPages.map((page) => ({
             title: page.title,
-            href: `/landing/${page.slug}`,
+            href: `/${page.slug}`,
             keyword: page.primaryKeyword,
             description: page.metaDescription,
         })),

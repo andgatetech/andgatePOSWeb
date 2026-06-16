@@ -13,7 +13,7 @@ export const metadata: Metadata = {
         canonical: BASE_URL,
         languages: {
             'en-BD': BASE_URL,
-            'bn-BD': `${BASE_URL}/?lang=bn`,
+            'bn-BD': `${BASE_URL}/bn/pos-software-bangladesh`,
             'x-default': BASE_URL,
         },
     },

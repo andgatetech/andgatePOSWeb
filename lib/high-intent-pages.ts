@@ -13,6 +13,7 @@ export type HighIntentSeoPage = {
     verdict: string;
     comparison: Array<{ label: string; oldWay: string; andgate: string }>;
     reasons: Array<{ title: string; description: string }>;
+    guideSections?: Array<{ title: string; description: string; items?: string[] }>;
     faq: Array<{ question: string; answer: string }>;
     bn: {
         title: string;
@@ -22,6 +23,7 @@ export type HighIntentSeoPage = {
         verdict: string;
         comparison: Array<{ label: string; oldWay: string; andgate: string }>;
         reasons: Array<{ title: string; description: string }>;
+        guideSections?: Array<{ title: string; description: string; items?: string[] }>;
         faq: Array<{ question: string; answer: string }>;
     };
 };
@@ -169,6 +171,32 @@ export const highIntentPages: HighIntentSeoPage[] = [
             { title: 'Full shop operations', description: 'POS, inventory, supplier, customer, accounting and reporting modules work together.' },
             { title: 'Start small, grow later', description: 'A business can begin simply and add more modules as operations grow.' },
         ],
+        guideSections: [
+            {
+                title: 'Start with your shop type, not a generic feature list',
+                description:
+                    'A pharmacy, grocery shop, fashion store and restaurant do not use POS in exactly the same way. The best POS software in Bangladesh should support your counter workflow first, then add reporting and growth features.',
+                items: ['Grocery shops need fast barcode checkout and supplier dues.', 'Pharmacies need accurate stock visibility and reorder alerts.', 'Fashion stores need variants such as size, color and style.', 'Restaurants and cafes need fast billing and daily cash/expense reports.'],
+            },
+            {
+                title: 'Check local payment and due tracking',
+                description:
+                    'Bangladesh shops often receive cash, bKash, Nagad, Rocket, card and partial payments in the same day. A good POS should record payment method, due amount and customer balance clearly.',
+                items: ['Cash and mobile payment breakdown', 'Partial payment and customer due records', 'Daily collection report by method', 'Clean invoice history for repeat customers'],
+            },
+            {
+                title: 'Do not choose billing without inventory',
+                description:
+                    'Basic billing software can print receipts, but product businesses also need stock updates, purchase records, low-stock alerts and stock value reports to protect margin.',
+                items: ['Stock updates after sales and purchases', 'Low-stock and out-of-stock alerts', 'Variant, serial and barcode support', 'Purchase order and supplier payment workflow'],
+            },
+            {
+                title: 'Support and onboarding matter',
+                description:
+                    'For many Bangladeshi shop owners, adoption depends on training, setup help and responsive support. Software that looks powerful but is hard for staff to learn will not produce business value.',
+                items: ['Simple onboarding for owner and staff', 'Bangla-friendly explanation and support', 'Clear upgrade path from free to paid plans', 'Reports that a non-accountant can understand'],
+            },
+        ],
         faq: [
             { question: 'What is the best POS software in Bangladesh?', answer: 'The best option depends on your business type, but it should include billing, inventory, local payments, reports and support. AndgatePOS covers these needs for many retail workflows.' },
             { question: 'Does the best POS need inventory management?', answer: 'Yes. For product-based shops, POS without inventory creates blind spots in stock and profit.' },
@@ -191,10 +219,126 @@ export const highIntentPages: HighIntentSeoPage[] = [
                 { title: 'দোকানের পূর্ণ অপারেশন', description: 'POS, ইনভেন্টরি, সাপ্লায়ার, কাস্টমার, অ্যাকাউন্টিং আর রিপোর্ট একসাথে কাজ করে।' },
                 { title: 'ছোট থেকে শুরু, পরে বড়', description: 'ব্যবসা ছোট অবস্থায় শুরু করে পরে প্রয়োজন অনুযায়ী মডিউল বাড়ানো যায়।' },
             ],
+            guideSections: [
+                {
+                    title: 'শুধু ফিচার নয়, দোকানের ধরন দেখে বাছাই করুন',
+                    description: 'মুদি দোকান, ফার্মেসি, ফ্যাশন শপ ও রেস্টুরেন্টের POS ব্যবহার একরকম নয়। তাই আগে নিজের দোকানের কাউন্টার, স্টক ও রিপোর্টের বাস্তব কাজ মিলিয়ে দেখুন।',
+                    items: ['মুদি দোকানে দ্রুত বারকোড বিলিং দরকার।', 'ফার্মেসিতে স্টক ও রি-অর্ডার অ্যালার্ট জরুরি।', 'ফ্যাশন শপে সাইজ, কালার ও ভ্যারিয়েন্ট দরকার।', 'রেস্টুরেন্টে দ্রুত বিলিং ও দৈনিক ক্যাশ রিপোর্ট দরকার।'],
+                },
+                {
+                    title: 'লোকাল পেমেন্ট ও বাকির হিসাব দেখুন',
+                    description: 'বাংলাদেশের দোকানে একই দিনে ক্যাশ, বিকাশ, নগদ, রকেট, কার্ড ও আংশিক পেমেন্ট আসে। ভালো POS-এ এগুলো আলাদা করে পরিষ্কারভাবে দেখা উচিত।',
+                    items: ['পেমেন্ট মেথড অনুযায়ী কালেকশন রিপোর্ট', 'কাস্টমার বাকি ও পার্শিয়াল পেমেন্ট', 'রিপিট কাস্টমারের ইনভয়েস হিস্ট্রি', 'দৈনিক ক্যাশ মিলানোর সুবিধা'],
+                },
+                {
+                    title: 'ইনভেন্টরি ছাড়া শুধু বিলিং বেছে নেবেন না',
+                    description: 'শুধু রসিদ প্রিন্ট করলেই দোকানের নিয়ন্ত্রণ আসে না। স্টক, ক্রয়, কম স্টকের অ্যালার্ট ও স্টক ভ্যালু রিপোর্ট দরকার।',
+                    items: ['বিক্রি ও ক্রয়ের পর স্টক আপডেট', 'লো-স্টক ও আউট-অফ-স্টক অ্যালার্ট', 'ভ্যারিয়েন্ট, সিরিয়াল ও বারকোড সাপোর্ট', 'সাপ্লায়ার পেমেন্ট ও ক্রয় অর্ডার'],
+                },
+                {
+                    title: 'সাপোর্ট ও ট্রেনিং গুরুত্বপূর্ণ',
+                    description: 'বাংলাদেশি দোকানদারের জন্য সফটওয়্যার শেখা সহজ হওয়া দরকার। মালিক ও কর্মচারী দ্রুত বুঝতে না পারলে ভালো ফিচারও কাজে আসে না।',
+                    items: ['মালিক ও স্টাফের জন্য সহজ onboarding', 'বাংলা-ফ্রেন্ডলি ব্যাখ্যা ও সাপোর্ট', 'ফ্রি থেকে পেইড প্ল্যানে পরিষ্কার আপগ্রেড পথ', 'নন-অ্যাকাউন্ট্যান্টের জন্য বোঝার মতো রিপোর্ট'],
+                },
+            ],
             faq: [
                 { question: 'বাংলাদেশে সেরা POS সফটওয়্যার কোনটি?', answer: 'ব্যবসার ধরন অনুযায়ী পছন্দ বদলায়, তবে বিলিং, ইনভেন্টরি, লোকাল পেমেন্ট, রিপোর্ট ও সাপোর্ট থাকা জরুরি। AndgatePOS এসব চাহিদা কভার করে।' },
                 { question: 'ভালো POS-এ কি ইনভেন্টরি থাকা দরকার?', answer: 'হ্যাঁ। পণ্যভিত্তিক দোকানে ইনভেন্টরি ছাড়া POS হলে স্টক আর লাভের হিসাব পরিষ্কার থাকে না।' },
                 { question: 'বাংলাদেশি পেমেন্ট পদ্ধতি সাপোর্ট করা দরকার?', answer: 'হ্যাঁ। ক্যাশ, বিকাশ, নগদ, রকেট, উপায়, কার্ড ও ব্যাংক ট্রান্সফার ট্র্যাকিং লোকাল অপারেশনের জন্য গুরুত্বপূর্ণ।' },
+            ],
+        },
+    },
+    {
+        path: '/pos-software-price-bangladesh',
+        title: 'POS Software Price Bangladesh',
+        metaTitle: 'POS Software Price in Bangladesh | Cost Guide | AndgatePOS',
+        metaDescription:
+            'Compare POS software price in Bangladesh. Learn what affects monthly cost, setup, users, inventory, reports, support, ecommerce and when a free POS plan is enough.',
+        h1: 'POS Software Price in Bangladesh: What Shop Owners Should Know',
+        eyebrow: 'Pricing Guide',
+        intro:
+            'POS software price in Bangladesh depends on users, stores, inventory depth, reporting, support and whether you need ecommerce or advanced accounting.',
+        banglaIntro:
+            'বাংলাদেশে POS সফটওয়্যারের দাম নির্ভর করে ইউজার, স্টোর, ইনভেন্টরি, রিপোর্ট, সাপোর্ট ও ইকমার্স দরকার আছে কি না তার উপর।',
+        primaryKeyword: 'POS software price in Bangladesh',
+        secondaryKeywords: ['POS software monthly price Bangladesh', 'POS software cost Bangladesh', 'affordable POS software Bangladesh', 'free POS software Bangladesh', 'POS subscription Bangladesh'],
+        image: '/assets/LandingImage/updated/subscription.webp',
+        verdict:
+            'Choose a POS plan by business stage: start free to test billing and stock, then upgrade when you need more users, controls, reports or branches.',
+        comparison: [
+            { label: 'Free plan', oldWay: 'Good for testing, but often limited when operations grow.', andgate: 'Start with core POS workflow and upgrade when the shop needs more scale.' },
+            { label: 'Monthly subscription', oldWay: 'Cheap plans can hide missing inventory or support.', andgate: 'Evaluate billing, stock, reports, support and upgrade limits together.' },
+            { label: 'Setup cost', oldWay: 'One-time setup can be expensive for small shops.', andgate: 'Look for simple onboarding and training without unnecessary upfront cost.' },
+            { label: 'Real value', oldWay: 'Price-only decisions ignore stock mistakes and manual reporting cost.', andgate: 'A useful POS saves time, reduces mistakes and improves business visibility.' },
+        ],
+        reasons: [
+            { title: 'Start with total cost', description: 'Monthly fee is only one part. Check setup, training, user limits, store limits and support availability.' },
+            { title: 'Match plan to growth', description: 'A starting shop may only need core billing and stock, while a growing shop needs staff roles, reports and multi-store controls.' },
+            { title: 'Free can be a smart start', description: 'A free POS plan helps a shop test digital workflow before paying for advanced modules.' },
+        ],
+        guideSections: [
+            {
+                title: 'What affects POS software price?',
+                description:
+                    'Most POS pricing changes based on operational complexity, not only software brand. A single-counter shop and a multi-branch retailer need different controls.',
+                items: ['Number of users or cashiers', 'Number of branches or stores', 'Inventory features such as variants, serials and purchase orders', 'Advanced reports, accounting and ecommerce support'],
+            },
+            {
+                title: 'When is a free POS plan enough?',
+                description:
+                    'A free plan is useful when a business wants to test digital billing, add products, record sales and understand daily reports before moving fully from khata or Excel.',
+                items: ['New shop testing digital billing', 'Owner wants to train staff first', 'Limited product count and one counter', 'Business is not ready for advanced controls yet'],
+            },
+            {
+                title: 'When should you upgrade?',
+                description:
+                    'Upgrade when the cost of manual work, missing stock, unclear dues or staff mistakes becomes higher than the subscription fee.',
+                items: ['More staff need separate access', 'Stock mistakes are affecting profit', 'Owner needs branch-wise or product-wise reports', 'Customer dues and supplier payments need proper tracking'],
+            },
+        ],
+        faq: [
+            { question: 'How much does POS software cost in Bangladesh?', answer: 'The price varies by plan, users, stores and features. A good approach is to start with a free or basic plan, then upgrade when you need advanced reports, staff controls or multi-store support.' },
+            { question: 'Is free POS software enough for a small shop?', answer: 'Free POS can be enough for testing and starting. Growing shops usually need stronger controls, more users, better reports and support.' },
+            { question: 'Should I choose the cheapest POS software?', answer: 'Not always. The cheapest option can become expensive if it lacks inventory, payment tracking, support or useful reports.' },
+        ],
+        bn: {
+            title: 'বাংলাদেশে POS সফটওয়্যারের দাম',
+            h1: 'বাংলাদেশে POS সফটওয়্যারের দাম: দোকানদারের যা জানা দরকার',
+            eyebrow: 'প্রাইসিং গাইড',
+            intro: 'বাংলাদেশে POS সফটওয়্যারের দাম নির্ভর করে ইউজার, স্টোর, ইনভেন্টরি, রিপোর্ট, সাপোর্ট ও ইকমার্স দরকার আছে কি না তার উপর।',
+            verdict: 'ব্যবসার ধাপ অনুযায়ী POS প্ল্যান বাছাই করুন। আগে ফ্রি দিয়ে বিলিং ও স্টক টেস্ট করুন, পরে বেশি ইউজার, রিপোর্ট বা ব্রাঞ্চ দরকার হলে আপগ্রেড করুন।',
+            comparison: [
+                { label: 'ফ্রি প্ল্যান', oldWay: 'টেস্ট করার জন্য ভালো, কিন্তু ব্যবসা বড় হলে সীমাবদ্ধ হতে পারে।', andgate: 'মূল POS workflow দিয়ে শুরু করে দোকান বড় হলে আপগ্রেড করা যায়।' },
+                { label: 'মাসিক সাবস্ক্রিপশন', oldWay: 'সস্তা প্ল্যানে ইনভেন্টরি বা সাপোর্ট কম থাকতে পারে।', andgate: 'বিলিং, স্টক, রিপোর্ট, সাপোর্ট ও আপগ্রেড লিমিট একসাথে দেখুন।' },
+                { label: 'সেটআপ খরচ', oldWay: 'ছোট দোকানের জন্য এককালীন সেটআপ খরচ বেশি লাগতে পারে।', andgate: 'অপ্রয়োজনীয় বড় খরচ ছাড়া সহজ onboarding ও training দেখা উচিত।' },
+                { label: 'আসল ভ্যালু', oldWay: 'শুধু দাম দেখে সিদ্ধান্ত নিলে স্টক ভুল ও ম্যানুয়াল রিপোর্টের খরচ ধরা পড়ে না।', andgate: 'ভালো POS সময় বাঁচায়, ভুল কমায় এবং ব্যবসা পরিষ্কার দেখায়।' },
+            ],
+            reasons: [
+                { title: 'মোট খরচ দেখুন', description: 'শুধু মাসিক ফি নয়; সেটআপ, ট্রেনিং, ইউজার লিমিট, স্টোর লিমিট ও সাপোর্ট দেখুন।' },
+                { title: 'গ্রোথ অনুযায়ী প্ল্যান', description: 'শুরু করা দোকানে বিলিং ও স্টক যথেষ্ট হতে পারে, বড় দোকানে স্টাফ রোল, রিপোর্ট ও মাল্টি-স্টোর দরকার।' },
+                { title: 'ফ্রি দিয়ে শুরু করা যায়', description: 'পেইড মডিউলে যাওয়ার আগে ফ্রি POS প্ল্যান দিয়ে ডিজিটাল workflow পরীক্ষা করা যায়।' },
+            ],
+            guideSections: [
+                {
+                    title: 'POS সফটওয়্যারের দাম কী কী কারণে বদলায়?',
+                    description: 'সাধারণত দাম নির্ভর করে অপারেশনের জটিলতার উপর। এক কাউন্টারের দোকান ও মাল্টি-ব্রাঞ্চ ব্যবসার দরকার এক নয়।',
+                    items: ['ইউজার বা ক্যাশিয়ারের সংখ্যা', 'ব্রাঞ্চ বা স্টোরের সংখ্যা', 'ভ্যারিয়েন্ট, সিরিয়াল ও purchase order', 'অ্যাডভান্স রিপোর্ট, অ্যাকাউন্টিং ও ইকমার্স'],
+                },
+                {
+                    title: 'কখন ফ্রি POS যথেষ্ট?',
+                    description: 'খাতা বা Excel থেকে ডিজিটাল বিলিংয়ে যাওয়ার আগে পণ্য সেটআপ, বিক্রি রেকর্ড ও দৈনিক রিপোর্ট টেস্ট করতে ফ্রি প্ল্যান কাজে লাগে।',
+                    items: ['নতুন দোকান digital billing টেস্ট করছে', 'মালিক আগে staff train করতে চান', 'পণ্য ও কাউন্টার কম', 'অ্যাডভান্স কন্ট্রোল এখনো দরকার নেই'],
+                },
+                {
+                    title: 'কখন আপগ্রেড করবেন?',
+                    description: 'ম্যানুয়াল কাজ, স্টক ভুল, অস্পষ্ট বাকি বা staff mistake-এর খরচ সাবস্ক্রিপশন ফি থেকে বেশি হলে আপগ্রেড করা উচিত।',
+                    items: ['একাধিক staff আলাদা access দরকার', 'স্টক ভুল লাভে প্রভাব ফেলছে', 'Branch-wise বা product-wise report দরকার', 'Customer due ও supplier payment ঠিকভাবে track করতে হবে'],
+                },
+            ],
+            faq: [
+                { question: 'বাংলাদেশে POS সফটওয়্যারের দাম কত?', answer: 'দাম plan, user, store ও feature অনুযায়ী বদলায়। ভালো পদ্ধতি হলো free/basic plan দিয়ে শুরু করে advanced report, staff control বা multi-store দরকার হলে upgrade করা।' },
+                { question: 'ছোট দোকানের জন্য ফ্রি POS যথেষ্ট?', answer: 'শুরু ও test করার জন্য যথেষ্ট হতে পারে। তবে দোকান বড় হলে বেশি user, report, control ও support দরকার হয়।' },
+                { question: 'সবচেয়ে সস্তা POS নেওয়া উচিত?', answer: 'সবসময় নয়। inventory, payment tracking, support বা useful report না থাকলে সস্তা software পরে বেশি খরচ করাতে পারে।' },
             ],
         },
     },

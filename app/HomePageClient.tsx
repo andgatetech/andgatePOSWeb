@@ -1000,7 +1000,7 @@ export default function HomePageClient() {
                             const isLandingPage = 'slug' in page;
                             const landingBn = isBn && isLandingPage ? landingCopyBn[page.slug] : null;
                             const highIntentBn = isBn && !isLandingPage ? page.bn : null;
-                            const href = isLandingPage ? `/landing/${page.slug}` : page.path;
+                            const href = isLandingPage ? `/${page.slug}` : page.path;
                             const eyebrow = landingBn?.eyebrow ?? highIntentBn?.eyebrow ?? page.eyebrow;
                             const title = landingBn?.title ?? highIntentBn?.title ?? page.title;
                             const description = landingBn?.intro ?? highIntentBn?.intro ?? page.intro;

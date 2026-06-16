@@ -51,13 +51,6 @@ export const productSchema = {
         priceValidUntil: '2025-12-31',
         description: 'Free trial available',
     },
-    aggregateRating: {
-        '@type': 'AggregateRating',
-        ratingValue: '4.8',
-        reviewCount: '156',
-        bestRating: '5',
-        worstRating: '1',
-    },
     features: ['Inventory Management', 'Sales Analytics', 'Multi-store Support', 'Real-time Reporting', 'Customer Management'],
 };
 
@@ -105,11 +98,6 @@ export const mobileAppSchema = {
         '@type': 'Offer',
         price: '0',
         priceCurrency: 'USD',
-    },
-    aggregateRating: {
-        '@type': 'AggregateRating',
-        ratingValue: '4.7',
-        reviewCount: '89',
     },
 };
 

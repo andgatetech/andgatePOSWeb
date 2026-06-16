@@ -9,11 +9,12 @@ import Link from 'next/link';
 
 type Props = {
     page: HighIntentSeoPage;
+    locale?: 'en' | 'bn';
 };
 
-export default function HighIntentSeoPageView({ page }: Props) {
+export default function HighIntentSeoPageView({ page, locale }: Props) {
     const { i18n } = getTranslation();
-    const isBn = i18n.language === 'bn';
+    const isBn = locale ? locale === 'bn' : i18n.language === 'bn';
     const content = isBn ? page.bn : page;
     const baseUrl = getAppUrl();
     const pageUrl = `${baseUrl}${page.path}`;
@@ -50,6 +51,35 @@ export default function HighIntentSeoPageView({ page }: Props) {
         url: pageUrl,
     };
 
+    const softwareSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'SoftwareApplication',
+        name: 'AndgatePOS',
+        applicationCategory: 'BusinessApplication',
+        applicationSubCategory: 'Point of Sale Software',
+        operatingSystem: 'Web Browser',
+        url: pageUrl,
+        inLanguage: isBn ? 'bn-BD' : 'en-BD',
+        areaServed: {
+            '@type': 'Country',
+            name: 'Bangladesh',
+        },
+        description: isBn ? content.intro : page.metaDescription,
+        offers: {
+            '@type': 'Offer',
+            priceCurrency: 'BDT',
+            price: '0',
+            availability: 'https://schema.org/InStock',
+            description: 'Free plan available. Paid plans are available for growing shops.',
+        },
+        provider: {
+            '@type': 'Organization',
+            name: 'Andgate Technologies',
+            url: baseUrl,
+        },
+        featureList: page.reasons.map((reason) => reason.title).concat(page.comparison.map((row) => row.label)),
+    };
+
     const breadcrumbSchema = {
         '@context': 'https://schema.org',
         '@type': 'BreadcrumbList',
@@ -62,6 +92,7 @@ export default function HighIntentSeoPageView({ page }: Props) {
     return (
         <MainLayout>
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }} />
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceSchema) }} />
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
 
@@ -81,7 +112,7 @@ export default function HighIntentSeoPageView({ page }: Props) {
                                 {isBn ? 'ফ্রিতে শুরু করুন' : 'Start Free'}
                                 <ArrowRight className="h-4 w-4" />
                             </Link>
-                            <Link href="/landing/pos-software-bangladesh" className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-7 py-3.5 text-sm font-bold text-gray-700 shadow-sm transition hover:border-[#046ca9]/30 hover:text-[#046ca9]">
+                            <Link href="/pos-software-bangladesh" className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-7 py-3.5 text-sm font-bold text-gray-700 shadow-sm transition hover:border-[#046ca9]/30 hover:text-[#046ca9]">
                                 {isBn ? 'POS ফিচার দেখুন' : 'See POS Features'}
                             </Link>
                         </div>
@@ -131,6 +162,35 @@ export default function HighIntentSeoPageView({ page }: Props) {
                     </div>
                 </div>
             </section>
+
+            {content.guideSections?.length ? (
+                <section className="bg-white py-20">
+                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                        <div className="mb-10 max-w-3xl">
+                            <p className="text-xs font-bold uppercase tracking-widest text-[#e79237]">{isBn ? 'বিস্তারিত গাইড' : 'Detailed buyer guide'}</p>
+                            <h2 className="mt-3 text-3xl font-black text-gray-950">{isBn ? 'সিদ্ধান্ত নেওয়ার আগে যা যাচাই করবেন' : 'What to check before choosing POS software'}</h2>
+                        </div>
+                        <div className="grid gap-5 md:grid-cols-2">
+                            {content.guideSections.map((section) => (
+                                <article key={section.title} className="rounded-2xl border border-gray-100 bg-gray-50 p-6">
+                                    <h3 className="text-xl font-black text-gray-950">{section.title}</h3>
+                                    <p className="mt-3 text-sm leading-7 text-gray-600">{section.description}</p>
+                                    {section.items?.length ? (
+                                        <ul className="mt-5 space-y-3">
+                                            {section.items.map((item) => (
+                                                <li key={item} className="flex gap-3 text-sm leading-6 text-gray-700">
+                                                    <CheckCircle2 className="mt-1 h-4 w-4 flex-shrink-0 text-[#046ca9]" />
+                                                    <span>{item}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    ) : null}
+                                </article>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            ) : null}
 
             <section className="bg-white py-20">
                 <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">

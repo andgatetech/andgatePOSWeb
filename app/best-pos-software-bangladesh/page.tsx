@@ -11,7 +11,14 @@ export const metadata: Metadata = page
           title: page.metaTitle,
           description: page.metaDescription,
           keywords: [page.primaryKeyword, ...page.secondaryKeywords, ...BD_KEYWORDS],
-          alternates: { canonical: `${getAppUrl()}${page.path}` },
+          alternates: {
+              canonical: `${getAppUrl()}${page.path}`,
+              languages: {
+                  'en-BD': `${getAppUrl()}${page.path}`,
+                  'bn-BD': `${getAppUrl()}/bn${page.path}`,
+                  'x-default': `${getAppUrl()}${page.path}`,
+              },
+          },
           openGraph: {
               type: 'website',
               locale: 'en_BD',
@@ -33,5 +40,5 @@ export const metadata: Metadata = page
 export default function BestPosSoftwareBangladeshPage() {
     if (!page) notFound();
 
-    return <HighIntentSeoPageView page={page} />;
+    return <HighIntentSeoPageView page={page} locale="en" />;
 }

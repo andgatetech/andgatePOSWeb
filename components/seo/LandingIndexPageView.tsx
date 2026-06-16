@@ -34,7 +34,7 @@ export default function LandingIndexPageView() {
                         {landingPages.map((page) => {
                             const bnCopy = isBn ? landingCopyBn[page.slug] : null;
                             return (
-                                <Link key={page.slug} href={`/landing/${page.slug}`} className="group rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+                                <Link key={page.slug} href={`/${page.slug}`} className="group rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
                                     <p className="text-xs font-bold uppercase tracking-widest text-[#046ca9]">{bnCopy?.eyebrow ?? page.eyebrow}</p>
                                     <h2 className="mt-3 text-xl font-black text-gray-950">{bnCopy?.title ?? page.title}</h2>
                                     <p className="mt-3 text-sm leading-7 text-gray-600">{bnCopy?.intro ?? page.metaDescription}</p>

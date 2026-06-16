@@ -41,10 +41,22 @@ export default function sitemap(): MetadataRoute.Sitemap {
             priority: 0.85,
         },
         ...landingPages.map((page) => ({
-            url: `${baseUrl}/landing/${page.slug}`,
+            url: `${baseUrl}/${page.slug}`,
             lastModified: now,
             changeFrequency: 'weekly' as const,
             priority: page.slug === 'pos-software-bangladesh' ? 0.95 : 0.86,
+        })),
+        ...landingPages.map((page) => ({
+            url: `${baseUrl}/bn/${page.slug}`,
+            lastModified: now,
+            changeFrequency: 'weekly' as const,
+            priority: page.slug === 'pos-software-bangladesh' ? 0.9 : 0.82,
+        })),
+        ...landingPages.map((page) => ({
+            url: `${baseUrl}/landing/${page.slug}`,
+            lastModified: now,
+            changeFrequency: 'monthly' as const,
+            priority: 0.45,
         })),
         ...highIntentPages.map((page) => ({
             url: `${baseUrl}${page.path}`,
@@ -52,6 +64,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
             changeFrequency: 'weekly' as const,
             priority: page.path === '/best-pos-software-bangladesh' || page.path === '/free-pos-software-bangladesh' ? 0.92 : 0.88,
         })),
+        ...highIntentPages
+            .filter((page) => !page.path.startsWith('/compare/'))
+            .map((page) => ({
+                url: `${baseUrl}/bn${page.path}`,
+                lastModified: now,
+                changeFrequency: 'weekly' as const,
+                priority: page.path === '/best-pos-software-bangladesh' || page.path === '/free-pos-software-bangladesh' ? 0.88 : 0.84,
+            })),
         {
             url: `${baseUrl}/login`,
             lastModified: now,

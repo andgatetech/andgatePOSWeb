@@ -166,11 +166,12 @@ export const landingCopyBn: Record<string, LocalizedLandingCopy> = {
 
 type Props = {
     page: LandingPage;
+    locale?: 'en' | 'bn';
 };
 
-export default function LandingSeoPageView({ page }: Props) {
+export default function LandingSeoPageView({ page, locale }: Props) {
     const { i18n } = getTranslation();
-    const isBn = i18n.language === 'bn';
+    const isBn = locale ? locale === 'bn' : i18n.language === 'bn';
     const bnCopy = landingCopyBn[page.slug];
     const content = isBn && bnCopy ? bnCopy : page;
     const relatedPages = landingPages.filter((item) => item.slug !== page.slug).slice(0, 4);
@@ -310,7 +311,7 @@ export default function LandingSeoPageView({ page }: Props) {
                         {relatedPages.map((item) => {
                             const relatedCopy = isBn ? landingCopyBn[item.slug] : null;
                             return (
-                                <Link key={item.slug} href={`/landing/${item.slug}`} className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+                                <Link key={item.slug} href={`/${item.slug}`} className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
                                     <p className="text-xs font-bold uppercase tracking-widest text-[#046ca9]">{relatedCopy?.eyebrow ?? item.eyebrow}</p>
                                     <h3 className="mt-3 text-base font-black text-gray-950">{relatedCopy?.title ?? item.title}</h3>
                                     <p className="mt-3 text-sm leading-6 text-gray-600">{item.primaryKeyword}</p>
