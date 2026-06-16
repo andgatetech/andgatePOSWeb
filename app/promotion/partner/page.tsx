@@ -24,16 +24,18 @@ const partnerTypes = [
 ];
 
 const steps = [
-    { icon: Users, title: 'পার্টনার হিসেবে রেজিস্টার করুন', desc: 'আপনার নাম, মোবাইল নম্বর, bKash/Nagad নম্বর এবং আপনি কীভাবে কাস্টমার আনতে পারবেন সেটি জানান।' },
-    { icon: Sparkles, title: 'নিজের রেফারেল লিংক বা প্রোমো কোড শেয়ার করুন', desc: 'যেসব দোকানদারের POS দরকার, তাদের কাছে AndgatePOS সহজ ভাষায় পরিচয় করিয়ে দিন।' },
-    { icon: BadgeCheck, title: 'কাস্টমার পেইড সাবস্ক্রিপশন নিলে কমিশন পাবেন', desc: 'কাস্টমারের পেমেন্ট সফল হলে এবং ৩০ দিনের যাচাই সময় শেষ হলে কমিশন যোগ হবে।' },
-    { icon: Banknote, title: 'bKash, Nagad বা ব্যাংকে পেমেন্ট নিন', desc: 'ন্যূনতম উত্তোলন পরিমাণ পূরণ হলে যাচাই করা পার্টনার পেমেন্ট নিতে পারবেন।' },
+    { icon: Users, title: 'পার্টনার হিসেবে রেজিস্টার করুন', desc: 'আপনার নাম, মোবাইল নম্বর, এলাকা এবং কোন ধরনের দোকানদারের সাথে কাজ করতে পারবেন সেটি জানান।' },
+    { icon: Sparkles, title: 'AndgatePOS ট্রেনিং নিন', desc: 'বিলিং, স্টক, রিপোর্ট, পেমেন্ট এবং সাবস্ক্রিপশন প্ল্যান কীভাবে বোঝাতে হবে, সেগুলো হাতে-কলমে শিখে নিন।' },
+    { icon: BadgeCheck, title: 'দোকানদারের সাথে সরাসরি কথা বলে ডেমো দেখান', desc: 'দোকানের বর্তমান হিসাব, স্টক বা বিলিং সমস্যার সাথে AndgatePOS-এর ব্যবহার মিলিয়ে সহজ ভাষায় লাইভ ডেমো দেখান।' },
+    { icon: Banknote, title: 'পেইড সাবস্ক্রিপশনে কনভার্ট করে কমিশন পান', desc: 'দোকান মালিক পেইড সাবস্ক্রিপশন নিলে এবং পেমেন্ট যাচাই শেষ হলে আপনার কমিশন যোগ হবে।' },
+    { icon: ShieldCheck, title: 'সাবস্ক্রিপশন চালু রাখতে কাস্টমারকে নার্সিং করুন', desc: 'সেটআপ, ব্যবহার শেখানো, প্রশ্নের উত্তর এবং নিয়মিত ফলোআপ দিয়ে কাস্টমারকে দীর্ঘমেয়াদে সাবস্ক্রিপশন চালিয়ে যেতে সাহায্য করুন।' },
 ];
 
 const trustPoints = [
-    'শুধু সফল সাবস্ক্রিপশন পেমেন্টের পর কমিশন',
+    'ট্রেনিং, ডেমো ও সাবস্ক্রিপশন কনভার্সনের পরিষ্কার প্রক্রিয়া',
+    'শুধু সফল পেইড সাবস্ক্রিপশন পেমেন্টের পর কমিশন',
     '৩০ দিনের যাচাই সময় শেষে উত্তোলনের সুযোগ',
-    'নিজের নামে রেফারেল বা ভুয়া সাইনআপ গ্রহণযোগ্য নয়',
+    'নিজের নামে বা ভুয়া কাস্টমার সাইনআপ গ্রহণযোগ্য নয়',
     'পার্টনার ড্যাশবোর্ডে কাজের অগ্রগতি দেখা যাবে',
 ];
 
@@ -53,10 +55,10 @@ export default function PartnerPromotionPage() {
                                 বাংলাদেশ পার্টনার ক্যাম্পেইন
                             </span>
                             <h1 className="mt-5 max-w-3xl text-4xl font-black leading-tight sm:text-5xl lg:text-6xl">
-                                পরিচিত দোকানদারকে POS ব্যবহার করান, সফল সাবস্ক্রিপশন থেকে কমিশন পান
+                                দোকানদারকে ডেমো দেখান, পেইড সাবস্ক্রিপশন থেকে কমিশন পান
                             </h1>
                             <p className="mt-5 max-w-2xl text-base leading-8 text-slate-200 sm:text-lg">
-                                বাংলাদেশের দোকানগুলো এখন খাতার হিসাব ছেড়ে ডিজিটাল বিলিং, স্টক কন্ট্রোল ও পরিষ্কার রিপোর্টের দিকে যাচ্ছে। আপনি যদি ব্যবসায়ীদের সাথে কাজ করেন, AndgatePOS পার্টনার প্রোগ্রাম আপনার পরিচিত নেটওয়ার্ক থেকে আয়ের সুযোগ তৈরি করতে পারে।
+                                বাংলাদেশের দোকানগুলো এখন খাতার হিসাব ছেড়ে ডিজিটাল বিলিং, স্টক কন্ট্রোল ও পরিষ্কার রিপোর্টের দিকে যাচ্ছে। আপনি ট্রেনিং নিয়ে দোকানদারের সাথে সরাসরি কথা বলবেন, ডেমো দেখাবেন, পেইড সাবস্ক্রিপশন নিতে সাহায্য করবেন এবং ব্যবহার চালু রাখতে পাশে থাকবেন।
                             </p>
                             <div className="mt-6 grid max-w-2xl gap-3 text-sm sm:grid-cols-2">
                                 {trustPoints.map((point) => (
@@ -141,7 +143,7 @@ export default function PartnerPromotionPage() {
                             <p className="text-sm font-bold uppercase tracking-wider text-[#046ca9]">কমিশন টিয়ার</p>
                             <h2 className="mt-2 text-3xl font-black text-slate-950">সহজ নিয়ম, পরিষ্কার কমিশন, কোনো মিথ্যা প্রতিশ্রুতি নয়</h2>
                             <p className="mx-auto mt-3 max-w-2xl text-slate-600">
-                                আপনার আনা সক্রিয় কাস্টমার বাড়লে কমিশন রেটও বাড়বে। বার্ষিক প্যাকেজের ক্ষেত্রে ব্যবসাকে টেকসই রাখতে নির্দিষ্ট কমিশন সীমা প্রযোজ্য।
+                                আপনার আনা ও ধরে রাখা সক্রিয় কাস্টমার বাড়লে কমিশন রেটও বাড়বে। বার্ষিক প্যাকেজের ক্ষেত্রে ব্যবসাকে টেকসই রাখতে নির্দিষ্ট কমিশন সীমা প্রযোজ্য।
                             </p>
                         </div>
                         <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -169,7 +171,7 @@ export default function PartnerPromotionPage() {
                     <div className="mx-auto max-w-5xl">
                         <div className="text-center">
                             <p className="text-sm font-bold uppercase tracking-wider text-[#046ca9]">কীভাবে কাজ করে</p>
-                            <h2 className="mt-2 text-3xl font-black text-slate-950">চার ধাপে রেফারেল থেকে পেমেন্ট</h2>
+                            <h2 className="mt-2 text-3xl font-black text-slate-950">ট্রেনিং থেকে কাস্টমার নার্সিং পর্যন্ত কাজের ধাপ</h2>
                         </div>
                         <div className="mt-10 grid gap-5 md:grid-cols-2">
                             {steps.map(({ icon: Icon, title, desc }, index) => (
@@ -218,7 +220,7 @@ export default function PartnerPromotionPage() {
                 <section className="bg-[#046ca9] px-4 py-14 text-center text-white sm:px-6">
                     <h2 className="text-3xl font-black">আজই AndgatePOS পার্টনার প্রোগ্রাম শুরু করুন</h2>
                     <p className="mx-auto mt-3 max-w-2xl text-white/80">
-                        বাস্তব কাস্টমার রেফারেল, পরিষ্কার কমিশন ট্র্যাকিং এবং বাংলাদেশের জন্য সহজ পেমেন্ট প্রক্রিয়া।
+                        বাস্তব দোকানদারের সাথে সরাসরি কাজ, পরিষ্কার কমিশন ট্র্যাকিং এবং বাংলাদেশের জন্য সহজ পেমেন্ট প্রক্রিয়া।
                     </p>
                     <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
                         <Link href="/affiliate" className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-7 py-3 font-bold text-[#046ca9] transition hover:bg-slate-100">
