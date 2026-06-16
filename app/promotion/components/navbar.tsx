@@ -24,7 +24,7 @@ export default function Navbar() {
                     আমাদের কল করুন: +880 1577303608
                 </a>
                 <Link
-                    href="/affiliate"
+                    href="/promotion/partner"
                     className="hidden items-center gap-1.5 rounded-lg border border-[#e79237]/40 bg-[#e79237]/10 px-3 py-1.5 text-sm font-semibold text-[#c47920] transition-colors hover:bg-[#e79237]/20 sm:flex"
                 >
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">

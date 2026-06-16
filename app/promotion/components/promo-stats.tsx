@@ -1,9 +1,9 @@
 export default function PromoStats() {
     const stats = [
-        { value: '১০০+', label: 'সক্রিয় ব্যবসা', emoji: '🏪' },
-        { value: '৯৯.৯%', label: 'আপটাইম নিশ্চিত', emoji: '⚡' },
+        { value: 'মোবাইল', label: 'দিয়েই বিলিং', emoji: '📱' },
+        { value: 'Cloud', label: 'ডেটা নিরাপদ', emoji: '☁️' },
         { value: '১৪ দিন', label: 'মানি-ব্যাক গ্যারান্টি', emoji: '🛡️' },
-        { value: '২৪/৭', label: 'সহায়তা সবসময়', emoji: '💬' },
+        { value: 'বাংলা', label: 'সাপোর্ট ও ট্রেনিং', emoji: '💬' },
     ];
 
     return (

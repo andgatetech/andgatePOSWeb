@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 
 const AndGate = '/images/andgatePOS.jpeg';
+const FACEBOOK_URL = 'https://www.facebook.com/andgatepos';
 
 const LINKS = {
     product: [
@@ -11,6 +12,7 @@ const LINKS = {
         { label: 'ডেমো বুক করুন', href: 'https://wa.me/8801577303608' },
     ],
     affiliate: [
+        { label: 'Partner প্রমোশন', href: '/promotion/partner' },
         { label: 'Partner হোম', href: '/affiliate' },
         { label: 'কমিশন ক্যালকুলেটর', href: '/affiliate/calculator' },
         { label: 'লিডারবোর্ড', href: '/affiliate/leaderboard' },
@@ -24,7 +26,7 @@ const LINKS = {
     contact: [
         { label: '+880 1577-303608', href: 'https://wa.me/8801577303608' },
         { label: 'support@andgatetech.net', href: 'mailto:support@andgatetech.net' },
-        { label: 'Facebook', href: 'https://facebook.com/andgatetech' },
+        { label: 'Facebook', href: FACEBOOK_URL },
     ],
 };
 
@@ -38,12 +40,14 @@ export default function PromoFooter() {
 
                     {/* Brand */}
                     <div className="lg:col-span-2">
-                        <Image src={AndGate} alt="AndgatePOS" width={140} height={46} className="mb-4 rounded brightness-[2] invert" />
+                        <div className="mb-4 inline-flex rounded-lg bg-white p-2">
+                            <Image src={AndGate} alt="AndgatePOS" width={140} height={46} className="h-auto w-[140px] rounded object-contain" />
+                        </div>
                         <p className="text-sm leading-relaxed text-slate-300 max-w-xs">
                             বাংলাদেশের দোকানদারদের জন্য সবচেয়ে সহজ POS সফটওয়্যার। ইনভেন্টরি, বিলিং, পার্চেজ অর্ডার, ২০+ রিপোর্ট — একটি অ্যাপে।
                         </p>
                         <div className="mt-5 flex gap-3">
-                            <a href="https://facebook.com/andgatetech" target="_blank" rel="noopener noreferrer"
+                            <a href={FACEBOOK_URL} target="_blank" rel="noopener noreferrer"
                                 className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-sm hover:bg-white/20 transition">
                                 f
                             </a>
@@ -86,7 +90,7 @@ export default function PromoFooter() {
                         </ul>
                         <div className="mt-4">
                             <Link
-                                href="/affiliate"
+                                href="/promotion/partner"
                                 className="inline-block rounded-lg bg-[#e79237]/20 border border-[#e79237]/40 px-3 py-1.5 text-xs font-semibold text-[#e79237] hover:bg-[#e79237]/30 transition"
                             >
                                 Partner হন →

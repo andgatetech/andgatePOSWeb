@@ -7,7 +7,7 @@ import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { RootState } from '@/store';
 import { useCreateLeadMutation } from '@/store/features/auth/authApi';
-import { applyDiscount, calcYearlySavings, filterActivePlans, formatPrice, getPlanColor, useGetPlansQuery, type Plan } from '@/store/features/plans/plansApi';
+import { applyDiscount, calcYearlySavings, filterActivePlans, formatPrice, getPlanColor, isEnterprisePlan, isSmePlan, useGetPlansQuery, type Plan } from '@/store/features/plans/plansApi';
 import { Building, Check, CheckCircle2, ChevronLeft, ChevronRight, Crown, Loader2, Mail, MapPin, Phone, Rocket, Send, Shield, Star, TrendingUp, User, Zap } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -72,7 +72,8 @@ function PlanCard({
     const colorKey = getPlanColor(index);
     const colors = colorClasses[colorKey];
     const IconComponent = PLAN_ICONS[index % PLAN_ICONS.length];
-    const isMostPopular = index === 1;
+    const isMostPopular = isSmePlan(plan);
+    const isEnterprise = isEnterprisePlan(plan);
     const isAnnually = billingCycle === 'annually';
 
     const activePrice = isAnnually ? plan.yearly_price : plan.monthly_price;
@@ -118,17 +119,19 @@ function PlanCard({
                     </div>
                     <div>
                         <h3 className="text-base font-bold text-gray-900">{displayPlanName}</h3>
-                        {hasDiscount && <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold text-red-600">{displayNumber(discountPct)}% {lang === 'bn' ? 'ছাড়' : 'OFF'}</span>}
+                        {hasDiscount && !isEnterprise && <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold text-red-600">{displayNumber(discountPct)}% {lang === 'bn' ? 'ছাড়' : 'OFF'}</span>}
                     </div>
                 </div>
 
                 {/* Price */}
                 <div className="mb-1 flex items-baseline gap-1.5">
-                    {hasDiscount && <span className="text-sm text-gray-400 line-through">{displayNumber(originalPrice)}</span>}
-                    <span className="text-2xl font-black text-gray-900">{displayNumber(finalPrice)}</span>
-                    <span className="text-xs text-gray-500">/{isAnnually ? t('lbl_yr') : t('lbl_mo')}</span>
+                    {hasDiscount && !isEnterprise && <span className="text-sm text-gray-400 line-through">{displayNumber(originalPrice)}</span>}
+                    <span className={`${isEnterprise ? 'text-xl' : 'text-2xl'} font-black text-gray-900`}>
+                        {isEnterprise ? (lang === 'bn' ? 'চাহিদা অনুযায়ী' : 'Custom Pricing') : displayNumber(finalPrice)}
+                    </span>
+                    {!isEnterprise && <span className="text-xs text-gray-500">/{isAnnually ? t('lbl_yr') : t('lbl_mo')}</span>}
                 </div>
-                {isAnnually && yearlySavings > 0 && (
+                {isAnnually && yearlySavings > 0 && !isEnterprise && (
                     <div className="mb-3">
                         <span className="rounded-full bg-[#046ca9]/10 px-2 py-0.5 text-[10px] font-bold text-[#034d79]">
                             {t('lbl_save')} {displayNumber(yearlySavings)}% {t('lbl_vs_monthly')}
@@ -163,7 +166,13 @@ function PlanCard({
                         isCurrentPlan ? 'cursor-not-allowed bg-[#046ca9]/10 text-[#034d79]' : isSelected ? `${colors.button} shadow-sm` : `${colors.badge} hover:opacity-90`
                     )}
                 >
-                    {isCurrentPlan ? `✓ ${t('lbl_current_plan')}` : isSelected ? `✓ ${t('lbl_selected')}` : `${t('btn_choose')} ${displayPlanName}`}
+                    {isCurrentPlan
+                        ? `✓ ${t('lbl_current_plan')}`
+                        : isEnterprise
+                            ? (lang === 'bn' ? 'সেলস টিমের সাথে কথা বলুন' : 'Contact Sales')
+                            : isSelected
+                                ? `✓ ${t('lbl_selected')}`
+                                : `${t('btn_choose')} ${displayPlanName}`}
                 </button>
             </div>
         </div>
@@ -177,6 +186,13 @@ export default function SubscriptionPage() {
     const displayNumber = (value: string | number) => convertNumberByLanguage(value, lang);
     const displayPrice = (value: string | number) => displayNumber(formatPrice(value));
     const displayPlanName = (plan: Plan) => lang === 'bn' ? plan.name_bn : plan.name_en;
+    const displayPlanPrice = (plan: Plan) => {
+        if (isEnterprisePlan(plan)) {
+            return lang === 'bn' ? 'চাহিদা অনুযায়ী' : 'Custom Pricing';
+        }
+
+        return `${displayPrice(billingCycle === 'monthly' ? plan.monthly_price : plan.yearly_price)}/${billingCycle === 'monthly' ? t('lbl_mo') : t('lbl_yr')}`;
+    };
     const searchParams = useSearchParams();
     const router = useRouter();
 
@@ -346,9 +362,9 @@ export default function SubscriptionPage() {
                                         </div>
                                         <div className="text-right">
                                             <p className="text-2xl font-black text-[#034d79]">
-                                                {displayPrice(billingCycle === 'monthly' ? currentPlan.monthly_price : currentPlan.yearly_price)}
+                                                {displayPlanPrice(currentPlan)}
                                             </p>
-                                            <p className="text-xs font-semibold text-[#034d79]">/{billingCycle === 'monthly' ? t('lbl_mo') : t('lbl_yr')}</p>
+                                            {!isEnterprisePlan(currentPlan) && <p className="text-xs font-semibold text-[#034d79]">/{billingCycle === 'monthly' ? t('lbl_mo') : t('lbl_yr')}</p>}
                                         </div>
                                     </div>
                                     <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
@@ -434,7 +450,7 @@ export default function SubscriptionPage() {
                                         {selectedPlan ? (
                                             <span>
                                                 {t('subscription_form_selected')} <strong className="text-[#034d79]">{displayPlanName(selectedPlan)}</strong> —{' '}
-                                                {displayPrice(billingCycle === 'monthly' ? selectedPlan.monthly_price : selectedPlan.yearly_price)}/{billingCycle === 'monthly' ? t('lbl_mo') : t('lbl_yr')}
+                                                {displayPlanPrice(selectedPlan)}
                                             </span>
                                         ) : (
                                             t('subscription_select_plan_first')

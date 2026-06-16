@@ -12,7 +12,9 @@ const langObj: Record<string, any> = {
 
 const DEFAULT_LANG = 'bn';
 const LANGUAGE_COOKIE = 'i18nextLng';
+const LANGUAGE_SOURCE_COOKIE = 'i18nextLngSource';
 const LANGUAGE_STORAGE_KEY = 'i18nextLng';
+const LANGUAGE_SOURCE_STORAGE_KEY = 'i18nextLngSource';
 const LANGUAGE_MAX_AGE = 60 * 60 * 24 * 365;
 
 // Get current language (server or client)
@@ -104,7 +106,13 @@ const createTranslation = (lang: string) => {
                         maxAge: LANGUAGE_MAX_AGE,
                         sameSite: 'lax',
                     });
+                    cookies.set(LANGUAGE_SOURCE_COOKIE, 'manual', {
+                        path: '/',
+                        maxAge: LANGUAGE_MAX_AGE,
+                        sameSite: 'lax',
+                    });
                     window.localStorage.setItem(LANGUAGE_STORAGE_KEY, newLang);
+                    window.localStorage.setItem(LANGUAGE_SOURCE_STORAGE_KEY, 'manual');
                     window.location.reload();
                 }
             }

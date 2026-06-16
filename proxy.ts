@@ -3,6 +3,7 @@ import { AUTH_TOKEN_EXPIRES_AT_COOKIE, decodeAuthCookieValue, isTokenExpired } f
 import { canAccessRoute, findMatchingRouteKey, normalizeRoutePath } from './lib/permissions';
 
 const LANGUAGE_COOKIE = 'i18nextLng';
+const LANGUAGE_SOURCE_COOKIE = 'i18nextLngSource';
 const LANGUAGE_MAX_AGE = 60 * 60 * 24 * 365;
 
 const decodePermissionsCookie = (value?: string): string[] => {
@@ -26,7 +27,8 @@ const clearAuthCookies = (response: NextResponse) => {
 // Public pages that do not require authentication
 const PUBLIC_PATHS = [
     '/', '/login', '/register', '/forgot-password',
-    '/pricing', '/training', '/contact',
+    '/pricing', '/price', '/subscription', '/training', '/contact', '/promotion',
+    '/affiliate', '/features', '/landing', '/seo', '/pos-overview',
     '/privacy-policy', '/terms-of-service', '/cookie-policy',
 ];
 const isPublicPath = (path: string) =>
@@ -59,6 +61,29 @@ const getSafePostLoginPath = (request: NextRequest) => {
     return `${redirectUrl.pathname}${redirectUrl.search}`;
 };
 
+const getRequestCountry = (request: NextRequest) => {
+    return (
+        request.headers.get('x-vercel-ip-country') ||
+        request.headers.get('cf-ipcountry') ||
+        request.headers.get('cloudfront-viewer-country') ||
+        (request as NextRequest & { geo?: { country?: string } }).geo?.country ||
+        ''
+    ).toUpperCase();
+};
+
+const setLanguageCookie = (response: NextResponse, lang: string, source: 'auto' | 'manual') => {
+    response.cookies.set(LANGUAGE_COOKIE, lang, {
+        path: '/',
+        maxAge: LANGUAGE_MAX_AGE,
+        sameSite: 'lax',
+    });
+    response.cookies.set(LANGUAGE_SOURCE_COOKIE, source, {
+        path: '/',
+        maxAge: LANGUAGE_MAX_AGE,
+        sameSite: 'lax',
+    });
+};
+
 export function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
@@ -67,16 +92,27 @@ export function proxy(request: NextRequest) {
     }
 
     // ── Language detection ──────────────────────────────────────────────────
-    // Priority: existing cookie > geo detection > default 'bn'
-    // Never override the user's saved preference.
+    // Priority: ?lang= manual choice > saved manual choice > Bangladesh auto > default.
     const currentLang = request.cookies.get(LANGUAGE_COOKIE)?.value;
-    let resolvedLang: string;
-    if (currentLang) {
+    const currentLangSource = request.cookies.get(LANGUAGE_SOURCE_COOKIE)?.value;
+    const requestedLang = request.nextUrl.searchParams.get('lang');
+    const validRequestedLang = requestedLang === 'bn' || requestedLang === 'en' ? requestedLang : null;
+    const country = getRequestCountry(request);
+    let resolvedLang = 'bn';
+    let resolvedSource: 'auto' | 'manual' = 'auto';
+
+    if (validRequestedLang) {
+        resolvedLang = validRequestedLang;
+        resolvedSource = 'manual';
+    } else if (currentLangSource === 'manual' && (currentLang === 'bn' || currentLang === 'en')) {
         resolvedLang = currentLang;
+        resolvedSource = 'manual';
+    } else if (country === 'BD') {
+        resolvedLang = 'bn';
     } else {
-        // request.geo is only populated on Vercel; undefined locally → default 'bn'
-        const country = (request as NextRequest & { geo?: { country?: string } }).geo?.country;
-        resolvedLang = country === 'BD' ? 'bn' : country ? 'en' : 'bn';
+        resolvedLang = currentLang === 'en' || currentLang === 'bn'
+            ? currentLang
+            : (country ? 'en' : 'bn');
     }
 
     // Forward resolved language as a request header so Next.js server-side
@@ -86,13 +122,8 @@ export function proxy(request: NextRequest) {
 
     const response = NextResponse.next({ request: { headers: requestHeaders } });
 
-    // Persist in cookie only on first visit
-    if (!currentLang) {
-        response.cookies.set(LANGUAGE_COOKIE, resolvedLang, {
-            path: '/',
-            maxAge: LANGUAGE_MAX_AGE,
-            sameSite: 'lax',
-        });
+    if (validRequestedLang || currentLang !== resolvedLang || currentLangSource !== resolvedSource) {
+        setLanguageCookie(response, resolvedLang, resolvedSource);
     }
 
     // ── Auth enforcement ────────────────────────────────────────────────────
@@ -137,45 +168,6 @@ export function proxy(request: NextRequest) {
 
 export const config = {
     matcher: [
-        // Public pages — included so language detection runs on every page
-        '/',
-        '/login',
-        '/register',
-        '/forgot-password',
-        '/pricing',
-        '/training',
-        '/contact',
-        '/privacy-policy',
-        '/terms-of-service',
-        '/cookie-policy',
-        // Protected areas
-        '/dashboard/:path*',
-        '/profile/:path*',
-        '/store/:path*',
-        '/products/:path*',
-        '/purchases/:path*',
-        '/orders/:path*',
-        '/ecommerce/:path*',
-        '/account/:path*',
-        '/accounting/:path*',
-        '/expenses/:path*',
-        '/reports/:path*',
-        '/staff/:path*',
-        '/category/:path*',
-        '/brand/:path*',
-        '/suppliers/:path*',
-        '/customers/:path*',
-        '/employees/:path*',
-        '/roles/:path*',
-        '/notifications/:path*',
-        '/feedbacks/:path*',
-        '/audit-logs/:path*',
-        '/label/:path*',
-        '/data-export/:path*',
-        '/company/:path*',
-        '/users/:path*',
-        '/pos/:path*',
-        '/settings/:path*',
-        '/create-adjustment/:path*',
+        '/((?!_next|api|.*\\..*).*)',
     ],
 };

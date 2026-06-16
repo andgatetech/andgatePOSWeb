@@ -53,13 +53,13 @@ export default function PromoTestimonials() {
         <section className="overflow-hidden bg-white py-20">
             <div className="mx-auto mb-12 max-w-3xl px-4 text-center">
                 <span className="mb-3 inline-block rounded-full bg-yellow-100 px-4 py-1.5 text-sm font-bold uppercase tracking-wider text-yellow-700">
-                    ১০০+ ব্যবসার মতামত
+                    ব্যবসায়ীদের অভিজ্ঞতা
                 </span>
                 <h2 className="mb-3 text-3xl font-extrabold text-gray-900 md:text-4xl">
                     তারাই বলছেন, শুনুন
                 </h2>
                 <p className="text-base text-gray-600">
-                    সারা বাংলাদেশের ব্যবসায়ীরা প্রতিদিন এই সফটওয়্যার দিয়ে দোকান চালাচ্ছেন নিশ্চিন্তে।
+                    দোকানের হিসাব, স্টক আর বিক্রির চাপ কমাতে ব্যবসায়ীরা কী বলছেন।
                 </p>
             </div>
 

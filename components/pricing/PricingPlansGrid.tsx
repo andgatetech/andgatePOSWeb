@@ -8,6 +8,8 @@ import {
     filterActivePlans,
     formatPrice,
     getPlanColor,
+    isEnterprisePlan,
+    isSmePlan,
     useGetPlansQuery,
 } from '@/store/features/plans/plansApi';
 import { Check, ChevronLeft, ChevronRight, Loader2, Minus, Rocket, Shield, ShieldCheck, Star, TrendingUp, Zap } from 'lucide-react';
@@ -133,7 +135,8 @@ export default function PricingPlansGrid({ showComparison = true }: PricingPlans
                         const colorKey = getPlanColor(actualIndex);
                         const colors = colorClasses[colorKey];
                         const IconComponent = PLAN_ICONS[actualIndex % PLAN_ICONS.length];
-                        const isMostPopular = actualIndex === 1;
+                        const isMostPopular = isSmePlan(plan);
+                        const isEnterprise = isEnterprisePlan(plan);
                         const rawPrice = billingCycle === 'monthly' ? plan.monthly_price : plan.yearly_price;
                         const suffix = billingCycle === 'monthly'
                             ? (t('pricing_page.frequency.per_month') || '/mo')
@@ -191,13 +194,15 @@ export default function PricingPlansGrid({ showComparison = true }: PricingPlans
                                                 </span>
                                             )}
                                             <div className="flex flex-wrap items-baseline gap-1.5">
-                                                {hasDiscount && (
+                                                {hasDiscount && !isEnterprise && (
                                                     <span className="text-sm text-white/40 line-through">{displayNumber(originalPrice)}</span>
                                                 )}
-                                                <span className="text-4xl font-black tracking-tight text-white">{displayNumber(finalPrice)}</span>
-                                                <span className="text-sm text-white/60">{suffix}</span>
+                                                <span className={cn('font-black tracking-tight text-white', isEnterprise ? 'text-2xl leading-tight' : 'text-4xl')}>
+                                                    {isEnterprise ? (lang === 'bn' ? 'চাহিদা অনুযায়ী' : 'Custom Pricing') : displayNumber(finalPrice)}
+                                                </span>
+                                                {!isEnterprise && <span className="text-sm text-white/60">{suffix}</span>}
                                             </div>
-                                            {billingCycle === 'annually' && planSavings > 0 && (
+                                            {billingCycle === 'annually' && planSavings > 0 && !isEnterprise && (
                                                 <p className="mt-1 text-[12px] font-semibold text-emerald-300">
                                                     ↓ {t('pricing_page.save_percent')} {displayNumber(planSavings)}%
                                                 </p>
@@ -235,13 +240,15 @@ export default function PricingPlansGrid({ showComparison = true }: PricingPlans
                                                     </span>
                                                 )}
                                                 <div className="flex flex-wrap items-baseline gap-1.5">
-                                                    {hasDiscount && (
+                                                    {hasDiscount && !isEnterprise && (
                                                         <span className="text-sm text-gray-300 line-through">{displayNumber(originalPrice)}</span>
                                                     )}
-                                                    <span className="text-3xl font-black text-gray-900">{displayNumber(finalPrice)}</span>
-                                                    <span className="text-xs text-gray-400">{suffix}</span>
+                                                    <span className={cn('font-black text-gray-900', isEnterprise ? 'text-xl leading-tight' : 'text-3xl')}>
+                                                        {isEnterprise ? (lang === 'bn' ? 'চাহিদা অনুযায়ী' : 'Custom Pricing') : displayNumber(finalPrice)}
+                                                    </span>
+                                                    {!isEnterprise && <span className="text-xs text-gray-400">{suffix}</span>}
                                                 </div>
-                                                {billingCycle === 'annually' && planSavings > 0 && (
+                                                {billingCycle === 'annually' && planSavings > 0 && !isEnterprise && (
                                                     <p className="mt-0.5 text-[11px] font-semibold text-emerald-600">
                                                         {t('pricing_page.save_percent')} {displayNumber(planSavings)}%
                                                     </p>
@@ -261,15 +268,15 @@ export default function PricingPlansGrid({ showComparison = true }: PricingPlans
                                 <div className={cn('flex flex-1 flex-col p-5', isMostPopular && 'bg-white')}>
                                     {/* CTA */}
                                     <button
-                                        onClick={() => (window.location.href = '/register')}
+                                        onClick={() => (window.location.href = isEnterprise ? '/contact' : '/register')}
                                         className={cn(
                                             'mb-2 w-full rounded-xl px-3 py-2.5 text-center text-sm font-bold shadow-sm transition-all duration-200 hover:scale-[1.02]',
                                             isMostPopular
                                                 ? 'bg-gradient-to-r from-[#046ca9] to-[#034d79] text-white shadow-[#046ca9]/25 hover:shadow-[#046ca9]/40'
                                                 : colors.button
-                                        )}
+                                            )}
                                     >
-                                        {t('pricing_page.get_started') || 'Get Started'}
+                                        {isEnterprise ? (t('pricing_page.cta.contact_sales') || 'Contact Sales') : (t('pricing_page.get_started') || 'Get Started')}
                                     </button>
                                     {/* Guarantee micro-text */}
                                     <p className="mb-5 flex items-center justify-center gap-1 text-center text-[10px] text-gray-400">
@@ -336,7 +343,8 @@ export default function PricingPlansGrid({ showComparison = true }: PricingPlans
                                         </span>
                                     </th>
                                     {plans.map((plan, index) => {
-                                        const isMostPopular = index === 1;
+                                        const isMostPopular = isSmePlan(plan);
+                                        const isEnterprise = isEnterprisePlan(plan);
                                         const rawPrice = billingCycle === 'monthly' ? plan.monthly_price : plan.yearly_price;
                                         const { finalPrice } = applyDiscount(rawPrice, plan.discount);
                                         const suffix = billingCycle === 'monthly'
@@ -372,14 +380,14 @@ export default function PricingPlansGrid({ showComparison = true }: PricingPlans
                                                     )}
                                                     <div className="mt-1 flex items-baseline gap-0.5">
                                                         <span className={cn('text-xl font-black', isMostPopular ? 'text-white' : 'text-gray-900')}>
-                                                            {displayNumber(finalPrice)}
+                                                            {isEnterprise ? (lang === 'bn' ? 'কাস্টম' : 'Custom') : displayNumber(finalPrice)}
                                                         </span>
-                                                        <span className={cn('text-[11px]', isMostPopular ? 'text-white/60' : 'text-gray-400')}>
+                                                        {!isEnterprise && <span className={cn('text-[11px]', isMostPopular ? 'text-white/60' : 'text-gray-400')}>
                                                             {suffix}
-                                                        </span>
+                                                        </span>}
                                                     </div>
                                                     <a
-                                                        href="/register"
+                                                        href={isEnterprise ? '/contact' : '/register'}
                                                         className={cn(
                                                             'mt-1.5 rounded-lg px-4 py-1.5 text-[11px] font-bold transition-all hover:scale-105',
                                                             isMostPopular
@@ -387,7 +395,7 @@ export default function PricingPlansGrid({ showComparison = true }: PricingPlans
                                                                 : 'bg-[#046ca9] text-white hover:bg-[#035887]'
                                                         )}
                                                     >
-                                                        {t('pricing_page.get_started')}
+                                                        {isEnterprise ? (t('pricing_page.cta.contact_sales') || 'Contact Sales') : t('pricing_page.get_started')}
                                                     </a>
                                                 </div>
                                             </th>
@@ -405,7 +413,7 @@ export default function PricingPlansGrid({ showComparison = true }: PricingPlans
                                         {t('pricing_page.setup_fee')}
                                     </td>
                                     {plans.map((plan, index) => {
-                                        const isMostPopular = index === 1;
+                                        const isMostPopular = isSmePlan(plan);
                                         const hasSetupFee = parseFloat(plan.setup_fee) > 0;
                                         return (
                                             <td
@@ -436,7 +444,7 @@ export default function PricingPlansGrid({ showComparison = true }: PricingPlans
                                                 {featureLabel}
                                             </td>
                                             {plans.map((plan, planIndex) => {
-                                                const isMostPopular = planIndex === 1;
+                                                const isMostPopular = isSmePlan(plan);
                                                 const item = plan.items[itemIndex];
                                                 const cellBg = isMostPopular ? '#eef6fd' : isEven ? 'white' : 'rgb(248 250 252)';
                                                 return (
@@ -471,7 +479,7 @@ export default function PricingPlansGrid({ showComparison = true }: PricingPlans
                                 <tr className="border-t-2 border-gray-100">
                                     <td className="sticky left-0 z-10 bg-white px-6 py-5" />
                                     {plans.map((plan, index) => {
-                                        const isMostPopular = index === 1;
+                                        const isMostPopular = isSmePlan(plan);
                                         return (
                                             <td
                                                 key={plan.id}

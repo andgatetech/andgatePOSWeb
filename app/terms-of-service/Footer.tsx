@@ -17,6 +17,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 const AndGate = '/images/andgatePOS.jpeg';
+const FACEBOOK_URL = 'https://www.facebook.com/andgatepos';
 const courierPartners = [
     { name: 'Pathao', className: 'border-[#e2231a]/25 bg-[#e2231a]/10 text-[#ff6b64]' },
     { name: 'REDX', className: 'border-[#ed1c24]/25 bg-[#ed1c24]/10 text-[#ff5b62]' },
@@ -31,7 +32,7 @@ const Footer = () => {
         { label: t('footer.nav.pricing'), href: '/pricing' },
         { label: t('footer.nav.overview'), href: '/#overview' },
         { label: t('footer.nav.training'), href: '/training' },
-        { label: t('footer.nav.promotion') || 'বিশেষ অফার', href: '/promotion' },
+        { label: t('footer.nav.promotion') || 'বিশেষ অফার', href: '/promotion/pos' },
     ];
 
     const companyLinks = [
@@ -42,6 +43,7 @@ const Footer = () => {
     ];
 
     const affiliateLinks = [
+        { label: 'Partner প্রমোশন', href: '/promotion/partner' },
         { label: 'Partner হোম', href: '/affiliate' },
         { label: 'কমিশন ক্যালকুলেটর', href: '/affiliate/calculator' },
         { label: 'লিডারবোর্ড', href: '/affiliate/leaderboard' },
@@ -49,7 +51,7 @@ const Footer = () => {
     ];
 
     const socialLinks = [
-        { icon: <Facebook className="h-4 w-4" />, href: '#', label: 'Facebook' },
+        { icon: <Facebook className="h-4 w-4" />, href: FACEBOOK_URL, label: 'Facebook' },
         { icon: <Twitter className="h-4 w-4" />, href: '#', label: 'Twitter' },
         { icon: <Linkedin className="h-4 w-4" />, href: '#', label: 'LinkedIn' },
         { icon: <Youtube className="h-4 w-4" />, href: '#', label: 'YouTube' },

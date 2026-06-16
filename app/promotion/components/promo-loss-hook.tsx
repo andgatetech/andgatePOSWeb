@@ -1,9 +1,9 @@
 export default function PromoLossHook() {
     const losses = [
-        { icon: '📒', label: 'হিসাবের ভুলে', amount: '৳৫০০–১,০০০', note: 'প্রতিমাসে' },
-        { icon: '📦', label: 'স্টক শেষে হারানো বিক্রি', amount: '৳২,০০০–৫,০০০', note: 'প্রতিমাসে' },
+        { icon: '📒', label: 'হিসাবের ভুলে', amount: 'লাভ কমে', note: 'চোখের আড়ালে' },
+        { icon: '📦', label: 'স্টক শেষে হারানো বিক্রি', amount: 'কাস্টমার হারায়', note: 'প্রতিমাসে' },
         { icon: '👤', label: 'কর্মচারীর অসততায়', amount: 'অজানা', note: 'ধরাই পড়ে না' },
-        { icon: '🤝', label: 'বাকির টাকা ফেরত না পেয়ে', amount: '৳১,০০০+', note: 'প্রতিমাসে' },
+        { icon: '🤝', label: 'বাকির টাকা ফেরত না পেয়ে', amount: 'ক্যাশ আটকে যায়', note: 'বারবার' },
     ];
 
     const before = [
@@ -19,7 +19,7 @@ export default function PromoLossHook() {
         'আগেই নোটিফিকেশন — স্টক শেষ হওয়ার আগেই অর্ডার দিন',
         'যেকোনো জায়গা থেকে দোকানের লাইভ হিসাব দেখুন',
         'এক ক্লিকে সঠিক লাভের সংখ্যা — কোনো অনুমান নেই',
-        'সব পেমেন্ট আলাদা, দিনশেষে হিসাব ১০০% মিলে যায়',
+        'সব পেমেন্ট আলাদা, দিনশেষে মিলিয়ে দেখা অনেক সহজ',
     ];
 
     return (
@@ -30,10 +30,10 @@ export default function PromoLossHook() {
                 <div className="mb-14 rounded-3xl border border-red-100 bg-gradient-to-br from-red-50 to-orange-50 p-8 text-center sm:p-10">
                     <p className="mb-2 text-sm font-bold uppercase tracking-widest text-red-500">সতর্কতা</p>
                     <h2 className="mb-3 text-2xl font-extrabold text-gray-900 sm:text-3xl">
-                        প্রতিমাসে আপনি কত টাকা হারাচ্ছেন — জানেন কি?
+                        টাকা হারানোর আগে সিগন্যালগুলো কি দেখছেন?
                     </h2>
                     <p className="mx-auto mb-8 max-w-xl text-base text-gray-600">
-                        খাতার হিসাব, স্টকের অব্যবস্থা, আর নজরদারির অভাব — এই তিনটি কারণে বাংলাদেশের বেশিরভাগ দোকান প্রতিমাসে চুপচাপ লোকসান দিচ্ছে।
+                        বাংলাদেশের ছোট ও মাঝারি দোকানে লোকসান সব সময় বড় কোনো ঘটনার কারণে হয় না। ভুল হিসাব, স্টক শেষ হয়ে যাওয়া, বাকি বিক্রি আর নজরদারির অভাব মিলেই মার্জিন কমিয়ে দেয়।
                     </p>
                     <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                         {losses.map((l, i) => (
@@ -46,7 +46,7 @@ export default function PromoLossHook() {
                         ))}
                     </div>
                     <p className="mt-6 text-sm font-semibold text-red-600">
-                        👆 এগুলো বন্ধ করতেই AndgatePOS তৈরি হয়েছে।
+                        এগুলো কমাতেই AndgatePOS তৈরি হয়েছে।
                     </p>
                 </div>
 

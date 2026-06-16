@@ -45,7 +45,6 @@ export default function PromoHero() {
 
                     {/* Video — top on mobile */}
                     <div className="relative order-first mx-auto w-full max-w-sm lg:order-last lg:max-w-[500px]">
-                        <div className="absolute -inset-3 rounded-3xl bg-gradient-to-r from-blue-400/30 to-primary/30 opacity-60 blur-2xl" />
                         <div className="relative rounded-2xl border border-gray-100 bg-white p-2 shadow-2xl">
                             <div ref={videoContainerRef} className="overflow-hidden rounded-xl bg-black">
                                 <iframe
@@ -89,7 +88,7 @@ export default function PromoHero() {
                                 <div className="flex items-center gap-0.5">
                                     {[...Array(5)].map((_, i) => <Star key={i} className="h-3 w-3 fill-yellow-400 text-yellow-400" />)}
                                 </div>
-                                <p className="text-xs font-semibold text-gray-700">১০০+ ব্যবসা ব্যবহার করছে</p>
+                                <p className="text-xs font-semibold text-gray-700">বাংলাদেশি দোকানের জন্য তৈরি</p>
                             </div>
                         </div>
                     </div>
@@ -100,25 +99,25 @@ export default function PromoHero() {
                         {/* Urgency badge */}
                         <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-4 py-1.5">
                             <span className="flex h-2 w-2 animate-pulse rounded-full bg-orange-500" />
-                            <span className="text-sm font-bold text-orange-600">🔥 বিশেষ অফার — সেটআপ ফি সম্পূর্ণ মাফ!</span>
+                            <span className="text-sm font-bold text-orange-600">সীমিত সময় — সেটআপ ফি সম্পূর্ণ মাফ</span>
                         </div>
 
                         {/* Headline */}
                         <h1 className="mb-4 text-4xl font-extrabold leading-[1.1] tracking-tight text-gray-900 sm:text-5xl lg:text-[3.2rem]">
-                            দোকান চালান <span className="text-primary">স্মার্টভাবে।</span>
-                            <br className="hidden sm:block" /> বিক্রি ও হিসাব দেখুন <span className="text-primary">পরিষ্কারভাবে।</span>
+                            দোকানের টাকা, স্টক আর হিসাব
+                            <br className="hidden sm:block" /> এখন থাকবে <span className="text-primary">আপনার নিয়ন্ত্রণে।</span>
                         </h1>
 
                         <p className="mb-6 text-lg leading-relaxed text-gray-600">
-                            বিক্রি, স্টক, হিসাব — সব এখন মোবাইলে। খাতার ঝামেলা শেষ, মাস শেষে লাভের হিসাব এখন পরিষ্কার।
+                            খাতা, অনুমান আর কর্মচারীর কথার উপর নির্ভর না করে মোবাইল থেকেই দেখুন আজ কত বিক্রি হলো, কোন পণ্য শেষ হচ্ছে, আর আসল লাভ কত।
                         </p>
 
                         {/* Trust points */}
                         <div className="mb-8 flex flex-col gap-2.5 text-sm font-medium text-gray-700 sm:flex-row sm:flex-wrap sm:justify-center lg:justify-start">
                             {[
-                                '✅ ফ্রি প্ল্যানে শুরু করুন',
-                                '✅ কোনো কম্পিউটার লাগবে না',
-                                '✅ ১৪ দিন মানি-ব্যাক গ্যারান্টি',
+                                'ফ্রি প্ল্যানে শুরু করুন',
+                                'মোবাইল দিয়েই বিলিং',
+                                '১৪ দিন মানি-ব্যাক গ্যারান্টি',
                             ].map((t, i) => (
                                 <span key={i} className="inline-flex items-center gap-1 rounded-full bg-green-50 px-3 py-1 text-green-800">
                                     {t}

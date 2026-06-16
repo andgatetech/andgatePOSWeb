@@ -29,7 +29,7 @@ export const organizationSchema = {
         contactType: 'Customer Service',
         availableLanguage: ['English', 'Bengali'],
     },
-    sameAs: ['https://facebook.com/andgatepos', 'https://twitter.com/andgatepos', 'https://linkedin.com/company/andgate'],
+    sameAs: ['https://www.facebook.com/andgatepos', 'https://twitter.com/andgatepos', 'https://linkedin.com/company/andgate'],
 };
 
 // 💰 Product Schema (for POS System pages)

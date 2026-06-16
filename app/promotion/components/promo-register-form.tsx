@@ -5,7 +5,7 @@ import { CheckCircle2, ShieldCheck, Star } from 'lucide-react';
 
 const benefits = [
     { text: 'ফ্রি প্ল্যানে শুরু করুন — কোনো ক্রেডিট কার্ড লাগবে না' },
-    { text: 'মিনিটের মধ্যে সেটআপ শেষ, কোনো প্রযুক্তিগত জ্ঞান লাগবে না' },
+    { text: 'দোকানের পণ্য, স্টক ও বিক্রির হিসাব এক জায়গায়' },
     { text: 'মোবাইল দিয়েই পুরো দোকান চালানো যাবে' },
     { text: '১৪ দিন পছন্দ না হলে পুরো টাকা ফেরত' },
     { text: '২৪/৭ বাংলায় সহায়তা সবসময় পাশে আছে' },
@@ -22,17 +22,17 @@ export default function PromoRegisterForm() {
                         {/* Urgency badge */}
                         <div className="mx-auto mb-5 inline-flex w-max items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-4 py-2 lg:mx-0">
                             <span className="flex h-2 w-2 animate-pulse rounded-full bg-orange-500" />
-                            <span className="text-sm font-bold text-orange-600">🔥 এখন সেটআপ ফি সম্পূর্ণ মাফ!</span>
+                            <span className="text-sm font-bold text-orange-600">এখন সেটআপ ফি সম্পূর্ণ মাফ</span>
                         </div>
 
                         <h2 className="mb-4 text-3xl font-extrabold leading-tight text-gray-900 sm:text-4xl">
-                            আজই শুরু করুন —
+                            খাতা থেকে Cloud-এ আসুন —
                             <br />
-                            <span className="text-primary">আপনার দোকান অপেক্ষা করছে</span>
+                            <span className="text-primary">দোকানের হিসাব পরিষ্কার করুন</span>
                         </h2>
 
                         <p className="mb-8 text-base leading-relaxed text-gray-600">
-                            নিচে তথ্য দিন এবং মিনিটের মধ্যে আপনার ফ্রি অ্যাকাউন্ট চালু হয়ে যাবে। কোনো ঝামেলা নেই।
+                            নিচে তথ্য দিন। আপনার ফ্রি অ্যাকাউন্ট তৈরি করে billing, stock ও report দেখা শুরু করুন।
                         </p>
 
                         <ul className="mx-auto space-y-3 lg:mx-0">

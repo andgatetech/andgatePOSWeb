@@ -66,10 +66,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
             priority: 0.7,
         },
         {
-            url: `${baseUrl}/promotion`,
+            url: `${baseUrl}/promotion/pos`,
             lastModified: now,
             changeFrequency: 'weekly',
             priority: 0.7,
+        },
+        {
+            url: `${baseUrl}/promotion/partner`,
+            lastModified: now,
+            changeFrequency: 'weekly',
+            priority: 0.72,
         },
         {
             url: `${baseUrl}/forgot-password`,

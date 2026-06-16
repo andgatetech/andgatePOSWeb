@@ -1,5 +1,5 @@
 'use client';
-import { applyDiscount, calcYearlySavings, filterActivePlans, formatPrice, getPlanColor, useGetPlansQuery } from '@/store/features/plans/plansApi';
+import { applyDiscount, calcYearlySavings, filterActivePlans, formatPrice, getPlanColor, isEnterprisePlan, isSmePlan, useGetPlansQuery } from '@/store/features/plans/plansApi';
 import { Check, Crown, Loader2, Rocket, Shield, Star, TrendingUp, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -124,7 +124,8 @@ const UpgradePlans: React.FC<UpgradePlansProps> = ({ showHeader = true, currentP
                         const colorKey = getPlanColor(index);
                         const colors = colorClasses[colorKey];
                         const IconComponent = PLAN_ICONS[index % PLAN_ICONS.length];
-                        const isMostPopular = index === 1;
+                        const isMostPopular = isSmePlan(plan);
+                        const isEnterprise = isEnterprisePlan(plan);
                         const isCurrentPlan = currentPlan?.toLowerCase() === plan.name_en.toLowerCase();
                         const rawPrice = billingCycle === 'monthly' ? plan.monthly_price : plan.yearly_price;
                         const suffix = billingCycle === 'monthly' ? '/month' : '/year';
@@ -162,14 +163,16 @@ const UpgradePlans: React.FC<UpgradePlansProps> = ({ showHeader = true, currentP
 
                                     <div className="mb-6">
                                         {/* Discount badge */}
-                                        {hasDiscount && <span className="mb-2 inline-block rounded-full bg-red-100 px-3 py-0.5 text-xs font-semibold text-red-600">{discountPct}% OFF</span>}
+                                        {hasDiscount && !isEnterprise && <span className="mb-2 inline-block rounded-full bg-red-100 px-3 py-0.5 text-xs font-semibold text-red-600">{discountPct}% OFF</span>}
                                         {/* Price row */}
                                         <div className="flex flex-wrap items-baseline gap-2">
-                                            {hasDiscount && <span className="text-lg text-gray-400 line-through">{originalPrice}</span>}
-                                            <span className="text-3xl font-bold text-gray-900 sm:text-4xl">{finalPrice}</span>
-                                            <span className="text-sm font-medium text-gray-500">{suffix}</span>
+                                            {hasDiscount && !isEnterprise && <span className="text-lg text-gray-400 line-through">{originalPrice}</span>}
+                                            <span className={`${isEnterprise ? 'text-2xl' : 'text-3xl sm:text-4xl'} font-bold text-gray-900`}>
+                                                {isEnterprise ? 'Custom Pricing' : finalPrice}
+                                            </span>
+                                            {!isEnterprise && <span className="text-sm font-medium text-gray-500">{suffix}</span>}
                                         </div>
-                                        {billingCycle === 'annually' && planSavings > 0 && <p className="mt-1 text-sm font-medium text-green-600">Save {planSavings}% vs monthly</p>}
+                                        {billingCycle === 'annually' && planSavings > 0 && !isEnterprise && <p className="mt-1 text-sm font-medium text-green-600">Save {planSavings}% vs monthly</p>}
                                         {hasSetupFee && (
                                             <p className="mt-2 text-sm font-medium text-gray-700">
                                                 Setup Fee: <span className="font-semibold text-gray-900">{formatPrice(plan.setup_fee)}</span>
@@ -186,11 +189,11 @@ const UpgradePlans: React.FC<UpgradePlansProps> = ({ showHeader = true, currentP
                                         </button>
                                     ) : (
                                         <Link
-                                            href={`/subscription?plan_id=${plan.id}`}
+                                            href={isEnterprise ? '/contact' : `/subscription?plan_id=${plan.id}`}
                                             className={classNames('mb-6 block w-full rounded-lg px-4 py-3 text-center text-sm font-semibold transition-all duration-200', colors.button)}
                                         >
                                             <Crown className="mr-2 inline-block h-4 w-4" />
-                                            Upgrade to {plan.name_en}
+                                            {isEnterprise ? 'Contact Sales' : `Upgrade to ${plan.name_en}`}
                                         </Link>
                                     )}
 

@@ -146,7 +146,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             contactType: 'customer support',
             availableLanguage: ['English', 'Bengali'],
         },
-        sameAs: ['https://facebook.com/andgatetech'],
+        sameAs: ['https://www.facebook.com/andgatepos'],
         areaServed: {
             '@type': 'Country',
             name: 'Bangladesh',
@@ -177,7 +177,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     };
 
     return (
-        <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning>
+        <html lang="bn" data-scroll-behavior="smooth" suppressHydrationWarning>
             <head>
                 <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareJsonLd) }} />
                 <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }} />

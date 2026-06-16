@@ -108,3 +108,17 @@ export type PlanColor = (typeof PLAN_COLORS)[number];
 export function getPlanColor(index: number): PlanColor {
     return PLAN_COLORS[index % PLAN_COLORS.length];
 }
+
+export function isSmePlan(plan: Pick<Plan, 'name_en' | 'name_bn'>): boolean {
+    const englishName = plan.name_en.trim().toLowerCase();
+    const banglaName = plan.name_bn.trim();
+
+    return englishName === 'sme' || banglaName === 'এসএমই';
+}
+
+export function isEnterprisePlan(plan: Pick<Plan, 'name_en' | 'name_bn'>): boolean {
+    const englishName = plan.name_en.trim().toLowerCase();
+    const banglaName = plan.name_bn.trim();
+
+    return englishName === 'enterprise' || banglaName === 'এন্টারপ্রাইজ';
+}

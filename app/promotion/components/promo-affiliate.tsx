@@ -3,10 +3,10 @@
 import Link from 'next/link';
 
 const tiers = [
-    { name: 'Bronze', color: 'text-amber-700 bg-amber-100 border-amber-300', firstMonth: '25%', recurring: '5%' },
-    { name: 'Silver', color: 'text-slate-600 bg-slate-100 border-slate-300', firstMonth: '30%', recurring: '8%' },
-    { name: 'Gold', color: 'text-yellow-700 bg-yellow-100 border-yellow-300', firstMonth: '35%', recurring: '10%' },
-    { name: 'Platinum', color: 'text-purple-700 bg-purple-100 border-purple-300', firstMonth: '40%', recurring: '12%' },
+    { name: 'Bronze', color: 'text-amber-700 bg-amber-100 border-amber-300', firstMonth: '50%', recurring: '10%' },
+    { name: 'Silver', color: 'text-slate-600 bg-slate-100 border-slate-300', firstMonth: '60%', recurring: '12%' },
+    { name: 'Gold', color: 'text-yellow-700 bg-yellow-100 border-yellow-300', firstMonth: '70%', recurring: '15%' },
+    { name: 'Platinum', color: 'text-purple-700 bg-purple-100 border-purple-300', firstMonth: '80%', recurring: '18%' },
 ];
 
 const steps = [
@@ -25,10 +25,10 @@ export default function PromoAffiliate() {
                         Partner Program
                     </span>
                     <h2 className="text-3xl font-bold text-white sm:text-4xl">
-                        বাস্তব AndgatePOS subscription sales থেকে কমিশন পান
+                        আপনার পরিচিত দোকানকে সাহায্য করুন, successful sale থেকে কমিশন পান
                     </h2>
                     <p className="mt-3 text-lg text-blue-100">
-                        একজন ব্যবসায়ীকে AndgatePOS-এ আনুন। সফল পেইড সাবস্ক্রিপশন হলে সেলস কমিশন এবং যোগ্য রিনিউয়ালে customer retention bonus পান।
+                        IT service provider, accountant, hardware seller বা satisfied customer হলে আপনার network থেকেই ethical referral income তৈরি করুন।
                     </p>
                 </div>
 
@@ -69,11 +69,11 @@ export default function PromoAffiliate() {
                 {/* Highlights */}
                 <div className="mb-10 flex flex-wrap justify-center gap-4 text-sm">
                     {[
-                        '✅ কোনো বিনিয়োগ নেই',
-                        '✅ bKash / Nagad পেমেন্ট',
-                        '✅ ৳৫০০ থেকে উত্তোলন',
-                        '✅ পারফরম্যান্স রিভিউতে টায়ার আপগ্রেড',
-                        '✅ Demo booking-এ ৳২০০ বোনাস',
+                        'কোনো joining fee নেই',
+                        'bKash / Nagad / Bank payout',
+                        '৳৫০০ থেকে withdrawal request',
+                        'পারফরম্যান্স অনুযায়ী tier upgrade',
+                        'Fixed income guarantee নয়, real sale-based commission',
                     ].map((item) => (
                         <span key={item} className="rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-white">
                             {item}
@@ -84,10 +84,10 @@ export default function PromoAffiliate() {
                 {/* CTA */}
                 <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
                     <Link
-                        href="/affiliate"
+                        href="/promotion/partner"
                         className="rounded-xl bg-[#e79237] px-8 py-3 text-base font-bold text-white shadow-lg transition-all hover:bg-[#c47920] hover:shadow-xl"
                     >
-                        Partner Program এ যোগ দিন →
+                        Partner promotion দেখুন →
                     </Link>
                     <Link
                         href="/affiliate/calculator"
