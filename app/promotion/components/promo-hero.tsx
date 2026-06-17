@@ -42,14 +42,13 @@ export default function PromoHero() {
 
             <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
-
                     {/* Video — top on mobile */}
                     <div className="relative order-first mx-auto w-full max-w-sm lg:order-last lg:max-w-[500px]">
                         <div className="relative rounded-2xl border border-gray-100 bg-white p-2 shadow-2xl">
                             <div ref={videoContainerRef} className="overflow-hidden rounded-xl bg-black">
                                 <iframe
                                     ref={iframeRef}
-                                    className="block h-[580px] w-full sm:h-[640px] rounded-xl"
+                                    className="block h-[580px] w-full rounded-xl sm:h-[640px]"
                                     src="https://www.youtube.com/embed/gELTWs7hFtc?autoplay=1&mute=1&loop=1&playlist=gELTWs7hFtc&controls=0&modestbranding=1&enablejsapi=1"
                                     title="AndgatePOS Demo"
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -79,14 +78,19 @@ export default function PromoHero() {
                         <div className="absolute -bottom-4 -left-4 flex items-center gap-2 rounded-2xl border border-gray-100 bg-white px-4 py-2.5 shadow-xl">
                             <div className="flex -space-x-1.5">
                                 {['র', 'স', 'আ'].map((l, i) => (
-                                    <div key={i} className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-gradient-to-br from-blue-500 to-blue-700 text-xs font-bold text-white">
+                                    <div
+                                        key={i}
+                                        className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-gradient-to-br from-blue-500 to-blue-700 text-xs font-bold text-white"
+                                    >
                                         {l}
                                     </div>
                                 ))}
                             </div>
                             <div>
                                 <div className="flex items-center gap-0.5">
-                                    {[...Array(5)].map((_, i) => <Star key={i} className="h-3 w-3 fill-yellow-400 text-yellow-400" />)}
+                                    {[...Array(5)].map((_, i) => (
+                                        <Star key={i} className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                                    ))}
                                 </div>
                                 <p className="text-xs font-semibold text-gray-700">বাংলাদেশি দোকানের জন্য তৈরি</p>
                             </div>
@@ -95,7 +99,6 @@ export default function PromoHero() {
 
                     {/* Copy — second on mobile, first on desktop */}
                     <div className="order-last text-center lg:order-first lg:text-left">
-
                         {/* Urgency badge */}
                         <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-4 py-1.5">
                             <span className="flex h-2 w-2 animate-pulse rounded-full bg-orange-500" />
@@ -114,11 +117,7 @@ export default function PromoHero() {
 
                         {/* Trust points */}
                         <div className="mb-8 flex flex-col gap-2.5 text-sm font-medium text-gray-700 sm:flex-row sm:flex-wrap sm:justify-center lg:justify-start">
-                            {[
-                                'ফ্রি প্ল্যানে শুরু করুন',
-                                'মোবাইল দিয়েই বিলিং',
-                                '১৪ দিন মানি-ব্যাক গ্যারান্টি',
-                            ].map((t, i) => (
+                            {['ফ্রি প্ল্যানে শুরু করুন', 'মোবাইল দিয়েই বিলিং', '১৪ দিন মানি-ব্যাক গ্যারান্টি'].map((t, i) => (
                                 <span key={i} className="inline-flex items-center gap-1 rounded-full bg-green-50 px-3 py-1 text-green-800">
                                     {t}
                                 </span>
@@ -133,7 +132,7 @@ export default function PromoHero() {
                                 onClick={() => trackEvent('hero_cta_click', 'Lead', { button_label: 'ফ্রিতে শুরু করুন', section: 'hero' })}
                             >
                                 <span className="flex items-center gap-2">
-                                    ফ্রিতে শুরু করুন
+                                    ফ্রিতে POS অ্যাকাউন্ট খুলুন
                                     <ArrowRight className="h-4 w-4" />
                                 </span>
                             </PromoButton>

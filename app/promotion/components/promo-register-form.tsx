@@ -1,7 +1,7 @@
 'use client';
 
 import ComponentsAuthRegisterForm from '@/app/register/components-auth-register-form';
-import { CheckCircle2, ShieldCheck, Star } from 'lucide-react';
+import { CheckCircle2, ClipboardCheck, ShieldCheck, Star } from 'lucide-react';
 
 const benefits = [
     { text: 'ফ্রি প্ল্যানে শুরু করুন — কোনো ক্রেডিট কার্ড লাগবে না' },
@@ -11,12 +11,13 @@ const benefits = [
     { text: '২৪/৭ বাংলায় সহায়তা সবসময় পাশে আছে' },
 ];
 
+const nextSteps = ['ফর্ম পূরণ করলেই আপনার POS অ্যাকাউন্ট তৈরি হবে', 'মোবাইল বা ল্যাপটপ থেকেই পণ্য যোগ করে বিলিং শুরু করতে পারবেন', 'প্রয়োজন হলে AndgatePOS টিম সেটআপে সাহায্য করবে'];
+
 export default function PromoRegisterForm() {
     return (
         <section id="register-section" className="scroll-mt-16 bg-gradient-to-br from-primary/5 via-white to-blue-50/40 py-20">
             <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-2 lg:items-center">
-
                     {/* Left — sales pitch */}
                     <div className="flex flex-col justify-center text-center lg:text-left">
                         {/* Urgency badge */}
@@ -31,9 +32,7 @@ export default function PromoRegisterForm() {
                             <span className="text-primary">দোকানের হিসাব পরিষ্কার করুন</span>
                         </h2>
 
-                        <p className="mb-8 text-base leading-relaxed text-gray-600">
-                            নিচে তথ্য দিন। আপনার ফ্রি অ্যাকাউন্ট তৈরি করে billing, stock ও report দেখা শুরু করুন।
-                        </p>
+                        <p className="mb-8 text-base leading-relaxed text-gray-600">নিচে তথ্য দিন। আপনার ফ্রি অ্যাকাউন্ট তৈরি করে billing, stock ও report দেখা শুরু করুন।</p>
 
                         <ul className="mx-auto space-y-3 lg:mx-0">
                             {benefits.map((b, i) => (
@@ -44,17 +43,36 @@ export default function PromoRegisterForm() {
                             ))}
                         </ul>
 
+                        <div className="mt-8 rounded-2xl border border-blue-100 bg-blue-50/70 p-5 text-left">
+                            <div className="mb-4 flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                                    <ClipboardCheck className="h-5 w-5" />
+                                </div>
+                                <h3 className="text-base font-extrabold text-gray-900">ফর্ম সাবমিটের পর কী হবে?</h3>
+                            </div>
+                            <div className="space-y-3">
+                                {nextSteps.map((step, index) => (
+                                    <div key={step} className="flex gap-3">
+                                        <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">{index + 1}</span>
+                                        <p className="text-sm leading-6 text-gray-700">{step}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
                         {/* Mini testimonial */}
                         <div className="mt-10 flex items-start gap-4 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-                            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-blue-700 text-sm font-bold text-white">
-                                রম
-                            </div>
+                            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-blue-700 text-sm font-bold text-white">রম</div>
                             <div>
                                 <div className="mb-1 flex gap-0.5">
-                                    {[...Array(5)].map((_, i) => <Star key={i} className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />)}
+                                    {[...Array(5)].map((_, i) => (
+                                        <Star key={i} className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
+                                    ))}
                                 </div>
                                 <p className="text-sm italic text-gray-600">&quot;শুরু করার পর থেকে প্রতিদিনের হিসাব নিয়ে আর কোনো চিন্তা নেই।&quot;</p>
-                                <p className="mt-1 text-xs font-bold text-gray-800">রোকন মন্ডল <span className="font-normal text-gray-400">· মন্ডল এন্টারপ্রাইজ, ঢাকা</span></p>
+                                <p className="mt-1 text-xs font-bold text-gray-800">
+                                    রোকন মন্ডল <span className="font-normal text-gray-400">· মন্ডল এন্টারপ্রাইজ, ঢাকা</span>
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -77,7 +95,6 @@ export default function PromoRegisterForm() {
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
         </section>

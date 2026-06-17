@@ -101,9 +101,7 @@ export default function PartnerPromotionPage() {
                     <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'linear-gradient(135deg, #ffffff 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
                     <div className="relative mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
                         <div>
-                            <span className="inline-flex rounded-full border border-[#e79237]/50 bg-[#e79237]/15 px-4 py-1.5 text-sm font-bold text-[#ffd29f]">
-                                Bangladesh POS Software Partner Program
-                            </span>
+                            <span className="inline-flex rounded-full border border-[#e79237]/50 bg-[#e79237]/15 px-4 py-1.5 text-sm font-bold text-[#ffd29f]">AndgatePOS Partner Program</span>
                             <h1 className="mt-5 max-w-3xl text-4xl font-black leading-tight sm:text-5xl lg:text-6xl">দোকানদারকে ডেমো দেখান, পেইড সাবস্ক্রিপশন থেকে কমিশন পান</h1>
                             <p className="mt-5 max-w-2xl text-base leading-8 text-slate-200 sm:text-lg">
                                 বাংলাদেশের দোকানগুলো এখন খাতার হিসাব ছেড়ে ডিজিটাল বিলিং, স্টক কন্ট্রোল ও পরিষ্কার রিপোর্টের দিকে যাচ্ছে। আপনি ট্রেনিং নিয়ে দোকানদারের সাথে সরাসরি কথা বলবেন, ডেমো
@@ -191,7 +189,7 @@ export default function PartnerPromotionPage() {
                     <div className="mx-auto max-w-6xl">
                         <div className="max-w-2xl">
                             <p className="text-sm font-bold uppercase tracking-wider text-[#046ca9]">কারা যোগ দিতে পারবেন</p>
-                            <h2 className="mt-2 text-3xl font-black text-slate-950">Bangladesh POS software partner হিসেবে যারা ভালো fit</h2>
+                            <h2 className="mt-2 text-3xl font-black text-slate-950">AndgatePOS partner হিসেবে যারা ভালো fit</h2>
                             <p className="mt-3 text-slate-600">
                                 অপরিচিত মানুষকে ফোন করার দরকার নেই। আপনার পরিচিত ব্যবসায়ীদের হিসাব, স্টক বা বিলিংয়ের সমস্যা বুঝে তাদের জন্য AndgatePOS সমাধান হিসেবে পরিচয় করিয়ে দিন।
                             </p>
