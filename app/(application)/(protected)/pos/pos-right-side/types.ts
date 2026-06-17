@@ -22,6 +22,11 @@ export const MEMBERSHIP_DISCOUNTS: Record<MembershipTier, number> = {
     platinum: 10,
 };
 
+export interface SplitPayment {
+    payment_type: string;
+    amount: number;
+}
+
 export interface PosFormData {
     customerId: number | string | null;
     customerName: string;
@@ -40,4 +45,9 @@ export interface PosFormData {
     changeAmount: number;
     partialPaymentAmount: number; // Amount paid for partial payment
     dueAmount: number; // Remaining amount for due/partial
+    isSplitPayment: boolean;
+    splitPayments: SplitPayment[];
+    couponCode: string;
+    couponDiscount: number;
+    couponId: number | null;
 }

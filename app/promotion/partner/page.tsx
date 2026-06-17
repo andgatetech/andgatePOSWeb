@@ -1,9 +1,11 @@
 'use client';
 
 import WhatsAppFloat from '@/components/whatsapp-float';
+import { buildAttribution } from '@/lib/attribution';
 import { useRegisterAffiliateMutation } from '@/store/features/affiliate/affiliateApi';
 import { ArrowRight, BadgeCheck, Banknote, BarChart3, CheckCircle2, ClipboardCheck, MessageCircle, ShieldCheck, Sparkles, Users } from 'lucide-react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import Navbar from '../components/navbar';
 import PromoFooter from '../components/promo-footer';
@@ -112,6 +114,11 @@ const partnerFaqSchema = {
 };
 
 export default function PartnerPromotionPage() {
+    const searchParams = useSearchParams();
+    const attribution = buildAttribution(searchParams, {
+        source: searchParams.get('source') || 'promotion_partner',
+        campaign: 'partner_landing',
+    });
     const [formData, setFormData] = useState({ name: '', mobile: '', email: '', type: 'other', bkash_number: '', network_description: '', parent_code: '' });
     const [success, setSuccess] = useState<any>(null);
     const [registerAffiliate, { isLoading, error }] = useRegisterAffiliateMutation();
@@ -119,7 +126,7 @@ export default function PartnerPromotionPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const res = await registerAffiliate(formData).unwrap();
+            const res = await registerAffiliate({ ...formData, ...attribution }).unwrap();
             setSuccess(res.data);
         } catch {}
     };

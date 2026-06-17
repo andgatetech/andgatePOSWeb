@@ -239,6 +239,14 @@ const ReportApi = baseApi.injectEndpoints({
                 },
             }),
         }),
+
+        getArAgingReport: builder.mutation({
+            query: (data: ReportFilters) => ({
+                url: '/reports/ar-aging',
+                method: 'POST',
+                body: data,
+            }),
+        }),
     }),
 });
 
@@ -269,4 +277,6 @@ export const {
     useGetProfitLossReportMutation,
     useGetExpenseReportMutation,
     useGetTaxReportMutation,
+    // Receivables
+    useGetArAgingReportMutation,
 } = ReportApi;

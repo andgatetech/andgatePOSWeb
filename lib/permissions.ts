@@ -178,6 +178,7 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     '/accounting/profit-loss': ['accounting.reports.view'],
     '/accounting/balance-sheet': ['accounting.reports.view'],
     '/accounting/trial-balance': ['accounting.reports.view'],
+    '/accounting/cash-flow': ['accounting.reports.view'],
 
     // ── Expenses ───────────────────────────────────────────────
     '/expenses/expense-list': ['expenses.index'],

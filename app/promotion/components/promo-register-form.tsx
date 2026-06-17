@@ -86,7 +86,7 @@ export default function PromoRegisterForm() {
                                 <p className="text-sm text-gray-500">নিচের তথ্যগুলো দিয়ে এখনই শুরু করুন</p>
                             </div>
 
-                            <ComponentsAuthRegisterForm />
+                            <ComponentsAuthRegisterForm defaultSource="promotion_pos" defaultCampaign="pos_landing" />
 
                             {/* Trust strip */}
                             <div className="mt-5 flex items-center justify-center gap-1.5 text-xs text-gray-400">

@@ -67,6 +67,11 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
         changeAmount: 0,
         partialPaymentAmount: 0,
         dueAmount: 0,
+        isSplitPayment: false,
+        splitPayments: [],
+        couponCode: '',
+        couponDiscount: 0,
+        couponId: null,
     });
 
     const [isManualCustomerEntry, setIsManualCustomerEntry] = useState(false);

@@ -39,7 +39,9 @@ import LoadingOverlay from './pos-right-side/LoadingOverlay';
 import OrderDetailsSection from './pos-right-side/OrderDetailsSection';
 import PaymentSummarySection from './pos-right-side/PaymentSummarySection';
 import PreviewModal from './pos-right-side/PreviewModal';
-import type { Customer, CustomerApiResponse, PosFormData } from './pos-right-side/types';
+import CouponInput from './pos-right-side/CouponInput';
+import SplitPaymentModal from './pos-right-side/SplitPaymentModal';
+import type { Customer, CustomerApiResponse, PosFormData, SplitPayment } from './pos-right-side/types';
 import { MEMBERSHIP_DISCOUNTS } from './pos-right-side/types';
 import ReturnQuotePreviewModal from '@/components/pos/ReturnQuotePreviewModal';
 
@@ -129,7 +131,13 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         changeAmount: 0,
         partialPaymentAmount: 0,
         dueAmount: 0,
+        isSplitPayment: false,
+        splitPayments: [],
+        couponCode: '',
+        couponDiscount: 0,
+        couponId: null,
     });
+    const [showSplitModal, setShowSplitModal] = useState(false);
 
     const [isManualCustomerEntry, setIsManualCustomerEntry] = useState(false);
     const showManualCustomerForm = isManualCustomerEntry || !!selectedCustomer;
@@ -784,7 +792,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
     };
 
     const quotePayload = useMemo(() => {
-        if (isReturnMode || !currentStoreId || invoiceItems.length === 0 || !formData.paymentMethod || !formData.paymentStatus) {
+        if (isReturnMode || !currentStoreId || invoiceItems.length === 0 || (!formData.paymentMethod && !formData.isSplitPayment) || !formData.paymentStatus) {
             return null;
         }
 
@@ -805,7 +813,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         return {
             store_id: currentStoreId,
             customer_id: typeof formData.customerId === 'number' ? formData.customerId : undefined,
-            payment_method: formData.paymentMethod,
+            payment_method: formData.isSplitPayment ? 'Split' : formData.paymentMethod,
             payment_status: formData.paymentStatus,
             discount: calculateDiscount() + calculateMembershipDiscount(),
             points_to_redeem: selectedCustomer && formData.usePoints ? formData.pointsToUse : 0,
@@ -954,7 +962,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             } else if (name === 'partialPaymentAmount') {
                 processedValue = Number(value) || 0;
             } else if (name === 'paymentMethod') {
-                // When method changes, auto-reset status if it's no longer valid
+                // When method changes, auto-reset status and clear any active split
                 const allowedStatuses = getAllowedStatusesForMethod(value);
                 setFormData((prev) => ({
                     ...prev,
@@ -962,6 +970,8 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                     paymentStatus: allowedStatuses.includes(prev.paymentStatus) ? prev.paymentStatus : allowedStatuses[0] ?? '',
                     partialPaymentAmount: 0,
                     dueAmount: 0,
+                    isSplitPayment: false,
+                    splitPayments: [],
                 }));
                 return;
             } else if (name === 'paymentStatus') {
@@ -1058,8 +1068,21 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         const orderSubtotal = Number(freshTotals.total ?? backendSubtotal);
         setLoading(false);
 
+        // Validation: Split Payment — rows must sum to grand total
+        if (formData.isSplitPayment) {
+            if (formData.splitPayments.length < 2) {
+                showMessage('Split payment requires at least 2 payment methods.', 'error');
+                return;
+            }
+            const splitSum = formData.splitPayments.reduce((s, p) => s + p.amount, 0);
+            if (Math.abs(splitSum - grandTotal) > 0.01) {
+                showMessage(`Split payment total (${splitSum.toFixed(2)}) must equal order total (${grandTotal.toFixed(2)}).`, 'error');
+                return;
+            }
+        }
+
         // Validation: Cash Payment Amount Received
-        if (formData.paymentStatus === 'paid' && formData.paymentMethod.toLowerCase() === 'cash') {
+        if (!formData.isSplitPayment && formData.paymentStatus === 'paid' && formData.paymentMethod.toLowerCase() === 'cash') {
             if (!formData.amountPaid || formData.amountPaid <= 0) {
                 showMessage(t('msg_enter_amount_received'), 'error');
                 // You might want to scroll to the specific section, but top is safe
@@ -1111,8 +1134,10 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
 
         const orderData: any = {
             store_id: currentStoreId,
-            payment_method: formData.paymentMethod,
             payment_status: formData.paymentStatus,
+            ...(formData.isSplitPayment
+                ? { payments: formData.splitPayments, payment_method: 'Split' }
+                : { payment_method: formData.paymentMethod }),
             tax: orderTax,
             discount: orderDiscount,
             total: orderSubtotal,
@@ -1122,6 +1147,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             due_amount: dueAmount,
             points_to_redeem: selectedCustomer && formData.usePoints ? formData.pointsToUse : 0,
             balance_to_redeem: selectedCustomer && formData.useBalance ? formData.balanceToUse : 0,
+            ...(formData.couponCode ? { coupon_code: formData.couponCode } : {}),
             items: invoiceItems.map((item) => {
                 const itemBasePrice = item.rate * item.quantity;
                 const itemTax = calculateItemTax(item);
@@ -1546,6 +1572,11 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                 changeAmount: 0,
                 partialPaymentAmount: 0,
                 dueAmount: 0,
+                isSplitPayment: false,
+                splitPayments: [],
+                couponCode: '',
+                couponDiscount: 0,
+                couponId: null,
             });
         }
 
@@ -1913,6 +1944,31 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                     isReturnMode={isReturnMode}
                 />
 
+                {!isReturnMode && (
+                    <div className="mt-4 border-t border-gray-100 pt-3">
+                        <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-400">Coupon</p>
+                        <CouponInput
+                            storeId={currentStoreId}
+                            orderTotal={backendGrandTotal}
+                            customerId={typeof formData.customerId === 'number' ? formData.customerId : null}
+                            appliedCode={formData.couponCode}
+                            couponDiscount={formData.couponDiscount}
+                            onApply={(result) => setFormData((prev) => ({
+                                ...prev,
+                                couponCode: result.code,
+                                couponDiscount: result.discount_amount,
+                                couponId: result.coupon_id,
+                            }))}
+                            onRemove={() => setFormData((prev) => ({
+                                ...prev,
+                                couponCode: '',
+                                couponDiscount: 0,
+                                couponId: null,
+                            }))}
+                        />
+                    </div>
+                )}
+
                 <PaymentSummarySection
                     formData={formData}
                     selectedCustomer={selectedCustomer}
@@ -1932,6 +1988,24 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                     returnTotal={returnTotal}
                     newItemsTotal={newItemsTotal}
                     returnNetAmount={returnNetAmount}
+                    onOpenSplitModal={() => setShowSplitModal(true)}
+                />
+
+                <SplitPaymentModal
+                    isOpen={showSplitModal}
+                    totalPayable={backendGrandTotal}
+                    paymentMethodOptions={paymentMethodOptions}
+                    initialSplitPayments={formData.splitPayments}
+                    onConfirm={(payments: SplitPayment[]) => {
+                        setFormData((prev) => ({
+                            ...prev,
+                            isSplitPayment: true,
+                            splitPayments: payments,
+                            paymentStatus: 'paid',
+                        }));
+                        setShowSplitModal(false);
+                    }}
+                    onClose={() => setShowSplitModal(false)}
                 />
 
                 <CashPaymentSection

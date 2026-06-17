@@ -23,6 +23,7 @@ interface PaymentSummarySectionProps {
     returnTotal?: number;
     newItemsTotal?: number;
     returnNetAmount?: number;
+    onOpenSplitModal?: () => void;
 }
 
 // Synthetic event helper so pill buttons can share onInputChange
@@ -78,6 +79,7 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
     returnTotal = 0,
     newItemsTotal = 0,
     returnNetAmount = 0,
+    onOpenSplitModal,
 }) => {
     const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
@@ -230,7 +232,7 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                     <div className="flex flex-wrap gap-2">
                         {paymentMethodOptions.map((method: any) => {
                             const name = method.payment_method_name || '';
-                            const selected = formData.paymentMethod === name;
+                            const selected = !formData.isSplitPayment && formData.paymentMethod === name;
                             return (
                                 <button
                                     key={method.id ?? name}
@@ -247,6 +249,27 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                                 </button>
                             );
                         })}
+                        {onOpenSplitModal && (
+                            <button
+                                type="button"
+                                onClick={onOpenSplitModal}
+                                className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-all ${
+                                    formData.isSplitPayment
+                                        ? 'bg-warning text-white shadow-sm'
+                                        : 'border border-gray-200 bg-white text-gray-600 hover:border-warning/40 hover:bg-warning/5 hover:text-warning'
+                                }`}
+                            >
+                                <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                                </svg>
+                                <span>Split</span>
+                                {formData.isSplitPayment && formData.splitPayments.length > 0 && (
+                                    <span className="rounded-full bg-white/30 px-1.5 text-xs">
+                                        {formData.splitPayments.length}
+                                    </span>
+                                )}
+                            </button>
+                        )}
                     </div>
                 </div>
             )}

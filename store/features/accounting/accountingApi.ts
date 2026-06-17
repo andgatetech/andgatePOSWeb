@@ -59,6 +59,10 @@ export const accountingApi = baseApi.injectEndpoints({
             query: (params) => ({ url: '/accounting/trial-balance', method: 'GET', params }),
             providesTags: ['AccountingReports'],
         }),
+        getCashFlowStatement: builder.query({
+            query: (params) => ({ url: '/accounting/cash-flow', method: 'GET', params }),
+            providesTags: ['AccountingReports'],
+        }),
     }),
 });
 
@@ -75,4 +79,5 @@ export const {
     useGetProfitAndLossQuery,
     useGetBalanceSheetQuery,
     useGetTrialBalanceQuery,
+    useGetCashFlowStatementQuery,
 } = accountingApi;

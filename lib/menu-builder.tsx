@@ -226,6 +226,11 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                 requiredPermissions: ['accounting.reports.view'],
             },
             {
+                label: 'Cash Flow',
+                href: '/accounting/cash-flow',
+                requiredPermissions: ['accounting.reports.view'],
+            },
+            {
                 label: 'Chart of Accounts',
                 href: '/accounting/chart-of-accounts',
                 requiredPermissions: ['accounting.accounts.index'],

@@ -2,16 +2,22 @@
 
 import { getTranslation } from '@/i18n';
 import { AUTH_TOKEN_EXPIRES_AT_COOKIE, AUTH_TOKEN_EXPIRES_AT_KEY, getCookieMaxAgeFromExpiry, getLoginTokenExpiresAt, isTokenExpired, setAuthCookie } from '@/lib/auth-session';
+import { buildAttribution } from '@/lib/attribution';
 import { RootState } from '@/store';
 import { useRegisterMutation } from '@/store/features/auth/authApi';
 import { login } from '@/store/features/auth/authSlice';
 import { Building as IconBuilding, Eye as IconEye, EyeOff as IconEyeOff, Lock as IconLockDots, Mail as IconMail, Phone as IconPhone, User as IconUser } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 
-const ComponentsAuthRegisterForm = () => {
+type ComponentsAuthRegisterFormProps = {
+    defaultSource?: string;
+    defaultCampaign?: string;
+};
+
+const ComponentsAuthRegisterForm = ({ defaultSource = 'website_registration', defaultCampaign = 'public_registration' }: ComponentsAuthRegisterFormProps) => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [runTour, setRunTour] = useState(false);
@@ -24,6 +30,14 @@ const ComponentsAuthRegisterForm = () => {
     const [registerApi, { isLoading }] = useRegisterMutation();
 
     const refCode = searchParams.get('ref') ?? '';
+    const attribution = useMemo(
+        () =>
+            buildAttribution(searchParams, {
+                source: searchParams.get('source') || defaultSource,
+                campaign: defaultCampaign,
+            }),
+        [searchParams, defaultSource, defaultCampaign]
+    );
 
     const [credentials, setCredentials] = useState({
         store_name: '',
@@ -33,11 +47,12 @@ const ComponentsAuthRegisterForm = () => {
         password: '',
         password_confirmation: '',
         ref_code: refCode,
+        ...attribution,
     });
 
     useEffect(() => {
-        if (refCode) setCredentials((prev) => ({ ...prev, ref_code: refCode }));
-    }, [refCode]);
+        setCredentials((prev) => ({ ...prev, ref_code: refCode, ...attribution }));
+    }, [refCode, attribution]);
 
     // Start tour on component mount (optional - you can trigger this differently)
     useEffect(() => {
