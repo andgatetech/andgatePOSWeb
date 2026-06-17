@@ -180,11 +180,11 @@ const purchaseOrderSlice = createSlice({
             order.supplierId = supplierId;
         },
 
-        setSupplierDetailsRedux(state, action: PayloadAction<{ storeId: number; supplier: Supplier }>) {
-            const { storeId, supplier } = action.payload;
+        setSupplierDetailsRedux(state, action: PayloadAction<{ storeId: number; supplierId?: number | null; supplier?: Supplier | null }>) {
+            const { storeId, supplier, supplierId } = action.payload;
             const order = getStoreOrder(state, storeId);
-            order.supplier = supplier;
-            order.supplierId = supplier.id;
+            order.supplier = supplier ?? null;
+            order.supplierId = supplierId ?? supplier?.id ?? null;
         },
 
         setPurchaseTypeRedux(state, action: PayloadAction<{ storeId: number; purchaseType: 'supplier' | 'walk_in' | 'own_purchase' }>) {
