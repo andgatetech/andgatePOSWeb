@@ -123,7 +123,7 @@ const PurchaseCompletedTable: React.FC<PurchaseCompletedTableProps> = ({ orders,
                 icon: <Eye className="h-4 w-4" />,
             },
             {
-                label: t('purchase_action_receive'),
+                label: 'View receiving',
                 onClick: onViewTransactions,
                 className: 'text-indigo-600',
                 icon: <Clock className="h-4 w-4" />,

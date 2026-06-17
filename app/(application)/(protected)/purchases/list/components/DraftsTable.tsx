@@ -129,7 +129,7 @@ const DraftsTable: React.FC<DraftsTableProps> = ({ drafts, isLoading, pagination
                 icon: <Eye className="h-4 w-4" />,
             },
             {
-                label: t('purchase_action_receive'),
+                label: 'Create purchase order',
                 onClick: onConvertToPO,
                 className: 'text-green-600',
                 icon: <FileText className="h-4 w-4" />,

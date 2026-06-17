@@ -30,7 +30,7 @@ export default function StockThresholdsPage() {
     const [drafts, setDrafts]         = useState<Record<number, DraftRow>>({});
     const [saving, setSaving]         = useState(false);
 
-    const { data, isFetching, refetch } = useGetStockThresholdsQuery(
+    const { data, isFetching, isError, refetch } = useGetStockThresholdsQuery(
         { store_id: currentStoreId ?? undefined, page, per_page: 50, search: debouncedSearch },
         { skip: !currentStoreId }
     );
@@ -171,13 +171,23 @@ export default function StockThresholdsPage() {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-                        {isFetching && items.length === 0 ? (
+                        {!currentStoreId ? (
+                            <tr>
+                                <td colSpan={6} className="px-4 py-8 text-center text-gray-400">Please select a store first.</td>
+                            </tr>
+                        ) : isError ? (
+                            <tr>
+                                <td colSpan={6} className="px-4 py-8 text-center text-red-500">Could not load stock thresholds. Please refresh and try again.</td>
+                            </tr>
+                        ) : isFetching && items.length === 0 ? (
                             <tr>
                                 <td colSpan={6} className="px-4 py-8 text-center text-gray-400">{t('lbl_loading')}</td>
                             </tr>
                         ) : items.length === 0 ? (
                             <tr>
-                                <td colSpan={6} className="px-4 py-8 text-center text-gray-400">{t('msg_no_products_found')}</td>
+                                <td colSpan={6} className="px-4 py-8 text-center text-gray-400">
+                                    {debouncedSearch ? t('msg_no_products_found') : 'No stock rows found for this store. Add products with stock first, then set low-stock thresholds here.'}
+                                </td>
                             </tr>
                         ) : items.map((item) => {
                             const draft = getDraft(item);

@@ -176,7 +176,7 @@ const PurchaseNewTable: React.FC<PurchaseNewTableProps> = ({
                 icon: <PackageCheck className="h-4 w-4" />,
             },
             {
-                label: t('purchase_action_receive'),
+                label: 'Track receiving',
                 onClick: onViewTransactions,
                 className: 'text-indigo-600',
                 icon: <Clock className="h-4 w-4" />,
@@ -214,7 +214,7 @@ const PurchaseNewTable: React.FC<PurchaseNewTableProps> = ({
                 icon: <Trash2 className="h-4 w-4" />,
             },
         ],
-        [onViewItems, onReceiveItems, onViewTransactions, onPartialPayment, onClearFullDue, onPrint, onDelete]
+        [t, onViewItems, onReceiveItems, onViewTransactions, onPartialPayment, onClearFullDue, onPrint, onDelete]
     );
 
     return (
