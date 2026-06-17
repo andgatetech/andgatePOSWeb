@@ -12,7 +12,6 @@ import { useCallback, useMemo, useState } from 'react';
 import { EcommerceOrdersFilter } from './EcommerceFilters';
 import EcommerceServiceRequest from './EcommerceServiceRequest';
 import CourierFraudCheckPanel from './CourierFraudCheckPanel';
-import CreateOnlineOrderModal from './CreateOnlineOrderModal';
 import { StatusBadge } from './EcommerceBadges';
 import { formatApiError, getCustomerLabel, getEcommercePaymentMethodLabel, getEcommerceSourceLabel, getResponseItems, getResponsePagination, resolveCurrentStoreGate } from './ecommerceUtils';
 import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
@@ -38,8 +37,6 @@ const EcommerceOrdersPage = () => {
         recipient_city: '',
         recipient_zone: '',
     });
-    const [showCreateModal, setShowCreateModal] = useState(false);
-
     const queryParams = useMemo(() => {
         const params: Record<string, any> = {
             page: currentPage,
@@ -278,7 +275,7 @@ const EcommerceOrdersPage = () => {
                 {!gate.blocked && (
                     <button
                         type="button"
-                        onClick={() => setShowCreateModal(true)}
+                        onClick={() => router.push('/ecommerce/orders/create')}
                         className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
                     >
                         <Plus className="h-4 w-4" />
@@ -387,7 +384,6 @@ const EcommerceOrdersPage = () => {
                 </>
             )}
 
-            <CreateOnlineOrderModal open={showCreateModal} onClose={() => setShowCreateModal(false)} />
         </div>
     );
 };

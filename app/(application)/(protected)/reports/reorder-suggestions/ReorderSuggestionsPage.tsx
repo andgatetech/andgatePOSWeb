@@ -10,26 +10,38 @@ import { useState, useMemo } from 'react';
 const ReorderSuggestionsPage = () => {
     const { t } = getTranslation();
     const { currentStoreId } = useCurrentStore();
-    const [threshold, setThreshold] = useState<number | undefined>(undefined);
 
     const params = useMemo(() => {
         const p: Record<string, any> = {};
         if (currentStoreId) p.store_id = currentStoreId;
-        if (threshold !== undefined) p.threshold = threshold;
         return p;
-    }, [currentStoreId, threshold]);
+    }, [currentStoreId]);
 
     const { data, isLoading } = useGetReorderSuggestionsQuery(params, { skip: !currentStoreId });
 
     const suggestions = useMemo(() => data?.data?.suggestions || data?.data || [], [data]);
 
     const columns = [
-        { key: 'name', label: t('lbl_product_name'), sortable: false },
+        { key: 'product_name', label: t('lbl_product_name'), sortable: false },
         { key: 'sku', label: t('lbl_sku'), sortable: false },
-        { key: 'current_stock', label: t('lbl_current_stock'), sortable: false },
-        { key: 'reorder_point', label: t('lbl_reorder_point'), sortable: false },
-        { key: 'suggested_quantity', label: t('lbl_suggested_qty'), sortable: false },
-        { key: 'supplier', label: t('lbl_supplier'), sortable: false },
+        { key: 'current_qty', label: t('lbl_current_stock'), sortable: false },
+        { key: 'low_stock_qty', label: t('lbl_reorder_point'), sortable: false },
+        { key: 'suggested_reorder_qty', label: t('lbl_suggested_qty'), sortable: false },
+        {
+            key: 'urgency',
+            label: t('lbl_urgency'),
+            sortable: false,
+            render: (row: any) => (
+                <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold capitalize ${
+                    row.urgency === 'critical' ? 'bg-red-100 text-red-700' :
+                    row.urgency === 'high' ? 'bg-orange-100 text-orange-700' :
+                    row.urgency === 'medium' ? 'bg-amber-100 text-amber-700' :
+                    'bg-green-100 text-green-700'
+                }`}>
+                    {t(`lbl_urgency_${row.urgency}`)}
+                </span>
+            ),
+        },
     ];
 
     return (
@@ -40,18 +52,6 @@ const ReorderSuggestionsPage = () => {
                     <h1 className="text-xl font-bold">{t('lbl_reorder_suggestions')}</h1>
                     <p className="text-sm opacity-80">{t('lbl_reorder_suggestions_desc')}</p>
                 </div>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3">
-                <label className="text-sm font-medium text-gray-600">{t('lbl_threshold')}:</label>
-                <input
-                    type="number"
-                    min={0}
-                    value={threshold ?? ''}
-                    onChange={(e) => setThreshold(e.target.value ? Number(e.target.value) : undefined)}
-                    placeholder={t('lbl_min_stock_level')}
-                    className="w-40 rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                />
             </div>
 
             <ReusableTable

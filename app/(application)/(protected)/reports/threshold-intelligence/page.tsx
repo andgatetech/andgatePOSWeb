@@ -93,9 +93,9 @@ export default function ThresholdIntelligencePage() {
                 store_id: currentStoreId,
                 items: [{ stock_id: rec.stock_id, low_stock_quantity: rec.recommended_threshold }],
             }).unwrap();
-            showSuccessDialog(`Threshold updated to ${rec.recommended_threshold}`);
+            showSuccessDialog(t('msg_threshold_updated'));
         } catch {
-            showErrorDialog('Failed to apply recommendation');
+            showErrorDialog(t('msg_threshold_update_failed'));
         } finally {
             setApplyingIds((s) => { const n = new Set(s); n.delete(rec.stock_id); return n; });
         }

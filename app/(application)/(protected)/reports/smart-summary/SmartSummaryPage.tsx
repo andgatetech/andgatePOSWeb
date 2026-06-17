@@ -21,14 +21,18 @@ const SmartSummaryPage = () => {
     const { data: dailyData, isLoading: dailyLoading } = useGetDailySummaryQuery(params, { skip: !currentStoreId });
     const { data: weeklyData, isLoading: weeklyLoading } = useGetWeeklySummaryQuery(params, { skip: !currentStoreId });
 
-    const summary = activeTab === 'daily' ? dailyData?.data || {} : weeklyData?.data || {};
+    const rawData = activeTab === 'daily' ? dailyData?.data || {} : weeklyData?.data || {};
     const isLoading = activeTab === 'daily' ? dailyLoading : weeklyLoading;
 
+    const metrics = rawData?.metrics || {};
+    const topProducts = metrics?.top_products || [];
+    const narrative = activeTab === 'daily' ? rawData?.narrative : null;
+
     const stats = [
-        { label: t('lbl_revenue'), value: formatCurrency(summary.revenue || 0), icon: <TrendingUp className="h-5 w-5 text-success" /> },
-        { label: t('lbl_total_orders'), value: summary.orders || 0, icon: <ShoppingCart className="h-5 w-5 text-primary" /> },
-        { label: t('lbl_top_product'), value: summary.top_product || '—', icon: <Package className="h-5 w-5 text-warning" /> },
-        { label: t('lbl_alerts'), value: summary.alerts || 0, icon: <AlertCircle className="h-5 w-5 text-danger" /> },
+        { label: t('lbl_revenue'), value: formatCurrency(metrics.revenue || 0), icon: <TrendingUp className="h-5 w-5 text-success" /> },
+        { label: t('lbl_total_orders'), value: metrics.order_count || 0, icon: <ShoppingCart className="h-5 w-5 text-primary" /> },
+        { label: t('lbl_new_customers'), value: metrics.new_customers || 0, icon: <Package className="h-5 w-5 text-warning" /> },
+        { label: t('lbl_returns'), value: metrics.return_count || 0, icon: <AlertCircle className="h-5 w-5 text-danger" /> },
     ];
 
     return (
@@ -58,33 +62,42 @@ const SmartSummaryPage = () => {
             {isLoading ? (
                 <Loader fullScreen={false} className="py-10" />
             ) : (
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    {stats.map((stat) => (
-                        <div key={stat.label} className="flex items-center gap-4 rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50">
-                                {stat.icon}
+                <>
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                        {stats.map((stat) => (
+                            <div key={stat.label} className="flex items-center gap-4 rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50">
+                                    {stat.icon}
+                                </div>
+                                <div>
+                                    <p className="text-xs font-medium text-gray-500">{stat.label}</p>
+                                    <p className="text-lg font-bold text-gray-800">{String(stat.value)}</p>
+                                </div>
                             </div>
-                            <div>
-                                <p className="text-xs font-medium text-gray-500">{stat.label}</p>
-                                <p className="text-lg font-bold text-gray-800">{String(stat.value)}</p>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            )}
-
-            {!isLoading && summary.top_products?.length > 0 && (
-                <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
-                    <h3 className="mb-3 font-semibold text-gray-700">{t('lbl_top_products')}</h3>
-                    <ul className="divide-y divide-gray-100">
-                        {summary.top_products.map((p: any, i: number) => (
-                            <li key={i} className="flex items-center justify-between py-2 text-sm">
-                                <span className="text-gray-700">{p.name}</span>
-                                <span className="font-medium text-primary">{p.quantity} {t('lbl_units')}</span>
-                            </li>
                         ))}
-                    </ul>
-                </div>
+                    </div>
+
+                    {narrative && (
+                        <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
+                            <h3 className="mb-2 font-semibold text-gray-700">{t('lbl_summary')}</h3>
+                            <p className="text-sm leading-relaxed text-gray-600">{narrative}</p>
+                        </div>
+                    )}
+
+                    {topProducts.length > 0 && (
+                        <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
+                            <h3 className="mb-3 font-semibold text-gray-700">{t('lbl_top_products')}</h3>
+                            <ul className="divide-y divide-gray-100">
+                                {topProducts.map((p: any, i: number) => (
+                                    <li key={i} className="flex items-center justify-between py-2 text-sm">
+                                        <span className="text-gray-700">{p.product_name}</span>
+                                        <span className="font-medium text-primary">{p.qty_sold} {t('lbl_units')}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+                </>
             )}
         </div>
     );

@@ -33,13 +33,11 @@ const AnomaliesPage = () => {
 
     const { data, isLoading } = useGetAnomaliesQuery(params, { skip: !currentStoreId });
 
-    const anomalies = useMemo(() => data?.data?.anomalies || data?.data || [], [data]);
+    const anomalies = useMemo(() => data?.data?.flags || data?.data || [], [data]);
 
     const columns = [
         { key: 'type', label: t('lbl_type'), sortable: false },
-        { key: 'entity', label: t('lbl_entity'), sortable: false },
-        { key: 'value', label: t('lbl_value'), sortable: false },
-        { key: 'expected_range', label: t('lbl_expected_range'), sortable: false },
+        { key: 'message', label: t('lbl_description'), sortable: false },
         {
             key: 'severity',
             label: t('lbl_severity'),
@@ -51,10 +49,13 @@ const AnomaliesPage = () => {
             ),
         },
         {
-            key: 'detected_at',
+            key: 'meta',
             label: t('lbl_detected_at'),
             sortable: false,
-            render: (row: any) => <DateColumn date={row.detected_at} />,
+            render: (row: any) => {
+                const detectedAt = row.meta?.created_at || row.meta?.adjusted_at;
+                return <DateColumn date={detectedAt} />;
+            },
         },
     ];
 
