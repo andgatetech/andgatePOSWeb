@@ -237,9 +237,7 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     '/ecommerce/carts': ['orders.index'],
     '/ecommerce/wishlists': ['orders.index'],
     '/ecommerce/setting/credentials': ['orders.index'],
-    '/ecommerce/settings/credentials': ['orders.index'],
     '/ecommerce/setting/marketing': ['orders.index'],
-    '/ecommerce/settings/marketing': ['orders.index'],
 
     // ── Affiliate Program ───────────────────────────────────────
     '/affiliate/portal': ['affiliate.manage'],

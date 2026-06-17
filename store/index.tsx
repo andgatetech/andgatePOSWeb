@@ -1,5 +1,5 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
-import { FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, REHYDRATE } from 'redux-persist';
+import { FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, REHYDRATE, createTransform } from 'redux-persist';
 import createWebStorage from 'redux-persist/lib/storage/createWebStorage';
 
 import { baseApi } from '@/store/api/baseApi';
@@ -26,12 +26,39 @@ const createNoopStorage = () => ({
 
 const storage = typeof window !== 'undefined' ? createWebStorage('local') : createNoopStorage();
 
+// Auth token is kept in sessionStorage only (cleared on browser close, never written to localStorage).
+// Everything else in auth (user, permissions, currentStore, isAuthenticated) stays in localStorage
+// so the UI remains hydrated across page refreshes — API calls will fail with 401 and redirect to login.
+const SESSION_TOKEN_KEY = 'andgatepos_session_token';
+
+const authTokenTransform = createTransform(
+    // Before writing to localStorage: strip token, save it to sessionStorage instead
+    (inboundState: any) => {
+        if (typeof window !== 'undefined') {
+            if (inboundState.token) {
+                sessionStorage.setItem(SESSION_TOKEN_KEY, inboundState.token);
+            } else {
+                sessionStorage.removeItem(SESSION_TOKEN_KEY);
+            }
+        }
+        const { token, ...rest } = inboundState;
+        return rest;
+    },
+    // On rehydration from localStorage: restore token from sessionStorage
+    (outboundState: any) => {
+        const token = typeof window !== 'undefined' ? sessionStorage.getItem(SESSION_TOKEN_KEY) : null;
+        return { ...outboundState, token: token || null };
+    },
+    { whitelist: ['auth'] }
+);
+
 // --- persist config ---
 const persistConfig = {
     key: 'root',
     storage,
     whitelist: ['auth', 'invoice', 'orderEdit', 'orderReturn'], // durable offline POS data is stored in IndexedDB
     blacklist: [baseApi.reducerPath, affiliatePortalApi.reducerPath, affiliateAdminApi.reducerPath], // do not persist API cache
+    transforms: [authTokenTransform],
 };
 
 // --- root reducer ---
