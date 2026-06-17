@@ -61,31 +61,36 @@ const ComponentsDashboardSales = () => {
                 </div>
             </div>
 
-            {/* ── 1. KEY METRICS — Business performance at a glance ── */}
+            {/* ── 1. QUICK ACTIONS — Daily operations at your fingertips ── */}
+            <QuickActions />
+
+            {/* ── 2. SUBSCRIPTION STATUS — Plan & payment ── */}
+            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                <SubscriptionPaymentStatus />
+            </div>
+
+            {/* ── 3. KEY METRICS — Business performance at a glance ── */}
             <Summary />
 
-            {/* ── 2. SALES & PURCHASE TRENDS — Visual performance ── */}
-            <Analytics />
-
-            {/* ── 3. ALERTS + CUSTOMER DUES — What needs attention ── */}
+            {/* ── 4. ALERTS + CUSTOMER DUES — What needs attention ── */}
             <div className="space-y-4">
                 <AlertStrip />
                 <CustomerDueSnapshot />
             </div>
 
-            {/* ── 4. QUICK ACTIONS ── */}
-            <QuickActions />
+            {/* ── 5. SALES & PURCHASE TRENDS — Visual performance ── */}
+            <Analytics />
 
-            {/* ── 5. TOP SELLING / LOW STOCK / RECENT SALES ── */}
+            {/* ── 6. TOP SELLING / LOW STOCK / RECENT SALES ── */}
             <DashboardSections />
 
-            {/* ── 6. PAYMENT METHODS + RECENT TRANSACTIONS ── */}
+            {/* ── 7. PAYMENT METHODS + RECENT TRANSACTIONS ── */}
             <SectionFour />
 
-            {/* ── 7. PROFIT TREND + EXPENSE BREAKDOWN ── */}
+            {/* ── 8. PROFIT TREND + EXPENSE BREAKDOWN ── */}
             <ProfitExpenseWidget />
 
-            {/* ── 8. CATEGORIES / BRANDS / PURCHASED + TOP CUSTOMERS ── */}
+            {/* ── 9. CATEGORIES / BRANDS / PURCHASED + TOP CUSTOMERS ── */}
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
                 <div className="lg:col-span-3">
                     <SectionsFive />
@@ -93,11 +98,6 @@ const ComponentsDashboardSales = () => {
                 <div className="lg:col-span-1">
                     <TopCustomers />
                 </div>
-            </div>
-
-            {/* ── 9. SUBSCRIPTION STATUS — Administrative ── */}
-            <div className="rounded-xl border border-gray-100 bg-white p-4">
-                <SubscriptionPaymentStatus />
             </div>
         </div>
     );

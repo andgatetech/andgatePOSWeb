@@ -38,7 +38,7 @@ export default function SubscriptionPaymentStatus() {
                         <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-600 dark:text-gray-300">
                             <span>{subscription?.plan_name_en || t('msg_no_active_package')}</span>
                             {subscription?.expire_date && <span>{t('lbl_expires')}: {new Date(subscription.expire_date).toLocaleDateString('en-US')}</span>}
-                            {summary?.remaining_days !== null && summary?.remaining_days !== undefined && <span>{summary.remaining_days} {t('lbl_days_left')}</span>}
+                            {summary?.remaining_days !== null && summary?.remaining_days !== undefined && <span>{Math.round(summary.remaining_days)} {t('lbl_days_left')}</span>}
                         </div>
                     )}
                 </div>
