@@ -5,8 +5,9 @@ body.swal2-toast-shown .swal2-container.toast {
 .swal2-popup {
     flex-direction: column;
     justify-content: center;
-    padding: 20px !important;
+    padding: 24px !important;
     box-sizing: border-box;
+    border-radius: 16px !important;
 }
 
 .dark .swal2-popup {
@@ -14,46 +15,52 @@ body.swal2-toast-shown .swal2-container.toast {
 }
 
 .dark .swal2-popup .swal2-title {
-    color: #888ea8;
+    color: #e0e6ed;
 }
 
 .swal2-popup .swal2-title {
     display: block;
     margin: 0px !important;
     width: 100%;
-    color: #3b3f5c;
-    font-size: 24px;
+    color: #1f2937;
+    font-size: 22px;
+    font-weight: 700;
     @apply ltr:!pr-10 rtl:!pl-10;
 }
 
 .swal2-popup .swal2-styled {
-    box-shadow: 0px 5px 20px 0 rgba(0, 0, 0, 0.1) !important;
-    letter-spacing: 1px;
+    box-shadow: 0px 5px 20px 0 rgba(4, 108, 169, 0.12) !important;
+    letter-spacing: 0.3px;
     font-size: 14px !important;
+    font-weight: 600 !important;
     line-height: 20px !important;
-    transition: all 0.3s ease-out;
-    -webkit-transition: all 0.3s ease-out;
+    transition: all 0.2s ease-out;
+    -webkit-transition: all 0.2s ease-out;
     margin: 0 5px;
-    padding: 8px 20px;
-    border-radius: 6px;
+    padding: 9px 22px;
+    border-radius: 10px;
 }
 
 .swal2-popup .swal2-styled.swal2-cancel {
     background-color: #fff !important;
-    color: #4361ee;
-    border: 1px solid #e8e8e8;
+    color: #046ca9;
+    border: 1px solid #e2e8f0;
     box-shadow: none;
-    padding: 7px 20px;
+    padding: 8px 22px;
 }
 
 .dark .swal2-popup .swal2-styled.swal2-cancel {
-    background-color: #3b3f5c !important;
+    background-color: #1b2e4b !important;
     color: #e0e6ed;
-    border-color: #3b3f5c;
+    border-color: #253b5c;
 }
 
 .swal2-popup .swal2-styled.swal2-confirm {
-    background-color: #4361ee;
+    background-color: #046ca9;
+}
+
+.swal2-popup .swal2-styled.swal2-confirm:hover {
+    background-color: #035a8c;
 }
 
 .swal2-popup .swal2-styled.swal2-confirm:focus {
@@ -62,9 +69,13 @@ body.swal2-toast-shown .swal2-container.toast {
 
 .swal2-popup .swal2-html-container {
     margin: 0 !important;
-    color: #e95f2b;
-    font-weight: 300;
+    color: #64748b;
+    font-weight: 400;
     @apply ltr:!pr-10 rtl:!pl-10;
+}
+
+.dark .swal2-popup .swal2-html-container {
+    color: #94a3b8;
 }
 
 .swal2-popup .swal2-close {

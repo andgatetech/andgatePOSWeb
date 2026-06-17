@@ -30,6 +30,28 @@ export const showMessage = (msg = '', type: 'success' | 'error' | 'warning' | 'i
 };
 
 /**
+ * Lightweight, non-blocking corner toast for quick/trivial actions
+ * (e.g. inline table saves) that don't warrant a full modal click-to-dismiss.
+ * @param msg - Message to display
+ * @param type - Type of message: 'success', 'error', 'warning', or 'info'
+ */
+export const showToast = (msg = '', type: 'success' | 'error' | 'warning' | 'info' = 'success') => {
+    Swal.fire({
+        icon: type,
+        title: msg,
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        customClass: {
+            popup: `swal2-${type}-popup`,
+            icon: `swal2-${type}-icon`,
+        },
+    });
+};
+
+/**
  * Reusable confirmation dialog using SweetAlert2
  * @param title - Dialog title
  * @param text - Dialog message text
@@ -75,7 +97,7 @@ export const showConfirmDialog = async (
  */
 export const showSuccessDialog = (
     title: string = 'Success!',
-    text: string = 'Your action was completed successfully.',
+    text: string = '',
     confirmButtonText: string = 'OK',
     showCancelButton: boolean = false,
     cancelButtonText: string = 'Cancel'
@@ -83,7 +105,7 @@ export const showSuccessDialog = (
     return Swal.fire({
         icon: 'success',
         title,
-        html: text,
+        html: text || undefined,
         confirmButtonColor: '#10b981',
         confirmButtonText,
         showCancelButton,

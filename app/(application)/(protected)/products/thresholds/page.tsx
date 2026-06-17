@@ -12,7 +12,7 @@ import {
     useBulkUpdateThresholdsMutation,
     ThresholdItem,
 } from '@/store/features/stockThreshold/stockThresholdApi';
-import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
+import { showToast } from '@/lib/toast';
 
 type DraftRow = {
     low_stock_quantity: number;
@@ -100,10 +100,10 @@ export default function StockThresholdsPage() {
                 suppress_low_stock: drafts[id].suppress_low_stock,
             }));
             await bulkUpdate({ store_id: currentStoreId, items: payload }).unwrap();
-            showSuccessDialog(`${dirtyIds.length} row(s) updated`);
+            showToast(`${dirtyIds.length} row(s) updated`, 'success');
             setDrafts({});
         } catch {
-            showErrorDialog('Failed to save changes');
+            showToast('Failed to save changes', 'error');
         } finally {
             setSaving(false);
         }

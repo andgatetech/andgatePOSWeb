@@ -298,14 +298,6 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                 }
             });
         } catch (error: any) {
-            console.error('Error saving draft:', error);
-            console.error('Error details:', {
-                message: error?.data?.message,
-                errors: error?.data?.errors,
-                status: error?.status,
-                data: error?.data,
-            });
-
             const errorMessage = error?.data?.message || error?.message || t('msg_failed_to_save_draft');
             const errorDetails = error?.data?.errors
                 ? Object.entries(error.data.errors)
@@ -408,14 +400,6 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                 }
             });
         } catch (error: any) {
-            console.error('Error creating purchase order:', error);
-            console.error('Error details:', {
-                message: error?.data?.message,
-                errors: error?.data?.errors,
-                status: error?.status,
-                data: error?.data,
-            });
-
             const errorMessage = error?.data?.message || error?.message || t('msg_failed_to_create_purchase_order');
             const errorDetails = error?.data?.errors
                 ? Object.entries(error.data.errors)
@@ -554,7 +538,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                         <div className="flex items-center gap-2">
                             <span className="text-xs sm:text-sm">{t('lbl_items')}: {purchaseItems.length}</span>
                             {purchaseItems.length > 0 && (
-                                <button onClick={clearAllItems} className="btn btn-sm btn-outline-danger" title="Clear all items">
+                                <button onClick={clearAllItems} className="btn btn-sm btn-outline-danger" title={t('msg_clear_all_items')}>
                                     <Trash2 className="h-3.5 w-3.5" />
                                 </button>
                             )}
@@ -718,7 +702,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                                                         setItemModalOpen(true);
                                                                     }}
                                                                     className="text-blue-600 hover:text-blue-800"
-                                                                    title="View item details"
+                                                                    title={t('msg_view_item_details')}
                                                                 >
                                                                     <Eye className="h-4 w-4" />
                                                                 </button>
@@ -762,7 +746,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                                         <button
                                                             onClick={() => handleRemoveItem(item.id)}
                                                             className="inline-flex items-center justify-center rounded-lg bg-red-50 p-2 text-red-600 transition-colors hover:bg-red-100 hover:text-red-800"
-                                                            title="Remove item"
+                                                            title={t('msg_remove_item')}
                                                         >
                                                             <Trash2 className="h-4 w-4" />
                                                         </button>
@@ -782,8 +766,8 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                     <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
                                         <ShoppingCart className="h-8 w-8 text-gray-600" />
                                     </div>
-                                    <h3 className="mb-2 text-lg font-semibold text-gray-900">No Items Added</h3>
-                                    <p className="text-sm text-gray-600">Select products from the left or add new items</p>
+                                    <h3 className="mb-2 text-lg font-semibold text-gray-900">{t('msg_no_items_added')}</h3>
+                                    <p className="text-sm text-gray-600">{t('msg_select_products_or_add')}</p>
                                 </div>
                             ) : (
                                 purchaseItems.map((item, index) => (
@@ -864,7 +848,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                         onClick={handleSaveDraft}
                         className="btn btn-outline-primary flex-1"
                         disabled={isSavingDraft || isUpdatingDraft || isCreatingPurchase || purchaseItems.length === 0 || (purchaseType === 'supplier' && !supplierId)}
-                        title={purchaseItems.length === 0 ? 'Add items first' : purchaseType === 'supplier' && !supplierId ? 'Select supplier first' : 'Save draft'}
+                        title={purchaseItems.length === 0 ? t('msg_add_items_first') : purchaseType === 'supplier' && !supplierId ? t('msg_select_supplier_first') : t('msg_save_draft')}
                     >
                         <Save className="mr-2 h-5 w-5" />
                         {isSavingDraft || isUpdatingDraft ? t('lbl_saving') : isEditMode ? t('btn_update_draft') : t('btn_save_as_draft')}
@@ -873,7 +857,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                         onClick={() => setShowPreview(true)}
                         className="btn btn-outline-secondary flex-1"
                         disabled={purchaseItems.length === 0}
-                        title={purchaseItems.length === 0 ? 'Add items first' : 'Preview purchase order'}
+                        title={purchaseItems.length === 0 ? t('msg_add_items_first') : t('msg_preview_purchase_order')}
                     >
                         <FileText className="mr-2 h-5 w-5" />
                         {t('btn_preview')}
@@ -882,7 +866,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                         onClick={handleCreatePurchaseOrder}
                         className="btn btn-primary flex-1"
                         disabled={isSavingDraft || isUpdatingDraft || isCreatingPurchase || purchaseItems.length === 0 || (purchaseType === 'supplier' && !supplierId)}
-                        title={purchaseItems.length === 0 ? 'Add items first' : purchaseType === 'supplier' && !supplierId ? 'Select supplier first' : 'Create purchase order'}
+                        title={purchaseItems.length === 0 ? t('msg_add_items_first') : purchaseType === 'supplier' && !supplierId ? t('msg_select_supplier_first') : t('msg_create_purchase_order')}
                     >
                         <ShoppingCart className="mr-2 h-5 w-5" />
                         {isCreatingPurchase ? t('lbl_creating') : t('btn_create_purchase_order')}

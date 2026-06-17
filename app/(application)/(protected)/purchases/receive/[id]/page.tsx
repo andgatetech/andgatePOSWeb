@@ -2,6 +2,7 @@
 import Loading from '@/app/loading';
 import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
+import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import type { RootState } from '@/store';
 import { useGetPurchaseOrderByIdQuery, useUpdatePurchaseOrderMutation } from '@/store/features/PurchaseOrder/PurchaseOrderApi';
 import { ArrowLeft, Calculator, CheckCircle } from 'lucide-react';
@@ -9,7 +10,6 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
-import Swal from 'sweetalert2';
 
 const ReceiveItemsPage = () => {
     const { t } = getTranslation();
@@ -18,13 +18,11 @@ const ReceiveItemsPage = () => {
     const { formatCurrency } = useCurrency();
     const purchaseOrderId = params?.id as string;
 
-    // Fetch purchase order details
     const { data: poResponse, isLoading } = useGetPurchaseOrderByIdQuery(purchaseOrderId);
     const [updatePO, { isLoading: isUpdating }] = useUpdatePurchaseOrderMutation();
 
     const purchaseOrder = poResponse?.data;
 
-    // Local state for received quantities and prices
     const [receivedQuantities, setReceivedQuantities] = useState<Record<number, number>>({});
     const [purchasePrices, setPurchasePrices] = useState<Record<number, number>>({});
     const [sellingPrices, setSellingPrices] = useState<Record<number, number>>({});
@@ -36,11 +34,9 @@ const ReceiveItemsPage = () => {
     const [paymentMethod, setPaymentMethod] = useState('');
     const [paymentNotes, setPaymentNotes] = useState('');
 
-    // Get payment methods from Redux
     const paymentMethods = useSelector((state: RootState) => state.auth.currentStore?.payment_methods || []);
     const activePaymentMethods = paymentMethods.filter((pm) => pm.is_active);
 
-    // Initialize received quantities and prices from PO data
     useEffect(() => {
         if (purchaseOrder?.items) {
             const quantities: Record<number, number> = {};
@@ -51,18 +47,12 @@ const ReceiveItemsPage = () => {
             const variants: Record<number, any> = {};
 
             purchaseOrder.items.forEach((item: any) => {
-                // Default to ordered quantity minus already received (but never negative)
                 const remaining = item.quantity_ordered - (item.quantity_received || 0);
                 quantities[item.id] = Math.max(0, remaining);
-                // Convert purchase_price to number (backend might send string)
                 prices[item.id] = parseFloat(item.purchase_price) || 0;
-                // Initialize selling price from current stock selling price
                 selling[item.id] = parseFloat(item.current_stock_selling_price) || 0;
-                // Tax rate
                 taxes[item.id] = parseFloat(item.tax_rate) || 0;
-                // Low stock quantity
                 lowStock[item.id] = parseFloat(item.low_stock_quantity) || 5;
-                // Variant data
                 variants[item.id] = item.variant_data || {};
             });
 
@@ -75,7 +65,6 @@ const ReceiveItemsPage = () => {
         }
     }, [purchaseOrder]);
 
-    // Set default payment method when payment methods are loaded
     useEffect(() => {
         if (activePaymentMethods.length > 0 && !paymentMethod) {
             setPaymentMethod(activePaymentMethods[0].payment_method_name);
@@ -83,69 +72,35 @@ const ReceiveItemsPage = () => {
     }, [activePaymentMethods, paymentMethod]);
 
     const handleQuantityChange = (itemId: number, value: string) => {
-        const quantity = parseFloat(value) || 0;
-        setReceivedQuantities((prev) => ({
-            ...prev,
-            [itemId]: quantity,
-        }));
+        setReceivedQuantities((prev) => ({ ...prev, [itemId]: parseFloat(value) || 0 }));
     };
 
     const handlePriceChange = (itemId: number, value: string) => {
-        const price = parseFloat(value) || 0;
-        setPurchasePrices((prev) => ({
-            ...prev,
-            [itemId]: price,
-        }));
+        setPurchasePrices((prev) => ({ ...prev, [itemId]: parseFloat(value) || 0 }));
     };
 
     const handleSellingPriceChange = (itemId: number, value: string) => {
-        const price = parseFloat(value) || 0;
-        setSellingPrices((prev) => ({
-            ...prev,
-            [itemId]: price,
-        }));
+        setSellingPrices((prev) => ({ ...prev, [itemId]: parseFloat(value) || 0 }));
     };
 
     const handleTaxRateChange = (itemId: number, value: string) => {
-        const rate = parseFloat(value) || 0;
-        setTaxRates((prev) => ({
-            ...prev,
-            [itemId]: rate,
-        }));
+        setTaxRates((prev) => ({ ...prev, [itemId]: parseFloat(value) || 0 }));
     };
 
     const handleLowStockChange = (itemId: number, value: string) => {
-        const quantity = parseFloat(value) || 0;
-        setLowStockQuantities((prev) => ({
-            ...prev,
-            [itemId]: quantity,
-        }));
+        setLowStockQuantities((prev) => ({ ...prev, [itemId]: parseFloat(value) || 0 }));
     };
 
     const handleVariantChange = (itemId: number, key: string, value: string) => {
-        setVariantData((prev) => ({
-            ...prev,
-            [itemId]: {
-                ...prev[itemId],
-                [key]: value,
-            },
-        }));
+        setVariantData((prev) => ({ ...prev, [itemId]: { ...prev[itemId], [key]: value } }));
     };
 
     const handleRemoveItem = (itemId: number) => {
-        setExcludedItems((prev) => {
-            const newSet = new Set(prev);
-            newSet.add(itemId);
-            return newSet;
-        });
+        setExcludedItems((prev) => { const s = new Set(prev); s.add(itemId); return s; });
     };
 
     const handleRestoreItem = (itemId: number) => {
-        setExcludedItems((prev) => {
-            const newSet = new Set(prev);
-            newSet.delete(itemId);
-            return newSet;
-        });
+        setExcludedItems((prev) => { const s = new Set(prev); s.delete(itemId); return s; });
     };
 
     const calculateItemTotal = (itemId: number) => {
@@ -153,15 +108,9 @@ const ReceiveItemsPage = () => {
     };
 
     const calculateGrandTotal = () => {
-        return (
-            purchaseOrder?.items?.reduce((total: number, item: any) => {
-                return total + calculateItemTotal(item.id);
-            }, 0) || 0
-        );
+        return purchaseOrder?.items?.reduce((total: number, item: any) => total + calculateItemTotal(item.id), 0) || 0;
     };
 
-    // WAC (Weighted Average Cost) calculation
-    // Formula: ((Current Stock × Current Purchase Price) + (Receiving Qty × New Purchase Price)) / (Current Stock + Receiving Qty)
     const calculateWAC = useCallback(
         (item: any) => {
             const currentStock = parseFloat(item.current_stock_quantity) || 0;
@@ -170,70 +119,58 @@ const ReceiveItemsPage = () => {
             const newPurchasePrice = purchasePrices[item.id] || 0;
 
             if (receivingQty <= 0) return null;
-
             const totalStock = currentStock + receivingQty;
             if (totalStock <= 0) return null;
 
-            const wac = (currentStock * currentPurchasePrice + receivingQty * newPurchasePrice) / totalStock;
-            return wac;
+            return (currentStock * currentPurchasePrice + receivingQty * newPurchasePrice) / totalStock;
         },
         [receivedQuantities, purchasePrices]
     );
 
-    // Memoize WAC values for all items
     const wacValues = useMemo(() => {
         if (!purchaseOrder?.items) return {};
         const values: Record<number, number | null> = {};
-        purchaseOrder.items.forEach((item: any) => {
-            values[item.id] = calculateWAC(item);
-        });
+        purchaseOrder.items.forEach((item: any) => { values[item.id] = calculateWAC(item); });
         return values;
     }, [purchaseOrder?.items, calculateWAC]);
 
     const handleReceiveItems = async () => {
         if (!purchaseOrder || !purchaseOrder.items) {
-            Swal.fire('Error', 'Purchase order data not loaded', 'error');
+            showErrorDialog(t('msg_po_data_not_loaded'));
             return;
         }
 
-        // Filter out excluded items
         const activeItems = purchaseOrder.items.filter((item: any) => !excludedItems.has(item.id));
-
-        // Validation
         const hasItemsToReceive = activeItems.some((item: any) => (receivedQuantities[item.id] || 0) > 0);
 
         if (!hasItemsToReceive) {
-            Swal.fire('Error', 'Please enter quantities to receive', 'error');
+            showErrorDialog(t('msg_enter_quantities'));
             return;
         }
 
-        // Check for new products without prices
-        const newProductsWithoutPrice = activeItems.filter((item: any) => item.product_id === null && (purchasePrices[item.id] || 0) === 0 && (receivedQuantities[item.id] || 0) > 0);
-
+        const newProductsWithoutPrice = activeItems.filter(
+            (item: any) => item.product_id === null && (purchasePrices[item.id] || 0) === 0 && (receivedQuantities[item.id] || 0) > 0
+        );
         if (newProductsWithoutPrice.length > 0) {
-            Swal.fire('Error', 'Please set purchase prices for all new products', 'error');
+            showErrorDialog(t('msg_set_purchase_prices'));
             return;
         }
 
-        // Check for items without selling prices
-        const itemsWithoutSellingPrice = activeItems.filter((item: any) => (sellingPrices[item.id] || 0) === 0 && (receivedQuantities[item.id] || 0) > 0);
-
+        const itemsWithoutSellingPrice = activeItems.filter(
+            (item: any) => (sellingPrices[item.id] || 0) === 0 && (receivedQuantities[item.id] || 0) > 0
+        );
         if (itemsWithoutSellingPrice.length > 0) {
-            Swal.fire('Error', 'Please set selling prices for all items to receive', 'error');
+            showErrorDialog(t('msg_set_selling_prices'));
             return;
         }
 
-        // Prepare receive data - send ALL items with cumulative quantity_received
-        // Note: Backend calculates WAC automatically, we only send purchase_price and selling_price
         const receiveData = {
             status: 'received',
             items: purchaseOrder.items.map((item: any) => {
                 const isExcluded = excludedItems.has(item.id);
                 const alreadyReceived = parseFloat(item.quantity_received || 0);
                 const receivingNow = receivedQuantities[item.id] || 0;
-                // Send cumulative total: already received + receiving now (or just already received if excluded)
                 const totalReceived = isExcluded ? alreadyReceived : alreadyReceived + receivingNow;
-
                 return {
                     id: item.id,
                     quantity_received: totalReceived,
@@ -251,44 +188,37 @@ const ReceiveItemsPage = () => {
         };
 
         try {
-            const response = await updatePO({
-                id: purchaseOrderId,
-                ...receiveData,
-            }).unwrap();
-
-            // Simple success message
-            Swal.fire({
-                icon: 'success',
-                title: 'Items Received Successfully!',
-                text: 'Purchase order has been updated.',
-                confirmButtonText: 'OK',
-            }).then(() => {
-                router.push('/purchases/list');
-            });
+            await updatePO({ id: purchaseOrderId, ...receiveData }).unwrap();
+            showSuccessDialog(t('msg_items_received_success'));
+            router.push('/purchases/list');
         } catch (error: any) {
-            console.error('Error receiving items:', error);
-            Swal.fire('Error', error?.data?.message || 'Failed to receive items', 'error');
+            showErrorDialog(error?.data?.message || t('msg_error_generic'));
         }
     };
 
-    if (isLoading) {
-        return <Loading />;
-    }
+    if (isLoading) return <Loading />;
 
     if (!purchaseOrder) {
         return (
             <div className="panel">
-                <p className="text-center text-red-500">Purchase order not found</p>
+                <p className="text-center text-red-500">{t('lbl_purchase_order_not_found')}</p>
             </div>
         );
     }
 
     const grandTotal = calculateGrandTotal();
-    const balanceDue = grandTotal - paymentAmount;
+    const supplierName = purchaseOrder.supplier?.name || t('lbl_na');
+
+    const receiveBullets = [
+        t('msg_receive_bullet_1'),
+        t('msg_receive_bullet_2'),
+        t('msg_receive_bullet_3'),
+        t('msg_receive_bullet_4'),
+        t('msg_receive_bullet_5'),
+    ];
 
     return (
         <div className="space-y-6">
-            {/* Header Section */}
             <section className="mb-6">
                 <div>
                     <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
@@ -299,48 +229,45 @@ const ReceiveItemsPage = () => {
                             <div>
                                 <Link href="/purchases/list" className="mb-1 inline-flex items-center text-sm text-[#046ca9] hover:underline">
                                     <ArrowLeft className="mr-1 h-4 w-4" />
-                                    Back to Purchase Orders
+                                    {t('lbl_back_to_purchase_orders')}
                                 </Link>
-                                <h1 className="text-xl font-bold text-gray-900">Receive Items</h1>
+                                <h1 className="text-xl font-bold text-gray-900">{t('lbl_receive_items')}</h1>
                                 <p className="text-xs text-gray-500 sm:text-sm">
-                                    Order: {purchaseOrder.invoice_number} | Supplier: {purchaseOrder.supplier?.name || 'N/A'}
+                                    {t('lbl_order')}: {purchaseOrder.invoice_number} | {t('lbl_supplier')}: {supplierName}
                                 </p>
                             </div>
                         </div>
                         <div className="w-full text-left sm:w-auto sm:text-right">
                             <div className="rounded-lg bg-blue-50 px-4 py-3">
-                                <p className="text-xs text-gray-600">Order Total</p>
+                                <p className="text-xs text-gray-600">{t('lbl_order_total')}</p>
                                 <p className="text-xl font-bold text-blue-600 sm:text-2xl">{formatCurrency(purchaseOrder.grand_total || 0)}</p>
                             </div>
                         </div>
                     </div>
 
-                    {/* Status Cards */}
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                         <div className="rounded-lg border border-gray-200 bg-gradient-to-br from-blue-50 to-white p-3">
-                            <p className="text-xs text-gray-600">Order Status</p>
+                            <p className="text-xs text-gray-600">{t('lbl_order_status')}</p>
                             <p className="mt-1 text-sm font-semibold text-blue-600">{purchaseOrder.status.replace('_', ' ').toUpperCase()}</p>
                         </div>
                         <div className="rounded-lg border border-gray-200 bg-gradient-to-br from-purple-50 to-white p-3">
-                            <p className="text-xs text-gray-600">Payment Status</p>
+                            <p className="text-xs text-gray-600">{t('lbl_payment_status')}</p>
                             <p className="mt-1 text-sm font-semibold text-purple-600">{purchaseOrder.payment_status?.toUpperCase()}</p>
                         </div>
                         <div className="rounded-lg border border-gray-200 bg-gradient-to-br from-green-50 to-white p-3">
-                            <p className="text-xs text-gray-600">Amount Paid</p>
+                            <p className="text-xs text-gray-600">{t('lbl_amount_paid')}</p>
                             <p className="mt-1 text-sm font-semibold text-green-600">{formatCurrency(purchaseOrder.amount_paid || 0)}</p>
                         </div>
                         <div className="rounded-lg border border-gray-200 bg-gradient-to-br from-orange-50 to-white p-3">
-                            <p className="text-xs text-gray-600">Amount Due</p>
+                            <p className="text-xs text-gray-600">{t('lbl_amount_due')}</p>
                             <p className="mt-1 text-sm font-semibold text-orange-600">{formatCurrency(purchaseOrder.amount_due || 0)}</p>
                         </div>
                     </div>
                 </div>
             </section>
 
-            {/* Items to Receive */}
             <div className="panel">
-                <h2 className="mb-5 text-xl font-bold">Items to Receive</h2>
-
+                <h2 className="mb-5 text-xl font-bold">{t('lbl_items_to_receive')}</h2>
                 <div className="table-responsive">
                     <table className="table-hover">
                         <thead>
@@ -359,7 +286,6 @@ const ReceiveItemsPage = () => {
                         </thead>
                         <tbody>
                             {purchaseOrder?.items?.map((item: any) => {
-                                const remainingToReceive = item.quantity_ordered - (item.quantity_received || 0);
                                 const isNewProduct = item.product_id === null;
                                 const hasVariant = item.is_variant && item.variant_data;
                                 const isExcluded = excludedItems.has(item.id);
@@ -374,21 +300,21 @@ const ReceiveItemsPage = () => {
                                     <tr key={item.id} className={isExcluded ? 'bg-gray-50 opacity-50' : ''}>
                                         <td>
                                             <div>
-                                                <p className="font-semibold">{item.product_name || item.product_name_at_purchase || 'Unknown Product'}</p>
-                                                <p className="text-xs text-gray-400">Unit: {item.unit || 'piece'}</p>
-                                                {!isNewProduct && <p className="text-xs text-gray-400">Current Stock: {parseFloat(item.current_stock_quantity) || 0}</p>}
+                                                <p className="font-semibold">{item.product_name || item.product_name_at_purchase || t('lbl_unknown_product')}</p>
+                                                <p className="text-xs text-gray-400">{t('lbl_unit')}: {item.unit || t('lbl_piece')}</p>
+                                                {!isNewProduct && <p className="text-xs text-gray-400">{t('lbl_current_stock')}: {parseFloat(item.current_stock_quantity) || 0}</p>}
                                             </div>
                                         </td>
                                         <td>
                                             <div className="space-y-1">
                                                 {isNewProduct ? (
-                                                    <span className="rounded bg-info/20 px-2 py-1 text-xs font-semibold text-info">New Product</span>
+                                                    <span className="rounded bg-info/20 px-2 py-1 text-xs font-semibold text-info">{t('lbl_new_product')}</span>
                                                 ) : (
-                                                    <span className="rounded bg-success/20 px-2 py-1 text-xs font-semibold text-success">Existing</span>
+                                                    <span className="rounded bg-success/20 px-2 py-1 text-xs font-semibold text-success">{t('lbl_existing')}</span>
                                                 )}
                                                 {hasVariant && (
                                                     <div className="mt-2 space-y-1">
-                                                        <p className="text-xs font-semibold text-purple-600">Variant: {item.variant_name}</p>
+                                                        <p className="text-xs font-semibold text-purple-600">{t('lbl_variant')}: {item.variant_name}</p>
                                                         {Object.entries(variantData[item.id] || item.variant_data || {}).map(([key, value]: [string, any]) => (
                                                             <div key={key} className="flex items-center gap-1">
                                                                 <span className="text-xs text-gray-500">{key}:</span>
@@ -426,14 +352,13 @@ const ReceiveItemsPage = () => {
                                                     step="0.01"
                                                     value={purchasePrices[item.id] === 0 ? '' : purchasePrices[item.id] ?? ''}
                                                     onChange={(e) => handlePriceChange(item.id, e.target.value)}
-                                                    placeholder={item.current_stock_purchase_price || 'Purchase price'}
+                                                    placeholder={String(item.current_stock_purchase_price || t('lbl_purchase_price'))}
                                                 />
                                                 {!isNewProduct && item.current_stock_purchase_price && (
-                                                    <span className="mt-0.5 block text-xs text-blue-600">Current: {formatCurrency(item.current_stock_purchase_price)}</span>
+                                                    <span className="mt-0.5 block text-xs text-blue-600">{t('lbl_current')}: {formatCurrency(item.current_stock_purchase_price)}</span>
                                                 )}
                                             </div>
                                         </td>
-                                        {/* Avg. Cost Column */}
                                         <td>
                                             {itemWac !== null ? (
                                                 <div className="min-w-[100px]">
@@ -447,7 +372,7 @@ const ReceiveItemsPage = () => {
                                                                 newPurchasePrice > currentPurchasePrice ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
                                                             }`}
                                                         >
-                                                            {newPurchasePrice > currentPurchasePrice ? '↑ Cost Up' : '↓ Cost Down'}
+                                                            {newPurchasePrice > currentPurchasePrice ? `↑ ${t('lbl_cost_up')}` : `↓ ${t('lbl_cost_down')}`}
                                                         </span>
                                                     )}
                                                 </div>
@@ -464,15 +389,15 @@ const ReceiveItemsPage = () => {
                                                     step="0.01"
                                                     value={sellingPrices[item.id] === 0 ? '' : sellingPrices[item.id] ?? ''}
                                                     onChange={(e) => handleSellingPriceChange(item.id, e.target.value)}
-                                                    placeholder={item.current_stock_selling_price || 'Selling price'}
+                                                    placeholder={String(item.current_stock_selling_price || t('lbl_selling_price'))}
                                                 />
                                                 {!isNewProduct && item.current_stock_selling_price && (
-                                                    <span className="mt-0.5 block text-xs text-green-600">Current: {formatCurrency(item.current_stock_selling_price)}</span>
+                                                    <span className="mt-0.5 block text-xs text-green-600">{t('lbl_current')}: {formatCurrency(item.current_stock_selling_price)}</span>
                                                 )}
                                                 {itemWac !== null && currentSellingPrice > 0 && (
                                                     <div className={`mt-1 rounded px-1.5 py-0.5 ${isBelowWac ? 'bg-red-50' : 'bg-green-50'}`}>
                                                         <span className={`text-[11px] font-semibold ${isBelowWac ? 'text-red-600' : 'text-green-600'}`}>
-                                                            {isBelowWac ? '⚠ Loss: ' : 'Profit: '}
+                                                            {isBelowWac ? `⚠ ${t('lbl_loss')}: ` : `${t('lbl_profit')}: `}
                                                             {formatCurrency(Math.abs(currentSellingPrice - itemWac))} ({Math.abs(((currentSellingPrice - itemWac) / itemWac) * 100).toFixed(1)}%)
                                                         </span>
                                                     </div>
@@ -482,12 +407,12 @@ const ReceiveItemsPage = () => {
                                         <td className="font-bold">{formatCurrency(calculateItemTotal(item.id))}</td>
                                         <td>
                                             {isExcluded ? (
-                                                <button onClick={() => handleRestoreItem(item.id)} className="rounded bg-green-500 p-2 text-white hover:bg-green-600" title="Restore item">
+                                                <button onClick={() => handleRestoreItem(item.id)} className="rounded bg-green-500 p-2 text-white hover:bg-green-600" title={t('lbl_restore_item')}>
                                                     <ArrowLeft className="h-4 w-4" />
                                                 </button>
                                             ) : (
-                                                <button onClick={() => handleRemoveItem(item.id)} className="rounded bg-red-500 p-2 text-white hover:bg-red-600" title="Remove from receiving">
-                                                    <span className="text-lg font-bold">×</span>
+                                                <button onClick={() => handleRemoveItem(item.id)} className="rounded bg-red-500 p-2 text-white hover:bg-red-600" title={t('lbl_remove_from_receiving')}>
+                                                    <span className="text-lg font-bold">&times;</span>
                                                 </button>
                                             )}
                                         </td>
@@ -499,31 +424,27 @@ const ReceiveItemsPage = () => {
                 </div>
             </div>
 
-            {/* Payment Section */}
             <div className="panel">
-                <h2 className="mb-5 text-xl font-bold">Payment Details</h2>
-
+                <h2 className="mb-5 text-xl font-bold">{t('lbl_payment_details')}</h2>
                 <div className="space-y-4">
-                    {/* Summary */}
                     <div className="grid grid-cols-1 gap-4 rounded-lg border border-gray-200 bg-gray-50 p-4 sm:grid-cols-3">
                         <div>
-                            <p className="text-sm text-gray-600">Grand Total</p>
+                            <p className="text-sm text-gray-600">{t('lbl_grand_total')}</p>
                             <p className="text-2xl font-bold text-gray-900">{formatCurrency(grandTotal)}</p>
                         </div>
                         <div>
-                            <p className="text-sm text-gray-600">Already Paid</p>
+                            <p className="text-sm text-gray-600">{t('lbl_already_paid')}</p>
                             <p className="text-2xl font-bold text-blue-600">{formatCurrency(purchaseOrder.amount_paid || 0)}</p>
                         </div>
                         <div>
-                            <p className="text-sm text-gray-600">Current Balance</p>
+                            <p className="text-sm text-gray-600">{t('lbl_current_balance')}</p>
                             <p className="text-2xl font-bold text-orange-600">{formatCurrency(purchaseOrder.amount_due || 0)}</p>
                         </div>
                     </div>
 
-                    {/* Payment Input Grid */}
                     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                         <div>
-                            <label className="mb-2 block text-sm font-semibold">Payment Amount</label>
+                            <label className="mb-2 block text-sm font-semibold">{t('lbl_payment_amount')}</label>
                             <input
                                 type="number"
                                 className="form-input"
@@ -534,11 +455,10 @@ const ReceiveItemsPage = () => {
                                 onChange={(e) => setPaymentAmount(e.target.value === '' ? 0 : parseFloat(e.target.value))}
                                 placeholder={t('placeholder_payment_amount')}
                             />
-                            <p className="mt-1 text-xs text-gray-500">Maximum: {formatCurrency(grandTotal)}</p>
+                            <p className="mt-1 text-xs text-gray-500">{t('lbl_maximum')}: {formatCurrency(grandTotal)}</p>
                         </div>
-
                         <div>
-                            <label className="mb-2 block text-sm font-semibold">Payment Method</label>
+                            <label className="mb-2 block text-sm font-semibold">{t('lbl_payment_method')}</label>
                             <select className="form-select" value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
                                 {activePaymentMethods.length > 0 ? (
                                     activePaymentMethods.map((method) => (
@@ -553,29 +473,27 @@ const ReceiveItemsPage = () => {
                         </div>
                     </div>
 
-                    {/* Payment Notes */}
                     <div>
-                        <label className="mb-2 block text-sm font-semibold">Payment Notes (Optional)</label>
+                        <label className="mb-2 block text-sm font-semibold">{t('lbl_payment_notes_optional')}</label>
                         <textarea className="form-textarea" rows={3} value={paymentNotes} onChange={(e) => setPaymentNotes(e.target.value)} placeholder={t('placeholder_payment_notes')} />
                     </div>
 
-                    {/* New Balance Preview */}
                     <div className="rounded-lg border-2 border-dashed border-gray-300 bg-white p-4">
                         <div className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
                             <div className="flex justify-between">
-                                <span className="text-gray-600">Receiving Now:</span>
+                                <span className="text-gray-600">{t('lbl_receiving_now')}:</span>
                                 <span className="font-semibold">{formatCurrency(grandTotal)}</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-gray-600">Paying Now:</span>
+                                <span className="text-gray-600">{t('lbl_paying_now')}:</span>
                                 <span className="font-semibold text-blue-600">{formatCurrency(paymentAmount)}</span>
                             </div>
                             <div className="flex justify-between border-t pt-2">
-                                <span className="text-gray-600">Previous Balance:</span>
+                                <span className="text-gray-600">{t('lbl_previous_balance')}:</span>
                                 <span className="font-semibold">{formatCurrency(purchaseOrder.amount_due || 0)}</span>
                             </div>
                             <div className="flex justify-between border-t pt-2">
-                                <span className="font-bold">New Balance Due:</span>
+                                <span className="font-bold">{t('lbl_new_balance_due')}:</span>
                                 <span className={`text-lg font-bold ${grandTotal - paymentAmount > 0 ? 'text-orange-600' : 'text-green-600'}`}>{formatCurrency(grandTotal - paymentAmount)}</span>
                             </div>
                         </div>
@@ -583,24 +501,23 @@ const ReceiveItemsPage = () => {
                 </div>
             </div>
 
-            {/* Action Buttons */}
             <div className="panel">
                 <div className="flex flex-col gap-3 sm:flex-row">
                     <button onClick={handleReceiveItems} className="btn btn-success flex-1" disabled={isUpdating}>
                         {isUpdating ? (
                             <>
                                 <div className="mr-2 h-5 w-5 animate-spin rounded-full border-b-2 border-white"></div>
-                                Processing...
+                                {t('lbl_processing')}
                             </>
                         ) : (
                             <>
                                 <CheckCircle className="mr-2 h-5 w-5" />
-                                Receive Items & Update Stock
+                                {t('lbl_receive_items_update_stock')}
                             </>
                         )}
                     </button>
                     <Link href="/purchases/list" className="btn btn-outline-secondary">
-                        Cancel
+                        {t('lbl_cancel')}
                     </Link>
                 </div>
 
@@ -609,11 +526,9 @@ const ReceiveItemsPage = () => {
                         <strong>{t('lbl_note')}:</strong> {t('purchase_receive_click_note')}
                     </p>
                     <ul className="mt-2 space-y-1 text-sm text-blue-700">
-                        <li>✓ Update stock quantities for existing products</li>
-                        <li>✓ Calculate Weighted Average Cost (WAC) automatically</li>
-                        <li>✓ Automatically create new products in your inventory</li>
-                        <li>✓ Record payment information</li>
-                        <li>✓ Update purchase order status</li>
+                        {receiveBullets.map((bullet, i) => (
+                            <li key={i}>&#10003; {bullet}</li>
+                        ))}
                     </ul>
                 </div>
             </div>

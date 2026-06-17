@@ -311,7 +311,7 @@ const PurchaseOrderListPage = () => {
             <body>
                 <div class="header">
                     <h1>${isDraft ? '📋 ' + t('lbl_purchase_draft') : '📦 ' + t('lbl_purchase_order')}</h1>
-                    <p>${item.store_name || 'Store'}</p>
+                    <p>${item.store_name || t('lbl_store')}</p>
                 </div>
 
                 <div class="info-section">
@@ -339,7 +339,7 @@ const PurchaseOrderListPage = () => {
                         <div class="info-box">
                             <h3>${t('lbl_payment_status')}</h3>
                             <p style="text-transform: uppercase; font-weight: 600; color: ${item.payment_status === 'paid' ? '#059669' : item.payment_status === 'partial' ? '#d97706' : '#dc2626'};">
-                                ${item.payment_status || 'N/A'}
+                                ${item.payment_status || t('lbl_na')}
                             </p>
                         </div>
                     `
@@ -361,7 +361,7 @@ const PurchaseOrderListPage = () => {
                     <tbody>
                         ${items
                             .map((itm: any, idx: number) => {
-                                const productName = itm.product_name || itm.product || 'N/A';
+                                const productName = itm.product_name || itm.product || t('lbl_na');
                                 const variantName = itm.variant_name || null;
                                 const isVariant = itm.is_variant || false;
                                 const quantity = parseFloat(itm.quantity_ordered) || 0;
@@ -458,7 +458,7 @@ const PurchaseOrderListPage = () => {
         try {
             const response = await convertToPO({
                 id: draft.id,
-                notes: 'Converted from draft',
+                    payment_notes: 'Converted from draft',
             }).unwrap();
 
             // The response structure might be { success: true, data: { purchase_order: { ... } } } or flattened
@@ -468,8 +468,7 @@ const PurchaseOrderListPage = () => {
             // Validate response - if invoice_number is missing, it's likely a backend error (e.g. PHP exception rendered as HTML)
             // or we failed to extract the purchase order correctly
             if (!purchaseOrder || !purchaseOrder.invoice_number) {
-                console.error('Invalid purchase order response:', response);
-                throw new Error('Failed to create purchase order. Please try again.');
+                throw new Error(t('msg_error_generic'));
             }
 
             const invoiceNumber = purchaseOrder.invoice_number;
@@ -482,8 +481,7 @@ const PurchaseOrderListPage = () => {
                 setActiveTab('new');
             });
         } catch (error: any) {
-            console.error('Error converting draft:', error);
-            const errorMsg = error?.data?.error || error?.data?.message || error?.message || 'Failed to convert draft';
+            const errorMsg = error?.data?.error || error?.data?.message || error?.message || t('msg_error_generic');
             showErrorDialog(t('msg_error'), errorMsg);
         }
     };
@@ -507,7 +505,7 @@ const PurchaseOrderListPage = () => {
         setSelectedDue(due);
         setShowPaymentModal(true);
         setPaymentAmount('');
-        setPaymentMethod(activePaymentMethods[0]?.payment_method_name || 'cash');
+        setPaymentMethod(activePaymentMethods[0]?.payment_method_name || t('lbl_cash'));
         setPaymentNotes('');
     };
 
@@ -515,7 +513,7 @@ const PurchaseOrderListPage = () => {
         setShowPaymentModal(false);
         setSelectedDue(null);
         setPaymentAmount('');
-        setPaymentMethod(activePaymentMethods[0]?.payment_method_name || 'cash');
+        setPaymentMethod(activePaymentMethods[0]?.payment_method_name || t('lbl_cash'));
         setPaymentNotes('');
     };
 
@@ -583,7 +581,7 @@ const PurchaseOrderListPage = () => {
                 id: selectedDue.id,
                 store_id: currentStoreId,
                 payment_method: paymentMethod,
-                notes: paymentNotes || 'Full payment - due cleared',
+                notes: paymentNotes || t('msg_due_cleared'),
             }).unwrap();
 
             const updatedPurchaseOrder = {
@@ -597,7 +595,7 @@ const PurchaseOrderListPage = () => {
                 amount: selectedDue.amount_due,
                 payment_method: paymentMethod,
                 paid_at: new Date().toISOString(),
-                notes: paymentNotes || 'Full payment - due cleared',
+                notes: paymentNotes || t('msg_due_cleared'),
             };
 
             closePaymentModal();
@@ -635,8 +633,8 @@ const PurchaseOrderListPage = () => {
                         </ul>
                         <div class="mt-3 pt-3 border-t border-gray-200">
                             <p class="text-sm text-gray-700"><strong>${t('lbl_current_status')}:</strong></p>
-                            <p class="text-sm text-gray-600">${t('lbl_payment')}: <strong class="text-${due.payment_status === 'pending' ? 'green' : 'red'}-600">${due.payment_status || 'N/A'}</strong></p>
-                            <p class="text-sm text-gray-600">${t('lbl_order')}: <strong class="text-${due.status === 'ordered' ? 'green' : 'red'}-600">${due.status || 'N/A'}</strong></p>
+                            <p class="text-sm text-gray-600">${t('lbl_payment')}: <strong class="text-${due.payment_status === 'pending' ? 'green' : 'red'}-600">${due.payment_status || t('lbl_na')}</strong></p>
+                            <p class="text-sm text-gray-600">${t('lbl_order')}: <strong class="text-${due.status === 'ordered' ? 'green' : 'red'}-600">${due.status || t('lbl_na')}</strong></p>
                         </div>
                     </div>
                 `,
@@ -929,7 +927,7 @@ const PurchaseOrderListPage = () => {
                                         </thead>
                                         <tbody className="bg-white">
                                             {selectedItems.map((item: any, index: number) => {
-                                                const productName = item.product_name || item.product || 'N/A';
+                                                const productName = item.product_name || item.product || t('lbl_na');
                                                 const variantName = item.variant_name || null;
                                                 const isVariant = item.is_variant || false;
                                                 const sku = item.sku || null;
