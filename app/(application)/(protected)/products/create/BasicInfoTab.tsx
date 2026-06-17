@@ -3,6 +3,7 @@
 import { getTranslation } from '@/i18n';
 import RichTextEditor from '@/components/common/RichTextEditor';
 import Image from 'next/image';
+import Link from 'next/link';
 import React from 'react';
 
 interface BasicInfoTabProps {
@@ -180,7 +181,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                                         {/* Categories List */}
                                         <div className="max-h-64 overflow-y-auto">
                                             {/* Quick Add Button */}
-                                            <a
+                                            <Link
                                                 href="/category"
                                                 className="flex items-center gap-2 border-b border-gray-200 bg-blue-50 px-4 py-2.5 text-sm font-medium text-blue-700 transition-colors hover:bg-gray-100"
                                             >
@@ -188,7 +189,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                                                 </svg>
                                                 {t('btn_add_new_category')}
-                                            </a>
+                                            </Link>
 
                                             {filteredCategories.length > 0 ? (
                                                 <div className="py-1">
@@ -328,7 +329,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                                         {/* Brands List */}
                                         <div className="max-h-64 overflow-y-auto">
                                             {/* Quick Add Button */}
-                                            <a
+                                            <Link
                                                 href="/brand"
                                                 className="flex items-center gap-2 border-b border-gray-200 bg-blue-50 px-4 py-2.5 text-sm font-medium text-blue-700 transition-colors hover:bg-gray-100"
                                             >
@@ -336,7 +337,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                                                 </svg>
                                                 {t('btn_add_new_brand')}
-                                            </a>
+                                            </Link>
 
                                             {filteredBrands.length > 0 ? (
                                                 <div className="py-1">
@@ -421,43 +422,63 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
             </div>
 
             {/* Product Features Selection */}
-            <div className="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-6">
-                <h4 className="mb-4 text-sm font-semibold text-gray-700">{t('lbl_product_features')}</h4>
-                <p className="mb-4 text-xs text-gray-500">{t('lbl_product_features_desc')}</p>
+            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 sm:p-6">
+                <h4 className="text-sm font-semibold text-gray-900">{t('lbl_product_type_and_tracking')}</h4>
+                <p className="mt-1 text-xs text-gray-500">{t('lbl_product_type_and_tracking_desc')}</p>
 
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                    {/* Has Attributes */}
-                    <label className="flex cursor-pointer items-start gap-3 rounded-lg border-2 border-gray-200 bg-white p-4 transition-all hover:border-gray-300 hover:shadow-sm">
+                <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
+                    <label
+                        className={`flex cursor-pointer items-start gap-3 rounded-lg border-2 bg-white p-4 transition-all hover:shadow-sm ${
+                            !formData.has_attributes ? 'border-[#046ca9] shadow-sm' : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                    >
                         <input
-                            type="checkbox"
-                            name="has_attributes"
-                            checked={formData.has_attributes}
-                            onChange={(e) => {
+                            type="radio"
+                            name="product_type"
+                            checked={!formData.has_attributes}
+                            onChange={() => {
                                 handleChange({
                                     target: {
                                         name: 'has_attributes',
-                                        value: e.target.checked,
+                                        value: false,
                                     },
                                 } as any);
                             }}
-                            className="mt-1 h-5 w-5 rounded border-gray-300 text-gray-600 focus:ring-2 focus:ring-gray-500"
+                            className="mt-1 h-4 w-4 border-gray-300 text-[#046ca9] focus:ring-2 focus:ring-[#046ca9]"
                         />
                         <div className="flex-1">
-                            <div className="flex items-center gap-2">
-                                <svg className="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
-                                    />
-                                </svg>
-                                <span className="font-semibold text-gray-900">{t('lbl_has_attributes')}</span>
-                            </div>
-                            <p className="mt-1 text-xs text-gray-500">{t('lbl_has_attributes_desc')}</p>
+                            <span className="font-semibold text-gray-900">{t('lbl_simple_product')}</span>
+                            <p className="mt-1 text-xs leading-5 text-gray-500">{t('lbl_simple_product_desc')}</p>
                         </div>
                     </label>
 
+                    <label
+                        className={`flex cursor-pointer items-start gap-3 rounded-lg border-2 bg-white p-4 transition-all hover:shadow-sm ${
+                            formData.has_attributes ? 'border-[#046ca9] shadow-sm' : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                    >
+                        <input
+                            type="radio"
+                            name="product_type"
+                            checked={formData.has_attributes}
+                            onChange={() => {
+                                handleChange({
+                                    target: {
+                                        name: 'has_attributes',
+                                        value: true,
+                                    },
+                                } as any);
+                            }}
+                            className="mt-1 h-4 w-4 border-gray-300 text-[#046ca9] focus:ring-2 focus:ring-[#046ca9]"
+                        />
+                        <div className="flex-1">
+                            <span className="font-semibold text-gray-900">{t('lbl_variant_product')}</span>
+                            <p className="mt-1 text-xs leading-5 text-gray-500">{t('lbl_variant_product_desc')}</p>
+                        </div>
+                    </label>
+                </div>
+
+                <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
                     {/* Has Warranty */}
                     <label className="flex cursor-pointer items-start gap-3 rounded-lg border-2 border-gray-200 bg-white p-4 transition-all hover:border-gray-300 hover:shadow-sm">
                         <input
@@ -472,7 +493,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                                     },
                                 } as any);
                             }}
-                            className="mt-1 h-5 w-5 rounded border-gray-300 text-gray-600 focus:ring-2 focus:ring-gray-500"
+                            className="mt-1 h-5 w-5 rounded border-gray-300 text-[#046ca9] focus:ring-2 focus:ring-[#046ca9]"
                         />
                         <div className="flex-1">
                             <div className="flex items-center gap-2">
@@ -491,7 +512,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                     </label>
 
                     {/* Has Serial */}
-                    <label className="flex cursor-pointer items-start gap-3 rounded-lg border-2 border-gray-200 bg-white p-4 transition-all hover:border-purple-300 hover:shadow-sm">
+                    <label className="flex cursor-pointer items-start gap-3 rounded-lg border-2 border-gray-200 bg-white p-4 transition-all hover:border-gray-300 hover:shadow-sm">
                         <input
                             type="checkbox"
                             name="has_serial"
@@ -504,11 +525,11 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                                     },
                                 } as any);
                             }}
-                            className="mt-1 h-5 w-5 rounded border-gray-300 text-purple-600 focus:ring-2 focus:ring-purple-500"
+                            className="mt-1 h-5 w-5 rounded border-gray-300 text-[#046ca9] focus:ring-2 focus:ring-[#046ca9]"
                         />
                         <div className="flex-1">
                             <div className="flex items-center gap-2">
-                                <svg className="h-5 w-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path
                                         strokeLinecap="round"
                                         strokeLinejoin="round"

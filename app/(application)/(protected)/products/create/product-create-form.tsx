@@ -9,7 +9,7 @@ import { useGetStoreAttributesQuery } from '@/store/features/attribute/attribute
 import { useGetBrandsQuery } from '@/store/features/brand/brandApi';
 import { useGetCategoryQuery } from '@/store/features/category/categoryApi';
 import { useCreateProductMutation, useGetUnitsQuery } from '@/store/features/Product/productApi';
-import { ArrowLeft, Store } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Circle, Store } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import AttributesTab, { ProductAttribute } from './AttributesTab';
@@ -169,6 +169,42 @@ const ProductCreateForm = () => {
         return getVisibleTabs().includes(tabId);
     };
 
+    const flowSteps = formData.has_attributes
+        ? [
+              t('flow_step_basic'),
+              t('flow_step_attributes'),
+              t('flow_step_variants'),
+              t('flow_step_optional'),
+              t('flow_step_sku'),
+          ]
+        : [
+              t('flow_step_basic'),
+              t('flow_step_price'),
+              t('flow_step_stock'),
+              t('flow_step_optional'),
+              t('flow_step_sku'),
+          ];
+
+    const activeFlowIndex = formData.has_attributes
+        ? activeTab === 'basic'
+            ? 0
+            : activeTab === 'attributes'
+              ? 1
+              : activeTab === 'variants'
+                ? 2
+                : activeTab === 'sku'
+                  ? 4
+                  : 3
+        : activeTab === 'basic'
+          ? 0
+          : activeTab === 'pricing'
+            ? 1
+            : activeTab === 'stock'
+              ? 2
+              : activeTab === 'sku'
+                ? 4
+                : 3;
+
     // Show all categories and brands, with search filtering
     // Filter categories based on search term
     const filteredCategories = categorySearchTerm.trim()
@@ -239,7 +275,7 @@ const ProductCreateForm = () => {
     const handleSubmit = async () => {
         // Validation
         if (!formData.product_name.trim()) {
-            showErrorDialog(t('msg_error'), t('lbl_product'));
+            showErrorDialog(t('msg_error'), t('msg_enter_product_name'));
             setActiveTab('basic');
             return;
         }
@@ -254,7 +290,7 @@ const ProductCreateForm = () => {
         if (formData.has_attributes) {
             // For variant products, validate stocks/variants
             if (!productStocks || productStocks.length === 0) {
-                showErrorDialog(t('msg_error'), t('lbl_variant'));
+                showErrorDialog(t('msg_error'), t('msg_add_at_least_one_variant'));
                 setActiveTab('variants');
                 return;
             }
@@ -265,22 +301,22 @@ const ProductCreateForm = () => {
                 const variantName = stock.variant_data && Object.keys(stock.variant_data).length > 0 ? Object.values(stock.variant_data).join('-') : `Variant ${i + 1}`;
 
                 if (!stock.price || parseFloat(stock.price) <= 0) {
-                    showErrorDialog(t('msg_error'), `${variantName}: ${t('lbl_selling_price')}`);
+                    showErrorDialog(t('msg_error'), `${variantName}: ${t('msg_enter_selling_price')}`);
                     setActiveTab('variants');
                     return;
                 }
                 if (!stock.purchase_price || parseFloat(stock.purchase_price) <= 0) {
-                    showErrorDialog(t('msg_error'), `${variantName}: ${t('lbl_purchase_price')}`);
+                    showErrorDialog(t('msg_error'), `${variantName}: ${t('msg_enter_purchase_price')}`);
                     setActiveTab('variants');
                     return;
                 }
                 if (!stock.quantity || parseFloat(stock.quantity) < 0) {
-                    showErrorDialog(t('msg_error'), `${variantName}: ${t('lbl_quantity')}`);
+                    showErrorDialog(t('msg_error'), `${variantName}: ${t('msg_enter_opening_stock')}`);
                     setActiveTab('variants');
                     return;
                 }
                 if (!stock.unit || stock.unit.trim() === '') {
-                    showErrorDialog(t('msg_error'), `${variantName}: ${t('lbl_unit')}`);
+                    showErrorDialog(t('msg_error'), `${variantName}: ${t('msg_select_sales_unit')}`);
                     setActiveTab('variants');
                     return;
                 }
@@ -304,17 +340,22 @@ const ProductCreateForm = () => {
         // For simple products (no variants), validate and auto-create single stock from formData
         // Validate simple product pricing & stock
         if (!formData.price || parseFloat(formData.price) <= 0) {
-            showErrorDialog(t('msg_error'), t('lbl_selling_price'));
+            showErrorDialog(t('msg_error'), t('msg_enter_selling_price'));
             setActiveTab('pricing');
             return;
         }
         if (!formData.purchase_price || parseFloat(formData.purchase_price) <= 0) {
-            showErrorDialog(t('msg_error'), t('lbl_purchase_price'));
+            showErrorDialog(t('msg_error'), t('msg_enter_purchase_price'));
             setActiveTab('pricing');
             return;
         }
+        if (!formData.units) {
+            showErrorDialog(t('msg_error'), t('msg_select_sales_unit'));
+            setActiveTab('stock');
+            return;
+        }
         if (!formData.quantity || parseFloat(formData.quantity) < 0) {
-            showErrorDialog(t('msg_error'), t('lbl_quantity'));
+            showErrorDialog(t('msg_error'), t('msg_enter_opening_stock'));
             setActiveTab('stock');
             return;
         }
@@ -615,6 +656,38 @@ const ProductCreateForm = () => {
                             </div>
                         </div>
                     )}
+                </div>
+
+                <div className="mb-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:mb-6">
+                    <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                        <div>
+                            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{t('lbl_product_flow')}</p>
+                            <h2 className="mt-1 text-base font-semibold text-slate-900">{formData.has_attributes ? t('lbl_variant_product_flow') : t('lbl_simple_product_flow')}</h2>
+                            <p className="mt-1 text-sm text-slate-600">{formData.has_attributes ? t('msg_variant_product_flow_desc') : t('msg_simple_product_flow_desc')}</p>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                            {flowSteps.map((step, index) => {
+                                const isDone = index < activeFlowIndex;
+                                const isActive = index === activeFlowIndex;
+
+                                return (
+                                    <div
+                                        key={step}
+                                        className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold ${
+                                            isActive
+                                                ? 'border-[#046ca9] bg-[#046ca9]/10 text-[#034d79]'
+                                                : isDone
+                                                  ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                                                  : 'border-slate-200 bg-slate-50 text-slate-500'
+                                        }`}
+                                    >
+                                        {isDone ? <CheckCircle2 className="h-4 w-4" /> : <Circle className="h-4 w-4" />}
+                                        <span>{step}</span>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
                 </div>
 
                 {/* Tabs - Desktop & Tablet */}

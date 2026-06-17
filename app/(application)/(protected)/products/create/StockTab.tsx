@@ -1,6 +1,7 @@
 'use client';
 
 import { getTranslation } from '@/i18n';
+import Link from 'next/link';
 import React from 'react';
 
 interface StockTabProps {
@@ -24,6 +25,7 @@ const StockTab: React.FC<StockTabProps> = ({ formData, handleChange, units, onPr
     return (
         <div className="space-y-6">
             <h3 className="text-lg font-semibold text-gray-900">{t('lbl_stock')}</h3>
+            <p className="text-sm text-gray-600">{t('msg_stock_tab_help')}</p>
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 {/* Unit */}
@@ -46,7 +48,8 @@ const StockTab: React.FC<StockTabProps> = ({ formData, handleChange, units, onPr
                             </option>
                         ))}
                     </select>
-                    <a
+                    <p className="mt-1 text-xs text-gray-500">{t('lbl_unit_hint')}</p>
+                    <Link
                         href="/store/setting"
                         className="mt-2 inline-flex items-center gap-1.5 rounded-lg border-2 border-dashed border-indigo-300 bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700 transition-all hover:border-indigo-400 hover:bg-indigo-100"
                     >
@@ -54,7 +57,7 @@ const StockTab: React.FC<StockTabProps> = ({ formData, handleChange, units, onPr
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                         </svg>
                         {t('btn_add_new_unit')}
-                    </a>
+                    </Link>
                 </div>
 
                 {/* Quantity */}
@@ -195,5 +198,3 @@ const StockTab: React.FC<StockTabProps> = ({ formData, handleChange, units, onPr
 };
 
 export default StockTab;
-
-

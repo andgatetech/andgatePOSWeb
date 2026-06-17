@@ -24,6 +24,7 @@ const PricingTab: React.FC<PricingTabProps> = ({ formData, handleChange, onPrevi
     return (
         <div className="space-y-6">
             <h3 className="text-lg font-semibold text-gray-900">{t('lbl_price')}</h3>
+            <p className="text-sm text-gray-600">{t('msg_pricing_tab_help')}</p>
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                 {/* Purchase Price */}
@@ -50,6 +51,7 @@ const PricingTab: React.FC<PricingTabProps> = ({ formData, handleChange, onPrevi
                             className="w-full rounded-lg border border-gray-300 bg-gray-50 py-3 pl-8 pr-4 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-gray-500"
                         />
                     </div>
+                    <p className="mt-1 text-xs text-gray-500">{t('lbl_purchase_price_hint')}</p>
                 </div>
 
                 {/* Selling Price */}
@@ -76,6 +78,7 @@ const PricingTab: React.FC<PricingTabProps> = ({ formData, handleChange, onPrevi
                             className="w-full rounded-lg border border-gray-300 bg-gray-50 py-3 pl-8 pr-4 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-gray-500"
                         />
                     </div>
+                    <p className="mt-1 text-xs text-gray-500">{t('lbl_selling_price_hint')}</p>
                 </div>
 
                 {/* Wholesale Price */}
