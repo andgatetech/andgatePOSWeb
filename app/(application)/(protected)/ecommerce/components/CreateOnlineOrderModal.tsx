@@ -3,7 +3,7 @@
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
-import { useCreateOnlineOrderMutation, useGetOnlineOrderSourcesQuery } from '@/store/features/ecommerce/ecommerceManagementApi';
+import { useCreateOnlineOrderMutation, useGetEcommerceProductsQuery, useGetOnlineOrderSourcesQuery } from '@/store/features/ecommerce/ecommerceManagementApi';
 import { Loader2, Minus, Plus, Search, X } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 
@@ -56,8 +56,32 @@ const CreateOnlineOrderModal = ({ open, onClose }: CreateOnlineOrderModalProps) 
     const [notes, setNotes] = useState('');
     const [items, setItems] = useState<CartItem[]>([]);
     const [productSearch, setProductSearch] = useState('');
-    const [searchResults, setSearchResults] = useState<ProductOption[]>([]);
-    const [searching, setSearching] = useState(false);
+    const [searchCounter, setSearchCounter] = useState(0);
+
+    const searchQueryParams = useMemo(() => {
+        if (searchCounter === 0 || !productSearch.trim() || !currentStoreId) return null;
+        return { store_id: currentStoreId, search: productSearch.trim(), per_page: 20 };
+    }, [searchCounter, productSearch, currentStoreId]);
+
+    const { data: productData, isFetching: searching } = useGetEcommerceProductsQuery(
+        searchQueryParams ?? {},
+        { skip: !searchQueryParams }
+    );
+
+    const searchResults = useMemo<ProductOption[]>(() => {
+        if (!productData || searchCounter === 0) return [];
+        const d = productData as any;
+        const raw = d?.data?.items ?? d?.items ?? [];
+        if (!Array.isArray(raw)) return [];
+        return raw.map((p: any) => ({
+            stock_id: p.primary_stock?.id ?? 0,
+            product_name: p.product_name ?? 'Unknown',
+            sku: p.primary_stock?.sku ?? '',
+            price: parseFloat(p.primary_stock?.price ?? 0),
+            available: parseFloat(p.primary_stock?.quantity ?? 0) || 0,
+            store_id: p.store_id,
+        })).filter((p: ProductOption) => p.stock_id > 0);
+    }, [productData, searchCounter]);
 
     const { data: sourcesData } = useGetOnlineOrderSourcesQuery(
         { store_id: currentStoreId },
@@ -72,32 +96,9 @@ const CreateOnlineOrderModal = ({ open, onClose }: CreateOnlineOrderModalProps) 
 
     const [createOrder, { isLoading: creating }] = useCreateOnlineOrderMutation();
 
-    const handleSearchProducts = useCallback(async () => {
+    const handleSearchProducts = useCallback(() => {
         if (!productSearch.trim() || !currentStoreId) return;
-        setSearching(true);
-        try {
-            const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || '';
-            const token = (await import('@/store')).default.getState().auth.token;
-            const res = await fetch(
-                `${API_BASE}/api/ecommerce/management/products?store_id=${currentStoreId}&search=${encodeURIComponent(productSearch)}&per_page=20`,
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
-            const json = await res.json();
-            const raw = json?.data?.data ?? json?.data ?? json?.items ?? [];
-            const products = (Array.isArray(raw) ? raw : []).map((p: any) => ({
-                stock_id: p.id ?? p.stock_id,
-                product_name: p.product_name ?? p.name ?? p.title ?? 'Unknown',
-                sku: p.sku ?? '',
-                price: parseFloat(p.price ?? p.selling_price ?? p.unit_price ?? 0),
-                available: parseInt(p.available_to_sell ?? p.stock_quantity ?? p.quantity ?? 0, 10) || 0,
-                store_id: p.store_id,
-            }));
-            setSearchResults(products);
-        } catch {
-            setSearchResults([]);
-        } finally {
-            setSearching(false);
-        }
+        setSearchCounter((prev) => prev + 1);
     }, [productSearch, currentStoreId]);
 
     const addItem = useCallback((product: ProductOption) => {
