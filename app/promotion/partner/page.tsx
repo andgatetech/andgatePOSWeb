@@ -77,6 +77,40 @@ const faqs = [
     },
 ];
 
+const partnerProgramSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: 'AndgatePOS Partner Program',
+    url: 'https://andgatepos.com/promotion/partner',
+    description: 'Partner program for Bangladesh where approved partners get training, show AndgatePOS demos to shop owners, and earn commission from verified paid subscriptions.',
+    provider: {
+        '@type': 'Organization',
+        name: 'Andgate Technologies',
+        url: 'https://andgatepos.com',
+    },
+    areaServed: {
+        '@type': 'Country',
+        name: 'Bangladesh',
+    },
+    audience: {
+        '@type': 'Audience',
+        audienceType: 'IT service providers, accountants, hardware sellers, content creators, satisfied customers, and local business community members',
+    },
+};
+
+const partnerFaqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((faq) => ({
+        '@type': 'Question',
+        name: faq.q,
+        acceptedAnswer: {
+            '@type': 'Answer',
+            text: faq.a,
+        },
+    })),
+};
+
 export default function PartnerPromotionPage() {
     const [formData, setFormData] = useState({ name: '', mobile: '', email: '', type: 'other', bkash_number: '', network_description: '', parent_code: '' });
     const [success, setSuccess] = useState<any>(null);
@@ -92,6 +126,8 @@ export default function PartnerPromotionPage() {
 
     return (
         <div className="flex min-h-screen flex-col bg-white text-slate-900">
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(partnerProgramSchema) }} />
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(partnerFaqSchema) }} />
             <PromotionTracker />
             <WhatsAppFloat />
             <Navbar />

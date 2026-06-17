@@ -72,12 +72,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
                 changeFrequency: 'weekly' as const,
                 priority: page.path === '/best-pos-software-bangladesh' || page.path === '/free-pos-software-bangladesh' ? 0.88 : 0.84,
             })),
-        {
-            url: `${baseUrl}/login`,
-            lastModified: now,
-            changeFrequency: 'monthly',
-            priority: 0.6,
-        },
         // Informational public pages
         {
             url: `${baseUrl}/training`,
@@ -86,10 +80,28 @@ export default function sitemap(): MetadataRoute.Sitemap {
             priority: 0.7,
         },
         {
+            url: `${baseUrl}/features/pos`,
+            lastModified: now,
+            changeFrequency: 'weekly',
+            priority: 0.86,
+        },
+        {
+            url: `${baseUrl}/features/inventory`,
+            lastModified: now,
+            changeFrequency: 'weekly',
+            priority: 0.84,
+        },
+        {
+            url: `${baseUrl}/features/reports`,
+            lastModified: now,
+            changeFrequency: 'weekly',
+            priority: 0.84,
+        },
+        {
             url: `${baseUrl}/promotion/pos`,
             lastModified: now,
             changeFrequency: 'weekly',
-            priority: 0.7,
+            priority: 0.82,
         },
         {
             url: `${baseUrl}/promotion/partner`,
@@ -98,10 +110,22 @@ export default function sitemap(): MetadataRoute.Sitemap {
             priority: 0.72,
         },
         {
-            url: `${baseUrl}/forgot-password`,
+            url: `${baseUrl}/affiliate`,
             lastModified: now,
-            changeFrequency: 'yearly',
-            priority: 0.3,
+            changeFrequency: 'weekly',
+            priority: 0.66,
+        },
+        {
+            url: `${baseUrl}/affiliate/calculator`,
+            lastModified: now,
+            changeFrequency: 'monthly',
+            priority: 0.58,
+        },
+        {
+            url: `${baseUrl}/affiliate/policies`,
+            lastModified: now,
+            changeFrequency: 'monthly',
+            priority: 0.52,
         },
         // Legal
         {

@@ -14,9 +14,64 @@ import PromotionTracker from '../components/promotion-tracker';
 import WhatsAppFloat from '@/components/whatsapp-float';
 import { ArrowRight } from 'lucide-react';
 
+const posPromotionSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'AndgatePOS',
+    applicationCategory: 'BusinessApplication',
+    operatingSystem: 'Web, Android, iOS',
+    url: 'https://andgatepos.com/promotion/pos',
+    description: 'Cloud POS software for Bangladeshi shops with billing, inventory, payment tracking, reports, and online store features.',
+    brand: {
+        '@type': 'Brand',
+        name: 'AndgatePOS',
+    },
+    provider: {
+        '@type': 'Organization',
+        name: 'Andgate Technologies',
+        url: 'https://andgatepos.com',
+    },
+    areaServed: {
+        '@type': 'Country',
+        name: 'Bangladesh',
+    },
+    offers: {
+        '@type': 'Offer',
+        price: '0',
+        priceCurrency: 'BDT',
+        availability: 'https://schema.org/InStock',
+        url: 'https://andgatepos.com/promotion/pos',
+    },
+};
+
+const posFaqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+        {
+            '@type': 'Question',
+            name: 'Can I start AndgatePOS for free?',
+            acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Yes. Bangladeshi shop owners can open a free AndgatePOS account and start using POS billing and inventory features.',
+            },
+        },
+        {
+            '@type': 'Question',
+            name: 'Does AndgatePOS work for small shops in Bangladesh?',
+            acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Yes. AndgatePOS is built for retail shops, grocery stores, pharmacies, fashion shops, electronics shops, hardware shops, and other SME businesses in Bangladesh.',
+            },
+        },
+    ],
+};
+
 export default function PromotionPage() {
     return (
         <div className="flex min-h-screen flex-col bg-white pb-20 sm:pb-0">
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(posPromotionSchema) }} />
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(posFaqSchema) }} />
             <PromotionTracker />
             <WhatsAppFloat />
             <Navbar />
