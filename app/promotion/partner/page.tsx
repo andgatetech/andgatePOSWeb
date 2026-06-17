@@ -18,30 +18,30 @@ const tiers = [
 
 const partnerTypes = [
     { title: 'আইটি সার্ভিস প্রোভাইডার', desc: 'দোকানের কম্পিউটার, প্রিন্টার বা সফটওয়্যার সমস্যা বুঝেন।' },
-    { title: 'কম্পিউটার ও হার্ডওয়্যার শপ', desc: 'POS printer, barcode scanner বা PC buyer-দের কাছে ডেমো দেখাতে পারবেন।' },
+    { title: 'কম্পিউটার ও হার্ডওয়্যার শপ', desc: 'প্রিন্টার, বারকোড স্ক্যানার বা কম্পিউটার কিনতে আসা দোকানদারদের ডেমো দেখাতে পারবেন।' },
     { title: 'হিসাবরক্ষক বা ব্যবসা পরামর্শদাতা', desc: 'হিসাব, স্টক ও রিপোর্টিং সমস্যার ভাষা সহজে বুঝিয়ে বলতে পারবেন।' },
-    { title: 'Facebook/YouTube কনটেন্ট ক্রিয়েটর', desc: 'স্থানীয় ব্যবসায়ী অডিয়েন্স থাকলে শিক্ষামূলক কনটেন্ট থেকে লিড আনতে পারবেন।' },
+    { title: 'ফেসবুক/ইউটিউব কনটেন্ট ক্রিয়েটর', desc: 'স্থানীয় ব্যবসায়ী দর্শক থাকলে শিক্ষামূলক কনটেন্ট থেকে আগ্রহী দোকানদার আনতে পারবেন।' },
     { title: 'AndgatePOS ব্যবহার করে সন্তুষ্ট কাস্টমার', desc: 'নিজের অভিজ্ঞতা দিয়ে অন্য দোকানদারকে বাস্তবভাবে বোঝাতে পারবেন।' },
-    { title: 'বিশ্ববিদ্যালয় বা ব্যবসায়ী কমিউনিটি', desc: 'নিজের এলাকার দোকান বা SME network-এ নিয়মিত পরিচিতি আছে।' },
+    { title: 'বিশ্ববিদ্যালয় বা ব্যবসায়ী কমিউনিটি', desc: 'নিজের এলাকার দোকান বা ছোট ব্যবসায়ীদের নেটওয়ার্কে নিয়মিত পরিচিতি আছে।' },
 ];
 
 const steps = [
     { icon: Users, title: 'পার্টনার হিসেবে রেজিস্টার করুন', desc: 'আপনার নাম, মোবাইল নম্বর, এলাকা এবং কোন ধরনের দোকানদারের সাথে কাজ করতে পারবেন সেটি জানান।' },
     { icon: Sparkles, title: 'AndgatePOS ট্রেনিং নিন', desc: 'বিলিং, স্টক, রিপোর্ট, পেমেন্ট এবং সাবস্ক্রিপশন প্ল্যান কীভাবে বোঝাতে হবে, সেগুলো হাতে-কলমে শিখে নিন।' },
     { icon: BadgeCheck, title: 'দোকানদারের সাথে সরাসরি কথা বলে ডেমো দেখান', desc: 'দোকানের বর্তমান হিসাব, স্টক বা বিলিং সমস্যার সাথে AndgatePOS-এর ব্যবহার মিলিয়ে সহজ ভাষায় লাইভ ডেমো দেখান।' },
-    { icon: Banknote, title: 'পেইড সাবস্ক্রিপশনে কনভার্ট করে কমিশন পান', desc: 'দোকান মালিক পেইড সাবস্ক্রিপশন নিলে এবং পেমেন্ট যাচাই শেষ হলে আপনার কমিশন যোগ হবে।' },
+    { icon: Banknote, title: 'পেইড সাবস্ক্রিপশন করিয়ে কমিশন পান', desc: 'দোকান মালিক পেইড সাবস্ক্রিপশন নিলে এবং পেমেন্ট যাচাই শেষ হলে আপনার কমিশন যোগ হবে।' },
     {
         icon: ShieldCheck,
-        title: 'সাবস্ক্রিপশন চালু রাখতে কাস্টমারকে নার্সিং করুন',
+        title: 'সাবস্ক্রিপশন চালু রাখতে কাস্টমারের পাশে থাকুন',
         desc: 'সেটআপ, ব্যবহার শেখানো, প্রশ্নের উত্তর এবং নিয়মিত ফলোআপ দিয়ে কাস্টমারকে দীর্ঘমেয়াদে সাবস্ক্রিপশন চালিয়ে যেতে সাহায্য করুন।',
     },
 ];
 
 const trustPoints = [
-    'ট্রেনিং, ডেমো ও সাবস্ক্রিপশন কনভার্সনের পরিষ্কার প্রক্রিয়া',
+    'ট্রেনিং, ডেমো ও সাবস্ক্রিপশন করানোর পরিষ্কার প্রক্রিয়া',
     'শুধু সফল পেইড সাবস্ক্রিপশন পেমেন্টের পর কমিশন',
-    '৩০ দিনের যাচাই সময় শেষে উত্তোলনের সুযোগ',
-    'নিজের নামে বা ভুয়া কাস্টমার সাইনআপ গ্রহণযোগ্য নয়',
+    '৩০ দিনের যাচাইয়ের সময় শেষে উত্তোলনের সুযোগ',
+    'নিজের নামে বা ভুয়া কাস্টমার দেখিয়ে কমিশন নেওয়া যাবে না',
     'পার্টনার ড্যাশবোর্ডে কাজের অগ্রগতি দেখা যাবে',
 ];
 
@@ -52,16 +52,16 @@ const heroProof = [
 ];
 
 const afterSubmitSteps = [
-    'ফর্ম সাবমিট করার পর AndgatePOS টিম আপনার তথ্য যাচাই করবে।',
+    'ফর্ম জমা দেওয়ার পর AndgatePOS টিম আপনার তথ্য যাচাই করবে।',
     '২৪-৪৮ ঘণ্টার মধ্যে WhatsApp বা ফোনে যোগাযোগ করা হবে।',
     'অ্যাপ্রুভ হলে ট্রেনিং, ডেমো গাইড ও পার্টনার কোড পাবেন।',
-    'তারপর দোকানদারকে সরাসরি ডেমো দেখিয়ে পেইড সাবস্ক্রিপশনে কনভার্ট করবেন।',
+    'তারপর দোকানদারকে সরাসরি ডেমো দেখিয়ে পেইড সাবস্ক্রিপশন নিতে সাহায্য করবেন।',
 ];
 
 const faqs = [
     {
         q: 'রেজিস্ট্রেশন কি ফ্রি?',
-        a: 'হ্যাঁ, পার্টনার হিসেবে রেজিস্ট্রেশন ফ্রি। কোনো joining fee নেই।',
+        a: 'হ্যাঁ, পার্টনার হিসেবে রেজিস্ট্রেশন ফ্রি। কোনো যোগদান ফি নেই।',
     },
     {
         q: 'কমিশন কখন পাব?',
@@ -161,7 +161,7 @@ export default function PartnerPromotionPage() {
                             </div>
                             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                                 <a
-                                    href="#register"
+                                    href="#register-section"
                                     className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#e79237] px-6 py-3 font-bold text-white shadow-lg transition hover:bg-[#d17b24]"
                                 >
                                     ফ্রিতে পার্টনার হিসেবে রেজিস্টার করুন
@@ -210,7 +210,7 @@ export default function PartnerPromotionPage() {
                                     কমিশন শুধুমাত্র বাস্তব দোকানদারের সফল পেইড সাবস্ক্রিপশন, পেমেন্ট যাচাই এবং নীতিমালা পূরণের পর প্রযোজ্য। নির্দিষ্ট আয়ের নিশ্চয়তা নেই।
                                 </p>
                                 <a
-                                    href="#register"
+                                    href="#register-section"
                                     className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#046ca9] px-5 py-3 font-bold text-white transition hover:bg-[#035887]"
                                 >
                                     এখনই ফ্রি রেজিস্ট্রেশন
@@ -225,7 +225,7 @@ export default function PartnerPromotionPage() {
                     <div className="mx-auto max-w-6xl">
                         <div className="max-w-2xl">
                             <p className="text-sm font-bold uppercase tracking-wider text-[#046ca9]">কারা যোগ দিতে পারবেন</p>
-                            <h2 className="mt-2 text-3xl font-black text-slate-950">AndgatePOS partner হিসেবে যারা ভালো fit</h2>
+                            <h2 className="mt-2 text-3xl font-black text-slate-950">যাদের জন্য AndgatePOS পার্টনার প্রোগ্রাম ভালো</h2>
                             <p className="mt-3 text-slate-600">
                                 অপরিচিত মানুষকে ফোন করার দরকার নেই। আপনার পরিচিত ব্যবসায়ীদের হিসাব, স্টক বা বিলিংয়ের সমস্যা বুঝে তাদের জন্য AndgatePOS সমাধান হিসেবে পরিচয় করিয়ে দিন।
                             </p>
@@ -264,7 +264,7 @@ export default function PartnerPromotionPage() {
                                             <span className="font-black text-emerald-700">{tier.first}</span>
                                         </div>
                                         <div className="flex items-center justify-between rounded-lg bg-[#046ca9]/10 px-3 py-2">
-                                            <span className="text-sm text-[#035887]">রিনিউয়াল কমিশন</span>
+                                            <span className="text-sm text-[#035887]">রিনিউ হলে কমিশন</span>
                                             <span className="font-black text-[#046ca9]">{tier.recurring}</span>
                                         </div>
                                     </div>
@@ -272,7 +272,7 @@ export default function PartnerPromotionPage() {
                             ))}
                         </div>
                         <p className="mx-auto mt-5 max-w-3xl rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-center text-sm font-semibold leading-6 text-amber-900">
-                            কমিশন কোনো salary বা guaranteed income নয়। কমিশন যোগ হবে শুধু যাচাইকৃত পেইড সাবস্ক্রিপশন থেকে।
+                            কমিশন কোনো বেতন বা নিশ্চিত আয় নয়। কমিশন যোগ হবে শুধু যাচাইকৃত পেইড সাবস্ক্রিপশন থেকে।
                         </p>
                     </div>
                 </section>
@@ -281,7 +281,7 @@ export default function PartnerPromotionPage() {
                     <div className="mx-auto max-w-5xl">
                         <div className="text-center">
                             <p className="text-sm font-bold uppercase tracking-wider text-[#046ca9]">কীভাবে কাজ করে</p>
-                            <h2 className="mt-2 text-3xl font-black text-slate-950">ট্রেনিং থেকে কাস্টমার নার্সিং পর্যন্ত কাজের ধাপ</h2>
+                            <h2 className="mt-2 text-3xl font-black text-slate-950">ট্রেনিং থেকে কাস্টমার ফলোআপ পর্যন্ত কাজের ধাপ</h2>
                         </div>
                         <div className="mt-10 grid gap-5 md:grid-cols-2">
                             {steps.map(({ icon: Icon, title, desc }, index) => (
@@ -321,7 +321,6 @@ export default function PartnerPromotionPage() {
                 </section>
 
                 <section id="register" className="scroll-mt-20 bg-white px-4 py-14 sm:px-6">
-                    <span id="register-section" className="block scroll-mt-20" aria-hidden="true" />
                     <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[0.85fr_1fr] lg:items-start">
                         <div>
                             <p className="text-sm font-bold uppercase tracking-wider text-[#046ca9]">পার্টনার রেজিস্ট্রেশন</p>
@@ -333,7 +332,7 @@ export default function PartnerPromotionPage() {
                                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#046ca9]/10 text-[#046ca9]">
                                         <ClipboardCheck className="h-5 w-5" />
                                     </div>
-                                    <h3 className="text-lg font-black text-slate-950">ফর্ম সাবমিটের পর কী হবে?</h3>
+                                    <h3 className="text-lg font-black text-slate-950">ফর্ম জমা দেওয়ার পর কী হবে?</h3>
                                 </div>
                                 <div className="mt-4 space-y-3">
                                     {afterSubmitSteps.map((step, index) => (
@@ -350,13 +349,13 @@ export default function PartnerPromotionPage() {
                                     <MessageCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-[#128c4e]" />
                                     <div>
                                         <p className="font-bold text-slate-950">তথ্য সঠিক দিন</p>
-                                        <p className="mt-1 text-sm leading-6 text-slate-600">ভুল মোবাইল নম্বর, ভুয়া দোকান বা নিজের নামে কাস্টমার তৈরি করলে অ্যাকাউন্ট বাতিল হতে পারে।</p>
+                                        <p className="mt-1 text-sm leading-6 text-slate-600">ভুল মোবাইল নম্বর, ভুয়া কাস্টমার বা নিজের নামে কাস্টমার তৈরি করলে অ্যাকাউন্ট বাতিল হতে পারে।</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-lg sm:p-8">
+                        <div id="register-section" className="mt-8 scroll-mt-24 rounded-2xl border border-slate-200 bg-white p-6 shadow-lg sm:p-8">
                             {success ? (
                                 <div className="py-6 text-center">
                                     <CheckCircle2 className="mx-auto mb-4 h-14 w-14 text-emerald-500" />
@@ -508,7 +507,7 @@ export default function PartnerPromotionPage() {
                     <h2 className="text-3xl font-black">আজই AndgatePOS পার্টনার প্রোগ্রাম শুরু করুন</h2>
                     <p className="mx-auto mt-3 max-w-2xl text-white/80">বাস্তব দোকানদারের সাথে সরাসরি কাজ, পরিষ্কার কমিশন ট্র্যাকিং এবং বাংলাদেশের জন্য সহজ পেমেন্ট প্রক্রিয়া।</p>
                     <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
-                        <a href="#register" className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-7 py-3 font-bold text-[#046ca9] transition hover:bg-slate-100">
+                        <a href="#register-section" className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-7 py-3 font-bold text-[#046ca9] transition hover:bg-slate-100">
                             ফ্রিতে পার্টনার হিসেবে রেজিস্টার করুন
                             <ArrowRight className="h-4 w-4" />
                         </a>
@@ -524,7 +523,7 @@ export default function PartnerPromotionPage() {
             </main>
 
             <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 p-3 shadow-2xl backdrop-blur sm:hidden">
-                <a href="#register" className="flex items-center justify-center gap-2 rounded-xl bg-[#e79237] px-4 py-3 text-sm font-black text-white">
+                <a href="#register-section" className="flex items-center justify-center gap-2 rounded-xl bg-[#e79237] px-4 py-3 text-sm font-black text-white">
                     ফ্রিতে রেজিস্টার করুন
                     <ArrowRight className="h-4 w-4" />
                 </a>

@@ -1,14 +1,14 @@
 export default function PromoLossHook() {
     const losses = [
         { icon: '📒', label: 'হিসাবের ভুলে', amount: 'লাভ কমে', note: 'চোখের আড়ালে' },
-        { icon: '📦', label: 'স্টক শেষে হারানো বিক্রি', amount: 'কাস্টমার হারায়', note: 'প্রতিমাসে' },
-        { icon: '👤', label: 'কর্মচারীর অসততায়', amount: 'অজানা', note: 'ধরাই পড়ে না' },
-        { icon: '🤝', label: 'বাকির টাকা ফেরত না পেয়ে', amount: 'ক্যাশ আটকে যায়', note: 'বারবার' },
+        { icon: '📦', label: 'স্টক শেষ হয়ে গেলে', amount: 'কাস্টমার হারায়', note: 'প্রতিমাসে' },
+        { icon: '👤', label: 'কর্মচারীর ভুলে', amount: 'হিসাব গরমিল', note: 'ধরাই পড়ে না' },
+        { icon: '🤝', label: 'বাকির টাকা আটকে গেলে', amount: 'ক্যাশ আটকে যায়', note: 'বারবার' },
     ];
 
     const before = [
         'রাত ১১টায় খাতা নিয়ে বসেন — তবুও হিসাব মেলে না',
-        'স্টক শেষ হলে তখন টের পান, কাস্টমার আগেই চলে গেছে',
+        'স্টক শেষ হলে পরে টের পান, কাস্টমার আগেই চলে গেছে',
         'দোকানের বাইরে থাকলে মনে সন্দেহ — ভেতরে কী হচ্ছে?',
         'মাসে লাভ হলো নাকি লস — আন্দাজে বলতে হয়',
         'বিকাশ, নগদ, ক্যাশ মেলাতে মাথা গরম হয়ে যায়',
@@ -16,7 +16,7 @@ export default function PromoLossHook() {
 
     const after = [
         'সকালে চা খেতে খেতে গতকালের পুরো বিক্রির রিপোর্ট দেখুন',
-        'আগেই নোটিফিকেশন — স্টক শেষ হওয়ার আগেই অর্ডার দিন',
+        'আগেই অ্যালার্ট পাবেন — স্টক শেষ হওয়ার আগেই অর্ডার দিন',
         'যেকোনো জায়গা থেকে দোকানের লাইভ হিসাব দেখুন',
         'এক ক্লিকে সঠিক লাভের সংখ্যা — কোনো অনুমান নেই',
         'সব পেমেন্ট আলাদা, দিনশেষে মিলিয়ে দেখা অনেক সহজ',
@@ -25,15 +25,12 @@ export default function PromoLossHook() {
     return (
         <section className="bg-white py-16">
             <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-
                 {/* Loss aversion hook */}
                 <div className="mb-14 rounded-3xl border border-red-100 bg-gradient-to-br from-red-50 to-orange-50 p-8 text-center sm:p-10">
                     <p className="mb-2 text-sm font-bold uppercase tracking-widest text-red-500">সতর্কতা</p>
-                    <h2 className="mb-3 text-2xl font-extrabold text-gray-900 sm:text-3xl">
-                        টাকা হারানোর আগে সিগন্যালগুলো কি দেখছেন?
-                    </h2>
+                    <h2 className="mb-3 text-2xl font-extrabold text-gray-900 sm:text-3xl">টাকা হারানোর আগেই লক্ষণগুলো ধরতে পারছেন?</h2>
                     <p className="mx-auto mb-8 max-w-xl text-base text-gray-600">
-                        বাংলাদেশের ছোট ও মাঝারি দোকানে লোকসান সব সময় বড় কোনো ঘটনার কারণে হয় না। ভুল হিসাব, স্টক শেষ হয়ে যাওয়া, বাকি বিক্রি আর নজরদারির অভাব মিলেই মার্জিন কমিয়ে দেয়।
+                        বাংলাদেশের ছোট ও মাঝারি দোকানে লোকসান সব সময় বড় কোনো ঘটনার কারণে হয় না। ভুল হিসাব, স্টক শেষ হয়ে যাওয়া, বাকি বিক্রি আর নজরদারির অভাব মিলেই লাভ কমিয়ে দেয়।
                     </p>
                     <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                         {losses.map((l, i) => (
@@ -45,17 +42,13 @@ export default function PromoLossHook() {
                             </div>
                         ))}
                     </div>
-                    <p className="mt-6 text-sm font-semibold text-red-600">
-                        এগুলো কমাতেই AndgatePOS তৈরি হয়েছে।
-                    </p>
+                    <p className="mt-6 text-sm font-semibold text-red-600">এগুলো কমাতেই AndgatePOS তৈরি হয়েছে।</p>
                 </div>
 
                 {/* Before / After */}
                 <div className="mb-4 text-center">
-                    <h2 className="text-2xl font-extrabold text-gray-900 sm:text-3xl">
-                        আগে যা ছিল — এখন যা আছে
-                    </h2>
-                    <p className="mt-2 text-base text-gray-500">একটি সফটওয়্যার, দুটি ভিন্ন দুনিয়া।</p>
+                    <h2 className="text-2xl font-extrabold text-gray-900 sm:text-3xl">আগে যা ছিল — এখন যা আছে</h2>
+                    <p className="mt-2 text-base text-gray-500">একই দোকান, কিন্তু হিসাবের নিয়ন্ত্রণ একদম আলাদা।</p>
                 </div>
 
                 <div className="grid grid-cols-1 overflow-hidden rounded-2xl border border-gray-100 shadow-sm sm:grid-cols-2">
@@ -91,7 +84,6 @@ export default function PromoLossHook() {
                         </ul>
                     </div>
                 </div>
-
             </div>
         </section>
     );

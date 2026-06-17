@@ -3,16 +3,16 @@
 import Link from 'next/link';
 
 const tiers = [
-    { name: 'Bronze', color: 'text-amber-700 bg-amber-100 border-amber-300', firstMonth: '50%', recurring: '10%' },
-    { name: 'Silver', color: 'text-slate-600 bg-slate-100 border-slate-300', firstMonth: '60%', recurring: '12%' },
-    { name: 'Gold', color: 'text-yellow-700 bg-yellow-100 border-yellow-300', firstMonth: '70%', recurring: '15%' },
-    { name: 'Platinum', color: 'text-purple-700 bg-purple-100 border-purple-300', firstMonth: '80%', recurring: '18%' },
+    { name: 'ব্রোঞ্জ', color: 'text-amber-700 bg-amber-100 border-amber-300', firstMonth: '50%', recurring: '10%' },
+    { name: 'সিলভার', color: 'text-slate-600 bg-slate-100 border-slate-300', firstMonth: '60%', recurring: '12%' },
+    { name: 'গোল্ড', color: 'text-yellow-700 bg-yellow-100 border-yellow-300', firstMonth: '70%', recurring: '15%' },
+    { name: 'প্লাটিনাম', color: 'text-purple-700 bg-purple-100 border-purple-300', firstMonth: '80%', recurring: '18%' },
 ];
 
 const steps = [
-    { num: '১', title: 'রেজিস্ট্রেশন করুন', desc: 'ফর্ম পূরণ করুন, অনুমোদন পান' },
-    { num: '২', title: 'লিংক শেয়ার করুন', desc: 'আপনার unique ref লিংক দিয়ে বন্ধু-ব্যবসায়ীদের পাঠান' },
-    { num: '৩', title: 'সেলস কমিশন পান', desc: 'সফল সাবস্ক্রিপশন পেমেন্ট ও লক পিরিয়ড শেষে bKash/Nagad পেমেন্ট' },
+    { num: '১', title: 'রেজিস্ট্রেশন করুন', desc: 'ফর্ম পূরণ করুন, তথ্য যাচাই হলে অনুমোদন পাবেন' },
+    { num: '২', title: 'ট্রেনিং নিন', desc: 'AndgatePOS কীভাবে ডেমো দেখাতে হবে হাতে-কলমে শিখুন' },
+    { num: '৩', title: 'দোকানদারকে ডেমো দেখান', desc: 'পেইড সাবস্ক্রিপশন নিতে সাহায্য করুন এবং কমিশন পান' },
 ];
 
 export default function PromoAffiliate() {
@@ -21,31 +21,23 @@ export default function PromoAffiliate() {
             <div className="mx-auto max-w-5xl px-4 sm:px-6">
                 {/* Header */}
                 <div className="mb-10 text-center">
-                    <span className="mb-3 inline-block rounded-full border border-[#e79237]/50 bg-[#e79237]/20 px-4 py-1 text-sm font-semibold text-[#e79237]">
-                        Partner Program
-                    </span>
-                    <h2 className="text-3xl font-bold text-white sm:text-4xl">
-                        আপনার পরিচিত দোকানকে সাহায্য করুন, successful sale থেকে কমিশন পান
-                    </h2>
-                    <p className="mt-3 text-lg text-blue-100">
-                        IT service provider, accountant, hardware seller বা satisfied customer হলে আপনার network থেকেই ethical referral income তৈরি করুন।
-                    </p>
+                    <span className="mb-3 inline-block rounded-full border border-[#e79237]/50 bg-[#e79237]/20 px-4 py-1 text-sm font-semibold text-[#e79237]">পার্টনার প্রোগ্রাম</span>
+                    <h2 className="text-3xl font-bold text-white sm:text-4xl">পরিচিত দোকানদারকে AndgatePOS দেখান, পেইড সাবস্ক্রিপশন থেকে কমিশন পান</h2>
+                    <p className="mt-3 text-lg text-blue-100">আইটি সার্ভিস, হিসাবরক্ষণ, হার্ডওয়্যার বিক্রি বা স্থানীয় ব্যবসায়ী নেটওয়ার্ক থাকলে বাস্তব দোকানদারের সাথে সরাসরি কাজ শুরু করুন।</p>
                 </div>
 
                 {/* Tier cards */}
                 <div className="mb-10 grid grid-cols-2 gap-3 sm:grid-cols-4">
                     {tiers.map((tier) => (
                         <div key={tier.name} className="rounded-xl border bg-white/10 p-4 text-center backdrop-blur-sm">
-                            <span className={`inline-block rounded-full border px-3 py-0.5 text-xs font-bold ${tier.color}`}>
-                                {tier.name}
-                            </span>
+                            <span className={`inline-block rounded-full border px-3 py-0.5 text-xs font-bold ${tier.color}`}>{tier.name}</span>
                             <div className="mt-3">
                                 <div className="text-2xl font-bold text-white">{tier.firstMonth}</div>
-                                <div className="text-xs text-blue-200">প্রথম মাস</div>
+                                <div className="text-xs text-blue-200">প্রথম পেমেন্ট</div>
                             </div>
                             <div className="mt-1">
                                 <div className="text-lg font-semibold text-[#e79237]">{tier.recurring}</div>
-                                <div className="text-xs text-blue-200">রিটেনশন</div>
+                                <div className="text-xs text-blue-200">রিনিউ হলে</div>
                             </div>
                         </div>
                     ))}
@@ -55,9 +47,7 @@ export default function PromoAffiliate() {
                 <div className="mb-10 grid gap-4 sm:grid-cols-3">
                     {steps.map((step) => (
                         <div key={step.num} className="flex items-start gap-3 rounded-xl bg-white/10 p-4 backdrop-blur-sm">
-                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#e79237] text-base font-bold text-white">
-                                {step.num}
-                            </div>
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#e79237] text-base font-bold text-white">{step.num}</div>
                             <div>
                                 <div className="font-semibold text-white">{step.title}</div>
                                 <div className="mt-0.5 text-sm text-blue-100">{step.desc}</div>
@@ -69,11 +59,11 @@ export default function PromoAffiliate() {
                 {/* Highlights */}
                 <div className="mb-10 flex flex-wrap justify-center gap-4 text-sm">
                     {[
-                        'কোনো joining fee নেই',
-                        'bKash / Nagad / Bank payout',
-                        '৳৫০০ থেকে withdrawal request',
-                        'পারফরম্যান্স অনুযায়ী tier upgrade',
-                        'Fixed income guarantee নয়, real sale-based commission',
+                        'কোনো যোগদান ফি নেই',
+                        'bKash / Nagad / Bank পেমেন্ট',
+                        '৳৫০০ থেকে উত্তোলনের অনুরোধ',
+                        'পারফরম্যান্স অনুযায়ী টিয়ার আপগ্রেড',
+                        'নিশ্চিত বেতন নয়, বাস্তব সাবস্ক্রিপশনভিত্তিক কমিশন',
                     ].map((item) => (
                         <span key={item} className="rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-white">
                             {item}
@@ -83,16 +73,10 @@ export default function PromoAffiliate() {
 
                 {/* CTA */}
                 <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-                    <Link
-                        href="/promotion/partner"
-                        className="rounded-xl bg-[#e79237] px-8 py-3 text-base font-bold text-white shadow-lg transition-all hover:bg-[#c47920] hover:shadow-xl"
-                    >
-                        Partner promotion দেখুন →
+                    <Link href="/promotion/partner" className="rounded-xl bg-[#e79237] px-8 py-3 text-base font-bold text-white shadow-lg transition-all hover:bg-[#c47920] hover:shadow-xl">
+                        পার্টনার প্রোগ্রাম দেখুন →
                     </Link>
-                    <Link
-                        href="/affiliate/calculator"
-                        className="rounded-xl border border-white/30 bg-white/10 px-8 py-3 text-base font-semibold text-white transition-all hover:bg-white/20"
-                    >
+                    <Link href="/affiliate/calculator" className="rounded-xl border border-white/30 bg-white/10 px-8 py-3 text-base font-semibold text-white transition-all hover:bg-white/20">
                         কমিশন ক্যালকুলেটর দেখুন
                     </Link>
                 </div>

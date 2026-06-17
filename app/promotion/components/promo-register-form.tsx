@@ -4,18 +4,18 @@ import ComponentsAuthRegisterForm from '@/app/register/components-auth-register-
 import { CheckCircle2, ClipboardCheck, ShieldCheck, Star } from 'lucide-react';
 
 const benefits = [
-    { text: 'ফ্রি প্ল্যানে শুরু করুন — কোনো ক্রেডিট কার্ড লাগবে না' },
+    { text: 'ফ্রি প্ল্যানে শুরু করা যায় — কোনো কার্ড লাগবে না' },
     { text: 'দোকানের পণ্য, স্টক ও বিক্রির হিসাব এক জায়গায়' },
     { text: 'মোবাইল দিয়েই পুরো দোকান চালানো যাবে' },
     { text: '১৪ দিন পছন্দ না হলে পুরো টাকা ফেরত' },
-    { text: '২৪/৭ বাংলায় সহায়তা সবসময় পাশে আছে' },
+    { text: 'বাংলায় সাপোর্ট পাবেন' },
 ];
 
-const nextSteps = ['ফর্ম পূরণ করলেই আপনার POS অ্যাকাউন্ট তৈরি হবে', 'মোবাইল বা ল্যাপটপ থেকেই পণ্য যোগ করে বিলিং শুরু করতে পারবেন', 'প্রয়োজন হলে AndgatePOS টিম সেটআপে সাহায্য করবে'];
+const nextSteps = ['ফর্ম পূরণ করলেই আপনার POS অ্যাকাউন্ট তৈরি হবে', 'মোবাইল বা ল্যাপটপ থেকে পণ্য যোগ করে বিল করা শুরু করতে পারবেন', 'প্রয়োজন হলে AndgatePOS টিম সেটআপে সাহায্য করবে'];
 
 export default function PromoRegisterForm() {
     return (
-        <section id="register-section" className="scroll-mt-16 bg-gradient-to-br from-primary/5 via-white to-blue-50/40 py-20">
+        <section id="register" className="scroll-mt-16 bg-gradient-to-br from-primary/5 via-white to-blue-50/40 py-20">
             <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-2 lg:items-center">
                     {/* Left — sales pitch */}
@@ -23,16 +23,16 @@ export default function PromoRegisterForm() {
                         {/* Urgency badge */}
                         <div className="mx-auto mb-5 inline-flex w-max items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-4 py-2 lg:mx-0">
                             <span className="flex h-2 w-2 animate-pulse rounded-full bg-orange-500" />
-                            <span className="text-sm font-bold text-orange-600">এখন সেটআপ ফি সম্পূর্ণ মাফ</span>
+                            <span className="text-sm font-bold text-orange-600">এখন সেটআপ ফি লাগবে না</span>
                         </div>
 
                         <h2 className="mb-4 text-3xl font-extrabold leading-tight text-gray-900 sm:text-4xl">
-                            খাতা থেকে Cloud-এ আসুন —
+                            খাতা ছেড়ে ডিজিটাল হিসাব শুরু করুন —
                             <br />
                             <span className="text-primary">দোকানের হিসাব পরিষ্কার করুন</span>
                         </h2>
 
-                        <p className="mb-8 text-base leading-relaxed text-gray-600">নিচে তথ্য দিন। আপনার ফ্রি অ্যাকাউন্ট তৈরি করে billing, stock ও report দেখা শুরু করুন।</p>
+                        <p className="mb-8 text-base leading-relaxed text-gray-600">নিচে তথ্য দিন। ফ্রি অ্যাকাউন্ট খুলে বিলিং, স্টক আর রিপোর্ট দেখা শুরু করুন।</p>
 
                         <ul className="mx-auto space-y-3 lg:mx-0">
                             {benefits.map((b, i) => (
@@ -48,7 +48,7 @@ export default function PromoRegisterForm() {
                                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                                     <ClipboardCheck className="h-5 w-5" />
                                 </div>
-                                <h3 className="text-base font-extrabold text-gray-900">ফর্ম সাবমিটের পর কী হবে?</h3>
+                                <h3 className="text-base font-extrabold text-gray-900">ফর্ম দেওয়ার পর কী হবে?</h3>
                             </div>
                             <div className="space-y-3">
                                 {nextSteps.map((step, index) => (
@@ -78,11 +78,11 @@ export default function PromoRegisterForm() {
                     </div>
 
                     {/* Right — form */}
-                    <div className="relative mx-auto w-full max-w-md">
+                    <div id="register-section" className="relative mx-auto w-full max-w-md scroll-mt-24">
                         <div className="absolute -inset-2 rounded-[2rem] bg-gradient-to-r from-primary to-blue-400 opacity-25 blur-2xl" />
                         <div className="relative rounded-2xl border border-gray-100 bg-white p-7 shadow-2xl">
                             <div className="mb-6 text-center">
-                                <h3 className="mb-1 text-xl font-extrabold text-gray-900">ফ্রি অ্যাকাউন্ট খুলুন</h3>
+                                <h3 className="mb-1 text-xl font-extrabold text-gray-900">ফ্রি POS অ্যাকাউন্ট খুলুন</h3>
                                 <p className="text-sm text-gray-500">নিচের তথ্যগুলো দিয়ে এখনই শুরু করুন</p>
                             </div>
 

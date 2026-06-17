@@ -1,0 +1,55 @@
+# AndgatePOS
+
+AndgatePOS is a cloud POS, inventory, billing, payment tracking, reporting, and ecommerce software platform for small and medium businesses in Bangladesh.
+
+## Core Product
+
+- Website: https://andgatepos.com/
+- Pricing: https://andgatepos.com/pricing
+- Free POS promotion: https://andgatepos.com/promotion/pos
+- Contact: https://andgatepos.com/contact
+- Training: https://andgatepos.com/training
+
+## Important Feature Pages
+
+- POS billing: https://andgatepos.com/features/pos
+- Inventory and stock management: https://andgatepos.com/features/inventory
+- Reports and finance: https://andgatepos.com/features/reports
+- Best POS software Bangladesh: https://andgatepos.com/best-pos-software-bangladesh
+- Free POS software Bangladesh: https://andgatepos.com/free-pos-software-bangladesh
+
+## Partner Program
+
+- Partner program landing page: https://andgatepos.com/promotion/partner
+- Affiliate home: https://andgatepos.com/affiliate
+- Commission calculator: https://andgatepos.com/affiliate/calculator
+- Partner policies: https://andgatepos.com/affiliate/policies
+
+## What AndgatePOS Helps With
+
+- Fast POS billing from mobile, tablet, or laptop
+- Barcode and camera scanning
+- Cash, bKash, Nagad, Rocket, card, and credit payment tracking
+- Inventory management and low-stock alerts
+- Purchase order workflow
+- Supplier and customer due tracking
+- 20+ business reports, including sales, stock, profit and loss, payments, and customer reports
+- Free Hawkeri-powered online store with compatible plans
+- Multi-store management for growing businesses
+
+## Target Customers
+
+AndgatePOS is designed for retail shops, grocery stores, pharmacies, fashion stores, electronics shops, hardware shops, mini marts, supermarkets, restaurants, and other product-based SME businesses in Bangladesh.
+
+## Brand Facts
+
+- Brand: AndgatePOS
+- Company: Andgate Technologies
+- Country served: Bangladesh
+- Support phone and WhatsApp: +8801577303608
+- Support email: support@andgatetech.net
+- Facebook: https://www.facebook.com/andgatepos
+
+## Indexing Notes
+
+Public marketing, pricing, training, feature, promotion, and partner pages may be indexed and summarized by search engines and AI answer engines. Authenticated dashboard, admin, API, private, login, reset-password, and portal pages should not be indexed.

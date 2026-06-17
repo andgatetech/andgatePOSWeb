@@ -62,14 +62,14 @@ export default function PromoHero() {
                                     className="flex items-center gap-2 rounded-full bg-gray-900 px-4 py-2 text-sm font-semibold text-white shadow transition-all hover:bg-gray-700 active:scale-95"
                                 >
                                     {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-                                    {isMuted ? 'Unmute' : 'Mute'}
+                                    {isMuted ? 'সাউন্ড চালু' : 'সাউন্ড বন্ধ'}
                                 </button>
                                 <button
                                     onClick={handleFullscreen}
                                     className="flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow transition-all hover:bg-primary/80 active:scale-95"
                                 >
                                     {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-                                    {isFullscreen ? 'Exit' : 'Fullscreen'}
+                                    {isFullscreen ? 'বন্ধ করুন' : 'বড় করে দেখুন'}
                                 </button>
                             </div>
                         </div>
@@ -102,7 +102,7 @@ export default function PromoHero() {
                         {/* Urgency badge */}
                         <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-4 py-1.5">
                             <span className="flex h-2 w-2 animate-pulse rounded-full bg-orange-500" />
-                            <span className="text-sm font-bold text-orange-600">সীমিত সময় — সেটআপ ফি সম্পূর্ণ মাফ</span>
+                            <span className="text-sm font-bold text-orange-600">এখনই শুরু করলে সেটআপ ফি লাগবে না</span>
                         </div>
 
                         {/* Headline */}
@@ -111,13 +111,11 @@ export default function PromoHero() {
                             <br className="hidden sm:block" /> এখন থাকবে <span className="text-primary">আপনার নিয়ন্ত্রণে।</span>
                         </h1>
 
-                        <p className="mb-6 text-lg leading-relaxed text-gray-600">
-                            খাতা, অনুমান আর কর্মচারীর কথার উপর নির্ভর না করে মোবাইল থেকেই দেখুন আজ কত বিক্রি হলো, কোন পণ্য শেষ হচ্ছে, আর আসল লাভ কত।
-                        </p>
+                        <p className="mb-6 text-lg leading-relaxed text-gray-600">খাতা আর আন্দাজের হিসাব বাদ দিন। মোবাইল থেকেই দেখুন আজ কত বিক্রি হলো, কোন পণ্য শেষের পথে, আর আসল লাভ কত।</p>
 
                         {/* Trust points */}
                         <div className="mb-8 flex flex-col gap-2.5 text-sm font-medium text-gray-700 sm:flex-row sm:flex-wrap sm:justify-center lg:justify-start">
-                            {['ফ্রি প্ল্যানে শুরু করুন', 'মোবাইল দিয়েই বিলিং', '১৪ দিন মানি-ব্যাক গ্যারান্টি'].map((t, i) => (
+                            {['ফ্রি প্ল্যানে শুরু করা যায়', 'মোবাইল দিয়েই বিল করা যায়', 'পছন্দ না হলে ১৪ দিনের মধ্যে টাকা ফেরত'].map((t, i) => (
                                 <span key={i} className="inline-flex items-center gap-1 rounded-full bg-green-50 px-3 py-1 text-green-800">
                                     {t}
                                 </span>
@@ -132,7 +130,7 @@ export default function PromoHero() {
                                 onClick={() => trackEvent('hero_cta_click', 'Lead', { button_label: 'ফ্রিতে শুরু করুন', section: 'hero' })}
                             >
                                 <span className="flex items-center gap-2">
-                                    ফ্রিতে POS অ্যাকাউন্ট খুলুন
+                                    ফ্রি POS অ্যাকাউন্ট খুলুন
                                     <ArrowRight className="h-4 w-4" />
                                 </span>
                             </PromoButton>
@@ -141,7 +139,7 @@ export default function PromoHero() {
                                 className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-8 py-4 text-base font-semibold text-gray-700 transition-all hover:bg-gray-50 sm:w-auto"
                                 onClick={() => trackEvent('hero_demo_click', 'ViewContent', { button_label: 'সমস্যাগুলো দেখুন', section: 'hero' })}
                             >
-                                আপনার সমস্যার সমাধান দেখুন ↓
+                                আগে সমস্যাগুলো মিলিয়ে দেখুন ↓
                             </a>
                         </div>
 
