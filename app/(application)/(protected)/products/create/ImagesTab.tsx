@@ -169,13 +169,13 @@ const ImagesTab: React.FC<ImagesTabProps> = ({ images, setImages, maxNumber, onP
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <div className="text-sm text-amber-800">
-                        <p className="mb-1 font-medium">Image Upload Guidelines:</p>
+                        <p className="mb-1 font-medium">{t('img_guidelines_title')}</p>
                         <ul className="space-y-1 text-amber-700">
-                            <li>• Use high-quality images with good lighting</li>
-                            <li>• Recommended size: 800x800 pixels or higher</li>
-                            <li>• Only JPG, PNG, and WebP formats are supported</li>
-                            <li>• Maximum file size: 2MB per image</li>
-                            <li>• First image will be used as the main product image</li>
+                            <li>{t('img_guideline_quality')}</li>
+                            <li>{t('img_guideline_size')}</li>
+                            <li>{t('img_guideline_formats')}</li>
+                            <li>{t('img_guideline_maxsize')}</li>
+                            <li>{t('img_guideline_first')}</li>
                         </ul>
                     </div>
                 </div>

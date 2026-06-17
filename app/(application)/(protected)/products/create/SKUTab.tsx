@@ -146,7 +146,7 @@ const SKUTab: React.FC<SKUTabProps> = ({
                                         setShowScanner(!showScanner);
                                     }}
                                     className="flex items-center gap-1.5 rounded-lg border-2 border-blue-400 bg-blue-50 px-3 py-2.5 text-sm font-medium text-blue-600 transition-all duration-200 hover:bg-blue-100"
-                                    title="Scan barcode with camera"
+                                    title={t('sku_scan_barcode')}
                                 >
                                     <Camera className="h-4 w-4" />
                                     <span className="hidden sm:inline">{t('lbl_scan')}</span>
@@ -245,7 +245,7 @@ const SKUTab: React.FC<SKUTabProps> = ({
                                 {skuError}
                             </p>
                         )}
-                        {!skuError && formData.skuOption === 'auto' && <p className="mt-1 text-xs text-gray-500">A unique SKU will be automatically generated when you create the product</p>}
+                        {!skuError && formData.skuOption === 'auto' && <p className="mt-1 text-xs text-gray-500">{t('sku_auto_generate_desc')}</p>}
                     </div>
                 </div>
             )}
@@ -256,7 +256,7 @@ const SKUTab: React.FC<SKUTabProps> = ({
                 onClose={handleScannerClose}
                 onScan={handleScan}
                 autoClose={false}
-                title="Scan SKU / Barcode"
+                title={t('sku_scan_barcode')}
                 helperText="Point camera at the product barcode"
                 subHelperText="Scanned value will be saved as the SKU code"
             />

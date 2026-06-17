@@ -223,7 +223,7 @@ const AttributesTab: React.FC<AttributesTabProps> = ({ formData, productAttribut
                                                     type="button"
                                                     onClick={() => handleAddCustomAttribute(attr.id, searchQueries[attr.id])}
                                                     className="flex items-center justify-center rounded-lg bg-gray-600 p-2.5 text-white transition-colors hover:bg-gray-700"
-                                                    title="Add this custom attribute"
+                                                    title={t('attr_custom_hint')}
                                                 >
                                                     <Check className="h-5 w-5" />
                                                 </button>
