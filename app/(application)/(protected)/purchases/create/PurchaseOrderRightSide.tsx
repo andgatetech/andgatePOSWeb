@@ -168,7 +168,9 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
             const response = await (isEditMode && draftId ? updateDraft({ id: draftId, ...draftData }) : createDraft(draftData)).unwrap();
             showSuccessDialog(isEditMode ? t('msg_draft_updated') : t('msg_draft_saved'), `${t('purchase_draft_ref')}: ${response.data.draft_reference || response.data.draft_id}`);
         } catch (error: any) {
-            showErrorDialog(error?.data?.message || t('msg_failed_to_save_draft'));
+            const msg = error?.data?.message || error?.message || t('msg_failed_to_save_draft');
+            const detail = error?.data?.errors ? Object.values(error.data.errors).flat().join(', ') : '';
+            showErrorDialog(msg, detail || '');
         }
     };
 
@@ -202,7 +204,9 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
             clearSupplierSelection();
             router.push('/purchases/list');
         } catch (error: any) {
-            showErrorDialog(error?.data?.message || t('msg_failed_to_create_po'));
+            const msg = error?.data?.message || error?.message || t('msg_failed_to_create_po');
+            const detail = error?.data?.errors ? Object.values(error.data.errors).flat().join(', ') : '';
+            showErrorDialog(msg, detail || '');
         }
     };
 
