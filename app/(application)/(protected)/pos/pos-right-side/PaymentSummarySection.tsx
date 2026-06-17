@@ -121,7 +121,7 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
         const lower = name.toLowerCase();
         if (lower === 'cash') return t('lbl_cash');
         if (lower === 'card') return t('lbl_card');
-        if (lower === 'bank' || lower === 'bank_transfer') return t('lbl_bank_transfer');
+        if (lower === 'bank' || lower === 'bank_transfer' || lower === 'bank transfer') return t('lbl_bank_transfer');
         return name;
     };
 

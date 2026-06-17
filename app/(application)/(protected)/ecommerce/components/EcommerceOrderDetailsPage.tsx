@@ -211,18 +211,24 @@ function WorkflowGuide({ status, paymentStatus, hasCourier }: { status: OrderSta
     const steps = [
         {
             number: '1',
+            title: t('ecommerce_detail_order_fraud_check'),
+            description: t('ecommerce_detail_workflow_fraud_desc'),
+            value: <Badge variant="outline">{t('ecommerce_detail_check_first')}</Badge>,
+        },
+        {
+            number: '2',
             title: t('ecommerce_detail_fulfillment'),
             description: t('ecommerce_detail_workflow_fulfillment_desc'),
             value: <StatusBadge status={status} />,
         },
         {
-            number: '2',
+            number: '3',
             title: t('ecommerce_detail_payment'),
             description: t('ecommerce_detail_workflow_payment_desc'),
             value: <StatusBadge status={paymentStatus} />,
         },
         {
-            number: '3',
+            number: '4',
             title: t('ecommerce_detail_courier_parcel'),
             description: t('ecommerce_detail_workflow_courier_desc'),
             value: (
@@ -232,7 +238,7 @@ function WorkflowGuide({ status, paymentStatus, hasCourier }: { status: OrderSta
             ),
         },
         {
-            number: '4',
+            number: '5',
             title: t('ecommerce_detail_items'),
             description: t('ecommerce_detail_workflow_items_desc'),
             value: <Badge variant="outline">{t('ecommerce_detail_review')}</Badge>,
@@ -250,7 +256,7 @@ function WorkflowGuide({ status, paymentStatus, hasCourier }: { status: OrderSta
                     <p className="mt-0.5 text-xs leading-5 text-slate-500">{t('ecommerce_detail_workflow_desc')}</p>
                 </div>
             </CardHeader>
-            <CardContent className="grid gap-3 border-t border-slate-100 p-5 md:grid-cols-2 xl:grid-cols-4">
+            <CardContent className="grid gap-3 border-t border-slate-100 p-5 md:grid-cols-2 xl:grid-cols-5">
                 {steps.map((step) => (
                     <div key={step.number} className="flex min-h-[112px] flex-col justify-between rounded-lg border border-slate-200 bg-slate-50 p-4">
                         <div className="flex items-start gap-3">
@@ -967,9 +973,9 @@ const EcommerceOrderDetailsPage = () => {
 
                 <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_390px]">
                     <main className="flex flex-col gap-5">
-                        <Card className="order-4">
+                        <Card className="order-5">
                             <CardHeader className="flex-row items-center justify-between p-5">
-                                <SectionTitle icon={ShoppingBag} title={`4. ${t('ecommerce_detail_items_count', { count: items.length })}`} description={t('ecommerce_detail_items_desc', { count: totalQty })} />
+                                <SectionTitle icon={ShoppingBag} title={`5. ${t('ecommerce_detail_items_count', { count: items.length })}`} description={t('ecommerce_detail_items_desc', { count: totalQty })} />
                                 <span className="text-sm font-semibold text-slate-900">{formatCurrency(storeItemsSubtotal)}</span>
                             </CardHeader>
                             <CardContent className="p-0">
@@ -1013,9 +1019,19 @@ const EcommerceOrderDetailsPage = () => {
                             </CardContent>
                         </Card>
 
-                        <Card className="order-1 animate-slide-up">
+                        <div className="order-1">
+                        <CourierFraudCheckPanel
+                            storeId={courierStoreId || null}
+                            storeOrderId={order?.id || orderId}
+                            defaultPhone={customerPhone}
+                            title={`1. ${t('ecommerce_detail_order_fraud_check')}`}
+                            description={t('ecommerce_detail_order_fraud_check_desc')}
+                        />
+                        </div>
+
+                        <Card className="order-2 animate-slide-up">
                             <CardHeader className="flex-row items-start justify-between gap-4 p-5">
-                                <SectionTitle icon={Truck} title={`1. ${t('ecommerce_detail_fulfillment')}`} description={t('ecommerce_detail_fulfillment_desc')} />
+                                <SectionTitle icon={Truck} title={`2. ${t('ecommerce_detail_fulfillment')}`} description={t('ecommerce_detail_fulfillment_desc')} />
                                 <div className="flex flex-col gap-2 sm:flex-row">
                                     <select value={status} onChange={(event) => setStatus(event.target.value as OrderStatus)} className={cn(controlClass, 'sm:w-[180px]')}>
                                         {ECOMMERCE_ORDER_STATUSES.map((item) => (
@@ -1063,9 +1079,9 @@ const EcommerceOrderDetailsPage = () => {
                             </CardContent>
                         </Card>
 
-                        <Card className="order-2">
+                        <Card className="order-3">
                             <CardHeader className="p-5">
-                                <SectionTitle icon={CreditCard} title={`2. ${t('ecommerce_detail_payment')}`} description={t('ecommerce_detail_payment_desc')} />
+                                <SectionTitle icon={CreditCard} title={`3. ${t('ecommerce_detail_payment')}`} description={t('ecommerce_detail_payment_desc')} />
                             </CardHeader>
                             <CardContent className="grid grid-cols-1 gap-4 border-t border-slate-100 p-5 md:grid-cols-4">
                                 <InputLabel label={t('lbl_status')}>
@@ -1108,9 +1124,9 @@ const EcommerceOrderDetailsPage = () => {
                             </CardContent>
                         </Card>
 
-                        <Card className="order-3">
+                        <Card className="order-4">
                             <CardHeader className="flex-row items-start justify-between gap-4 p-5">
-                                <SectionTitle icon={Package} title={`3. ${t('ecommerce_detail_courier_parcel')}`} description={t('ecommerce_detail_courier_parcel_desc')} />
+                                <SectionTitle icon={Package} title={`4. ${t('ecommerce_detail_courier_parcel')}`} description={t('ecommerce_detail_courier_parcel_desc')} />
                                 {latestCourier && (
                                     <Badge variant="secondary" className="capitalize">
                                         {latestCourier.provider} {latestCourier.courier_status || latestCourier.tracking_code || latestCourier.consignment_id}
@@ -1278,7 +1294,7 @@ const EcommerceOrderDetailsPage = () => {
                         </Card>
 
                         {availableCouriers.length > 0 && courierProvider !== 'steadfast' && (
-                            <Card className="order-5">
+                            <Card className="order-6">
                                 <CardHeader className="p-5">
                                     <SectionTitle icon={Truck} title={t('ecommerce_detail_delivery_charge_check')} description={t('ecommerce_detail_delivery_charge_check_desc')} />
                                 </CardHeader>
@@ -1342,16 +1358,6 @@ const EcommerceOrderDetailsPage = () => {
                                 </CardContent>
                             </Card>
                         )}
-
-                        <div className="order-6">
-                        <CourierFraudCheckPanel
-                            storeId={courierStoreId || null}
-                            storeOrderId={order?.id || orderId}
-                            defaultPhone={customerPhone}
-                            title={t('ecommerce_detail_order_fraud_check')}
-                            description={t('ecommerce_detail_order_fraud_check_desc')}
-                        />
-                        </div>
 
                         <Card className="order-7">
                             <CardHeader className="p-5">

@@ -1,6 +1,7 @@
 'use client';
 import UpgradePlans from '@/components/common/UpgradePlans';
 import ContactSupportCard from '@/lib/protected/ContactSupportCard';
+import { clearAuthCookies, clearAuthLocalStorage } from '@/lib/auth-session';
 import { RootState } from '@/store';
 import { useLogoutMutation } from '@/store/features/auth/authApi';
 import { AlertCircle, Clock, Crown } from 'lucide-react';
@@ -42,8 +43,9 @@ export default function SubscriptionPendingScreen({ status, subscriptionName = '
         } catch (err) {
             console.error('Logout API failed:', err);
         }
-        localStorage.clear();
+        clearAuthLocalStorage();
         sessionStorage.clear();
+        clearAuthCookies();
         document.cookie.split(';').forEach((cookie) => {
             const name = cookie.split('=')[0].trim();
             document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;

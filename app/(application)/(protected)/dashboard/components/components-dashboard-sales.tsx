@@ -10,6 +10,7 @@ import { Store } from 'lucide-react';
 import Image from 'next/image';
 import AlertStrip from './AlertStrip';
 import Analytics from './Analytics';
+import CustomerDueSnapshot from './CustomerDueSnapshot';
 import DashboardSections from './DashboardSections';
 import ProfitExpenseWidget from './ProfitExpenseWidget';
 import QuickActions from './QuickActions';
@@ -71,6 +72,9 @@ const ComponentsDashboardSales = () => {
 
             {/* Alert Strip */}
             <AlertStrip />
+
+            {/* Customer Due Snapshot */}
+            <CustomerDueSnapshot />
 
             {/* Current Store Info */}
             {currentStore && (

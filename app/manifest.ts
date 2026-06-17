@@ -5,7 +5,8 @@ export default function manifest(): MetadataRoute.Manifest {
         name: 'AndgatePOS - Point of Sale System',
         short_name: 'AndgatePOS',
         description: 'Complete point of sale system for modern businesses',
-        start_url: '/',
+        start_url: '/pos',
+        scope: '/',
         display: 'standalone',
         orientation: 'portrait',
         background_color: '#ffffff',
@@ -26,6 +27,22 @@ export default function manifest(): MetadataRoute.Manifest {
                 src: '/assets/images/favicon_io/favicon-16x16.png',
                 sizes: '16x16',
                 type: 'image/png',
+            },
+        ],
+        shortcuts: [
+            {
+                name: 'Open POS',
+                short_name: 'POS',
+                description: 'Open the sales counter',
+                url: '/pos',
+                icons: [{ src: '/assets/images/favicon_io/android-chrome-192x192.png', sizes: '192x192' }],
+            },
+            {
+                name: 'Dashboard',
+                short_name: 'Dashboard',
+                description: 'Open business dashboard',
+                url: '/dashboard',
+                icons: [{ src: '/assets/images/favicon_io/android-chrome-192x192.png', sizes: '192x192' }],
             },
         ],
     };

@@ -11,7 +11,7 @@ import {
     useGetEcommerceStoresQuery,
     useUpdateEcommerceProductVisibilityMutation,
 } from '@/store/features/ecommerce/ecommerceManagementApi';
-import { Eye, EyeOff, Globe2, Package, ToggleLeft, ToggleRight } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Clock3, Eye, EyeOff, Globe2, Package, ShieldAlert, ToggleLeft, ToggleRight } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { EcommerceProductsFilter } from './EcommerceFilters';
 import EcommerceServiceRequest from './EcommerceServiceRequest';
@@ -57,6 +57,18 @@ const EcommerceProductsPage = () => {
     const totalPages = paginationMeta?.last_page || 1;
     const visiblePageIds = useMemo(() => products.map((product: any) => product.id).filter(Boolean), [products]);
     const allPageSelected = visiblePageIds.length > 0 && visiblePageIds.every((id: number) => selectedIds.includes(id));
+    const hasBulkSelection = selectAllMatching || selectedIds.length > 0;
+    const visibilitySummary = useMemo(() => {
+        const counts = { active: 0, pending: 0, hidden: 0, rejected: 0 };
+        products.forEach((product: any) => {
+            const visibility = getProductVisibility(product);
+            if (visibility === 'active') counts.active += 1;
+            else if (visibility === 'rejected') counts.rejected += 1;
+            else if (visibility === 'hidden' || visibility === 'inactive') counts.hidden += 1;
+            else counts.pending += 1;
+        });
+        return counts;
+    }, [products]);
 
     useEffect(() => {
         setSelectedIds([]);
@@ -196,7 +208,7 @@ const EcommerceProductsPage = () => {
                 },
             },
         ],
-        [selectedIds, isUpdatingOne, handleToggleOne, t]
+        [selectAllMatching, selectedIds, isUpdatingOne, handleToggleOne, t]
     );
 
     if (storesLoading || isLoading) return <Loader message={t('ecommerce_loading_products')} />;
@@ -223,44 +235,91 @@ const EcommerceProductsPage = () => {
                 <EcommerceServiceRequest store={gate.store} requestedStatus="enable" />
             ) : (
                 <>
+                    <div className="grid gap-3 md:grid-cols-4">
+                        <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+                            <div className="flex items-center gap-3">
+                                <CheckCircle2 className="h-5 w-5 text-emerald-700" />
+                                <div>
+                                    <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">{t('ecommerce_visibility_visible')}</p>
+                                    <p className="text-2xl font-bold text-emerald-900">{visibilitySummary.active}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
+                            <div className="flex items-center gap-3">
+                                <Clock3 className="h-5 w-5 text-amber-700" />
+                                <div>
+                                    <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">{t('ecommerce_visibility_pending')}</p>
+                                    <p className="text-2xl font-bold text-amber-900">{visibilitySummary.pending}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                            <div className="flex items-center gap-3">
+                                <EyeOff className="h-5 w-5 text-slate-600" />
+                                <div>
+                                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">{t('ecommerce_visibility_hidden')}</p>
+                                    <p className="text-2xl font-bold text-slate-900">{visibilitySummary.hidden}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="rounded-xl border border-red-200 bg-red-50 p-4">
+                            <div className="flex items-center gap-3">
+                                <ShieldAlert className="h-5 w-5 text-red-700" />
+                                <div>
+                                    <p className="text-xs font-semibold uppercase tracking-wide text-red-700">{t('ecommerce_visibility_rejected')}</p>
+                                    <p className="text-2xl font-bold text-red-900">{visibilitySummary.rejected}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm lg:flex-row lg:items-center lg:justify-between">
-                        <div className="flex flex-wrap items-center gap-3">
-                            <label className="inline-flex items-center gap-2 text-sm font-medium text-gray-700">
-                                <input
-                                    type="checkbox"
-                                    checked={allPageSelected}
-                                    onChange={(event) => {
-                                        setSelectedIds((prev) =>
-                                            event.target.checked ? Array.from(new Set([...prev, ...visiblePageIds])) : prev.filter((id) => !visiblePageIds.includes(id))
-                                        );
-                                        setSelectAllMatching(false);
-                                    }}
-                                    className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                                />
-                                {t('ecommerce_select_current_page')}
-                            </label>
-                            <label className="inline-flex items-center gap-2 text-sm font-medium text-gray-700">
-                                <input
-                                    type="checkbox"
-                                    checked={selectAllMatching}
-                                    onChange={(event) => {
-                                        setSelectAllMatching(event.target.checked);
-                                        setSelectedIds([]);
-                                    }}
-                                    className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                                />
-                                {t('ecommerce_select_all_matching')}
-                            </label>
-                            <span className="text-sm text-gray-500">
-                                {selectAllMatching ? t('ecommerce_matching_products_selected').replace('{count}', String(totalItems)) : t('ecommerce_products_selected').replace('{count}', String(selectedIds.length))}
-                            </span>
+                        <div>
+                            <div className="flex flex-wrap items-center gap-3">
+                                <label className="inline-flex items-center gap-2 text-sm font-medium text-gray-700">
+                                    <input
+                                        type="checkbox"
+                                        checked={allPageSelected}
+                                        onChange={(event) => {
+                                            setSelectedIds((prev) =>
+                                                event.target.checked ? Array.from(new Set([...prev, ...visiblePageIds])) : prev.filter((id) => !visiblePageIds.includes(id))
+                                            );
+                                            setSelectAllMatching(false);
+                                        }}
+                                        className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                                    />
+                                    {t('ecommerce_select_current_page')}
+                                </label>
+                                <label className="inline-flex items-center gap-2 text-sm font-medium text-gray-700">
+                                    <input
+                                        type="checkbox"
+                                        checked={selectAllMatching}
+                                        onChange={(event) => {
+                                            setSelectAllMatching(event.target.checked);
+                                            setSelectedIds([]);
+                                        }}
+                                        className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                                    />
+                                    {t('ecommerce_select_all_matching')}
+                                </label>
+                                <span className="text-sm font-medium text-gray-700">
+                                    {selectAllMatching ? t('ecommerce_matching_products_selected').replace('{count}', String(totalItems)) : t('ecommerce_products_selected').replace('{count}', String(selectedIds.length))}
+                                </span>
+                            </div>
+                            {selectAllMatching && (
+                                <p className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-amber-700">
+                                    <AlertTriangle className="h-3.5 w-3.5" />
+                                    {t('ecommerce_select_all_matching_warning')}
+                                </p>
+                            )}
                         </div>
                         <div className="flex flex-wrap gap-2">
-                            <button type="button" onClick={() => handleBulkUpdate(true)} disabled={isBulkUpdating} className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700 disabled:opacity-60">
+                            <button type="button" onClick={() => handleBulkUpdate(true)} disabled={isBulkUpdating || !hasBulkSelection} className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60">
                                 <Eye className="h-4 w-4" />
                                 {t('ecommerce_make_visible')}
                             </button>
-                            <button type="button" onClick={() => handleBulkUpdate(false)} disabled={isBulkUpdating} className="inline-flex items-center gap-2 rounded-lg bg-gray-700 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-800 disabled:opacity-60">
+                            <button type="button" onClick={() => handleBulkUpdate(false)} disabled={isBulkUpdating || !hasBulkSelection} className="inline-flex items-center gap-2 rounded-lg bg-gray-700 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60">
                                 <EyeOff className="h-4 w-4" />
                                 {t('ecommerce_make_hidden')}
                             </button>

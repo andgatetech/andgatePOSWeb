@@ -5,6 +5,7 @@ import createWebStorage from 'redux-persist/lib/storage/createWebStorage';
 import { baseApi } from '@/store/api/baseApi';
 import { affiliateAdminApi } from '@/store/features/affiliate/affiliateAdminApi';
 import { affiliatePortalApi } from '@/store/features/affiliate/affiliatePortalApi';
+import { AUTH_TOKEN_EXPIRES_AT_KEY, AUTH_TOKEN_STORAGE_KEY, isTokenExpired } from '@/lib/auth-session';
 import authReducer from '@/store/features/auth/authSlice';
 import labelReducer from '@/store/features/Label/labelSlice';
 import cachedProductsReducer from '@/store/features/offline/cachedProductsSlice';
@@ -26,27 +27,40 @@ const createNoopStorage = () => ({
 
 const storage = typeof window !== 'undefined' ? createWebStorage('local') : createNoopStorage();
 
-// Auth token is kept in sessionStorage only (cleared on browser close, never written to localStorage).
-// Everything else in auth (user, permissions, currentStore, isAuthenticated) stays in localStorage
-// so the UI remains hydrated across page refreshes — API calls will fail with 401 and redirect to login.
-const SESSION_TOKEN_KEY = 'andgatepos_session_token';
+// PWA/offline login persistence:
+// Keep the API token in localStorage with its real expiry so an installed app can reopen like Gmail.
+// The backend expiry remains authoritative; expired tokens are removed during rehydration.
 
 const authTokenTransform = createTransform(
-    // Before writing to localStorage: strip token, save it to sessionStorage instead
+    // Before writing redux-persist auth state: keep token in a dedicated key and store metadata normally.
     (inboundState: any) => {
         if (typeof window !== 'undefined') {
             if (inboundState.token) {
-                sessionStorage.setItem(SESSION_TOKEN_KEY, inboundState.token);
+                localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, inboundState.token);
             } else {
-                sessionStorage.removeItem(SESSION_TOKEN_KEY);
+                localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
             }
         }
         const { token, ...rest } = inboundState;
         return rest;
     },
-    // On rehydration from localStorage: restore token from sessionStorage
+    // On rehydration: restore token only while the saved expiry is still valid.
     (outboundState: any) => {
-        const token = typeof window !== 'undefined' ? sessionStorage.getItem(SESSION_TOKEN_KEY) : null;
+        const token = typeof window !== 'undefined' ? localStorage.getItem(AUTH_TOKEN_STORAGE_KEY) : null;
+        const tokenExpiresAt = outboundState?.tokenExpiresAt || (typeof window !== 'undefined' ? localStorage.getItem(AUTH_TOKEN_EXPIRES_AT_KEY) : null);
+
+        if (!token || isTokenExpired(tokenExpiresAt)) {
+            if (typeof window !== 'undefined') {
+                localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
+            }
+            return {
+                ...outboundState,
+                token: null,
+                tokenExpiresAt: tokenExpiresAt || null,
+                isAuthenticated: false,
+            };
+        }
+
         return { ...outboundState, token: token || null };
     },
     { whitelist: ['auth'] }

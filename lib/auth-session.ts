@@ -1,5 +1,6 @@
 export const AUTH_TOKEN_EXPIRES_AT_KEY = 'token_expires_at';
 export const AUTH_TOKEN_EXPIRES_AT_COOKIE = 'token_expires_at';
+export const AUTH_TOKEN_STORAGE_KEY = 'andgatepos_auth_token';
 
 const AUTH_COOKIE_NAMES = ['token', 'role', 'permissions', AUTH_TOKEN_EXPIRES_AT_COOKIE];
 
@@ -58,5 +59,6 @@ export const clearAuthCookies = () => {
 export const clearAuthLocalStorage = () => {
     if (typeof window === 'undefined') return;
 
-    localStorage.clear();
+    localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
+    localStorage.removeItem(AUTH_TOKEN_EXPIRES_AT_KEY);
 };

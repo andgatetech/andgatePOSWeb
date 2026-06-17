@@ -130,6 +130,13 @@ const DashboardApi = baseApi.injectEndpoints({
             },
             providesTags: ['Dashboard'],
         }),
+        getDashboardCustomerDues: builder.query({
+            query: (params) => ({
+                url: `/dashboard/customer-dues${params?.store_id ? `?store_id=${params.store_id}` : ''}`,
+                method: 'GET',
+            }),
+            providesTags: ['Dashboard'],
+        }),
         // Get dashboard sections five (Top Categories, Top Brands, Top Purchased Products)
         getDashboardSectionsFive: builder.query({
             query: (params) => {
@@ -177,4 +184,5 @@ export const {
     useGetDashboardAlertsQuery,
     useGetDashboardProfitTrendQuery,
     useGetDashboardTopCustomersQuery,
+    useGetDashboardCustomerDuesQuery,
 } = DashboardApi;

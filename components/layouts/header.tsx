@@ -5,6 +5,7 @@ import Dropdown from '@/components/dropdown';
 import LanguageDropdown from '@/components/language-dropdown';
 import IconLogout from '@/components/icon/icon-logout';
 import IconUser from '@/components/icon/icon-user';
+import { clearAuthCookies, clearAuthLocalStorage } from '@/lib/auth-session';
 import { MessagesSquare, ClipboardList } from 'lucide-react';
 
 import { RootState, persistor } from '@/store';
@@ -41,7 +42,7 @@ const Header = () => {
         await persistor.purge();
         await persistor.flush();
 
-        localStorage.clear();
+        clearAuthLocalStorage();
         sessionStorage.clear();
 
         const clearCookie = (name: string) => {
@@ -57,6 +58,7 @@ const Header = () => {
             }
         };
 
+        clearAuthCookies();
         ['token', 'role', 'permissions'].forEach(clearCookie);
 
         document.cookie.split(';').forEach((cookie) => {

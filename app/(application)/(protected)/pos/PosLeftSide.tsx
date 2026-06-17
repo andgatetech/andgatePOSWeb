@@ -85,6 +85,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
     const [barcodeEnabled, setBarcodeEnabled] = useState(false);
     const [showCameraScanner, setShowCameraScanner] = useState(false);
     const [showReadinessPanel, setShowReadinessPanel] = useState(false);
+    const [offlineCacheRefreshTick, setOfflineCacheRefreshTick] = useState(0);
 
     const dispatch = useDispatch();
     const [itemsPerPage, setItemsPerPage] = useState(12); // Items per page for POS
@@ -175,7 +176,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
 
         prefetch();
         return () => { cancelled = true; };
-    }, [currentStoreId, isOnline]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [currentStoreId, isOnline, offlineCacheRefreshTick]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // Build query parameters for current store only - with pagination and sorting support
     const queryParams = useMemo(() => {
@@ -244,10 +245,12 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                     );
                 }
                 if (selectedCategory) {
-                    filtered = filtered.filter((p: any) => p.category_id === selectedCategory);
+                    const categoryId = typeof selectedCategory === 'object' ? selectedCategory.id : selectedCategory;
+                    filtered = filtered.filter((p: any) => Number(p.category_id) === Number(categoryId));
                 }
                 if (selectedBrand) {
-                    filtered = filtered.filter((p: any) => p.brand_id === selectedBrand);
+                    const brandId = typeof selectedBrand === 'object' ? selectedBrand.id : selectedBrand;
+                    filtered = filtered.filter((p: any) => Number(p.brand_id) === Number(brandId));
                 }
                 return filtered;
             }
@@ -990,6 +993,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                                                 brandCount={masterData.brands.length}
                                                 paymentMethodCount={masterData.paymentMethods.length}
                                                 lastSyncedAt={masterData.lastSyncedAt}
+                                                onSyncNow={() => setOfflineCacheRefreshTick((tick) => tick + 1)}
                                                 onClose={() => setShowReadinessPanel(false)}
                                             />
                                         </div>

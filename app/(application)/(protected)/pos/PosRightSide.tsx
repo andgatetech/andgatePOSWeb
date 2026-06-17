@@ -57,6 +57,22 @@ export interface PosRightSideProps {
 
 const EMPTY_ARRAY: Item[] = [];
 type InvoiceLineItem = Item | ExchangeItem | (ReturnItem & { quantity: number; isReturnItem: true });
+
+const canonicalPaymentMethodName = (name?: string) => {
+    const normalized = String(name || '').trim().toLowerCase();
+    if (normalized === 'mfc' || normalized === 'mfs' || normalized === 'mobile financial service') return 'Nagad';
+    if (normalized === 'bkash') return 'bKash';
+    if (normalized === 'nagad') return 'Nagad';
+    if (normalized === 'rocket') return 'Rocket';
+    if (normalized === 'upay') return 'Upay';
+    if (normalized === 'bank_transfer' || normalized === 'bank transfer') return 'Bank Transfer';
+    if (normalized === 'cash') return 'Cash';
+    if (normalized === 'card') return 'Card';
+    return String(name || '').trim();
+};
+
+const paymentMethodKey = (name?: string) => canonicalPaymentMethodName(name).toLowerCase();
+
 const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 'pos', orderId, originalOrder }) => {
     const { t } = getTranslation();
     const { formatNumber, formatCurrency } = useCurrency();
@@ -311,15 +327,22 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                 return normalized === '1' || normalized === 'true';
             }
             return true;
-        });
+        }).map((method: any) => ({
+            ...method,
+            payment_method_name: canonicalPaymentMethodName(method.payment_method_name),
+        }));
 
         if (activeMethods.length === 0) {
             return [DEFAULT_PAYMENT_METHOD];
         }
 
-        // Cash must always be available regardless of store configuration
-        const hasCash = activeMethods.some((m: any) => m.payment_method_name?.toLowerCase() === 'cash');
-        return hasCash ? activeMethods : [DEFAULT_PAYMENT_METHOD, ...activeMethods];
+        const uniqueMethods = activeMethods.filter((method: any, index: number, list: any[]) => (
+            list.findIndex((item: any) => paymentMethodKey(item.payment_method_name) === paymentMethodKey(method.payment_method_name)) === index
+        ));
+
+        // Cash must always be available regardless of store configuration.
+        const hasCash = uniqueMethods.some((m: any) => paymentMethodKey(m.payment_method_name) === 'cash');
+        return hasCash ? uniqueMethods : [{ ...DEFAULT_PAYMENT_METHOD, payment_method_name: 'Cash' }, ...uniqueMethods];
     }, [currentStore?.payment_methods]);
 
     // When going offline, lock payment method to Cash + status to paid
@@ -908,7 +931,6 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                 dueAmount: 0,
             }));
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [backendGrandTotal, formData.paymentStatus, formData.partialPaymentAmount, invoiceItems, formData.discount, formData.usePoints, formData.pointsToUse, formData.useBalance, formData.balanceToUse]);
 
     useEffect(() => {
@@ -918,7 +940,6 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             ...prev,
             changeAmount: change > 0 ? change : 0,
         }));
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [backendGrandTotal, formData.amountPaid, invoiceItems, formData.discount, formData.usePoints, formData.pointsToUse, formData.useBalance, formData.balanceToUse]);
 
     const handleWholesaleToggle = (checked: boolean) => {
