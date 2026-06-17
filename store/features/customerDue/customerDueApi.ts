@@ -44,6 +44,20 @@ const CustomerDueApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['Orders'],
         }),
+        updateCustomerDueFollowUp: builder.mutation({
+            query: ({ id, ...data }) => ({
+                url: `/customer-dues/${id}/follow-up`,
+                method: 'POST',
+                body: {
+                    store_id: data.store_id,
+                    action_type: data.action_type,
+                    promised_payment_date: data.promised_payment_date || null,
+                    reminder_days_before: data.reminder_days_before,
+                    note: data.note,
+                },
+            }),
+            invalidatesTags: ['Orders'],
+        }),
     }),
 });
 
@@ -52,4 +66,5 @@ export const {
     useGetCustomerDueByIdQuery,
     useCollectCustomerDuePaymentMutation,
     useClearCustomerDueMutation,
+    useUpdateCustomerDueFollowUpMutation,
 } = CustomerDueApi;

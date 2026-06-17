@@ -7,12 +7,30 @@ import ReusableTable from '@/components/common/ReusableTable';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
-import { useClearCustomerDueMutation, useCollectCustomerDuePaymentMutation, useGetCustomerDuesQuery } from '@/store/features/customerDue/customerDueApi';
-import { AlertCircle, CheckCircle2, Clock, CreditCard, FileText, Receipt, Search, Users, Wallet } from 'lucide-react';
+import { useClearCustomerDueMutation, useCollectCustomerDuePaymentMutation, useGetCustomerDuesQuery, useUpdateCustomerDueFollowUpMutation } from '@/store/features/customerDue/customerDueApi';
+import { AlertCircle, Bell, CalendarClock, CheckCircle2, Clock, CreditCard, FileText, MessageCircle, Phone, Receipt, Search, Users, Wallet } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import Swal from 'sweetalert2';
 
 const paymentMethods = ['cash', 'bkash', 'nagad', 'rocket', 'card', 'bank'];
+const followUpActions = [
+    { value: 'called', label: 'Called' },
+    { value: 'whatsapp_sent', label: 'WhatsApp sent' },
+    { value: 'sms_sent', label: 'SMS sent' },
+    { value: 'visited', label: 'Visited shop/home' },
+    { value: 'promised_to_pay', label: 'Promised to pay' },
+    { value: 'no_response', label: 'No response' },
+    { value: 'dispute', label: 'Dispute/issue' },
+    { value: 'other', label: 'Other' },
+];
+
+const bdWhatsAppNumber = (phone?: string) => {
+    const digits = String(phone || '').replace(/\D/g, '');
+    if (!digits) return '';
+    if (digits.startsWith('880')) return digits;
+    if (digits.startsWith('0')) return `88${digits}`;
+    return `880${digits}`;
+};
 
 const CustomerDueReportPage = () => {
     const { t } = getTranslation();
@@ -22,8 +40,10 @@ const CustomerDueReportPage = () => {
     const [itemsPerPage, setItemsPerPage] = useState(15);
     const [sortField, setSortField] = useState('remaining');
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
-    const [filters, setFilters] = useState({ search: '', aging: 'all', status: '' });
+    const [filters, setFilters] = useState({ search: '', aging: 'all', status: '', follow_up: 'all' });
     const [paymentModal, setPaymentModal] = useState<{ type: 'partial' | 'full'; due: any } | null>(null);
+    const [followUpModal, setFollowUpModal] = useState<any | null>(null);
+    const [followUpForm, setFollowUpForm] = useState({ action_type: 'called', promised_payment_date: '', reminder_days_before: '1', note: '' });
     const [paymentAmount, setPaymentAmount] = useState('');
     const [paymentMethod, setPaymentMethod] = useState('cash');
     const [paymentNote, setPaymentNote] = useState('');
@@ -38,6 +58,7 @@ const CustomerDueReportPage = () => {
         };
         if (filters.search.trim()) params.search = filters.search.trim();
         if (filters.status) params.status = filters.status;
+        if (filters.follow_up && filters.follow_up !== 'all') params.follow_up = filters.follow_up;
         if (currentStoreId) params.store_id = currentStoreId;
         return params;
     }, [currentPage, itemsPerPage, sortField, sortDirection, filters, currentStoreId]);
@@ -45,6 +66,7 @@ const CustomerDueReportPage = () => {
     const { data: reportData, isLoading, refetch } = useGetCustomerDuesQuery(queryParams, { skip: !currentStoreId });
     const [collectPayment, { isLoading: isCollecting }] = useCollectCustomerDuePaymentMutation();
     const [clearDue, { isLoading: isClearing }] = useClearCustomerDueMutation();
+    const [updateFollowUp, { isLoading: isUpdatingFollowUp }] = useUpdateCustomerDueFollowUpMutation();
     const { data: exportData } = useGetCustomerDuesQuery({ ...queryParams, export: true }, { skip: !currentStoreId });
 
     const dues = useMemo(() => reportData?.data?.dues || [], [reportData]);
@@ -68,6 +90,51 @@ const CustomerDueReportPage = () => {
         setPaymentModal(null);
         setPaymentAmount('');
         setPaymentNote('');
+    };
+
+    const openFollowUpModal = (due: any) => {
+        setFollowUpModal(due);
+        setFollowUpForm({
+            action_type: due.last_follow_up_action || 'called',
+            promised_payment_date: due.promised_payment_date || '',
+            reminder_days_before: String(due.reminder_days_before ?? 1),
+            note: '',
+        });
+    };
+
+    const closeFollowUpModal = () => {
+        setFollowUpModal(null);
+        setFollowUpForm({ action_type: 'called', promised_payment_date: '', reminder_days_before: '1', note: '' });
+    };
+
+    const submitFollowUp = async () => {
+        if (!followUpModal || !currentStoreId) return;
+
+        try {
+            await updateFollowUp({
+                id: followUpModal.id,
+                store_id: currentStoreId,
+                action_type: followUpForm.action_type,
+                promised_payment_date: followUpForm.promised_payment_date,
+                reminder_days_before: Number(followUpForm.reminder_days_before || 1),
+                note: followUpForm.note,
+            }).unwrap();
+            Swal.fire(t('msg_success'), 'Customer due follow-up updated.', 'success');
+            closeFollowUpModal();
+            refetch();
+        } catch (error: any) {
+            Swal.fire(t('msg_error'), error?.data?.message || 'Failed to update follow-up.', 'error');
+        }
+    };
+
+    const formatActionLabel = useCallback((action?: string) => followUpActions.find((item) => item.value === action)?.label || (action ? String(action).replaceAll('_', ' ') : 'No action yet'), []);
+
+    const followUpBadgeClass = (status?: string) => {
+        if (status === 'promise_overdue') return 'bg-red-100 text-red-800';
+        if (status === 'due_today' || status === 'reminder_due') return 'bg-amber-100 text-amber-800';
+        if (status === 'scheduled') return 'bg-blue-100 text-blue-800';
+        if (status === 'paid') return 'bg-emerald-100 text-emerald-800';
+        return 'bg-gray-100 text-gray-700';
     };
 
     const printReceipt = useCallback(
@@ -163,10 +230,12 @@ const CustomerDueReportPage = () => {
             { key: 'total_due', label: t('lbl_total_due'), width: 14, format: (v) => formatCurrency(v) },
             { key: 'paid', label: t('lbl_paid'), width: 14, format: (v) => formatCurrency(v) },
             { key: 'remaining', label: t('lbl_remaining_due'), width: 14, format: (v) => formatCurrency(v) },
+            { key: 'promised_payment_date', label: 'Promise Date', width: 14 },
+            { key: 'last_follow_up_action', label: 'Last Follow-up', width: 16, format: (v) => formatActionLabel(v) },
             { key: 'aging_bucket', label: t('lbl_aging'), width: 10 },
             { key: 'status', label: t('lbl_status'), width: 10 },
         ],
-        [t, formatCurrency]
+        [t, formatCurrency, formatActionLabel]
     );
 
     const summaryItems = useMemo(
@@ -211,6 +280,22 @@ const CustomerDueReportPage = () => {
                 lightBg: 'bg-amber-50',
                 textColor: 'text-amber-600',
             },
+            {
+                label: 'Promise due today',
+                value: formatNumber(summary.promised_today || 0),
+                icon: <CalendarClock className="h-4 w-4 text-blue-600" />,
+                bgColor: 'bg-blue-500',
+                lightBg: 'bg-blue-50',
+                textColor: 'text-blue-600',
+            },
+            {
+                label: 'Promise overdue',
+                value: formatNumber(summary.promise_overdue || 0),
+                icon: <Bell className="h-4 w-4 text-red-600" />,
+                bgColor: 'bg-red-500',
+                lightBg: 'bg-red-50',
+                textColor: 'text-red-600',
+            },
         ],
         [summary, formatCurrency, formatNumber, t]
     );
@@ -239,6 +324,25 @@ const CustomerDueReportPage = () => {
                     </div>
                 ),
             },
+            {
+                key: 'promised_payment_date',
+                label: 'Promise / follow-up',
+                render: (value: any, row: any) => (
+                    <div className="space-y-1">
+                        {value ? (
+                            <div className="font-semibold text-gray-900">
+                                <DateColumn date={value} />
+                            </div>
+                        ) : (
+                            <span className="text-xs text-gray-400">No promise date</span>
+                        )}
+                        <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${followUpBadgeClass(row.follow_up_status)}`}>
+                            {String(row.follow_up_status || 'not_scheduled').replaceAll('_', ' ')}
+                        </span>
+                        <div className="text-xs text-gray-500">{formatActionLabel(row.last_follow_up_action)}</div>
+                    </div>
+                ),
+            },
             { key: 'total_due', label: t('lbl_total_due'), sortable: true, render: (v: any) => <span className="font-semibold text-gray-900">{formatCurrency(v)}</span> },
             { key: 'paid', label: t('lbl_paid'), sortable: true, render: (v: any) => <span className="font-semibold text-emerald-600">{formatCurrency(v)}</span> },
             { key: 'remaining', label: t('lbl_remaining_due'), sortable: true, render: (v: any) => <span className="font-bold text-red-600">{formatCurrency(v)}</span> },
@@ -262,11 +366,18 @@ const CustomerDueReportPage = () => {
                 ),
             },
         ],
-        [formatCurrency, t]
+        [formatActionLabel, formatCurrency, t]
     );
 
     const actions = useMemo(
         () => [
+            {
+                label: 'Follow up',
+                icon: <MessageCircle className="h-4 w-4" />,
+                className: 'text-amber-600',
+                onClick: (row: any) => openFollowUpModal(row),
+                hidden: (row: any) => Number(row.remaining || 0) <= 0,
+            },
             {
                 label: t('btn_make_partial_payment'),
                 icon: <CreditCard className="h-4 w-4" />,
@@ -304,7 +415,7 @@ const CustomerDueReportPage = () => {
 
             <ReportSummaryCard items={summaryItems} />
 
-            <div className="mb-5 grid gap-3 rounded-lg border border-gray-200 bg-white p-4 shadow-sm md:grid-cols-[1fr_180px_180px]">
+            <div className="mb-5 grid gap-3 rounded-lg border border-gray-200 bg-white p-4 shadow-sm md:grid-cols-[1fr_180px_180px_200px]">
                 <label className="relative">
                     <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                     <input
@@ -327,6 +438,13 @@ const CustomerDueReportPage = () => {
                     <option value="active">{t('lbl_active')}</option>
                     <option value="partial">{t('status_partial')}</option>
                     <option value="paid">{t('status_paid')}</option>
+                </select>
+                <select value={filters.follow_up} onChange={(e) => { setFilters((prev) => ({ ...prev, follow_up: e.target.value })); setCurrentPage(1); }} className="form-select">
+                    <option value="all">All follow-ups</option>
+                    <option value="due_today">Promise due today</option>
+                    <option value="overdue">Promise overdue</option>
+                    <option value="scheduled">Promise scheduled</option>
+                    <option value="none">No promise date</option>
                 </select>
             </div>
 
@@ -388,6 +506,87 @@ const CustomerDueReportPage = () => {
                             <button type="button" className="btn btn-outline-danger" onClick={closePaymentModal}>{t('btn_cancel')}</button>
                             <button type="button" className="btn btn-primary" onClick={submitPayment} disabled={isCollecting || isClearing}>
                                 {isCollecting || isClearing ? t('lbl_processing') : t('btn_make_payment')}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {followUpModal && (
+                <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/50 p-4">
+                    <div className="w-full max-w-lg rounded-lg bg-white shadow-xl">
+                        <div className="border-b border-gray-200 p-5">
+                            <h2 className="text-lg font-bold text-gray-900">Customer due follow-up</h2>
+                            <p className="mt-1 text-sm text-gray-500">{followUpModal.customer} · {followUpModal.phone || '-'}</p>
+                        </div>
+                        <div className="space-y-4 p-5">
+                            <div className="grid gap-3 rounded-lg bg-red-50 p-3 text-sm sm:grid-cols-2">
+                                <div>
+                                    <span className="text-gray-600">Remaining due</span>
+                                    <div className="font-bold text-red-600">{formatCurrency(followUpModal.remaining)}</div>
+                                </div>
+                                <div className="flex gap-2 sm:justify-end">
+                                    {followUpModal.phone && (
+                                        <>
+                                            <a className="btn btn-outline-primary px-3 py-2" href={`tel:${followUpModal.phone}`}>
+                                                <Phone className="h-4 w-4" />
+                                            </a>
+                                            <a className="btn btn-outline-success px-3 py-2" href={`https://wa.me/${bdWhatsAppNumber(followUpModal.phone)}`} target="_blank" rel="noreferrer">
+                                                <MessageCircle className="h-4 w-4" />
+                                            </a>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                            <label className="block">
+                                <span className="mb-1 block text-sm font-semibold text-gray-700">Action taken</span>
+                                <select value={followUpForm.action_type} onChange={(e) => setFollowUpForm((prev) => ({ ...prev, action_type: e.target.value }))} className="form-select w-full">
+                                    {followUpActions.map((action) => <option key={action.value} value={action.value}>{action.label}</option>)}
+                                </select>
+                            </label>
+                            <div className="grid gap-3 sm:grid-cols-2">
+                                <label className="block">
+                                    <span className="mb-1 block text-sm font-semibold text-gray-700">Customer promised pay date</span>
+                                    <input
+                                        type="date"
+                                        value={followUpForm.promised_payment_date}
+                                        onChange={(e) => setFollowUpForm((prev) => ({ ...prev, promised_payment_date: e.target.value }))}
+                                        className="form-input w-full"
+                                    />
+                                </label>
+                                <label className="block">
+                                    <span className="mb-1 block text-sm font-semibold text-gray-700">Notify before days</span>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        max="30"
+                                        value={followUpForm.reminder_days_before}
+                                        onChange={(e) => setFollowUpForm((prev) => ({ ...prev, reminder_days_before: e.target.value }))}
+                                        className="form-input w-full"
+                                    />
+                                </label>
+                            </div>
+                            <label className="block">
+                                <span className="mb-1 block text-sm font-semibold text-gray-700">Action note</span>
+                                <textarea
+                                    value={followUpForm.note}
+                                    onChange={(e) => setFollowUpForm((prev) => ({ ...prev, note: e.target.value }))}
+                                    className="form-textarea w-full"
+                                    rows={3}
+                                    placeholder="Example: Customer said he will pay after salary on Friday."
+                                />
+                            </label>
+                            {followUpModal.last_follow_up_note && (
+                                <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm text-gray-600">
+                                    <div className="font-semibold text-gray-800">Last note</div>
+                                    <p className="mt-1">{followUpModal.last_follow_up_note}</p>
+                                </div>
+                            )}
+                        </div>
+                        <div className="flex justify-end gap-3 border-t border-gray-200 p-5">
+                            <button type="button" className="btn btn-outline-danger" onClick={closeFollowUpModal}>{t('btn_cancel')}</button>
+                            <button type="button" className="btn btn-primary" onClick={submitFollowUp} disabled={isUpdatingFollowUp}>
+                                {isUpdatingFollowUp ? t('lbl_processing') : 'Save follow-up'}
                             </button>
                         </div>
                     </div>
