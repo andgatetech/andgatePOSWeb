@@ -267,6 +267,9 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     // ── Data Export ────────────────────────────────────────────
     '/data-export': ['stores.view'],
 
+    // ── Package & Payments (subscription owner / business_admin only) ──
+    '/manual-payments': ['subscription.owner'],
+
     // ── User Profile & Settings (all authenticated users) ──────
     '/users': [],
     '/users/profile': [],

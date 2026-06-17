@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { apiBaseUrl } from '@/lib/api-url';
 
 const AFFILIATE_TOKEN_KEY = 'affiliate_token';
 
@@ -14,7 +15,7 @@ export const removeAffiliateToken = (): void =>
 export const affiliatePortalApi = createApi({
     reducerPath: 'affiliatePortalApi',
     baseQuery: fetchBaseQuery({
-        baseUrl: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api`,
+        baseUrl: apiBaseUrl(),
         prepareHeaders: (headers) => {
             const token = getAffiliateToken();
             if (token) headers.set('Authorization', `Bearer ${token}`);

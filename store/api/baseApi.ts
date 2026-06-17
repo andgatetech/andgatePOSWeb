@@ -1,10 +1,11 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import type { BaseQueryFn, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import { apiBaseUrl } from '@/lib/api-url';
 import { clearAuthCookies, clearAuthLocalStorage, isTokenExpired } from '@/lib/auth-session';
 import { RootState } from '..';
 
 const rawBaseQuery = fetchBaseQuery({
-    baseUrl: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api`,
+    baseUrl: apiBaseUrl(),
 
     // mode: 'cors',
     // credentials: 'include',
@@ -47,7 +48,13 @@ const baseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> =
         }
     }
 
-    if (typeof window !== 'undefined' && result.error?.status === 403 && typeof errorType === 'string' && subscriptionErrorTypes.has(errorType) && !window.location.pathname.includes('/subscription')) {
+    if (
+        typeof window !== 'undefined'
+        && (result.error?.status === 402 || result.error?.status === 403)
+        && typeof errorType === 'string'
+        && subscriptionErrorTypes.has(errorType)
+        && !window.location.pathname.includes('/subscription')
+    ) {
         const params = new URLSearchParams();
         params.set('error_type', errorType);
 
@@ -59,6 +66,10 @@ const baseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> =
         ['feature', 'used', 'limit', 'required_permission', 'required_features'].forEach((key) => {
             if (data?.[key] !== undefined) details[key] = data[key];
         });
+
+        if (data?.data && typeof data.data === 'object') {
+            Object.assign(details, data.data);
+        }
 
         if (Object.keys(details).length > 0) {
             params.set('details', JSON.stringify(details));

@@ -27,6 +27,8 @@ import {
     updateReturnQuantity,
 } from '@/store/features/Order/OrderReturnSlice';
 import { clearItemsRedux, removeItemRedux, updateItemRedux } from '@/store/features/Order/OrderSlice';
+import type { Item } from '@/store/features/Order/OrderSlice';
+import type { ExchangeItem, ReturnItem } from '@/store/features/Order/OrderReturnSlice';
 import { useCreateCustomerMutation, useGetStoreCustomersListQuery } from '@/store/features/customer/customer';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
@@ -53,7 +55,8 @@ export interface PosRightSideProps {
     originalOrder?: any;
 }
 
-const EMPTY_ARRAY: any[] = [];
+const EMPTY_ARRAY: Item[] = [];
+type InvoiceLineItem = Item | ExchangeItem | (ReturnItem & { quantity: number; isReturnItem: true });
 const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 'pos', orderId, originalOrder }) => {
     const { t } = getTranslation();
     const { formatNumber, formatCurrency } = useCurrency();
@@ -72,7 +75,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
     const posItemsData = useSelector((state: RootState) => (currentStoreId && state.invoice.itemsByStore ? state.invoice.itemsByStore[currentStoreId] || EMPTY_ARRAY : EMPTY_ARRAY));
 
     // Memoize invoice items to prevent new references on every render
-    const invoiceItems = useMemo(() => {
+    const invoiceItems = useMemo((): InvoiceLineItem[] => {
         if (reduxSlice === 'orderReturn') {
             // In return mode, combine original order items (returnItems) with new exchange items
             // Map return items to match Item interface

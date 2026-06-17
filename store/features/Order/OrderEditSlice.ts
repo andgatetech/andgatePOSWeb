@@ -19,7 +19,7 @@ interface Warranty {
     remaining_days: number | null;
 }
 
-interface Item {
+export interface Item {
     id: number; // Local row ID (negative for existing items, positive for new)
     orderItemId?: number; // Original order_item ID from backend (for update/delete actions)
     productId?: number; // Product ID from backend

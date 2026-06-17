@@ -17,6 +17,7 @@ import { showConfirmDialog, showMessage } from '@/lib/toast';
 import type { RootState } from '@/store';
 import { useUpdateOrderMutation } from '@/store/features/Order/Order';
 import { clearItemsRedux, removeItemRedux, updateItemRedux } from '@/store/features/Order/OrderEditSlice';
+import type { Item } from '@/store/features/Order/OrderEditSlice';
 import { useGetStoreCustomersListQuery } from '@/store/features/customer/customer';
 import { useGetPaymentMethodsQuery } from '@/store/features/store/storeApi';
 import { skipToken } from '@reduxjs/toolkit/query';
@@ -38,7 +39,7 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
     const router = useRouter();
     const { currentStoreId, currentStore } = useCurrentStore();
 
-    const invoiceItems = useSelector((state: RootState) => (currentStoreId && state.orderEdit.sessionsByStore ? state.orderEdit.sessionsByStore[currentStoreId]?.items || [] : []));
+    const invoiceItems = useSelector((state: RootState): Item[] => (currentStoreId && state.orderEdit.sessionsByStore ? state.orderEdit.sessionsByStore[currentStoreId]?.items || [] : []));
     const searchInputRef = useRef<HTMLDivElement | null>(null);
     const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 

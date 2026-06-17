@@ -6,7 +6,8 @@ export interface QuoteReturnItem {
 }
 
 export interface QuoteNewItem {
-    product_id: number;
+    product_id?: number;
+    stock_id?: number;
     quantity: number;
     unit_price: number;
     discount?: number;

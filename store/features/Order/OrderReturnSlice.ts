@@ -28,11 +28,16 @@ export interface ReturnItem {
     title: string;
     sku?: string;
     variantName?: string;
+    variantData?: { [key: string]: string };
     rate: number; // Unit price
+    regularPrice?: number;
+    wholesalePrice?: number;
+    isWholesale?: boolean;
     soldQuantity?: number; // Original sold quantity from order
     originalQuantity: number; // Remaining returnable quantity
     returnQuantity: number; // Quantity being returned
     amount: number; // rate * returnQuantity
+    PlaceholderQuantity?: number;
     tax_rate?: number;
     tax_included?: boolean;
     unit?: string;
