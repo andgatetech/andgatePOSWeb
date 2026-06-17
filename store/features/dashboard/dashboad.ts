@@ -137,6 +137,13 @@ const DashboardApi = baseApi.injectEndpoints({
             }),
             providesTags: ['Dashboard'],
         }),
+        getDashboardOnboarding: builder.query({
+            query: (params) => ({
+                url: `/dashboard/onboarding${params?.store_id ? `?store_id=${params.store_id}` : ''}`,
+                method: 'GET',
+            }),
+            providesTags: ['Dashboard'],
+        }),
         // Get dashboard sections five (Top Categories, Top Brands, Top Purchased Products)
         getDashboardSectionsFive: builder.query({
             query: (params) => {
@@ -185,4 +192,5 @@ export const {
     useGetDashboardProfitTrendQuery,
     useGetDashboardTopCustomersQuery,
     useGetDashboardCustomerDuesQuery,
+    useGetDashboardOnboardingQuery,
 } = DashboardApi;

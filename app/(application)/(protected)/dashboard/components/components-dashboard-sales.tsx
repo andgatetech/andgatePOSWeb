@@ -11,6 +11,7 @@ import AlertStrip from './AlertStrip';
 import Analytics from './Analytics';
 import CustomerDueSnapshot from './CustomerDueSnapshot';
 import DashboardSections from './DashboardSections';
+import OnboardingChecklist from './OnboardingChecklist';
 import ProfitExpenseWidget from './ProfitExpenseWidget';
 import QuickActions from './QuickActions';
 import SectionFour from './SectionFour';
@@ -64,33 +65,36 @@ const ComponentsDashboardSales = () => {
             {/* ── 1. QUICK ACTIONS — Daily operations at your fingertips ── */}
             <QuickActions />
 
-            {/* ── 2. SUBSCRIPTION STATUS — Plan & payment ── */}
+            {/* ── 2. SETUP GUIDE — First-run configuration path ── */}
+            <OnboardingChecklist />
+
+            {/* ── 3. SUBSCRIPTION STATUS — Plan & payment ── */}
             <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
                 <SubscriptionPaymentStatus />
             </div>
 
-            {/* ── 3. KEY METRICS — Business performance at a glance ── */}
+            {/* ── 4. KEY METRICS — Business performance at a glance ── */}
             <Summary />
 
-            {/* ── 4. ALERTS + CUSTOMER DUES — What needs attention ── */}
+            {/* ── 5. ALERTS + CUSTOMER DUES — What needs attention ── */}
             <div className="space-y-4">
                 <AlertStrip />
                 <CustomerDueSnapshot />
             </div>
 
-            {/* ── 5. SALES & PURCHASE TRENDS — Visual performance ── */}
+            {/* ── 6. SALES & PURCHASE TRENDS — Visual performance ── */}
             <Analytics />
 
-            {/* ── 6. TOP SELLING / LOW STOCK / RECENT SALES ── */}
+            {/* ── 7. TOP SELLING / LOW STOCK / RECENT SALES ── */}
             <DashboardSections />
 
-            {/* ── 7. PAYMENT METHODS + RECENT TRANSACTIONS ── */}
+            {/* ── 8. PAYMENT METHODS + RECENT TRANSACTIONS ── */}
             <SectionFour />
 
-            {/* ── 8. PROFIT TREND + EXPENSE BREAKDOWN ── */}
+            {/* ── 9. PROFIT TREND + EXPENSE BREAKDOWN ── */}
             <ProfitExpenseWidget />
 
-            {/* ── 9. CATEGORIES / BRANDS / PURCHASED + TOP CUSTOMERS ── */}
+            {/* ── 10. CATEGORIES / BRANDS / PURCHASED + TOP CUSTOMERS ── */}
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
                 <div className="lg:col-span-3">
                     <SectionsFive />

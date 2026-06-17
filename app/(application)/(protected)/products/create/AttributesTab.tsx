@@ -267,8 +267,8 @@ const AttributesTab: React.FC<AttributesTabProps> = ({ formData, productAttribut
                                                 ) : (
                                                     <div className="p-4 text-center">
                                                         <Tag className="mx-auto mb-2 h-8 w-8 text-gray-400" />
-                                                        <p className="text-sm text-gray-600">No attributes available</p>
-                                                        <p className="mt-1 text-xs text-gray-500">Type a custom attribute name and click the ✓ button</p>
+                                                        <p className="text-sm text-gray-600">{t('msg_no_attributes_available')}</p>
+                                                        <p className="mt-1 text-xs text-gray-500">{t('msg_type_custom_attribute')}</p>
                                                     </div>
                                                 )}
                                             </div>
