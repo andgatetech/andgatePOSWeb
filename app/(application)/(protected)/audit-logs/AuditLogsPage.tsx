@@ -5,7 +5,7 @@ import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import Loader from '@/lib/Loader';
 import { useGetAuditLogsQuery } from '@/store/features/auditLogs/auditLogsApi';
-import { Activity, ChevronDown, Eye, X } from 'lucide-react';
+import { Activity, ChevronDown, X } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 
 const ACTION_COLORS: Record<string, string> = {
@@ -66,6 +66,7 @@ const AuditLogsPage = () => {
     const logs = useMemo(() => {
         const d = data as any;
         if (!d) return [];
+        if (Array.isArray(d?.data?.logs)) return d.data.logs;
         if (Array.isArray(d?.data?.data)) return d.data.data;
         if (Array.isArray(d?.data)) return d.data;
         return [];

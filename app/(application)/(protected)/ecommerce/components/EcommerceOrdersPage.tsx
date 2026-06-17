@@ -6,12 +6,13 @@ import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import Loader from '@/lib/Loader';
 import { useBulkCreateCourierShipmentsMutation, useGetCourierCredentialsQuery, useGetEcommerceOrdersQuery, useGetEcommerceStoresQuery } from '@/store/features/ecommerce/ecommerceManagementApi';
-import { Eye, Globe2, Loader2, ShoppingBag, Truck } from 'lucide-react';
+import { Eye, Globe2, Loader2, Plus, ShoppingBag, Truck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
 import { EcommerceOrdersFilter } from './EcommerceFilters';
 import EcommerceServiceRequest from './EcommerceServiceRequest';
 import CourierFraudCheckPanel from './CourierFraudCheckPanel';
+import CreateOnlineOrderModal from './CreateOnlineOrderModal';
 import { StatusBadge } from './EcommerceBadges';
 import { formatApiError, getCustomerLabel, getEcommercePaymentMethodLabel, getEcommerceSourceLabel, getResponseItems, getResponsePagination, resolveCurrentStoreGate } from './ecommerceUtils';
 import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
@@ -37,6 +38,7 @@ const EcommerceOrdersPage = () => {
         recipient_city: '',
         recipient_zone: '',
     });
+    const [showCreateModal, setShowCreateModal] = useState(false);
 
     const queryParams = useMemo(() => {
         const params: Record<string, any> = {
@@ -273,6 +275,16 @@ const EcommerceOrdersPage = () => {
                         <p className="text-sm text-gray-500">{t('ecommerce_orders_desc')}</p>
                     </div>
                 </div>
+                {!gate.blocked && (
+                    <button
+                        type="button"
+                        onClick={() => setShowCreateModal(true)}
+                        className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
+                    >
+                        <Plus className="h-4 w-4" />
+                        {t('lbl_create_online_order')}
+                    </button>
+                )}
             </div>
 
             <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
@@ -374,6 +386,8 @@ const EcommerceOrdersPage = () => {
                     />
                 </>
             )}
+
+            <CreateOnlineOrderModal open={showCreateModal} onClose={() => setShowCreateModal(false)} />
         </div>
     );
 };

@@ -253,6 +253,23 @@ const ecommerceManagementApi = baseApi.injectEndpoints({
                 { type: 'EcommerceManagement', id: `ORDER-${id}` },
             ],
         }),
+
+        getOnlineOrderSources: builder.query({
+            query: (params = {}) => ({
+                url: '/ecommerce/management/online-order-sources',
+                method: 'GET',
+                params,
+            }),
+        }),
+
+        createOnlineOrder: builder.mutation({
+            query: (body: Record<string, any>) => ({
+                url: '/ecommerce/management/store-orders',
+                method: 'POST',
+                body,
+            }),
+            invalidatesTags: [{ type: 'EcommerceManagement', id: 'ORDERS' }],
+        }),
     }),
 });
 
@@ -283,4 +300,6 @@ export const {
     useCreateCourierShipmentMutation,
     useBulkCreateCourierShipmentsMutation,
     useRefreshCourierStatusMutation,
+    useGetOnlineOrderSourcesQuery,
+    useCreateOnlineOrderMutation,
 } = ecommerceManagementApi;

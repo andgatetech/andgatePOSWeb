@@ -99,14 +99,12 @@ const CourierFraudCheckPanel = ({ storeId, storeOrderId, defaultPhone = '', titl
             </div>
 
             <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto]">
-                {!storeOrderId && (
-                    <input
-                        value={phone}
-                        onChange={(event) => setPhone(event.target.value)}
-                        placeholder="017XXXXXXXX"
-                        className="h-10 rounded-lg border border-slate-300 px-3 text-sm outline-none transition focus:border-primary"
-                    />
-                )}
+                <input
+                    value={phone}
+                    onChange={(event) => setPhone(event.target.value)}
+                    placeholder="017XXXXXXXX"
+                    className="h-10 rounded-lg border border-slate-300 px-3 text-sm outline-none transition focus:border-primary"
+                />
 
                 <div className="flex flex-wrap items-center gap-2">
                     <label className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-200 px-3 text-xs font-medium text-slate-700">
