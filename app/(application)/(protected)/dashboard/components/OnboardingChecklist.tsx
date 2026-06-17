@@ -14,6 +14,7 @@ import {
     PackagePlus,
     ShoppingCart,
     Store,
+    Tags,
     UserPlus,
     X,
 } from 'lucide-react';
@@ -22,6 +23,7 @@ import Link from 'next/link';
 type OnboardingStepKey =
     | 'store_profile'
     | 'payment_methods'
+    | 'product_setup'
     | 'first_product'
     | 'opening_stock'
     | 'first_customer'
@@ -56,6 +58,12 @@ const STEP_META: Record<OnboardingStepKey, { icon: ElementType; titleKey: string
         titleKey: 'onboarding_step_payment_methods',
         descKey: 'onboarding_step_payment_methods_desc',
         actionKey: 'onboarding_action_payment_methods',
+    },
+    product_setup: {
+        icon: Tags,
+        titleKey: 'onboarding_step_product_setup',
+        descKey: 'onboarding_step_product_setup_desc',
+        actionKey: 'onboarding_action_product_setup',
     },
     first_product: {
         icon: PackagePlus,
