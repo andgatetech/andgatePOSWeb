@@ -3,14 +3,28 @@
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import Loader from '@/lib/Loader';
+import { closeReservedPdfWindow, isMobilePdfDownloadRisk, reservePdfWindow } from '@/lib/pdf-mobile-download';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
+import enLocale from '@/public/locales/en.json';
 import {
     useCreateIncomeMutation,
     useDeleteIncomeMutation,
     useGetIncomeQuery,
 } from '@/store/features/accounting/accountingApi';
-import { Plus, Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { FileText, Loader2, Plus, Printer, Trash2 } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+    buildHeaderRow,
+    buildPdfFooter,
+    buildPdfHeader,
+    buildTableLayout,
+    clampPdfText,
+    computeColumnWidths,
+    ensureAccountingPdf,
+    outputPdf,
+    PdfColumnDef,
+    sanText,
+} from '../_shared/AccountingPdf';
 
 const paymentMethods = ['cash', 'bank', 'bkash', 'nagad', 'rocket'];
 
@@ -22,9 +36,11 @@ const emptyForm = {
     notes: '',
 };
 
+type ExportAction = 'print' | 'pdf';
+
 const IncomePage = () => {
-    const { t } = getTranslation();
-    const { currentStoreId } = useCurrentStore();
+    const { t, i18n } = getTranslation();
+    const { currentStoreId, currentStore } = useCurrentStore();
 
     const today = new Date().toISOString().split('T')[0];
     const firstOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
@@ -34,6 +50,11 @@ const IncomePage = () => {
     const [page, setPage] = useState(1);
     const [showForm, setShowForm] = useState(false);
     const [form, setForm] = useState(emptyForm);
+    const [activeExport, setActiveExport] = useState<ExportAction | null>(null);
+
+    const isBn = i18n.language === 'bn';
+
+    useEffect(() => { ensureAccountingPdf(); }, []);
 
     const { data, isLoading } = useGetIncomeQuery(
         { store_id: currentStoreId, from, to, page, per_page: 15 },
@@ -43,10 +64,26 @@ const IncomePage = () => {
     const [createIncome, { isLoading: creating }] = useCreateIncomeMutation();
     const [deleteIncome] = useDeleteIncomeMutation();
 
-    const items: any[] = data?.data?.data ?? [];
+    const items: any[] = useMemo(() => data?.data?.data ?? [], [data]);
     const lastPage = data?.data?.last_page ?? 1;
     const total = data?.data?.total ?? 0;
     const totalAmount = items.reduce((sum, e) => sum + (e.amount ?? 0), 0);
+
+    const storeDetails = useMemo(
+        () => ({
+            name: currentStore?.store_name || 'My Store',
+            contact: currentStore?.store_contact || '',
+            location: currentStore?.store_location || '',
+        }),
+        [currentStore]
+    );
+
+    const dateDisplayText = useMemo(() => {
+        if (from && to) return `${from} - ${to}`;
+        if (from) return `${t('lbl_from')} ${from}`;
+        if (to) return `${t('lbl_until')} ${to}`;
+        return t('lbl_all_time');
+    }, [from, to, t]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -87,6 +124,137 @@ const IncomePage = () => {
         rocket: 'Rocket',
     };
 
+    const generatePdf = useCallback(
+        async (mode: 'download' | 'print', reservedPdfWindow?: Window | null) => {
+            await ensureAccountingPdf();
+
+            const useBnFont = isBn;
+            const tDoc = (key: string): string =>
+                useBnFont ? t(key) : ((enLocale as unknown as Record<string, string>)[key] || key);
+            const san = (text: string): string => sanText(text, useBnFont);
+
+            const marginPts = 28;
+            const pageW = 595.28;
+            const usableW = pageW - marginPts * 2;
+
+            const columns: PdfColumnDef[] = [
+                { key: 'income_date', label: tDoc('lbl_date'), width: 12 },
+                { key: 'description', label: tDoc('lbl_description'), width: 16 },
+                { key: 'payment_method', label: tDoc('lbl_payment_method'), width: 14 },
+                { key: 'user_name', label: tDoc('lbl_recorded_by'), width: 12 },
+                { key: 'amount', label: tDoc('lbl_amount'), width: 14, numeric: true },
+            ];
+
+            const colWidths = computeColumnWidths(columns, usableW);
+
+            const headerRow = buildHeaderRow(columns);
+
+            const currentItems = items;
+            const bodyRows = currentItems.map((row: any) =>
+                columns.map((col) => {
+                    let txt: string;
+                    if (col.key === 'payment_method') {
+                        txt = row[col.key] || '';
+                    } else if (col.numeric) {
+                        const val = Number(row[col.key]);
+                        txt = val > 0 ? val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00';
+                    } else {
+                        txt = String(row[col.key] ?? '');
+                    }
+                    return {
+                        text: san(clampPdfText(txt, col.numeric ? 26 : 70)),
+                        alignment: col.numeric ? 'right' : 'left',
+                        fontSize: 7.5,
+                        noWrap: false,
+                    };
+                })
+            );
+
+            const totalAmountPdf = currentItems.reduce((sum: number, r: any) => sum + (Number(r.amount) || 0), 0);
+
+            bodyRows.push(
+                columns.map((col, idx) => {
+                    let txt = '';
+                    if (idx === 0) txt = tDoc('lbl_total').toUpperCase();
+                    if (col.key === 'amount') txt = totalAmountPdf.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    return {
+                        text: san(clampPdfText(txt, 28)),
+                        bold: true,
+                        alignment: col.numeric ? 'right' : 'left',
+                        fontSize: 8,
+                        noWrap: false,
+                    };
+                }) as any
+            );
+
+            const summaryText = `${tDoc('lbl_total_entries')}: ${currentItems.length}   |   ${tDoc('lbl_total_amount')}: ${totalAmountPdf.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+            const generatedText = `${tDoc('lbl_generated')}: ${new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}, ${new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`;
+
+            const headerBlocks = buildPdfHeader({
+                storeName: storeDetails.name,
+                storeContact: storeDetails.contact,
+                storeLocation: storeDetails.location,
+                reportTitle: tDoc('lbl_income_manager'),
+                periodText: dateDisplayText,
+                storeDisplayText: storeDetails.name,
+                generatedText,
+                tDoc,
+                san,
+                marginPts,
+                usableW,
+            });
+
+            const docDefinition: any = {
+                pageOrientation: 'portrait',
+                pageSize: 'A4',
+                pageMargins: [marginPts, marginPts, marginPts, marginPts + 15],
+                content: [
+                    ...headerBlocks,
+                    { text: san(summaryText), fontSize: 8, color: '#3c3c3c', margin: [0, 0, 0, 8] },
+                    {
+                        table: {
+                            headerRows: 1,
+                            widths: colWidths,
+                            body: [headerRow, ...bodyRows],
+                        },
+                        dontBreakRows: true,
+                        layout: buildTableLayout(true),
+                    },
+                ],
+                footer: buildPdfFooter(`${san(storeDetails.name)} - ${tDoc('lbl_income_manager')}`, marginPts, tDoc),
+                defaultStyle: { font: 'Roboto', fontSize: 7.5 },
+            };
+
+            const footerFn = buildPdfFooter(`${san(storeDetails.name)} - ${tDoc('lbl_income_manager')}`, marginPts, tDoc);
+            await outputPdf(docDefinition, useBnFont, mode, `income_${from}_${to}.pdf`, reservedPdfWindow, footerFn);
+        },
+        [items, isBn, t, storeDetails, dateDisplayText, from, to]
+    );
+
+    const handlePdfExport = useCallback(async () => {
+        const mobilePdfWindow = reservePdfWindow(`income_${from}_${to}.pdf`);
+        setActiveExport('pdf');
+        try { await generatePdf('download', mobilePdfWindow); } catch (error) { closeReservedPdfWindow(mobilePdfWindow); console.error('[PDF] income export failed:', error); } finally { setActiveExport(null); }
+    }, [generatePdf, from, to]);
+
+    const handlePrint = useCallback(async () => {
+        const mobilePdfWindow = isMobilePdfDownloadRisk()
+            ? reservePdfWindow(`income_${from}_${to}.pdf`)
+            : null;
+        setActiveExport('print');
+        try {
+            await generatePdf('print', mobilePdfWindow);
+        } catch (error) {
+            closeReservedPdfWindow(mobilePdfWindow);
+            console.error('[PDF] income print failed:', error);
+        } finally {
+            setActiveExport(null);
+        }
+    }, [generatePdf, from, to]);
+
+    const isExporting = activeExport !== null;
+
     return (
         <div className="p-4 md:p-6 space-y-6">
             {/* Header */}
@@ -95,11 +263,29 @@ const IncomePage = () => {
                     <h1 className="text-2xl font-bold text-gray-800 dark:text-white">{t('lbl_income_manager')}</h1>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{t('msg_income_manager_desc')}</p>
                 </div>
-                <button onClick={() => setShowForm(true)}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-white text-sm hover:opacity-90">
-                    <Plus className="h-4 w-4" />
-                    {t('lbl_add_income')}
-                </button>
+                <div className="flex gap-2 flex-wrap items-center">
+                    <button onClick={() => setShowForm(true)}
+                        className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-white text-sm hover:opacity-90">
+                        <Plus className="h-4 w-4" />
+                        {t('lbl_add_income')}
+                    </button>
+                    <button
+                        onClick={handlePrint}
+                        disabled={isExporting || items.length === 0}
+                        className="flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-all hover:bg-gray-50 disabled:opacity-50"
+                    >
+                        {activeExport === 'print' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Printer className="h-4 w-4" />}
+                        <span>{t('btn_print')}</span>
+                    </button>
+                    <button
+                        onClick={handlePdfExport}
+                        disabled={isExporting || items.length === 0}
+                        className="flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700 transition-all hover:bg-red-100 disabled:opacity-50"
+                    >
+                        {activeExport === 'pdf' ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
+                        <span>{t('btn_pdf')}</span>
+                    </button>
+                </div>
             </div>
 
             {/* Summary + Filters */}

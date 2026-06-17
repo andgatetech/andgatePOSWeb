@@ -3,15 +3,29 @@
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import Loader from '@/lib/Loader';
+import { closeReservedPdfWindow, isMobilePdfDownloadRisk, reservePdfWindow } from '@/lib/pdf-mobile-download';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
+import enLocale from '@/public/locales/en.json';
 import {
     useCreateAccountMutation,
     useGetAccountsQuery,
     useSeedDefaultAccountsMutation,
     useUpdateAccountMutation,
 } from '@/store/features/accounting/accountingApi';
-import { Edit2, Plus, RefreshCw, Shield } from 'lucide-react';
-import { useState } from 'react';
+import { Edit2, FileText, Loader2, Plus, Printer, RefreshCw, Shield } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+    buildHeaderRow,
+    buildPdfFooter,
+    buildPdfHeader,
+    buildTableLayout,
+    clampPdfText,
+    computeColumnWidths,
+    ensureAccountingPdf,
+    outputPdf,
+    PdfColumnDef,
+    sanText,
+} from '../_shared/AccountingPdf';
 
 const ACCOUNT_TYPES = ['asset', 'liability', 'equity', 'revenue', 'cogs', 'expense'] as const;
 
@@ -35,13 +49,18 @@ const emptyForm = {
 };
 
 const ChartOfAccountsPage = () => {
-    const { t } = getTranslation();
-    const { currentStoreId } = useCurrentStore();
+    const { t, i18n } = getTranslation();
+    const { currentStoreId, currentStore } = useCurrentStore();
 
     const [filterType, setFilterType] = useState('');
     const [showForm, setShowForm] = useState(false);
     const [editingId, setEditingId] = useState<number | null>(null);
     const [form, setForm] = useState(emptyForm);
+    const [activeExport, setActiveExport] = useState<'print' | 'pdf' | null>(null);
+
+    const isBn = i18n.language === 'bn';
+
+    useEffect(() => { ensureAccountingPdf(); }, []);
 
     const { data, isLoading, refetch } = useGetAccountsQuery(
         { store_id: currentStoreId, type: filterType || undefined },
@@ -57,6 +76,15 @@ const ChartOfAccountsPage = () => {
         acc[type] = accounts.filter((a) => a.type === type);
         return acc;
     }, {} as Record<string, any[]>);
+
+    const storeDetails = useMemo(
+        () => ({
+            name: currentStore?.store_name || 'My Store',
+            contact: currentStore?.store_contact || '',
+            location: currentStore?.store_location || '',
+        }),
+        [currentStore]
+    );
 
     const openCreate = () => {
         setEditingId(null);
@@ -106,6 +134,127 @@ const ChartOfAccountsPage = () => {
         }
     };
 
+    const generatePdf = useCallback(
+        async (mode: 'download' | 'print', reservedPdfWindow?: Window | null) => {
+            await ensureAccountingPdf();
+
+            const useBnFont = isBn;
+            const tDoc = (key: string): string =>
+                useBnFont ? t(key) : ((enLocale as unknown as Record<string, string>)[key] || key);
+            const san = (text: string): string => sanText(text, useBnFont);
+
+            const marginPts = 28;
+            const pageW = 595.28;
+            const usableW = pageW - marginPts * 2;
+
+            const sectionTypes = filterType ? [filterType] : [...ACCOUNT_TYPES];
+
+            const columns: PdfColumnDef[] = [
+                { key: 'account_code', label: tDoc('lbl_code'), width: 14 },
+                { key: 'name', label: tDoc('lbl_account_name'), width: 30 },
+                { key: 'subtype', label: tDoc('lbl_subtype'), width: 16 },
+                { key: 'normal_balance', label: tDoc('lbl_normal_balance'), width: 16 },
+            ];
+
+            const colWidths = computeColumnWidths(columns, usableW);
+            const headerRow = buildHeaderRow(columns);
+
+            const now = new Date();
+            const generatedText = `${tDoc('lbl_generated')}: ${now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}, ${now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`;
+            const periodText = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+
+            const headerBlocks = buildPdfHeader({
+                storeName: storeDetails.name,
+                storeContact: storeDetails.contact,
+                storeLocation: storeDetails.location,
+                reportTitle: tDoc('lbl_chart_of_accounts'),
+                periodText,
+                storeDisplayText: storeDetails.name,
+                generatedText,
+                tDoc,
+                san,
+                marginPts,
+                usableW,
+            });
+
+            const content: any[] = [...headerBlocks];
+
+            for (const type of sectionTypes) {
+                const rows = grouped[type] ?? [];
+                if (!rows.length) continue;
+
+                const bodyRows: any[][] = rows.map((row: any) =>
+                    columns.map((col) => {
+                        let txt: string;
+                        if (col.key === 'normal_balance') {
+                            txt = row.normal_balance === 'debit' ? tDoc('lbl_debit') : tDoc('lbl_credit');
+                        } else {
+                            txt = String(row[col.key] ?? '');
+                        }
+                        return {
+                            text: san(clampPdfText(txt, 70)),
+                            alignment: 'left',
+                            fontSize: 7.5,
+                            noWrap: false,
+                        };
+                    })
+                );
+
+                const sectionTitle = tDoc(`lbl_type_${type}`);
+
+                content.push({
+                    stack: [
+                        { text: san(sectionTitle), fontSize: 9, bold: true, color: '#3b82f6', margin: [0, 8, 0, 4] },
+                        {
+                            table: {
+                                headerRows: 1,
+                                widths: colWidths,
+                                body: [headerRow, ...bodyRows],
+                            },
+                            dontBreakRows: true,
+                            layout: buildTableLayout(false),
+                        },
+                    ],
+                });
+            }
+
+            const docDefinition: any = {
+                pageOrientation: 'portrait',
+                pageSize: 'A4',
+                pageMargins: [marginPts, marginPts, marginPts, marginPts + 15],
+                content,
+                footer: buildPdfFooter(`${san(storeDetails.name)} - ${tDoc('lbl_chart_of_accounts')}`, marginPts, tDoc),
+                defaultStyle: { font: 'Roboto', fontSize: 7.5 },
+            };
+
+            const footerFn = buildPdfFooter(`${san(storeDetails.name)} - ${tDoc('lbl_chart_of_accounts')}`, marginPts, tDoc);
+            await outputPdf(docDefinition, useBnFont, mode, `chart_of_accounts.pdf`, reservedPdfWindow, footerFn);
+        },
+        [isBn, t, storeDetails, filterType, grouped]
+    );
+
+    const handlePdfExport = useCallback(async () => {
+        const mobilePdfWindow = reservePdfWindow(`chart_of_accounts.pdf`);
+        setActiveExport('pdf');
+        try { await generatePdf('download', mobilePdfWindow); } catch (error) { closeReservedPdfWindow(mobilePdfWindow); console.error('[PDF] chart of accounts export failed:', error); } finally { setActiveExport(null); }
+    }, [generatePdf]);
+
+    const handlePrint = useCallback(async () => {
+        const mobilePdfWindow = isMobilePdfDownloadRisk()
+            ? reservePdfWindow(`chart_of_accounts.pdf`)
+            : null;
+        setActiveExport('print');
+        try {
+            await generatePdf('print', mobilePdfWindow);
+        } catch (error) {
+            closeReservedPdfWindow(mobilePdfWindow);
+            console.error('[PDF] chart of accounts print failed:', error);
+        } finally {
+            setActiveExport(null);
+        }
+    }, [generatePdf]);
+
+    const isExporting = activeExport !== null;
     const visibleTypes = filterType ? [filterType] : ACCOUNT_TYPES;
 
     return (
@@ -127,6 +276,22 @@ const ChartOfAccountsPage = () => {
                         <Plus className="h-4 w-4" />
                         {t('lbl_add_account')}
                     </button>
+                    {accounts.length > 0 && (
+                        <>
+                            <button onClick={handlePrint}
+                                disabled={isExporting}
+                                className="flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-all hover:bg-gray-50 disabled:opacity-50">
+                                {activeExport === 'print' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Printer className="h-4 w-4" />}
+                                <span>{t('btn_print')}</span>
+                            </button>
+                            <button onClick={handlePdfExport}
+                                disabled={isExporting}
+                                className="flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700 transition-all hover:bg-red-100 disabled:opacity-50">
+                                {activeExport === 'pdf' ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
+                                <span>{t('btn_pdf')}</span>
+                            </button>
+                        </>
+                    )}
                 </div>
             </div>
 

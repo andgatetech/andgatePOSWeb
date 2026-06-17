@@ -4,8 +4,23 @@ import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import Loader from '@/lib/Loader';
+import { closeReservedPdfWindow, isMobilePdfDownloadRisk, reservePdfWindow } from '@/lib/pdf-mobile-download';
+import enLocale from '@/public/locales/en.json';
 import { useGetCashFlowStatementQuery } from '@/store/features/accounting/accountingApi';
-import { useState } from 'react';
+import { FileText, Loader2, Printer } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+    buildHeaderRow,
+    buildPdfFooter,
+    buildPdfHeader,
+    buildTableLayout,
+    clampPdfText,
+    computeColumnWidths,
+    ensureAccountingPdf,
+    outputPdf,
+    PdfColumnDef,
+    sanText,
+} from '../_shared/AccountingPdf';
 
 interface CashFlowEntry {
     reference_type: string;
@@ -25,6 +40,8 @@ interface CashFlowData {
     operating_total: number;
     other_total: number;
 }
+
+type ExportAction = 'print' | 'pdf';
 
 const today = new Date().toISOString().split('T')[0];
 const firstOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1)
@@ -109,13 +126,18 @@ const SectionTable = ({
 };
 
 const CashFlowPage = () => {
-    const { t } = getTranslation();
+    const { t, i18n } = getTranslation();
     const { formatCurrency } = useCurrency();
-    const { currentStoreId } = useCurrentStore();
+    const { currentStoreId, currentStore } = useCurrentStore();
 
     const [from, setFrom] = useState(firstOfMonth);
     const [to, setTo] = useState(today);
     const [queryParams, setQueryParams] = useState({ from: firstOfMonth, to: today });
+    const [activeExport, setActiveExport] = useState<ExportAction | null>(null);
+
+    const isBn = i18n.language === 'bn';
+
+    useEffect(() => { ensureAccountingPdf(); }, []);
 
     const { data, isLoading, isFetching } = useGetCashFlowStatementQuery(
         { store_id: currentStoreId, ...queryParams },
@@ -128,6 +150,181 @@ const CashFlowPage = () => {
 
     const loading = isLoading || isFetching;
 
+    const storeDetails = useMemo(
+        () => ({
+            name: currentStore?.store_name || 'My Store',
+            contact: currentStore?.store_contact || '',
+            location: currentStore?.store_location || '',
+        }),
+        [currentStore]
+    );
+
+    const generatePdf = useCallback(
+        async (mode: 'download' | 'print', reservedPdfWindow?: Window | null) => {
+            const currentCf = cf;
+            if (!currentCf) return;
+
+            await ensureAccountingPdf();
+
+            const useBnFont = isBn;
+            const tDoc = (key: string): string =>
+                useBnFont ? t(key) : ((enLocale as unknown as Record<string, string>)[key] || key);
+            const san = (text: string): string => sanText(text, useBnFont);
+
+            const marginPts = 28;
+            const pageW = 595.28;
+            const usableW = pageW - marginPts * 2;
+
+            const columns: PdfColumnDef[] = [
+                { key: 'label', label: tDoc('lbl_activity'), width: 30 },
+                { key: 'cash_in', label: tDoc('lbl_cash_in'), width: 14, numeric: true },
+                { key: 'cash_out', label: tDoc('lbl_cash_out'), width: 14, numeric: true },
+                { key: 'net', label: tDoc('lbl_net'), width: 14, numeric: true },
+            ];
+
+            const colWidths = computeColumnWidths(columns, usableW);
+
+            const buildSectionBody = (rows: CashFlowEntry[], sectionTotal: number): any[][] => {
+                const sectionHeaderRow = buildHeaderRow(columns);
+
+                const dataRows = rows.map((row) =>
+                    columns.map((col) => {
+                        let txt: string;
+                        if (col.key === 'label') {
+                            txt = row.label || '';
+                        } else if (col.numeric) {
+                            const val = Number(row[col.key as keyof CashFlowEntry]);
+                            txt = val !== 0 ? val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—';
+                        } else {
+                            txt = String(row[col.key as keyof CashFlowEntry] ?? '');
+                        }
+                        return {
+                            text: san(clampPdfText(txt, col.numeric ? 26 : 70)),
+                            alignment: col.numeric ? 'right' : 'left',
+                            fontSize: 7.5,
+                            noWrap: false,
+                        };
+                    })
+                );
+
+                const totalCashIn = rows.reduce((s, r) => s + r.cash_in, 0);
+                const totalCashOut = rows.reduce((s, r) => s + r.cash_out, 0);
+
+                const totalsRow: any[] = columns.map((col, idx) => {
+                    let txt = '';
+                    if (idx === 0) txt = tDoc('lbl_section_total').toUpperCase();
+                    else if (col.key === 'cash_in') txt = totalCashIn.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    else if (col.key === 'cash_out') txt = totalCashOut.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    else if (col.key === 'net') txt = sectionTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    return {
+                        text: san(clampPdfText(txt, 28)),
+                        bold: true,
+                        alignment: col.numeric ? 'right' : 'left',
+                        fontSize: 8,
+                        noWrap: false,
+                    };
+                });
+
+                return [sectionHeaderRow, ...dataRows, totalsRow];
+            };
+
+            const periodText = `${currentCf.period.from} — ${currentCf.period.to}`;
+
+            const summaryText = [
+                `${tDoc('lbl_opening_balance')}: ${currentCf.opening_balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+                `${tDoc('lbl_closing_balance')}: ${currentCf.closing_balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+                `${tDoc('lbl_net_change')}: ${currentCf.net_change.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+            ].join('   |   ');
+
+            const generatedText = `${tDoc('lbl_generated')}: ${new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}, ${new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`;
+
+            const headerBlocks = buildPdfHeader({
+                storeName: storeDetails.name,
+                storeContact: storeDetails.contact,
+                storeLocation: storeDetails.location,
+                reportTitle: tDoc('lbl_cash_flow_statement'),
+                periodText,
+                storeDisplayText: storeDetails.name,
+                generatedText,
+                tDoc,
+                san,
+                marginPts,
+                usableW,
+            });
+
+            const content: any[] = [
+                ...headerBlocks,
+                { text: san(summaryText), fontSize: 8, color: '#3c3c3c', margin: [0, 0, 0, 8] },
+            ];
+
+            if (currentCf.operating.length > 0) {
+                content.push(
+                    { text: san(tDoc('lbl_operating_activities')), fontSize: 9, bold: true, color: '#3b82f6', margin: [0, 8, 0, 4] },
+                    {
+                        table: {
+                            headerRows: 1,
+                            widths: colWidths,
+                            body: buildSectionBody(currentCf.operating, currentCf.operating_total),
+                        },
+                        dontBreakRows: true,
+                        layout: buildTableLayout(true),
+                    }
+                );
+            }
+
+            if (currentCf.other.length > 0) {
+                content.push(
+                    { text: san(tDoc('lbl_investing_other_activities')), fontSize: 9, bold: true, color: '#3b82f6', margin: [0, 8, 0, 4] },
+                    {
+                        table: {
+                            headerRows: 1,
+                            widths: colWidths,
+                            body: buildSectionBody(currentCf.other, currentCf.other_total),
+                        },
+                        dontBreakRows: true,
+                        layout: buildTableLayout(true),
+                    }
+                );
+            }
+
+            const docDefinition: any = {
+                pageOrientation: 'portrait',
+                pageSize: 'A4',
+                pageMargins: [marginPts, marginPts, marginPts, marginPts + 15],
+                content,
+                footer: buildPdfFooter(`${san(storeDetails.name)} - ${tDoc('lbl_cash_flow_statement')}`, marginPts, tDoc),
+                defaultStyle: { font: 'Roboto', fontSize: 7.5 },
+            };
+
+            const footerFn = buildPdfFooter(`${san(storeDetails.name)} - ${tDoc('lbl_cash_flow_statement')}`, marginPts, tDoc);
+            await outputPdf(docDefinition, useBnFont, mode, `cash_flow_${queryParams.from}_${queryParams.to}.pdf`, reservedPdfWindow, footerFn);
+        },
+        [cf, isBn, t, storeDetails, queryParams.from, queryParams.to]
+    );
+
+    const handlePdfExport = useCallback(async () => {
+        const mobilePdfWindow = reservePdfWindow(`cash_flow_${queryParams.from}_${queryParams.to}.pdf`);
+        setActiveExport('pdf');
+        try { await generatePdf('download', mobilePdfWindow); } catch (error) { closeReservedPdfWindow(mobilePdfWindow); console.error('[PDF] cash flow export failed:', error); } finally { setActiveExport(null); }
+    }, [generatePdf, queryParams.from, queryParams.to]);
+
+    const handlePrint = useCallback(async () => {
+        const mobilePdfWindow = isMobilePdfDownloadRisk()
+            ? reservePdfWindow(`cash_flow_${queryParams.from}_${queryParams.to}.pdf`)
+            : null;
+        setActiveExport('print');
+        try {
+            await generatePdf('print', mobilePdfWindow);
+        } catch (error) {
+            closeReservedPdfWindow(mobilePdfWindow);
+            console.error('[PDF] cash flow print failed:', error);
+        } finally {
+            setActiveExport(null);
+        }
+    }, [generatePdf, queryParams.from, queryParams.to]);
+
+    const isExporting = activeExport !== null;
+
     return (
         <div className="p-4 md:p-6 space-y-5">
             {/* Header */}
@@ -139,6 +336,24 @@ const CashFlowPage = () => {
                             {cf.period.from} — {cf.period.to}
                         </p>
                     )}
+                </div>
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={handlePrint}
+                        disabled={isExporting || !cf}
+                        className="flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-all hover:bg-gray-50 disabled:opacity-50"
+                    >
+                        {activeExport === 'print' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Printer className="h-4 w-4" />}
+                        <span>{t('btn_print')}</span>
+                    </button>
+                    <button
+                        onClick={handlePdfExport}
+                        disabled={isExporting || !cf}
+                        className="flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700 transition-all hover:bg-red-100 disabled:opacity-50"
+                    >
+                        {activeExport === 'pdf' ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
+                        <span>{t('btn_pdf')}</span>
+                    </button>
                 </div>
             </div>
 
