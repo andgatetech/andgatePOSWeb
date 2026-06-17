@@ -29,19 +29,19 @@ const GlobalSettings = ({ globalReason, globalNotes, onReasonChange, onNotesChan
         <div className="mx-auto mt-6 max-w-4xl rounded-xl border border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-6 shadow-sm">
             <h3 className="mb-2 flex items-center gap-2 text-lg font-semibold text-gray-900">
                 <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">i</span>
-                Apply to All Products (Optional)
+                Same Reason for All Items
             </h3>
-            <p className="mb-4 text-sm text-gray-600">Set default reason and notes for all products that don&apos;t have individual settings</p>
+            <p className="mb-4 text-sm text-gray-600">Use this when all selected products are from the same stock count, damage check, or correction.</p>
 
             <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                    <label className="mb-2 block text-sm font-medium text-gray-700">Default Reason for All</label>
+                    <label className="mb-2 block text-sm font-medium text-gray-700">Reason for Items Without Own Reason</label>
                     {adjustmentReasons.length === 0 ? (
                         <div className="rounded-lg border-2 border-yellow-200 bg-yellow-50 p-3">
                             <p className="text-xs font-medium text-yellow-800">
-                                No adjustment reasons available.{' '}
+                                No stock reason found.{' '}
                                 <Link href="/store/setting?tab=adjustment" className="font-semibold text-yellow-900 underline hover:text-yellow-700">
-                                    Create reasons in Store Settings
+                                    Add common reasons
                                 </Link>
                             </p>
                         </div>
@@ -68,12 +68,12 @@ const GlobalSettings = ({ globalReason, globalNotes, onReasonChange, onNotesChan
                 </div>
 
                 <div>
-                    <label className="mb-2 block text-sm font-medium text-gray-700">Default Notes for All</label>
+                    <label className="mb-2 block text-sm font-medium text-gray-700">Common Note</label>
                     <input
                         type="text"
                         value={globalNotes}
                         onChange={(e) => onNotesChange(e.target.value)}
-                        placeholder="Enter notes..."
+                        placeholder="Example: Monthly physical stock count"
                         className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 shadow-sm focus:border-primary focus:ring-2 focus:ring-primary"
                     />
                 </div>

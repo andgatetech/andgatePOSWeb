@@ -22,7 +22,7 @@ const AdjustmentHeader = ({ storeName, itemCount, onClearAll }: AdjustmentHeader
                             <ClipboardList className="h-5 w-5" />
                         </div>
                         <div>
-                            <h2 className="text-xl font-bold text-gray-900">Stock Adjustment</h2>
+                            <h2 className="text-xl font-bold text-gray-900">Stock Count Adjustment</h2>
                             <p className="text-sm text-gray-500">
                                 {storeName && <span className="font-medium">{storeName}</span>}
                                 {storeName && <span className="mx-2">•</span>}
@@ -39,7 +39,7 @@ const AdjustmentHeader = ({ storeName, itemCount, onClearAll }: AdjustmentHeader
                         className="inline-flex items-center gap-2 rounded-lg border border-red-200 bg-white px-4 py-2.5 text-sm font-medium text-red-600 transition-all hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         <Trash2 className="h-4 w-4" />
-                        Clear All
+                        Clear Draft
                     </button>
                 </div>
             </div>

@@ -65,11 +65,13 @@ export default function ManualPaymentsPage() {
     };
 
     const selectedPlan = useMemo(() => plans.find((plan) => String(plan.id) === form.package_id), [plans, form.package_id]);
+    const setupFeeApplies = summaryData?.data.setup_fee_applies ?? !subscription;
     const expectedAmount = useMemo(() => {
         if (!selectedPlan) return 0;
         const price = form.billing_cycle === 'yearly' ? Number(selectedPlan.yearly_price) : Number(selectedPlan.monthly_price);
-        return Math.max(0, price + Number(selectedPlan.setup_fee || 0) - Number(selectedPlan.discount || 0));
-    }, [selectedPlan, form.billing_cycle]);
+        const setupFee = setupFeeApplies ? Number(selectedPlan.setup_fee || 0) : 0;
+        return Math.max(0, price + setupFee - Number(selectedPlan.discount || 0));
+    }, [selectedPlan, form.billing_cycle, setupFeeApplies]);
 
     const update = (key: string, value: string) => setForm((prev) => ({ ...prev, [key]: value }));
 

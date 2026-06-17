@@ -5,6 +5,7 @@ export interface ManualPaymentSummary {
     latest_payment: any | null;
     remaining_days: number | null;
     has_pending_payment: boolean;
+    setup_fee_applies: boolean;
     payment_methods: string[];
     providers: Record<string, string>;
 }

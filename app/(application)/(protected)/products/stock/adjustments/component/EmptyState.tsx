@@ -16,8 +16,8 @@ const EmptyState = () => {
                 </div>
 
                 {/* Title */}
-                <h3 className="mb-2 text-xl font-semibold text-gray-900">No Products Selected</h3>
-                <p className="mb-8 text-sm text-gray-600">Select products from the left panel to adjust stock levels</p>
+                <h3 className="mb-2 text-xl font-semibold text-gray-900">Select Products to Count Stock</h3>
+                <p className="mb-8 text-sm text-gray-600">Search or scan from the left side, then enter the difference found in your shop.</p>
 
                 {/* Feature Cards */}
                 <div className="space-y-3 text-left">
@@ -26,8 +26,8 @@ const EmptyState = () => {
                             <Search className="h-4 w-4 text-gray-600" />
                         </div>
                         <div className="flex-1">
-                            <h4 className="text-sm font-medium text-gray-900">Search & Scan</h4>
-                            <p className="text-xs text-gray-600">Find products by name, SKU, or barcode</p>
+                            <h4 className="text-sm font-medium text-gray-900">Search or Scan</h4>
+                            <p className="text-xs text-gray-600">Use product name, SKU, or barcode.</p>
                         </div>
                     </div>
 
@@ -39,8 +39,8 @@ const EmptyState = () => {
                             </div>
                         </div>
                         <div className="flex-1">
-                            <h4 className="text-sm font-medium text-gray-900">Adjust Quantity</h4>
-                            <p className="text-xs text-gray-600">Increase or decrease stock quantities</p>
+                            <h4 className="text-sm font-medium text-gray-900">Enter Difference</h4>
+                            <p className="text-xs text-gray-600">Add missing stock or remove shortage/damaged stock.</p>
                         </div>
                     </div>
 
@@ -49,8 +49,8 @@ const EmptyState = () => {
                             <FileText className="h-4 w-4 text-gray-600" />
                         </div>
                         <div className="flex-1">
-                            <h4 className="text-sm font-medium text-gray-900">Track Changes</h4>
-                            <p className="text-xs text-gray-600">Add reasons and notes for audit trail</p>
+                            <h4 className="text-sm font-medium text-gray-900">Keep Reason</h4>
+                            <p className="text-xs text-gray-600">Save why stock changed for owner/admin review.</p>
                         </div>
                     </div>
                 </div>

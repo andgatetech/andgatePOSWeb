@@ -66,7 +66,7 @@ const StockAdjustment = () => {
     const handleClearAll = async () => {
         if (cartItems.length === 0) return;
 
-        const confirmed = await showConfirmDialog('Clear All Items?', 'Are you sure you want to remove all items from stock adjustment?', 'Yes, clear all!');
+        const confirmed = await showConfirmDialog('Clear selected products?', 'This will remove all products from this stock adjustment draft.', 'Yes, clear all');
 
         if (confirmed && currentStoreId) {
             dispatch(clearStockItems(currentStoreId));
@@ -76,7 +76,7 @@ const StockAdjustment = () => {
     // Submit all adjustments as a single atomic batch request
     const handleSubmit = async () => {
         if (cartItems.length === 0) {
-            showErrorDialog('No Items', 'Please add products to adjust stock');
+            showErrorDialog('No products selected', 'Search or scan products from the left side, then enter the stock change.');
             return;
         }
 
@@ -93,12 +93,24 @@ const StockAdjustment = () => {
         });
 
         if (invalidNormalProducts.length > 0) {
-            showErrorDialog('Incomplete Data', 'Please set adjustment quantity and reason for all non-serial products');
+            showErrorDialog('Check quantity and reason', `Please enter quantity and reason for: ${invalidNormalProducts.map((i) => i.title || i.name).join(', ')}`);
             return;
         }
 
         if (invalidSerialProducts.length > 0) {
-            showErrorDialog('Missing Serial Data', `Please manage serial numbers for: ${invalidSerialProducts.map((i) => i.title).join(', ')}`);
+            showErrorDialog('Missing serial details', `Please manage serial numbers for: ${invalidSerialProducts.map((i) => i.title || i.name).join(', ')}`);
+            return;
+        }
+
+        const overDecreaseProducts = cartItems.filter((item) => {
+            if (item.has_serial) return false;
+            const adj = getAdjustment(item.id);
+            const currentStock = Number(item.PlaceholderQuantity ?? item.quantity ?? 0);
+            return adj?.adjustmentType === 'decrease' && adj.adjustmentQuantity > currentStock;
+        });
+
+        if (overDecreaseProducts.length > 0) {
+            showErrorDialog('Stock cannot go below zero', `Decrease quantity is higher than current stock for: ${overDecreaseProducts.map((i) => i.title || i.name).join(', ')}`);
             return;
         }
 
@@ -216,7 +228,8 @@ const StockAdjustment = () => {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
                     <div className="text-center">
                         <div className="mx-auto h-16 w-16 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600"></div>
-                        <p className="mt-4 text-lg font-medium text-gray-700">Processing...</p>
+                        <p className="mt-4 text-lg font-medium text-gray-700">Saving stock changes...</p>
+                        <p className="mt-1 text-sm text-gray-500">Please wait. Do not close this page.</p>
                     </div>
                 </div>
             )}
