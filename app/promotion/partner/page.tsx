@@ -2,7 +2,7 @@
 
 import WhatsAppFloat from '@/components/whatsapp-float';
 import { useRegisterAffiliateMutation } from '@/store/features/affiliate/affiliateApi';
-import { ArrowRight, BadgeCheck, Banknote, BarChart3, CheckCircle2, ShieldCheck, Sparkles, Users } from 'lucide-react';
+import { ArrowRight, BadgeCheck, Banknote, BarChart3, CheckCircle2, ClipboardCheck, MessageCircle, ShieldCheck, Sparkles, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 import Navbar from '../components/navbar';
@@ -17,12 +17,12 @@ const tiers = [
 ];
 
 const partnerTypes = [
-    'আইটি সার্ভিস প্রোভাইডার',
-    'কম্পিউটার ও হার্ডওয়্যার শপ',
-    'হিসাবরক্ষক বা ব্যবসা পরামর্শদাতা',
-    'Facebook/YouTube বিজনেস কনটেন্ট ক্রিয়েটর',
-    'AndgatePOS ব্যবহার করে সন্তুষ্ট কাস্টমার',
-    'বিশ্ববিদ্যালয় বা স্থানীয় ব্যবসায়ী কমিউনিটি',
+    { title: 'আইটি সার্ভিস প্রোভাইডার', desc: 'দোকানের কম্পিউটার, প্রিন্টার বা সফটওয়্যার সমস্যা বুঝেন।' },
+    { title: 'কম্পিউটার ও হার্ডওয়্যার শপ', desc: 'POS printer, barcode scanner বা PC buyer-দের কাছে ডেমো দেখাতে পারবেন।' },
+    { title: 'হিসাবরক্ষক বা ব্যবসা পরামর্শদাতা', desc: 'হিসাব, স্টক ও রিপোর্টিং সমস্যার ভাষা সহজে বুঝিয়ে বলতে পারবেন।' },
+    { title: 'Facebook/YouTube কনটেন্ট ক্রিয়েটর', desc: 'স্থানীয় ব্যবসায়ী অডিয়েন্স থাকলে শিক্ষামূলক কনটেন্ট থেকে লিড আনতে পারবেন।' },
+    { title: 'AndgatePOS ব্যবহার করে সন্তুষ্ট কাস্টমার', desc: 'নিজের অভিজ্ঞতা দিয়ে অন্য দোকানদারকে বাস্তবভাবে বোঝাতে পারবেন।' },
+    { title: 'বিশ্ববিদ্যালয় বা ব্যবসায়ী কমিউনিটি', desc: 'নিজের এলাকার দোকান বা SME network-এ নিয়মিত পরিচিতি আছে।' },
 ];
 
 const steps = [
@@ -30,7 +30,11 @@ const steps = [
     { icon: Sparkles, title: 'AndgatePOS ট্রেনিং নিন', desc: 'বিলিং, স্টক, রিপোর্ট, পেমেন্ট এবং সাবস্ক্রিপশন প্ল্যান কীভাবে বোঝাতে হবে, সেগুলো হাতে-কলমে শিখে নিন।' },
     { icon: BadgeCheck, title: 'দোকানদারের সাথে সরাসরি কথা বলে ডেমো দেখান', desc: 'দোকানের বর্তমান হিসাব, স্টক বা বিলিং সমস্যার সাথে AndgatePOS-এর ব্যবহার মিলিয়ে সহজ ভাষায় লাইভ ডেমো দেখান।' },
     { icon: Banknote, title: 'পেইড সাবস্ক্রিপশনে কনভার্ট করে কমিশন পান', desc: 'দোকান মালিক পেইড সাবস্ক্রিপশন নিলে এবং পেমেন্ট যাচাই শেষ হলে আপনার কমিশন যোগ হবে।' },
-    { icon: ShieldCheck, title: 'সাবস্ক্রিপশন চালু রাখতে কাস্টমারকে নার্সিং করুন', desc: 'সেটআপ, ব্যবহার শেখানো, প্রশ্নের উত্তর এবং নিয়মিত ফলোআপ দিয়ে কাস্টমারকে দীর্ঘমেয়াদে সাবস্ক্রিপশন চালিয়ে যেতে সাহায্য করুন।' },
+    {
+        icon: ShieldCheck,
+        title: 'সাবস্ক্রিপশন চালু রাখতে কাস্টমারকে নার্সিং করুন',
+        desc: 'সেটআপ, ব্যবহার শেখানো, প্রশ্নের উত্তর এবং নিয়মিত ফলোআপ দিয়ে কাস্টমারকে দীর্ঘমেয়াদে সাবস্ক্রিপশন চালিয়ে যেতে সাহায্য করুন।',
+    },
 ];
 
 const trustPoints = [
@@ -39,6 +43,38 @@ const trustPoints = [
     '৩০ দিনের যাচাই সময় শেষে উত্তোলনের সুযোগ',
     'নিজের নামে বা ভুয়া কাস্টমার সাইনআপ গ্রহণযোগ্য নয়',
     'পার্টনার ড্যাশবোর্ডে কাজের অগ্রগতি দেখা যাবে',
+];
+
+const heroProof = [
+    { value: '৳০', label: 'রেজিস্ট্রেশন ফি' },
+    { value: 'লাইভ', label: 'ট্রেনিং ও ডেমো গাইড' },
+    { value: '৫০%-৮০%', label: 'প্রথম পেমেন্ট কমিশন' },
+];
+
+const afterSubmitSteps = [
+    'ফর্ম সাবমিট করার পর AndgatePOS টিম আপনার তথ্য যাচাই করবে।',
+    '২৪-৪৮ ঘণ্টার মধ্যে WhatsApp বা ফোনে যোগাযোগ করা হবে।',
+    'অ্যাপ্রুভ হলে ট্রেনিং, ডেমো গাইড ও পার্টনার কোড পাবেন।',
+    'তারপর দোকানদারকে সরাসরি ডেমো দেখিয়ে পেইড সাবস্ক্রিপশনে কনভার্ট করবেন।',
+];
+
+const faqs = [
+    {
+        q: 'রেজিস্ট্রেশন কি ফ্রি?',
+        a: 'হ্যাঁ, পার্টনার হিসেবে রেজিস্ট্রেশন ফ্রি। কোনো joining fee নেই।',
+    },
+    {
+        q: 'কমিশন কখন পাব?',
+        a: 'দোকানদার পেইড সাবস্ক্রিপশন নিলে, পেমেন্ট যাচাই ও নির্ধারিত যাচাই সময় শেষ হলে কমিশন যোগ হবে।',
+    },
+    {
+        q: 'ট্রেনিং কীভাবে হবে?',
+        a: 'অ্যাপ্রুভালের পর AndgatePOS টিম আপনাকে POS ডেমো, দোকানদারকে বোঝানোর স্ক্রিপ্ট এবং সাবস্ক্রিপশন প্রসেস দেখাবে।',
+    },
+    {
+        q: 'নিজের দোকান বা ভুয়া সাইনআপে কমিশন পাব?',
+        a: 'না। কমিশন শুধুমাত্র বাস্তব দোকানদারের সফল পেইড সাবস্ক্রিপশনের জন্য প্রযোজ্য।',
+    },
 ];
 
 export default function PartnerPromotionPage() {
@@ -66,14 +102,21 @@ export default function PartnerPromotionPage() {
                     <div className="relative mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
                         <div>
                             <span className="inline-flex rounded-full border border-[#e79237]/50 bg-[#e79237]/15 px-4 py-1.5 text-sm font-bold text-[#ffd29f]">
-                                বাংলাদেশ পার্টনার ক্যাম্পেইন
+                                Bangladesh POS Software Partner Program
                             </span>
-                            <h1 className="mt-5 max-w-3xl text-4xl font-black leading-tight sm:text-5xl lg:text-6xl">
-                                দোকানদারকে ডেমো দেখান, পেইড সাবস্ক্রিপশন থেকে কমিশন পান
-                            </h1>
+                            <h1 className="mt-5 max-w-3xl text-4xl font-black leading-tight sm:text-5xl lg:text-6xl">দোকানদারকে ডেমো দেখান, পেইড সাবস্ক্রিপশন থেকে কমিশন পান</h1>
                             <p className="mt-5 max-w-2xl text-base leading-8 text-slate-200 sm:text-lg">
-                                বাংলাদেশের দোকানগুলো এখন খাতার হিসাব ছেড়ে ডিজিটাল বিলিং, স্টক কন্ট্রোল ও পরিষ্কার রিপোর্টের দিকে যাচ্ছে। আপনি ট্রেনিং নিয়ে দোকানদারের সাথে সরাসরি কথা বলবেন, ডেমো দেখাবেন, পেইড সাবস্ক্রিপশন নিতে সাহায্য করবেন এবং ব্যবহার চালু রাখতে পাশে থাকবেন।
+                                বাংলাদেশের দোকানগুলো এখন খাতার হিসাব ছেড়ে ডিজিটাল বিলিং, স্টক কন্ট্রোল ও পরিষ্কার রিপোর্টের দিকে যাচ্ছে। আপনি ট্রেনিং নিয়ে দোকানদারের সাথে সরাসরি কথা বলবেন, ডেমো
+                                দেখাবেন, পেইড সাবস্ক্রিপশন নিতে সাহায্য করবেন এবং ব্যবহার চালু রাখতে পাশে থাকবেন।
                             </p>
+                            <div className="mt-6 grid max-w-2xl gap-3 sm:grid-cols-3">
+                                {heroProof.map((item) => (
+                                    <div key={item.label} className="rounded-xl border border-white/10 bg-white/10 px-4 py-3">
+                                        <p className="text-xl font-black text-white">{item.value}</p>
+                                        <p className="mt-1 text-xs font-semibold text-slate-300">{item.label}</p>
+                                    </div>
+                                ))}
+                            </div>
                             <div className="mt-6 grid max-w-2xl gap-3 text-sm sm:grid-cols-2">
                                 {trustPoints.map((point) => (
                                     <div key={point} className="flex items-start gap-2 rounded-lg bg-white/10 px-3 py-2 text-slate-100">
@@ -83,18 +126,24 @@ export default function PartnerPromotionPage() {
                                 ))}
                             </div>
                             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                                <a href="#register" className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#e79237] px-6 py-3 font-bold text-white shadow-lg transition hover:bg-[#d17b24]">
-                                    পার্টনার হিসেবে যোগ দিন
+                                <a
+                                    href="#register"
+                                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#e79237] px-6 py-3 font-bold text-white shadow-lg transition hover:bg-[#d17b24]"
+                                >
+                                    ফ্রিতে পার্টনার হিসেবে রেজিস্টার করুন
                                     <ArrowRight className="h-4 w-4" />
                                 </a>
-                                <Link href="/affiliate/calculator" className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-6 py-3 font-bold text-white transition hover:bg-white/15">
+                                <Link
+                                    href="/affiliate/calculator"
+                                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-6 py-3 font-bold text-white transition hover:bg-white/15"
+                                >
                                     কমিশন হিসাব করুন
                                     <BarChart3 className="h-4 w-4" />
                                 </Link>
                             </div>
                         </div>
 
-                        <div className="rounded-2xl border border-white/12 bg-white/8 p-5 shadow-2xl backdrop-blur">
+                        <div className="border-white/12 bg-white/8 rounded-2xl border p-5 shadow-2xl backdrop-blur">
                             <div className="rounded-xl bg-white p-5 text-slate-900">
                                 <div className="flex items-center gap-3">
                                     <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#046ca9]/10 text-[#046ca9]">
@@ -124,8 +173,15 @@ export default function PartnerPromotionPage() {
                                     </div>
                                 </div>
                                 <p className="mt-4 rounded-lg bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-800">
-                                    আয় নির্ভর করবে বাস্তব কাস্টমারের সফল সাবস্ক্রিপশনের উপর। AndgatePOS কোনো নির্দিষ্ট আয়ের নিশ্চয়তা দেয় না।
+                                    কমিশন শুধুমাত্র বাস্তব দোকানদারের সফল পেইড সাবস্ক্রিপশন, পেমেন্ট যাচাই এবং নীতিমালা পূরণের পর প্রযোজ্য। নির্দিষ্ট আয়ের নিশ্চয়তা নেই।
                                 </p>
+                                <a
+                                    href="#register"
+                                    className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#046ca9] px-5 py-3 font-bold text-white transition hover:bg-[#035887]"
+                                >
+                                    এখনই ফ্রি রেজিস্ট্রেশন
+                                    <ArrowRight className="h-4 w-4" />
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -135,16 +191,19 @@ export default function PartnerPromotionPage() {
                     <div className="mx-auto max-w-6xl">
                         <div className="max-w-2xl">
                             <p className="text-sm font-bold uppercase tracking-wider text-[#046ca9]">কারা যোগ দিতে পারবেন</p>
-                            <h2 className="mt-2 text-3xl font-black text-slate-950">যাদের পরিচিত দোকানদার আছে, তাদের জন্য সহজ সুযোগ</h2>
+                            <h2 className="mt-2 text-3xl font-black text-slate-950">Bangladesh POS software partner হিসেবে যারা ভালো fit</h2>
                             <p className="mt-3 text-slate-600">
                                 অপরিচিত মানুষকে ফোন করার দরকার নেই। আপনার পরিচিত ব্যবসায়ীদের হিসাব, স্টক বা বিলিংয়ের সমস্যা বুঝে তাদের জন্য AndgatePOS সমাধান হিসেবে পরিচয় করিয়ে দিন।
                             </p>
                         </div>
                         <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                             {partnerTypes.map((type) => (
-                                <div key={type} className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                                    <CheckCircle2 className="h-5 w-5 flex-shrink-0 text-emerald-600" />
-                                    <span className="font-semibold">{type}</span>
+                                <div key={type.title} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                                    <div className="flex items-center gap-3">
+                                        <CheckCircle2 className="h-5 w-5 flex-shrink-0 text-emerald-600" />
+                                        <span className="font-bold text-slate-950">{type.title}</span>
+                                    </div>
+                                    <p className="mt-2 text-sm leading-6 text-slate-500">{type.desc}</p>
                                 </div>
                             ))}
                         </div>
@@ -178,6 +237,9 @@ export default function PartnerPromotionPage() {
                                 </div>
                             ))}
                         </div>
+                        <p className="mx-auto mt-5 max-w-3xl rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-center text-sm font-semibold leading-6 text-amber-900">
+                            কমিশন কোনো salary বা guaranteed income নয়। কমিশন যোগ হবে শুধু যাচাইকৃত পেইড সাবস্ক্রিপশন থেকে।
+                        </p>
                     </div>
                 </section>
 
@@ -214,14 +276,7 @@ export default function PartnerPromotionPage() {
                             </p>
                         </div>
                         <div className="grid gap-3 sm:grid-cols-2">
-                            {[
-                                'রিটেইল দোকান',
-                                'ফার্মেসি',
-                                'ফ্যাশন শপ',
-                                'মুদি দোকান',
-                                'ইলেকট্রনিক্স দোকান',
-                                'পাইকারি ব্যবসা',
-                            ].map((segment) => (
+                            {['রিটেইল দোকান', 'ফার্মেসি', 'ফ্যাশন শপ', 'মুদি দোকান', 'ইলেকট্রনিক্স দোকান', 'পাইকারি ব্যবসা'].map((segment) => (
                                 <div key={segment} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
                                     <p className="font-black text-slate-950">{segment}</p>
                                     <p className="mt-1 text-sm text-slate-500">বিলিং, স্টক, বাকি টাকা ও লাভের রিপোর্টের সমস্যা নিয়ে কথা শুরু করুন।</p>
@@ -231,12 +286,40 @@ export default function PartnerPromotionPage() {
                     </div>
                 </section>
 
-                <section id="register" className="bg-white px-4 py-14 sm:px-6">
-                    <div className="mx-auto max-w-2xl">
-                        <div className="text-center">
+                <section id="register" className="scroll-mt-20 bg-white px-4 py-14 sm:px-6">
+                    <span id="register-section" className="block scroll-mt-20" aria-hidden="true" />
+                    <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[0.85fr_1fr] lg:items-start">
+                        <div>
                             <p className="text-sm font-bold uppercase tracking-wider text-[#046ca9]">পার্টনার রেজিস্ট্রেশন</p>
-                            <h2 className="mt-2 text-3xl font-black text-slate-950">আজই AndgatePOS পার্টনার হিসেবে যোগ দিন</h2>
-                            <p className="mx-auto mt-3 max-w-xl text-slate-600">বিনামূল্যে রেজিস্ট্রেশন করুন, ট্রেনিং নিন এবং দোকানদারদের ডিজিটাল বিলিংয়ে সাহায্য করে কমিশন আয় করুন।</p>
+                            <h2 className="mt-2 text-3xl font-black text-slate-950">ফ্রিতে পার্টনার হিসেবে রেজিস্টার করুন</h2>
+                            <p className="mt-3 max-w-xl text-slate-600">বিনামূল্যে রেজিস্ট্রেশন করুন, ট্রেনিং নিন এবং দোকানদারদের ডিজিটাল বিলিংয়ে সাহায্য করে কমিশন আয় করুন।</p>
+
+                            <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#046ca9]/10 text-[#046ca9]">
+                                        <ClipboardCheck className="h-5 w-5" />
+                                    </div>
+                                    <h3 className="text-lg font-black text-slate-950">ফর্ম সাবমিটের পর কী হবে?</h3>
+                                </div>
+                                <div className="mt-4 space-y-3">
+                                    {afterSubmitSteps.map((step, index) => (
+                                        <div key={step} className="flex gap-3">
+                                            <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[#046ca9] text-xs font-bold text-white">{index + 1}</span>
+                                            <p className="text-sm leading-6 text-slate-600">{step}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="mt-4 rounded-xl border border-[#25d366]/30 bg-[#25d366]/10 p-4">
+                                <div className="flex gap-3">
+                                    <MessageCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-[#128c4e]" />
+                                    <div>
+                                        <p className="font-bold text-slate-950">তথ্য সঠিক দিন</p>
+                                        <p className="mt-1 text-sm leading-6 text-slate-600">ভুল মোবাইল নম্বর, ভুয়া দোকান বা নিজের নামে কাস্টমার তৈরি করলে অ্যাকাউন্ট বাতিল হতে পারে।</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-lg sm:p-8">
@@ -247,11 +330,11 @@ export default function PartnerPromotionPage() {
                                     <p className="mt-2 text-slate-500">আপনার পার্টনার কোড</p>
                                     <div className="mx-auto mt-3 w-fit rounded-xl bg-[#046ca9]/10 px-8 py-3 text-2xl font-black tracking-widest text-[#046ca9]">{success.code}</div>
                                     {success.promo_code && (
-                                        <p className="mt-3 text-sm text-slate-500">প্রমো কোড: <strong className="text-slate-800">{success.promo_code}</strong></p>
+                                        <p className="mt-3 text-sm text-slate-500">
+                                            প্রমো কোড: <strong className="text-slate-800">{success.promo_code}</strong>
+                                        </p>
                                     )}
-                                    {success.ref_link && (
-                                        <div className="mt-3 rounded-lg bg-slate-50 px-4 py-2 text-xs text-slate-600 break-all">রেফারেল লিংক: {success.ref_link}</div>
-                                    )}
+                                    {success.ref_link && <div className="mt-3 break-all rounded-lg bg-slate-50 px-4 py-2 text-xs text-slate-600">রেফারেল লিংক: {success.ref_link}</div>}
                                     <Link href="/affiliate/portal" className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#046ca9] px-6 py-2.5 font-bold text-white transition hover:opacity-90">
                                         পার্টনার পোর্টালে যান <ArrowRight className="h-4 w-4" />
                                     </Link>
@@ -266,7 +349,9 @@ export default function PartnerPromotionPage() {
 
                                     <div className="grid gap-4 sm:grid-cols-2">
                                         <div className="sm:col-span-2">
-                                            <label className="mb-1 block text-sm font-semibold text-slate-700">পুরো নাম <span className="text-red-500">*</span></label>
+                                            <label className="mb-1 block text-sm font-semibold text-slate-700">
+                                                পুরো নাম <span className="text-red-500">*</span>
+                                            </label>
                                             <input
                                                 required
                                                 className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-[#046ca9] focus:ring-1 focus:ring-[#046ca9]"
@@ -277,7 +362,9 @@ export default function PartnerPromotionPage() {
                                         </div>
 
                                         <div>
-                                            <label className="mb-1 block text-sm font-semibold text-slate-700">মোবাইল নম্বর <span className="text-red-500">*</span></label>
+                                            <label className="mb-1 block text-sm font-semibold text-slate-700">
+                                                মোবাইল নম্বর <span className="text-red-500">*</span>
+                                            </label>
                                             <input
                                                 required
                                                 className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-[#046ca9] focus:ring-1 focus:ring-[#046ca9]"
@@ -349,16 +436,16 @@ export default function PartnerPromotionPage() {
                                         </div>
                                     </div>
 
-                                    <button
-                                        type="submit"
-                                        disabled={isLoading}
-                                        className="w-full rounded-xl bg-[#046ca9] py-3 font-bold text-white transition hover:opacity-90 disabled:opacity-60"
-                                    >
-                                        {isLoading ? 'অপেক্ষা করুন...' : 'পার্টনার হিসেবে রেজিস্টার করুন'}
+                                    <button type="submit" disabled={isLoading} className="w-full rounded-xl bg-[#046ca9] py-3 font-bold text-white transition hover:opacity-90 disabled:opacity-60">
+                                        {isLoading ? 'অপেক্ষা করুন...' : 'ফ্রিতে পার্টনার হিসেবে রেজিস্টার করুন'}
                                     </button>
+                                    <p className="text-center text-xs font-semibold text-slate-500">রেজিস্ট্রেশনের পর সাধারণত ২৪-৪৮ ঘণ্টার মধ্যে যোগাযোগ করা হবে।</p>
                                     <p className="text-center text-xs text-slate-400">
                                         রেজিস্টার করলে আপনি AndgatePOS-এর{' '}
-                                        <Link href="/affiliate/policies" className="text-[#046ca9] underline">পার্টনার নীতিমালা</Link>-তে সম্মত হচ্ছেন।
+                                        <Link href="/affiliate/policies" className="text-[#046ca9] underline">
+                                            পার্টনার নীতিমালা
+                                        </Link>
+                                        -তে সম্মত হচ্ছেন।
                                     </p>
                                 </form>
                             )}
@@ -366,23 +453,48 @@ export default function PartnerPromotionPage() {
                     </div>
                 </section>
 
+                <section className="bg-slate-50 px-4 py-14 sm:px-6">
+                    <div className="mx-auto max-w-5xl">
+                        <div className="text-center">
+                            <p className="text-sm font-bold uppercase tracking-wider text-[#046ca9]">প্রশ্নোত্তর</p>
+                            <h2 className="mt-2 text-3xl font-black text-slate-950">পার্টনার হওয়ার আগে সাধারণ প্রশ্ন</h2>
+                        </div>
+                        <div className="mt-8 grid gap-4 md:grid-cols-2">
+                            {faqs.map((faq) => (
+                                <div key={faq.q} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                                    <h3 className="font-black text-slate-950">{faq.q}</h3>
+                                    <p className="mt-2 text-sm leading-6 text-slate-600">{faq.a}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
                 <section className="bg-[#046ca9] px-4 py-14 text-center text-white sm:px-6">
                     <h2 className="text-3xl font-black">আজই AndgatePOS পার্টনার প্রোগ্রাম শুরু করুন</h2>
-                    <p className="mx-auto mt-3 max-w-2xl text-white/80">
-                        বাস্তব দোকানদারের সাথে সরাসরি কাজ, পরিষ্কার কমিশন ট্র্যাকিং এবং বাংলাদেশের জন্য সহজ পেমেন্ট প্রক্রিয়া।
-                    </p>
+                    <p className="mx-auto mt-3 max-w-2xl text-white/80">বাস্তব দোকানদারের সাথে সরাসরি কাজ, পরিষ্কার কমিশন ট্র্যাকিং এবং বাংলাদেশের জন্য সহজ পেমেন্ট প্রক্রিয়া।</p>
                     <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
                         <a href="#register" className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-7 py-3 font-bold text-[#046ca9] transition hover:bg-slate-100">
-                            পার্টনার হিসেবে রেজিস্টার করুন
+                            ফ্রিতে পার্টনার হিসেবে রেজিস্টার করুন
                             <ArrowRight className="h-4 w-4" />
                         </a>
-                        <Link href="/affiliate/policies" className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/30 px-7 py-3 font-bold text-white transition hover:bg-white/10">
+                        <Link
+                            href="/affiliate/policies"
+                            className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/30 px-7 py-3 font-bold text-white transition hover:bg-white/10"
+                        >
                             নীতিমালা দেখুন
                             <ShieldCheck className="h-4 w-4" />
                         </Link>
                     </div>
                 </section>
             </main>
+
+            <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 p-3 shadow-2xl backdrop-blur sm:hidden">
+                <a href="#register" className="flex items-center justify-center gap-2 rounded-xl bg-[#e79237] px-4 py-3 text-sm font-black text-white">
+                    ফ্রিতে রেজিস্টার করুন
+                    <ArrowRight className="h-4 w-4" />
+                </a>
+            </div>
 
             <PromoFooter />
         </div>

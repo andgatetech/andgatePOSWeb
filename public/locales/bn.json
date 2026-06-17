@@ -5078,7 +5078,7 @@
   "aff_login_mobile_note": "পার্টনার রেজিস্ট্রেশনে যে মোবাইল নম্বর দিয়েছেন সেটিই ব্যবহার করুন।",
   "aff_login_password": "পাসওয়ার্ড",
   "aff_login_btn": "লগইন করুন",
-  "aff_login_error": "লগইন ব্যর্থ।",
+  "aff_login_error": "মোবাইল নম্বর অথবা পাসওয়ার্ড সঠিক নয়।",
   "aff_login_first_time": "অ্যাপ্রুভড পার্টনার কিন্তু আগে লগইন করেননি?",
   "aff_login_set_password_link": "পাসওয়ার্ড তৈরি করুন",
   "aff_login_not_partner": "এখনো পার্টনার না?",

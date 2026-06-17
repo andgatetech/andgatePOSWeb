@@ -11,6 +11,21 @@ type Mode = 'login' | 'set-password';
 
 const ADMIN_WHATSAPP = 'https://wa.me/8801577303608';
 
+const getApiErrorMessage = (error: unknown, fallback: string): string => {
+    const payload = (error as any)?.data;
+    const message = payload?.message;
+
+    if (typeof message === 'string' && message.trim() && !/^\d+$/.test(message.trim())) {
+        return message;
+    }
+
+    if (typeof payload?.errors === 'string' && payload.errors.trim()) {
+        return payload.errors;
+    }
+
+    return fallback;
+};
+
 export default function AffiliateLoginPage() {
     const { t } = getTranslation();
     const router = useRouter();
@@ -151,7 +166,7 @@ export default function AffiliateLoginPage() {
                                 {loginErr && (
                                     <div className="flex items-center gap-2 rounded-lg border border-danger/20 bg-danger/10 px-3 py-2 text-sm text-danger">
                                         <AlertCircle className="h-4 w-4 shrink-0" />
-                                        {(loginErr as any)?.data?.message || t('aff_login_error')}
+                                        {getApiErrorMessage(loginErr, t('aff_login_error'))}
                                     </div>
                                 )}
                                 <div>
@@ -219,7 +234,7 @@ export default function AffiliateLoginPage() {
                                         {(setErr || setPasswordClientError) && (
                                             <div className="flex items-center gap-2 rounded-lg border border-danger/20 bg-danger/10 px-3 py-2 text-sm text-danger">
                                                 <AlertCircle className="h-4 w-4 shrink-0" />
-                                                {setPasswordClientError || (setErr as any)?.data?.message || t('aff_login_set_error')}
+                                                {setPasswordClientError || getApiErrorMessage(setErr, t('aff_login_set_error'))}
                                             </div>
                                         )}
                                         <div>
