@@ -125,6 +125,12 @@ const parseSafeDate = (dateStr: string): Date => {
     return isNaN(d.getTime()) ? new Date() : d;
 };
 
+const clampPdfText = (value: string, maxLength = 90): string => {
+    if (!value) return '';
+    const normalized = String(value).replace(/\s+/g, ' ').trim();
+    return normalized.length > maxLength ? `${normalized.slice(0, maxLength - 3)}...` : normalized;
+};
+
 const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
     reportTitle,
     reportDescription,
@@ -271,10 +277,12 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
                 return s.replace(/[^\x00-\x7F]/g, '');
             };
 
-            const isLandscape = columns.length > 6;
-            // A4 in points: portrait 595×842, landscape 842×595
-            const pageW = isLandscape ? 841.89 : 595.28;
-            const marginPts = 40;
+            const totalWeight = columns.reduce((s, c) => s + (c.width || 10), 0);
+            const isLandscape = columns.length > 6 || totalWeight > 90;
+            const useWidePage = columns.length > 12 || totalWeight > 140;
+            // A4 in points: portrait 595x842, landscape 842x595. A3 landscape gives very wide reports breathing room.
+            const pageW = useWidePage ? 1190.55 : isLandscape ? 841.89 : 595.28;
+            const marginPts = isLandscape ? 24 : 32;
             const usableW = pageW - marginPts * 2;
 
             // Date label for PDF header
@@ -295,24 +303,27 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
                 return tDoc('lbl_custom_range');
             })();
 
-            // Column widths proportional to weight
-            const totalWeight = columns.reduce((s, c) => s + (c.width || 10), 0);
-            const colWidths = columns.map((c) => (c.width || 10) / totalWeight * usableW);
-
             const isNumeric = (col: ExportColumn) =>
                 ['amount', 'price', 'total', 'tax', 'discount', 'subtotal', 'due', 'paid'].some(
                     (k) => col.key.includes(k) || col.label.toLowerCase().includes(k)
                 );
 
-            const fontSize = columns.length > 10 ? 6 : columns.length > 8 ? 7 : 8;
+            const fontSize = columns.length > 12 ? 5 : columns.length > 10 ? 5.5 : columns.length > 8 ? 6.5 : 7.5;
+
+            const minColWidth = columns.length > 10 ? 28 : 36;
+            const rawWidths = columns.map((c) => ((c.width || 10) / totalWeight) * usableW);
+            const minAdjustedWidths = rawWidths.map((width) => Math.max(minColWidth, width));
+            const adjustedTotal = minAdjustedWidths.reduce((sum, width) => sum + width, 0);
+            const colWidths = minAdjustedWidths.map((width) => (width / adjustedTotal) * usableW);
 
             // Header row
             const headerRow = columns.map((col) => ({
-                text: san(col.label),
+                text: san(clampPdfText(col.label, 28)),
                 bold: true,
                 color: '#ffffff',
                 fontSize,
                 alignment: isNumeric(col) ? 'right' : 'center',
+                noWrap: false,
             }));
 
             // Data rows
@@ -321,7 +332,12 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
                     if (col.key === 'serial' || col.label === '#') return { text: String(idx + 1), alignment: 'center', fontSize };
                     const raw = row[col.key];
                     const txt = col.format ? col.format(raw, row) : String(raw ?? '');
-                    return { text: san(txt), alignment: isNumeric(col) ? 'right' : 'left', fontSize };
+                    return {
+                        text: san(clampPdfText(txt, isNumeric(col) ? 28 : 80)),
+                        alignment: isNumeric(col) ? 'right' : 'left',
+                        fontSize,
+                        noWrap: false,
+                    };
                 })
             );
 
@@ -341,18 +357,19 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
                         bold: true,
                         alignment: isNumeric(col) ? 'right' : 'left',
                         fontSize: fontSize + 1,
+                        noWrap: false,
                     })) as any
                 );
             }
 
-            const summaryText = summary.map((s) => `${tDoc(String(s.label))}: ${san(String(s.value))}`).join('   |   ');
+            const summaryText = summary.map((s) => `${san(String(s.label))}: ${san(String(s.value))}`).join('   |   ');
             const filtersText = filterSummary?.customFilters?.length
                 ? filterSummary.customFilters.map((f) => `${san(f.label)}: ${san(f.value)}`).join(' | ')
                 : '';
 
             const docDefinition: any = {
                 pageOrientation: isLandscape ? 'landscape' : 'portrait',
-                pageSize: 'A4',
+                pageSize: useWidePage ? 'A3' : 'A4',
                 pageMargins: [marginPts, marginPts, marginPts, marginPts + 15],
                 content: [
                     // === Header ===
@@ -394,6 +411,7 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
                             widths: colWidths,
                             body: [headerRow, ...bodyRows],
                         },
+                        dontBreakRows: true,
                         layout: {
                             hLineWidth: () => 0.1,
                             vLineWidth: () => 0.1,
@@ -404,8 +422,8 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
                                 if (hasTotals && rowIndex === node.table.body.length - 1) return '#dce6f5';
                                 return (rowIndex - 1) % 2 === 0 ? null : '#f8fafc';
                             },
-                            paddingLeft: () => 4,
-                            paddingRight: () => 4,
+                            paddingLeft: () => 3,
+                            paddingRight: () => 3,
                             paddingTop: () => 3,
                             paddingBottom: () => 3,
                         },

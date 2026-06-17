@@ -8,11 +8,10 @@ import {
     useDeleteExportJobMutation,
     useGetBackupStatusQuery,
     useGetExportJobsQuery,
-    useGetExportJobStatusQuery,
     useQueueExportJobMutation,
 } from '@/store/features/exportJobs/exportJobsApi';
 import { RootState } from '@/store';
-import { Clock, Database, Download, FileDown, HardDrive, RefreshCw, Trash2 } from 'lucide-react';
+import { AlertTriangle, Clock, Database, Download, FileArchive, FileDown, HardDrive, RefreshCw, RotateCcw, Trash2 } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 
@@ -86,6 +85,7 @@ const DataExportPage = () => {
     const jobs = useMemo(() => {
         const d = jobsData as any;
         if (!d) return [];
+        if (Array.isArray(d?.data?.jobs)) return d.data.jobs;
         if (Array.isArray(d?.data?.data)) return d.data.data;
         if (Array.isArray(d?.data)) return d.data;
         if (Array.isArray(d)) return d;
@@ -97,9 +97,9 @@ const DataExportPage = () => {
         return d?.data || d || null;
     }, [backupData]);
 
-    const fetchBlobDownload = useCallback(async (url: string, filename: string) => {
+    const fetchBlobDownload = useCallback(async (url: string, filename: string, accept = 'text/csv') => {
         const res = await fetch(url, {
-            headers: { Authorization: `Bearer ${token}`, Accept: 'text/csv' },
+            headers: { Authorization: `Bearer ${token}`, Accept: accept },
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const blob = await res.blob();
@@ -149,7 +149,9 @@ const DataExportPage = () => {
 
     const handleDownloadJob = useCallback(async (job: any) => {
         try {
-            await fetchBlobDownload(`${API_BASE}/api/export/jobs/${job.id}/download`, `export-job-${job.id}.csv`);
+            const extension = job.type === 'full_backup' ? 'json' : 'csv';
+            const accept = job.type === 'full_backup' ? 'application/json' : 'text/csv';
+            await fetchBlobDownload(`${API_BASE}/api/export/jobs/${job.id}/download`, `export-job-${job.id}.${extension}`, accept);
         } catch {
             showErrorDialog(t('export_download_failed_title'), t('export_download_failed_desc'));
         }
@@ -167,7 +169,7 @@ const DataExportPage = () => {
             {
                 key: 'type',
                 label: t('export_type'),
-                render: (value) => <span className="font-mono text-xs font-medium text-gray-800">{value}</span>,
+                render: (value) => <span className="font-mono text-xs font-medium text-gray-800">{value === 'full_backup' ? t('export_full_backup_title') : value}</span>,
             },
             {
                 key: 'status',
@@ -236,6 +238,48 @@ const DataExportPage = () => {
                     </div>
                 </div>
             )}
+
+            <section className="grid gap-4 lg:grid-cols-[1.35fr_0.65fr]">
+                <div className="rounded-xl border border-[#046ca9]/20 bg-[#046ca9]/5 p-5">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                        <div className="flex items-start gap-4">
+                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#046ca9] text-white">
+                                <FileArchive className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <h2 className="text-base font-semibold text-gray-900">{t('export_full_backup_title')}</h2>
+                                <p className="mt-1 text-sm text-gray-600">{t('export_full_backup_desc')}</p>
+                                <p className="mt-2 text-xs font-medium text-[#034d79]">{t('export_full_backup_hint')}</p>
+                            </div>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => handleQueueExport('full_backup')}
+                            disabled={queuingType === 'full_backup' || !currentStoreId}
+                            className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#046ca9] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#034d79] disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                            {queuingType === 'full_backup' ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" /> : <FileArchive className="h-4 w-4" />}
+                            {t('export_queue_full_backup')}
+                        </button>
+                    </div>
+                </div>
+
+                <div className="rounded-xl border border-amber-200 bg-amber-50 p-5">
+                    <div className="flex items-start gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-700">
+                            <RotateCcw className="h-5 w-5" />
+                        </div>
+                        <div>
+                            <h2 className="text-sm font-semibold text-gray-900">{t('export_restore_title')}</h2>
+                            <p className="mt-1 text-sm text-gray-600">{t('export_restore_desc')}</p>
+                            <div className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-xs font-semibold text-amber-700">
+                                <AlertTriangle className="h-3.5 w-3.5" />
+                                {t('export_restore_not_ready')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
             <div>
                 <h2 className="mb-3 text-sm font-semibold text-gray-700">{t('export_instant_section')}</h2>

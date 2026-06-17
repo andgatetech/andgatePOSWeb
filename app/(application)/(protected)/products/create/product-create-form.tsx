@@ -102,7 +102,7 @@ const ProductCreateForm = () => {
 
     // Tab completion validation functions
     const isBasicInfoComplete = () => {
-        return formData.product_name.trim() !== '' && formData.category_id !== '';
+        return formData.product_name.trim() !== '';
     };
 
     const isPricingComplete = () => {
@@ -272,16 +272,70 @@ const ProductCreateForm = () => {
         }
     };
 
+    const escapeHtml = (value: string) =>
+        value
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+
+    const formatValidationErrors = (errors: any) => {
+        if (!errors) {
+            return '';
+        }
+
+        if (typeof errors === 'string') {
+            return escapeHtml(errors);
+        }
+
+        const messages: string[] = [];
+
+        Object.entries(errors).forEach(([field, value]) => {
+            const fieldLabel = field
+                .replace(/^stocks\.(\d+)\./, (_match, index) => `${t('lbl_variant')} ${Number(index) + 1} `)
+                .replace(/^serials\.(\d+)\./, (_match, index) => `${t('lbl_serial')} ${Number(index) + 1} `)
+                .replace(/^warranties\.(\d+)\./, (_match, index) => `${t('lbl_warranty')} ${Number(index) + 1} `)
+                .replace(/_/g, ' ')
+                .replace(/\./g, ' ');
+
+            const valueMessages = Array.isArray(value) ? value : [value];
+            valueMessages.forEach((message) => {
+                if (typeof message === 'string') {
+                    messages.push(`<li><strong>${escapeHtml(fieldLabel)}:</strong> ${escapeHtml(message)}</li>`);
+                }
+            });
+        });
+
+        return messages.length ? `<ul class="list-disc space-y-1 pl-5 text-left">${messages.join('')}</ul>` : '';
+    };
+
+    const focusTabForValidationErrors = (errors: any) => {
+        const firstKey = errors && typeof errors === 'object' ? Object.keys(errors)[0] : '';
+
+        if (firstKey.includes('sku')) {
+            setActiveTab('sku');
+        } else if (firstKey.startsWith('stocks.')) {
+            setActiveTab(formData.has_attributes ? 'variants' : 'stock');
+        } else if (firstKey.startsWith('serials.')) {
+            setActiveTab('serial');
+        } else if (firstKey.startsWith('warranties.')) {
+            setActiveTab('warranty');
+        } else if (firstKey.includes('tax')) {
+            setActiveTab('tax');
+        } else if (firstKey.includes('image')) {
+            setActiveTab('images');
+        } else if (firstKey.includes('price')) {
+            setActiveTab('pricing');
+        } else if (firstKey.includes('category') || firstKey.includes('brand') || firstKey.includes('product_name')) {
+            setActiveTab('basic');
+        }
+    };
+
     const handleSubmit = async () => {
         // Validation
         if (!formData.product_name.trim()) {
             showErrorDialog(t('msg_error'), t('msg_enter_product_name'));
-            setActiveTab('basic');
-            return;
-        }
-
-        if (!formData.category_id) {
-            showErrorDialog(t('msg_error'), t('lbl_select_category'));
             setActiveTab('basic');
             return;
         }
@@ -611,7 +665,11 @@ const ProductCreateForm = () => {
 
             // Don't show Swal for 403 subscription errors - SubscriptionError component will handle it
             if (error?.status !== 403) {
-                const errorMessage = error?.data?.message || t('msg_error_occurred');
+                const validationHtml = formatValidationErrors(error?.data?.errors || error?.data?.data);
+                if (validationHtml) {
+                    focusTabForValidationErrors(error?.data?.errors || error?.data?.data);
+                }
+                const errorMessage = validationHtml || error?.data?.message || error?.error || t('msg_error_occurred');
                 showErrorDialog(t('msg_error'), errorMessage);
             }
         }

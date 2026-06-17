@@ -131,7 +131,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                     {/* Category Selection */}
                     <div>
                         <label className="mb-2 block text-sm font-medium text-gray-700">
-                            {t('lbl_category')} <span className="text-red-500">*</span>
+                            {t('lbl_category')} <span className="text-xs font-normal text-gray-400">({t('lbl_optional')})</span>
                         </label>
                         <div className="relative">
                             <button

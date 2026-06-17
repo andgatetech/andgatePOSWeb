@@ -14,20 +14,40 @@ interface MobileStoreSettingFABProps {
 const MobileStoreSettingFAB: React.FC<MobileStoreSettingFABProps> = ({ activeTab, onTabChange }) => {
     const { t } = getTranslation();
     const [isOpen, setIsOpen] = useState(false);
-    const tabs = [
-        { id: 'basic', label: t('lbl_basic_info'), icon: Store },
-        { id: 'hours', label: t('lbl_hours'), icon: Clock },
-        { id: 'units', label: t('lbl_units'), icon: Package },
-        { id: 'attributes', label: t('store_attributes_title'), icon: Tag },
-        { id: 'payment', label: t('lbl_payment_method'), icon: CreditCard },
-        { id: 'currency', label: t('store_currency_title'), icon: Coins },
-        { id: 'paymentstatus', label: t('order_payment_status'), icon: Flag },
-        { id: 'warranty', label: t('lbl_warranty'), icon: Shield },
-        { id: 'adjustment', label: t('lbl_adjustments'), icon: ListChecks },
-        { id: 'returnreasons', label: t('lbl_returns'), icon: RotateCcw },
-        { id: 'loyalty', label: t('store_loyalty_title'), icon: Gift },
-        { id: 'branding', label: t('store_branding'), icon: Camera },
-        { id: 'status', label: t('lbl_status'), icon: Settings },
+    const groups = [
+        {
+            title: t('store_settings_group_profile'),
+            tabs: [
+                { id: 'basic', label: t('lbl_basic_info'), icon: Store },
+                { id: 'hours', label: t('lbl_hours'), icon: Clock },
+                { id: 'branding', label: t('store_branding'), icon: Camera },
+                { id: 'status', label: t('lbl_status'), icon: Settings },
+            ],
+        },
+        {
+            title: t('store_settings_group_inventory'),
+            tabs: [
+                { id: 'units', label: t('lbl_units'), icon: Package },
+                { id: 'attributes', label: t('store_attributes_title'), icon: Tag },
+                { id: 'adjustment', label: t('lbl_adjustments'), icon: ListChecks },
+            ],
+        },
+        {
+            title: t('store_settings_group_checkout'),
+            tabs: [
+                { id: 'payment', label: t('lbl_payment_method'), icon: CreditCard },
+                { id: 'currency', label: t('store_currency_title'), icon: Coins },
+                { id: 'paymentstatus', label: t('order_payment_status'), icon: Flag },
+            ],
+        },
+        {
+            title: t('store_settings_group_after_sales'),
+            tabs: [
+                { id: 'warranty', label: t('lbl_warranty'), icon: Shield },
+                { id: 'returnreasons', label: t('lbl_returns'), icon: RotateCcw },
+                { id: 'loyalty', label: t('store_loyalty_title'), icon: Gift },
+            ],
+        },
     ];
 
     const toggleMenu = () => {
@@ -54,27 +74,34 @@ const MobileStoreSettingFAB: React.FC<MobileStoreSettingFABProps> = ({ activeTab
                         </button>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2">
-                        {tabs.map((tab) => {
-                            const Icon = tab.icon;
-                            const isActive = activeTab === tab.id;
+                    <div className="max-h-[70vh] space-y-4 overflow-y-auto pb-2">
+                        {groups.map((group) => (
+                            <section key={group.title}>
+                                <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">{group.title}</h4>
+                                <div className="grid grid-cols-2 gap-2">
+                                    {group.tabs.map((tab) => {
+                                        const Icon = tab.icon;
+                                        const isActive = activeTab === tab.id;
 
-                            return (
-                                <button
-                                    key={tab.id}
-                                    type="button"
-                                    onClick={() => handleTabClick(tab.id)}
-                                    className={`flex flex-col items-center gap-1.5 rounded-xl border-2 p-3 transition-all ${
-                                        isActive ? 'border-[#046ca9] bg-[#046ca9]/5' : 'border-gray-200 bg-white hover:border-[#046ca9]/30'
-                                    }`}
-                                >
-                                    <div className={`rounded-lg p-1.5 ${isActive ? 'bg-[#046ca9] text-white' : 'bg-gray-100 text-gray-600'}`}>
-                                        <Icon className="h-4 w-4" />
-                                    </div>
-                                    <span className={`text-xs font-medium ${isActive ? 'text-[#034d79]' : 'text-gray-700'}`}>{tab.label}</span>
-                                </button>
-                            );
-                        })}
+                                        return (
+                                            <button
+                                                key={tab.id}
+                                                type="button"
+                                                onClick={() => handleTabClick(tab.id)}
+                                                className={`flex min-h-[72px] flex-col items-center justify-center gap-1.5 rounded-xl border-2 p-3 text-center transition-all ${
+                                                    isActive ? 'border-[#046ca9] bg-[#046ca9]/5' : 'border-gray-200 bg-white hover:border-[#046ca9]/30'
+                                                }`}
+                                            >
+                                                <div className={`rounded-lg p-1.5 ${isActive ? 'bg-[#046ca9] text-white' : 'bg-gray-100 text-gray-600'}`}>
+                                                    <Icon className="h-4 w-4" />
+                                                </div>
+                                                <span className={`text-xs font-medium leading-4 ${isActive ? 'text-[#034d79]' : 'text-gray-700'}`}>{tab.label}</span>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </section>
+                        ))}
                     </div>
                 </div>
             </div>
