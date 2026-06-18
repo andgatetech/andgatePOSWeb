@@ -5668,5 +5668,8 @@
     "lbl_store_type_water": "Water Purifier / Supply",
     "lbl_store_type_welding": "Welding / Fabrication",
     "lbl_select_store_type": "Select store type...",
-    "msg_no_results": "No results found"
+    "msg_no_results": "No results found",
+    "ecommerce_detail_validation_error": "Missing Required Fields",
+    "ecommerce_detail_redx_area_required": "Please search and select a delivery area first. Use the RedX area lookup above to find your delivery area, then select it from the dropdown.",
+    "ecommerce_detail_redx_pickup_required": "Please select a pickup store location for RedX shipment."
 }

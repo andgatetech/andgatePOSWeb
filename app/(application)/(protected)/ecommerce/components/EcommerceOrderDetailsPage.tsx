@@ -872,6 +872,24 @@ const EcommerceOrderDetailsPage = () => {
 
     const handleCourierCreate = async () => {
         if (!order?.id) return;
+
+        // Validate required fields before API call
+        if (courierProvider === 'redx') {
+            if (!courierForm.delivery_area?.trim() || !courierForm.delivery_area_id?.trim()) {
+                showErrorDialog(
+                    t('ecommerce_detail_validation_error'),
+                    t('ecommerce_detail_redx_area_required')
+                );
+                return;
+            }
+            if (!courierForm.pickup_store_id?.trim()) {
+                showErrorDialog(
+                    t('ecommerce_detail_validation_error'),
+                    t('ecommerce_detail_redx_pickup_required')
+                );
+                return;
+            }
+        }
         try {
             const response = await createCourierShipment({ id: order.id, ...courierCreatePayload() }).unwrap();
             const payload = response?.data || response;

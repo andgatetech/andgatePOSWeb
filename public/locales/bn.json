@@ -5668,5 +5668,8 @@
     "lbl_store_type_water": "পানি পরিশোধন / সরবরাহ",
     "lbl_store_type_welding": "ওয়েল্ডিং / ফেব্রিকেশন",
     "lbl_select_store_type": "দোকানের ধরণ নির্বাচন করুন...",
-    "msg_no_results": "কোনো ফলাফল পাওয়া যায়নি"
+    "msg_no_results": "কোনো ফলাফল পাওয়া যায়নি",
+    "ecommerce_detail_validation_error": "প্রয়োজনীয় তথ্য অনুপস্থিত",
+    "ecommerce_detail_redx_area_required": "অনুগ্রহ করে প্রথমে একটি ডেলিভারি এরিয়া অনুসন্ধান ও নির্বাচন করুন। উপরের RedX এরিয়া লুকআপ ব্যবহার করে আপনার ডেলিভারি এরিয়া খুঁজুন, তারপর ড্রপডাউন থেকে সিলেক্ট করুন।",
+    "ecommerce_detail_redx_pickup_required": "RedX শিপমেন্টের জন্য একটি পিকআপ স্টোর লোকেশন নির্বাচন করুন।"
 }
