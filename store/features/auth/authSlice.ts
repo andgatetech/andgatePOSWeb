@@ -127,15 +127,27 @@ const getSavedStoreId = (): number | null => {
     return Number.isFinite(value) && value > 0 ? value : null;
 };
 
-const uniqueStores = (stores: Store[] = []): Store[] => stores.filter((store, idx, arr) => arr.findIndex((s) => s.id === store.id) === idx);
+const normalizeStoreId = (value: unknown): number | null => {
+    const numeric = Number(value);
+    return Number.isFinite(numeric) && numeric > 0 ? numeric : null;
+};
+
+const normalizeStore = (store: Store): Store => ({
+    ...store,
+    id: normalizeStoreId(store.id) || store.id,
+});
+
+const uniqueStores = (stores: Store[] = []): Store[] => stores
+    .map(normalizeStore)
+    .filter((store, idx, arr) => arr.findIndex((s) => Number(s.id) === Number(store.id)) === idx);
 
 const resolveStore = (stores: Store[] = [], preferredStoreId?: number | null): Store | null => {
     const normalizedStores = uniqueStores(stores);
     if (normalizedStores.length === 0) return null;
 
     const savedStoreId = getSavedStoreId();
-    const targetStoreId = preferredStoreId || savedStoreId;
-    return normalizedStores.find((store) => store.id === targetStoreId) || normalizedStores[0];
+    const targetStoreId = normalizeStoreId(preferredStoreId) || savedStoreId;
+    return normalizedStores.find((store) => Number(store.id) === Number(targetStoreId)) || normalizedStores[0];
 };
 
 const authSlice = createSlice({
@@ -174,7 +186,7 @@ const authSlice = createSlice({
 
             
 
-            const selectedStore = resolveStore(state.user.stores, state.currentStoreId);
+            const selectedStore = resolveStore(state.user.stores, normalizeStoreId(state.currentStoreId));
             state.currentStore = selectedStore;
             state.currentStoreId = selectedStore?.id || null;
         },
@@ -189,21 +201,22 @@ const authSlice = createSlice({
         setUser(state, action: PayloadAction<{ user: User }>) {
             const stores = uniqueStores(action.payload.user.stores || []);
             state.user = { ...action.payload.user, stores };
-            const selectedStore = resolveStore(stores, state.currentStoreId);
+            const selectedStore = resolveStore(stores, normalizeStoreId(state.currentStoreId));
             state.currentStore = selectedStore;
             state.currentStoreId = selectedStore?.id || null;
         },
         setCurrentStore(state, action: PayloadAction<Store>) {
-            state.currentStore = action.payload;
-            state.currentStoreId = action.payload.id;
-            if (state.user?.stores && !state.user.stores.some((store) => store.id === action.payload.id)) {
-                state.user.stores = uniqueStores([...state.user.stores, action.payload]);
+            const store = normalizeStore(action.payload);
+            state.currentStore = store;
+            state.currentStoreId = store.id;
+            if (state.user?.stores && !state.user.stores.some((item) => Number(item.id) === Number(store.id))) {
+                state.user.stores = uniqueStores([...state.user.stores, store]);
             }
         },
         setCurrentStoreById(state, action: PayloadAction<number>) {
-            const storeId = action.payload;
+            const storeId = normalizeStoreId(action.payload);
             if (state.user?.stores) {
-                const foundStore = state.user.stores.find((store) => store.id === storeId);
+                const foundStore = state.user.stores.find((store) => Number(store.id) === Number(storeId));
                 if (foundStore) {
                     state.currentStore = foundStore;
                     state.currentStoreId = foundStore.id;
@@ -245,11 +258,11 @@ const authSlice = createSlice({
         },
 
         removeStore(state, action: PayloadAction<number>) {
-            const storeId = action.payload;
+            const storeId = normalizeStoreId(action.payload);
             if (state.user?.stores) {
-                state.user.stores = state.user.stores.filter((s) => s.id !== storeId);
+                state.user.stores = state.user.stores.filter((s) => Number(s.id) !== Number(storeId));
             }
-            if (state.currentStoreId === storeId) {
+            if (Number(state.currentStoreId) === Number(storeId)) {
                 const remaining = state.user?.stores ?? [];
                 state.currentStore = remaining.length > 0 ? remaining[0] : null;
                 state.currentStoreId = remaining.length > 0 ? remaining[0].id : null;
@@ -261,7 +274,7 @@ const authSlice = createSlice({
             if (!state.user?.stores?.length) return;
 
             state.user.stores = uniqueStores(state.user.stores);
-            const selectedStore = resolveStore(state.user.stores, state.currentStoreId);
+            const selectedStore = resolveStore(state.user.stores, normalizeStoreId(state.currentStoreId));
             state.currentStore = selectedStore;
             state.currentStoreId = selectedStore?.id || null;
         });

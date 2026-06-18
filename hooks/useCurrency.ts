@@ -1,6 +1,6 @@
 'use client';
 import { RootState } from '@/store';
-import { Currency } from '@/store/features/auth/authSlice';
+import { Currency, type Store } from '@/store/features/auth/authSlice';
 import UniversalCookie from 'universal-cookie';
 import { useSelector } from 'react-redux';
 import { getTranslation } from '@/i18n';
@@ -27,7 +27,10 @@ export const useCurrency = () => {
     const rawCurrentStore = useSelector((state: RootState) => state.auth?.currentStore);
     const currentStoreId = useSelector((state: RootState) => state.auth?.currentStoreId);
     const userStores = useSelector((state: RootState) => state.auth?.user?.stores || []);
-    const currentStore = userStores.find((store) => store.id === currentStoreId) || rawCurrentStore;
+    const currentStore = userStores.find((store: Store) => Number(store.id) === Number(currentStoreId))
+        || (rawCurrentStore && Number(rawCurrentStore.id) === Number(currentStoreId) ? rawCurrentStore : null)
+        || userStores[0]
+        || null;
     const { i18n } = getTranslation();
     const currency = {
         ...DEFAULT_CURRENCY,

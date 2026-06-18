@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getTranslation } from '@/i18n';
 import { buildMenuFromPermissions, type MenuItem } from '@/lib/menu-builder';
 import { RootState, persistor } from '@/store';
-import { setCurrentStore, setPermissions } from '@/store/features/auth/authSlice';
+import { setCurrentStore, setPermissions, type Store } from '@/store/features/auth/authSlice';
 import { useLazyGetStorePermissionsQuery } from '@/store/features/auth/authApi';
 import { toggleSidebar } from '@/store/themeConfigSlice';
 import { useGetUnreadCountQuery } from '@/store/features/notification/notificationApi';
@@ -35,14 +35,17 @@ const Sidebar = () => {
     const user = useSelector((state: RootState) => state.auth.user);
     const currentStore = useSelector((state: RootState) => state.auth.currentStore);
     const currentStoreId = useSelector((state: RootState) => state.auth.currentStoreId);
-    const userStores = (user?.stores || []).filter((store, idx, arr) => arr.findIndex(s => s.id === store.id) === idx);
+    const userStores = (user?.stores || []).filter((store: Store, idx: number, arr: Store[]) => arr.findIndex((s: Store) => Number(s.id) === Number(store.id)) === idx);
     const selectedStore = useMemo(
-        () => userStores.find((store) => store.id === currentStoreId) || currentStore,
+        () => userStores.find((store: Store) => Number(store.id) === Number(currentStoreId))
+            || (currentStore && Number(currentStore.id) === Number(currentStoreId) ? currentStore : null)
+            || userStores[0]
+            || null,
         [currentStore, currentStoreId, userStores]
     );
     const normalizedStoreSearch = storeSearch.trim().toLowerCase();
     const filteredStores = useMemo(
-        () => userStores.filter((store) => {
+        () => userStores.filter((store: Store) => {
             if (!normalizedStoreSearch) return true;
             return [
                 store.store_name,
@@ -53,7 +56,7 @@ const Sidebar = () => {
         }),
         [normalizedStoreSearch, userStores]
     );
-    const selectedStoreInFilteredList = selectedStore ? filteredStores.some((store) => store.id === selectedStore.id) : false;
+    const selectedStoreInFilteredList = selectedStore ? filteredStores.some((store: Store) => Number(store.id) === Number(selectedStore.id)) : false;
     const visibleStores = selectedStore && !selectedStoreInFilteredList
         ? [selectedStore, ...filteredStores]
         : filteredStores;
@@ -104,7 +107,7 @@ const Sidebar = () => {
     const toggleMenu = (label: string) => setCurrentMenu((prev) => (prev === label ? '' : label));
 
     const handleStoreChange = async (store: any) => {
-        if (selectedStore?.id === store.id) { setIsStoreDropdownOpen(false); return; }
+        if (Number(selectedStore?.id) === Number(store.id)) { setIsStoreDropdownOpen(false); return; }
         setStoreWarning(null);
         setIsSwitchingStore(true);
         setIsStoreDropdownOpen(false);
@@ -234,23 +237,23 @@ const Sidebar = () => {
                                 )}
                             </div>
                             <div className="max-h-[42vh] overflow-y-auto pb-1.5">
-                                {visibleStores.map((store) => (
+                                {visibleStores.map((store: Store) => (
                                     <button
                                         key={store.id}
                                         onClick={() => handleStoreChange(store)}
                                         className={`flex w-full items-center gap-2.5 px-3 py-2 text-left text-white transition-colors hover:bg-white/[0.05] ${
-                                            selectedStore?.id === store.id ? 'bg-white/[0.08]' : ''
+                                            Number(selectedStore?.id) === Number(store.id) ? 'bg-white/[0.08]' : ''
                                         }`}
                                     >
                                         <div className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded text-[9px] font-bold text-white ${
                                             isStoreInactive(store) ? 'bg-orange-500/60' :
                                             isStoreDisabled(store) ? 'bg-red-500/60' :
-                                            selectedStore?.id === store.id ? 'bg-primary' : 'bg-white/20'
+                                            Number(selectedStore?.id) === Number(store.id) ? 'bg-primary' : 'bg-white/20'
                                         }`}>
                                             {store.store_name[0]?.toUpperCase()}
                                         </div>
                                         <span className="flex-1 truncate text-[13px] font-medium">{store.store_name}</span>
-                                        {selectedStore?.id === store.id && !isStoreInactive(store) && !isStoreDisabled(store) && (
+                                        {Number(selectedStore?.id) === Number(store.id) && !isStoreInactive(store) && !isStoreDisabled(store) && (
                                             <span className="text-xs text-white">✓</span>
                                         )}
                                         {isStoreInactive(store) && (
