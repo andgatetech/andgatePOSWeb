@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getTranslation } from '@/i18n';
 import { buildMenuFromPermissions, type MenuItem } from '@/lib/menu-builder';
 import { RootState } from '@/store';
+import { persistor } from '@/store';
 import { setCurrentStore, setPermissions } from '@/store/features/auth/authSlice';
 import { useLazyGetStorePermissionsQuery } from '@/store/features/auth/authApi';
 import { toggleSidebar } from '@/store/themeConfigSlice';
@@ -88,6 +89,7 @@ const Sidebar = () => {
         if (isStoreInactive(store)) setStoreWarning(`"${store.store_name}" ${t('msg_store_currently_inactive')}`);
         else if (isStoreDisabled(store)) setStoreWarning(`"${store.store_name}" ${t('msg_store_has_been_disabled')}`);
         dispatch(setCurrentStore(store));
+        persistor.flush();  // Persist immediately so store survives page reloads
         if (pathname?.match(/^\/orders\/return\/(\d+)$/) || pathname?.match(/^\/orders\/return\/create\/(\d+)$/) || pathname === '/orders/return') router.push('/orders/return/list');
         if (pathname?.match(/^\/products\/edit\/(\d+)$/)) router.push('/products');
         if (pathname?.match(/^\/purchases\/receive\/(\d+)$/)) router.push('/purchases/receive');
