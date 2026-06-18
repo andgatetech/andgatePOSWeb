@@ -7,13 +7,16 @@ import useSubscriptionError from '@/hooks/useSubscriptionError';
 import Loader from '@/lib/Loader';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useDeleteStoreMutation, useGetStoreQuery } from '@/store/features/store/storeApi';
+import { removeStore } from '@/store/features/auth/authSlice';
 import { Plus, Store } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import StoresTable from './components/StoresTable';
 
 const StoreComponent = () => {
     const { t } = getTranslation();
+    const dispatch = useDispatch();
     const router = useRouter();
     // Get current store from Redux
     const { currentStoreId, userStores } = useCurrentStore();
@@ -57,6 +60,7 @@ const StoreComponent = () => {
         if (confirmed) {
             try {
                 await deleteStore(store.id).unwrap();
+                dispatch(removeStore(store.id));
                 showSuccessDialog(t('msg_deleted'), t('msg_store_deleted'));
             } catch (error) {
                 showErrorDialog(t('msg_error'), t('msg_failed_delete_store'));

@@ -231,8 +231,20 @@ const authSlice = createSlice({
                 }
             }
         },
+
+        removeStore(state, action: PayloadAction<number>) {
+            const storeId = action.payload;
+            if (state.user?.stores) {
+                state.user.stores = state.user.stores.filter((s) => s.id !== storeId);
+            }
+            if (state.currentStoreId === storeId) {
+                const remaining = state.user?.stores ?? [];
+                state.currentStore = remaining.length > 0 ? remaining[0] : null;
+                state.currentStoreId = remaining.length > 0 ? remaining[0].id : null;
+            }
+        },
     },
 });
 
-export const { login, logout, setUser, setCurrentStore, setCurrentStoreById, updateUserProfile, updateCurrentStoreData, setPermissions } = authSlice.actions;
+export const { login, logout, setUser, setCurrentStore, setCurrentStoreById, updateUserProfile, updateCurrentStoreData, removeStore, setPermissions } = authSlice.actions;
 export default authSlice.reducer;
