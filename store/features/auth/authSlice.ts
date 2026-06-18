@@ -223,6 +223,16 @@ const authSlice = createSlice({
                 }
             }
         },
+        setUserStores(state, action: PayloadAction<Store[]>) {
+            const stores = uniqueStores(action.payload || []);
+            if (state.user) {
+                state.user = { ...state.user, stores };
+            }
+
+            const selectedStore = resolveStore(stores, normalizeStoreId(state.currentStoreId));
+            state.currentStore = selectedStore;
+            state.currentStoreId = selectedStore?.id || null;
+        },
         updateUserProfile(state, action: PayloadAction<{ name?: string; phone?: string; address?: string }>) {
             if (state.user) {
                 state.user = {
@@ -281,5 +291,5 @@ const authSlice = createSlice({
     },
 });
 
-export const { login, logout, setUser, setCurrentStore, setCurrentStoreById, updateUserProfile, updateCurrentStoreData, removeStore, setPermissions } = authSlice.actions;
+export const { login, logout, setUser, setCurrentStore, setCurrentStoreById, setUserStores, updateUserProfile, updateCurrentStoreData, removeStore, setPermissions } = authSlice.actions;
 export default authSlice.reducer;
