@@ -3,7 +3,7 @@
 import { Building2, Facebook, FileText, Hash, Mail, MapPin, Phone, Receipt, Tag, User } from 'lucide-react';
 import React from 'react';
 import { getTranslation } from '@/i18n';
-import { STORE_TYPES } from '@/lib/storeTypes';
+import SearchableStoreType from '@/components/common/SearchableStoreType';
 
 interface BasicInfoTabProps {
     formData: {
@@ -62,16 +62,10 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ formData, handleInputChange
                             <Building2 className="mr-2 h-4 w-4 text-[#046ca9]" />
                             {t('lbl_store_type')}
                         </label>
-                        <select
-                            name="store_type"
+                        <SearchableStoreType
                             value={formData.store_type}
-                            onChange={handleInputChange}
-                            className={inputCls}
-                        >
-                            {STORE_TYPES.map((type) => (
-                                <option key={type.value} value={type.value}>{t(type.labelKey)}</option>
-                            ))}
-                        </select>
+                            onChange={(val) => handleInputChange({ target: { name: 'store_type', value: val } } as any)}
+                        />
                     </div>
 
                     <div className="space-y-2">

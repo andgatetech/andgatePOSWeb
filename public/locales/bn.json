@@ -5666,5 +5666,7 @@
     "lbl_store_type_travel": "ট্রাভেল এজেন্সি",
     "lbl_store_type_vegetable": "সবজি / ফল বিক্রেতা",
     "lbl_store_type_water": "পানি পরিশোধন / সরবরাহ",
-    "lbl_store_type_welding": "ওয়েল্ডিং / ফেব্রিকেশন"
+    "lbl_store_type_welding": "ওয়েল্ডিং / ফেব্রিকেশন",
+    "lbl_select_store_type": "দোকানের ধরণ নির্বাচন করুন...",
+    "msg_no_results": "কোনো ফলাফল পাওয়া যায়নি"
 }

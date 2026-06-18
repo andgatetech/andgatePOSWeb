@@ -5666,5 +5666,7 @@
     "lbl_store_type_travel": "Travel Agency",
     "lbl_store_type_vegetable": "Vegetable / Fruit Vendor",
     "lbl_store_type_water": "Water Purifier / Supply",
-    "lbl_store_type_welding": "Welding / Fabrication"
+    "lbl_store_type_welding": "Welding / Fabrication",
+    "lbl_select_store_type": "Select store type...",
+    "msg_no_results": "No results found"
 }

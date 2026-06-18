@@ -1,7 +1,7 @@
 'use client';
 
 import { getTranslation } from '@/i18n';
-import { STORE_TYPES } from '@/lib/storeTypes';
+import SearchableStoreType from '@/components/common/SearchableStoreType';
 import { AUTH_TOKEN_EXPIRES_AT_COOKIE, AUTH_TOKEN_EXPIRES_AT_KEY, getCookieMaxAgeFromExpiry, getLoginTokenExpiresAt, isTokenExpired, setAuthCookie } from '@/lib/auth-session';
 import { buildAttribution } from '@/lib/attribution';
 import { RootState } from '@/store';
@@ -193,21 +193,10 @@ const ComponentsAuthRegisterForm = ({ defaultSource = 'website_registration', de
 
             <div>
                 <label htmlFor="StoreType">{t('lbl_store_type')}</label>
-                <div className="relative text-white-dark">
-                    <select
-                        id="StoreType"
-                        value={credentials.store_type}
-                        onChange={(e) => setCredentials({ ...credentials, store_type: e.target.value })}
-                        className="form-input ps-10 placeholder:text-white-dark"
-                    >
-                        {STORE_TYPES.map((type) => (
-                            <option key={type.value} value={type.value}>{t(type.labelKey)}</option>
-                        ))}
-                    </select>
-                    <span className="absolute start-4 top-1/2 -translate-y-1/2 text-gray-400">
-                        <IconBuilding size={18} />
-                    </span>
-                </div>
+                <SearchableStoreType
+                    value={credentials.store_type}
+                    onChange={(val) => setCredentials({ ...credentials, store_type: val })}
+                />
             </div>
 
             <div>
