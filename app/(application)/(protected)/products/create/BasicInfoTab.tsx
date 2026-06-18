@@ -2,6 +2,7 @@
 
 import { getTranslation } from '@/i18n';
 import RichTextEditor from '@/components/common/RichTextEditor';
+import { useStoreType } from '@/hooks/useStoreType';
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
@@ -69,6 +70,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
     isEditMode = false,
 }) => {
     const { t } = getTranslation();
+    const { isPharmacy } = useStoreType();
     const descriptionTextLength = formData.description.replace(/<[^>]*>?/gm, '').trim().length;
 
     return (
@@ -92,7 +94,8 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                     />
                 </div>
 
-                {/* Generic Name (Pharmacy) */}
+                {/* Generic Name — Pharmacy only */}
+                {isPharmacy && (
                 <div>
                     <label htmlFor="generic_name" className="mb-2 block text-sm font-medium text-gray-700">
                         {t('lbl_generic_name')} <span className="text-xs text-gray-400">({t('lbl_optional')})</span>
@@ -107,6 +110,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                         className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-gray-500"
                     />
                 </div>
+                )}
 
                 {/* Description */}
                 <div>

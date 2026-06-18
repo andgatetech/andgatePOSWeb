@@ -2,6 +2,7 @@
 
 import { getTranslation } from '@/i18n';
 import { useCurrency } from '@/hooks/useCurrency';
+import { useStoreType } from '@/hooks/useStoreType';
 import { ChevronDown, ChevronUp, Copy, Image as ImageIcon, Package, Plus, Trash2, X } from 'lucide-react';
 import Image from 'next/image';
 import React, { useState } from 'react';
@@ -65,6 +66,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
 }) => {
     const { t } = getTranslation();
     const { symbol } = useCurrency();
+    const { isPharmacy } = useStoreType();
     const [expandedVariantIndex, setExpandedVariantIndex] = useState<number | null>(null);
     const maxImagesPerVariant = 5;
 
@@ -378,6 +380,8 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                             />
                                         </div>
 
+                                        {isPharmacy && (
+                                        <>
                                         <div>
                                             <label className="mb-1.5 block text-sm font-medium text-gray-700">{t('lbl_batch_number')}</label>
                                             <input
@@ -408,6 +412,8 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                                 className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
                                             />
                                         </div>
+                                        </>
+                                        )}
                                     </div>
                                 </div>
 

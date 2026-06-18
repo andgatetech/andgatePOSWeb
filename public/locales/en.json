@@ -5613,5 +5613,13 @@
     "lbl_threshold_gap": "Threshold Gap",
     "lbl_current_threshold": "Current Threshold",
     "lbl_transfer_suggestions": "Stock transfer opportunities across stores",
-    "msg_threshold_intelligence_desc": "Use this when low-stock alerts feel too early or too late. It reviews recent sales speed and suggests better alert quantities before products run out."
+    "msg_threshold_intelligence_desc": "Use this when low-stock alerts feel too early or too late. It reviews recent sales speed and suggests better alert quantities before products run out.",
+    "lbl_store_type": "Store Type",
+    "lbl_store_type_retail": "Retail Shop",
+    "lbl_store_type_pharmacy": "Pharmacy / Medicine",
+    "lbl_store_type_grocery": "Grocery / Departmental",
+    "lbl_store_type_restaurant": "Restaurant / Food",
+    "lbl_store_type_wholesale": "Wholesale / Distributor",
+    "lbl_store_type_service": "Service Business",
+    "msg_store_type_help": "Store type determines which features are available. Pharmacy stores get batch tracking, expiry dates, and generic names."
 }

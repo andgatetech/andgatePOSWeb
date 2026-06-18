@@ -55,6 +55,7 @@ export interface Store {
     time_format?: string;
     is_active?: boolean | number;
     store_disabled?: boolean | number;
+    store_type?: 'retail' | 'pharmacy' | 'grocery' | 'restaurant' | 'wholesale' | 'service';
     meta_pixel_enabled?: boolean | number;
     meta_pixel_id?: string | null;
     seo_title?: string | null;
