@@ -23,6 +23,7 @@ import type { RootState } from '@/store';
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import Link from 'next/link';
 
 const SYNC_CONCURRENCY = 3; // sync up to 3 orders simultaneously
 
@@ -206,6 +207,25 @@ export default function OfflineSyncManager() {
             // Idempotency duplicate — treat as success
             if (status === 200 && err?.data?.idempotent) return { type: 'duplicate' };
 
+            if (status === 409 && err?.data?.error_type === 'stock_conflict') {
+                const conflicts = Array.isArray(err?.data?.conflicts) ? err.data.conflicts : [];
+                const conflictText = conflicts.length
+                    ? conflicts
+                        .map((conflict: any) => {
+                            const name = conflict.product_name || t('lbl_product');
+                            const required = conflict.required_quantity ?? 0;
+                            const available = conflict.available_quantity ?? 0;
+                            return `${name}: ${t('pos_required')} ${required}, ${t('pos_available')} ${available}`;
+                        })
+                        .join(' | ')
+                    : (err?.data?.message || t('pos_stock_changed_offline'));
+
+                return {
+                    type: 'failure',
+                    message: `${t('pos_stock_conflict')}: ${conflictText}`,
+                };
+            }
+
             // Collect ALL validation errors for debug visibility
             const errors = err?.data?.errors;
             const allValidationErrors = errors
@@ -294,9 +314,9 @@ export default function OfflineSyncManager() {
                         </svg>
                         <span className="text-sm font-semibold">Session expired — login again to sync your orders</span>
                     </div>
-                    <a href="/login" className="shrink-0 rounded-lg bg-white/20 px-3 py-1 text-xs font-bold transition hover:bg-white/30">
+                    <Link href="/login" className="shrink-0 rounded-lg bg-white/20 px-3 py-1 text-xs font-bold transition hover:bg-white/30">
                         Login
-                    </a>
+                    </Link>
                 </div>
             )}
 

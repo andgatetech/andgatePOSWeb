@@ -1,12 +1,13 @@
 'use client';
 
-import Loader from '@/lib/Loader';
-import { getTranslation } from '@/i18n';
+import ReportExportToolbar, { ExportColumn } from '@/app/(application)/(protected)/reports/_shared/ReportExportToolbar';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
-import { useGetDailySummaryQuery, useGetWeeklySummaryQuery } from '@/store/features/aiReports/aiReportsApi';
-import { Sparkles, TrendingUp, ShoppingCart, Package, AlertCircle } from 'lucide-react';
-import { useState, useMemo } from 'react';
 import { useCurrency } from '@/hooks/useCurrency';
+import { getTranslation } from '@/i18n';
+import Loader from '@/lib/Loader';
+import { useGetDailySummaryQuery, useGetWeeklySummaryQuery } from '@/store/features/aiReports/aiReportsApi';
+import { AlertCircle, Package, ShoppingCart, Sparkles, TrendingUp } from 'lucide-react';
+import { useMemo, useState } from 'react';
 
 type Tab = 'daily' | 'weekly';
 
@@ -25,8 +26,33 @@ const SmartSummaryPage = () => {
     const isLoading = activeTab === 'daily' ? dailyLoading : weeklyLoading;
 
     const metrics = rawData?.metrics || {};
-    const topProducts = metrics?.top_products || [];
+    const topProducts = useMemo(() => metrics?.top_products || [], [metrics?.top_products]);
     const narrative = activeTab === 'daily' ? rawData?.narrative : null;
+
+    const exportRows = useMemo(
+        () => [
+            { metric: t('lbl_revenue'), value: formatCurrency(metrics.revenue || 0), section: t('lbl_summary') },
+            { metric: t('lbl_total_orders'), value: metrics.order_count || 0, section: t('lbl_summary') },
+            { metric: t('lbl_new_customers'), value: metrics.new_customers || 0, section: t('lbl_summary') },
+            { metric: t('lbl_returns'), value: metrics.return_count || 0, section: t('lbl_summary') },
+            ...topProducts.map((product: any, index: number) => ({
+                metric: `${t('lbl_top_products')} #${index + 1}`,
+                value: `${product.product_name} - ${product.qty_sold} ${t('lbl_units')}`,
+                section: t('lbl_top_products'),
+            })),
+            ...(narrative ? [{ metric: t('lbl_summary'), value: narrative, section: t('lbl_summary') }] : []),
+        ],
+        [formatCurrency, metrics.new_customers, metrics.order_count, metrics.return_count, metrics.revenue, narrative, t, topProducts]
+    );
+
+    const exportColumns = useMemo<ExportColumn[]>(
+        () => [
+            { key: 'section', label: t('lbl_type'), width: 18 },
+            { key: 'metric', label: t('lbl_description'), width: 28 },
+            { key: 'value', label: t('lbl_value'), width: 42 },
+        ],
+        [t]
+    );
 
     const stats = [
         { label: t('lbl_revenue'), value: formatCurrency(metrics.revenue || 0), icon: <TrendingUp className="h-5 w-5 text-success" /> },
@@ -37,12 +63,29 @@ const SmartSummaryPage = () => {
 
     return (
         <div className="space-y-6 p-4 sm:p-6">
-            <div className="flex items-center gap-3 rounded-2xl bg-gradient-to-br from-[#046ca9] to-[#034d79] px-6 py-5 text-white shadow-lg">
-                <Sparkles className="h-8 w-8 flex-shrink-0 opacity-90" />
-                <div>
-                    <h1 className="text-xl font-bold">{t('lbl_smart_summary')}</h1>
-                    <p className="text-sm opacity-80">{t('lbl_smart_summary_desc')}</p>
+            <div className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-slate-200 bg-white px-5 py-4 shadow-sm">
+                <div className="flex items-center gap-3">
+                    <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                        <Sparkles className="h-6 w-6" />
+                    </span>
+                    <div>
+                        <h1 className="text-xl font-bold text-slate-900">{t('lbl_smart_summary')}</h1>
+                        <p className="text-sm text-slate-500">{t('lbl_smart_summary_desc')}</p>
+                    </div>
                 </div>
+                <ReportExportToolbar
+                    reportTitle={t('lbl_smart_summary')}
+                    reportDescription={t('lbl_smart_summary_desc')}
+                    data={exportRows}
+                    columns={exportColumns}
+                    summary={[
+                        { label: t('lbl_type'), value: activeTab === 'daily' ? t('lbl_daily') : t('lbl_weekly') },
+                        { label: t('lbl_revenue'), value: formatCurrency(metrics.revenue || 0) },
+                        { label: t('lbl_total_orders'), value: metrics.order_count || 0 },
+                    ]}
+                    filterSummary={{ customFilters: [{ label: t('lbl_type'), value: activeTab === 'daily' ? t('lbl_daily') : t('lbl_weekly') }] }}
+                    fileName={`smart_summary_${activeTab}`}
+                />
             </div>
 
             <div className="flex gap-1 rounded-xl border border-gray-200 bg-gray-50 p-1 w-fit">

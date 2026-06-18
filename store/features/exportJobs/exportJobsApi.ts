@@ -39,6 +39,21 @@ const exportJobsApi = baseApi.injectEndpoints({
                 method: 'GET',
             }),
         }),
+        previewStoreRestore: builder.mutation({
+            query: (data: FormData) => ({
+                url: '/export/restore/preview',
+                method: 'POST',
+                body: data,
+            }),
+        }),
+        restoreStoreBackup: builder.mutation({
+            query: (data: FormData) => ({
+                url: '/export/restore',
+                method: 'POST',
+                body: data,
+            }),
+            invalidatesTags: ['ExportJobs'],
+        }),
     }),
 });
 
@@ -48,4 +63,6 @@ export const {
     useQueueExportJobMutation,
     useDeleteExportJobMutation,
     useGetBackupStatusQuery,
+    usePreviewStoreRestoreMutation,
+    useRestoreStoreBackupMutation,
 } = exportJobsApi;

@@ -515,7 +515,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
             setSelectedBrand(null);
             // currentPage maintained
         },
-        [reduxItems, dispatch, disableSerialSelection, reduxSlice, currentStoreId, t]
+        [reduxItems, dispatch, disableSerialSelection, reduxSlice, currentStoreId, currentStore?.default_tax_rate, currentStore?.prices_include_tax, t]
     );
 
     // Auto-add product when exact match found (for camera/barcode scans)
@@ -660,7 +660,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
             setSelectedBrand(null);
             // currentPage maintained
         },
-        [variantProduct, reduxItems, dispatch, disableSerialSelection, reduxSlice, currentStoreId, t]
+        [variantProduct, reduxItems, dispatch, disableSerialSelection, reduxSlice, currentStoreId, currentStore?.default_tax_rate, currentStore?.prices_include_tax, t]
     );
 
     // Handle serial selection from modal
@@ -759,7 +759,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
             setSerialProduct(null);
             setSerialStock(null);
         },
-        [serialProduct, serialStock, dispatch, reduxSlice, currentStoreId, t, formatNumber]
+        [serialProduct, serialStock, dispatch, reduxSlice, currentStoreId, currentStore?.default_tax_rate, currentStore?.prices_include_tax, t, formatNumber]
     );
 
     const handleSearchChange = useCallback(
@@ -991,6 +991,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                                                 productCount={cachedProductsState.byStoreId[currentStoreId ?? 0]?.products?.length ?? 0}
                                                 categoryCount={masterData.categories.length}
                                                 brandCount={masterData.brands.length}
+                                                customerCount={masterData.customers.length}
                                                 paymentMethodCount={masterData.paymentMethods.length}
                                                 lastSyncedAt={masterData.lastSyncedAt}
                                                 onSyncNow={() => setOfflineCacheRefreshTick((tick) => tick + 1)}

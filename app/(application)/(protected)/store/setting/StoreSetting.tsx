@@ -26,7 +26,7 @@ import {
     useUpdateStoreMutation,
 } from '@/store/features/store/storeApi';
 import Loader from '@/lib/Loader';
-import { AlertCircle, CheckCircle, Loader2, Save, Settings, Store, X } from 'lucide-react';
+import { AlertCircle, CheckCircle, Clock, CreditCard, Loader2, Package, Save, Settings, Store, X } from 'lucide-react';
 
 // Import Tab Components
 import MobileStoreSettingFAB from './MobileStoreSettingFAB';
@@ -154,12 +154,63 @@ const StoreSetting = () => {
     // currencies is an array, get the first one for display (store typically has one currency)
     const currenciesData = store?.currencies || [];
     const currencyData = currenciesData.length > 0 ? currenciesData[0] : null;
-    const paymentStatusesData = store?.payment_statuses || [];
+    const paymentStatusesData = useMemo(() => {
+        const payload = store?.payment_statuses;
+        return Array.isArray(payload) ? payload : [];
+    }, [store?.payment_statuses]);
 
     const paymentMethods = useMemo(() => {
         const payload = store?.payment_methods;
         return Array.isArray(payload) ? payload : [];
     }, [store]);
+
+    const setupCards = useMemo(
+        () => {
+            const units = Array.isArray(store?.units) ? store.units : [];
+            const activePaymentMethods = paymentMethods.filter((method: any) => method?.is_active === true || method?.is_active === 1);
+            const activePaymentStatuses = paymentStatusesData.filter((status: any) => status?.is_active === true || status?.is_active === 1);
+            const checks = [
+                {
+                    key: 'profile',
+                    label: t('store_setup_profile'),
+                    description: t('store_setup_profile_desc'),
+                    done: Boolean(store?.store_name && (store?.store_contact || store?.store_location || store?.store_address)),
+                    tab: 'basic',
+                    icon: Store,
+                },
+                {
+                    key: 'hours',
+                    label: t('store_setup_hours'),
+                    description: t('store_setup_hours_desc'),
+                    done: Boolean(store?.opening_time && store?.closing_time),
+                    tab: 'hours',
+                    icon: Clock,
+                },
+                {
+                    key: 'inventory',
+                    label: t('store_setup_inventory'),
+                    description: t('store_setup_inventory_desc'),
+                    done: units.length > 0,
+                    tab: 'units',
+                    icon: Package,
+                },
+                {
+                    key: 'checkout',
+                    label: t('store_setup_checkout'),
+                    description: t('store_setup_checkout_desc'),
+                    done: activePaymentMethods.length > 0 && activePaymentStatuses.length > 0 && Boolean(currencyData),
+                    tab: activePaymentMethods.length === 0 ? 'payment' : activePaymentStatuses.length === 0 ? 'paymentstatus' : 'currency',
+                    icon: CreditCard,
+                },
+            ];
+
+            return {
+                checks,
+                doneCount: checks.filter((item) => item.done).length,
+            };
+        },
+        [currencyData, paymentMethods, paymentStatusesData, store, t]
+    );
 
     // Keep mutation APIs for CRUD operations
     const [createAttribute] = useCreateProductAttributeMutation();
@@ -1597,6 +1648,44 @@ const StoreSetting = () => {
                     </div>
                 </div>
             </div>
+
+            <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <h2 className="text-sm font-semibold text-slate-900">{t('store_setup_readiness')}</h2>
+                        <p className="text-xs text-slate-500">{t('store_setup_readiness_desc')}</p>
+                    </div>
+                    <span className="w-fit rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                        {setupCards.doneCount}/{setupCards.checks.length} {t('lbl_completed')}
+                    </span>
+                </div>
+                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                    {setupCards.checks.map((item) => {
+                        const Icon = item.icon;
+                        return (
+                            <button
+                                type="button"
+                                key={item.key}
+                                onClick={() => setActiveTab(item.tab)}
+                                className={`flex min-h-[108px] items-start gap-3 rounded-lg border p-3 text-left transition ${
+                                    item.done ? 'border-emerald-200 bg-emerald-50 hover:border-emerald-300' : 'border-amber-200 bg-amber-50 hover:border-amber-300'
+                                }`}
+                            >
+                                <span className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg ${item.done ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                                    <Icon className="h-4 w-4" />
+                                </span>
+                                <span className="min-w-0">
+                                    <span className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+                                        {item.label}
+                                        {item.done && <CheckCircle className="h-4 w-4 text-emerald-600" />}
+                                    </span>
+                                    <span className="mt-1 block text-xs leading-5 text-slate-600">{item.description}</span>
+                                </span>
+                            </button>
+                        );
+                    })}
+                </div>
+            </section>
 
             {/* Alert Messages */}
             {message.text && (

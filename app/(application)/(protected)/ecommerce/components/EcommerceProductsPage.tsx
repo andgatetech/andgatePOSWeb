@@ -19,6 +19,20 @@ import { VisibilityBadge } from './EcommerceBadges';
 import { formatApiError, getEcommerceFallbackText, getProductName, getResponseItems, getResponsePagination, getSku, resolveCurrentStoreGate, visibilityLabel } from './ecommerceUtils';
 
 const getProductVisibility = (product: any) => product.ecommerce_visible || product.ecommerce_visibility || product.ecommerce_status || 'pending';
+const getPrimaryStock = (product: any) => product.primary_stock || product.stock || product.stocks?.[0] || product.product_stocks?.[0] || null;
+const getOnlineReadinessIssues = (product: any) => {
+    const stock = getPrimaryStock(product);
+    const price = Number(stock?.price ?? stock?.selling_price ?? product.price ?? product.selling_price ?? 0);
+    const quantity = Number(stock?.quantity ?? stock?.available_qty ?? product.quantity ?? product.stock_quantity ?? 0);
+    const hasImage = Boolean(product.image || product.image_url || product.thumbnail || product.product_image || product.images?.length);
+    const issues: string[] = [];
+
+    if (!price || price <= 0) issues.push('price');
+    if (!quantity || quantity <= 0) issues.push('stock');
+    if (!hasImage) issues.push('image');
+    if (!product.description) issues.push('description');
+    return issues;
+};
 
 const EcommerceProductsPage = () => {
     const { t } = getTranslation();
@@ -66,6 +80,18 @@ const EcommerceProductsPage = () => {
             else if (visibility === 'rejected') counts.rejected += 1;
             else if (visibility === 'hidden' || visibility === 'inactive') counts.hidden += 1;
             else counts.pending += 1;
+        });
+        return counts;
+    }, [products]);
+    const readinessSummary = useMemo(() => {
+        const counts = { ready: 0, price: 0, stock: 0, image: 0, description: 0 };
+        products.forEach((product: any) => {
+            const issues = getOnlineReadinessIssues(product);
+            if (issues.length === 0) counts.ready += 1;
+            if (issues.includes('price')) counts.price += 1;
+            if (issues.includes('stock')) counts.stock += 1;
+            if (issues.includes('image')) counts.image += 1;
+            if (issues.includes('description')) counts.description += 1;
         });
         return counts;
     }, [products]);
@@ -186,6 +212,26 @@ const EcommerceProductsPage = () => {
                 render: (_value, row) => <VisibilityBadge value={getProductVisibility(row)} />,
             },
             {
+                key: 'online_readiness',
+                label: t('ecommerce_online_readiness'),
+                render: (_value, row) => {
+                    const issues = getOnlineReadinessIssues(row);
+                    if (issues.length === 0) {
+                        return <span className="inline-flex rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700">{t('ecommerce_ready_to_sell')}</span>;
+                    }
+
+                    return (
+                        <div className="flex max-w-[220px] flex-wrap gap-1">
+                            {issues.map((issue) => (
+                                <span key={issue} className="inline-flex rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">
+                                    {t(`ecommerce_missing_${issue}`)}
+                                </span>
+                            ))}
+                        </div>
+                    );
+                },
+            },
+            {
                 key: 'visibility_action',
                 label: t('lbl_actions'),
                 render: (_value, row) => {
@@ -274,6 +320,24 @@ const EcommerceProductsPage = () => {
                         </div>
                     </div>
 
+                    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                        <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <h2 className="text-sm font-semibold text-slate-900">{t('ecommerce_catalog_readiness')}</h2>
+                                <p className="text-xs text-slate-500">{t('ecommerce_catalog_readiness_desc')}</p>
+                            </div>
+                            <span className="w-fit rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+                                {readinessSummary.ready} {t('ecommerce_ready_to_sell')}
+                            </span>
+                        </div>
+                        <div className="grid gap-2 sm:grid-cols-4">
+                            <ReadinessMiniCard label={t('ecommerce_missing_price')} value={readinessSummary.price} />
+                            <ReadinessMiniCard label={t('ecommerce_missing_stock')} value={readinessSummary.stock} />
+                            <ReadinessMiniCard label={t('ecommerce_missing_image')} value={readinessSummary.image} />
+                            <ReadinessMiniCard label={t('ecommerce_missing_description')} value={readinessSummary.description} />
+                        </div>
+                    </div>
+
                     <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm lg:flex-row lg:items-center lg:justify-between">
                         <div>
                             <div className="flex flex-wrap items-center gap-3">
@@ -352,5 +416,14 @@ const EcommerceProductsPage = () => {
         </div>
     );
 };
+
+function ReadinessMiniCard({ label, value }: { label: string; value: number }) {
+    return (
+        <div className={`rounded-lg border px-3 py-2 ${value > 0 ? 'border-amber-200 bg-amber-50' : 'border-emerald-200 bg-emerald-50'}`}>
+            <p className={`text-xs font-semibold ${value > 0 ? 'text-amber-700' : 'text-emerald-700'}`}>{label}</p>
+            <p className="mt-1 text-lg font-bold text-slate-900">{value}</p>
+        </div>
+    );
+}
 
 export default EcommerceProductsPage;

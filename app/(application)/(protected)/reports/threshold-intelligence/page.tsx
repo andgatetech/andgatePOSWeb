@@ -1,5 +1,6 @@
 'use client';
 
+import ReportExportToolbar, { ExportColumn } from '@/app/(application)/(protected)/reports/_shared/ReportExportToolbar';
 import React, { useState } from 'react';
 import {
     TrendingDown, TrendingUp, Minus, ArrowRightLeft,
@@ -85,6 +86,29 @@ export default function ThresholdIntelligencePage() {
     const needsAdj  = d?.needs_adjustment ?? 0;
     const detCount  = d?.deteriorating_count ?? 0;
 
+    const recommendationExportColumns: ExportColumn[] = [
+        { key: 'product_name', label: t('lbl_product'), width: 24 },
+        { key: 'category', label: t('lbl_category'), width: 14 },
+        { key: 'sku', label: t('lbl_sku'), width: 12 },
+        { key: 'quantity', label: t('lbl_in_stock'), width: 10 },
+        { key: 'effective_threshold', label: t('Current Threshold'), width: 13 },
+        { key: 'recommended_threshold', label: t('Recommended'), width: 13 },
+        { key: 'threshold_gap', label: t('Threshold Gap'), width: 11, format: (value) => value ?? 0 },
+        { key: 'avg_daily_sales_30d', label: t('lbl_avg_per_day'), width: 12 },
+        { key: 'days_until_stockout', label: t('lbl_days_left'), width: 10, format: (value) => value ?? 'N/A' },
+        { key: 'stockout_trend', label: t('Trend'), width: 12 },
+    ];
+
+    const transferExportColumns: ExportColumn[] = [
+        { key: 'product_name', label: t('lbl_product'), width: 24 },
+        { key: 'sku', label: t('lbl_sku'), width: 12 },
+        { key: 'deficit_qty', label: t('Deficit Qty'), width: 11 },
+        { key: 'units_needed', label: t('Units Needed'), width: 12 },
+        { key: 'surplus_store_name', label: t('Transfer From'), width: 20 },
+        { key: 'transferable_qty', label: t('Available'), width: 12 },
+        { key: 'avg_daily_sales', label: t('lbl_avg_per_day'), width: 12 },
+    ];
+
     const handleApply = async (rec: Rec) => {
         if (!currentStoreId) return;
         setApplyingIds((s) => new Set(s).add(rec.stock_id));
@@ -120,7 +144,7 @@ export default function ThresholdIntelligencePage() {
     return (
         <div className="p-4 space-y-5">
             {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:flex-row lg:items-center lg:justify-between">
                 <div>
                     <h1 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                         <Lightbulb className="w-5 h-5 text-yellow-500" />
@@ -129,24 +153,46 @@ export default function ThresholdIntelligencePage() {
                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
                         {t('Velocity-based threshold recommendations and stockout trend analysis')}
                     </p>
+                    <p className="mt-2 max-w-3xl text-xs leading-5 text-gray-500 dark:text-gray-400">
+                        {t('Use this when low-stock alerts feel too early or too late. It reviews recent sales speed and suggests better alert quantities before products run out.')}
+                    </p>
                 </div>
-                <div className="flex items-center gap-2">
-                    <label className="text-sm text-gray-500">{t('Lead days')}:</label>
-                    <select
-                        value={leadDays}
-                        onChange={(e) => setLeadDays(+e.target.value)}
-                        className="text-sm px-2 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-primary/30"
-                    >
-                        {[3, 5, 7, 10, 14, 21, 30].map((d) => (
-                            <option key={d} value={d}>{d} days</option>
-                        ))}
-                    </select>
-                    <button
-                        onClick={() => refetch()}
-                        className="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                    >
-                        <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
-                    </button>
+                <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex items-center gap-2">
+                        <label className="text-sm text-gray-500">{t('Lead days')}:</label>
+                        <select
+                            value={leadDays}
+                            onChange={(e) => setLeadDays(+e.target.value)}
+                            className="text-sm px-2 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-primary/30"
+                        >
+                            {[3, 5, 7, 10, 14, 21, 30].map((d) => (
+                                <option key={d} value={d}>{d} days</option>
+                            ))}
+                        </select>
+                        <button
+                            onClick={() => refetch()}
+                            className="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                            title={t('lbl_refresh')}
+                        >
+                            <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
+                        </button>
+                    </div>
+                    <ReportExportToolbar
+                        reportTitle={tab === 'recommendations' ? t('Threshold Intelligence') : t('Transfer Suggestions')}
+                        reportDescription={tab === 'recommendations'
+                            ? t('Velocity-based threshold recommendations and stockout trend analysis')
+                            : t('Stock transfer opportunities across stores')}
+                        data={tab === 'recommendations' ? recs : transfers}
+                        columns={tab === 'recommendations' ? recommendationExportColumns : transferExportColumns}
+                        summary={[
+                            { label: t('Lead days'), value: leadDays },
+                            { label: t('Products analysed'), value: d?.total_products ?? 0 },
+                            { label: t('Thresholds to fix'), value: needsAdj },
+                            { label: t('Transfer tips'), value: transfers.length },
+                        ]}
+                        filterSummary={{ customFilters: [{ label: t('Lead days'), value: `${leadDays} days` }] }}
+                        fileName={`threshold_intelligence_${tab}`}
+                    />
                 </div>
             </div>
 

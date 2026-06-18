@@ -1,10 +1,10 @@
 'use client';
 
+import ReportExportToolbar, { ExportColumn } from '@/app/(application)/(protected)/reports/_shared/ReportExportToolbar';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
-import { getTranslation } from '@/i18n';
 import { useGetArAgingReportMutation } from '@/store/features/reports/reportApi';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 interface AgingRow {
     customer_id: number;
@@ -47,7 +47,6 @@ const BucketBadge = ({ value, variant }: { value: number; variant: 'green' | 'ye
 };
 
 const ArAgingReportPage = () => {
-    const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
     const { currentStoreId } = useCurrentStore();
 
@@ -58,6 +57,22 @@ const ArAgingReportPage = () => {
     const [reportAsOf, setReportAsOf] = useState('');
 
     const [getArAging, { isLoading }] = useGetArAgingReportMutation();
+
+    const exportColumns = useMemo<ExportColumn[]>(
+        () => [
+            { key: 'customer_name', label: 'Customer', width: 18 },
+            { key: 'customer_phone', label: 'Phone', width: 15 },
+            { key: 'open_due_count', label: 'Open Dues', width: 9 },
+            { key: 'bucket_0_30', label: '0-30 Days', width: 11, format: (value) => formatCurrency(Number(value) || 0) },
+            { key: 'bucket_31_60', label: '31-60 Days', width: 11, format: (value) => formatCurrency(Number(value) || 0) },
+            { key: 'bucket_61_90', label: '61-90 Days', width: 11, format: (value) => formatCurrency(Number(value) || 0) },
+            { key: 'bucket_91_plus', label: '91+ Days', width: 11, format: (value) => formatCurrency(Number(value) || 0) },
+            { key: 'total_due', label: 'Total Due', width: 12, format: (value) => formatCurrency(Number(value) || 0) },
+            { key: 'total_paid', label: 'Paid', width: 11, format: (value) => formatCurrency(Number(value) || 0) },
+            { key: 'total_remaining', label: 'Outstanding', width: 13, format: (value) => formatCurrency(Number(value) || 0) },
+        ],
+        [formatCurrency]
+    );
 
     const fetchReport = async () => {
         if (!currentStoreId) return;
@@ -88,6 +103,30 @@ const ArAgingReportPage = () => {
         { key: 'bucket_91_plus', label: '91+ days',   variant: 'red'    as const },
     ];
 
+    const exportSummary = useMemo(
+        () => summary
+            ? [
+                { label: '0-30 Days', value: formatCurrency(summary.bucket_0_30) },
+                { label: '31-60 Days', value: formatCurrency(summary.bucket_31_60) },
+                { label: '61-90 Days', value: formatCurrency(summary.bucket_61_90) },
+                { label: '91+ Days', value: formatCurrency(summary.bucket_91_plus) },
+                { label: 'Total Outstanding', value: formatCurrency(summary.total_remaining) },
+                { label: 'Customers', value: summary.total_customers },
+            ]
+            : [],
+        [formatCurrency, summary]
+    );
+
+    const exportFilters = useMemo(
+        () => ({
+            customFilters: [
+                { label: 'As of', value: reportAsOf || 'Today' },
+                ...(search.trim() ? [{ label: 'Search', value: search.trim() }] : []),
+            ],
+        }),
+        [reportAsOf, search]
+    );
+
     return (
         <div className="space-y-5 p-4 sm:p-6">
             {/* Header */}
@@ -98,6 +137,23 @@ const ArAgingReportPage = () => {
                         <p className="text-xs text-gray-400 mt-0.5">As of {reportAsOf}</p>
                     )}
                 </div>
+                <ReportExportToolbar
+                    reportTitle="A/R Aging Report"
+                    reportDescription="Customer outstanding balance by due age"
+                    data={rows}
+                    columns={exportColumns}
+                    summary={exportSummary}
+                    filterSummary={exportFilters}
+                    fileName="ar_aging_report"
+                    fetchAllData={async () => {
+                        if (!currentStoreId) return rows;
+                        const payload: any = { store_id: currentStoreId };
+                        if (asOfDate) payload.as_of_date = asOfDate;
+                        if (search.trim()) payload.search = search.trim();
+                        const res = await getArAging(payload).unwrap();
+                        return res?.data?.rows ?? [];
+                    }}
+                />
             </div>
 
             {/* Filters */}

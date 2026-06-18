@@ -217,18 +217,24 @@ function WorkflowGuide({ status, paymentStatus, hasCourier }: { status: OrderSta
         },
         {
             number: '2',
+            title: t('ecommerce_detail_stock_check'),
+            description: t('ecommerce_detail_workflow_stock_desc'),
+            value: <Badge variant="outline">{t('ecommerce_detail_check_before_confirm')}</Badge>,
+        },
+        {
+            number: '3',
             title: t('ecommerce_detail_fulfillment'),
             description: t('ecommerce_detail_workflow_fulfillment_desc'),
             value: <StatusBadge status={status} />,
         },
         {
-            number: '3',
+            number: '4',
             title: t('ecommerce_detail_payment'),
             description: t('ecommerce_detail_workflow_payment_desc'),
             value: <StatusBadge status={paymentStatus} />,
         },
         {
-            number: '4',
+            number: '5',
             title: t('ecommerce_detail_courier_parcel'),
             description: t('ecommerce_detail_workflow_courier_desc'),
             value: (
@@ -238,7 +244,7 @@ function WorkflowGuide({ status, paymentStatus, hasCourier }: { status: OrderSta
             ),
         },
         {
-            number: '5',
+            number: '6',
             title: t('ecommerce_detail_items'),
             description: t('ecommerce_detail_workflow_items_desc'),
             value: <Badge variant="outline">{t('ecommerce_detail_review')}</Badge>,
@@ -256,7 +262,7 @@ function WorkflowGuide({ status, paymentStatus, hasCourier }: { status: OrderSta
                     <p className="mt-0.5 text-xs leading-5 text-slate-500">{t('ecommerce_detail_workflow_desc')}</p>
                 </div>
             </CardHeader>
-            <CardContent className="grid gap-3 border-t border-slate-100 p-5 md:grid-cols-2 xl:grid-cols-5">
+            <CardContent className="grid gap-3 border-t border-slate-100 p-5 md:grid-cols-2 xl:grid-cols-6">
                 {steps.map((step) => (
                     <div key={step.number} className="flex min-h-[112px] flex-col justify-between rounded-lg border border-slate-200 bg-slate-50 p-4">
                         <div className="flex items-start gap-3">
@@ -269,6 +275,100 @@ function WorkflowGuide({ status, paymentStatus, hasCourier }: { status: OrderSta
                         <div className="mt-3 pl-10">{step.value}</div>
                     </div>
                 ))}
+            </CardContent>
+        </Card>
+    );
+}
+
+const getItemAvailableQty = (item: any): number | null => {
+    const candidates = [
+        item?.available_qty,
+        item?.available_quantity,
+        item?.stock_quantity,
+        item?.current_stock,
+        item?.quantity_available,
+        item?.stock?.quantity,
+        item?.product_stock?.quantity,
+        item?.stock_item?.quantity,
+        item?.product?.primary_stock?.quantity,
+    ];
+
+    const found = candidates.find((value) => value !== undefined && value !== null && value !== '');
+    if (found === undefined) return null;
+    const numeric = Number(found);
+    return Number.isFinite(numeric) ? numeric : null;
+};
+
+function StockReadinessPanel({ items }: { items: any[] }) {
+    const { t } = getTranslation();
+    const rows = useMemo(
+        () => items.map((item) => {
+            const requested = Number(item?.quantity || 0);
+            const available = getItemAvailableQty(item);
+            const status = available === null ? 'unknown' : available >= requested ? 'ready' : 'short';
+            return { item, requested, available, status };
+        }),
+        [items]
+    );
+    const shortCount = rows.filter((row) => row.status === 'short').length;
+    const unknownCount = rows.filter((row) => row.status === 'unknown').length;
+    const readyCount = rows.filter((row) => row.status === 'ready').length;
+
+    const tone = shortCount > 0 ? 'border-red-200 bg-red-50 text-red-900' : unknownCount > 0 ? 'border-amber-200 bg-amber-50 text-amber-900' : 'border-emerald-200 bg-emerald-50 text-emerald-900';
+
+    return (
+        <Card className="order-2">
+            <CardHeader className="p-5">
+                <SectionTitle icon={Package} title={`2. ${t('ecommerce_detail_stock_check')}`} description={t('ecommerce_detail_stock_check_desc')} />
+            </CardHeader>
+            <CardContent className="border-t border-slate-100 p-5">
+                <div className={cn('mb-4 rounded-md border px-4 py-3 text-sm', tone)}>
+                    <p className="font-semibold">
+                        {shortCount > 0
+                            ? t('ecommerce_detail_stock_short_title')
+                            : unknownCount > 0
+                            ? t('ecommerce_detail_stock_unknown_title')
+                            : t('ecommerce_detail_stock_ready_title')}
+                    </p>
+                    <p className="mt-1 leading-5">
+                        {t('ecommerce_detail_stock_summary', { ready: readyCount, short: shortCount, unknown: unknownCount })}
+                    </p>
+                </div>
+                <div className="overflow-x-auto">
+                    <table className="w-full min-w-[620px] text-sm">
+                        <thead className="bg-slate-50 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                            <tr>
+                                <th className="px-4 py-3">{t('ecommerce_detail_product')}</th>
+                                <th className="px-4 py-3 text-right">{t('lbl_ordered')}</th>
+                                <th className="px-4 py-3 text-right">{t('lbl_available')}</th>
+                                <th className="px-4 py-3 text-right">{t('lbl_status')}</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                            {rows.map(({ item, requested, available, status }) => (
+                                <tr key={item.id || item.stock_id || item.product_id}>
+                                    <td className="px-4 py-3 font-semibold text-slate-900">
+                                        {item.product_name || item?.product?.product_name || item?.product?.name || getEcommerceFallbackText()}
+                                    </td>
+                                    <td className="px-4 py-3 text-right">{requested}</td>
+                                    <td className="px-4 py-3 text-right">{available === null ? t('lbl_unknown') : available}</td>
+                                    <td className="px-4 py-3 text-right">
+                                        <span
+                                            className={cn(
+                                                'inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold',
+                                                status === 'short' && 'bg-red-100 text-red-700',
+                                                status === 'unknown' && 'bg-amber-100 text-amber-700',
+                                                status === 'ready' && 'bg-emerald-100 text-emerald-700'
+                                            )}
+                                        >
+                                            {status === 'short' ? t('ecommerce_detail_stock_short') : status === 'unknown' ? t('lbl_unknown') : t('ecommerce_detail_stock_ready')}
+                                        </span>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </CardContent>
         </Card>
     );
@@ -511,6 +611,20 @@ const EcommerceOrderDetailsPage = () => {
     const latestCourierStatus = latestCourierResponseData?.order_status_slug || latestCourierResponseData?.order_status || latestCourier?.courier_status;
     const courierFulfillmentSignal = getCourierFulfillmentSignal(latestCourierStatus);
     const totalQty = useMemo(() => items.reduce((sum: number, item: any) => sum + Number(item?.quantity || 0), 0), [items]);
+    const stockReadiness = useMemo(
+        () => {
+            const rows = items.map((item: any) => {
+                const requested = Number(item?.quantity || 0);
+                const available = getItemAvailableQty(item);
+                return { requested, available };
+            });
+            return {
+                short: rows.filter((row) => row.available !== null && row.available < row.requested).length,
+                unknown: rows.filter((row) => row.available === null).length,
+            };
+        },
+        [items]
+    );
     const paymentMethod = order?.payment_method || order?.latest_payment_method || primaryTransaction?.payment_method;
     const paymentStatus = order?.payment_status || order?.latest_payment_status || primaryTransaction?.payment_status;
     const matchedStore = useMemo(() => {
@@ -602,6 +716,16 @@ const EcommerceOrderDetailsPage = () => {
 
     const handleStatusUpdate = async () => {
         if (!order?.id) return;
+
+        if (status === 'confirmed' && stockReadiness.short > 0) {
+            showErrorDialog(t('ecommerce_detail_stock_short_title'), t('ecommerce_detail_stock_short_block_confirm'));
+            return;
+        }
+
+        if (status === 'confirmed' && stockReadiness.unknown > 0) {
+            const ok = window.confirm(t('ecommerce_detail_stock_unknown_confirm'));
+            if (!ok) return;
+        }
 
         try {
             await updateOrderStatus({ id: order.id, status }).unwrap();
@@ -1029,9 +1153,11 @@ const EcommerceOrderDetailsPage = () => {
                         />
                         </div>
 
+                        <StockReadinessPanel items={items} />
+
                         <Card className="order-2 animate-slide-up">
                             <CardHeader className="flex-row items-start justify-between gap-4 p-5">
-                                <SectionTitle icon={Truck} title={`2. ${t('ecommerce_detail_fulfillment')}`} description={t('ecommerce_detail_fulfillment_desc')} />
+                                <SectionTitle icon={Truck} title={`3. ${t('ecommerce_detail_fulfillment')}`} description={t('ecommerce_detail_fulfillment_desc')} />
                                 <div className="flex flex-col gap-2 sm:flex-row">
                                     <select value={status} onChange={(event) => setStatus(event.target.value as OrderStatus)} className={cn(controlClass, 'sm:w-[180px]')}>
                                         {ECOMMERCE_ORDER_STATUSES.map((item) => (

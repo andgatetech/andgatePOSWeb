@@ -8,7 +8,9 @@ import {
     useDeleteExportJobMutation,
     useGetBackupStatusQuery,
     useGetExportJobsQuery,
+    usePreviewStoreRestoreMutation,
     useQueueExportJobMutation,
+    useRestoreStoreBackupMutation,
 } from '@/store/features/exportJobs/exportJobsApi';
 import { RootState } from '@/store';
 import { AlertTriangle, Clock, Database, Download, FileArchive, FileDown, HardDrive, RefreshCw, RotateCcw, Trash2 } from 'lucide-react';
@@ -76,11 +78,16 @@ const DataExportPage = () => {
     const token = useSelector((state: RootState) => state.auth.token);
     const [queuingType, setQueuingType] = useState<string | null>(null);
     const [downloadingType, setDownloadingType] = useState<string | null>(null);
+    const [restoreFile, setRestoreFile] = useState<File | null>(null);
+    const [restorePreview, setRestorePreview] = useState<any>(null);
+    const [confirmPhrase, setConfirmPhrase] = useState('');
 
     const { data: jobsData, isLoading: jobsLoading, refetch: refetchJobs } = useGetExportJobsQuery(currentStoreId ? { store_id: currentStoreId } : {}, { refetchOnMountOrArgChange: 30 });
     const { data: backupData } = useGetBackupStatusQuery(undefined, { refetchOnMountOrArgChange: 60 });
     const [queueJob] = useQueueExportJobMutation();
     const [deleteJob] = useDeleteExportJobMutation();
+    const [previewRestore, { isLoading: isPreviewingRestore }] = usePreviewStoreRestoreMutation();
+    const [restoreBackup, { isLoading: isRestoringBackup }] = useRestoreStoreBackupMutation();
 
     const jobs = useMemo(() => {
         const d = jobsData as any;
@@ -156,6 +163,52 @@ const DataExportPage = () => {
             showErrorDialog(t('export_download_failed_title'), t('export_download_failed_desc'));
         }
     }, [fetchBlobDownload, t]);
+
+    const buildRestoreFormData = useCallback(() => {
+        if (!restoreFile || !currentStoreId) return null;
+        const fd = new FormData();
+        fd.append('store_id', String(currentStoreId));
+        fd.append('backup_file', restoreFile);
+        return fd;
+    }, [currentStoreId, restoreFile]);
+
+    const handlePreviewRestore = useCallback(async () => {
+        const fd = buildRestoreFormData();
+        if (!fd) {
+            showErrorDialog(t('export_restore_missing_title'), t('export_restore_missing_desc'));
+            return;
+        }
+
+        try {
+            const result = await previewRestore(fd).unwrap();
+            setRestorePreview((result as any)?.data || result);
+            setConfirmPhrase('');
+        } catch (error: any) {
+            showErrorDialog(t('export_restore_invalid_title'), error?.data?.message || t('export_restore_invalid_desc'));
+            setRestorePreview(null);
+        }
+    }, [buildRestoreFormData, previewRestore, t]);
+
+    const handleRestoreBackup = useCallback(async () => {
+        const fd = buildRestoreFormData();
+        if (!fd || !restorePreview) {
+            showErrorDialog(t('export_restore_missing_title'), t('export_restore_preview_first'));
+            return;
+        }
+
+        fd.append('confirm_phrase', confirmPhrase);
+
+        try {
+            const result = await restoreBackup(fd).unwrap();
+            setRestorePreview((result as any)?.data || restorePreview);
+            showSuccessDialog(t('export_restore_success_title'), t('export_restore_success_desc'));
+            setRestoreFile(null);
+            setConfirmPhrase('');
+            refetchJobs();
+        } catch (error: any) {
+            showErrorDialog(t('export_restore_failed_title'), error?.data?.message || t('export_restore_failed_desc'));
+        }
+    }, [buildRestoreFormData, confirmPhrase, refetchJobs, restoreBackup, restorePreview, t]);
 
     const exportTypes = useMemo(() => [
         { type: 'products', title: t('export_products_title'), desc: t('export_products_desc'), icon: <FileDown className="h-5 w-5" /> },
@@ -269,12 +322,53 @@ const DataExportPage = () => {
                         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-700">
                             <RotateCcw className="h-5 w-5" />
                         </div>
-                        <div>
+                        <div className="min-w-0 flex-1">
                             <h2 className="text-sm font-semibold text-gray-900">{t('export_restore_title')}</h2>
                             <p className="mt-1 text-sm text-gray-600">{t('export_restore_desc')}</p>
-                            <div className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-xs font-semibold text-amber-700">
-                                <AlertTriangle className="h-3.5 w-3.5" />
-                                {t('export_restore_not_ready')}
+                            <div className="mt-3 space-y-3">
+                                <input
+                                    type="file"
+                                    accept="application/json,.json"
+                                    onChange={(event) => {
+                                        setRestoreFile(event.target.files?.[0] || null);
+                                        setRestorePreview(null);
+                                        setConfirmPhrase('');
+                                    }}
+                                    className="block w-full text-xs text-gray-700 file:mr-3 file:rounded-lg file:border-0 file:bg-white file:px-3 file:py-2 file:text-xs file:font-semibold file:text-amber-700"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={handlePreviewRestore}
+                                    disabled={!restoreFile || isPreviewingRestore || !currentStoreId}
+                                    className="inline-flex items-center gap-1.5 rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-xs font-semibold text-amber-700 hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                    {isPreviewingRestore ? <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-amber-600 border-t-transparent" /> : <AlertTriangle className="h-3.5 w-3.5" />}
+                                    {t('export_restore_preview')}
+                                </button>
+                                {restorePreview && (
+                                    <div className="rounded-lg border border-amber-200 bg-white p-3">
+                                        <p className="text-xs font-semibold text-gray-900">
+                                            {t('export_restore_preview_ready')}: {restorePreview.row_count || 0} {t('export_rows')} / {restorePreview.table_count || 0} {t('export_tables')}
+                                        </p>
+                                        <p className="mt-1 text-xs text-gray-500">{t('export_restore_confirm_help')}</p>
+                                        <input
+                                            type="text"
+                                            value={confirmPhrase}
+                                            onChange={(event) => setConfirmPhrase(event.target.value)}
+                                            placeholder={restorePreview.confirm_phrase || 'RESTORE MY STORE'}
+                                            className="mt-2 w-full rounded-lg border border-amber-200 px-3 py-2 text-xs font-semibold text-gray-800 focus:border-amber-500 focus:outline-none"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={handleRestoreBackup}
+                                            disabled={isRestoringBackup || confirmPhrase !== restorePreview.confirm_phrase}
+                                            className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+                                        >
+                                            {isRestoringBackup ? <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" /> : <RotateCcw className="h-3.5 w-3.5" />}
+                                            {t('export_restore_now')}
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>

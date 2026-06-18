@@ -289,3 +289,12 @@ export async function getStorageEstimate(): Promise<{ usedMB: number; quotaMB: n
         return null;
     }
 }
+
+export async function getStoragePersisted(): Promise<boolean | null> {
+    if (!navigator.storage?.persisted) return null;
+    try {
+        return await navigator.storage.persisted();
+    } catch {
+        return null;
+    }
+}
