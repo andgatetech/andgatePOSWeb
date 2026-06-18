@@ -66,7 +66,7 @@ const CreateOnlineOrderPage = () => {
 
     const searchQueryParams = useMemo(() => {
         if (!debouncedSearch || !currentStoreId) return null;
-        return { store_id: currentStoreId, search: debouncedSearch, per_page: 24 };
+        return { store_id: currentStoreId, search: debouncedSearch, per_page: 24, fast_pagination: true };
     }, [debouncedSearch, currentStoreId]);
 
     const { data: productData, isFetching: searching } = useGetEcommerceProductsQuery(searchQueryParams ?? {}, { skip: !searchQueryParams });
