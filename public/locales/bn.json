@@ -288,7 +288,8 @@
             "privacy_policy": "প্রাইভেসি পলিসি",
             "terms_of_service": "সার্ভিসের শর্তাবলী",
             "cookie_policy": "কুকি পলিসি",
-            "promotion": "বিশেষ অফার"
+            "promotion": "বিশেষ অফার",
+            "compare": "তুলনা করুন"
         }
     },
     "layout": {
@@ -296,12 +297,20 @@
             "home": "হোম",
             "features": "বৈশিষ্ট্যসমূহ",
             "overview": "পরিচিতি",
+            "solutions": "সলিউশন",
             "pricing": "মূল্য ",
             "training": "প্রশিক্ষণ",
             "contact": "যোগাযোগ",
+            "compare": "তুলনা করুন",
             "login": "লগইন",
             "get_started": "শুরু করুন"
         }
+    },
+    "compare": {
+        "vs_mediasoft": "AndgatePOS বনাম Mediasoft",
+        "vs_others": "AndgatePOS বনাম অন্যান্য POS",
+        "vs_manual_register": "AndgatePOS বনাম হাতে লেখা খাতা",
+        "vs_excel": "POS বনাম এক্সেল"
     },
     "overview": {
         "sectionTitle": "দোকানের কাজ অনুযায়ী ফিচার দেখুন",

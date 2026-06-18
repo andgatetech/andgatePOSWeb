@@ -1,6 +1,7 @@
 'use client';
 import { convertNumberByLanguage } from '@/components/custom/convertNumberByLanguage';
 import { getTranslation } from '@/i18n';
+import { comparePages } from '@/lib/high-intent-pages';
 import {
     ArrowRight,
     Facebook,
@@ -40,6 +41,11 @@ const Footer = () => {
         { label: t('footer.nav.privacy_policy'), href: '/privacy-policy' },
         { label: t('footer.nav.terms_of_service'), href: '/terms-of-service' },
         { label: t('footer.nav.cookie_policy'), href: '/cookie-policy' },
+    ];
+
+    const compareLinks = [
+        { label: t('footer.nav.compare'), href: '/compare' },
+        ...comparePages.map((page) => ({ label: page.title, href: page.path })),
     ];
 
     const affiliateLinks = [
@@ -90,7 +96,7 @@ const Footer = () => {
 
             {/* Main Footer Body */}
             <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-                <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-5">
+                <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-6">
 
                     {/* Brand Column */}
                     <div className="lg:col-span-1">
@@ -142,6 +148,20 @@ const Footer = () => {
                         <h4 className="mb-5 text-xs font-bold uppercase tracking-widest text-slate-500">{t('footer.nav.company')}</h4>
                         <ul className="space-y-3">
                             {companyLinks.map((link) => (
+                                <li key={link.href}>
+                                    <Link href={link.href} className="text-sm text-slate-400 transition-colors hover:text-white">
+                                        {link.label}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+
+                    {/* Compare Links */}
+                    <div>
+                        <h4 className="mb-5 text-xs font-bold uppercase tracking-widest text-slate-500">{t('footer.nav.compare')}</h4>
+                        <ul className="space-y-3">
+                            {compareLinks.map((link) => (
                                 <li key={link.href}>
                                     <Link href={link.href} className="text-sm text-slate-400 transition-colors hover:text-white">
                                         {link.label}

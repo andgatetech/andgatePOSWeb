@@ -419,7 +419,8 @@
             "privacy_policy": "Privacy Policy",
             "terms_of_service": "Terms of Service",
             "cookie_policy": "Cookie Policy",
-            "promotion": "Special Offer"
+            "promotion": "Special Offer",
+            "compare": "Compare"
         }
     },
     "layout": {
@@ -427,12 +428,20 @@
             "home": "Home",
             "features": "Features",
             "overview": "Overview",
+            "solutions": "Solutions",
             "pricing": "Pricing",
             "training": "Training",
             "contact": "Contact",
+            "compare": "Compare",
             "login": "Login",
             "get_started": "Get Started"
         }
+    },
+    "compare": {
+        "vs_mediasoft": "AndgatePOS vs Mediasoft",
+        "vs_others": "AndgatePOS vs Other POS",
+        "vs_manual_register": "AndgatePOS vs Manual Register",
+        "vs_excel": "POS vs Excel"
     },
     "overview": {
         "sectionTitle": "See Features by Daily Shop Work",
