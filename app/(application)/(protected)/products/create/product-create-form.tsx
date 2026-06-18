@@ -83,6 +83,7 @@ const ProductCreateForm = () => {
         brand_id: '',
         brand_name: '',
         product_name: '',
+        generic_name: '',
         description: '',
         price: '',
         wholesale_price: '',
@@ -455,6 +456,9 @@ const ProductCreateForm = () => {
                 fd.append('brand_id', formData.brand_id);
             }
             fd.append('product_name', formData.product_name.trim());
+            if (formData.generic_name?.trim()) {
+                fd.append('generic_name', formData.generic_name.trim());
+            }
             fd.append('description', formData.description.trim());
 
             // SKU is now sent at stock level (stocks[0][sku]), not at product level
@@ -510,6 +514,9 @@ const ProductCreateForm = () => {
                 }
                 if (stock.purchase_date) {
                     fd.append(`stocks[${index}][purchase_date]`, stock.purchase_date);
+                }
+                if (stock.expiry_date) {
+                    fd.append(`stocks[${index}][expiry_date]`, stock.expiry_date);
                 }
 
                 // Add variant_data as array (backend expects array, not JSON string)

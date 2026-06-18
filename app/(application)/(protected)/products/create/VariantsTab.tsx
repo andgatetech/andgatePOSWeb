@@ -28,6 +28,7 @@ export interface ProductStock {
     available: 'yes' | 'no';
     batch_no: string;
     purchase_date: string;
+    expiry_date: string;
     unit: string;
     variant_data: { [key: string]: string }; // e.g., { "Color": "Red", "Size": "XL" }
     images: ImageListType;
@@ -88,6 +89,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
             available: 'yes',
             batch_no: '',
             purchase_date: '',
+            expiry_date: '',
             unit: defaultUnit || '',
             variant_data: newVariantData,
             images: [],
@@ -393,6 +395,16 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                                 type="date"
                                                 value={stock.purchase_date}
                                                 onChange={(e) => handleVariantChange(index, 'purchase_date', e.target.value)}
+                                                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="mb-1.5 block text-sm font-medium text-gray-700">{t('lbl_expiry_date')}</label>
+                                            <input
+                                                type="date"
+                                                value={stock.expiry_date}
+                                                onChange={(e) => handleVariantChange(index, 'expiry_date', e.target.value)}
                                                 className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
                                             />
                                         </div>

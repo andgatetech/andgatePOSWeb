@@ -9,6 +9,7 @@ import React from 'react';
 interface BasicInfoTabProps {
     formData: {
         product_name: string;
+        generic_name: string;
         description: string;
         category_id: string;
         category_name: string;
@@ -87,6 +88,22 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                         value={formData.product_name}
                         onChange={handleChange}
                         placeholder={t('lbl_product')}
+                        className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-gray-500"
+                    />
+                </div>
+
+                {/* Generic Name (Pharmacy) */}
+                <div>
+                    <label htmlFor="generic_name" className="mb-2 block text-sm font-medium text-gray-700">
+                        {t('lbl_generic_name')} <span className="text-xs text-gray-400">({t('lbl_optional')})</span>
+                    </label>
+                    <input
+                        id="generic_name"
+                        name="generic_name"
+                        type="text"
+                        value={formData.generic_name}
+                        onChange={handleChange}
+                        placeholder={t('ph_generic_name')}
                         className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-gray-500"
                     />
                 </div>
