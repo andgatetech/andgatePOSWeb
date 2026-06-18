@@ -45,8 +45,13 @@ const TaxReportPage = () => {
         if (currentStoreId || apiParams.store_id || apiParams.store_ids) {
             lastQueryParams.current = queryString;
             getTaxReport(queryParams);
-            const period = queryParams.start_date ? String(queryParams.start_date).slice(0, 7) : new Date().toISOString().slice(0, 7);
-            getBdVatWorkspace({ store_id: queryParams.store_id, store_ids: queryParams.store_ids, period });
+            getBdVatWorkspace({
+                store_id: queryParams.store_id,
+                store_ids: queryParams.store_ids,
+                start_date: queryParams.start_date,
+                end_date: queryParams.end_date,
+                period: queryParams.start_date || queryParams.end_date ? undefined : new Date().toISOString().slice(0, 7),
+            });
         }
     }, [queryParams, currentStoreId, apiParams, getTaxReport, getBdVatWorkspace]);
 
