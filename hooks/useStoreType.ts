@@ -1,6 +1,7 @@
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { type StoreType } from '@/lib/storeTypes';
 
-export type StoreType = 'retail' | 'pharmacy' | 'grocery' | 'restaurant' | 'wholesale' | 'service' | 'electronics' | 'clothing' | 'hardware' | 'stationery' | 'jewelry' | 'cosmetics' | 'furniture' | 'bakery' | 'tailoring';
+export type { StoreType };
 
 export function useStoreType() {
     const { currentStore } = useCurrentStore();
@@ -16,12 +17,5 @@ export function useStoreType() {
         isService: storeType === 'service',
         isElectronics: storeType === 'electronics',
         isClothing: storeType === 'clothing',
-        isHardware: storeType === 'hardware',
-        isStationery: storeType === 'stationery',
-        isJewelry: storeType === 'jewelry',
-        isCosmetics: storeType === 'cosmetics',
-        isFurniture: storeType === 'furniture',
-        isBakery: storeType === 'bakery',
-        isTailoring: storeType === 'tailoring',
     };
 }

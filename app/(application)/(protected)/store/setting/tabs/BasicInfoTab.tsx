@@ -3,6 +3,7 @@
 import { Building2, Facebook, FileText, Hash, Mail, MapPin, Phone, Receipt, Tag, User } from 'lucide-react';
 import React from 'react';
 import { getTranslation } from '@/i18n';
+import { STORE_TYPES } from '@/lib/storeTypes';
 
 interface BasicInfoTabProps {
     formData: {
@@ -67,21 +68,9 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ formData, handleInputChange
                             onChange={handleInputChange}
                             className={inputCls}
                         >
-                            <option value="retail">{t('lbl_store_type_retail')}</option>
-                            <option value="pharmacy">{t('lbl_store_type_pharmacy')}</option>
-                            <option value="grocery">{t('lbl_store_type_grocery')}</option>
-                            <option value="restaurant">{t('lbl_store_type_restaurant')}</option>
-                            <option value="wholesale">{t('lbl_store_type_wholesale')}</option>
-                            <option value="electronics">{t('lbl_store_type_electronics')}</option>
-                            <option value="clothing">{t('lbl_store_type_clothing')}</option>
-                            <option value="hardware">{t('lbl_store_type_hardware')}</option>
-                            <option value="stationery">{t('lbl_store_type_stationery')}</option>
-                            <option value="jewelry">{t('lbl_store_type_jewelry')}</option>
-                            <option value="cosmetics">{t('lbl_store_type_cosmetics')}</option>
-                            <option value="furniture">{t('lbl_store_type_furniture')}</option>
-                            <option value="bakery">{t('lbl_store_type_bakery')}</option>
-                            <option value="tailoring">{t('lbl_store_type_tailoring')}</option>
-                            <option value="service">{t('lbl_store_type_service')}</option>
+                            {STORE_TYPES.map((type) => (
+                                <option key={type.value} value={type.value}>{t(type.labelKey)}</option>
+                            ))}
                         </select>
                     </div>
 
