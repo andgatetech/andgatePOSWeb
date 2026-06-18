@@ -91,9 +91,9 @@ export default function ThresholdIntelligencePage() {
         { key: 'category', label: t('lbl_category'), width: 14 },
         { key: 'sku', label: t('lbl_sku'), width: 12 },
         { key: 'quantity', label: t('lbl_in_stock'), width: 10 },
-        { key: 'effective_threshold', label: t('Current Threshold'), width: 13 },
+        { key: 'effective_threshold', label: t('lbl_current_threshold'), width: 13 },
         { key: 'recommended_threshold', label: t('Recommended'), width: 13 },
-        { key: 'threshold_gap', label: t('Threshold Gap'), width: 11, format: (value) => value ?? 0 },
+        { key: 'threshold_gap', label: t('lbl_threshold_gap'), width: 11, format: (value) => value ?? 0 },
         { key: 'avg_daily_sales_30d', label: t('lbl_avg_per_day'), width: 12 },
         { key: 'days_until_stockout', label: t('lbl_days_left'), width: 10, format: (value) => value ?? 'N/A' },
         { key: 'stockout_trend', label: t('Trend'), width: 12 },
@@ -154,7 +154,7 @@ export default function ThresholdIntelligencePage() {
                         {t('Velocity-based threshold recommendations and stockout trend analysis')}
                     </p>
                     <p className="mt-2 max-w-3xl text-xs leading-5 text-gray-500 dark:text-gray-400">
-                        {t('Use this when low-stock alerts feel too early or too late. It reviews recent sales speed and suggests better alert quantities before products run out.')}
+                        {t('msg_threshold_intelligence_desc')}
                     </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
@@ -181,7 +181,7 @@ export default function ThresholdIntelligencePage() {
                         reportTitle={tab === 'recommendations' ? t('Threshold Intelligence') : t('Transfer Suggestions')}
                         reportDescription={tab === 'recommendations'
                             ? t('Velocity-based threshold recommendations and stockout trend analysis')
-                            : t('Stock transfer opportunities across stores')}
+                            : t('lbl_transfer_suggestions')}
                         data={tab === 'recommendations' ? recs : transfers}
                         columns={tab === 'recommendations' ? recommendationExportColumns : transferExportColumns}
                         summary={[

@@ -934,6 +934,17 @@ const EcommerceOrderDetailsPage = () => {
     const handlePrintInvoice = async () => {
         const invoicePayload = buildInvoicePayload();
         const printWindow = reserveInvoicePrintWindow(`invoice-${invoicePayload.invoice || 'order'}.pdf`);
+        if (!printWindow) {
+            try {
+                setIsDownloading(true);
+                await generateOrderInvoicePDF(invoicePayload, null, { action: 'print' });
+            } catch (e) {
+                showErrorDialog(t('msg_print_popup_blocked'), t('msg_print_popup_blocked_desc'));
+            } finally {
+                setIsDownloading(false);
+            }
+            return;
+        }
         try {
             setIsDownloading(true);
             await generateOrderInvoicePDF(invoicePayload, printWindow, { action: 'print' });

@@ -5604,5 +5604,14 @@
     "onboarding_action_first_product": "পণ্য যোগ করুন",
     "onboarding_action_opening_stock": "স্টক দিন",
     "onboarding_action_first_customer": "কাস্টমার যোগ করুন",
-    "onboarding_action_first_sale": "বিক্রি শুরু করুন"
+    "onboarding_action_first_sale": "বিক্রি শুরু করুন",
+    "lbl_generic_name": "জেনেরিক নাম",
+    "ph_generic_name": "যেমন: প্যারাসিটামল (নাপা-র জন্য)",
+    "msg_print_popup_blocked": "পপ-আপ ব্লক হয়েছে",
+    "msg_print_popup_blocked_desc": "আপনার ব্রাউজার প্রিন্ট পপ-আপ ব্লক করেছে। ইনভয়েস নতুন ট্যাবে খুলবে। দয়া করে এই সাইটের জন্য পপ-আপ অনুমতি দিন অথবা ডাউনলোড বাটন ব্যবহার করুন।",
+    "purchase_no_data_desc": "আপনার মানদণ্ডের সাথে মিলে এমন কোনো ক্রয় আদেশ পাওয়া যায়নি।",
+    "lbl_threshold_gap": "সীমা পার্থক্য",
+    "lbl_current_threshold": "বর্তমান সীমা",
+    "lbl_transfer_suggestions": "স্টোরের মধ্যে স্টক স্থানান্তরের সুযোগ",
+    "msg_threshold_intelligence_desc": "লো-স্টক অ্যালার্ট খুব তাড়াতাড়ি বা খুব দেরিতে মনে হলে এটি ব্যবহার করুন। এটি সাম্প্রতিক বিক্রয়ের গতি পর্যালোচনা করে এবং পণ্য শেষ হওয়ার আগে ভালো অ্যালার্ট পরিমাণের পরামর্শ দেয়।"
 }

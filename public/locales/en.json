@@ -5604,5 +5604,14 @@
     "onboarding_action_first_product": "Add product",
     "onboarding_action_opening_stock": "Add stock",
     "onboarding_action_first_customer": "Add customer",
-    "onboarding_action_first_sale": "Start sale"
+    "onboarding_action_first_sale": "Start sale",
+    "lbl_generic_name": "Generic Name",
+    "ph_generic_name": "e.g., Paracetamol (for Napa)",
+    "msg_print_popup_blocked": "Pop-up blocked",
+    "msg_print_popup_blocked_desc": "Your browser blocked the print pop-up. The invoice will open in a new tab. Please allow pop-ups for this site or use the Download button instead.",
+    "purchase_no_data_desc": "No purchase orders found matching your criteria.",
+    "lbl_threshold_gap": "Threshold Gap",
+    "lbl_current_threshold": "Current Threshold",
+    "lbl_transfer_suggestions": "Stock transfer opportunities across stores",
+    "msg_threshold_intelligence_desc": "Use this when low-stock alerts feel too early or too late. It reviews recent sales speed and suggests better alert quantities before products run out."
 }

@@ -282,8 +282,13 @@ const printPdfMake = (pdfDoc: any, filename: string, printWindow?: Window | null
                 pdfDoc.print();
                 resolve();
                 return;
-            } catch (error) {
-                reject(error);
+            } catch (printError) {
+                try {
+                    pdfDoc.download(filename);
+                    resolve();
+                } catch (downloadError) {
+                    reject(downloadError);
+                }
                 return;
             }
         }
