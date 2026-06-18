@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { AUTH_TOKEN_EXPIRES_AT_COOKIE, decodeAuthCookieValue, isTokenExpired } from './lib/auth-session';
 import { canAccessRoute, findMatchingRouteKey, normalizeRoutePath } from './lib/permissions';
+import { landingPages } from './lib/landing-pages';
+import { highIntentPages } from './lib/high-intent-pages';
 
 const LANGUAGE_COOKIE = 'i18nextLng';
 const LANGUAGE_SOURCE_COOKIE = 'i18nextLngSource';
@@ -30,8 +32,23 @@ const PUBLIC_PATHS = [
     '/pricing', '/price', '/subscription', '/training', '/contact', '/promotion',
     '/affiliate', '/features', '/landing', '/seo', '/pos-overview',
     '/privacy-policy', '/terms-of-service', '/cookie-policy',
+    // SEO route groups whose URL has no path prefix to match against (Next.js
+    // route groups like `(seo)` are stripped from the URL), plus their
+    // localized/comparison variants — these must stay crawlable or every
+    // landing page listed in sitemap.xml 404s into a login redirect for bots.
+    '/bn', '/compare',
 ];
+
+// Bare top-level SEO landing slugs from app/(seo)/[slug] — derived directly
+// from the same data used to build the sitemap, so this can't drift out of
+// sync when a new landing/high-intent page is added.
+const SEO_SLUG_PATHS = new Set([
+    ...landingPages.map((page) => `/${page.slug}`),
+    ...highIntentPages.filter((page) => !page.path.startsWith('/compare/')).map((page) => page.path),
+]);
+
 const isPublicPath = (path: string) =>
+    SEO_SLUG_PATHS.has(path) ||
     PUBLIC_PATHS.some(p => path === p || (p !== '/' && path.startsWith(p + '/')));
 
 const getOriginalPath = (request: NextRequest) => `${request.nextUrl.pathname}${request.nextUrl.search}`;

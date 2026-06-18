@@ -2,6 +2,7 @@
 
 import SubscriptionError from '@/components/common/SubscriptionError';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { useStoreType } from '@/hooks/useStoreType';
 import useSubscriptionError from '@/hooks/useSubscriptionError';
 import { getTranslation } from '@/i18n';
 import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
@@ -38,6 +39,18 @@ const ProductCreateForm = () => {
     const router = useRouter();
 
     const { currentStore } = useCurrentStore();
+    const { storeType, isPharmacy, isElectronics, isClothing, isGrocery, isRestaurant } = useStoreType();
+
+    // Store-type-aware defaults: auto-enable relevant features
+    useEffect(() => {
+        if (isElectronics) {
+            setFormData((prev) => ({ ...prev, has_serial: true, has_warranty: true }));
+        } else if (isClothing) {
+            setFormData((prev) => ({ ...prev, has_attributes: true }));
+        } else if (isRestaurant) {
+            setFormData((prev) => ({ ...prev, available: 'yes', quantity: '0' }));
+        }
+    }, [storeType]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // Send store_id for the currently selected store only
     const queryParams = currentStore?.id ? { store_id: currentStore.id } : {};

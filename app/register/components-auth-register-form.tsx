@@ -46,6 +46,7 @@ const ComponentsAuthRegisterForm = ({ defaultSource = 'website_registration', de
         email: '',
         password: '',
         password_confirmation: '',
+        store_type: 'retail',
         ref_code: refCode,
         ...attribution,
     });
@@ -183,6 +184,37 @@ const ComponentsAuthRegisterForm = ({ defaultSource = 'website_registration', de
                         placeholder={t('register-page.form.store_name_placeholder')}
                         className="form-input ps-10 placeholder:text-white-dark"
                     />
+                    <span className="absolute start-4 top-1/2 -translate-y-1/2 text-gray-400">
+                        <IconBuilding size={18} />
+                    </span>
+                </div>
+            </div>
+
+            <div>
+                <label htmlFor="StoreType">{t('lbl_store_type')}</label>
+                <div className="relative text-white-dark">
+                    <select
+                        id="StoreType"
+                        value={credentials.store_type}
+                        onChange={(e) => setCredentials({ ...credentials, store_type: e.target.value })}
+                        className="form-input ps-10 placeholder:text-white-dark"
+                    >
+                        <option value="retail">{t('lbl_store_type_retail')}</option>
+                        <option value="pharmacy">{t('lbl_store_type_pharmacy')}</option>
+                        <option value="grocery">{t('lbl_store_type_grocery')}</option>
+                        <option value="restaurant">{t('lbl_store_type_restaurant')}</option>
+                        <option value="wholesale">{t('lbl_store_type_wholesale')}</option>
+                        <option value="electronics">{t('lbl_store_type_electronics')}</option>
+                        <option value="clothing">{t('lbl_store_type_clothing')}</option>
+                        <option value="hardware">{t('lbl_store_type_hardware')}</option>
+                        <option value="stationery">{t('lbl_store_type_stationery')}</option>
+                        <option value="jewelry">{t('lbl_store_type_jewelry')}</option>
+                        <option value="cosmetics">{t('lbl_store_type_cosmetics')}</option>
+                        <option value="furniture">{t('lbl_store_type_furniture')}</option>
+                        <option value="bakery">{t('lbl_store_type_bakery')}</option>
+                        <option value="tailoring">{t('lbl_store_type_tailoring')}</option>
+                        <option value="service">{t('lbl_store_type_service')}</option>
+                    </select>
                     <span className="absolute start-4 top-1/2 -translate-y-1/2 text-gray-400">
                         <IconBuilding size={18} />
                     </span>

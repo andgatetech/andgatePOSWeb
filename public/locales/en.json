@@ -5621,5 +5621,14 @@
     "lbl_store_type_restaurant": "Restaurant / Food",
     "lbl_store_type_wholesale": "Wholesale / Distributor",
     "lbl_store_type_service": "Service Business",
-    "msg_store_type_help": "Store type determines which features are available. Pharmacy stores get batch tracking, expiry dates, and generic names."
+    "msg_store_type_help": "Store type determines which features are available. Pharmacy stores get batch tracking, expiry dates, and generic names.",
+    "lbl_store_type_electronics": "Electronics / Mobile",
+    "lbl_store_type_clothing": "Clothing / Fashion",
+    "lbl_store_type_hardware": "Hardware / Sanitary",
+    "lbl_store_type_stationery": "Book / Stationery",
+    "lbl_store_type_jewelry": "Jewelry / Watch",
+    "lbl_store_type_cosmetics": "Cosmetics / Beauty",
+    "lbl_store_type_furniture": "Furniture / Decor",
+    "lbl_store_type_bakery": "Bakery / Sweets",
+    "lbl_store_type_tailoring": "Tailoring / Garments"
 }

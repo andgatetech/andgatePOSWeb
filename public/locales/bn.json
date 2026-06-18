@@ -5621,5 +5621,14 @@
     "lbl_store_type_restaurant": "রেস্টুরেন্ট / খাবার",
     "lbl_store_type_wholesale": "পাইকারি / ডিস্ট্রিবিউটর",
     "lbl_store_type_service": "সার্ভিস ব্যবসা",
-    "msg_store_type_help": "স্টোরের ধরণ নির্ধারণ করে কোন ফিচারগুলো available থাকবে। ফার্মেসি স্টোরে ব্যাচ ট্র্যাকিং, মেয়াদ শেষের তারিখ এবং জেনেরিক নাম পাওয়া যাবে।"
+    "msg_store_type_help": "স্টোরের ধরণ নির্ধারণ করে কোন ফিচারগুলো available থাকবে। ফার্মেসি স্টোরে ব্যাচ ট্র্যাকিং, মেয়াদ শেষের তারিখ এবং জেনেরিক নাম পাওয়া যাবে।",
+    "lbl_store_type_electronics": "ইলেক্ট্রনিক্স / মোবাইল",
+    "lbl_store_type_clothing": "কাপড় / ফ্যাশন",
+    "lbl_store_type_hardware": "হার্ডওয়্যার / স্যানিটারি",
+    "lbl_store_type_stationery": "বই / স্টেশনারি",
+    "lbl_store_type_jewelry": "জুয়েলারি / ঘড়ি",
+    "lbl_store_type_cosmetics": "কসমেটিকস / বিউটি",
+    "lbl_store_type_furniture": "ফার্নিচার / ডেকোর",
+    "lbl_store_type_bakery": "বেকারি / মিষ্টি",
+    "lbl_store_type_tailoring": "টেইলার্স / পোশাক"
 }
