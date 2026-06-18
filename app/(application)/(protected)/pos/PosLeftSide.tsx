@@ -47,9 +47,10 @@ interface PosLeftSideProps {
         label?: string;
     };
     reduxSlice?: 'pos' | 'stock' | 'label' | 'orderEdit' | 'orderReturn' | 'purchase'; // Which Redux slice to use
+    enableOfflinePrefetch?: boolean;
 }
 
-const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelection = false, mobileButtonConfig, reduxSlice = 'pos' }) => {
+const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelection = false, mobileButtonConfig, reduxSlice = 'pos', enableOfflinePrefetch = true }) => {
     const { t } = getTranslation();
     const { formatNumber } = useCurrency();
     const [open, setOpen] = useState(false);
@@ -123,10 +124,10 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
     // Background prefetch: fetch ALL store products in pages, cache for offline use
     const [triggerPrefetch] = useLazyGetAllProductsQuery();
     useEffect(() => {
-        if (!isOnline || !currentStoreId) return;
+        if (!enableOfflinePrefetch || !isOnline || !currentStoreId) return;
         let cancelled = false;
         const PAGE_SIZE = 200;
-        const MAX_PRODUCTS = 5000;
+        const MAX_PRODUCTS = 1000;
 
         const prefetch = async () => {
             try {
@@ -176,15 +177,16 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
 
         prefetch();
         return () => { cancelled = true; };
-    }, [currentStoreId, isOnline, offlineCacheRefreshTick]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [currentStoreId, isOnline, offlineCacheRefreshTick, enableOfflinePrefetch]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // Build query parameters for current store only - with pagination and sorting support
     const queryParams = useMemo(() => {
         const params: Record<string, any> = {
             page: currentPage,
-            per_page: itemsPerPage,
+            per_page: searchTerm.trim() ? Math.min(itemsPerPage, 10) : itemsPerPage,
             sort_field: 'product_name',
             sort_direction: 'asc',
+            fast_pagination: true,
         };
 
         // Only filter by available in POS mode

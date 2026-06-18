@@ -15,6 +15,7 @@ const page = () => {
                 label: t('purchase_title'),
             }}
             reduxSlice="purchase"
+            enableOfflinePrefetch={false}
         >
             <PurchaseOrderRightSide></PurchaseOrderRightSide>
         </PosLeftSide>
