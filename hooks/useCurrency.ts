@@ -24,7 +24,10 @@ const DEFAULT_CURRENCY: Currency = {
  * @returns Object containing currency settings and formatCurrency function
  */
 export const useCurrency = () => {
-    const currentStore = useSelector((state: RootState) => state.auth?.currentStore);
+    const rawCurrentStore = useSelector((state: RootState) => state.auth?.currentStore);
+    const currentStoreId = useSelector((state: RootState) => state.auth?.currentStoreId);
+    const userStores = useSelector((state: RootState) => state.auth?.user?.stores || []);
+    const currentStore = userStores.find((store) => store.id === currentStoreId) || rawCurrentStore;
     const { i18n } = getTranslation();
     const currency = {
         ...DEFAULT_CURRENCY,

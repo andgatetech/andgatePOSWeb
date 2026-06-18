@@ -15,7 +15,7 @@ import { useLazyGetStorePermissionsQuery } from '@/store/features/auth/authApi';
 import { toggleSidebar } from '@/store/themeConfigSlice';
 import { useGetUnreadCountQuery } from '@/store/features/notification/notificationApi';
 
-import { AlertTriangle, Ban, ChevronDown, Crown } from 'lucide-react';
+import { AlertTriangle, Ban, ChevronDown, Crown, Search } from 'lucide-react';
 import Image from 'next/image';
 import IconCaretsDown from '../icon/icon-carets-down';
 
@@ -28,12 +28,35 @@ const Sidebar = () => {
     const [isStoreDropdownOpen, setIsStoreDropdownOpen] = useState(false);
     const [storeWarning, setStoreWarning] = useState<string | null>(null);
     const [isSwitchingStore, setIsSwitchingStore] = useState(false);
+    const [storeSearch, setStoreSearch] = useState('');
     const [fetchStorePermissions] = useLazyGetStorePermissionsQuery();
 
     const themeConfig = useSelector((state: RootState) => state.themeConfig);
     const user = useSelector((state: RootState) => state.auth.user);
     const currentStore = useSelector((state: RootState) => state.auth.currentStore);
+    const currentStoreId = useSelector((state: RootState) => state.auth.currentStoreId);
     const userStores = (user?.stores || []).filter((store, idx, arr) => arr.findIndex(s => s.id === store.id) === idx);
+    const selectedStore = useMemo(
+        () => userStores.find((store) => store.id === currentStoreId) || currentStore,
+        [currentStore, currentStoreId, userStores]
+    );
+    const normalizedStoreSearch = storeSearch.trim().toLowerCase();
+    const filteredStores = useMemo(
+        () => userStores.filter((store) => {
+            if (!normalizedStoreSearch) return true;
+            return [
+                store.store_name,
+                store.store_location,
+                store.store_contact,
+                store.store_type,
+            ].some((value) => String(value || '').toLowerCase().includes(normalizedStoreSearch));
+        }),
+        [normalizedStoreSearch, userStores]
+    );
+    const selectedStoreInFilteredList = selectedStore ? filteredStores.some((store) => store.id === selectedStore.id) : false;
+    const visibleStores = selectedStore && !selectedStoreInFilteredList
+        ? [selectedStore, ...filteredStores]
+        : filteredStores;
 
     const { data: unreadData } = useGetUnreadCountQuery(undefined, {
         pollingInterval: 300000, // 5 minutes
@@ -81,10 +104,11 @@ const Sidebar = () => {
     const toggleMenu = (label: string) => setCurrentMenu((prev) => (prev === label ? '' : label));
 
     const handleStoreChange = async (store: any) => {
-        if (currentStore?.id === store.id) { setIsStoreDropdownOpen(false); return; }
+        if (selectedStore?.id === store.id) { setIsStoreDropdownOpen(false); return; }
         setStoreWarning(null);
         setIsSwitchingStore(true);
         setIsStoreDropdownOpen(false);
+        setStoreSearch('');
         if (isStoreInactive(store)) setStoreWarning(`"${store.store_name}" ${t('msg_store_currently_inactive')}`);
         else if (isStoreDisabled(store)) setStoreWarning(`"${store.store_name}" ${t('msg_store_has_been_disabled')}`);
         dispatch(setCurrentStore(store));
@@ -107,7 +131,7 @@ const Sidebar = () => {
         setIsSwitchingStore(false);
     };
 
-    const storeInitial = currentStore?.store_name?.[0]?.toUpperCase() || 'S';
+    const storeInitial = selectedStore?.store_name?.[0]?.toUpperCase() || 'S';
 
     const sidebarOpen = themeConfig.sidebar;
 
@@ -152,7 +176,7 @@ const Sidebar = () => {
                     >
                         {/* Store avatar */}
                         <div className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-sm font-bold text-white shadow-lg ${
-                            currentStore && (isStoreInactive(currentStore) || isStoreDisabled(currentStore))
+                            selectedStore && (isStoreInactive(selectedStore) || isStoreDisabled(selectedStore))
                                 ? 'bg-red-500/70' : 'bg-gradient-to-br from-[#046ca9] to-[#034d79]'
                         }`}>
                             {isSwitchingStore ? (
@@ -165,11 +189,11 @@ const Sidebar = () => {
 
                         <div className="min-w-0 flex-1 text-left">
                             <p className="truncate text-sm font-semibold leading-tight text-white">
-                                {isSwitchingStore ? t('lbl_switching') : currentStore?.store_name || t('lbl_select_store')}
+                                {isSwitchingStore ? t('lbl_switching') : selectedStore?.store_name || t('lbl_select_store')}
                             </p>
                             <p className="text-xs leading-tight text-white/80">
-                                {currentStore && isStoreInactive(currentStore) ? t('lbl_inactive_store') :
-                                 currentStore && isStoreDisabled(currentStore) ? t('lbl_store_disabled') : t('lbl_current_store')}
+                                {selectedStore && isStoreInactive(selectedStore) ? t('lbl_inactive_store') :
+                                 selectedStore && isStoreDisabled(selectedStore) ? t('lbl_store_disabled') : t('lbl_current_store')}
                             </p>
                         </div>
 
@@ -192,23 +216,41 @@ const Sidebar = () => {
                     {/* Store list dropdown */}
                     <AnimateHeight duration={200} height={isStoreDropdownOpen ? 'auto' : 0}>
                         <div className="mt-2 overflow-hidden rounded-xl border border-white/[0.09] bg-[#111e3a]">
-                            <p className="px-3 py-2 text-[9px] font-semibold uppercase tracking-widest text-white/45">{t('lbl_switch_store')}</p>
-                            <div className="pb-1.5">
-                                {userStores.map((store) => (
+                            <div className="border-b border-white/[0.06] px-3 py-2">
+                                <div className="flex items-center justify-between gap-2">
+                                    <p className="text-[9px] font-semibold uppercase tracking-widest text-white/45">{t('lbl_switch_store')}</p>
+                                    <span className="rounded-full bg-white/10 px-1.5 py-0.5 text-[9px] font-semibold text-white/60">{userStores.length}</span>
+                                </div>
+                                {userStores.length > 8 && (
+                                    <div className="mt-2 flex items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.05] px-2 py-1.5">
+                                        <Search className="h-3.5 w-3.5 flex-shrink-0 text-white/45" />
+                                        <input
+                                            value={storeSearch}
+                                            onChange={(event) => setStoreSearch(event.target.value)}
+                                            placeholder="Search store"
+                                            className="min-w-0 flex-1 bg-transparent text-xs text-white placeholder:text-white/35 focus:outline-none"
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                            <div className="max-h-[42vh] overflow-y-auto pb-1.5">
+                                {visibleStores.map((store) => (
                                     <button
                                         key={store.id}
                                         onClick={() => handleStoreChange(store)}
-                                        className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-white transition-colors hover:bg-white/[0.05]"
+                                        className={`flex w-full items-center gap-2.5 px-3 py-2 text-left text-white transition-colors hover:bg-white/[0.05] ${
+                                            selectedStore?.id === store.id ? 'bg-white/[0.08]' : ''
+                                        }`}
                                     >
                                         <div className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded text-[9px] font-bold text-white ${
                                             isStoreInactive(store) ? 'bg-orange-500/60' :
                                             isStoreDisabled(store) ? 'bg-red-500/60' :
-                                            currentStore?.id === store.id ? 'bg-primary' : 'bg-white/20'
+                                            selectedStore?.id === store.id ? 'bg-primary' : 'bg-white/20'
                                         }`}>
                                             {store.store_name[0]?.toUpperCase()}
                                         </div>
                                         <span className="flex-1 truncate text-[13px] font-medium">{store.store_name}</span>
-                                        {currentStore?.id === store.id && !isStoreInactive(store) && !isStoreDisabled(store) && (
+                                        {selectedStore?.id === store.id && !isStoreInactive(store) && !isStoreDisabled(store) && (
                                             <span className="text-xs text-white">✓</span>
                                         )}
                                         {isStoreInactive(store) && (
@@ -223,6 +265,9 @@ const Sidebar = () => {
                                         )}
                                     </button>
                                 ))}
+                                {visibleStores.length === 0 && (
+                                    <p className="px-3 py-3 text-xs text-white/45">No store found</p>
+                                )}
                             </div>
                         </div>
                     </AnimateHeight>

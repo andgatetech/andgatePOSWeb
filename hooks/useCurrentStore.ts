@@ -7,10 +7,11 @@ import { useSelector } from 'react-redux';
  * @returns Object containing current store, store ID, and all user stores
  */
 export const useCurrentStore = () => {
-    const currentStore = useSelector((state: RootState) => state.auth?.currentStore || null);
+    const rawCurrentStore = useSelector((state: RootState) => state.auth?.currentStore || null);
     const currentStoreId = useSelector((state: RootState) => state.auth?.currentStoreId || null);
     const user = useSelector((state: RootState) => state.auth?.user || null);
     const userStores = (user?.stores || []).filter((store, idx, arr) => arr.findIndex(s => s.id === store.id) === idx);
+    const currentStore = userStores.find((store) => store.id === currentStoreId) || rawCurrentStore;
     return {
         currentStore,
         currentStoreId,
