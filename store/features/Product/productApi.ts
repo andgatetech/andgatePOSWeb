@@ -193,6 +193,7 @@ export const {
     useGetAllProductsQuery,
     useLazyGetAllProductsQuery,
     useGetSingleProductQuery,
+    useLazyGetSingleProductQuery,
     useUpdateProductMutation,
     useDeleteProductMutation,
     useUpdateAvailabilityMutation,

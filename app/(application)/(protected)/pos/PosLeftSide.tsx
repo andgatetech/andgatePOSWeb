@@ -12,7 +12,7 @@ import { addLabelItem } from '@/store/features/Label/labelSlice';
 import { addItemRedux as addOrderEditItem } from '@/store/features/Order/OrderEditSlice';
 import { addItemRedux as addOrderReturnItem } from '@/store/features/Order/OrderReturnSlice';
 import { addItemRedux } from '@/store/features/Order/OrderSlice';
-import { useGetAllProductsQuery, useLazyGetAllProductsQuery } from '@/store/features/Product/productApi';
+import { useGetAllProductsQuery, useLazyGetAllProductsQuery, useLazyGetSingleProductQuery } from '@/store/features/Product/productApi';
 import { addItemRedux as addPurchaseItem } from '@/store/features/PurchaseOrder/PurchaseOrderSlice';
 import { addStockItem } from '@/store/features/StockAdjustment/stockAdjustmentSlice';
 
@@ -123,6 +123,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
 
     // Background prefetch: fetch ALL store products in pages, cache for offline use
     const [triggerPrefetch] = useLazyGetAllProductsQuery();
+    const [triggerGetSingleProduct] = useLazyGetSingleProductQuery();
     useEffect(() => {
         if (!enableOfflinePrefetch || !isOnline || !currentStoreId) return;
         let cancelled = false;
@@ -143,6 +144,8 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                         sort_field: 'product_name',
                         sort_direction: 'asc',
                         available: 'yes',
+                        fast_pagination: true,
+                        light: true,
                     });
                     const data = result.data;
                     let pageProducts: any[] = [];
@@ -187,6 +190,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
             sort_field: 'product_name',
             sort_direction: 'asc',
             fast_pagination: true,
+            light: true,
         };
 
         // Only filter by available in POS mode
@@ -393,7 +397,20 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
     };
 
     const addToCart = useCallback(
-        (product: any) => {
+        async (product: any) => {
+            if (!product.__full && (product.has_serial || product.has_warranty || product.has_attribute)) {
+                try {
+                    const response = await triggerGetSingleProduct(product.id).unwrap();
+                    if (response?.data) {
+                        await addToCart({ ...response.data, __full: true });
+                        return;
+                    }
+                } catch {
+                    showMessage(t('msg_try_again'), 'error');
+                    return;
+                }
+            }
+
             // Check if product has variants
             const hasVariants = product.stocks && product.stocks.length > 0 && product.stocks.some((s: any) => s.is_variant);
 
@@ -517,7 +534,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
             setSelectedBrand(null);
             // currentPage maintained
         },
-        [reduxItems, dispatch, disableSerialSelection, reduxSlice, currentStoreId, currentStore?.default_tax_rate, currentStore?.prices_include_tax, t]
+        [reduxItems, dispatch, disableSerialSelection, reduxSlice, currentStoreId, currentStore?.default_tax_rate, currentStore?.prices_include_tax, t, triggerGetSingleProduct]
     );
 
     // Auto-add product when exact match found (for camera/barcode scans)
