@@ -2,7 +2,7 @@
 
 import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
-import { resolveProductImageUrl } from '@/lib/image-url';
+import { getPrimaryProductImageUrl, resolveProductImageUrl } from '@/lib/image-url';
 import { Dialog, Transition } from '@headlessui/react';
 import { AlertCircle, Archive, Package, Tag, X } from 'lucide-react';
 import Image from 'next/image';
@@ -37,10 +37,12 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
     // Calculate available status - check if any stock is available
     const isAvailable = product.stocks && product.stocks.length > 0 ? product.stocks.some((stock: any) => stock.available === 'yes') : product.available === true || product.available === 'yes';
 
-    // Get images based on selected variant or all images from all stocks
+    const productImageSrc = getPrimaryProductImageUrl(product);
+
+    // Prefer selected variant images, but fall back to the product image so POS users are not shown a blank detail modal.
     const displayImages =
         selectedVariantIndex !== null && product.stocks && product.stocks[selectedVariantIndex]
-            ? product.stocks[selectedVariantIndex].images || []
+            ? [...(product.stocks[selectedVariantIndex].images || []), productImageSrc].filter((image) => Boolean(resolveProductImageUrl(image)))
             : [
                   ...(Array.isArray(product.images) ? product.images : []),
                   product.image,

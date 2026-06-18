@@ -2,7 +2,7 @@
 
 import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
-import { resolveProductImageUrl } from '@/lib/image-url';
+import { getPrimaryProductImageUrl, resolveProductImageUrl } from '@/lib/image-url';
 import { Dialog, Transition } from '@headlessui/react';
 import { Check, Package, ShoppingCart, X } from 'lucide-react';
 import Image from 'next/image';
@@ -62,6 +62,7 @@ export default function VariantSelectionModal({ isOpen, onClose, product, onSele
     const selectedVariant = selectedVariantIndex !== null ? product.stocks[selectedVariantIndex] : null;
     const selectedPrice = selectedVariant ? (useWholesale ? selectedVariant.wholesale_price : selectedVariant.price) : 0;
     const totalPrice = selectedPrice * quantity;
+    const productImageSrc = getPrimaryProductImageUrl(product);
 
     return (
         <Transition appear show={isOpen} as={Fragment}>
@@ -104,7 +105,7 @@ export default function VariantSelectionModal({ isOpen, onClose, product, onSele
                                             const isSelected = selectedVariantIndex === index;
                                             // In POS mode, check both available and quantity. In other modes, allow all variants.
                                             const isAvailable = mode === 'pos' ? stock.available === 'yes' && stock.quantity > 0 : true;
-                                            const imageSrc = resolveProductImageUrl(stock.images?.[0]);
+                                            const imageSrc = resolveProductImageUrl(stock.images?.[0]) || productImageSrc;
 
                                             // Find warranty for this variant
                                             const variantWarranty = product.warranties?.find((w: any) => w.product_stock_id === stock.id);
@@ -123,18 +124,23 @@ export default function VariantSelectionModal({ isOpen, onClose, product, onSele
                                                     }`}
                                                 >
                                                     {/* Variant Image */}
-                                                    {imageSrc && (
-                                                        <div className="mb-3 overflow-hidden rounded-lg bg-gray-100">
-                                                            <div className="relative h-32 w-full sm:h-40">
+                                                    <div className="mb-3 overflow-hidden rounded-lg bg-gray-100">
+                                                        <div className="relative h-32 w-full sm:h-40">
+                                                            {imageSrc ? (
                                                                 <Image
                                                                     src={imageSrc}
                                                                     alt={stock.variant_name}
                                                                     fill
                                                                     className="object-cover transition-transform duration-200 group-hover:scale-105"
+                                                                    sizes="(max-width: 640px) 50vw, 240px"
                                                                 />
-                                                            </div>
+                                                            ) : (
+                                                                <div className="flex h-full w-full items-center justify-center">
+                                                                    <Package className="h-10 w-10 text-gray-300" />
+                                                                </div>
+                                                            )}
                                                         </div>
-                                                    )}
+                                                    </div>
 
                                                     {/* Variant Name */}
                                                     <h4 className="mb-2 line-clamp-2 text-sm font-semibold text-gray-900">{stock.variant_name}</h4>
