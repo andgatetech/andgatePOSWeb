@@ -12,7 +12,7 @@ import { useGetCategoryQuery } from '@/store/features/category/categoryApi';
 import { useCreateProductMutation, useGetUnitsQuery } from '@/store/features/Product/productApi';
 import { ArrowLeft, CheckCircle2, Circle, Store } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import AttributesTab, { ProductAttribute } from './AttributesTab';
 import BasicInfoTab from './BasicInfoTab';
 import ImagesTab from './ImagesTab';
