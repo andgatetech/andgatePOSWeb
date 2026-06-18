@@ -10,7 +10,7 @@ export const useCurrentStore = () => {
     const currentStore = useSelector((state: RootState) => state.auth?.currentStore || null);
     const currentStoreId = useSelector((state: RootState) => state.auth?.currentStoreId || null);
     const user = useSelector((state: RootState) => state.auth?.user || null);
-    const userStores = user?.stores || [];
+    const userStores = (user?.stores || []).filter((store, idx, arr) => arr.findIndex(s => s.id === store.id) === idx);
     return {
         currentStore,
         currentStoreId,

@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { getTranslation } from '@/i18n';
 import { buildMenuFromPermissions, type MenuItem } from '@/lib/menu-builder';
+import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { RootState } from '@/store';
 import { persistor } from '@/store';
 import { setCurrentStore, setPermissions } from '@/store/features/auth/authSlice';
@@ -34,7 +35,7 @@ const Sidebar = () => {
     const themeConfig = useSelector((state: RootState) => state.themeConfig);
     const user = useSelector((state: RootState) => state.auth.user);
     const currentStore = useSelector((state: RootState) => state.auth.currentStore);
-    const userStores = (user?.stores || []).filter((store, idx, arr) => arr.findIndex(s => s.id === store.id) === idx);
+    const userStores = useCurrentStore().userStores;
 
     const { data: unreadData } = useGetUnreadCountQuery(undefined, {
         pollingInterval: 300000, // 5 minutes
