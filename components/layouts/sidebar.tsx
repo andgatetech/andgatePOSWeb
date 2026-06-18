@@ -88,20 +88,21 @@ const Sidebar = () => {
         if (isStoreInactive(store)) setStoreWarning(`"${store.store_name}" ${t('msg_store_currently_inactive')}`);
         else if (isStoreDisabled(store)) setStoreWarning(`"${store.store_name}" ${t('msg_store_has_been_disabled')}`);
         dispatch(setCurrentStore(store));
-        await persistor.flush();
+        try {
+            await persistor.flush();
+            localStorage.setItem('andgate_current_store_id', String(store.id));
+        } catch { /* non-critical */ }
         if (pathname?.match(/^\/orders\/return\/(\d+)$/) || pathname?.match(/^\/orders\/return\/create\/(\d+)$/) || pathname === '/orders/return') router.push('/orders/return/list');
         if (pathname?.match(/^\/products\/edit\/(\d+)$/)) router.push('/products');
         if (pathname?.match(/^\/purchases\/receive\/(\d+)$/)) router.push('/purchases/receive');
-        // Refresh permissions for the new store (Pure RBAC)
         try {
             const result = await fetchStorePermissions(store.id).unwrap();
             const perms: string[] = result?.data?.permissions ?? result?.permissions ?? [];
             dispatch(setPermissions(perms));
         } catch {
-            // Non-fatal — user keeps previous permissions until next login
-        } finally {
-            setIsSwitchingStore(false);
+            // Non-fatal
         }
+        setIsSwitchingStore(false);
     };
 
     const storeInitial = currentStore?.store_name?.[0]?.toUpperCase() || 'S';
