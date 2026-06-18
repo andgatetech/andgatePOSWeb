@@ -10,7 +10,9 @@ import { useCreatePurchaseDraftMutation, useCreatePurchaseOrderMutation, useUpda
 import {
     addItemRedux, clearItemsRedux, removeItemRedux, resetPurchaseOrderRedux,
     setNotesRedux, setPurchaseTypeRedux, setSupplierDetailsRedux,
+    setVatEvidenceRedux,
     updateItemPurchasePriceRedux, updateItemQuantityRedux,
+    updateItemVatRedux,
 } from '@/store/features/PurchaseOrder/PurchaseOrderSlice';
 import { useGetSuppliersQuery } from '@/store/features/supplier/supplierApi';
 import { Eye, FileText, Plus, Save, Search, ShoppingCart, Trash2, X } from 'lucide-react';
@@ -40,6 +42,10 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
     const supplierId = storeOrder?.supplierId;
     const notes = storeOrder?.notes || '';
     const purchaseType = storeOrder?.purchaseType || 'supplier';
+    const supplierInvoiceNumber = storeOrder?.supplierInvoiceNumber || '';
+    const supplierMushakNumber = storeOrder?.supplierMushakNumber || '';
+    const supplierInvoiceDate = storeOrder?.supplierInvoiceDate || '';
+    const inputVatCreditable = Boolean(storeOrder?.inputVatCreditable);
 
     const [supplierSearch, setSupplierSearch] = useState('');
     const [showSupplierResults, setShowSupplierResults] = useState(false);
@@ -106,6 +112,9 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                 unit: newProductUnit || defaultUnit,
                 quantity: newProductQty,
                 purchasePrice: newProductPrice,
+                taxRate: 0,
+                taxIncluded: false,
+                inputVatCreditable: inputVatCreditable,
                 itemType: 'new',
             },
         }));
@@ -129,12 +138,29 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
         dispatch(updateItemPurchasePriceRedux({ storeId: currentStoreId, itemId, purchasePrice: parseFloat(value) || 0 }));
     };
 
+    const handleItemVatChange = (itemId: number, field: 'taxRate' | 'taxIncluded' | 'inputVatCreditable', value: number | boolean) => {
+        if (!currentStoreId) return;
+        dispatch(updateItemVatRedux({ storeId: currentStoreId, id: itemId, [field]: value }));
+    };
+
     const handleRemoveItem = (itemId: number) => {
         if (!currentStoreId) return;
         dispatch(removeItemRedux({ storeId: currentStoreId, itemId }));
     };
 
-    const grandTotal = purchaseItems.reduce((total, item) => total + item.purchasePrice * item.quantity, 0);
+    const itemTotal = (item: any) => {
+        const base = Number(item.purchasePrice || 0) * Number(item.quantity || 0);
+        const rate = Number(item.taxRate || 0);
+        return rate > 0 && !item.taxIncluded ? base + base * (rate / 100) : base;
+    };
+    const itemVat = (item: any) => {
+        const base = Number(item.purchasePrice || 0) * Number(item.quantity || 0);
+        const rate = Number(item.taxRate || 0);
+        if (rate <= 0) return 0;
+        return item.taxIncluded ? base - base / (1 + rate / 100) : base * (rate / 100);
+    };
+    const grandTotal = purchaseItems.reduce((total, item) => total + itemTotal(item), 0);
+    const inputVatTotal = purchaseItems.reduce((total, item: any) => total + (item.inputVatCreditable ? itemVat(item) : 0), 0);
 
     const clearAllItems = async () => {
         if (!currentStoreId) return;
@@ -154,11 +180,11 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
             notes: notes || '',
             items: purchaseItems.map((item: any) => {
                 if (item.itemType === 'existing' && item.productId) {
-                    const d: any = { product_id: item.productId, quantity_ordered: item.quantity, purchase_price: item.purchasePrice };
+                    const d: any = { product_id: item.productId, quantity_ordered: item.quantity, purchase_price: item.purchasePrice, tax_rate: item.taxRate || 0, tax_included: !!item.taxIncluded, input_vat_creditable: !!item.inputVatCreditable };
                     if (item.productStockId) d.product_stock_id = item.productStockId;
                     return d;
                 }
-                const d: any = { product_name: item.title, product_description: item.description || '', unit: item.unit || defaultUnit, quantity_ordered: item.quantity, purchase_price: item.purchasePrice };
+                const d: any = { product_name: item.title, product_description: item.description || '', unit: item.unit || defaultUnit, quantity_ordered: item.quantity, purchase_price: item.purchasePrice, tax_rate: item.taxRate || 0, tax_included: !!item.taxIncluded, input_vat_creditable: !!item.inputVatCreditable };
                 if (item.variantInfo && Object.keys(item.variantInfo).length > 0) d.variant_info = item.variantInfo;
                 return d;
             }),
@@ -183,13 +209,17 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
             user_id: userId, store_id: currentStoreId,
             supplier_id: purchaseType === 'supplier' ? supplierId : null,
             purchase_type: purchaseType, status: 'ordered', notes: notes || '',
+            supplier_invoice_number: supplierInvoiceNumber || null,
+            supplier_mushak_number: supplierMushakNumber || null,
+            supplier_invoice_date: supplierInvoiceDate || null,
+            input_vat_creditable: inputVatCreditable,
             items: purchaseItems.map((item: any) => {
                 if (item.itemType === 'existing' && item.productId) {
-                    const d: any = { product_id: item.productId, quantity_ordered: item.quantity, purchase_price: item.purchasePrice };
+                    const d: any = { product_id: item.productId, quantity_ordered: item.quantity, purchase_price: item.purchasePrice, tax_rate: item.taxRate || 0, tax_included: !!item.taxIncluded, input_vat_creditable: !!item.inputVatCreditable };
                     if (item.productStockId) d.product_stock_id = item.productStockId;
                     return d;
                 }
-                const d: any = { product_name: item.title, product_description: item.description || '', unit: item.unit || defaultUnit, quantity_ordered: item.quantity, purchase_price: item.purchasePrice || 0 };
+                const d: any = { product_name: item.title, product_description: item.description || '', unit: item.unit || defaultUnit, quantity_ordered: item.quantity, purchase_price: item.purchasePrice || 0, tax_rate: item.taxRate || 0, tax_included: !!item.taxIncluded, input_vat_creditable: !!item.inputVatCreditable };
                 if (item.variantInfo && Object.keys(item.variantInfo).length > 0) d.variant_info = item.variantInfo;
                 return d;
             }),
@@ -218,6 +248,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
 
     const clearSupplier = clearSupplierSelection;
     const setNotes = (val: string) => { if (currentStoreId) dispatch(setNotesRedux({ storeId: currentStoreId, notes: val })); };
+    const setVatEvidence = (patch: Record<string, any>) => { if (currentStoreId) dispatch(setVatEvidenceRedux({ storeId: currentStoreId, ...patch })); };
 
     return (
         <div className={`relative w-full ${isMobileView && !showMobileCart ? 'hidden' : ''}`}>
@@ -302,6 +333,25 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                         )}
                     </div>
                 )}
+
+                <div className="rounded-xl border border-sky-100 bg-sky-50/60 p-4">
+                    <div className="mb-3 flex items-center justify-between">
+                        <div>
+                            <h3 className="text-sm font-semibold text-gray-900">Bangladesh VAT Evidence</h3>
+                            <p className="text-xs text-gray-500">Supplier Mushak/BIN info for input VAT credit.</p>
+                        </div>
+                        <label className="flex items-center gap-2 text-xs font-semibold text-gray-700">
+                            <input type="checkbox" className="form-checkbox" checked={inputVatCreditable} onChange={(e) => setVatEvidence({ inputVatCreditable: e.target.checked })} />
+                            Claim input VAT
+                        </label>
+                    </div>
+                    <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+                        <input className="form-input" placeholder="Supplier invoice no" value={supplierInvoiceNumber} onChange={(e) => setVatEvidence({ supplierInvoiceNumber: e.target.value })} />
+                        <input className="form-input" placeholder="Supplier Mushak 6.3 no" value={supplierMushakNumber} onChange={(e) => setVatEvidence({ supplierMushakNumber: e.target.value })} />
+                        <input className="form-input" type="date" value={supplierInvoiceDate} onChange={(e) => setVatEvidence({ supplierInvoiceDate: e.target.value })} />
+                    </div>
+                    {inputVatCreditable && !supplierMushakNumber && <p className="mt-2 text-xs text-amber-700">Input VAT needs supplier Mushak evidence.</p>}
+                </div>
 
                 {/* Quick Add New Product */}
                 <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50/50 p-4">
@@ -390,6 +440,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                         <th className="px-4 py-3 text-left">{t('lbl_product')}</th>
                                         <th className="px-4 py-3 text-center w-20">{t('lbl_qty')}</th>
                                         <th className="px-4 py-3 text-right w-28">{t('lbl_price')}</th>
+                                        <th className="px-4 py-3 text-right w-28">VAT %</th>
                                         <th className="px-4 py-3 text-right w-28">{t('lbl_total')}</th>
                                         <th className="px-4 py-3 text-center w-12"></th>
                                     </tr>
@@ -426,7 +477,16 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                                     value={item.purchasePrice === 0 ? '' : item.purchasePrice}
                                                     onChange={(e) => handlePurchasePriceChange(item.id, e.target.value)} />
                                             </td>
-                                            <td className="px-4 py-3 text-right font-semibold text-gray-800">{formatCurrency(item.quantity * item.purchasePrice)}</td>
+                                            <td className="px-4 py-3 text-right">
+                                                <div className="flex items-center justify-end gap-2">
+                                                    <input type="number" min="0" max="100" step="any" className="w-20 rounded-md border border-gray-200 px-2 py-1.5 text-right text-sm focus:border-primary focus:ring-1 focus:ring-primary"
+                                                        value={item.taxRate || ''}
+                                                        onChange={(e) => handleItemVatChange(item.id, 'taxRate', parseFloat(e.target.value) || 0)} />
+                                                    <label className="flex items-center gap-1 text-[10px] text-gray-500"><input type="checkbox" checked={!!item.taxIncluded} onChange={(e) => handleItemVatChange(item.id, 'taxIncluded', e.target.checked)} /> incl</label>
+                                                    <label className="flex items-center gap-1 text-[10px] text-gray-500"><input type="checkbox" checked={!!item.inputVatCreditable} onChange={(e) => handleItemVatChange(item.id, 'inputVatCreditable', e.target.checked)} /> credit</label>
+                                                </div>
+                                            </td>
+                                            <td className="px-4 py-3 text-right font-semibold text-gray-800">{formatCurrency(itemTotal(item))}</td>
                                             <td className="px-4 py-3 text-center">
                                                 <button onClick={() => handleRemoveItem(item.id)} className="rounded-lg p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-500">
                                                     <X className="h-3.5 w-3.5" />
@@ -463,10 +523,14 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                             <label className="mb-0.5 block text-[10px] text-gray-400">{t('lbl_price')}</label>
                                             <input type="number" min="0" step="any" className="w-full rounded-md border border-gray-200 px-2 py-1.5 text-sm focus:border-primary" value={item.purchasePrice || ''} onChange={(e) => handlePurchasePriceChange(item.id, e.target.value)} />
                                         </div>
+                                        <div>
+                                            <label className="mb-0.5 block text-[10px] text-gray-400">VAT %</label>
+                                            <input type="number" min="0" max="100" step="any" className="w-full rounded-md border border-gray-200 px-2 py-1.5 text-sm focus:border-primary" value={item.taxRate || ''} onChange={(e) => handleItemVatChange(item.id, 'taxRate', parseFloat(e.target.value) || 0)} />
+                                        </div>
                                     </div>
                                     <div className="mt-2 flex justify-between border-t pt-2 text-sm">
                                         <span className="text-gray-500">{t('lbl_amount')}</span>
-                                        <span className="font-bold text-primary">{formatCurrency(item.quantity * item.purchasePrice)}</span>
+                                        <span className="font-bold text-primary">{formatCurrency(itemTotal(item))}</span>
                                     </div>
                                 </div>
                             ))}
@@ -485,6 +549,10 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                     <div className="mb-4 flex items-center justify-between">
                         <span className="text-sm font-semibold text-gray-600">{t('lbl_grand_total')}</span>
                         <span className="text-2xl font-bold text-primary">{formatCurrency(grandTotal)}</span>
+                    </div>
+                    <div className="mb-4 flex items-center justify-between text-sm">
+                        <span className="font-medium text-gray-500">Input VAT claimable</span>
+                        <span className="font-semibold text-sky-700">{formatCurrency(inputVatTotal)}</span>
                     </div>
                     <div className="flex flex-col gap-2 sm:flex-row">
                         <button

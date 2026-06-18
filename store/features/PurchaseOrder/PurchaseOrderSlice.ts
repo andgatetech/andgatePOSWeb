@@ -8,6 +8,9 @@ interface PurchaseItem {
     title: string; // Product name
     description?: string;
     purchasePrice: number; // Purchase price per unit
+    taxRate?: number;
+    taxIncluded?: boolean;
+    inputVatCreditable?: boolean;
     quantity: number; // Quantity ordered
     quantityReceived?: number; // Quantity received (for tracking)
     amount: number; // purchasePrice * quantity
@@ -30,12 +33,16 @@ interface Supplier {
 
 interface PurchaseOrderData {
     items: PurchaseItem[];
-    supplierId?: number;
+    supplierId?: number | null;
     supplier?: Supplier | null;
     status: string;
     purchaseType: 'supplier' | 'walk_in' | 'own_purchase';
     draftReference?: string;
     invoiceNumber?: string;
+    supplierInvoiceNumber?: string;
+    supplierMushakNumber?: string;
+    supplierInvoiceDate?: string;
+    inputVatCreditable?: boolean;
     grandTotal: number;
     estimatedTotal?: number;
     notes?: string;
@@ -53,6 +60,7 @@ const createEmptyOrder = (): PurchaseOrderData => ({
     status: 'draft',
     purchaseType: 'supplier',
     grandTotal: 0,
+    inputVatCreditable: false,
     paymentStatus: 'pending',
     amountPaid: 0,
     amountDue: 0,
@@ -72,6 +80,13 @@ const getStoreOrder = (state: PurchaseOrderState, storeId: number): PurchaseOrde
         state.ordersByStore[storeId] = createEmptyOrder();
     }
     return state.ordersByStore[storeId];
+};
+
+const calculatePurchaseItemTotal = (item: PurchaseItem): number => {
+    const base = Number(item.purchasePrice || 0) * Number(item.quantity || 0);
+    const rate = Number(item.taxRate || 0);
+    if (rate <= 0 || item.taxIncluded) return base;
+    return base + base * (rate / 100);
 };
 
 const purchaseOrderSlice = createSlice({
@@ -96,7 +111,7 @@ const purchaseOrderSlice = createSlice({
                     const existingItem = order.items[existingItemIndex];
                     const newQuantity = existingItem.quantity + item.quantity;
                     existingItem.quantity = newQuantity;
-                    existingItem.amount = existingItem.quantity * existingItem.purchasePrice;
+                    existingItem.amount = calculatePurchaseItemTotal(existingItem);
                 } else {
                     order.items.push(item);
                 }
@@ -104,7 +119,7 @@ const purchaseOrderSlice = createSlice({
                 order.items.push(item);
             }
 
-            order.grandTotal = order.items.reduce((total, i) => total + i.amount, 0);
+            order.grandTotal = order.items.reduce((total, i) => total + calculatePurchaseItemTotal(i), 0);
         },
 
         updateItemRedux(state, action: PayloadAction<{ storeId: number; item: PurchaseItem }>) {
@@ -114,12 +129,12 @@ const purchaseOrderSlice = createSlice({
             const index = order.items.findIndex((i) => i.id === item.id);
             if (index !== -1) {
                 order.items[index] = { ...order.items[index], ...item };
-                order.items[index].amount = order.items[index].quantity * order.items[index].purchasePrice;
+                order.items[index].amount = calculatePurchaseItemTotal(order.items[index]);
             } else if (item.productId !== undefined) {
                 order.items.push(item);
             }
 
-            order.grandTotal = order.items.reduce((total, i) => total + i.amount, 0);
+            order.grandTotal = order.items.reduce((total, i) => total + calculatePurchaseItemTotal(i), 0);
         },
 
         removeItemRedux(state, action: PayloadAction<{ storeId: number; id: number }>) {
@@ -142,8 +157,8 @@ const purchaseOrderSlice = createSlice({
             const item = order.items.find((i) => i.id === id);
             if (item && quantity >= 0) {
                 item.quantity = quantity;
-                item.amount = item.purchasePrice * quantity;
-                order.grandTotal = order.items.reduce((total, i) => total + i.amount, 0);
+                item.amount = calculatePurchaseItemTotal(item);
+                order.grandTotal = order.items.reduce((total, i) => total + calculatePurchaseItemTotal(i), 0);
             }
         },
 
@@ -153,8 +168,21 @@ const purchaseOrderSlice = createSlice({
             const item = order.items.find((i) => i.id === id);
             if (item && purchasePrice >= 0) {
                 item.purchasePrice = purchasePrice;
-                item.amount = item.quantity * purchasePrice;
-                order.grandTotal = order.items.reduce((total, i) => total + i.amount, 0);
+                item.amount = calculatePurchaseItemTotal(item);
+                order.grandTotal = order.items.reduce((total, i) => total + calculatePurchaseItemTotal(i), 0);
+            }
+        },
+
+        updateItemVatRedux(state, action: PayloadAction<{ storeId: number; id: number; taxRate?: number; taxIncluded?: boolean; inputVatCreditable?: boolean }>) {
+            const { storeId, id, taxRate, taxIncluded, inputVatCreditable } = action.payload;
+            const order = getStoreOrder(state, storeId);
+            const item = order.items.find((i) => i.id === id);
+            if (item) {
+                if (taxRate !== undefined) item.taxRate = taxRate;
+                if (taxIncluded !== undefined) item.taxIncluded = taxIncluded;
+                if (inputVatCreditable !== undefined) item.inputVatCreditable = inputVatCreditable;
+                item.amount = calculatePurchaseItemTotal(item);
+                order.grandTotal = order.items.reduce((total, i) => total + calculatePurchaseItemTotal(i), 0);
             }
         },
 
@@ -232,6 +260,12 @@ const purchaseOrderSlice = createSlice({
             order.invoiceNumber = invoiceNumber;
         },
 
+        setVatEvidenceRedux(state, action: PayloadAction<{ storeId: number; supplierInvoiceNumber?: string; supplierMushakNumber?: string; supplierInvoiceDate?: string; inputVatCreditable?: boolean }>) {
+            const { storeId, ...payload } = action.payload;
+            const order = getStoreOrder(state, storeId);
+            Object.assign(order, payload);
+        },
+
         setNotesRedux(state, action: PayloadAction<{ storeId: number; notes: string }>) {
             const { storeId, notes } = action.payload;
             const order = getStoreOrder(state, storeId);
@@ -262,6 +296,7 @@ export const {
     clearItemsRedux,
     updateItemQuantityRedux,
     updateItemPurchasePriceRedux,
+    updateItemVatRedux,
     updateItemReceivedQuantityRedux,
     setSupplierRedux,
     setSupplierDetailsRedux,
@@ -271,6 +306,7 @@ export const {
     updatePaymentRedux,
     setStatusRedux,
     setInvoiceNumberRedux,
+    setVatEvidenceRedux,
     setNotesRedux,
     resetPurchaseOrderRedux,
     resetAllPurchaseOrdersRedux,

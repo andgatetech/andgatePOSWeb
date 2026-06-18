@@ -24,6 +24,9 @@ interface PurchaseItem {
     unit?: string;
     quantity: number;
     purchasePrice: number;
+    taxRate?: number;
+    taxIncluded?: boolean;
+    inputVatCreditable?: boolean;
 }
 
 const PurchaseOrderPreview: React.FC<PurchaseOrderPreviewProps> = ({ isOpen, onClose }) => {
@@ -41,6 +44,8 @@ const PurchaseOrderPreview: React.FC<PurchaseOrderPreviewProps> = ({ isOpen, onC
     const supplierPhone = storeOrder?.supplier?.phone || '';
     const notes = storeOrder?.notes || '';
     const purchaseType = storeOrder?.purchaseType || 'supplier';
+    const supplierInvoiceNumber = storeOrder?.supplierInvoiceNumber || '';
+    const supplierMushakNumber = storeOrder?.supplierMushakNumber || '';
 
     // Fetch store details
     const { data: storeData } = useGetStoreQuery(currentStoreId ? { store_id: currentStoreId } : undefined);
@@ -59,7 +64,19 @@ const PurchaseOrderPreview: React.FC<PurchaseOrderPreviewProps> = ({ isOpen, onC
     });
 
     // Calculate totals
-    const subtotal = purchaseItems.reduce((total, item) => total + item.purchasePrice * item.quantity, 0);
+    const itemTotal = (item: PurchaseItem) => {
+        const base = Number(item.purchasePrice || 0) * Number(item.quantity || 0);
+        const rate = Number(item.taxRate || 0);
+        return rate > 0 && !item.taxIncluded ? base + base * (rate / 100) : base;
+    };
+    const itemVat = (item: PurchaseItem) => {
+        const base = Number(item.purchasePrice || 0) * Number(item.quantity || 0);
+        const rate = Number(item.taxRate || 0);
+        if (rate <= 0) return 0;
+        return item.taxIncluded ? base - base / (1 + rate / 100) : base * (rate / 100);
+    };
+    const subtotal = purchaseItems.reduce((total, item) => total + itemTotal(item), 0);
+    const inputVatTotal = purchaseItems.reduce((total, item) => total + (item.inputVatCreditable ? itemVat(item) : 0), 0);
     const grandTotal = subtotal;
 
     if (!isOpen) return null;
@@ -149,6 +166,18 @@ const PurchaseOrderPreview: React.FC<PurchaseOrderPreviewProps> = ({ isOpen, onC
                                         <span className="text-gray-600">{t('lbl_total_items')}:</span>
                                         <span className="font-medium">{purchaseItems.length}</span>
                                     </div>
+                                    {supplierInvoiceNumber && (
+                                        <div className="mb-2 flex justify-between">
+                                            <span className="text-gray-600">Supplier Invoice:</span>
+                                            <span className="font-medium">{supplierInvoiceNumber}</span>
+                                        </div>
+                                    )}
+                                    {supplierMushakNumber && (
+                                        <div className="mb-2 flex justify-between">
+                                            <span className="text-gray-600">Mushak 6.3:</span>
+                                            <span className="font-medium">{supplierMushakNumber}</span>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -164,13 +193,14 @@ const PurchaseOrderPreview: React.FC<PurchaseOrderPreviewProps> = ({ isOpen, onC
                                         <th className="px-3 py-3 text-center text-sm font-semibold uppercase tracking-wide text-gray-700">{t('lbl_unit')}</th>
                                         <th className="px-3 py-3 text-center text-sm font-semibold uppercase tracking-wide text-gray-700">{t('lbl_qty_ordered')}</th>
                                         <th className="px-3 py-3 text-right text-sm font-semibold uppercase tracking-wide text-gray-700">{t('lbl_est_price')}</th>
+                                        <th className="px-3 py-3 text-right text-sm font-semibold uppercase tracking-wide text-gray-700">VAT</th>
                                         <th className="px-3 py-3 text-right text-sm font-semibold uppercase tracking-wide text-gray-700">{t('lbl_est_total')}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white">
                                     {purchaseItems.length === 0 ? (
                                         <tr>
-                                            <td colSpan={7} className="border-b border-gray-300 p-8 text-center text-gray-500">
+                                            <td colSpan={8} className="border-b border-gray-300 p-8 text-center text-gray-500">
                                                 <div className="flex flex-col items-center justify-center py-4">
                                                     <div className="mb-2 text-3xl">📦</div>
                                                     <div className="font-medium">{t('msg_no_items_added_yet')}</div>
@@ -206,7 +236,8 @@ const PurchaseOrderPreview: React.FC<PurchaseOrderPreviewProps> = ({ isOpen, onC
                                                 </td>
                                                 <td className="border-gray-300 p-3 text-center text-sm font-medium">{item.quantity}</td>
                                                 <td className="border-gray-300 p-3 text-right text-sm">{formatCurrency(item.purchasePrice)}</td>
-                                                <td className="border-gray-300 p-3 text-right text-sm font-bold">{formatCurrency(item.quantity * item.purchasePrice)}</td>
+                                                <td className="border-gray-300 p-3 text-right text-sm">{Number(item.taxRate || 0).toFixed(2)}%</td>
+                                                <td className="border-gray-300 p-3 text-right text-sm font-bold">{formatCurrency(itemTotal(item))}</td>
                                             </tr>
                                         ))
                                     )}
@@ -230,6 +261,10 @@ const PurchaseOrderPreview: React.FC<PurchaseOrderPreviewProps> = ({ isOpen, onC
                                 <div className="flex justify-between">
                                     <span>{t('lbl_subtotal')}</span>
                                     <span>{formatCurrency(subtotal)}</span>
+                                </div>
+                                <div className="flex justify-between text-sm text-sky-700">
+                                    <span>Input VAT claimable</span>
+                                    <span>{formatCurrency(inputVatTotal)}</span>
                                 </div>
                                 <div className="flex justify-between border-t border-gray-300 pt-2 text-lg font-semibold">
                                     <span>{t('lbl_est_grand_total')}</span>

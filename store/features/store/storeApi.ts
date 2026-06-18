@@ -315,6 +315,31 @@ const StoreApi = baseApi.injectEndpoints({
             invalidatesTags: ['Stores'],
         }),
 
+        getTaxProfiles: builder.query({
+            query: (params: { store_id: number; only_active?: boolean }) => ({
+                url: '/store/tax-profiles',
+                method: 'GET',
+                params,
+            }),
+            providesTags: (result, error, arg) => [{ type: 'Stores', id: `tax-${arg.store_id}` }],
+        }),
+        createTaxProfile: builder.mutation({
+            query: (data: any) => ({
+                url: '/store/tax-profiles',
+                method: 'POST',
+                body: data,
+            }),
+            invalidatesTags: (result, error, arg) => [{ type: 'Stores', id: `tax-${arg.store_id}` }],
+        }),
+        updateTaxProfile: builder.mutation({
+            query: ({ id, data }: { id: number; data: any }) => ({
+                url: `/store/tax-profiles/${id}`,
+                method: 'PUT',
+                body: data,
+            }),
+            invalidatesTags: (result, error, arg) => [{ type: 'Stores', id: `tax-${arg.data?.store_id}` }],
+        }),
+
         // Get store logo as base64
         getStoreLogo: builder.query({
             query: (storeId: number) => ({
@@ -354,4 +379,7 @@ export const {
     useUpdatePaymentStatusMutation,
     useDeletePaymentStatusMutation,
     useGetStoreLogoQuery, // ← New hook for fetching store logo as base64
+    useGetTaxProfilesQuery,
+    useCreateTaxProfileMutation,
+    useUpdateTaxProfileMutation,
 } = StoreApi;

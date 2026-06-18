@@ -240,6 +240,14 @@ const ReportApi = baseApi.injectEndpoints({
             }),
         }),
 
+        getBdVatWorkspace: builder.mutation({
+            query: (data: ReportFilters & { period?: string }) => ({
+                url: '/reports/bd-vat-workspace',
+                method: 'POST',
+                body: data,
+            }),
+        }),
+
         getArAgingReport: builder.mutation({
             query: (data: ReportFilters) => ({
                 url: '/reports/ar-aging',
@@ -277,6 +285,7 @@ export const {
     useGetProfitLossReportMutation,
     useGetExpenseReportMutation,
     useGetTaxReportMutation,
+    useGetBdVatWorkspaceMutation,
     // Receivables
     useGetArAgingReportMutation,
 } = ReportApi;
