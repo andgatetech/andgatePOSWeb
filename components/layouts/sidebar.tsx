@@ -125,10 +125,12 @@ const Sidebar = () => {
         setStoreSearch('');
         if (isStoreInactive(store)) setStoreWarning(`"${store.store_name}" ${t('msg_store_currently_inactive')}`);
         else if (isStoreDisabled(store)) setStoreWarning(`"${store.store_name}" ${t('msg_store_has_been_disabled')}`);
+        try {
+            localStorage.setItem('andgate_current_store_id', String(store.id));
+        } catch { /* non-critical */ }
         dispatch(setCurrentStore(store));
         try {
             await persistor.flush();
-            localStorage.setItem('andgate_current_store_id', String(store.id));
         } catch { /* non-critical */ }
         if (pathname?.match(/^\/orders\/return\/(\d+)$/) || pathname?.match(/^\/orders\/return\/create\/(\d+)$/) || pathname === '/orders/return') router.push('/orders/return/list');
         if (pathname?.match(/^\/products\/edit\/(\d+)$/)) router.push('/products');

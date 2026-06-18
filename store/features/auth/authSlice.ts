@@ -224,14 +224,22 @@ const authSlice = createSlice({
             }
         },
         setUserStores(state, action: PayloadAction<Store[]>) {
-            const stores = uniqueStores(action.payload || []);
+            const stores = uniqueStores([
+                ...(action.payload || []),
+                ...(state.user?.stores || []),
+                ...(state.currentStore ? [state.currentStore] : []),
+            ]);
             if (state.user) {
                 state.user = { ...state.user, stores };
             }
 
-            const selectedStore = resolveStore(stores, normalizeStoreId(state.currentStoreId));
-            state.currentStore = selectedStore;
-            state.currentStoreId = selectedStore?.id || null;
+            const preferredStoreId = normalizeStoreId(state.currentStoreId) || normalizeStoreId(state.currentStore?.id) || getSavedStoreId();
+            const selectedStore = preferredStoreId
+                ? stores.find((store) => Number(store.id) === Number(preferredStoreId))
+                : null;
+
+            state.currentStore = selectedStore || state.currentStore || stores[0] || null;
+            state.currentStoreId = normalizeStoreId(state.currentStore?.id);
         },
         updateUserProfile(state, action: PayloadAction<{ name?: string; phone?: string; address?: string }>) {
             if (state.user) {
