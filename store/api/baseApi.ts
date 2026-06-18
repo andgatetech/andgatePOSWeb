@@ -75,7 +75,10 @@ const baseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> =
             params.set('details', JSON.stringify(details));
         }
 
-        window.location.assign(`/subscription?${params.toString()}`);
+        // Delay redirect to allow redux-persist to flush state before page unloads
+        setTimeout(() => {
+            window.location.assign(`/subscription?${params.toString()}`);
+        }, 100);
     }
 
     return result;
