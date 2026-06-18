@@ -15,6 +15,7 @@ const StoreApi = baseApi.injectEndpoints({
                 };
 
                 appendIfPresent('store_name', updateData.store_name);
+                appendIfPresent('store_type', updateData.store_type);
                 appendIfPresent('store_location', updateData.store_location);
                 appendIfPresent('store_contact', updateData.store_contact);
                 appendIfPresent('country_code', updateData.country_code);

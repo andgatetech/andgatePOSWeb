@@ -96,6 +96,7 @@ const StoreSetting = () => {
     const [activeTab, setActiveTab] = useState('basic');
     const [formData, setFormData] = useState({
         store_name: '',
+        store_type: 'retail',
         store_location: '',
         store_contact: '',
         store_email: '',
@@ -308,6 +309,7 @@ const StoreSetting = () => {
             const storeInfo = storeData.data.store;
             setFormData({
                 store_name: storeInfo.store_name || '',
+                store_type: storeInfo.store_type || 'retail',
                 store_location: storeInfo.store_location || '',
                 store_contact: storeInfo.store_contact || '',
                 store_email: storeInfo.store_email || '',
@@ -1376,6 +1378,7 @@ const StoreSetting = () => {
         const storeInfo = storeData?.data?.store || {};
         const fieldNormalizers: Record<string, (value: any) => string> = {
             store_name: normalizeString,
+            store_type: normalizeString,
             store_location: normalizeString,
             store_contact: normalizeString,
             store_email: normalizeString,

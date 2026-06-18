@@ -7,6 +7,7 @@ import { getTranslation } from '@/i18n';
 interface BasicInfoTabProps {
     formData: {
         store_name: string;
+        store_type: string;
         store_location: string;
         store_contact: string;
         store_email: string;
@@ -57,7 +58,35 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ formData, handleInputChange
 
                     <div className="space-y-2">
                         <label className="flex items-center text-sm font-medium text-gray-700">
-                            <Tag className="mr-2 h-4 w-4 text-[#c47920]" />
+                            <Building2 className="mr-2 h-4 w-4 text-[#046ca9]" />
+                            {t('lbl_store_type')}
+                        </label>
+                        <select
+                            name="store_type"
+                            value={formData.store_type}
+                            onChange={handleInputChange}
+                            className={inputCls}
+                        >
+                            <option value="retail">{t('lbl_store_type_retail')}</option>
+                            <option value="pharmacy">{t('lbl_store_type_pharmacy')}</option>
+                            <option value="grocery">{t('lbl_store_type_grocery')}</option>
+                            <option value="restaurant">{t('lbl_store_type_restaurant')}</option>
+                            <option value="wholesale">{t('lbl_store_type_wholesale')}</option>
+                            <option value="electronics">{t('lbl_store_type_electronics')}</option>
+                            <option value="clothing">{t('lbl_store_type_clothing')}</option>
+                            <option value="hardware">{t('lbl_store_type_hardware')}</option>
+                            <option value="stationery">{t('lbl_store_type_stationery')}</option>
+                            <option value="jewelry">{t('lbl_store_type_jewelry')}</option>
+                            <option value="cosmetics">{t('lbl_store_type_cosmetics')}</option>
+                            <option value="furniture">{t('lbl_store_type_furniture')}</option>
+                            <option value="bakery">{t('lbl_store_type_bakery')}</option>
+                            <option value="tailoring">{t('lbl_store_type_tailoring')}</option>
+                            <option value="service">{t('lbl_store_type_service')}</option>
+                        </select>
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="flex items-center text-sm font-medium text-gray-700">
                             {t('lbl_max_discount')}
                         </label>
                         <input
