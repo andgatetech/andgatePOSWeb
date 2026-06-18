@@ -12,10 +12,11 @@ export const useCurrentStore = () => {
     const currentStoreId = useSelector((state: RootState) => state.auth?.currentStoreId || null);
     const user = useSelector((state: RootState) => state.auth?.user || null);
     const userStores = (user?.stores || []).filter((store: Store, idx: number, arr: Store[]) => arr.findIndex((s: Store) => Number(s.id) === Number(store.id)) === idx);
-    const currentStore = userStores.find((store: Store) => Number(store.id) === Number(currentStoreId))
-        || (rawCurrentStore && Number(rawCurrentStore.id) === Number(currentStoreId) ? rawCurrentStore : null)
-        || userStores[0]
-        || null;
+    const currentStore = currentStoreId
+        ? userStores.find((store: Store) => Number(store.id) === Number(currentStoreId))
+            || (rawCurrentStore && Number(rawCurrentStore.id) === Number(currentStoreId) ? rawCurrentStore : null)
+            || null
+        : userStores[0] || rawCurrentStore || null;
     return {
         currentStore,
         currentStoreId: currentStore?.id || currentStoreId,

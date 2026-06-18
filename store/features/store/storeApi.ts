@@ -1,5 +1,8 @@
 import { baseApi } from '@/store/api/baseApi';
+import type { RootState } from '@/store';
 import { setUser, updateCurrentStoreData } from '../auth/authSlice';
+
+type StoreQueryArg = { store_id?: number } | number | undefined;
 
 const StoreApi = baseApi.injectEndpoints({
     overrideExisting: true,
@@ -74,19 +77,33 @@ const StoreApi = baseApi.injectEndpoints({
 
         //  Get specific store by ID (calls your getStore backend function)
         getStore: builder.query({
-            query: (params?: { store_id?: number }) => ({
-                url: '/store',
-                method: 'GET',
-                params: params,
-            }),
-            providesTags: (result, error, arg) => (result ? [{ type: 'Stores', id: arg?.store_id || 'default' }] : []),
-            async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+            query: (params?: StoreQueryArg) => {
+                const queryParams = typeof params === 'number' ? { store_id: params } : params;
+
+                return {
+                    url: '/store',
+                    method: 'GET',
+                    params: queryParams,
+                };
+            },
+            providesTags: (result, error, arg) => {
+                const storeId = typeof arg === 'number' ? arg : arg?.store_id;
+                return result ? [{ type: 'Stores', id: storeId || 'default' }] : [];
+            },
+            async onQueryStarted(arg, { dispatch, getState, queryFulfilled }) {
                 try {
                     const { data } = await queryFulfilled;
 
                     // Update Redux auth state with the latest store data
                     if (data?.data?.store) {
                         const storeData = data.data.store;
+                        const requestedStoreId = Number(typeof arg === 'number' ? arg : arg?.store_id);
+                        const currentStoreId = Number((getState() as RootState).auth.currentStoreId);
+
+                        if (!Number.isFinite(requestedStoreId) || requestedStoreId <= 0 || requestedStoreId !== currentStoreId || Number(storeData.id) !== currentStoreId) {
+                            return;
+                        }
+
                         dispatch(
                             updateCurrentStoreData({
                                 id: storeData.id,

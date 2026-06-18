@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getTranslation } from '@/i18n';
 import { buildMenuFromPermissions, type MenuItem } from '@/lib/menu-builder';
 import { RootState, persistor } from '@/store';
-import { setCurrentStore, setPermissions, setUserStores, type Store } from '@/store/features/auth/authSlice';
+import { setCurrentStore, setPermissions, type Store } from '@/store/features/auth/authSlice';
 import { useLazyGetStorePermissionsQuery } from '@/store/features/auth/authApi';
 import { toggleSidebar } from '@/store/themeConfigSlice';
 import { useGetUnreadCountQuery } from '@/store/features/notification/notificationApi';
@@ -61,13 +61,12 @@ const Sidebar = () => {
     const visibleStores = selectedStore && !selectedStoreInFilteredList
         ? [selectedStore, ...filteredStores]
         : filteredStores;
-    const { data: storesResponse } = useGetStoreQuery(undefined, {
-        skip: !user,
-        refetchOnMountOrArgChange: 60,
-    });
-
     const { data: unreadData } = useGetUnreadCountQuery(undefined, {
         pollingInterval: 300000, // 5 minutes
+    });
+    useGetStoreQuery(currentStoreId ? { store_id: currentStoreId } : undefined, {
+        skip: !user || !currentStoreId,
+        refetchOnMountOrArgChange: 60,
     });
     const unreadCount = unreadData?.count || 0;
 
@@ -91,13 +90,6 @@ const Sidebar = () => {
 
     const allMenuRoutes = useMemo(() => buildMenuFromPermissions(user?.permissions || [], user?.role), [user]);
     const menuRoutes = useMemo(() => allMenuRoutes.filter((r) => r.label !== 'Feedback'), [allMenuRoutes]);
-
-    useEffect(() => {
-        const freshStores = storesResponse?.data;
-        if (!Array.isArray(freshStores) || freshStores.length === 0) return;
-
-        dispatch(setUserStores(freshStores));
-    }, [dispatch, storesResponse]);
 
     // Auto-open parent that contains the active route on navigation
     useEffect(() => {

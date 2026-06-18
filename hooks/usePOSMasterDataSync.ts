@@ -56,7 +56,7 @@ export function usePOSMasterDataSync(storeId: number | undefined, isOnline: bool
         { store_id: storeId!, per_page: 1000, page: 1 } as any,
         { skip: !shouldFetch }
     );
-    const { data: storeResponse } = useGetStoreQuery(storeId!, { skip: !shouldFetch });
+    const { data: storeResponse } = useGetStoreQuery({ store_id: storeId! }, { skip: !shouldFetch });
 
     // Hydrate from IndexedDB on mount / store switch; flag stale caches
     useEffect(() => {
