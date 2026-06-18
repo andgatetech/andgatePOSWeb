@@ -97,8 +97,10 @@ const Sidebar = () => {
         if (pathname?.match(/^\/purchases\/receive\/(\d+)$/)) router.push('/purchases/receive');
         try {
             const result = await fetchStorePermissions(store.id).unwrap();
-            const perms: string[] = result?.data?.permissions ?? result?.permissions ?? [];
-            dispatch(setPermissions(perms));
+            const perms = result?.data?.permissions ?? result?.permissions;
+            if (Array.isArray(perms) && perms.length > 0) {
+                dispatch(setPermissions(perms));
+            }
         } catch {
             // Non-fatal
         }

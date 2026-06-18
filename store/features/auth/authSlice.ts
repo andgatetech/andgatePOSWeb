@@ -1,6 +1,7 @@
 // src/store/features/auth/authSlice.ts
 import { isTokenExpired } from '@/lib/auth-session';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { REHYDRATE } from 'redux-persist';
 
 export interface Currency {
     currency_code: string;
@@ -119,6 +120,24 @@ const initialState: AuthState = {
     currentStoreId: null,
 };
 
+const getSavedStoreId = (): number | null => {
+    if (typeof window === 'undefined') return null;
+
+    const value = Number(localStorage.getItem('andgate_current_store_id'));
+    return Number.isFinite(value) && value > 0 ? value : null;
+};
+
+const uniqueStores = (stores: Store[] = []): Store[] => stores.filter((store, idx, arr) => arr.findIndex((s) => s.id === store.id) === idx);
+
+const resolveStore = (stores: Store[] = [], preferredStoreId?: number | null): Store | null => {
+    const normalizedStores = uniqueStores(stores);
+    if (normalizedStores.length === 0) return null;
+
+    const savedStoreId = getSavedStoreId();
+    const targetStoreId = preferredStoreId || savedStoreId;
+    return normalizedStores.find((store) => store.id === targetStoreId) || normalizedStores[0];
+};
+
 const authSlice = createSlice({
     name: 'auth',
     initialState,
@@ -146,6 +165,7 @@ const authSlice = createSlice({
             // Merge permissions into user object
             state.user = {
                 ...action.payload.user,
+                stores: uniqueStores(action.payload.user.stores || []),
                 permissions: permissions,
             };
             state.token = action.payload.token;
@@ -154,16 +174,9 @@ const authSlice = createSlice({
 
             
 
-            // 👇 Set default store (first store) on login
-            if (action.payload.user?.stores?.length > 0) {
-                const defaultStore = action.payload.user.stores[0];
-                state.currentStore = defaultStore;
-                state.currentStoreId = defaultStore.id;
-                
-            } else {
-                state.currentStore = null;
-                state.currentStoreId = null;
-            }
+            const selectedStore = resolveStore(state.user.stores, state.currentStoreId);
+            state.currentStore = selectedStore;
+            state.currentStoreId = selectedStore?.id || null;
         },
         logout(state) {
             state.user = null;
@@ -174,19 +187,18 @@ const authSlice = createSlice({
             state.currentStoreId = null;
         },
         setUser(state, action: PayloadAction<{ user: User }>) {
-            state.user = action.payload.user;
-            if (action.payload.user.stores?.length > 0) {
-                const defaultStore = action.payload.user.stores[0];
-                state.currentStore = defaultStore;
-                state.currentStoreId = defaultStore.id;
-            } else {
-                state.currentStore = null;
-                state.currentStoreId = null;
-            }
+            const stores = uniqueStores(action.payload.user.stores || []);
+            state.user = { ...action.payload.user, stores };
+            const selectedStore = resolveStore(stores, state.currentStoreId);
+            state.currentStore = selectedStore;
+            state.currentStoreId = selectedStore?.id || null;
         },
         setCurrentStore(state, action: PayloadAction<Store>) {
             state.currentStore = action.payload;
             state.currentStoreId = action.payload.id;
+            if (state.user?.stores && !state.user.stores.some((store) => store.id === action.payload.id)) {
+                state.user.stores = uniqueStores([...state.user.stores, action.payload]);
+            }
         },
         setCurrentStoreById(state, action: PayloadAction<number>) {
             const storeId = action.payload;
@@ -243,6 +255,16 @@ const authSlice = createSlice({
                 state.currentStoreId = remaining.length > 0 ? remaining[0].id : null;
             }
         },
+    },
+    extraReducers: (builder) => {
+        builder.addCase(REHYDRATE, (state) => {
+            if (!state.user?.stores?.length) return;
+
+            state.user.stores = uniqueStores(state.user.stores);
+            const selectedStore = resolveStore(state.user.stores, state.currentStoreId);
+            state.currentStore = selectedStore;
+            state.currentStoreId = selectedStore?.id || null;
+        });
     },
 });
 
