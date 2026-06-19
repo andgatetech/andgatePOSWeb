@@ -29,7 +29,6 @@ const clearAuthCookies = (response: NextResponse) => {
 // Public pages that do not require authentication
 const PUBLIC_PATHS = [
     '/', '/login', '/register', '/forgot-password',
-    '/auth/restore',
     '/pricing', '/price', '/subscription', '/training', '/contact', '/promotion',
     '/affiliate', '/features', '/landing', '/seo', '/pos-overview',
     '/privacy-policy', '/terms-of-service', '/cookie-policy',
@@ -58,12 +57,6 @@ const getLoginRedirectUrl = (request: NextRequest) => {
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('redirect', getOriginalPath(request));
     return loginUrl;
-};
-
-const getAuthRestoreUrl = (request: NextRequest) => {
-    const restoreUrl = new URL('/auth/restore', request.url);
-    restoreUrl.searchParams.set('redirect', getOriginalPath(request));
-    return restoreUrl;
 };
 
 const getSafePostLoginPath = (request: NextRequest) => {
@@ -171,7 +164,7 @@ export function proxy(request: NextRequest) {
 
     // Unauthenticated users can only access public paths
     if (!hasValidToken && !isPublicPath(normalizedPath)) {
-        return NextResponse.redirect(getAuthRestoreUrl(request));
+        return NextResponse.redirect(getLoginRedirectUrl(request));
     }
 
     // Allow all public paths

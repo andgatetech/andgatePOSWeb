@@ -5,7 +5,7 @@ import { useLoginMutation } from '@/store/features/auth/authApi';
 import { Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { FormEvent, forwardRef, useEffect, useImperativeHandle, useState } from 'react';
+import { FormEvent, forwardRef, useImperativeHandle, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
 
@@ -14,8 +14,6 @@ import IconMail from '@/components/icon/icon-mail';
 import { AUTH_TOKEN_EXPIRES_AT_COOKIE, AUTH_TOKEN_EXPIRES_AT_KEY, getCookieMaxAgeFromExpiry, getLoginTokenExpiresAt, isTokenExpired, setAuthCookie } from '@/lib/auth-session';
 import { login } from '@/store/features/auth/authSlice';
 import { persistor } from '@/store';
-
-const REMEMBER_LOGIN_KEY = 'andgatepos_remember_login';
 
 const ComponentsAuthLoginForm = forwardRef((props, ref) => {
     const router = useRouter();
@@ -31,16 +29,6 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
     });
 
     const [showPassword, setShowPassword] = useState(false);
-    const [rememberMe, setRememberMe] = useState(false);
-
-    useEffect(() => {
-        const isMobileOrStandalone =
-            /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent) ||
-            window.matchMedia('(display-mode: standalone)').matches;
-        const savedPreference = localStorage.getItem(REMEMBER_LOGIN_KEY);
-
-        setRememberMe(savedPreference === null ? isMobileOrStandalone : savedPreference === 'true');
-    }, []);
 
     useImperativeHandle(ref, () => ({
         updateCredentials: (email: string, password: string) => {
@@ -65,6 +53,12 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
     const submitForm = async (e: FormEvent) => {
         e.preventDefault();
         try {
+            // On mobile or PWA standalone, request a long-lived (30-day) token so the
+            // user stays logged in between app opens — same behaviour as Facebook / Google.
+            const rememberMe =
+                /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent) ||
+                window.matchMedia('(display-mode: standalone)').matches;
+
             const result = await loginApi({ ...credentials, remember_me: rememberMe }).unwrap();
 
             const { user, token, permissions } = result.data;
@@ -92,17 +86,12 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
             setAuthCookie(AUTH_TOKEN_EXPIRES_AT_COOKIE, validTokenExpiresAt, maxAge);
 
             localStorage.setItem(AUTH_TOKEN_EXPIRES_AT_KEY, validTokenExpiresAt);
-            localStorage.setItem(REMEMBER_LOGIN_KEY, String(rememberMe));
 
             // Save **full user details + permissions** in Redux
             dispatch(login({ user, token, tokenExpiresAt: validTokenExpiresAt, permissions }));
 
-            if (rememberMe) {
-                navigator.storage?.persist?.().catch(() => {});
-            }
-
             // Force persist flush so stores survive subscription-quota redirects
-            await persistor.flush();
+            persistor.flush();
 
             const redirectTo = searchParams.get('redirect');
             const safePath = (() => {
@@ -179,17 +168,7 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
                 </div>
             </div>
 
-            <div className="flex items-center justify-between gap-3">
-                <label htmlFor="remember-login" className="flex cursor-pointer items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-                    <input
-                        id="remember-login"
-                        type="checkbox"
-                        checked={rememberMe}
-                        onChange={(event) => setRememberMe(event.target.checked)}
-                        className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                    />
-                    <span>{t('login-page.form.remember_me')}</span>
-                </label>
+            <div className="flex items-center justify-end">
                 <Link href="/forgot-password" className="text-sm text-primary underline transition hover:text-black dark:hover:text-white">
                     Forgot Password?
                 </Link>
