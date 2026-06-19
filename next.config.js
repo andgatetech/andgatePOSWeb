@@ -1,5 +1,3 @@
-const path = require('path');
-
 const withPWA = require('@ducanh2912/next-pwa').default({
     dest: 'public',
     disable: process.env.NODE_ENV === 'development',
@@ -14,12 +12,6 @@ const withPWA = require('@ducanh2912/next-pwa').default({
     workboxOptions: {
         disableDevLogs: true,
         skipWaiting: false,
-        navigateFallback: '/auth/restore',
-        navigateFallbackDenylist: [
-            /^\/api\//,
-            /^\/_next\//,
-            /\.[^/?]+$/,
-        ],
         additionalManifestEntries: [
             { url: '/auth/restore', revision: null },
             { url: '/manifest.json', revision: null },
@@ -66,7 +58,6 @@ const withPWA = require('@ducanh2912/next-pwa').default({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    outputFileTracingRoot: path.join(__dirname),
     compiler: {
         removeConsole: process.env.NODE_ENV === 'production'
     },

@@ -27,18 +27,6 @@ import Link from 'next/link';
 
 const SYNC_CONCURRENCY = 3; // sync up to 3 orders simultaneously
 
-const downloadJson = (filename: string, data: unknown) => {
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    URL.revokeObjectURL(url);
-};
-
 export default function OfflineSyncManager() {
     const { t } = getTranslation();
     const dispatch = useDispatch();
@@ -265,20 +253,6 @@ export default function OfflineSyncManager() {
         syncAll();
     };
 
-    const handleExportQueuedOrders = async () => {
-        const durableQueue = await getOfflineOrders().catch(() => queue);
-        const queueById = new Map(queue.map((order) => [order.localId, order]));
-        durableQueue.forEach((order) => queueById.set(order.localId, order));
-        const exportQueue = Array.from(queueById.values()).filter((order) => order.status !== 'synced');
-
-        downloadJson(`andgatepos-offline-orders-${new Date().toISOString().slice(0, 10)}.json`, {
-            exportedAt: new Date().toISOString(),
-            app: 'AndGate POS',
-            total: exportQueue.length,
-            orders: exportQueue,
-        });
-    };
-
     // Nothing to render when everything is fine
     if (isOnline && totalQueued === 0 && !showSyncedFlash && !sessionExpired) return null;
 
@@ -299,18 +273,9 @@ export default function OfflineSyncManager() {
                         </span>
                     </div>
                     {totalQueued > 0 && (
-                        <div className="flex items-center gap-2">
-                            <span className="rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-bold">
-                                {totalQueued} {t('pos_queued')}
-                            </span>
-                            <button
-                                type="button"
-                                onClick={handleExportQueuedOrders}
-                                className="rounded-lg bg-white/20 px-2.5 py-1 text-xs font-bold transition hover:bg-white/30"
-                            >
-                                {t('btn_export')}
-                            </button>
-                        </div>
+                        <span className="rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-bold">
+                            {totalQueued} {t('pos_queued')}
+                        </span>
                     )}
                 </div>
             )}
@@ -370,22 +335,12 @@ export default function OfflineSyncManager() {
                             ) : null
                         )}
                     </div>
-                    <div className="flex shrink-0 items-center gap-2">
-                        <button
-                            type="button"
-                            onClick={handleExportQueuedOrders}
-                            className="rounded-lg bg-white/20 px-3 py-1 text-xs font-bold transition hover:bg-white/30"
-                        >
-                            {t('btn_export')}
-                        </button>
-                        <button
-                            type="button"
-                            onClick={handleRetry}
-                            className="rounded-lg bg-white/20 px-3 py-1 text-xs font-bold transition hover:bg-white/30"
-                        >
-                            {t('btn_retry')}
-                        </button>
-                    </div>
+                    <button
+                        onClick={handleRetry}
+                        className="shrink-0 rounded-lg bg-white/20 px-3 py-1 text-xs font-bold transition hover:bg-white/30"
+                    >
+                        {t('btn_retry')}
+                    </button>
                 </div>
             )}
 
