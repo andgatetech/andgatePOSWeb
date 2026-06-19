@@ -149,6 +149,11 @@ export function proxy(request: NextRequest) {
     const hasValidToken = Boolean(token) && !isTokenExpired(tokenExpiresAt);
     const normalizedPath = normalizeRoutePath(pathname);
 
+    // Home/marketing page must stay public even if the browser has stale auth cookies.
+    if (normalizedPath === '/') {
+        return token && !hasValidToken ? clearAuthCookies(response) : response;
+    }
+
     if (token && !hasValidToken) {
         if (isPublicPath(normalizedPath)) {
             return clearAuthCookies(response);

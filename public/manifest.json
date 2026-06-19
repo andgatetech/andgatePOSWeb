@@ -2,21 +2,25 @@
   "name": "AndGate POS - অ্যান্ডগেইট পস",
   "short_name": "AndGate POS",
   "description": "Complete retail & pharmacy POS system for Bangladesh — billing, inventory, accounting, ecommerce, AI insights. সম্পূর্ণ খুচরা ও ফার্মেসি পস সিস্টেম।",
+  "id": "/",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#046ca9",
   "orientation": "any",
   "icons": [
     {
-      "src": "/images/andgatePOS.jpeg",
+      "src": "/icon-192x192.png",
       "sizes": "192x192",
-      "type": "image/jpeg"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "/images/andgatePOS.jpeg",
+      "src": "/icon-512x512.png",
       "sizes": "512x512",
-      "type": "image/jpeg"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ],
   "categories": ["business", "productivity", "retail"],
