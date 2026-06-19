@@ -2,7 +2,6 @@
 
 import App from '@/App';
 import Loading from '@/app/loading';
-import PWAUpdateManager from '@/components/layouts/PWAUpdateManager';
 
 import { clearAuthCookies, clearAuthLocalStorage, isTokenExpired } from '@/lib/auth-session';
 import { persistor, store } from '@/store';
@@ -37,7 +36,6 @@ export default function ReduxProvider({ children }: ReduxProviderProps) {
     return (
         <Provider store={store}>
             <PersistGate loading={<Loading />} persistor={persistor}>
-                <PWAUpdateManager />
                 <AuthExpiryWatcher />
                 <Suspense fallback={<Loading />}>
                     <App>{children}</App>
