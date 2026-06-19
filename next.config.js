@@ -2,7 +2,6 @@ const withPWA = require('@ducanh2912/next-pwa').default({
     dest: 'public',
     disable: process.env.NODE_ENV === 'development',
     register: true,
-    skipWaiting: true,
     cacheOnFrontEndNav: false,
     aggressiveFrontEndNavCaching: false,
     reloadOnOnline: false,
@@ -12,7 +11,28 @@ const withPWA = require('@ducanh2912/next-pwa').default({
     ],
     workboxOptions: {
         disableDevLogs: true,
+        skipWaiting: false,
+        additionalManifestEntries: [
+            { url: '/auth/restore', revision: null },
+            { url: '/manifest.json', revision: null },
+            { url: '/icon-192x192.png', revision: null },
+            { url: '/icon-512x512.png', revision: null },
+            { url: '/locales/en.json', revision: null },
+            { url: '/locales/bn.json', revision: null },
+        ],
         runtimeCaching: [
+            {
+                // App shell/pages: allow refresh while offline after the page was opened once.
+                // This is what keeps /pos usable when a shop loses internet and refreshes.
+                urlPattern: ({ request }) => request.mode === 'navigate',
+                handler: 'NetworkFirst',
+                options: {
+                    cacheName: 'pages-cache',
+                    networkTimeoutSeconds: 3,
+                    expiration: { maxEntries: 80, maxAgeSeconds: 60 * 60 * 24 * 7 },
+                    cacheableResponse: { statuses: [200] },
+                },
+            },
             {
                 // Network-first for API — falls through to offline queue on fail
                 urlPattern: /^https?:\/\/.*\/api\/.*/i,
