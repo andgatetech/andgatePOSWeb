@@ -3,7 +3,7 @@
   "short_name": "AndgatePOS",
   "description": "Complete retail & pharmacy POS system for Bangladesh — billing, inventory, accounting, ecommerce, AI insights. সম্পূর্ণ খুচরা ও ফার্মেসি পস সিস্টেম।",
   "id": "/",
-  "start_url": "/",
+  "start_url": "/login",
   "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",

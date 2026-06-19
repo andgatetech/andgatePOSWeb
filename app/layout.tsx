@@ -1,5 +1,6 @@
 import ProviderComponent from '@/components/layouts/provider-component';
 import OrientationLock from '@/components/layouts/OrientationLock';
+import PwaStandaloneGate from '@/components/layouts/PwaStandaloneGate';
 import { BD_KEYWORDS, getAppUrl } from '@/lib/seo-config';
 import { Metadata } from 'next';
 import Script from 'next/script';
@@ -209,6 +210,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 `}
             </Script> */}
                 <ProviderComponent>
+                    <PwaStandaloneGate />
                     {children}
                     {/* <WhatsAppButton /> */}
                 </ProviderComponent>
