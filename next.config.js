@@ -14,14 +14,14 @@ const withPWA = require('@ducanh2912/next-pwa').default({
     workboxOptions: {
         disableDevLogs: true,
         skipWaiting: false,
-        navigateFallback: '/login',
+        navigateFallback: '/auth/restore',
         navigateFallbackDenylist: [
             /^\/api\//,
             /^\/_next\//,
             /\.[^/?]+$/,
         ],
         additionalManifestEntries: [
-            { url: '/login', revision: null },
+            { url: '/auth/restore', revision: null },
             { url: '/manifest.json', revision: null },
             { url: '/icon-192x192.png', revision: null },
             { url: '/icon-512x512.png', revision: null },
