@@ -7,21 +7,6 @@ export type ProductCacheRecord = {
     cachedAt: string;
 };
 
-export type ProductSearchRecord = {
-    cacheKey: string;
-    storeId: number;
-    productId: number | string;
-    stockId?: number | string | null;
-    productName: string;
-    sku?: string | null;
-    barcode?: string | null;
-    categoryId?: number | string | null;
-    brandId?: number | string | null;
-    searchText: string;
-    product: any;
-    cachedAt: string;
-};
-
 export type MasterDataRecord = {
     storeId: number;
     items: any[];
@@ -29,7 +14,7 @@ export type MasterDataRecord = {
 };
 
 const DB_NAME = 'andgate-pos-offline';
-const DB_VERSION = 3;
+const DB_VERSION = 2;
 
 const STORES = {
     OFFLINE_ORDERS: 'offlineOrders',
@@ -39,7 +24,6 @@ const STORES = {
     CUSTOMERS: 'customers',
     PAYMENT_METHODS: 'paymentMethods',
     STORE_SETTINGS: 'storeSettings',
-    PRODUCT_SEARCH: 'productSearch',
 } as const;
 
 let dbPromise: Promise<IDBDatabase> | null = null;
@@ -93,18 +77,6 @@ function openOfflineDb(): Promise<IDBDatabase> {
                 }
                 if (!db.objectStoreNames.contains(STORES.STORE_SETTINGS)) {
                     db.createObjectStore(STORES.STORE_SETTINGS, { keyPath: 'storeId' });
-                }
-            }
-
-            // Version 3 stores — indexed offline product lookup
-            if (oldVersion < 3) {
-                if (!db.objectStoreNames.contains(STORES.PRODUCT_SEARCH)) {
-                    const productSearchStore = db.createObjectStore(STORES.PRODUCT_SEARCH, { keyPath: 'cacheKey' });
-                    productSearchStore.createIndex('storeId', 'storeId', { unique: false });
-                    productSearchStore.createIndex('barcode', 'barcode', { unique: false });
-                    productSearchStore.createIndex('sku', 'sku', { unique: false });
-                    productSearchStore.createIndex('categoryId', 'categoryId', { unique: false });
-                    productSearchStore.createIndex('brandId', 'brandId', { unique: false });
                 }
             }
         };
@@ -245,115 +217,6 @@ export async function getProductCache(storeId: number) {
 
 export function getProductCaches() {
     return getAllFromStore<ProductCacheRecord>(STORES.PRODUCT_CACHES);
-}
-
-const normalizeSearchValue = (value: unknown) =>
-    String(value ?? '')
-        .trim()
-        .toLowerCase();
-
-const getProductIdentity = (product: any) => {
-    const productId = product?.id ?? product?.product_id ?? product?.productId;
-    const stockId = product?.product_stock_id ?? product?.stock_id ?? product?.stockId ?? product?.stocks?.[0]?.id ?? null;
-    return { productId, stockId };
-};
-
-const buildProductSearchRecord = (storeId: number, product: any): ProductSearchRecord | null => {
-    const { productId, stockId } = getProductIdentity(product);
-    if (productId === undefined || productId === null) return null;
-
-    const productName = String(product?.product_name ?? product?.name ?? '');
-    const sku = product?.sku ?? product?.product_sku ?? null;
-    const barcode = product?.barcode ?? product?.product_barcode ?? product?.stocks?.[0]?.barcode ?? null;
-    const categoryId = product?.category_id ?? product?.category?.id ?? null;
-    const brandId = product?.brand_id ?? product?.brand?.id ?? null;
-    const searchText = [
-        productName,
-        sku,
-        barcode,
-        product?.category_name,
-        product?.brand_name,
-    ].map(normalizeSearchValue).filter(Boolean).join(' ');
-
-    return {
-        cacheKey: `${storeId}:${productId}:${stockId ?? 'default'}`,
-        storeId,
-        productId,
-        stockId,
-        productName,
-        sku,
-        barcode,
-        categoryId,
-        brandId,
-        searchText,
-        product,
-        cachedAt: new Date().toISOString(),
-    };
-};
-
-export async function saveProductSearchCache(storeId: number, products: any[]) {
-    const records = products
-        .map((product) => buildProductSearchRecord(storeId, product))
-        .filter(Boolean) as ProductSearchRecord[];
-
-    if (!records.length) return;
-
-    const db = await openOfflineDb();
-    await new Promise<void>((resolve, reject) => {
-        const transaction = db.transaction(STORES.PRODUCT_SEARCH, 'readwrite');
-        const store = transaction.objectStore(STORES.PRODUCT_SEARCH);
-
-        transaction.onerror = () => reject(transaction.error);
-        transaction.onabort = () => reject(transaction.error);
-        transaction.oncomplete = () => resolve();
-
-        records.forEach((record) => store.put(record));
-    });
-}
-
-export async function searchProductCache(
-    storeId: number,
-    options: {
-        query?: string;
-        categoryId?: number | string | null;
-        brandId?: number | string | null;
-        limit?: number;
-    } = {}
-): Promise<any[]> {
-    const db = await openOfflineDb();
-    const limit = options.limit ?? 100;
-    const query = normalizeSearchValue(options.query);
-    const categoryId = options.categoryId == null ? null : String(options.categoryId);
-    const brandId = options.brandId == null ? null : String(options.brandId);
-
-    return new Promise((resolve, reject) => {
-        const transaction = db.transaction(STORES.PRODUCT_SEARCH, 'readonly');
-        const store = transaction.objectStore(STORES.PRODUCT_SEARCH);
-        const index = store.index('storeId');
-        const request = index.openCursor(IDBKeyRange.only(storeId));
-        const products: any[] = [];
-
-        transaction.onerror = () => reject(transaction.error);
-        transaction.onabort = () => reject(transaction.error);
-        transaction.oncomplete = () => resolve(products);
-
-        request.onerror = () => reject(request.error);
-        request.onsuccess = () => {
-            const cursor = request.result;
-            if (!cursor || products.length >= limit) return;
-
-            const record = cursor.value as ProductSearchRecord;
-            const matchesQuery = !query || record.searchText.includes(query);
-            const matchesCategory = !categoryId || String(record.categoryId ?? '') === categoryId;
-            const matchesBrand = !brandId || String(record.brandId ?? '') === brandId;
-
-            if (matchesQuery && matchesCategory && matchesBrand) {
-                products.push(record.product);
-            }
-
-            cursor.continue();
-        };
-    });
 }
 
 // ─── Master Data (generic helper) ────────────────────────────────────────────

@@ -18,7 +18,7 @@ import { addStockItem } from '@/store/features/StockAdjustment/stockAdjustmentSl
 
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 import { usePOSMasterDataSync } from '@/hooks/usePOSMasterDataSync';
-import { getProductCache, saveProductCache, saveProductSearchCache, searchProductCache } from '@/lib/offline/offlineDb';
+import { getProductCache, saveProductCache } from '@/lib/offline/offlineDb';
 import { hydrateProductCaches, setProductCache } from '@/store/features/offline/cachedProductsSlice';
 
 import OfflineReadinessPanel from '@/components/pos/OfflineReadinessPanel';
@@ -87,7 +87,6 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
     const [showCameraScanner, setShowCameraScanner] = useState(false);
     const [showReadinessPanel, setShowReadinessPanel] = useState(false);
     const [offlineCacheRefreshTick, setOfflineCacheRefreshTick] = useState(0);
-    const [offlineProducts, setOfflineProducts] = useState<any[] | null>(null);
 
     const dispatch = useDispatch();
     const [itemsPerPage, setItemsPerPage] = useState(12); // Items per page for POS
@@ -175,7 +174,6 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                         total,
                         cachedAt: new Date().toISOString(),
                     }).catch(() => {});
-                    saveProductSearchCache(currentStoreId, allProducts).catch(() => {});
                 }
             } catch {}
         };
@@ -236,42 +234,10 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
 
     const isLoading = isOnline ? isLoadingOnline : false;
 
-    useEffect(() => {
-        if (isOnline || !currentStoreId) {
-            setOfflineProducts(null);
-            return;
-        }
-
-        let cancelled = false;
-        const categoryId = selectedCategory ? (typeof selectedCategory === 'object' ? selectedCategory.id : selectedCategory) : null;
-        const brandId = selectedBrand ? (typeof selectedBrand === 'object' ? selectedBrand.id : selectedBrand) : null;
-
-        searchProductCache(currentStoreId, {
-            query: searchTerm,
-            categoryId,
-            brandId,
-            limit: Math.max(itemsPerPage * 3, 60),
-        })
-            .then((items) => {
-                if (!cancelled) setOfflineProducts(items);
-            })
-            .catch(() => {
-                if (!cancelled) setOfflineProducts(null);
-            });
-
-        return () => {
-            cancelled = true;
-        };
-    }, [isOnline, currentStoreId, searchTerm, selectedCategory, selectedBrand, itemsPerPage, offlineCacheRefreshTick]);
-
     // Handle both success and 404 "not found" responses - NEW API FORMAT
     const products = useMemo(() => {
-        // Offline: prefer IndexedDB lookup, then fall back to Redux cache for older installs
+        // Offline: serve from Redux cache
         if (!isOnline && currentStoreId) {
-            if (offlineProducts !== null) {
-                return offlineProducts;
-            }
-
             const cached = cachedProductsState.byStoreId[currentStoreId];
             if (cached?.products?.length) {
                 // Apply client-side search filter on cached products
@@ -312,7 +278,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
 
         // If 404 or no products found, return empty array (don't show error)
         return [];
-    }, [productsData, isOnline, currentStoreId, cachedProductsState, searchTerm, selectedCategory, selectedBrand, offlineProducts]);
+    }, [productsData, isOnline, currentStoreId, cachedProductsState, searchTerm, selectedCategory, selectedBrand]);
 
     // Extract pagination metadata
     const paginationMeta = useMemo(() => {
