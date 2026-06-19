@@ -14,6 +14,17 @@ const withPWA = require('@ducanh2912/next-pwa').default({
         disableDevLogs: true,
         runtimeCaching: [
             {
+                // Cache visited pages so refresh works after the app is already open offline.
+                urlPattern: ({ request }) => request.mode === 'navigate',
+                handler: 'NetworkFirst',
+                options: {
+                    cacheName: 'pages-cache',
+                    networkTimeoutSeconds: 3,
+                    expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 * 24 * 7 },
+                    cacheableResponse: { statuses: [200] },
+                },
+            },
+            {
                 // Network-first for API — falls through to offline queue on fail
                 urlPattern: /^https?:\/\/.*\/api\/.*/i,
                 handler: 'NetworkFirst',
