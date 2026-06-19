@@ -235,6 +235,8 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
     });
 
     const isLoading = isOnline ? isLoadingOnline : false;
+    const cachedProductCount = cachedProductsState.byStoreId[currentStoreId ?? 0]?.products?.length ?? 0;
+    const isOfflineReady = cachedProductCount > 0 && masterData.categories.length > 0 && masterData.paymentMethods.length > 0;
 
     useEffect(() => {
         if (isOnline || !currentStoreId) {
@@ -1041,7 +1043,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                                     {showReadinessPanel && (
                                         <div className="absolute right-0 top-9 z-[300] max-w-[calc(100vw-2rem)]">
                                             <OfflineReadinessPanel
-                                                productCount={cachedProductsState.byStoreId[currentStoreId ?? 0]?.products?.length ?? 0}
+                                                productCount={cachedProductCount}
                                                 categoryCount={masterData.categories.length}
                                                 brandCount={masterData.brands.length}
                                                 customerCount={masterData.customers.length}
@@ -1063,6 +1065,18 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                                 )}
                             </div>
                         </div>
+
+                        {!isOnline && !isOfflineReady && (
+                            <div className="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700 dark:border-red-900/50 dark:bg-red-900/20 dark:text-red-200">
+                                <div className="flex items-start gap-2">
+                                    <WifiOff className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                                    <div>
+                                        <div className="font-semibold">{t('pos_offline_not_ready')}</div>
+                                        <div className="mt-0.5 leading-5">{t('pos_offline_not_ready_desc')}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         <FilterButtons
                             selectedCategory={selectedCategory}
