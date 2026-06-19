@@ -848,6 +848,7 @@
             "password_placeholder": "Enter Password",
             "sign_in_button": "Sign in",
             "signing_in": "Signing in...",
+            "remember_me": "Keep me signed in",
             "show_password": "Show password",
             "hide_password": "Hide password"
         }
