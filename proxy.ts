@@ -149,6 +149,11 @@ export function proxy(request: NextRequest) {
     const hasValidToken = Boolean(token) && !isTokenExpired(tokenExpiresAt);
     const normalizedPath = normalizeRoutePath(pathname);
 
+    // The marketing home page must never be auth-gated.
+    if (normalizedPath === '/') {
+        return token && !hasValidToken ? clearAuthCookies(response) : response;
+    }
+
     if (token && !hasValidToken) {
         if (isPublicPath(normalizedPath)) {
             return clearAuthCookies(response);
