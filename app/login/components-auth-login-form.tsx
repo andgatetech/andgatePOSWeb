@@ -15,6 +15,8 @@ import { AUTH_TOKEN_EXPIRES_AT_COOKIE, AUTH_TOKEN_EXPIRES_AT_KEY, getCookieMaxAg
 import { login } from '@/store/features/auth/authSlice';
 import { persistor } from '@/store';
 
+const REMEMBER_LOGIN_KEY = 'andgatepos_remember_login';
+
 const ComponentsAuthLoginForm = forwardRef((props, ref) => {
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -29,6 +31,15 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
     });
 
     const [showPassword, setShowPassword] = useState(false);
+    const [rememberMe, setRememberMe] = useState(() => {
+        if (typeof window === 'undefined') return false;
+
+        const savedPreference = localStorage.getItem(REMEMBER_LOGIN_KEY);
+        if (savedPreference !== null) return savedPreference === 'true';
+
+        return /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent) ||
+            window.matchMedia('(display-mode: standalone)').matches;
+    });
 
     useImperativeHandle(ref, () => ({
         updateCredentials: (email: string, password: string) => {
@@ -53,12 +64,6 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
     const submitForm = async (e: FormEvent) => {
         e.preventDefault();
         try {
-            // On mobile or PWA standalone, request a long-lived (30-day) token so the
-            // user stays logged in between app opens — same behaviour as Facebook / Google.
-            const rememberMe =
-                /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent) ||
-                window.matchMedia('(display-mode: standalone)').matches;
-
             const result = await loginApi({ ...credentials, remember_me: rememberMe }).unwrap();
 
             const { user, token, permissions } = result.data;
@@ -86,12 +91,17 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
             setAuthCookie(AUTH_TOKEN_EXPIRES_AT_COOKIE, validTokenExpiresAt, maxAge);
 
             localStorage.setItem(AUTH_TOKEN_EXPIRES_AT_KEY, validTokenExpiresAt);
+            localStorage.setItem(REMEMBER_LOGIN_KEY, String(rememberMe));
+
+            if (rememberMe && navigator.storage?.persist) {
+                navigator.storage.persist().catch(() => {});
+            }
 
             // Save **full user details + permissions** in Redux
             dispatch(login({ user, token, tokenExpiresAt: validTokenExpiresAt, permissions }));
 
             // Force persist flush so stores survive subscription-quota redirects
-            persistor.flush();
+            await persistor.flush();
 
             const redirectTo = searchParams.get('redirect');
             const safePath = (() => {
@@ -168,7 +178,17 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
                 </div>
             </div>
 
-            <div className="flex items-center justify-end">
+            <div className="flex items-center justify-between gap-3">
+                <label htmlFor="remember-me" className="flex cursor-pointer items-center gap-2 text-sm text-white-dark">
+                    <input
+                        id="remember-me"
+                        type="checkbox"
+                        checked={rememberMe}
+                        onChange={(e) => setRememberMe(e.target.checked)}
+                        className="form-checkbox rounded border-white-dark text-primary"
+                    />
+                    <span>{t('login-page.form.remember_me')}</span>
+                </label>
                 <Link href="/forgot-password" className="text-sm text-primary underline transition hover:text-black dark:hover:text-white">
                     Forgot Password?
                 </Link>
