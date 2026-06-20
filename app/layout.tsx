@@ -6,6 +6,7 @@ import { BD_KEYWORDS, getAppUrl } from '@/lib/seo-config';
 import { Metadata } from 'next';
 import Script from 'next/script';
 import { ToastContainer } from 'react-toastify';
+import 'react-perfect-scrollbar/dist/css/styles.css';
 import 'react-toastify/dist/ReactToastify.css';
 import '../styles/tailwind.css';
 import './globals.css';

@@ -10,10 +10,10 @@ import { highIntentPages } from '@/lib/high-intent-pages';
 // visitors and crawlers. When the app is launched as an installed PWA
 // (display-mode: standalone), these should redirect to the app shell instead
 // — an installed app has no SEO audience, so there's nothing to crawl.
-// `/login`, `/register`, `/forgot-password`, `/subscription` are excluded
-// here because they're part of the app flow itself, not marketing.
+// Auth pages stay reachable in the installed app; other public pages should
+// hand off to the app shell instead.
 const MARKETING_PATHS = [
-    '/', '/pricing', '/price', '/training', '/contact', '/promotion',
+    '/', '/pricing', '/price', '/subscription', '/training', '/contact', '/promotion',
     '/affiliate', '/features', '/landing', '/seo', '/pos-overview',
     '/privacy-policy', '/terms-of-service', '/cookie-policy',
     '/bn', '/compare',
