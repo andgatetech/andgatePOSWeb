@@ -1,6 +1,7 @@
 'use client';
 import { RootState } from '@/store';
 import type { Store } from '@/store/features/auth/authSlice';
+import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
 /**
@@ -11,12 +12,25 @@ export const useCurrentStore = () => {
     const rawCurrentStore = useSelector((state: RootState) => state.auth?.currentStore || null);
     const currentStoreId = useSelector((state: RootState) => state.auth?.currentStoreId || null);
     const user = useSelector((state: RootState) => state.auth?.user || null);
-    const userStores = (user?.stores || []).filter((store: Store, idx: number, arr: Store[]) => arr.findIndex((s: Store) => Number(s.id) === Number(store.id)) === idx);
-    const currentStore = currentStoreId
-        ? userStores.find((store: Store) => Number(store.id) === Number(currentStoreId))
-            || (rawCurrentStore && Number(rawCurrentStore.id) === Number(currentStoreId) ? rawCurrentStore : null)
-            || null
-        : userStores[0] || rawCurrentStore || null;
+
+    const userStores = useMemo(
+        () => (user?.stores || []).filter(
+            (store: Store, idx: number, stores: Store[]) =>
+                stores.findIndex((candidate: Store) => Number(candidate.id) === Number(store.id)) === idx
+        ),
+        [user?.stores]
+    );
+
+    const currentStore = useMemo(
+        () =>
+            currentStoreId
+                ? userStores.find((store: Store) => Number(store.id) === Number(currentStoreId))
+                    || (rawCurrentStore && Number(rawCurrentStore.id) === Number(currentStoreId) ? rawCurrentStore : null)
+                    || null
+                : userStores[0] || rawCurrentStore || null,
+        [currentStoreId, rawCurrentStore, userStores]
+    );
+
     return {
         currentStore,
         currentStoreId: currentStore?.id || currentStoreId,

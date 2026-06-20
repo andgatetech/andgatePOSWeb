@@ -9,20 +9,18 @@ const ScrollToTop = () => {
         document.documentElement.scrollTop = 0;
     };
 
-    const onScrollHandler = () => {
-        if (document.body.scrollTop > 50 || document.documentElement.scrollTop > 50) {
-            setShowTopButton(true);
-        } else {
-            setShowTopButton(false);
-        }
-    };
-
     useEffect(() => {
-        window.addEventListener('scroll', onScrollHandler);
-        return () => {
-            window.removeEventListener('onscroll', onScrollHandler);
+        const onScrollHandler = () => {
+            setShowTopButton(window.scrollY > 50);
         };
-    });
+
+        onScrollHandler();
+        window.addEventListener('scroll', onScrollHandler, { passive: true });
+
+        return () => {
+            window.removeEventListener('scroll', onScrollHandler);
+        };
+    }, []);
 
     return (
         <div className="fixed bottom-6 z-50 ltr:right-6 rtl:left-6">
