@@ -11,9 +11,13 @@ const MobileBottomNav = () => {
     const pathname = usePathname();
     const dispatch = useDispatch();
     const sidebarOpen = useSelector((state: RootState) => state.themeConfig.sidebar);
+    const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
 
     const [visible, setVisible] = useState(true);
     const lastScrollY = useRef(0);
+
+    const publicPaths = ['/login', '/register', '/forgot-password', '/reset-password', '/subscription'];
+    const isPublicPath = publicPaths.some((path) => pathname === path || pathname.startsWith(`${path}/`));
 
     useEffect(() => {
         const onScroll = () => {
@@ -33,6 +37,8 @@ const MobileBottomNav = () => {
 
     const isActive = (href: string) =>
         href === '/dashboard' ? pathname === '/dashboard' : pathname.startsWith(href);
+
+    if (!isAuthenticated || isPublicPath) return null;
 
     type Tab = { label: string; href: string | null; isPrimary?: boolean; icon: (active: boolean) => React.ReactNode };
     const tabs: Tab[] = [

@@ -3,7 +3,7 @@ import { getTranslation } from '@/i18n';
 import { Menu, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import LanguageDropdown from '../language-dropdown';
 import WhatsAppFloat from '../whatsapp-float';
 import Footer from '@/app/terms-of-service/Footer';
@@ -16,7 +16,12 @@ interface MainLayoutProps {
 
 export default function MainLayout({ children }: MainLayoutProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isStandalonePwa, setIsStandalonePwa] = useState(false);
     const { t } = getTranslation();
+
+    useEffect(() => {
+        setIsStandalonePwa(window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true);
+    }, []);
 
     const menuItems = [
         { label: t('layout.nav.home'), href: '/' },
@@ -72,18 +77,20 @@ export default function MainLayout({ children }: MainLayoutProps) {
                         {/* Mobile controls */}
                         <div className="flex items-center gap-2 md:hidden">
                             <LanguageDropdown />
-                            <button
-                                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                                className="rounded-lg p-2 text-gray-700 transition-colors hover:bg-gray-100"
-                            >
-                                {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-                            </button>
+                            {!isStandalonePwa && (
+                                <button
+                                    onClick={() => setIsMenuOpen(!isMenuOpen)}
+                                    className="rounded-lg p-2 text-gray-700 transition-colors hover:bg-gray-100"
+                                >
+                                    {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>
 
                 {/* Mobile menu */}
-                {isMenuOpen && (
+                {isMenuOpen && !isStandalonePwa && (
                     <div className="border-t border-gray-100 bg-white shadow-lg md:hidden">
                         <div className="space-y-0.5 px-3 pb-4 pt-2">
                             {menuItems.map((item) => (
