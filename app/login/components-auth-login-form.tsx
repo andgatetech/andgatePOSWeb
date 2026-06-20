@@ -5,13 +5,14 @@ import { useLoginMutation } from '@/store/features/auth/authApi';
 import { Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { FormEvent, forwardRef, useImperativeHandle, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { FormEvent, forwardRef, useEffect, useImperativeHandle, useMemo, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 
 import IconLockDots from '@/components/icon/icon-lock-dots';
 import IconMail from '@/components/icon/icon-mail';
 import { AUTH_TOKEN_EXPIRES_AT_COOKIE, AUTH_TOKEN_EXPIRES_AT_KEY, getCookieMaxAgeFromExpiry, getLoginTokenExpiresAt, isTokenExpired, setAuthCookie } from '@/lib/auth-session';
+import type { RootState } from '@/store';
 import { login } from '@/store/features/auth/authSlice';
 import { persistor } from '@/store';
 
@@ -22,6 +23,7 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
     const searchParams = useSearchParams();
     const dispatch = useDispatch();
     const { t } = getTranslation();
+    const { isAuthenticated, token, tokenExpiresAt } = useSelector((state: RootState) => state.auth);
 
     const [loginApi, { isLoading }] = useLoginMutation();
 
@@ -46,6 +48,30 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
             setCredentials({ email, password });
         },
     }));
+
+    const safeRedirectPath = useMemo(() => {
+        const redirectTo = searchParams.get('redirect');
+        if (!redirectTo || !redirectTo.startsWith('/') || redirectTo.startsWith('//')) {
+            return '/dashboard';
+        }
+
+        try {
+            const redirectUrl = new URL(redirectTo, window.location.origin);
+            if (redirectUrl.origin !== window.location.origin || redirectUrl.pathname === '/login') {
+                return '/dashboard';
+            }
+
+            return `${redirectUrl.pathname}${redirectUrl.search}`;
+        } catch {
+            return '/dashboard';
+        }
+    }, [searchParams]);
+
+    useEffect(() => {
+        if (!isAuthenticated || !token || isTokenExpired(tokenExpiresAt)) return;
+
+        router.replace(safeRedirectPath);
+    }, [isAuthenticated, token, tokenExpiresAt, router, safeRedirectPath]);
 
     const togglePasswordVisibility = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -103,24 +129,7 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
             // Force persist flush so stores survive subscription-quota redirects
             await persistor.flush();
 
-            const redirectTo = searchParams.get('redirect');
-            const safePath = (() => {
-                if (!redirectTo || !redirectTo.startsWith('/') || redirectTo.startsWith('//')) {
-                    return '/dashboard';
-                }
-
-                try {
-                    const redirectUrl = new URL(redirectTo, window.location.origin);
-                    if (redirectUrl.origin !== window.location.origin || redirectUrl.pathname === '/login') {
-                        return '/dashboard';
-                    }
-
-                    return `${redirectUrl.pathname}${redirectUrl.search}`;
-                } catch {
-                    return '/dashboard';
-                }
-            })();
-            router.push(safePath);
+            router.push(safeRedirectPath);
         } catch (error: any) {
             console.error('Login failed:', error);
 

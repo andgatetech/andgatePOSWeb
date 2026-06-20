@@ -5,6 +5,8 @@ import { useEffect } from 'react';
 import { AUTH_TOKEN_EXPIRES_AT_COOKIE, decodeAuthCookieValue, isTokenExpired } from '@/lib/auth-session';
 import { landingPages } from '@/lib/landing-pages';
 import { highIntentPages } from '@/lib/high-intent-pages';
+import { useSelector } from 'react-redux';
+import type { RootState } from '@/store';
 
 // Marketing/SEO pages that `proxy.ts` deliberately keeps public for browser
 // visitors and crawlers. When the app is launched as an installed PWA
@@ -36,6 +38,7 @@ function readCookie(name: string): string | null {
 export default function PwaStandaloneGate() {
     const router = useRouter();
     const pathname = usePathname();
+    const { isAuthenticated, token, tokenExpiresAt } = useSelector((state: RootState) => state.auth);
 
     useEffect(() => {
         const isStandalone =
@@ -45,10 +48,12 @@ export default function PwaStandaloneGate() {
 
         const hasToken = !!readCookie('token');
         const expiresAt = decodeAuthCookieValue(readCookie(AUTH_TOKEN_EXPIRES_AT_COOKIE));
-        const isLoggedIn = hasToken && !isTokenExpired(expiresAt);
+        const hasCookieSession = hasToken && !isTokenExpired(expiresAt);
+        const hasPersistedSession = isAuthenticated && !!token && !isTokenExpired(tokenExpiresAt);
+        const isLoggedIn = hasCookieSession || hasPersistedSession;
 
         router.replace(isLoggedIn ? '/dashboard' : '/login');
-    }, [pathname, router]);
+    }, [isAuthenticated, pathname, router, token, tokenExpiresAt]);
 
     return null;
 }
