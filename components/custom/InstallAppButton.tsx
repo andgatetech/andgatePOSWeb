@@ -91,7 +91,6 @@ const InstallAppButton = ({ variant = 'hero', className = '' }: Props) => {
             return;
         }
         if (!hasNativePrompt) {
-            setShowInstallGuide(true);
             return;
         }
         setInstalling(true);

@@ -69,7 +69,7 @@ export const usePWAInstall = (): PWAInstallState => {
 
     return {
         isReady,
-        isInstallable:   isReady && !isInstalled,
+        isInstallable:   isReady && !isInstalled && (isIOS || !!promptEvent),
         isInstalled,
         isIOS,
         hasNativePrompt: !!promptEvent,
