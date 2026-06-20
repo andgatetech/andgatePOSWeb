@@ -17,10 +17,10 @@ export const metadata: Metadata = {
     metadataBase: new URL(getAppUrl()),
     title: {
         template: '%s | AndgatePOS',
-        default: 'AndgatePOS — #1 POS Software in Bangladesh | বাংলাদেশের সেরা POS সফটওয়্যার',
+        default: 'AndgatePOS — POS Software in Bangladesh | Billing, Inventory & Reports',
     },
     description:
-        'AndgatePOS is Bangladesh\'s leading POS software for retail shops, grocery stores, pharmacies, and fashion stores. Manage inventory, billing, purchase orders, 20+ reports, and get a free Hawkeri online store. Start free today!',
+        'AndgatePOS is Bangladesh-focused POS software for retail shops, grocery stores, pharmacies, and fashion stores. Manage inventory, billing, purchase orders, reports, and a Hawkeri online store. Start free today!',
     keywords: BD_KEYWORDS,
     authors: [{ name: 'Andgate Technologies', url: BASE_URL }],
     creator: 'Andgate Technologies',
@@ -42,9 +42,9 @@ export const metadata: Metadata = {
         alternateLocale: ['bn_BD'],
         url: BASE_URL,
         siteName: 'AndgatePOS',
-        title: 'AndgatePOS — #1 POS Software in Bangladesh',
+        title: 'AndgatePOS — POS Software in Bangladesh',
         description:
-            'Complete POS solution for Bangladesh businesses. Inventory management, billing, purchase orders, 20+ reports, and a free online store powered by Hawkeri. Used by 100+ shop owners across Bangladesh.',
+            'Complete POS solution for Bangladesh businesses. Inventory management, billing, purchase orders, reports, and an online store powered by Hawkeri.',
         images: [
             {
                 url: '/images/og-image.jpg',
@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     },
     twitter: {
         card: 'summary_large_image',
-        title: 'AndgatePOS — #1 POS Software in Bangladesh',
+        title: 'AndgatePOS — POS Software in Bangladesh',
         description:
             'Complete POS solution for Bangladesh businesses. Inventory, billing, reports, and a free online store. Start free today!',
         images: ['/images/og-image.jpg'],
@@ -105,10 +105,48 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         },
     };
 
+    const websiteJsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: 'AndgatePOS',
+        url: BASE_URL,
+        inLanguage: ['en-BD', 'bn-BD'],
+        publisher: {
+            '@type': 'Organization',
+            name: 'Andgate Technologies',
+            url: BASE_URL,
+        },
+    };
+
+    const professionalServiceJsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'ProfessionalService',
+        name: 'AndgatePOS',
+        url: BASE_URL,
+        image: `${BASE_URL}/images/og-image.jpg`,
+        telephone: '+8801577303608',
+        email: 'support@andgatetech.net',
+        priceRange: 'Free and paid SaaS plans',
+        areaServed: {
+            '@type': 'Country',
+            name: 'Bangladesh',
+        },
+        address: {
+            '@type': 'PostalAddress',
+            streetAddress: 'House 34, Road 3, Block B, Aftabnagar, Badda',
+            addressCountry: 'BD',
+            addressLocality: 'Dhaka',
+            addressRegion: 'Dhaka Division',
+        },
+        description: 'POS software setup, training and subscription support for Bangladeshi SMEs.',
+    };
+
     return (
         <html lang="en-BD" data-scroll-behavior="smooth" suppressHydrationWarning>
             <head>
                 <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }} />
+                <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }} />
+                <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(professionalServiceJsonLd) }} />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <meta name="theme-color" content="#046ca9" />
                 {/* Geo targeting — Bangladesh */}

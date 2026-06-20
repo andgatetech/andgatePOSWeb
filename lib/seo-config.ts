@@ -60,9 +60,15 @@ export const BD_KEYWORDS = [
 
 // Get the app URL with fallback
 export const getAppUrl = () => {
-    // In production, use the environment variable
-    if (process.env.NEXT_PUBLIC_APP_URL) {
-        return process.env.NEXT_PUBLIC_APP_URL;
+    const configuredUrl = process.env.NEXT_PUBLIC_APP_URL;
+
+    // Public SEO output must never ship localhost canonicals from a production build.
+    if (process.env.NODE_ENV === 'production' && configuredUrl?.includes('localhost')) {
+        return 'https://andgatepos.com';
+    }
+
+    if (configuredUrl) {
+        return configuredUrl;
     }
 
     // In development, use localhost

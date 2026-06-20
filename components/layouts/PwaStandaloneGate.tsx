@@ -16,7 +16,7 @@ import type { RootState } from '@/store';
 // hand off to the app shell instead.
 const MARKETING_PATHS = [
     '/', '/pricing', '/price', '/subscription', '/training', '/contact', '/promotion',
-    '/affiliate', '/features', '/landing', '/seo', '/pos-overview',
+    '/affiliate', '/features', '/landing', '/blog', '/seo', '/pos-overview',
     '/privacy-policy', '/terms-of-service', '/cookie-policy',
     '/bn', '/compare',
 ];

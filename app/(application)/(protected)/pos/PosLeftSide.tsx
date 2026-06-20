@@ -398,7 +398,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
 
     const addToCart = useCallback(
         async (product: any) => {
-            if (!product.__full && (product.has_serial || product.has_warranty || product.has_attribute)) {
+            if (isOnline && !product.__full && (product.has_serial || product.has_warranty || product.has_attribute)) {
                 try {
                     const response = await triggerGetSingleProduct(product.id).unwrap();
                     if (response?.data) {
@@ -534,7 +534,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
             setSelectedBrand(null);
             // currentPage maintained
         },
-        [reduxItems, dispatch, disableSerialSelection, reduxSlice, currentStoreId, currentStore?.default_tax_rate, currentStore?.prices_include_tax, t, triggerGetSingleProduct]
+        [reduxItems, dispatch, disableSerialSelection, reduxSlice, currentStoreId, currentStore?.default_tax_rate, currentStore?.prices_include_tax, t, triggerGetSingleProduct, isOnline]
     );
 
     // Auto-add product when exact match found (for camera/barcode scans)

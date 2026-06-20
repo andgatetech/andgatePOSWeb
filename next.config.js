@@ -3,7 +3,7 @@ const withPWA = require('@ducanh2912/next-pwa').default({
     disable: process.env.NODE_ENV === 'development',
     register: true,
     skipWaiting: true,
-    cacheOnFrontEndNav: false,
+    cacheOnFrontEndNav: true,
     aggressiveFrontEndNavCaching: false,
     reloadOnOnline: false,
     publicExcludes: [
@@ -12,6 +12,11 @@ const withPWA = require('@ducanh2912/next-pwa').default({
     ],
     workboxOptions: {
         disableDevLogs: true,
+        additionalManifestEntries: [
+            { url: '/login', revision: null },
+            { url: '/dashboard', revision: null },
+            { url: '/pos', revision: null },
+        ],
         runtimeCaching: [
             {
                 // App shell pages — lets installed PWA refresh/reopen visited pages while offline.

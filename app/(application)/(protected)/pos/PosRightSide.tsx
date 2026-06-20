@@ -1212,7 +1212,14 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             orderData.is_walk_in = false;
         } else {
             // Create customer instantly if new customer data is provided
-            try {
+            if (!isOnline) {
+                orderData.customer_id = null;
+                orderData.is_walk_in = false;
+                orderData.customer_name = formData.customerName.trim();
+                orderData.customer_number = formData.customerPhone?.trim() || null;
+                orderData.customer_email = formData.customerEmail?.trim() || null;
+            } else {
+                try {
                 const newCustomerData = {
                     name: formData.customerName.trim(),
                     phone: formData.customerPhone.trim(),
@@ -1229,7 +1236,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                 orderData.is_walk_in = false;
 
                 showMessage(t('msg_customer_created_success'), 'success');
-            } catch (customerErr: any) {
+                } catch (customerErr: any) {
                 console.error('Failed to create customer:', customerErr);
                 orderData.customer_id = null;
                 if (formData.customerName?.trim()) {
@@ -1243,6 +1250,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                     orderData.is_walk_in = true;
                 }
                 showMessage(t('msg_customer_create_failed_order_continue'), 'error');
+                }
             }
         }
 

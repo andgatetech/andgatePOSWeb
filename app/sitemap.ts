@@ -1,9 +1,11 @@
 import { MetadataRoute } from 'next';
 import { landingPages } from '@/lib/landing-pages';
 import { highIntentPages } from '@/lib/high-intent-pages';
+import { getAppUrl } from '@/lib/seo-config';
+import { seoArticles } from '@/lib/seo-articles';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://andgatepos.com';
+    const baseUrl = getAppUrl();
     const now = new Date();
 
     // Public-facing pages only — authenticated/dashboard routes are excluded
@@ -23,12 +25,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
             priority: 0.9,
         },
         {
-            url: `${baseUrl}/register`,
-            lastModified: now,
-            changeFrequency: 'monthly',
-            priority: 0.9,
-        },
-        {
             url: `${baseUrl}/contact`,
             lastModified: now,
             changeFrequency: 'monthly',
@@ -40,6 +36,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
             changeFrequency: 'weekly',
             priority: 0.85,
         },
+        {
+            url: `${baseUrl}/blog`,
+            lastModified: now,
+            changeFrequency: 'weekly',
+            priority: 0.82,
+        },
+        ...seoArticles.map((article) => ({
+            url: `${baseUrl}/blog/${article.slug}`,
+            lastModified: new Date(article.updatedAt),
+            changeFrequency: 'monthly' as const,
+            priority: 0.78,
+        })),
         ...landingPages.map((page) => ({
             url: `${baseUrl}/${page.slug}`,
             lastModified: now,

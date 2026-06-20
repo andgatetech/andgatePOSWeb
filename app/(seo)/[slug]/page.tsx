@@ -72,7 +72,87 @@ export default async function SeoSlugPage({ params }: SeoSlugPageProps) {
 
     const landingPage = getLandingPage(slug);
     if (landingPage) {
-        return <LandingSeoPageView page={landingPage} locale="en" />;
+        const baseUrl = getAppUrl();
+        const pageUrl = `${baseUrl}/${landingPage.slug}`;
+
+        const softwareSchema = {
+            '@context': 'https://schema.org',
+            '@type': 'SoftwareApplication',
+            name: 'AndgatePOS',
+            applicationCategory: 'BusinessApplication',
+            applicationSubCategory: 'Point of Sale Software',
+            operatingSystem: 'Web Browser',
+            url: pageUrl,
+            inLanguage: ['en-BD', 'bn-BD'],
+            areaServed: {
+                '@type': 'Country',
+                name: 'Bangladesh',
+            },
+            description: landingPage.metaDescription,
+            offers: {
+                '@type': 'Offer',
+                price: '0',
+                priceCurrency: 'BDT',
+                availability: 'https://schema.org/InStock',
+                description: 'Free plan available. Paid monthly plans are available for growing Bangladeshi shops.',
+            },
+            provider: {
+                '@type': 'Organization',
+                name: 'Andgate Technologies',
+                url: baseUrl,
+            },
+            featureList: landingPage.highlights.concat(landingPage.modules.map((module) => module.title)),
+        };
+
+        const serviceSchema = {
+            '@context': 'https://schema.org',
+            '@type': 'Service',
+            name: landingPage.title,
+            serviceType: landingPage.primaryKeyword,
+            provider: {
+                '@type': 'Organization',
+                name: 'Andgate Technologies',
+                url: baseUrl,
+            },
+            areaServed: {
+                '@type': 'Country',
+                name: 'Bangladesh',
+            },
+            description: landingPage.intro,
+            url: pageUrl,
+        };
+
+        const faqSchema = {
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            mainEntity: landingPage.faq.map((item) => ({
+                '@type': 'Question',
+                name: item.question,
+                acceptedAnswer: {
+                    '@type': 'Answer',
+                    text: item.answer,
+                },
+            })),
+        };
+
+        const breadcrumbSchema = {
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+                { '@type': 'ListItem', position: 1, name: 'Home', item: baseUrl },
+                { '@type': 'ListItem', position: 2, name: landingPage.title, item: pageUrl },
+            ],
+        };
+
+        return (
+            <>
+                <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }} />
+                <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceSchema) }} />
+                <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
+                <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
+                <LandingSeoPageView page={landingPage} locale="en" />
+            </>
+        );
     }
 
     notFound();

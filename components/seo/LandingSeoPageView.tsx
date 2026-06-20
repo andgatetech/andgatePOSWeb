@@ -306,6 +306,9 @@ export default function LandingSeoPageView({ page, locale }: Props) {
                         <Link href="/contact" className="hidden rounded-xl border border-gray-200 bg-white px-5 py-3 text-sm font-bold text-gray-700 shadow-sm transition hover:text-[#046ca9] sm:inline-flex">
                             {isBn ? 'Sales টিমের সাথে কথা বলুন' : 'Talk to Sales'}
                         </Link>
+                        <Link href="/blog" className="hidden rounded-xl border border-gray-200 bg-white px-5 py-3 text-sm font-bold text-gray-700 shadow-sm transition hover:text-[#046ca9] sm:inline-flex">
+                            {isBn ? 'SEO guide পড়ুন' : 'Read Guides'}
+                        </Link>
                     </div>
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                         {relatedPages.map((item) => {
