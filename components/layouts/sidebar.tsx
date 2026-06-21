@@ -14,6 +14,7 @@ import { setCurrentStore, setPermissions, type Store } from '@/store/features/au
 import { useLazyGetStorePermissionsQuery } from '@/store/features/auth/authApi';
 import { toggleSidebar } from '@/store/themeConfigSlice';
 import { useGetUnreadCountQuery } from '@/store/features/notification/notificationApi';
+import { usePWAInstall } from '@/hooks/usePWAInstall';
 import { useGetStoreQuery } from '@/store/features/store/storeApi';
 
 import { AlertTriangle, Ban, ChevronDown, Crown, Search } from 'lucide-react';
@@ -31,6 +32,7 @@ const Sidebar = () => {
     const [isSwitchingStore, setIsSwitchingStore] = useState(false);
     const [storeSearch, setStoreSearch] = useState('');
     const [fetchStorePermissions] = useLazyGetStorePermissionsQuery();
+    const pwa = usePWAInstall();
 
     const themeConfig = useSelector((state: RootState) => state.themeConfig);
     const user = useSelector((state: RootState) => state.auth.user);
@@ -456,6 +458,27 @@ const Sidebar = () => {
                     </div>
                 );
             })()}
+
+            {/* PWA Install Prompt */}
+            {pwa.isInstallable && !pwa.isInstalled && (
+                <div className="flex-shrink-0 border-t border-white/[0.06] px-3 py-3">
+                    <button
+                        onClick={() => pwa.install()}
+                        className="flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left text-white transition-colors hover:bg-white/[0.05]"
+                    >
+                        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 text-sm font-bold text-white shadow-lg">
+                            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                        </div>
+                        <div className="min-w-0 flex-1">
+                            <p className="text-[13px] font-medium text-white">{t('lbl_install_app')}</p>
+                            <p className="text-[11px] text-white/60">{t('msg_install_app_sidebar')}</p>
+                        </div>
+                    </button>
+                </div>
+            )}
+
         </nav>
     );
 };

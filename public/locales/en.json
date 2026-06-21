@@ -5681,5 +5681,7 @@
     "msg_no_results": "No results found",
     "ecommerce_detail_validation_error": "Missing Required Fields",
     "ecommerce_detail_redx_area_required": "Please search and select a delivery area first. Use the RedX area lookup above to find your delivery area, then select it from the dropdown.",
-    "ecommerce_detail_redx_pickup_required": "Please select a pickup store location for RedX shipment."
+    "ecommerce_detail_redx_pickup_required": "Please select a pickup store location for RedX shipment.",
+    "lbl_install_app": "Install App",
+    "msg_install_app_sidebar": "Add to home screen for quick access"
 }

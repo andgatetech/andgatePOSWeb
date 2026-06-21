@@ -74,6 +74,11 @@ export const metadata: Metadata = {
         },
     },
     category: 'technology',
+    appleWebApp: {
+        capable: true,
+        statusBarStyle: 'default',
+        title: 'AndgatePOS',
+    },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

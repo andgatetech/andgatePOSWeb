@@ -1,9 +1,10 @@
 import { Truck } from 'lucide-react';
+import Image from 'next/image';
 
 const courierPartners = [
-    { name: 'Pathao', className: 'border-[#e2231a]/20 bg-[#e2231a]/5 text-[#e2231a]' },
-    { name: 'REDX', className: 'border-[#ed1c24]/20 bg-[#ed1c24]/5 text-[#ed1c24]' },
-    { name: 'Steadfast', className: 'border-[#0f766e]/20 bg-[#0f766e]/5 text-[#0f766e]' },
+    { name: 'Pathao', logo: '/images/delivery/pathao.svg', width: 92, height: 32 },
+    { name: 'REDX', logo: '/images/delivery/redx.svg', width: 88, height: 34 },
+    { name: 'Steadfast', logo: '/images/delivery/steadfast.svg', width: 126, height: 28 },
 ];
 
 const Footer = () => {
@@ -24,14 +25,14 @@ const Footer = () => {
                         <span>We support courier delivery with</span>
                     </div>
 
-                    <div className="flex flex-wrap items-center justify-center gap-2">
+                    <div className="flex flex-wrap items-center justify-center gap-2.5">
                         {courierPartners.map((partner) => (
-                            <span
+                            <div
                                 key={partner.name}
-                                className={`inline-flex h-8 items-center rounded-md border px-3 text-[11px] font-black uppercase tracking-normal shadow-sm ${partner.className}`}
+                                className="inline-flex h-11 items-center justify-center rounded-md border border-gray-200 bg-white px-3 shadow-sm transition-colors hover:border-primary/30 dark:border-white/10 dark:bg-white"
                             >
-                                {partner.name}
-                            </span>
+                                <Image src={partner.logo} alt={`${partner.name} courier logo`} width={partner.width} height={partner.height} className="max-h-7 w-auto object-contain" />
+                            </div>
                         ))}
                     </div>
                 </div>

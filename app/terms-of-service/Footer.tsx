@@ -20,9 +20,9 @@ import Link from 'next/link';
 const AndGate = '/images/andgatePOS.jpeg';
 const FACEBOOK_URL = 'https://www.facebook.com/andgatepos';
 const courierPartners = [
-    { name: 'Pathao', className: 'border-[#e2231a]/25 bg-[#e2231a]/10 text-[#ff6b64]' },
-    { name: 'REDX', className: 'border-[#ed1c24]/25 bg-[#ed1c24]/10 text-[#ff5b62]' },
-    { name: 'Steadfast', className: 'border-emerald-400/25 bg-emerald-400/10 text-emerald-300' },
+    { name: 'Pathao', logo: '/images/delivery/pathao.svg', width: 92, height: 32 },
+    { name: 'REDX', logo: '/images/delivery/redx.svg', width: 88, height: 34 },
+    { name: 'Steadfast', logo: '/images/delivery/steadfast.svg', width: 126, height: 28 },
 ];
 
 const Footer = () => {
@@ -217,14 +217,14 @@ const Footer = () => {
                             <span>We support courier delivery with</span>
                         </div>
 
-                        <div className="flex flex-wrap items-center justify-center gap-2">
+                        <div className="flex flex-wrap items-center justify-center gap-2.5">
                             {courierPartners.map((partner) => (
-                                <span
+                                <div
                                     key={partner.name}
-                                    className={`inline-flex h-8 items-center rounded-md border px-3 text-[11px] font-black uppercase tracking-normal ${partner.className}`}
+                                    className="inline-flex h-11 items-center justify-center rounded-md border border-white/10 bg-white px-3 shadow-sm transition-colors hover:border-[#4db8f2]/40"
                                 >
-                                    {partner.name}
-                                </span>
+                                    <Image src={partner.logo} alt={`${partner.name} courier logo`} width={partner.width} height={partner.height} className="max-h-7 w-auto object-contain" />
+                                </div>
                             ))}
                         </div>
                     </div>
