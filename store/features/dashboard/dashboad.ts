@@ -144,6 +144,13 @@ const DashboardApi = baseApi.injectEndpoints({
             }),
             providesTags: ['Dashboard'],
         }),
+        getDashboardHealthScore: builder.query({
+            query: (params) => ({
+                url: `/dashboard/health-score${params?.store_id ? `?store_id=${params.store_id}` : ''}`,
+                method: 'GET',
+            }),
+            providesTags: ['Dashboard'],
+        }),
         // Get dashboard sections five (Top Categories, Top Brands, Top Purchased Products)
         getDashboardSectionsFive: builder.query({
             query: (params) => {
@@ -193,4 +200,5 @@ export const {
     useGetDashboardTopCustomersQuery,
     useGetDashboardCustomerDuesQuery,
     useGetDashboardOnboardingQuery,
+    useGetDashboardHealthScoreQuery,
 } = DashboardApi;

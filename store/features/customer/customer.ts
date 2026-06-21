@@ -122,8 +122,31 @@ const CustomerApi = baseApi.injectEndpoints({
             }),
             providesTags: (result, error, id) => [{ type: 'Customers', id }],
         }),
+
+        // Loyalty points earn/redeem history for a customer
+        getCustomerPointTransactions: builder.query({
+            query: ({ customerId, page, per_page }: { customerId: string | number; page?: number; per_page?: number }) => {
+                const params = new URLSearchParams();
+                if (page) params.append('page', String(page));
+                if (per_page) params.append('per_page', String(per_page));
+
+                return {
+                    url: `/customers/${customerId}/point-transactions?${params.toString()}`,
+                    method: 'GET',
+                };
+            },
+            providesTags: (result, error, { customerId }) => [{ type: 'Customers', id: `${customerId}-points` }],
+        }),
     }),
     overrideExisting: true,
 });
 
-export const { useCreateCustomerMutation, useGetStoreCustomersQuery, useGetStoreCustomersListQuery, useUpdateCustomerMutation, useDeleteCustomerMutation, useGetSingleCustomerQuery } = CustomerApi;
+export const {
+    useCreateCustomerMutation,
+    useGetStoreCustomersQuery,
+    useGetStoreCustomersListQuery,
+    useUpdateCustomerMutation,
+    useDeleteCustomerMutation,
+    useGetSingleCustomerQuery,
+    useGetCustomerPointTransactionsQuery,
+} = CustomerApi;

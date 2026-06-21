@@ -10,12 +10,16 @@ const withPWA = require('@ducanh2912/next-pwa').default({
         '!assets/**/*',
         '!demo-prepare.html',
     ],
+    fallbacks: {
+        document: '/offline',
+    },
     workboxOptions: {
         disableDevLogs: true,
         additionalManifestEntries: [
             { url: '/login', revision: null },
             { url: '/dashboard', revision: null },
             { url: '/pos', revision: null },
+            { url: '/offline', revision: null },
         ],
         runtimeCaching: [
             {

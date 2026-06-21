@@ -3,6 +3,7 @@
 import DateColumn from '@/components/common/DateColumn';
 import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
+import { useGetCustomerPointTransactionsQuery } from '@/store/features/customer/customer';
 import { X } from 'lucide-react';
 import { useEffect } from 'react';
 
@@ -15,6 +16,8 @@ interface ViewCustomerModalProps {
 const ViewCustomerModal: React.FC<ViewCustomerModalProps> = ({ customer, isOpen, onClose }) => {
     const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
+    const { data: pointTransactionsData } = useGetCustomerPointTransactionsQuery({ customerId: customer?.id, per_page: 5 }, { skip: !isOpen || !customer?.id });
+    const pointTransactions = pointTransactionsData?.data?.data || [];
 
     useEffect(() => {
         const handleEscape = (e: KeyboardEvent) => {
@@ -103,6 +106,25 @@ const ViewCustomerModal: React.FC<ViewCustomerModalProps> = ({ customer, isOpen,
                         <span className="text-gray-500">{t('lbl_loyalty_points')}</span>
                         <span className="font-medium">{customer.points || 0}</span>
                     </div>
+
+                    {pointTransactions.length > 0 && (
+                        <div className="border-b border-gray-200 py-2">
+                            <p className="mb-2 text-gray-500">{t('lbl_loyalty_points_history')}</p>
+                            <div className="space-y-1.5">
+                                {pointTransactions.map((txn: any) => (
+                                    <div key={txn.id} className="flex items-center justify-between text-xs">
+                                        <span className="text-gray-500">
+                                            <DateColumn date={txn.created_at} /> · {txn.type === 'earn' ? t('lbl_loyalty_earned') : t('lbl_loyalty_redeemed')}
+                                        </span>
+                                        <span className={`font-medium ${Number(txn.points) >= 0 ? 'text-success' : 'text-danger'}`}>
+                                            {Number(txn.points) >= 0 ? '+' : ''}
+                                            {txn.points}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
                     <div className="flex justify-between border-b border-gray-200 py-2">
                         <span className="text-gray-500">{t('lbl_balance')}</span>

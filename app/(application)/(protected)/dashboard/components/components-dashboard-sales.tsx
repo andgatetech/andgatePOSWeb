@@ -9,6 +9,7 @@ import { Store } from 'lucide-react';
 import Image from 'next/image';
 import AlertStrip from './AlertStrip';
 import Analytics from './Analytics';
+import BusinessHealthScore from './BusinessHealthScore';
 import CustomerDueSnapshot from './CustomerDueSnapshot';
 import DashboardSections from './DashboardSections';
 import OnboardingChecklist from './OnboardingChecklist';
@@ -62,7 +63,10 @@ const ComponentsDashboardSales = () => {
                 </div>
             </div>
 
-            {/* ── 1. QUICK ACTIONS — Daily operations at your fingertips ── */}
+            {/* ── 1. BUSINESS HEALTH SCORE — At-a-glance AI summary ── */}
+            <BusinessHealthScore />
+
+            {/* ── 2. QUICK ACTIONS — Daily operations at your fingertips ── */}
             <QuickActions />
 
             {/* ── 2. SETUP GUIDE — First-run configuration path ── */}
