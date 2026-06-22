@@ -49,70 +49,89 @@ const LoyaltyProgramTab: React.FC<LoyaltyProgramTabProps> = ({ formData, handleI
                         </div>
                     </div>
 
-                    {/* Points Rate */}
+                    {/* Earning & Redemption — shown together so the two rates aren't mistaken for duplicates */}
                     {formData.loyalty_points_enabled && (
-                        <div className="space-y-2">
-                            <label className="flex items-center text-sm font-medium text-gray-700">
-                                <Star className="mr-2 h-4 w-4 text-[#e79237]" />
-                                {t('lbl_points_per')} {symbol}1
-                            </label>
-                            <input
-                                type="number"
-                                name="loyalty_points_rate"
-                                value={formData.loyalty_points_rate}
-                                onChange={handleInputChange}
-                                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 transition-all focus:border-[#046ca9] focus:ring-2 focus:ring-[#046ca9]/20 md:w-1/2"
-                                placeholder={t('placeholder_loyalty_rate')}
-                                min="0"
-                                step="0.01"
-                            />
-                            <p className="text-xs text-gray-500">{t('lbl_loyalty_points_rate')} {symbol}1 {t('lbl_spent')}</p>
-                        </div>
-                    )}
+                        <div className="space-y-4 border-t border-gray-100 pt-6">
+                            <div className="grid gap-4 md:grid-cols-2">
+                                {/* Earning Rate */}
+                                <div className="rounded-xl border border-[#046ca9]/20 bg-[#046ca9]/5 p-5">
+                                    <label className="mb-1 flex items-center text-sm font-semibold text-gray-900">
+                                        <Star className="mr-2 h-4 w-4 text-[#046ca9]" />
+                                        {t('lbl_earning_rate_title')}
+                                    </label>
+                                    <p className="mb-3 text-xs text-gray-500">{t('msg_earning_rate_desc', { symbol })}</p>
+                                    <div className="flex items-center gap-2">
+                                        <input
+                                            type="number"
+                                            name="loyalty_points_rate"
+                                            value={formData.loyalty_points_rate}
+                                            onChange={handleInputChange}
+                                            className="w-24 rounded-lg border border-gray-300 bg-white px-3 py-2 text-center transition-all focus:border-[#046ca9] focus:ring-2 focus:ring-[#046ca9]/20"
+                                            placeholder={t('placeholder_loyalty_rate')}
+                                            min="0"
+                                            step="0.01"
+                                        />
+                                        <span className="text-sm font-medium text-gray-600">
+                                            {t('lbl_points')} / {symbol}1 {t('lbl_spent')}
+                                        </span>
+                                    </div>
+                                    {formData.loyalty_points_rate && (
+                                        <p className="mt-3 text-xs text-[#035b8c]">
+                                            {t('lbl_for_every')} <strong>{formData.loyalty_points_rate}</strong> {t('lbl_points')} {symbol}1 {t('lbl_spent')}.
+                                        </p>
+                                    )}
+                                </div>
 
-                    {/* Info Box */}
-                    {formData.loyalty_points_enabled && formData.loyalty_points_rate && (
-                        <div className="rounded-xl border border-[#e79237]/25 bg-[#e79237]/10 p-4">
-                            <p className="text-sm text-[#9a5a14]">
-                                <strong>{t('lbl_current_rate')}:</strong> {t('lbl_for_every')} <strong>{formData.loyalty_points_rate}</strong> {t('lbl_points')} {symbol}1 {t('lbl_spent')}.
-                            </p>
-                        </div>
-                    )}
-
-                    {/* Redemption Ratio */}
-                    {formData.loyalty_points_enabled && (
-                        <div className="space-y-2 border-t border-gray-100 pt-6">
-                            <label className="flex items-center text-sm font-medium text-gray-700">
-                                <Star className="mr-2 h-4 w-4 text-[#e79237]" />
-                                {t('lbl_loyalty_redemption_ratio')}
-                            </label>
-                            <p className="text-xs text-gray-500">{t('msg_loyalty_redemption_desc')}</p>
-                            <div className="flex w-full items-center gap-3 md:w-1/2">
-                                <input
-                                    type="number"
-                                    name="loyalty_redemption_points"
-                                    value={formData.loyalty_redemption_points}
-                                    onChange={handleInputChange}
-                                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 transition-all focus:border-[#046ca9] focus:ring-2 focus:ring-[#046ca9]/20"
-                                    min="1"
-                                    step="1"
-                                />
-                                <span className="whitespace-nowrap text-sm font-medium text-gray-600">{t('lbl_points')} =</span>
-                                <input
-                                    type="number"
-                                    name="loyalty_redemption_value"
-                                    value={formData.loyalty_redemption_value}
-                                    onChange={handleInputChange}
-                                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 transition-all focus:border-[#046ca9] focus:ring-2 focus:ring-[#046ca9]/20"
-                                    min="0.01"
-                                    step="0.01"
-                                />
-                                <span className="whitespace-nowrap text-sm font-medium text-gray-600">{symbol}</span>
+                                {/* Redemption Ratio */}
+                                <div className="rounded-xl border border-[#e79237]/25 bg-[#e79237]/10 p-5">
+                                    <label className="mb-1 flex items-center text-sm font-semibold text-gray-900">
+                                        <Gift className="mr-2 h-4 w-4 text-[#c47920]" />
+                                        {t('lbl_loyalty_redemption_ratio')}
+                                    </label>
+                                    <p className="mb-3 text-xs text-gray-500">{t('msg_loyalty_redemption_desc')}</p>
+                                    <div className="flex items-center gap-2">
+                                        <input
+                                            type="number"
+                                            name="loyalty_redemption_points"
+                                            value={formData.loyalty_redemption_points}
+                                            onChange={handleInputChange}
+                                            className="w-20 rounded-lg border border-gray-300 bg-white px-3 py-2 text-center transition-all focus:border-[#046ca9] focus:ring-2 focus:ring-[#046ca9]/20"
+                                            min="1"
+                                            step="1"
+                                        />
+                                        <span className="whitespace-nowrap text-sm font-medium text-gray-600">{t('lbl_points')} =</span>
+                                        <input
+                                            type="number"
+                                            name="loyalty_redemption_value"
+                                            value={formData.loyalty_redemption_value}
+                                            onChange={handleInputChange}
+                                            className="w-20 rounded-lg border border-gray-300 bg-white px-3 py-2 text-center transition-all focus:border-[#046ca9] focus:ring-2 focus:ring-[#046ca9]/20"
+                                            min="0.01"
+                                            step="0.01"
+                                        />
+                                        <span className="whitespace-nowrap text-sm font-medium text-gray-600">{symbol}</span>
+                                    </div>
+                                    {formData.loyalty_redemption_points && formData.loyalty_redemption_value && (
+                                        <p className="mt-3 text-xs text-[#9a5a14]">
+                                            <strong>{formData.loyalty_redemption_points}</strong> {t('lbl_points')} = <strong>{symbol}{formData.loyalty_redemption_value}</strong>
+                                        </p>
+                                    )}
+                                </div>
                             </div>
-                            {formData.loyalty_redemption_points && formData.loyalty_redemption_value && (
-                                <p className="text-xs text-gray-500">
-                                    {t('lbl_current_redemption_rate')}: <strong>{formData.loyalty_redemption_points}</strong> {t('lbl_points')} = <strong>{symbol}{formData.loyalty_redemption_value}</strong>
-                                </p>
+
+                            {/* Combined plain-language summary */}
+                            {formData.loyalty_points_rate && formData.loyalty_redemption_points && formData.loyalty_redemption_value && (
+                                <div className="rounded-xl bg-gray-50 p-4">
+                                    <p className="text-xs text-gray-600">
+                                        <strong>{t('lbl_how_it_works')}:</strong>{' '}
+                                        {t('msg_loyalty_combined_summary', {
+                                            earnRate: formData.loyalty_points_rate,
+                                            redeemPoints: formData.loyalty_redemption_points,
+                                            redeemValue: formData.loyalty_redemption_value,
+                                            symbol,
+                                        })}
+                                    </p>
+                                </div>
                             )}
                         </div>
                     )}
