@@ -118,6 +118,8 @@ const StoreSetting = () => {
         closing_time: '',
         loyalty_points_enabled: false,
         loyalty_points_rate: '',
+        loyalty_redemption_points: '1',
+        loyalty_redemption_value: '1',
         is_active: true,
         units: [] as { name: string; is_active?: number | boolean }[],
     });
@@ -331,6 +333,8 @@ const StoreSetting = () => {
                 closing_time: storeInfo.closing_time ? storeInfo.closing_time.slice(0, 5) : '',
                 loyalty_points_enabled: parseIsActive(storeInfo.loyalty_points_enabled),
                 loyalty_points_rate: storeInfo.loyalty_points_rate ?? '',
+                loyalty_redemption_points: storeInfo.loyalty_redemption_points ?? '1',
+                loyalty_redemption_value: storeInfo.loyalty_redemption_value ?? '1',
                 is_active: parseIsActive(storeInfo.is_active),
                 units: Array.isArray(storeInfo.units)
                     ? storeInfo.units.map((unit: any) => (typeof unit === 'string' ? { name: unit, is_active: 1 } : { name: unit.name || unit, is_active: unit.is_active ?? 1 }))
@@ -1400,6 +1404,8 @@ const StoreSetting = () => {
             closing_time: formatComparableTime,
             loyalty_points_enabled: normalizeBoolean,
             loyalty_points_rate: normalizeNumber,
+            loyalty_redemption_points: normalizeNumber,
+            loyalty_redemption_value: normalizeNumber,
             is_active: normalizeBoolean,
         };
 
