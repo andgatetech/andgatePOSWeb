@@ -1301,7 +1301,7 @@
     "login_panel_quote": "AndgatePOS-এ আসার পর এক জায়গা থেকে সব দোকান সামলানো অনেক সহজ হয়ে গেছে।",
     "login_panel_quote_name": "রোকন মন্ডল",
     "login_panel_quote_biz": "মন্ডল এন্টারপ্রাইজ, ঢাকা",
-    "register_panel_badge": "১০০+ ব্যবসা ইতিমধ্যে শুরু করেছে",
+    "register_panel_badge": "{count}+ ব্যবসা ইতিমধ্যে শুরু করেছে",
     "register_panel_headline": "আজই ফ্রিতে শুরু করুন",
     "register_panel_sub": "মিনিটে সেটআপ শেষ — কোনো প্রযুক্তিগত জ্ঞানের দরকার নেই।",
     "register_perk_1_title": "চিরকালের জন্য ফ্রি",

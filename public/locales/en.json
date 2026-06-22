@@ -1432,7 +1432,7 @@
     "login_panel_quote": "Since switching to AndgatePOS, managing all my stores from one place has saved me hours every day.",
     "login_panel_quote_name": "Rokon Mondol",
     "login_panel_quote_biz": "Mondol Enterprise, Dhaka",
-    "register_panel_badge": "100+ businesses already started",
+    "register_panel_badge": "{count}+ businesses already started",
     "register_panel_headline": "Start your free POS journey today.",
     "register_panel_sub": "Set up your store in minutes. No technical knowledge needed — just sign up and start selling.",
     "register_perk_1_title": "Free forever plan",

@@ -3,6 +3,7 @@
 import { convertNumberByLanguage } from '@/components/custom/convertNumberByLanguage';
 import MainLayout from '@/components/layouts/MainLayout';
 import { getTranslation } from '@/i18n';
+import { useGetPublicStatsQuery } from '@/store/features/publicStats/publicStatsApi';
 import { BarChart3, Package, Shield, Store, Zap } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -10,6 +11,10 @@ import ComponentsAuthRegisterForm from './components-auth-register-form';
 
 const RegisterPage = () => {
     const { t } = getTranslation();
+    const { data: statsData } = useGetPublicStatsQuery();
+    // Round down to the nearest 10 for a clean "X+" display; fall back to a safe floor while loading.
+    const activeStores = statsData?.data?.active_stores;
+    const businessCount = activeStores ? Math.max(10, Math.floor(activeStores / 10) * 10) : 100;
 
     const perks = [
         { icon: <Store className="h-4 w-4" />, title: t('register_perk_1_title'), desc: t('register_perk_1_desc') },
@@ -35,7 +40,7 @@ const RegisterPage = () => {
                         {/* Badge */}
                         <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 text-xs font-semibold text-white/90 backdrop-blur-sm">
                             <Zap className="h-3.5 w-3.5 text-yellow-300" />
-                            {t('register_panel_badge')}
+                            {t('register_panel_badge').replace('{count}', convertNumberByLanguage(String(businessCount)))}
                         </div>
 
                         {/* Centre copy */}
@@ -95,7 +100,7 @@ const RegisterPage = () => {
                                 ))}
                             </div>
                             <p className="text-xs text-white/70">
-                                <span className="font-bold text-white">{convertNumberByLanguage('100')}+</span>{' '}{t('register_social_proof')}
+                                <span className="font-bold text-white">{convertNumberByLanguage(String(businessCount))}+</span>{' '}{t('register_social_proof')}
                             </p>
                         </div>
                     </div>
