@@ -1,11 +1,18 @@
 'use client';
 
 import { AlertTriangle, RotateCw } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { recoverFromStaleClientCache } from '@/lib/client-cache-recovery';
 
 export default function ErrorBoundary({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+    const [isRecovering, setIsRecovering] = useState(false);
+
     useEffect(() => {
         console.error('App render error:', error);
+
+        recoverFromStaleClientCache().then((started) => {
+            setIsRecovering(started);
+        });
     }, [error]);
 
     return (
@@ -14,7 +21,9 @@ export default function ErrorBoundary({ error, reset }: { error: Error & { diges
                 <AlertTriangle className="h-8 w-8 text-danger" />
             </div>
             <h1 className="text-xl font-bold text-gray-900 dark:text-white">This page couldn&apos;t load</h1>
-            <p className="max-w-sm text-sm text-gray-500 dark:text-gray-400">Something went wrong while loading this page. Reloading usually fixes it.</p>
+            <p className="max-w-sm text-sm text-gray-500 dark:text-gray-400">
+                {isRecovering ? 'Refreshing app files. This page will reload automatically.' : 'Something went wrong while loading this page. Reloading usually fixes it.'}
+            </p>
             <div className="flex gap-3">
                 <button
                     onClick={() => reset()}

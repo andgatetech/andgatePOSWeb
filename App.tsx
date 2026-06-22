@@ -1,13 +1,13 @@
 'use client';
 import GlobalDigitLocalizer from '@/components/i18n/GlobalDigitLocalizer';
 import { getTranslation } from '@/i18n';
-import { IRootState } from '@/store';
+import type { RootState } from '@/store';
 import { toggleAnimation, toggleLayout, toggleMenu, toggleNavbar, toggleRTL, toggleSemidark, toggleTheme } from '@/store/themeConfigSlice';
 import { PropsWithChildren, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 function App({ children }: PropsWithChildren) {
-    const themeConfig = useSelector((state: IRootState) => state.themeConfig);
+    const themeConfig = useSelector((state: RootState) => state.themeConfig);
     const dispatch = useDispatch();
     const { initLocale } = getTranslation();
     useEffect(() => {
