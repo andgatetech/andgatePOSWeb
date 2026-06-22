@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
+import { AUTH_TOKEN_STORAGE_KEY } from '@/lib/auth-session';
 
 interface CouponResult {
     coupon_id: number;
@@ -44,9 +45,7 @@ const CouponInput: React.FC<CouponInputProps> = ({
         setError('');
 
         try {
-            const token = typeof window !== 'undefined'
-                ? JSON.parse(localStorage.getItem('persist:auth') ?? '{}')?.token?.replace(/"/g, '')
-                : null;
+            const token = typeof window !== 'undefined' ? localStorage.getItem(AUTH_TOKEN_STORAGE_KEY) : null;
 
             const res = await fetch(`${apiBase}/api/coupons/validate`, {
                 method: 'POST',
