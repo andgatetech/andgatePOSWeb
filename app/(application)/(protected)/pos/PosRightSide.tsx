@@ -109,6 +109,8 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         return posItemsData;
     }, [reduxSlice, returnItemsData, exchangeItemsData, posItemsData]);
 
+    const totalQty = useMemo(() => invoiceItems.reduce((sum, item) => sum + (item.quantity || 0), 0), [invoiceItems]);
+
     // Return items from original order (for return mode)
     const returnItems = useMemo(() => {
         if (isReturnMode) {
@@ -2007,6 +2009,8 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                     paymentMethodOptions={paymentMethodOptions}
                     paymentStatusOptions={paymentStatusOptions}
                     onInputChange={handleInputChange}
+                    totalQty={totalQty}
+                    unit={invoiceItems[0]?.unit}
                     subtotalWithoutTax={backendSubtotal}
                     taxAmount={backendTax}
                     discountAmount={displayedOrderDiscount}

@@ -11,6 +11,8 @@ interface PaymentSummarySectionProps {
     paymentMethodOptions: any[];
     paymentStatusOptions: any[];
     onInputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+    totalQty?: number;
+    unit?: string;
     subtotalWithoutTax: number;
     taxAmount: number;
     discountAmount: number;
@@ -67,6 +69,8 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
     paymentMethodOptions,
     paymentStatusOptions,
     onInputChange,
+    totalQty = 0,
+    unit,
     subtotalWithoutTax,
     taxAmount,
     discountAmount,
@@ -82,7 +86,7 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
     onOpenSplitModal,
 }) => {
     const { t } = getTranslation();
-    const { formatCurrency } = useCurrency();
+    const { formatCurrency, formatNumber } = useCurrency();
     const { currentStore } = useCurrentStore();
     const taxLabel = currentStore?.tax_label || t('lbl_tax');
     const canUsePoints = !!selectedCustomer && Number(selectedCustomer.points) > 0;
@@ -179,12 +183,16 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
             {/* ── Order Totals ── */}
             {!isReturnMode && (
                 <div className="rounded-xl border border-gray-100 bg-gray-50 px-3 py-3 space-y-1.5">
-                    {taxAmount > 0 && (
+                    {totalQty > 0 && (
                         <div className="flex justify-between text-sm text-gray-500">
-                            <span>{t('lbl_subtotal_no_tax')}</span>
-                            <span className="font-medium text-gray-700">{formatCurrency(subtotalWithoutTax)}</span>
+                            <span>{t('lbl_total_qty')}</span>
+                            <span className="font-medium text-gray-700">{formatNumber(totalQty, 2)} {unit || t('lbl_pcs')}</span>
                         </div>
                     )}
+                    <div className="flex justify-between text-sm text-gray-500">
+                        <span>{taxAmount > 0 ? t('lbl_subtotal_no_tax') : t('lbl_subtotal')}</span>
+                        <span className="font-medium text-gray-700">{formatCurrency(subtotalWithoutTax)}</span>
+                    </div>
                     {taxAmount > 0 && (
                         <div className="flex justify-between text-sm text-gray-500">
                             <span>{taxLabel}</span>

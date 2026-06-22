@@ -17,6 +17,16 @@ import { login } from '@/store/features/auth/authSlice';
 import { persistor } from '@/store';
 
 const REMEMBER_LOGIN_KEY = 'andgatepos_remember_login';
+const PERSIST_FLUSH_TIMEOUT_MS = 1500;
+
+const waitForPersistFlush = async () => {
+    await Promise.race([
+        persistor.flush(),
+        new Promise<void>((resolve) => {
+            window.setTimeout(resolve, PERSIST_FLUSH_TIMEOUT_MS);
+        }),
+    ]);
+};
 
 const ComponentsAuthLoginForm = forwardRef((props, ref) => {
     const router = useRouter();
@@ -92,8 +102,14 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
         try {
             const result = await loginApi({ ...credentials, remember_me: rememberMe }).unwrap();
 
-            const { user, token, permissions } = result.data;
-            const tokenExpiresAt = getLoginTokenExpiresAt(result.data);
+            const payload = result?.data;
+            const { user, token, permissions } = payload || {};
+            const tokenExpiresAt = getLoginTokenExpiresAt(payload);
+
+            if (!user || !token) {
+                toast.error('Login response was incomplete. Please try again.');
+                return;
+            }
 
             if (isTokenExpired(tokenExpiresAt)) {
                 toast.error('Login token expired. Please login again.');
@@ -126,10 +142,10 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
             // Save **full user details + permissions** in Redux
             dispatch(login({ user, token, tokenExpiresAt: validTokenExpiresAt, permissions }));
 
-            // Force persist flush so stores survive subscription-quota redirects
-            await persistor.flush();
+            // Give redux-persist a short chance to write auth state without trapping the login UI.
+            await waitForPersistFlush();
 
-            router.push(safeRedirectPath);
+            router.replace(safeRedirectPath);
         } catch (error: any) {
             console.error('Login failed:', error);
 

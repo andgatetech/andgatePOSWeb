@@ -1,6 +1,5 @@
-import { getLoginTokenExpiresAt } from '@/lib/auth-session';
 import { baseApi } from '@/store/api/baseApi';
-import { login, logout } from './authSlice';
+import { logout } from './authSlice';
 
 export const authApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -10,19 +9,6 @@ export const authApi = baseApi.injectEndpoints({
                 method: 'POST',
                 body: userInfo,
             }),
-            async onQueryStarted(_, { dispatch, queryFulfilled }) {
-                try {
-                    const { data } = await queryFulfilled;
-
-                    const payload = data?.data ?? data;
-                    const { user, token } = payload;
-                    const tokenExpiresAt = getLoginTokenExpiresAt(payload);
-
-                    dispatch(login({ user, token, tokenExpiresAt }));
-                } catch (error) {
-                    console.error('Login failed:', error);
-                }
-            },
         }),
         register: builder.mutation({
             query: (userInfo) => ({
@@ -30,19 +16,6 @@ export const authApi = baseApi.injectEndpoints({
                 method: 'POST',
                 body: userInfo,
             }),
-            async onQueryStarted(_, { dispatch, queryFulfilled }) {
-                try {
-                    const { data } = await queryFulfilled;
-
-                    const payload = data?.data ?? data;
-                    const { user, token } = payload;
-                    const tokenExpiresAt = getLoginTokenExpiresAt(payload);
-
-                    dispatch(login({ user, token, tokenExpiresAt }));
-                } catch (error) {
-                    console.error('Registration failed:', error);
-                }
-            },
         }),
         logout: builder.mutation({
             query: () => ({
