@@ -59,6 +59,10 @@ export const clearAuthCookies = () => {
 export const clearAuthLocalStorage = () => {
     if (typeof window === 'undefined') return;
 
-    localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
-    localStorage.removeItem(AUTH_TOKEN_EXPIRES_AT_KEY);
+    try {
+        localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
+        localStorage.removeItem(AUTH_TOKEN_EXPIRES_AT_KEY);
+    } catch {
+        // Storage can be unavailable in mobile/private contexts.
+    }
 };

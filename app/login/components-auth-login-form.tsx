@@ -19,6 +19,22 @@ import { persistor } from '@/store';
 const REMEMBER_LOGIN_KEY = 'andgatepos_remember_login';
 const PERSIST_FLUSH_TIMEOUT_MS = 1500;
 
+const safeLocalStorageGet = (key: string): string | null => {
+    try {
+        return localStorage.getItem(key);
+    } catch {
+        return null;
+    }
+};
+
+const safeLocalStorageSet = (key: string, value: string) => {
+    try {
+        localStorage.setItem(key, value);
+    } catch {
+        // Login still works for the current tab if persistent storage is unavailable.
+    }
+};
+
 const waitForPersistFlush = async () => {
     await Promise.race([
         persistor.flush(),
@@ -46,7 +62,7 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
     const [rememberMe, setRememberMe] = useState(() => {
         if (typeof window === 'undefined') return false;
 
-        const savedPreference = localStorage.getItem(REMEMBER_LOGIN_KEY);
+        const savedPreference = safeLocalStorageGet(REMEMBER_LOGIN_KEY);
         if (savedPreference !== null) return savedPreference === 'true';
 
         return /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent) ||
@@ -132,8 +148,8 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
             setAuthCookie('permissions', encodedPermissions, maxAge);
             setAuthCookie(AUTH_TOKEN_EXPIRES_AT_COOKIE, validTokenExpiresAt, maxAge);
 
-            localStorage.setItem(AUTH_TOKEN_EXPIRES_AT_KEY, validTokenExpiresAt);
-            localStorage.setItem(REMEMBER_LOGIN_KEY, String(rememberMe));
+            safeLocalStorageSet(AUTH_TOKEN_EXPIRES_AT_KEY, validTokenExpiresAt);
+            safeLocalStorageSet(REMEMBER_LOGIN_KEY, String(rememberMe));
 
             if (rememberMe && navigator.storage?.persist) {
                 navigator.storage.persist().catch(() => {});

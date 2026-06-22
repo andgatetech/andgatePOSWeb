@@ -27,6 +27,30 @@ const createNoopStorage = () => ({
 
 const storage = typeof window !== 'undefined' ? createWebStorage('local') : createNoopStorage();
 
+const safeLocalStorageGet = (key: string): string | null => {
+    try {
+        return localStorage.getItem(key);
+    } catch {
+        return null;
+    }
+};
+
+const safeLocalStorageSet = (key: string, value: string) => {
+    try {
+        localStorage.setItem(key, value);
+    } catch {
+        // Persistence is best-effort; blocked storage should not stop rendering.
+    }
+};
+
+const safeLocalStorageRemove = (key: string) => {
+    try {
+        localStorage.removeItem(key);
+    } catch {
+        // Persistence is best-effort; blocked storage should not stop rendering.
+    }
+};
+
 // PWA/offline login persistence:
 // Keep the API token in localStorage with its real expiry so an installed app can reopen like Gmail.
 // The backend expiry remains authoritative; expired tokens are removed during rehydration.
@@ -36,9 +60,9 @@ const authTokenTransform = createTransform(
     (inboundState: any) => {
         if (typeof window !== 'undefined') {
             if (inboundState.token) {
-                localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, inboundState.token);
+                safeLocalStorageSet(AUTH_TOKEN_STORAGE_KEY, inboundState.token);
             } else {
-                localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
+                safeLocalStorageRemove(AUTH_TOKEN_STORAGE_KEY);
             }
         }
         const { token, ...rest } = inboundState;
@@ -46,12 +70,12 @@ const authTokenTransform = createTransform(
     },
     // On rehydration: restore token only while the saved expiry is still valid.
     (outboundState: any) => {
-        const token = typeof window !== 'undefined' ? localStorage.getItem(AUTH_TOKEN_STORAGE_KEY) : null;
-        const tokenExpiresAt = outboundState?.tokenExpiresAt || (typeof window !== 'undefined' ? localStorage.getItem(AUTH_TOKEN_EXPIRES_AT_KEY) : null);
+        const token = typeof window !== 'undefined' ? safeLocalStorageGet(AUTH_TOKEN_STORAGE_KEY) : null;
+        const tokenExpiresAt = outboundState?.tokenExpiresAt || (typeof window !== 'undefined' ? safeLocalStorageGet(AUTH_TOKEN_EXPIRES_AT_KEY) : null);
 
         if (!token || isTokenExpired(tokenExpiresAt)) {
             if (typeof window !== 'undefined') {
-                localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
+                safeLocalStorageRemove(AUTH_TOKEN_STORAGE_KEY);
             }
             return {
                 ...outboundState,

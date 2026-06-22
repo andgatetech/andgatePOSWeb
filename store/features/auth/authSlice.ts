@@ -123,7 +123,14 @@ const initialState: AuthState = {
 const getSavedStoreId = (): number | null => {
     if (typeof window === 'undefined') return null;
 
-    const value = Number(localStorage.getItem('andgate_current_store_id'));
+    let savedValue: string | null = null;
+    try {
+        savedValue = localStorage.getItem('andgate_current_store_id');
+    } catch {
+        return null;
+    }
+
+    const value = Number(savedValue);
     return Number.isFinite(value) && value > 0 ? value : null;
 };
 

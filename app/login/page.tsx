@@ -169,7 +169,7 @@ const LoginPage = () => {
                                     <div className="flex items-center justify-between">
                                         <div>
                                             <p className="text-xs font-bold text-[#046ca9]">{t('login-page.demo_credentials.store_admin')}</p>
-                                            <p className="mt-0.5 text-xs text-[#046ca9]/70">{t('login-page.demo_credentials.email_password')}</p>
+                                            <p suppressHydrationWarning className="mt-0.5 text-xs text-[#046ca9]/70">{t('login-page.demo_credentials.email_password')}</p>
                                         </div>
                                         <CheckCircle className="h-4 w-4 flex-shrink-0 text-[#046ca9]" />
                                     </div>
