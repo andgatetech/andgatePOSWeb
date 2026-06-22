@@ -30,7 +30,7 @@ const withPWA = require('@ducanh2912/next-pwa').default({
                 handler: 'NetworkFirst',
                 options: {
                     cacheName: 'app-pages',
-                    networkTimeoutSeconds: 3,
+                    networkTimeoutSeconds: 8,
                     expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 7 },
                 },
             },
