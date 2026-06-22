@@ -3,6 +3,7 @@
 import { convertNumberByLanguage } from '@/components/custom/convertNumberByLanguage';
 import MainLayout from '@/components/layouts/MainLayout';
 import { getTranslation } from '@/i18n';
+import { formatLocalizedNumber } from '@/lib/localized-number';
 import { useGetPublicStatsQuery } from '@/store/features/publicStats/publicStatsApi';
 import { BarChart3, CheckCircle, ShoppingCart, Store, TrendingUp, Zap } from 'lucide-react';
 import Image from 'next/image';
@@ -13,7 +14,7 @@ import ComponentsAuthLoginForm from './components-auth-login-form';
 
 const LoginPage = () => {
     const loginFormRef = useRef<any>(null);
-    const { t } = getTranslation();
+    const { t, i18n } = getTranslation();
     const { data: statsData } = useGetPublicStatsQuery();
     const activeStores = statsData?.data?.active_stores;
     const businessCount = activeStores ? Math.max(10, Math.floor(activeStores / 10) * 10) : 100;
@@ -169,7 +170,16 @@ const LoginPage = () => {
                                     <div className="flex items-center justify-between">
                                         <div>
                                             <p className="text-xs font-bold text-[#046ca9]">{t('login-page.demo_credentials.store_admin')}</p>
-                                            <p suppressHydrationWarning className="mt-0.5 text-xs text-[#046ca9]/70">{t('login-page.demo_credentials.email_password')}</p>
+                                            <p
+                                                suppressHydrationWarning
+                                                lang="en"
+                                                dir="ltr"
+                                                translate="no"
+                                                data-no-localize-digits
+                                                className="mt-0.5 text-xs text-[#046ca9]/70"
+                                            >
+                                                {t('login-page.demo_credentials.email_password')}
+                                            </p>
                                         </div>
                                         <CheckCircle className="h-4 w-4 flex-shrink-0 text-[#046ca9]" />
                                     </div>
@@ -188,7 +198,7 @@ const LoginPage = () => {
                         </p>
 
                         <p className="mt-6 text-center text-xs text-gray-400">
-                            {t('login-page.copyright').replace('{year}', new Date().getFullYear().toString())}
+                            {t('login-page.copyright').replace('{year}', formatLocalizedNumber(new Date().getFullYear(), i18n.language, { useGrouping: false }))}
                         </p>
                     </div>
                 </div>

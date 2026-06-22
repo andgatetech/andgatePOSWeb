@@ -4,6 +4,30 @@ import { useEffect } from 'react';
 
 const RELOAD_KEY = 'andgatepos-sw-update-reloaded';
 
+const safeSessionStorageGet = (key: string): string | null => {
+    try {
+        return sessionStorage.getItem(key);
+    } catch {
+        return null;
+    }
+};
+
+const safeSessionStorageSet = (key: string, value: string) => {
+    try {
+        sessionStorage.setItem(key, value);
+    } catch {
+        // Storage can be blocked in mobile/private contexts; skip the reload guard.
+    }
+};
+
+const safeSessionStorageRemove = (key: string) => {
+    try {
+        sessionStorage.removeItem(key);
+    } catch {
+        // Storage can be blocked in mobile/private contexts.
+    }
+};
+
 export default function PwaUpdateRecovery() {
     useEffect(() => {
         if (!('serviceWorker' in navigator) || !navigator.serviceWorker.controller) {
@@ -11,11 +35,11 @@ export default function PwaUpdateRecovery() {
         }
 
         const handleControllerChange = () => {
-            if (sessionStorage.getItem(RELOAD_KEY) === 'true') {
+            if (safeSessionStorageGet(RELOAD_KEY) === 'true') {
                 return;
             }
 
-            sessionStorage.setItem(RELOAD_KEY, 'true');
+            safeSessionStorageSet(RELOAD_KEY, 'true');
             window.location.reload();
         };
 
@@ -27,7 +51,7 @@ export default function PwaUpdateRecovery() {
     }, []);
 
     useEffect(() => {
-        sessionStorage.removeItem(RELOAD_KEY);
+        safeSessionStorageRemove(RELOAD_KEY);
     }, []);
 
     return null;

@@ -1,10 +1,27 @@
 const RECOVERY_KEY = 'andgatepos-error-cache-recovered';
 
+const safeSessionStorageGet = (key: string): string | null => {
+    try {
+        return sessionStorage.getItem(key);
+    } catch {
+        return null;
+    }
+};
+
+const safeSessionStorageSet = (key: string, value: string): boolean => {
+    try {
+        sessionStorage.setItem(key, value);
+        return true;
+    } catch {
+        return false;
+    }
+};
+
 export const recoverFromStaleClientCache = async (): Promise<boolean> => {
     if (typeof window === 'undefined') return false;
-    if (sessionStorage.getItem(RECOVERY_KEY) === 'true') return false;
+    if (safeSessionStorageGet(RECOVERY_KEY) === 'true') return false;
 
-    sessionStorage.setItem(RECOVERY_KEY, 'true');
+    const hasRecoveryGuard = safeSessionStorageSet(RECOVERY_KEY, 'true');
 
     try {
         if ('serviceWorker' in navigator) {
@@ -22,7 +39,9 @@ export const recoverFromStaleClientCache = async (): Promise<boolean> => {
 
     const url = new URL(window.location.href);
     url.searchParams.set('cache-recovered', Date.now().toString());
+    if (!hasRecoveryGuard) {
+        url.searchParams.set('storage-guard', 'unavailable');
+    }
     window.location.replace(url.toString());
     return true;
 };
-
