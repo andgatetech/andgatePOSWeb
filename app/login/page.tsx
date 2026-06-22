@@ -1,7 +1,9 @@
 'use client';
 
+import { convertNumberByLanguage } from '@/components/custom/convertNumberByLanguage';
 import MainLayout from '@/components/layouts/MainLayout';
 import { getTranslation } from '@/i18n';
+import { useGetPublicStatsQuery } from '@/store/features/publicStats/publicStatsApi';
 import { BarChart3, CheckCircle, ShoppingCart, Store, TrendingUp, Zap } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -12,6 +14,9 @@ import ComponentsAuthLoginForm from './components-auth-login-form';
 const LoginPage = () => {
     const loginFormRef = useRef<any>(null);
     const { t } = getTranslation();
+    const { data: statsData } = useGetPublicStatsQuery();
+    const activeStores = statsData?.data?.active_stores;
+    const businessCount = activeStores ? Math.max(10, Math.floor(activeStores / 10) * 10) : 100;
 
     const fillDemoCredentials = (email: string, password: string) => {
         if (loginFormRef.current) {
@@ -43,7 +48,7 @@ const LoginPage = () => {
                         {/* Top badge */}
                         <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 text-xs font-semibold text-white/90 backdrop-blur-sm">
                             <Zap className="h-3.5 w-3.5 text-yellow-300" />
-                            {t('login_panel_badge')}
+                            {t('login_panel_badge').replace('{count}', convertNumberByLanguage(String(businessCount)))}
                         </div>
 
                         {/* Centre copy */}

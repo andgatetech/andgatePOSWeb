@@ -54,6 +54,7 @@ import { getTranslation } from '@/i18n';
 import { highIntentPages } from '@/lib/high-intent-pages';
 import { landingPages } from '@/lib/landing-pages';
 import { landingCopyBn } from '@/components/seo/LandingSeoPageView';
+import { useGetPublicStatsQuery } from '@/store/features/publicStats/publicStatsApi';
 
 // Heavy sections loaded lazily — keeps initial JS bundle small
 const OverViewSection = dynamic(
@@ -112,6 +113,9 @@ export default function HomePageClient() {
     const [flashIcon, setFlashIcon] = useState(false);
     const [openFaq, setOpenFaq] = useState<number | null>(null);
     const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
+    const { data: publicStatsData } = useGetPublicStatsQuery();
+    const activeStores = publicStatsData?.data?.active_stores;
+    const businessCount = activeStores ? Math.max(10, Math.floor(activeStores / 10) * 10) : 100;
 
     const toggleVideo = useCallback(() => {
         const iframe = videoRef.current;
@@ -156,7 +160,7 @@ export default function HomePageClient() {
     }, [isDemoModalOpen]);
 
     const stats = [
-        { number: '100+', label: t('stats_businesses'), icon: <Users className="h-5 w-5" /> },
+        { number: `${convertNumberByLanguage(String(businessCount))}+`, label: t('stats_businesses'), icon: <Users className="h-5 w-5" /> },
         { number: '৳1M+', label: t('stats_order'), icon: <TrendingUp className="h-5 w-5" /> },
         { number: '99.9%', label: t('stats_uptime'), icon: <Shield className="h-5 w-5" /> },
         { number: '24/7', label: t('stats_support'), icon: <Clock className="h-5 w-5" /> },
@@ -577,7 +581,7 @@ export default function HomePageClient() {
                         <span className="mb-4 inline-block rounded-full border border-[#046ca9]/20 bg-[#046ca9]/5 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[#046ca9]">
                             {t('why_us_badge')}
                         </span>
-                        <h2 className="mb-3 text-3xl font-black text-gray-900 sm:text-4xl">{t('why_us_heading')}</h2>
+                        <h2 className="mb-3 text-3xl font-black text-gray-900 sm:text-4xl">{t('why_us_heading').replace('{count}', convertNumberByLanguage(String(businessCount)))}</h2>
                         <p className="mx-auto max-w-2xl text-base text-gray-500">{t('why_us_subtitle')}</p>
                     </div>
 
@@ -1063,9 +1067,9 @@ export default function HomePageClient() {
                         ))}
                     </div>
                     <h2 className="mb-5 text-4xl font-black leading-tight text-white sm:text-5xl md:text-6xl">
-                        {t('cta_title')}
+                        {t('cta_title').replace('{count}', convertNumberByLanguage(String(businessCount)))}
                     </h2>
-                    <p className="mb-10 text-lg leading-relaxed text-white/75">{t('cta_desc')}</p>
+                    <p className="mb-10 text-lg leading-relaxed text-white/75">{t('cta_desc').replace('{count}', convertNumberByLanguage(String(businessCount)))}</p>
                     <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
                         <Link
                             href="/register"
