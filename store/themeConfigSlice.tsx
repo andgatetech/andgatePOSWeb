@@ -18,13 +18,21 @@ const initialState = {
     ],
 };
 
+const safeLocalStorageSet = (key: string, value: string | boolean) => {
+    try {
+        localStorage.setItem(key, String(value));
+    } catch {
+        // Storage can be unavailable in private/mobile contexts; state still updates in memory.
+    }
+};
+
 const themeConfigSlice = createSlice({
     name: 'auth',
     initialState: initialState,
     reducers: {
         toggleTheme(state, { payload }) {
             payload = payload || state.theme; // light | dark | system
-            localStorage.setItem('theme', payload);
+            safeLocalStorageSet('theme', payload);
             state.theme = payload;
             if (payload === 'light') {
                 state.isDarkMode = false;
@@ -46,34 +54,34 @@ const themeConfigSlice = createSlice({
         },
         toggleMenu(state, { payload }) {
             payload = payload || state.menu; // vertical, collapsible-vertical, horizontal
-            localStorage.setItem('menu', payload);
+            safeLocalStorageSet('menu', payload);
             state.menu = payload;
         },
         toggleLayout(state, { payload }) {
             payload = payload || state.layout; // full, boxed-layout
-            localStorage.setItem('layout', payload);
+            safeLocalStorageSet('layout', payload);
             state.layout = payload;
         },
         toggleRTL(state, { payload }) {
             payload = payload || state.rtlClass; // rtl, ltr
-            localStorage.setItem('rtlClass', payload);
+            safeLocalStorageSet('rtlClass', payload);
             state.rtlClass = payload;
             document.querySelector('html')?.setAttribute('dir', state.rtlClass || 'ltr');
         },
         toggleAnimation(state, { payload }) {
             payload = payload || state.animation; // animate__fadeIn, animate__fadeInDown, animate__fadeInUp, animate__fadeInLeft, animate__fadeInRight, animate__slideInDown, animate__slideInLeft, animate__slideInRight, animate__zoomIn
             payload = payload?.trim();
-            localStorage.setItem('animation', payload);
+            safeLocalStorageSet('animation', payload);
             state.animation = payload;
         },
         toggleNavbar(state, { payload }) {
             payload = payload || state.navbar; // navbar-sticky, navbar-floating, navbar-static
-            localStorage.setItem('navbar', payload);
+            safeLocalStorageSet('navbar', payload);
             state.navbar = payload;
         },
         toggleSemidark(state, { payload }) {
             payload = payload === true || payload === 'true' ? true : false;
-            localStorage.setItem('semidark', payload);
+            safeLocalStorageSet('semidark', payload);
             state.semidark = payload;
         },
         toggleSidebar(state) {

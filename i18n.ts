@@ -17,6 +17,22 @@ const LANGUAGE_STORAGE_KEY = 'i18nextLng';
 const LANGUAGE_SOURCE_STORAGE_KEY = 'i18nextLngSource';
 const LANGUAGE_MAX_AGE = 60 * 60 * 24 * 365;
 
+const safeLocalStorageGet = (key: string): string | null => {
+    try {
+        return window.localStorage.getItem(key);
+    } catch {
+        return null;
+    }
+};
+
+const safeLocalStorageSet = (key: string, value: string) => {
+    try {
+        window.localStorage.setItem(key, value);
+    } catch {
+        // Some mobile/private browsers can block storage. Cookies still carry the language.
+    }
+};
+
 // Get current language (server or client)
 const getLang = (): string => {
     if (typeof window === 'undefined') {
@@ -27,7 +43,7 @@ const getLang = (): string => {
         const cookieLang = cookies.get(LANGUAGE_COOKIE);
         if (cookieLang) return cookieLang;
 
-        const storedLang = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
+        const storedLang = safeLocalStorageGet(LANGUAGE_STORAGE_KEY);
         if (storedLang) {
             cookies.set(LANGUAGE_COOKIE, storedLang, {
                 path: '/',
@@ -97,7 +113,7 @@ const createTranslation = (lang: string) => {
         changeLanguage: (newLang: string) => {
             if (typeof window !== 'undefined') {
                 const cookies = new UniversalCookie();
-                const currentLang = cookies.get(LANGUAGE_COOKIE) || window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
+                const currentLang = cookies.get(LANGUAGE_COOKIE) || safeLocalStorageGet(LANGUAGE_STORAGE_KEY);
 
                 // Only update and reload if the language actually changed
                 if (currentLang !== newLang) {
@@ -111,8 +127,8 @@ const createTranslation = (lang: string) => {
                         maxAge: LANGUAGE_MAX_AGE,
                         sameSite: 'lax',
                     });
-                    window.localStorage.setItem(LANGUAGE_STORAGE_KEY, newLang);
-                    window.localStorage.setItem(LANGUAGE_SOURCE_STORAGE_KEY, 'manual');
+                    safeLocalStorageSet(LANGUAGE_STORAGE_KEY, newLang);
+                    safeLocalStorageSet(LANGUAGE_SOURCE_STORAGE_KEY, 'manual');
                     window.location.reload();
                 }
             }

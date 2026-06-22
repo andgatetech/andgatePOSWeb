@@ -24,9 +24,17 @@ const SKIP_SELECTOR = [
 
 const toBanglaDigits = (value: string) => value.replace(/\d/g, (digit) => BN_DIGITS[Number(digit)]);
 
+const getStoredLanguage = () => {
+    try {
+        return window.localStorage.getItem('i18nextLng');
+    } catch {
+        return null;
+    }
+};
+
 const getCurrentLanguage = () => {
     const cookieLang = new UniversalCookie().get('i18nextLng');
-    const storedLang = window.localStorage.getItem('i18nextLng');
+    const storedLang = getStoredLanguage();
     return (cookieLang || storedLang || 'bn').replace('_', '-').split('-')[0];
 };
 
