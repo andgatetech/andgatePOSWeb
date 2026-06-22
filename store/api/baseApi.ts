@@ -139,6 +139,7 @@ export const baseApi = createApi({
         'AffiliateConversions',
         'AffiliateDemoBookings',
         'AffiliateStats',
+        'Coupons',
         'ManualPayments',
         'PurchaseReturns',
     ],

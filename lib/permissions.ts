@@ -148,6 +148,10 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     '/orders': ['orders.index'],
     '/orders/edit': ['orders.index'],
 
+    // ── Coupons ──────────────────────────────────────────────────
+    '/coupons': ['orders.view'],
+    '/coupons/create': ['orders.create'],
+
     // ── Order Returns ───────────────────────────────────────────
     '/order-returns': ['orders.return'],
     '/orders/return': ['orders.index'],
