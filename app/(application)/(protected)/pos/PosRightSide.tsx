@@ -109,7 +109,10 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         return posItemsData;
     }, [reduxSlice, returnItemsData, exchangeItemsData, posItemsData]);
 
-    const totalQty = useMemo(() => invoiceItems.reduce((sum, item) => sum + (item.quantity || 0), 0), [invoiceItems]);
+    const totalQty = useMemo(
+        () => invoiceItems.reduce((sum, item) => sum + (item.has_serial && item.serials?.length ? item.serials.length : item.quantity || 0), 0),
+        [invoiceItems]
+    );
 
     // Return items from original order (for return mode)
     const returnItems = useMemo(() => {
@@ -801,11 +804,13 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         }, 0);
     };
 
-    const calculateDiscount = () => (calculateSubtotalWithoutTax() * formData.discount) / 100;
+    const calculateSubtotal = () => invoiceItems.reduce((total, item) => total + item.rate * item.quantity, 0);
 
-    const calculateMembershipDiscount = () => (calculateSubtotalWithoutTax() * formData.membershipDiscount) / 100;
+    const calculateDiscount = () => (calculateSubtotal() * formData.discount) / 100;
 
-    const calculateBaseTotal = () => calculateSubtotalWithoutTax() + calculateTax() - calculateDiscount() - calculateMembershipDiscount();
+    const calculateMembershipDiscount = () => (calculateSubtotal() * formData.membershipDiscount) / 100;
+
+    const calculateBaseTotal = () => calculateSubtotal() - calculateDiscount() - calculateMembershipDiscount();
 
     const calculatePointsDiscount = () => {
         return 0;
@@ -877,15 +882,21 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
     ]);
 
     const quoteTotals = !isReturnMode && quotePreview?.totals ? quotePreview.totals : null;
-    const backendSubtotal = Number(quoteTotals?.total ?? calculateSubtotalWithoutTax());
+    const frontendSubtotal = calculateSubtotal();
+    const frontendDiscount = calculateDiscount() + calculateMembershipDiscount();
+    const frontendGrandTotal = calculateTotal();
+    const backendSubtotal = Number(quoteTotals?.total ?? frontendSubtotal);
     const backendTax = Number(quoteTotals?.tax ?? calculateTax());
-    const backendDiscount = Number(quoteTotals?.discount ?? calculateDiscount() + calculateMembershipDiscount());
-    const backendGrandTotal = Number(quoteTotals?.grand_total ?? calculateTotal());
+    const backendDiscount = Number(quoteTotals?.discount ?? frontendDiscount);
+    const backendGrandTotal = Number(quoteTotals?.grand_total ?? frontendGrandTotal);
+    const displaySubtotal = frontendSubtotal || backendSubtotal;
+    const displayDiscount = frontendDiscount || backendDiscount;
+    const displayGrandTotal = frontendGrandTotal || backendGrandTotal;
     const backendPointsDiscount = Number(quoteTotals?.loyalty_points_value ?? (formData.usePoints ? formData.pointsToUse : 0));
     const backendBalanceDiscount = Number(quoteTotals?.account_balance_redeemed ?? (formData.useBalance ? formData.balanceToUse : 0));
     const membershipDiscountAmount = calculateMembershipDiscount();
-    const displayedMembershipDiscount = selectedCustomer && formData.membershipDiscount > 0 ? Math.min(membershipDiscountAmount, backendDiscount) : 0;
-    const displayedOrderDiscount = Math.max(0, backendDiscount - displayedMembershipDiscount);
+    const displayedMembershipDiscount = selectedCustomer && formData.membershipDiscount > 0 ? Math.min(membershipDiscountAmount, displayDiscount) : 0;
+    const displayedOrderDiscount = Math.max(0, displayDiscount - displayedMembershipDiscount);
 
     useEffect(() => {
         if (!quotePayload) {
@@ -2011,13 +2022,13 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                     onInputChange={handleInputChange}
                     totalQty={totalQty}
                     unit={invoiceItems[0]?.unit}
-                    subtotalWithoutTax={backendSubtotal}
-                    taxAmount={backendTax}
+                    subtotalWithoutTax={displaySubtotal}
+                    taxAmount={0}
                     discountAmount={displayedOrderDiscount}
                     membershipDiscountAmount={displayedMembershipDiscount}
                     pointsDiscount={backendPointsDiscount}
                     balanceDiscount={backendBalanceDiscount}
-                    totalPayable={backendGrandTotal}
+                    totalPayable={displayGrandTotal}
                     isWalkInCustomer={formData.customerId === 'walk-in'}
                     // Return mode props
                     isReturnMode={isReturnMode}
