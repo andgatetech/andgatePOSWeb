@@ -17,6 +17,20 @@ const safeSessionStorageSet = (key: string, value: string): boolean => {
     }
 };
 
+export const clearStaleClientCache = async () => {
+    if (typeof window === 'undefined') return;
+
+    if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(registrations.map((registration) => registration.unregister()));
+    }
+
+    if ('caches' in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map((key) => caches.delete(key)));
+    }
+};
+
 export const recoverFromStaleClientCache = async (): Promise<boolean> => {
     if (typeof window === 'undefined') return false;
     const url = new URL(window.location.href);
@@ -26,15 +40,7 @@ export const recoverFromStaleClientCache = async (): Promise<boolean> => {
     const hasRecoveryGuard = safeSessionStorageSet(RECOVERY_KEY, 'true');
 
     try {
-        if ('serviceWorker' in navigator) {
-            const registrations = await navigator.serviceWorker.getRegistrations();
-            await Promise.all(registrations.map((registration) => registration.unregister()));
-        }
-
-        if ('caches' in window) {
-            const keys = await caches.keys();
-            await Promise.all(keys.map((key) => caches.delete(key)));
-        }
+        await clearStaleClientCache();
     } catch (error) {
         console.error('Failed to clear stale app cache:', error);
     }

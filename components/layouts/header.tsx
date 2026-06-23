@@ -6,6 +6,7 @@ import LanguageDropdown from '@/components/language-dropdown';
 import IconLogout from '@/components/icon/icon-logout';
 import IconUser from '@/components/icon/icon-user';
 import { clearAuthCookies, clearAuthLocalStorage } from '@/lib/auth-session';
+import { clearStaleClientCache } from '@/lib/client-cache-recovery';
 import { MessagesSquare, ClipboardList } from 'lucide-react';
 
 import { RootState, persistor } from '@/store';
@@ -73,6 +74,12 @@ const Header = () => {
             const name = cookie.split('=')[0].trim();
             clearCookie(name);
         });
+
+        try {
+            await clearStaleClientCache();
+        } catch (err) {
+            console.error('Failed to clear app cache during logout:', err);
+        }
 
         window.location.replace(`/login?logout=${Date.now()}`);
     };
