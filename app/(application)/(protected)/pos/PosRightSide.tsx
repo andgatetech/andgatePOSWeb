@@ -810,7 +810,9 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
 
     const calculateMembershipDiscount = () => (calculateSubtotal() * formData.membershipDiscount) / 100;
 
-    const calculateBaseTotal = () => calculateSubtotal() - calculateDiscount() - calculateMembershipDiscount();
+    const calculateCouponDiscount = () => Number(formData.couponDiscount || 0);
+
+    const calculateBaseTotal = () => calculateSubtotal() - calculateDiscount() - calculateMembershipDiscount() - calculateCouponDiscount();
 
     const calculatePointsDiscount = () => {
         return 0;
@@ -883,7 +885,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
 
     const quoteTotals = !isReturnMode && quotePreview?.totals ? quotePreview.totals : null;
     const frontendSubtotal = calculateSubtotal();
-    const frontendDiscount = calculateDiscount() + calculateMembershipDiscount();
+    const frontendDiscount = calculateDiscount() + calculateMembershipDiscount() + calculateCouponDiscount();
     const frontendGrandTotal = calculateTotal();
     const backendSubtotal = Number(quoteTotals?.total ?? frontendSubtotal);
     const backendTax = Number(quoteTotals?.tax ?? calculateTax());
