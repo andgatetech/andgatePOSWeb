@@ -44,7 +44,11 @@ export default function SubscriptionPendingScreen({ status, subscriptionName = '
             console.error('Logout API failed:', err);
         }
         clearAuthLocalStorage();
-        sessionStorage.clear();
+        try {
+            sessionStorage.clear();
+        } catch {
+            // Storage can be unavailable in mobile/private contexts.
+        }
         clearAuthCookies();
         document.cookie.split(';').forEach((cookie) => {
             const name = cookie.split('=')[0].trim();

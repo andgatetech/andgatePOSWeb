@@ -20,6 +20,14 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
+const safeSessionStorageClear = () => {
+    try {
+        sessionStorage.clear();
+    } catch {
+        // Storage can be unavailable in mobile/private contexts.
+    }
+};
+
 const Header = () => {
     const { t } = getTranslation();
     const pathname = usePathname();
@@ -43,7 +51,7 @@ const Header = () => {
         await persistor.flush();
 
         clearAuthLocalStorage();
-        sessionStorage.clear();
+        safeSessionStorageClear();
 
         const clearCookie = (name: string) => {
             const hostname = window.location.hostname;
@@ -66,7 +74,7 @@ const Header = () => {
             clearCookie(name);
         });
 
-        window.location.replace('/login');
+        window.location.replace(`/login?logout=${Date.now()}`);
     };
 
     // Fullscreen toggle function

@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 
 const RELOAD_KEY = 'andgatepos-sw-update-reloaded';
+const RELOAD_GUARD_MS = 30_000;
 
 const safeSessionStorageGet = (key: string): string | null => {
     try {
@@ -12,20 +13,18 @@ const safeSessionStorageGet = (key: string): string | null => {
     }
 };
 
-const safeSessionStorageSet = (key: string, value: string) => {
+const safeSessionStorageSet = (key: string, value: string): boolean => {
     try {
         sessionStorage.setItem(key, value);
+        return true;
     } catch {
-        // Storage can be blocked in mobile/private contexts; skip the reload guard.
+        return false;
     }
 };
 
-const safeSessionStorageRemove = (key: string) => {
-    try {
-        sessionStorage.removeItem(key);
-    } catch {
-        // Storage can be blocked in mobile/private contexts.
-    }
+const recentlyReloadedForServiceWorkerUpdate = () => {
+    const lastReloadedAt = Number(safeSessionStorageGet(RELOAD_KEY) || 0);
+    return Number.isFinite(lastReloadedAt) && Date.now() - lastReloadedAt < RELOAD_GUARD_MS;
 };
 
 export default function PwaUpdateRecovery() {
@@ -35,11 +34,14 @@ export default function PwaUpdateRecovery() {
         }
 
         const handleControllerChange = () => {
-            if (safeSessionStorageGet(RELOAD_KEY) === 'true') {
+            if (recentlyReloadedForServiceWorkerUpdate()) {
                 return;
             }
 
-            safeSessionStorageSet(RELOAD_KEY, 'true');
+            if (!safeSessionStorageSet(RELOAD_KEY, Date.now().toString())) {
+                return;
+            }
+
             window.location.reload();
         };
 
@@ -48,10 +50,6 @@ export default function PwaUpdateRecovery() {
         return () => {
             navigator.serviceWorker.removeEventListener('controllerchange', handleControllerChange);
         };
-    }, []);
-
-    useEffect(() => {
-        safeSessionStorageRemove(RELOAD_KEY);
     }, []);
 
     return null;

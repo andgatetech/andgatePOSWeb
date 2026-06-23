@@ -19,6 +19,8 @@ const safeSessionStorageSet = (key: string, value: string): boolean => {
 
 export const recoverFromStaleClientCache = async (): Promise<boolean> => {
     if (typeof window === 'undefined') return false;
+    const url = new URL(window.location.href);
+    if (url.searchParams.has('cache-recovered') || url.searchParams.has('storage-guard')) return false;
     if (safeSessionStorageGet(RECOVERY_KEY) === 'true') return false;
 
     const hasRecoveryGuard = safeSessionStorageSet(RECOVERY_KEY, 'true');
@@ -37,7 +39,6 @@ export const recoverFromStaleClientCache = async (): Promise<boolean> => {
         console.error('Failed to clear stale app cache:', error);
     }
 
-    const url = new URL(window.location.href);
     url.searchParams.set('cache-recovered', Date.now().toString());
     if (!hasRecoveryGuard) {
         url.searchParams.set('storage-guard', 'unavailable');
