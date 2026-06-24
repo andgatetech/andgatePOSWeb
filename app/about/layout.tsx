@@ -3,22 +3,28 @@ import { Metadata } from 'next';
 const BASE_URL = 'https://andgatepos.com';
 
 export const metadata: Metadata = {
-    title: 'About AndgatePOS — POS Software Company in Bangladesh',
+    title: 'About AndgatePOS — SME Business Operating System | Bangladesh',
     description:
-        'AndgatePOS is built by Andgate Technologies in Dhaka, Bangladesh. Learn about our mission to help Bangladeshi retail shops, grocery stores, pharmacies and restaurants run billing, inventory and payments from one cloud platform.',
+        'AndgatePOS is Bangladesh\'s emerging SME Business Operating System. Built by Andgate Technologies — a Product Engineering company with expertise in SaaS, AI, IoT, Cloud, and Digital Transformation. More than POS. A complete business platform.',
     keywords: [
         'about AndgatePOS',
         'Andgate Technologies',
+        'SME Business Operating System',
+        'business management software Bangladesh',
         'POS software company Bangladesh',
+        'retail management platform',
         'AndgatePOS Dhaka',
+        'business automation Bangladesh',
+        'cloud POS Bangladesh',
+        'digital transformation Bangladesh',
         'AndgatePOS সম্পর্কে',
     ],
     alternates: {
         canonical: `${BASE_URL}/about`,
     },
     openGraph: {
-        title: 'About AndgatePOS — POS Software Company in Bangladesh',
-        description: 'Built in Dhaka by Andgate Technologies. Meet the team behind AndgatePOS and our mission for Bangladeshi retail businesses.',
+        title: 'About AndgatePOS — SME Business Operating System | Bangladesh',
+        description: 'Built in Dhaka by Andgate Technologies. More than POS — a complete business operating system for Bangladeshi SMEs with AI, ecommerce, accounting, and enterprise-grade engineering.',
         url: `${BASE_URL}/about`,
         images: [{ url: '/images/og-image.jpg', width: 1200, height: 630, alt: 'About AndgatePOS' }],
     },
@@ -34,7 +40,7 @@ const aboutPageJsonLd = {
         name: 'Andgate Technologies',
         url: BASE_URL,
         logo: `${BASE_URL}/favicon-32x32.png`,
-        description: 'Andgate Technologies builds POS and ecommerce software for businesses in Bangladesh.',
+        description: 'Andgate Technologies is a Product Engineering and Digital Transformation company that builds SaaS platforms, AI systems, IoT solutions, and enterprise software. Creator of AndgatePOS and Hawkeri.',
         address: {
             '@type': 'PostalAddress',
             streetAddress: 'House 34, Road 3, Block B, Aftabnagar, Badda',
@@ -49,7 +55,11 @@ const aboutPageJsonLd = {
             contactType: 'customer support',
             availableLanguage: ['English', 'Bengali'],
         },
-        sameAs: ['https://www.facebook.com/andgatepos'],
+        sameAs: [
+            'https://www.facebook.com/andgatepos',
+            'https://andgatetech.net',
+            'https://www.hawkeri.com',
+        ],
         areaServed: {
             '@type': 'Country',
             name: 'Bangladesh',
