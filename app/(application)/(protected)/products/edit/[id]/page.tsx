@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import ProductEditForm from './product-edit-form';
 
 export const metadata: Metadata = {
-    title: 'Andgate POS - Edit Product',
+    title: 'AndgatePOS - Edit Product',
 };
 
 const EditProductPage = () => {

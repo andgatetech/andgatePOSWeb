@@ -115,7 +115,7 @@ const PurchaseOrderPreview: React.FC<PurchaseOrderPreviewProps> = ({ isOpen, onC
 
                         {/* Company Info */}
                         <div className="mt-6 space-y-1 px-4 text-right">
-                            <div className="font-semibold text-black">{currentStore?.store_name || 'andgate POS'}</div>
+                            <div className="font-semibold text-black">{currentStore?.store_name || 'AndgatePOS'}</div>
                             <div>{currentStore?.store_location || 'Dhaka, Bangladesh, 1212'}</div>
                             <div>{currentStore?.store_contact || '+8801600000'}</div>
                         </div>

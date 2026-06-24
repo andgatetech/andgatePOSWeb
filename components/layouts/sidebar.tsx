@@ -154,7 +154,7 @@ const Sidebar = () => {
                     <div className="overflow-hidden rounded-xl border border-white/20 bg-white shadow-sm">
                         <Image
                             src="/images/andgatePOS.jpeg"
-                            alt="AndGate POS"
+                            alt="AndgatePOS"
                             width={140}
                             height={40}
                             className="h-10 w-auto object-contain px-3 py-1"

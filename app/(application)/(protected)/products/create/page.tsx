@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import ProductCreateForm from './product-create-form';
 
 export const metadata: Metadata = {
-    title: 'Andgate POS - Create Product',
+    title: 'AndgatePOS - Create Product',
 };
 
 const Layouts = () => {

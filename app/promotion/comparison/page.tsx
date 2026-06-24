@@ -2,18 +2,18 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-    title: 'AndGate POS vs Competitors — Best POS Software in Bangladesh 2026',
-    description: 'Compare AndGate POS with PridePOS, Media Soft, Odoo POS, PinPOS, and other top POS software in Bangladesh. Features, pricing, pharmacy support, AI insights comparison.',
-    keywords: 'POS software Bangladesh, compare POS, best POS Bangladesh, AndGate POS vs PridePOS, pharmacy POS Bangladesh, retail POS comparison',
+    title: 'AndgatePOS vs Competitors — Best POS Software in Bangladesh 2026',
+    description: 'Compare AndgatePOS with PridePOS, Media Soft, Odoo POS, PinPOS, and other top POS software in Bangladesh. Features, pricing, pharmacy support, AI insights comparison.',
+    keywords: 'POS software Bangladesh, compare POS, best POS Bangladesh, AndgatePOS vs PridePOS, pharmacy POS Bangladesh, retail POS comparison',
     openGraph: {
-        title: 'AndGate POS vs Competitors — Best POS Software in Bangladesh',
-        description: 'Compare AndGate POS with top 10 POS systems in Bangladesh. AI-powered insights, pharmacy-ready, Bangla-first.',
+        title: 'AndgatePOS vs Competitors — Best POS Software in Bangladesh',
+        description: 'Compare AndgatePOS with top 10 POS systems in Bangladesh. AI-powered insights, pharmacy-ready, Bangla-first.',
     },
 };
 
 const competitors = [
     {
-        name: 'AndGate POS',
+        name: 'AndgatePOS',
         tag: 'আমাদের',
         price: 'Free trial available',
         pharmacy: '✅ Batch, Expiry, FEFO, Generic Name',
@@ -108,7 +108,7 @@ export default function ComparisonPage() {
                         POS Software Comparison Bangladesh ২০২৬
                     </h1>
                     <p className="mx-auto mt-4 max-w-3xl text-lg text-blue-100">
-                        Compare the top Point of Sale systems in Bangladesh side-by-side. See why AndGate POS is the smartest choice for retail shops, pharmacies, and growing businesses.
+                        Compare the top Point of Sale systems in Bangladesh side-by-side. See why AndgatePOS is the smartest choice for retail shops, pharmacies, and growing businesses.
                     </p>
                     <div className="mt-8 flex justify-center gap-4">
                         <Link href="/login" className="rounded-xl bg-white px-6 py-3 font-semibold text-[#046ca9] shadow-lg transition hover:bg-gray-100">
@@ -165,7 +165,7 @@ export default function ComparisonPage() {
             {/* Why AndGate */}
             <div className="mx-auto max-w-6xl px-4 pb-16">
                 <h2 className="mb-8 text-center text-2xl font-bold text-gray-900">
-                    কেন AndGate POS সেরা?
+                    কেন AndgatePOS সেরা?
                 </h2>
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                     {[

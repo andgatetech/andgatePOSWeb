@@ -53,7 +53,7 @@ const ComponentsDashboardSales = () => {
                     <div className="hidden overflow-hidden rounded-xl border border-primary/20 bg-white shadow-sm sm:block">
                         <Image
                             src="/images/andgatePOS.jpeg"
-                            alt="AndGate POS"
+                            alt="AndgatePOS"
                             width={120} height={40}
                             className="h-12 w-auto object-contain px-3 py-1"
                             style={{ width: 'auto' }}

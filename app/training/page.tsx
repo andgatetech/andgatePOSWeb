@@ -82,6 +82,61 @@ export default function TrainingPage() {
         // ── 02: Store Configuration ──────────────────────────────────
         {
             num: '02',
+            id: 'business-os',
+            title: t('training.category_business_os'),
+            desc: t('training.category_business_os_desc'),
+            icon: <ShoppingBag className="h-5 w-5" />,
+            gradient: 'from-[#e79237] to-[#c47920]',
+            accent: '#e79237',
+            accentLight: 'bg-amber-50',
+            accentBorder: 'border-amber-200',
+            accentText: 'text-amber-700',
+            isStartHere: false,
+            lessons: [
+                {
+                    title: t('training.video_business_os_overview'),
+                    duration: '4:30',
+                    youtubeId: vid(0),
+                    difficulty: 'Beginner',
+                    desc: t('training.video_business_os_overview_desc'),
+                    points: [t('training.kp_bos_1'), t('training.kp_bos_2'), t('training.kp_bos_3')],
+                },
+                {
+                    title: t('training.video_cash_closing'),
+                    duration: '5:00',
+                    youtubeId: vid(1),
+                    difficulty: 'Beginner',
+                    desc: t('training.video_cash_closing_desc'),
+                    points: [t('training.kp_cashclosing_1'), t('training.kp_cashclosing_2'), t('training.kp_cashclosing_3')],
+                },
+                {
+                    title: t('training.video_petty_cash'),
+                    duration: '4:15',
+                    youtubeId: vid(2),
+                    difficulty: 'Beginner',
+                    desc: t('training.video_petty_cash_desc'),
+                    points: [t('training.kp_pettycash_1'), t('training.kp_pettycash_2'), t('training.kp_pettycash_3')],
+                },
+                {
+                    title: t('training.video_staff_attendance'),
+                    duration: '3:45',
+                    youtubeId: vid(0),
+                    difficulty: 'Beginner',
+                    desc: t('training.video_staff_attendance_desc'),
+                    points: [t('training.kp_attendance_1'), t('training.kp_attendance_2'), t('training.kp_attendance_3')],
+                },
+                {
+                    title: t('training.video_service_jobs'),
+                    duration: '4:45',
+                    youtubeId: vid(1),
+                    difficulty: 'Intermediate',
+                    desc: t('training.video_service_jobs_desc'),
+                    points: [t('training.kp_servicejobs_1'), t('training.kp_servicejobs_2'), t('training.kp_servicejobs_3')],
+                },
+            ],
+        },
+        {
+            num: '03',
             id: 'store-config',
             title: t('training.category_store_config'),
             desc: t('training.category_store_config_desc'),
@@ -129,7 +184,7 @@ export default function TrainingPage() {
         },
         // ── 03: Product Catalogue ────────────────────────────────────
         {
-            num: '03',
+            num: '04',
             id: 'inventory',
             title: t('training.category_inventory'),
             desc: t('training.category_inventory_desc'),
@@ -217,7 +272,7 @@ export default function TrainingPage() {
         },
         // ── 04: Suppliers & Purchasing ───────────────────────────────
         {
-            num: '04',
+            num: '05',
             id: 'purchases',
             title: t('training.category_purchases'),
             desc: t('training.category_purchases_desc'),
@@ -236,6 +291,14 @@ export default function TrainingPage() {
                     difficulty: 'Beginner',
                     desc: t('training.video_add_supplier_desc'),
                     points: [t('training.kp_supplier_1'), t('training.kp_supplier_2'), t('training.kp_supplier_3')],
+                },
+                {
+                    title: t('training.video_supplier_360'),
+                    duration: '4:30',
+                    youtubeId: vid(1),
+                    difficulty: 'Intermediate',
+                    desc: t('training.video_supplier_360_desc'),
+                    points: [t('training.kp_supplier360_1'), t('training.kp_supplier360_2'), t('training.kp_supplier360_3')],
                 },
                 {
                     title: t('training.video_purchase_order'),
@@ -265,7 +328,7 @@ export default function TrainingPage() {
         },
         // ── 05: Daily POS Operations ─────────────────────────────────
         {
-            num: '05',
+            num: '06',
             id: 'pos-operations',
             title: t('training.category_pos_operations'),
             desc: t('training.category_pos_operations_desc'),
@@ -329,7 +392,7 @@ export default function TrainingPage() {
         },
         // ── 06: Customer Management ──────────────────────────────────
         {
-            num: '06',
+            num: '07',
             id: 'customers',
             title: t('training.category_customers'),
             desc: t('training.category_customers_desc'),
@@ -348,6 +411,14 @@ export default function TrainingPage() {
                     difficulty: 'Beginner',
                     desc: t('training.video_customer_profiles_desc'),
                     points: [t('training.kp_custprofile_1'), t('training.kp_custprofile_2'), t('training.kp_custprofile_3')],
+                },
+                {
+                    title: t('training.video_crm_dashboard'),
+                    duration: '4:45',
+                    youtubeId: vid(0),
+                    difficulty: 'Intermediate',
+                    desc: t('training.video_crm_dashboard_desc'),
+                    points: [t('training.kp_crm_1'), t('training.kp_crm_2'), t('training.kp_crm_3')],
                 },
                 {
                     title: t('training.video_customer_dues'),
@@ -377,7 +448,7 @@ export default function TrainingPage() {
         },
         // ── 07: Expenses & Accounting ────────────────────────────────
         {
-            num: '07',
+            num: '08',
             id: 'expenses-accounting',
             title: t('training.category_expenses_accounting'),
             desc: t('training.category_expenses_accounting_desc'),
@@ -425,7 +496,7 @@ export default function TrainingPage() {
         },
         // ── 08: Reports & Analytics ──────────────────────────────────
         {
-            num: '08',
+            num: '09',
             id: 'reports',
             title: t('training.category_reports'),
             desc: t('training.category_reports_desc'),
@@ -481,7 +552,7 @@ export default function TrainingPage() {
         },
         // ── 09: Multi-Store Management ───────────────────────────────
         {
-            num: '09',
+            num: '10',
             id: 'multi-store',
             title: t('training.category_multi_store'),
             desc: t('training.category_multi_store_desc'),
@@ -521,7 +592,7 @@ export default function TrainingPage() {
         },
         // ── 10: Online Store ─────────────────────────────────────────
         {
-            num: '10',
+            num: '11',
             id: 'online-store',
             title: t('training.category_online_store'),
             desc: t('training.category_online_store_desc'),
@@ -556,6 +627,14 @@ export default function TrainingPage() {
                     difficulty: 'Beginner',
                     desc: t('training.video_online_sync_desc'),
                     points: [t('training.kp_onlinesync_1'), t('training.kp_onlinesync_2'), t('training.kp_onlinesync_3')],
+                },
+                {
+                    title: t('training.video_courier_setup'),
+                    duration: '4:30',
+                    youtubeId: vid(1),
+                    difficulty: 'Intermediate',
+                    desc: t('training.video_courier_setup_desc'),
+                    points: [t('training.kp_courier_1'), t('training.kp_courier_2'), t('training.kp_courier_3')],
                 },
                 {
                     title: t('training.video_online_orders'),
@@ -603,6 +682,7 @@ export default function TrainingPage() {
 
     const modulePreviews: Record<string, string> = {
         'getting-started': '/assets/LandingImage/updated/dashboard.webp',
+        'business-os': '/assets/LandingImage/updated/dashboard.webp',
         'store-config': '/assets/LandingImage/updated/store-list.webp',
         inventory: '/assets/LandingImage/updated/products.webp',
         purchases: '/assets/LandingImage/updated/purchase-create.webp',
