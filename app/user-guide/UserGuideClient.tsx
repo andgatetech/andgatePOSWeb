@@ -112,8 +112,9 @@ const copy: Record<
                 id: 'login',
                 title: '1. Login, Language, and Store Access',
                 intro: 'Start here before training staff. Correct store access prevents wrong sales, wrong stock, and wrong reports.',
-                image: screenshots.mobile,
-                imageAlt: 'AndgatePOS mobile dashboard',
+                image: screenshots.dashboard,
+                imageAlt: 'AndgatePOS dashboard after login',
+                gallery: [{ title: 'Mobile view', image: screenshots.mobile, imageAlt: 'AndgatePOS mobile dashboard' }],
                 steps: [
                     'Open AndgatePOS in Chrome or your preferred browser.',
                     'Enter mobile/email and password, then sign in.',
@@ -328,8 +329,9 @@ const copy: Record<
                 id: 'login',
                 title: '১. লগইন, ভাষা এবং দোকানের অ্যাক্সেস',
                 intro: 'স্টাফ ট্রেনিংয়ের আগে এখান থেকে শুরু করুন। সঠিক দোকান অ্যাক্সেস না হলে বিক্রয়, স্টক এবং রিপোর্ট ভুল হতে পারে।',
-                image: screenshots.mobile,
-                imageAlt: 'AndgatePOS মোবাইল ড্যাশবোর্ড',
+                image: screenshots.dashboard,
+                imageAlt: 'লগইনের পর AndgatePOS ড্যাশবোর্ড',
+                gallery: [{ title: 'মোবাইল ভিউ', image: screenshots.mobile, imageAlt: 'AndgatePOS মোবাইল ড্যাশবোর্ড' }],
                 steps: [
                     'Chrome বা পছন্দের ব্রাউজারে AndgatePOS খুলুন।',
                     'মোবাইল/ইমেইল ও পাসওয়ার্ড দিয়ে সাইন ইন করুন।',
@@ -500,6 +502,7 @@ const copy: Record<
 
 export default function UserGuideClient() {
     const [lang, setLang] = useState<Lang>('en');
+    const [zoomImage, setZoomImage] = useState<{ src: string; alt: string; title?: string } | null>(null);
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
@@ -587,7 +590,16 @@ export default function UserGuideClient() {
                             <p className="no-print mt-3 text-sm text-sky-100">{guide.printHelp}</p>
                         </div>
                         <div className="print-shadow overflow-hidden rounded-2xl border border-white/15 bg-white/10 p-3 shadow-2xl backdrop-blur">
-                            <Image src={screenshots.pos} alt="AndgatePOS POS screenshot" width={980} height={620} className="rounded-xl bg-white object-cover" priority />
+                            <ZoomableImage
+                                src={screenshots.pos}
+                                alt="AndgatePOS POS screenshot"
+                                width={980}
+                                height={620}
+                                className="rounded-xl bg-white object-cover"
+                                priority
+                                zoomText={lang === 'bn' ? 'বড় করে দেখুন' : 'Zoom'}
+                                onZoom={(image) => setZoomImage(image)}
+                            />
                         </div>
                     </div>
                 </section>
@@ -642,7 +654,15 @@ export default function UserGuideClient() {
                                         </li>
                                     ))}
                                 </ol>
-                                <Image src={screenshots.pos} alt="POS quick sale screenshot" width={720} height={460} className="rounded-xl border border-slate-200 bg-white object-cover" />
+                                <ZoomableImage
+                                    src={screenshots.pos}
+                                    alt="POS quick sale screenshot"
+                                    width={720}
+                                    height={460}
+                                    className="rounded-xl border border-slate-200 bg-white object-cover"
+                                    zoomText={lang === 'bn' ? 'বড় করে দেখুন' : 'Zoom'}
+                                    onZoom={(image) => setZoomImage(image)}
+                                />
                             </div>
                         </section>
 
@@ -695,13 +715,33 @@ export default function UserGuideClient() {
                                             </div>
                                         )}
                                     </div>
-                                    {section.image && <Image src={section.image} alt={section.imageAlt ?? section.title} width={720} height={460} className="rounded-xl border border-slate-200 bg-white object-cover" />}
+                                    {section.image && (
+                                        <ZoomableImage
+                                            src={section.image}
+                                            alt={section.imageAlt ?? section.title}
+                                            title={section.title}
+                                            width={720}
+                                            height={460}
+                                            className="rounded-xl border border-slate-200 bg-white object-cover object-top"
+                                            zoomText={lang === 'bn' ? 'বড় করে দেখুন' : 'Zoom'}
+                                            onZoom={(image) => setZoomImage(image)}
+                                        />
+                                    )}
                                 </div>
                                 {section.gallery && (
                                     <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                                         {section.gallery.map((shot) => (
                                             <figure key={shot.image} className="overflow-hidden rounded-xl border border-slate-200 bg-white">
-                                                <Image src={shot.image} alt={shot.imageAlt} width={720} height={460} className="h-44 w-full object-cover object-top" />
+                                                <ZoomableImage
+                                                    src={shot.image}
+                                                    alt={shot.imageAlt}
+                                                    title={shot.title}
+                                                    width={720}
+                                                    height={460}
+                                                    className="h-44 w-full object-cover object-top"
+                                                    zoomText={lang === 'bn' ? 'বড় করে দেখুন' : 'Zoom'}
+                                                    onZoom={(image) => setZoomImage(image)}
+                                                />
                                                 <figcaption className="border-t border-slate-200 px-3 py-2 text-sm font-bold text-slate-700">{shot.title}</figcaption>
                                             </figure>
                                         ))}
@@ -753,8 +793,72 @@ export default function UserGuideClient() {
                         </div>
                     </main>
                 </section>
+                {zoomImage && (
+                    <div
+                        className="no-print fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/85 p-3 backdrop-blur-sm"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label={zoomImage.title ?? zoomImage.alt}
+                        onClick={() => setZoomImage(null)}
+                    >
+                        <div className="max-h-[94vh] w-full max-w-7xl overflow-hidden rounded-2xl bg-white shadow-2xl" onClick={(event) => event.stopPropagation()}>
+                            <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-3">
+                                <div>
+                                    {zoomImage.title && <h3 className="font-black text-slate-900">{zoomImage.title}</h3>}
+                                    <p className="text-sm text-slate-500">{zoomImage.alt}</p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setZoomImage(null)}
+                                    className="rounded-full border border-slate-200 px-4 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50"
+                                >
+                                    {lang === 'bn' ? 'বন্ধ করুন' : 'Close'}
+                                </button>
+                            </div>
+                            <div className="max-h-[82vh] overflow-auto bg-slate-100 p-3">
+                                <Image src={zoomImage.src} alt={zoomImage.alt} width={1440} height={1100} className="mx-auto h-auto w-full max-w-none rounded-lg bg-white object-contain" />
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </MainLayout>
+    );
+}
+
+function ZoomableImage({
+    src,
+    alt,
+    title,
+    width,
+    height,
+    className,
+    priority,
+    zoomText,
+    onZoom,
+}: {
+    src: string;
+    alt: string;
+    title?: string;
+    width: number;
+    height: number;
+    className?: string;
+    priority?: boolean;
+    zoomText: string;
+    onZoom: (image: { src: string; alt: string; title?: string }) => void;
+}) {
+    return (
+        <button
+            type="button"
+            className="group relative block w-full overflow-hidden rounded-xl text-left focus:outline-none focus:ring-2 focus:ring-[#046ca9] focus:ring-offset-2"
+            onClick={() => onZoom({ src, alt, title })}
+            aria-label={`Open larger screenshot: ${title ?? alt}`}
+        >
+            <Image src={src} alt={alt} width={width} height={height} className={className} priority={priority} />
+            <span className="absolute bottom-3 right-3 rounded-full bg-slate-950/80 px-3 py-1.5 text-xs font-black text-white opacity-90 shadow-lg transition group-hover:bg-[#046ca9]">
+                {zoomText}
+            </span>
+        </button>
     );
 }
 

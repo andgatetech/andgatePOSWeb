@@ -26,7 +26,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
     const menuItems = [
         { label: t('layout.nav.home'), href: '/' },
         { label: t('layout.nav.pricing'), href: '/pricing' },
-        { label: t('layout.nav.compare'), href: '/promotion/comparison' },
+        { label: t('layout.nav.compare'), href: '/compare' },
         { label: t('layout.nav.about'), href: '/about' },
         { label: t('layout.nav.contact'), href: '/contact' },
     ];

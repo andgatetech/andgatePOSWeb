@@ -1,7 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import Navbar from '../components/navbar';
-import PromoFooter from '../components/promo-footer';
+import MainLayout from '@/components/layouts/MainLayout';
 
 export const metadata: Metadata = {
     title: 'AndgatePOS Comparison — POS & Business OS Bangladesh',
@@ -133,10 +132,8 @@ export default function ComparisonPage() {
     ];
 
     return (
-        <div className="flex min-h-screen flex-col bg-white">
-            <Navbar />
-
-            <main className="flex-1 pt-16">
+        <MainLayout>
+            <main className="pt-16">
                 <section className="relative overflow-hidden bg-[#f6f9fc]">
                     <div className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-[#046ca9] via-[#0586cb] to-[#e79237]" />
                     <div className="absolute inset-x-0 bottom-0 h-24 bg-white" />
@@ -242,8 +239,6 @@ export default function ComparisonPage() {
                     </div>
                 </section>
             </main>
-
-            <PromoFooter />
-        </div>
+        </MainLayout>
     );
 }
