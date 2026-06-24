@@ -10,7 +10,6 @@ import { Plus, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
 import CustomersTable from '../components/CustomersTable';
-import ViewCustomerModal from '../components/ViewCustomerModal';
 
 const CustomersPage = () => {
     const { t } = getTranslation();
@@ -22,8 +21,6 @@ const CustomersPage = () => {
     const [itemsPerPage, setItemsPerPage] = useState(15);
     const [sortField, setSortField] = useState('name');
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
-    const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
 
     // Build query params
     const queryParams = useMemo(() => {
@@ -66,10 +63,12 @@ const CustomersPage = () => {
         [sortField]
     );
 
-    const handleViewDetails = useCallback((customer: any) => {
-        setSelectedCustomer(customer);
-        setIsModalOpen(true);
-    }, []);
+    const handleViewDetails = useCallback(
+        (customer: any) => {
+            router.push(`/customers/${customer.id}`);
+        },
+        [router]
+    );
 
     const handleEdit = useCallback(
         (customer: any) => {
@@ -91,7 +90,7 @@ const CustomersPage = () => {
                 }
             }
         },
-        [deleteCustomer]
+        [deleteCustomer, t]
     );
 
     const handleAddNew = () => {
@@ -150,9 +149,6 @@ const CustomersPage = () => {
                     onEdit={handleEdit}
                     onDelete={handleDelete}
                 />
-
-            {/* View Customer Modal */}
-            <ViewCustomerModal customer={selectedCustomer} isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
         </div>
     );
 };

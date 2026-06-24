@@ -265,6 +265,11 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         requiredPermissions: ['customers.index'],
         subMenu: [
             {
+                label: 'CRM Dashboard',
+                href: '/customers/crm',
+                requiredPermissions: ['customers.index'],
+            },
+            {
                 label: 'Add Customer',
                 href: '/customers/create',
                 requiredPermissions: ['customers.create'],

@@ -192,6 +192,7 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
 
     // ── Customers ──────────────────────────────────────────────
     '/customers': ['customers.index'],
+    '/customers/crm': ['customers.index'],
     '/customers/list': ['customers.index'],
     '/customers/create': ['customers.create'],
     '/customers/edit': ['customers.edit'],
