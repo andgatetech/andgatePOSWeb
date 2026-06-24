@@ -662,7 +662,14 @@ export default function TrainingPage() {
             title: t('training.resource_manual'),
             desc: t('training.resource_manual_desc'),
             action: t('training.resource_manual_action'),
-            href: '/resources/andgatePOS-user-manual.pdf',
+            href: '/resources/andgatepos-user-guide-en.md',
+        },
+        {
+            icon: <BookOpen className="h-9 w-9" />,
+            title: t('training.resource_manual_bn'),
+            desc: t('training.resource_manual_bn_desc'),
+            action: t('training.resource_manual_bn_action'),
+            href: '/resources/andgatepos-user-guide-bn.md',
         },
         {
             icon: <Lightbulb className="h-9 w-9" />,
