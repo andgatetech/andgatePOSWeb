@@ -36,6 +36,7 @@ const vid = (_i: number) => PLACEHOLDER_VID;
 export default function TrainingPage() {
     const { t } = getTranslation();
     const [playing, setPlaying] = useState<string | null>(null);
+    const [activeModuleId, setActiveModuleId] = useState('getting-started');
 
     // ── Curriculum data — full business journey ──────────────────────
     const modules = [
@@ -648,6 +649,13 @@ export default function TrainingPage() {
         },
     ];
 
+    const activeModule = modules.find((mod) => mod.id === activeModuleId) ?? modules[0];
+    const activeModuleIndex = modules.findIndex((mod) => mod.id === activeModule.id);
+    const activeModuleTotalMins = activeModule.lessons.reduce((s, l) => {
+        const [m, sec] = l.duration.split(':').map(Number);
+        return s + m + Math.ceil(sec / 60);
+    }, 0);
+
     const diffConfig: Record<string, { bg: string; text: string; label: string }> = {
         Beginner:     { bg: 'bg-emerald-100', text: 'text-emerald-700', label: t('training.difficulty.beginner') },
         Intermediate: { bg: 'bg-amber-100',   text: 'text-amber-700',   label: t('training.difficulty.intermediate') },
@@ -741,21 +749,43 @@ export default function TrainingPage() {
             </section>
 
             {/* ── Curriculum Overview ── */}
-            <section className="bg-gray-50 py-20">
+            <section className="bg-gray-50 py-14 sm:py-16">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <div className="mb-12 text-center">
+                    <div className="mb-8 text-center">
                         <h2 className="mb-3 text-3xl font-black text-gray-900 sm:text-4xl">{t('training.curriculum_title')}</h2>
                         <p className="mx-auto max-w-2xl text-base text-gray-500">{t('training.curriculum_subtitle')}</p>
                     </div>
 
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                        {modules.map((mod, i) => (
-                            <a
+                    <div className="mb-6 overflow-x-auto pb-2">
+                        <div className="flex min-w-max gap-2">
+                            {modules.map((mod) => (
+                                <button
+                                    key={mod.id}
+                                    type="button"
+                                    onClick={() => {
+                                        setActiveModuleId(mod.id);
+                                        setPlaying(null);
+                                    }}
+                                    className={`rounded-full border px-4 py-2 text-sm font-bold transition ${activeModule.id === mod.id ? `${mod.accentBorder} ${mod.accentLight} ${mod.accentText}` : 'border-gray-200 bg-white text-gray-500 hover:border-[#046ca9]/20 hover:text-[#046ca9]'}`}
+                                >
+                                    {mod.num}. {mod.title}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                        {modules.map((mod) => (
+                            <button
                                 key={mod.id}
-                                href={`#${mod.id}`}
-                                className="group relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg"
+                                type="button"
+                                onClick={() => {
+                                    setActiveModuleId(mod.id);
+                                    setPlaying(null);
+                                }}
+                                className={`group relative overflow-hidden rounded-2xl border bg-white p-4 text-left shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg ${activeModule.id === mod.id ? `${mod.accentBorder} ring-2 ring-[#046ca9]/10` : 'border-gray-100'}`}
                             >
-                                <div className="relative mb-4 aspect-[16/10] overflow-hidden rounded-xl border border-gray-100 bg-gray-50">
+                                <div className="relative mb-3 aspect-[16/9] overflow-hidden rounded-xl border border-gray-100 bg-gray-50">
                                     <Image
                                         src={modulePreviews[mod.id]}
                                         alt={mod.title}
@@ -769,218 +799,176 @@ export default function TrainingPage() {
                                         {t('training.start_here')}
                                     </div>
                                 )}
-                                <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${mod.gradient} text-white shadow-sm`}>
-                                    {mod.icon}
+                                <div className="flex items-start gap-3">
+                                    <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${mod.gradient} text-white shadow-sm`}>
+                                        {mod.icon}
+                                    </div>
+                                    <div>
+                                        <div className="mb-1 flex items-center gap-2">
+                                            <span className={`text-xs font-black uppercase tracking-wide ${mod.accentText}`}>{t('training.module_label')} {mod.num}</span>
+                                            {activeModule.id === mod.id && <span className="rounded-full bg-[#046ca9] px-2 py-0.5 text-[10px] font-black text-white">{t('training.selected_module')}</span>}
+                                        </div>
+                                        <h3 className="text-sm font-bold leading-tight text-gray-900">{mod.title}</h3>
+                                        <p className="mt-1 text-xs leading-5 text-gray-500">{mod.lessons.length} {t('training.stat_video_tutorials')}</p>
+                                    </div>
                                 </div>
-                                <div className="mb-1 flex items-baseline gap-2">
-                                    <span className="text-3xl font-black text-gray-100">{mod.num}</span>
-                                    <span className={`text-xs font-black uppercase tracking-wide ${mod.accentText}`}>{t('training.module_label')}</span>
-                                </div>
-                                <h3 className="mb-1 text-sm font-bold text-gray-900 leading-tight">{mod.title}</h3>
-                                <p className="text-xs text-gray-400">{mod.lessons.length} {t('training.stat_video_tutorials')}</p>
                                 <div className={`absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r ${mod.gradient} opacity-0 transition-opacity group-hover:opacity-100`} />
-                            </a>
-                        ))}
-                    </div>
-
-                    {/* Path arrows */}
-                    <div className="mt-8 flex items-center justify-center gap-2 text-sm text-gray-400">
-                        {modules.map((mod, i) => (
-                            <span key={mod.id} className="flex items-center gap-2">
-                                <span className={`font-bold ${mod.accentText}`}>{mod.num}</span>
-                                {i < modules.length - 1 && <ArrowRight className="h-3.5 w-3.5 text-gray-300" />}
-                            </span>
+                            </button>
                         ))}
                     </div>
                 </div>
             </section>
 
-            {/* ── Module Sections ── */}
-            {modules.map((mod) => {
-                const totalMins = mod.lessons.reduce((s, l) => {
-                    const [m, sec] = l.duration.split(':').map(Number);
-                    return s + m + Math.ceil(sec / 60);
-                }, 0);
-
-                return (
-                    <section key={mod.id} id={mod.id} className="border-t border-gray-100 bg-white py-20">
-                        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-
-                            {/* Module header */}
-                            <div className="mb-12 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-                                <div className="flex items-center gap-5">
-                                    <div className="relative flex-shrink-0">
-                                        <div className="text-7xl font-black leading-none text-gray-100">{mod.num}</div>
-                                        <div className={`absolute -bottom-1 -right-1 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${mod.gradient} text-white shadow-md`}>
-                                            {mod.icon}
-                                        </div>
-                                    </div>
-                                    <div>
-                                        {mod.isStartHere && (
-                                            <span className="mb-1.5 inline-block rounded-full bg-[#e79237] px-3 py-0.5 text-[11px] font-black uppercase tracking-wide text-white">
-                                                {t('training.start_here')}
-                                            </span>
-                                        )}
-                                        <h2 className="text-2xl font-black text-gray-900 sm:text-3xl">{mod.title}</h2>
-                                        <p className="mt-1 text-sm text-gray-500">{mod.desc}</p>
-                                    </div>
-                                </div>
-                                <div className={`flex flex-shrink-0 items-center gap-3 rounded-2xl border ${mod.accentBorder} ${mod.accentLight} px-5 py-3`}>
-                                    <div className="text-center">
-                                        <div className={`text-2xl font-black ${mod.accentText}`}>{mod.lessons.length}</div>
-                                        <div className="text-xs text-gray-500">{t('training.stat_video_tutorials')}</div>
-                                    </div>
-                                    <div className="h-8 w-px bg-gray-200" />
-                                    <div className="text-center">
-                                        <div className={`text-2xl font-black ${mod.accentText}`}>{totalMins}</div>
-                                        <div className="text-xs text-gray-500">{t('training.min_total')}</div>
-                                    </div>
+            {/* ── Selected Module ── */}
+            <section className="border-t border-gray-100 bg-white py-14 sm:py-16">
+                <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+                    <div className="mb-8 flex flex-col gap-5 rounded-2xl border border-gray-100 bg-gray-50 p-5 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex items-center gap-4">
+                            <div className="relative flex-shrink-0">
+                                <div className="text-5xl font-black leading-none text-white">{activeModule.num}</div>
+                                <div className={`absolute -bottom-1 -right-1 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${activeModule.gradient} text-white shadow-md`}>
+                                    {activeModule.icon}
                                 </div>
                             </div>
-
-                            {/* Lessons */}
-                            <div className="space-y-0">
-                                {mod.lessons.map((lesson, li) => {
-                                    const key = `${mod.id}-${li}`;
-                                    const isPlaying = playing === key;
-                                    const diff = diffConfig[lesson.difficulty] ?? diffConfig.Beginner;
-                                    const thumbnail = `https://img.youtube.com/vi/${lesson.youtubeId}/hqdefault.jpg`;
-
-                                    return (
-                                        <div key={key}>
-                                            {/* Lesson card */}
-                                            <div className={`group relative overflow-hidden rounded-2xl border ${isPlaying ? mod.accentBorder : 'border-gray-100'} bg-white shadow-sm transition-all hover:shadow-md`}>
-                                                {/* Lesson number stripe */}
-                                                <div className={`absolute inset-y-0 left-0 w-1 bg-gradient-to-b ${mod.gradient} opacity-0 transition-opacity group-hover:opacity-100 ${isPlaying ? 'opacity-100' : ''}`} />
-
-                                                <div className="flex flex-col gap-0 lg:flex-row">
-                                                    {/* Thumbnail */}
-                                                    <div className="relative w-full flex-shrink-0 overflow-hidden lg:w-72 xl:w-80">
-                                                        {isPlaying ? (
-                                                            <>
-                                                                <ReactPlayer
-                                                                    url={`https://www.youtube.com/watch?v=${lesson.youtubeId}`}
-                                                                    playing
-                                                                    controls
-                                                                    width="100%"
-                                                                    height="204px"
-                                                                />
-                                                                <button
-                                                                    className="absolute right-2 top-2 rounded-full bg-black/60 p-1.5 text-white hover:bg-black/80"
-                                                                    onClick={() => setPlaying(null)}
-                                                                >
-                                                                    <X className="h-3.5 w-3.5" />
-                                                                </button>
-                                                            </>
-                                                        ) : (
-                                                            <div
-                                                                className="relative cursor-pointer"
-                                                                onClick={() => setPlaying(key)}
-                                                            >
-                                                                <Image
-                                                                    src={thumbnail}
-                                                                    alt={lesson.title}
-                                                                    width={320}
-                                                                    height={204}
-                                                                    className="h-44 w-full object-cover transition-transform duration-500 group-hover:scale-105 lg:h-full lg:min-h-[12rem]"
-                                                                />
-                                                                {/* Dark overlay + play */}
-                                                                <div className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 transition-opacity group-hover:opacity-100">
-                                                                    <div className={`flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br ${mod.gradient} shadow-xl`}>
-                                                                        <Play className="h-5 w-5 fill-white text-white" />
-                                                                    </div>
-                                                                </div>
-                                                                {/* Duration badge */}
-                                                                <div className="absolute bottom-2.5 right-2.5 rounded-md bg-black/75 px-2 py-0.5 text-xs font-semibold text-white">
-                                                                    {lesson.duration}
-                                                                </div>
-                                                            </div>
-                                                        )}
-                                                    </div>
-
-                                                    {/* Content */}
-                                                    <div className="flex flex-1 flex-col justify-between gap-4 p-6">
-                                                        <div>
-                                                            {/* Lesson number + title */}
-                                                            <div className="mb-3 flex items-center gap-3">
-                                                                <div className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${mod.gradient} text-xs font-black text-white shadow-sm`}>
-                                                                    {li + 1}
-                                                                </div>
-                                                                <span className={`text-xs font-bold uppercase tracking-widest ${mod.accentText}`}>
-                                                                    {t('training.lesson_label')} {li + 1}
-                                                                </span>
-                                                            </div>
-                                                            <h3 className="mb-1.5 text-lg font-bold text-gray-900">{lesson.title}</h3>
-                                                            <p className="mb-4 text-sm leading-relaxed text-gray-500">{lesson.desc}</p>
-
-                                                            {/* Key takeaways */}
-                                                            <div>
-                                                                <p className="mb-2 text-xs font-bold uppercase tracking-wide text-gray-400">{t('training.key_takeaways')}</p>
-                                                                <ul className="space-y-1.5">
-                                                                    {lesson.points.map((pt, pi) => (
-                                                                        <li key={pi} className="flex items-start gap-2">
-                                                                            <CheckCircle className={`mt-0.5 h-3.5 w-3.5 flex-shrink-0 ${mod.accentText}`} />
-                                                                            <span className="text-sm text-gray-600">{pt}</span>
-                                                                        </li>
-                                                                    ))}
-                                                                </ul>
-                                                            </div>
-                                                        </div>
-
-                                                        {/* Footer: difficulty + watch button */}
-                                                        <div className="flex items-center justify-between">
-                                                            <div className="flex items-center gap-2">
-                                                                <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${diff.bg} ${diff.text}`}>
-                                                                    {diff.label}
-                                                                </span>
-                                                                <span className="text-xs text-gray-400">{lesson.duration}</span>
-                                                            </div>
-                                                            <button
-                                                                onClick={() => setPlaying(isPlaying ? null : key)}
-                                                                className={`inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-bold text-white shadow-sm transition-all hover:brightness-105 active:scale-95 bg-gradient-to-r ${mod.gradient}`}
-                                                            >
-                                                                <Play className="h-3.5 w-3.5 fill-white" />
-                                                                {t('training.watch_lesson')}
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {/* Connector between lessons */}
-                                            {li < mod.lessons.length - 1 && (
-                                                <div className="flex items-center gap-3 py-3 pl-8">
-                                                    <div className={`h-6 w-px border-l-2 border-dashed border-gray-200`} />
-                                                    <span className="text-xs text-gray-300">{t('training.lesson_label')} {li + 2}</span>
-                                                </div>
-                                            )}
-                                        </div>
-                                    );
-                                })}
-                            </div>
-
-                            {/* Next module CTA */}
-                            <div className="mt-10 flex items-center justify-between rounded-2xl border border-gray-100 bg-gray-50 px-6 py-4">
-                                <div className="flex items-center gap-3">
-                                    <RotateCcw className="h-4 w-4 text-gray-400" />
-                                    <span className="text-sm font-semibold text-gray-600">
-                                        {mod.num} / {modules.length} — {mod.title}
+                            <div>
+                                {activeModule.isStartHere && (
+                                    <span className="mb-1.5 inline-block rounded-full bg-[#e79237] px-3 py-0.5 text-[11px] font-black uppercase tracking-wide text-white">
+                                        {t('training.start_here')}
                                     </span>
-                                </div>
-                                {mod.num !== modules[modules.length - 1].num && (
-                                    <a
-                                        href={`#${modules[parseInt(mod.num, 10)]?.id}`}
-                                        className={`inline-flex items-center gap-2 rounded-xl bg-gradient-to-r ${mod.gradient} px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:brightness-105`}
-                                    >
-                                        {t('training.module_label')} {String(parseInt(mod.num, 10) + 1).padStart(2, '0')}
-                                        <ArrowRight className="h-4 w-4" />
-                                    </a>
                                 )}
+                                <h2 className="text-2xl font-black text-gray-900 sm:text-3xl">{activeModule.title}</h2>
+                                <p className="mt-1 text-sm leading-6 text-gray-500">{activeModule.desc}</p>
                             </div>
                         </div>
-                    </section>
-                );
-            })}
+                        <div className={`flex flex-shrink-0 items-center gap-3 rounded-2xl border ${activeModule.accentBorder} ${activeModule.accentLight} px-5 py-3`}>
+                            <div className="text-center">
+                                <div className={`text-2xl font-black ${activeModule.accentText}`}>{activeModule.lessons.length}</div>
+                                <div className="text-xs text-gray-500">{t('training.stat_video_tutorials')}</div>
+                            </div>
+                            <div className="h-8 w-px bg-gray-200" />
+                            <div className="text-center">
+                                <div className={`text-2xl font-black ${activeModule.accentText}`}>{activeModuleTotalMins}</div>
+                                <div className="text-xs text-gray-500">{t('training.min_total')}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="grid gap-4 lg:grid-cols-2">
+                        {activeModule.lessons.map((lesson, li) => {
+                            const key = `${activeModule.id}-${li}`;
+                            const isPlaying = playing === key;
+                            const diff = diffConfig[lesson.difficulty] ?? diffConfig.Beginner;
+                            const thumbnail = `https://img.youtube.com/vi/${lesson.youtubeId}/hqdefault.jpg`;
+
+                            return (
+                                <article key={key} className={`group overflow-hidden rounded-2xl border ${isPlaying ? activeModule.accentBorder : 'border-gray-100'} bg-white shadow-sm transition-all hover:shadow-md`}>
+                                    <div className="relative">
+                                        {isPlaying ? (
+                                            <>
+                                                <ReactPlayer
+                                                    url={`https://www.youtube.com/watch?v=${lesson.youtubeId}`}
+                                                    playing
+                                                    controls
+                                                    width="100%"
+                                                    height="220px"
+                                                />
+                                                <button
+                                                    className="absolute right-2 top-2 rounded-full bg-black/60 p-1.5 text-white hover:bg-black/80"
+                                                    onClick={() => setPlaying(null)}
+                                                >
+                                                    <X className="h-3.5 w-3.5" />
+                                                </button>
+                                            </>
+                                        ) : (
+                                            <button type="button" className="relative block w-full text-left" onClick={() => setPlaying(key)}>
+                                                <Image src={thumbnail} alt={lesson.title} width={640} height={360} className="h-44 w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                                                <div className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 transition-opacity group-hover:opacity-100">
+                                                    <div className={`flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br ${activeModule.gradient} shadow-xl`}>
+                                                        <Play className="h-5 w-5 fill-white text-white" />
+                                                    </div>
+                                                </div>
+                                                <div className="absolute bottom-2.5 right-2.5 rounded-md bg-black/75 px-2 py-0.5 text-xs font-semibold text-white">
+                                                    {lesson.duration}
+                                                </div>
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    <div className="p-5">
+                                        <div className="mb-3 flex items-center justify-between gap-3">
+                                            <div className="flex items-center gap-2">
+                                                <div className={`flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br ${activeModule.gradient} text-xs font-black text-white shadow-sm`}>
+                                                    {li + 1}
+                                                </div>
+                                                <span className={`text-xs font-bold uppercase tracking-widest ${activeModule.accentText}`}>
+                                                    {t('training.lesson_label')} {li + 1}
+                                                </span>
+                                            </div>
+                                            <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${diff.bg} ${diff.text}`}>
+                                                {diff.label}
+                                            </span>
+                                        </div>
+                                        <h3 className="text-lg font-bold text-gray-900">{lesson.title}</h3>
+                                        <p className="mt-2 text-sm leading-6 text-gray-500">{lesson.desc}</p>
+                                        <ul className="mt-4 space-y-2">
+                                            {lesson.points.map((pt, pi) => (
+                                                <li key={pi} className="flex items-start gap-2">
+                                                    <CheckCircle className={`mt-0.5 h-3.5 w-3.5 flex-shrink-0 ${activeModule.accentText}`} />
+                                                    <span className="text-sm leading-6 text-gray-600">{pt}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                        <button
+                                            type="button"
+                                            onClick={() => setPlaying(isPlaying ? null : key)}
+                                            className={`mt-5 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r ${activeModule.gradient} px-4 py-2 text-sm font-bold text-white shadow-sm transition-all hover:brightness-105 active:scale-95`}
+                                        >
+                                            <Play className="h-3.5 w-3.5 fill-white" />
+                                            {t('training.watch_lesson')}
+                                        </button>
+                                    </div>
+                                </article>
+                            );
+                        })}
+                    </div>
+
+                    <div className="mt-8 flex flex-col gap-3 rounded-2xl border border-gray-100 bg-gray-50 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex items-center gap-3">
+                            <RotateCcw className="h-4 w-4 text-gray-400" />
+                            <span className="text-sm font-semibold text-gray-600">
+                                {activeModule.num} / {modules.length} — {activeModule.title}
+                            </span>
+                        </div>
+                        <div className="flex gap-2">
+                            {activeModuleIndex > 0 && (
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setActiveModuleId(modules[activeModuleIndex - 1].id);
+                                        setPlaying(null);
+                                    }}
+                                    className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-bold text-gray-600 transition hover:text-[#046ca9]"
+                                >
+                                    {t('training.previous_module')}
+                                </button>
+                            )}
+                            {activeModuleIndex < modules.length - 1 && (
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setActiveModuleId(modules[activeModuleIndex + 1].id);
+                                        setPlaying(null);
+                                    }}
+                                    className={`inline-flex items-center gap-2 rounded-xl bg-gradient-to-r ${activeModule.gradient} px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:brightness-105`}
+                                >
+                                    {t('training.next_module')}
+                                    <ArrowRight className="h-4 w-4" />
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </section>
 
             {/* ── Resources ── */}
             <section className="relative overflow-hidden bg-gradient-to-br from-[#046ca9] via-[#035887] to-[#034d79] py-24">

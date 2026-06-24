@@ -11,6 +11,111 @@ Use this guide as a full workflow manual. Screenshots use existing product image
 
 ![Dashboard](/assets/LandingImage/updated/dashboard.webp)
 
+## How to Learn AndgatePOS Step by Step
+
+If you are not technical, do not try to learn every module on day one. Follow this order.
+
+Day 1: Learn only login, dashboard, store switcher, POS sale, and invoice print.  
+Day 2: Add products, categories, brands, stock, and barcode labels.  
+Day 3: Learn customers, customer dues, suppliers, purchases, and supplier dues.  
+Day 4: Learn cash closing, petty cash, attendance, service jobs, and Business OS.  
+Day 5: Learn reports, profit/loss, tax, ecommerce, courier, and staff permissions.
+
+Every task in this guide follows this pattern:
+
+1. Go to the menu.
+2. Press the main button, usually `Add`, `Create`, `Save`, `Submit`, or `Approve`.
+3. Fill required fields first.
+4. Save.
+5. Check the list/report to confirm it worked.
+
+If you feel stuck, remember this rule: first create basic data, then use it in POS. Example: create category, create brand, create product, then sell product.
+
+## Non-Technical Quick Start: First Sale in 15 Minutes
+
+Follow these steps exactly.
+
+1. Login.
+2. Open `Store`.
+3. Confirm your store name, phone, address, and logo.
+4. Open `Category`.
+5. Create one category, for example `Grocery`.
+6. Open `Brand`.
+7. Create one brand, or create `No Brand` if brand does not matter.
+8. Open `Products`.
+9. Click `Add Product`.
+10. Enter product name, category, brand, unit, sale price, cost price, and opening stock.
+11. Save product.
+12. Open `POS`.
+13. Search the product name.
+14. Add product to cart.
+15. Choose payment method, for example `Cash`.
+16. Complete sale.
+17. Print or save invoice.
+18. Open `Orders` and confirm the sale appears.
+19. Open `Products` and confirm stock decreased.
+20. At day end, open `Cash Closing` and submit counted cash.
+
+This is the smallest complete AndgatePOS workflow.
+
+## Role-Based Learning Path
+
+Owner:
+
+1. Dashboard.
+2. Business OS.
+3. Reports.
+4. Cash closing approval.
+5. Petty cash approval.
+6. Supplier dues.
+7. Customer dues.
+8. Profit & Loss.
+
+Cashier:
+
+1. POS.
+2. Product search/barcode scan.
+3. Customer selection.
+4. Payment.
+5. Invoice print.
+6. Returns.
+7. Cash closing submit.
+
+Inventory/Purchase Staff:
+
+1. Products.
+2. Stock.
+3. Low stock.
+4. Suppliers.
+5. Purchase order.
+6. Receive goods.
+7. Stock adjustment.
+
+Accounts Staff:
+
+1. Expenses.
+2. Petty cash review.
+3. Cash book.
+4. Customer due.
+5. Supplier due.
+6. Profit & Loss.
+7. Tax/VAT.
+
+Ecommerce Staff:
+
+1. Ecommerce products.
+2. Product readiness.
+3. Online orders.
+4. Courier setup.
+5. Order delivery status.
+
+Service Staff:
+
+1. Service jobs.
+2. Create job.
+3. Update status.
+4. Mark delivered.
+
 ## 2. Login, Store Access, and Language
 
 1. Open `https://andgatepos.com/login`.
@@ -43,6 +148,46 @@ Complete these before regular sales:
 10. If using ecommerce, configure online store products and courier credentials.
 
 ![Store List](/assets/LandingImage/updated/store-list.webp)
+
+## 3.1 Step-by-Step Store Setup
+
+1. Open `Store`.
+2. Click your store name or `Settings`.
+3. Fill store name, address, phone, email, and business type.
+4. Upload logo if available.
+5. Choose currency as BDT/Taka if not already set.
+6. Save.
+7. Open invoice/receipt setting if available.
+8. Add footer note, for example `Thank you for shopping`.
+9. Save again.
+10. Make one test invoice after setup.
+
+If you have multiple branches:
+
+1. Open `Store`.
+2. Click `Add Store`.
+3. Add branch name and location.
+4. Assign staff to that branch.
+5. Check that branch appears in store switcher.
+
+## 3.2 Step-by-Step Staff and Permission Setup
+
+1. Open `Employees` or `Users`.
+2. Click `Add`.
+3. Enter staff name, phone/email, and password if required.
+4. Open `Roles`.
+5. Create role such as `Cashier`, `Manager`, `Inventory`, or `Accounts`.
+6. Tick only the modules that person needs.
+7. Save role.
+8. Assign role to staff.
+9. Ask staff to login once.
+10. Confirm they can see only allowed menus.
+
+Simple permission example:
+
+- Cashier: POS, Orders, Customers basic, Cash Closing submit.
+- Manager: POS, Products view, Reports, Cash Closing approve, Petty Cash approve.
+- Owner: all modules.
 
 ## 4. Dashboard
 
@@ -190,6 +335,41 @@ Path: `POS`
 
 ![POS Terminal](/assets/LandingImage/updated/pos.webp)
 
+### Step-by-Step: Make a Cash Sale
+
+1. Open `POS`.
+2. Click search box.
+3. Type product name or scan barcode.
+4. Click product.
+5. Check quantity.
+6. If customer pays by cash, choose `Cash`.
+7. Enter received amount if asked.
+8. Click `Pay`, `Complete`, or `Submit`.
+9. Print invoice or save invoice.
+10. Give receipt to customer.
+
+### Step-by-Step: Make a bKash/Nagad Sale
+
+1. Open `POS`.
+2. Add products to cart.
+3. Choose payment method `bKash` or `Nagad`.
+4. Enter transaction number/mobile number if your store records it.
+5. Confirm paid amount.
+6. Complete sale.
+7. Check order payment method in `Orders`.
+
+### Step-by-Step: Sell on Due
+
+1. Open `POS`.
+2. Add products.
+3. Select existing customer or create customer.
+4. Enter payment amount.
+5. Keep unpaid amount as due.
+6. Complete sale.
+7. Open customer profile and confirm due increased.
+
+Never sell on due without customer name/mobile. Otherwise owner cannot collect later.
+
 Main workflow:
 
 1. Search product by name or scan barcode.
@@ -249,6 +429,50 @@ Coupons:
 Product setup is the foundation of clean POS and stock.
 
 ![Product List](/assets/LandingImage/updated/products.webp)
+
+### Step-by-Step: Add One Product
+
+1. Open `Category`.
+2. Click `Add Category`.
+3. Enter category name.
+4. Save.
+5. Open `Brand`.
+6. Click `Add Brand`.
+7. Enter brand name, or use `No Brand`.
+8. Save.
+9. Open `Products`.
+10. Click `Add Product`.
+11. Enter product name.
+12. Select category.
+13. Select brand.
+14. Enter sale price.
+15. Enter cost price.
+16. Enter opening stock.
+17. Enter unit, for example `piece`.
+18. Add barcode if available.
+19. Save.
+20. Open `POS` and search the product to confirm it is sellable.
+
+### Step-by-Step: Add Product With Size or Color
+
+1. Open `Products`.
+2. Click `Add Product`.
+3. Enter main product name.
+4. Find variant/attribute section.
+5. Add size, color, or other option.
+6. Enter price and stock for each variant.
+7. Save.
+8. Test in POS: product should ask cashier to choose variant.
+
+### Step-by-Step: Print Barcode Label
+
+1. Open `Label` or product label page.
+2. Select product.
+3. Choose label size.
+4. Enter label quantity.
+5. Preview.
+6. Print.
+7. Scan printed barcode in POS to confirm it works.
 
 Recommended order:
 
@@ -332,6 +556,22 @@ Always write reason. This protects audit history.
 Path: `Purchases`
 
 ![Purchase Create](/assets/LandingImage/updated/purchase-create.webp)
+
+### Step-by-Step: Buy Stock From Supplier
+
+1. Open `Suppliers`.
+2. Add supplier if not already added.
+3. Open `Purchases`.
+4. Click `Add Purchase`.
+5. Select supplier.
+6. Add products.
+7. Enter quantity and purchase cost.
+8. Save purchase order.
+9. When goods arrive, open purchase receive.
+10. Enter received quantity.
+11. Save receive.
+12. Open product list and confirm stock increased.
+13. Open supplier due and confirm payable amount.
 
 Purchase order workflow:
 
@@ -452,6 +692,25 @@ Good practice:
 Path: `Reports`
 
 ![Sales Report](/assets/LandingImage/updated/sales-report.webp)
+
+### Step-by-Step: Check Today's Sales
+
+1. Open `Reports`.
+2. Open `Sales Report`.
+3. Choose today's date.
+4. Select store if needed.
+5. Click filter/search.
+6. Check total sale, payment breakdown, and items sold.
+7. Export if owner/accountant needs it.
+
+### Step-by-Step: Check Profit/Loss
+
+1. Open `Accounting` or `Reports`.
+2. Open `Profit & Loss`.
+3. Select date range.
+4. Click filter/search.
+5. Review sales, cost, expense, and net profit.
+6. Export PDF/Excel for accountant.
 
 Important reports:
 
@@ -675,4 +934,3 @@ For setup help, training, or data migration support:
 - Website: `https://andgatepos.com`
 - Contact page: `https://andgatepos.com/contact`
 - Support email/phone: use current contact details from the website footer.
-
