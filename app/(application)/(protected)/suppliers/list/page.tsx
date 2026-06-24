@@ -10,7 +10,6 @@ import { Plus, Truck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
 import SuppliersTable from '../components/SuppliersTable';
-import ViewSupplierModal from '../components/ViewSupplierModal';
 
 const SuppliersPage = () => {
     const { t } = getTranslation();
@@ -22,8 +21,6 @@ const SuppliersPage = () => {
     const [itemsPerPage, setItemsPerPage] = useState(15);
     const [sortField, setSortField] = useState('name');
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
-    const [selectedSupplier, setSelectedSupplier] = useState<any>(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
 
     // Build query params
     const queryParams = useMemo(() => {
@@ -66,10 +63,12 @@ const SuppliersPage = () => {
         [sortField]
     );
 
-    const handleViewDetails = useCallback((supplier: any) => {
-        setSelectedSupplier(supplier);
-        setIsModalOpen(true);
-    }, []);
+    const handleViewDetails = useCallback(
+        (supplier: any) => {
+            router.push(`/suppliers/${supplier.id}`);
+        },
+        [router]
+    );
 
     const handleEdit = useCallback(
         (supplier: any) => {
@@ -150,9 +149,6 @@ const SuppliersPage = () => {
                     onEdit={handleEdit}
                     onDelete={handleDelete}
                 />
-
-            {/* View Supplier Modal */}
-            <ViewSupplierModal supplier={selectedSupplier} isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
         </div>
     );
 };

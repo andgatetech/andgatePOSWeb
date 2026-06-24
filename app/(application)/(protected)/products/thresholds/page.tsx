@@ -206,11 +206,11 @@ export default function StockThresholdsPage() {
                         <tbody className="divide-y divide-gray-100">
                             {!currentStoreId ? (
                                 <tr>
-                                    <td colSpan={6} className="px-4 py-8 text-center text-gray-400">Please select a store first.</td>
+                                    <td colSpan={6} className="px-4 py-8 text-center text-gray-400">{t('msg_select_store_first')}</td>
                                 </tr>
                             ) : isError ? (
                                 <tr>
-                                    <td colSpan={6} className="px-4 py-8 text-center text-red-500">Could not load stock thresholds. Please refresh and try again.</td>
+                                    <td colSpan={6} className="px-4 py-8 text-center text-red-500">{t('msg_stock_alert_load_failed')}</td>
                                 </tr>
                             ) : isFetching && items.length === 0 ? (
                                 <tr>
@@ -219,7 +219,7 @@ export default function StockThresholdsPage() {
                             ) : items.length === 0 ? (
                                 <tr>
                                     <td colSpan={6} className="px-4 py-8 text-center text-gray-400">
-                                        {search ? t('msg_no_products_found') : 'No stock rows found for this store. Add products with stock first, then set low-stock thresholds here.'}
+                                        {search ? t('msg_no_products_found') : t('msg_no_stock_alert_rows')}
                                     </td>
                                 </tr>
                             ) : items.map((item, index) => {

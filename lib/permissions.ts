@@ -166,6 +166,7 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     '/purchases/receive': ['purchase-orders.edit'],
 
     // ── Suppliers ──────────────────────────────────────────────
+    '/suppliers': ['suppliers.index'],
     '/suppliers/create': ['suppliers.create'],
     '/suppliers/list': ['suppliers.index'],
     '/suppliers/edit': ['suppliers.edit'],

@@ -2,6 +2,7 @@
 
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { getTranslation } from '@/i18n';
 import { buildWhatsAppUrl, CrmTask, getCrmTasks, updateCrmTaskStatus, whatsappTemplates } from '@/lib/crm';
 import { useGetStoreCustomersListQuery } from '@/store/features/customer/customer';
 import { CalendarDays, CheckCircle2, Gift, MessageCircle, Phone, Search, Star, UserCheck, Users, WalletCards } from 'lucide-react';
@@ -20,6 +21,7 @@ const isBirthdayThisMonth = (date?: string | null) => {
 const getCustomerBalance = (customer: any) => Number(customer.balance || 0);
 
 export default function CustomerCrmPage() {
+    const { t } = getTranslation();
     const { currentStoreId, currentStore } = useCurrentStore();
     const { formatCurrency } = useCurrency();
     const [activeSegment, setActiveSegment] = useState<SegmentKey>('all');
@@ -62,13 +64,23 @@ export default function CustomerCrmPage() {
 
     const openTasks = tasks.filter((task) => task.status === 'open');
     const totalDue = segmentCustomers.due.reduce((sum: number, customer: any) => sum + Math.abs(getCustomerBalance(customer)), 0);
+    const taskTypeLabels: Record<string, string> = {
+        call: t('crm_task_call'),
+        whatsapp: t('crm_task_whatsapp'),
+        sms: 'SMS',
+        visit: t('crm_task_visit'),
+        payment: t('crm_task_payment'),
+        reorder: t('crm_task_reorder'),
+        birthday: t('crm_task_birthday'),
+        other: t('crm_task_other'),
+    };
 
     const segments: Array<{ key: SegmentKey; label: string; value: number; icon: any; helper: string }> = [
-        { key: 'all', label: 'All Customers', value: segmentCustomers.all.length, icon: Users, helper: 'Complete customer base' },
-        { key: 'due', label: 'Due Customers', value: segmentCustomers.due.length, icon: WalletCards, helper: formatCurrency(totalDue) },
-        { key: 'vip', label: 'VIP / Loyal', value: segmentCustomers.vip.length, icon: Star, helper: 'Gold, platinum or 500+ points' },
-        { key: 'birthday', label: 'Birthdays', value: segmentCustomers.birthday.length, icon: Gift, helper: 'This month' },
-        { key: 'inactive', label: 'Inactive', value: segmentCustomers.inactive.length, icon: UserCheck, helper: 'Inactive profiles' },
+        { key: 'all', label: t('crm_segment_all'), value: segmentCustomers.all.length, icon: Users, helper: t('crm_segment_all_helper') },
+        { key: 'due', label: t('crm_segment_due'), value: segmentCustomers.due.length, icon: WalletCards, helper: formatCurrency(totalDue) },
+        { key: 'vip', label: t('crm_segment_vip'), value: segmentCustomers.vip.length, icon: Star, helper: t('crm_segment_vip_helper') },
+        { key: 'birthday', label: t('crm_segment_birthday'), value: segmentCustomers.birthday.length, icon: Gift, helper: t('crm_segment_birthday_helper') },
+        { key: 'inactive', label: t('crm_segment_inactive'), value: segmentCustomers.inactive.length, icon: UserCheck, helper: t('crm_segment_inactive_helper') },
     ];
 
     const markTaskDone = (taskId: string) => {
@@ -79,11 +91,11 @@ export default function CustomerCrmPage() {
         <div className="space-y-5">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h1 className="text-xl font-bold text-gray-900">CRM Dashboard</h1>
-                    <p className="text-sm text-gray-500">Customer follow-up, loyalty, due and WhatsApp-ready segments.</p>
+                    <h1 className="text-xl font-bold text-gray-900">{t('crm_dashboard_title')}</h1>
+                    <p className="text-sm text-gray-500">{t('crm_dashboard_desc')}</p>
                 </div>
                 <Link href="/customers/create" className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white">
-                    Add Customer
+                    {t('customer_add')}
                 </Link>
             </div>
 
@@ -113,49 +125,49 @@ export default function CustomerCrmPage() {
                     <div className="flex flex-col gap-3 border-b border-gray-100 p-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                             <h2 className="font-bold text-gray-900">{segments.find((segment) => segment.key === activeSegment)?.label}</h2>
-                            <p className="text-sm text-gray-500">{visibleCustomers.length} customers found</p>
+                            <p className="text-sm text-gray-500">{t('crm_customers_found', { count: visibleCustomers.length })}</p>
                         </div>
                         <div className="relative">
                             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                            <input value={search} onChange={(event) => setSearch(event.target.value)} className="form-input w-full pl-9 sm:w-72" placeholder="Search customer" />
+                            <input value={search} onChange={(event) => setSearch(event.target.value)} className="form-input w-full pl-9 sm:w-72" placeholder={t('crm_search_customer')} />
                         </div>
                     </div>
 
                     <div className="divide-y divide-gray-100">
-                        {isLoading && <p className="p-4 text-sm text-gray-500">Loading CRM customers...</p>}
-                        {!isLoading && visibleCustomers.length === 0 && <p className="p-4 text-sm text-gray-500">No customers in this segment.</p>}
+                        {isLoading && <p className="p-4 text-sm text-gray-500">{t('crm_loading_customers')}</p>}
+                        {!isLoading && visibleCustomers.length === 0 && <p className="p-4 text-sm text-gray-500">{t('crm_no_segment_customers')}</p>}
                         {visibleCustomers.map((customer: any) => {
                             const dueAmount = Math.abs(getCustomerBalance(customer));
-                            const inactiveUrl = buildWhatsAppUrl(customer.phone, whatsappTemplates.inactive(customer.name || 'Customer', storeName));
-                            const birthdayUrl = buildWhatsAppUrl(customer.phone, whatsappTemplates.birthday(customer.name || 'Customer', storeName));
+                            const inactiveUrl = buildWhatsAppUrl(customer.phone, whatsappTemplates.inactive(customer.name || t('lbl_customer'), storeName));
+                            const birthdayUrl = buildWhatsAppUrl(customer.phone, whatsappTemplates.birthday(customer.name || t('lbl_customer'), storeName));
 
                             return (
                                 <div key={customer.id} className="flex flex-col gap-3 p-4 lg:flex-row lg:items-center lg:justify-between">
                                     <div className="min-w-0">
                                         <Link href={`/customers/${customer.id}`} className="font-bold text-gray-900 hover:text-primary">
-                                            {customer.name || 'Unnamed customer'}
+                                            {customer.name || t('crm_unnamed_customer')}
                                         </Link>
                                         <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500">
-                                            <span>{customer.phone || 'No phone'}</span>
-                                            <span>{customer.membership || 'normal'} tier</span>
-                                            <span>{Number(customer.points || 0)} pts</span>
-                                            {getCustomerBalance(customer) < 0 && <span className="font-semibold text-red-600">Due {formatCurrency(dueAmount)}</span>}
+                                            <span>{customer.phone || t('crm_no_phone')}</span>
+                                            <span>{t('crm_tier_label', { tier: customer.membership || t('status_normal') })}</span>
+                                            <span>{t('crm_points_label', { count: Number(customer.points || 0) })}</span>
+                                            {getCustomerBalance(customer) < 0 && <span className="font-semibold text-red-600">{t('crm_due_amount', { amount: formatCurrency(dueAmount) })}</span>}
                                         </div>
                                     </div>
                                     <div className="flex flex-wrap gap-2">
                                         {customer.phone && (
                                             <a href={`tel:${customer.phone}`} className="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50">
-                                                <Phone className="h-4 w-4" /> Call
+                                                <Phone className="h-4 w-4" /> {t('crm_call')}
                                             </a>
                                         )}
                                         {birthdayUrl && activeSegment === 'birthday' && (
                                             <a href={birthdayUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-lg border border-pink-200 bg-pink-50 px-3 py-2 text-sm font-semibold text-pink-700">
-                                                <Gift className="h-4 w-4" /> Wish
+                                                <Gift className="h-4 w-4" /> {t('crm_wish')}
                                             </a>
                                         )}
                                         {inactiveUrl && activeSegment !== 'birthday' && (
                                             <a href={inactiveUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm font-semibold text-green-700">
-                                                <MessageCircle className="h-4 w-4" /> WhatsApp
+                                                <MessageCircle className="h-4 w-4" /> {t('crm_whatsapp')}
                                             </a>
                                         )}
                                     </div>
@@ -167,11 +179,11 @@ export default function CustomerCrmPage() {
 
                 <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
                     <div className="flex items-center justify-between">
-                        <h2 className="font-bold text-gray-900">Open Follow-Ups</h2>
+                        <h2 className="font-bold text-gray-900">{t('crm_open_followups')}</h2>
                         <span className="rounded-full bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-600">{openTasks.length}</span>
                     </div>
                     <div className="mt-4 space-y-3">
-                        {openTasks.length === 0 && <p className="text-sm text-gray-500">No open follow-ups yet. Add one from Customer 360.</p>}
+                        {openTasks.length === 0 && <p className="text-sm text-gray-500">{t('crm_no_open_followups_dashboard')}</p>}
                         {openTasks.slice(0, 12).map((task) => (
                             <div key={task.id} className="rounded-lg border border-gray-100 p-3">
                                 <div className="flex items-start justify-between gap-3">
@@ -181,14 +193,14 @@ export default function CustomerCrmPage() {
                                         </Link>
                                         <p className="mt-1 text-xs text-gray-500">{task.customerName}</p>
                                     </div>
-                                    <button onClick={() => markTaskDone(task.id)} className="rounded-full p-1 text-green-600 hover:bg-green-50" aria-label="Mark follow-up done">
+                                    <button onClick={() => markTaskDone(task.id)} className="rounded-full p-1 text-green-600 hover:bg-green-50" aria-label={t('crm_mark_followup_done')}>
                                         <CheckCircle2 className="h-5 w-5" />
                                     </button>
                                 </div>
                                 <div className="mt-3 flex items-center gap-2 text-xs text-gray-500">
                                     <CalendarDays className="h-4 w-4" />
                                     <span>{task.dueDate}</span>
-                                    <span className="rounded-full bg-gray-100 px-2 py-0.5">{task.type}</span>
+                                    <span className="rounded-full bg-gray-100 px-2 py-0.5">{taskTypeLabels[task.type] || task.type}</span>
                                 </div>
                             </div>
                         ))}
