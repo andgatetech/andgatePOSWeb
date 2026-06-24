@@ -5,14 +5,10 @@ import { comparePages } from '@/lib/high-intent-pages';
 import {
     ArrowRight,
     Facebook,
-    Instagram,
-    Linkedin,
     Mail,
     MapPin,
     Phone,
-    Twitter,
     Truck,
-    Youtube,
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -37,6 +33,7 @@ const Footer = () => {
     ];
 
     const companyLinks = [
+        { label: t('footer.nav.about_us'), href: '/about' },
         { label: t('footer.nav.contact_us'), href: '/contact' },
         { label: t('footer.nav.privacy_policy'), href: '/privacy-policy' },
         { label: t('footer.nav.terms_of_service'), href: '/terms-of-service' },
@@ -58,10 +55,6 @@ const Footer = () => {
 
     const socialLinks = [
         { icon: <Facebook className="h-4 w-4" />, href: FACEBOOK_URL, label: 'Facebook' },
-        { icon: <Twitter className="h-4 w-4" />, href: '#', label: 'Twitter' },
-        { icon: <Linkedin className="h-4 w-4" />, href: '#', label: 'LinkedIn' },
-        { icon: <Youtube className="h-4 w-4" />, href: '#', label: 'YouTube' },
-        { icon: <Instagram className="h-4 w-4" />, href: '#', label: 'Instagram' },
     ];
 
     const contactItems = [

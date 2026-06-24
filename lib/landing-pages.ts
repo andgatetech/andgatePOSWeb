@@ -225,13 +225,13 @@ const seoExpansionPages: LandingPage[] = [
         'andgatepos-features',
         'AndgatePOS Features',
         'AndgatePOS features',
-        'AndgatePOS Features for POS, Inventory, Reports and eCommerce',
-        'Explore AndgatePOS features for billing, inventory, barcode scanning, local payments, purchase orders, reports, multi-branch control and Hawkeri online stores.',
+        'AndgatePOS Features for POS, Business OS, CRM, Inventory, Reports and eCommerce',
+        'Explore AndgatePOS features for billing, inventory, CRM, supplier 360, cash closing, petty cash, local payments, purchase orders, reports, multi-branch control and Hawkeri online stores.',
         'Bangladeshi SMEs evaluating the full AndgatePOS feature set before starting a demo or subscription.',
-        ['POS billing', 'Inventory and purchase orders', '20+ reports', 'Hawkeri ecommerce connection'],
+        ['POS billing', 'Business OS, CRM and supplier 360', 'Inventory, cash closing and 20+ reports', 'Hawkeri ecommerce connection'],
         ['Understand the full product scope', 'Match features to your shop type', 'Plan staff training', 'Choose the right subscription stage'],
         [
-            { question: 'What features does AndgatePOS include?', answer: 'Core features include POS billing, inventory, product labels, purchases, local payment tracking, reports, staff permissions, customer/supplier records and online store connection.' },
+            { question: 'What features does AndgatePOS include?', answer: 'Core features include POS billing, inventory, CRM, supplier 360, cash closing, petty cash, staff attendance, service jobs, product labels, purchases, local payment tracking, reports and online store connection.' },
             { question: 'Does it include reporting?', answer: 'Yes. Sales, stock, payment, tax and profit-related reports are available.' },
             { question: 'Does AndgatePOS connect with ecommerce?', answer: 'Yes. AndgatePOS connects with Hawkeri online store workflows for businesses selling online.' },
         ],
@@ -299,11 +299,11 @@ export const landingPages: LandingPage[] = [
         title: 'POS Software in Bangladesh',
         metaTitle: 'POS Software in Bangladesh | Retail, Inventory & Billing | AndgatePOS',
         metaDescription:
-            'AndgatePOS is POS software in Bangladesh for retail shops, grocery stores, pharmacies, restaurants and fashion businesses. Manage billing, inventory, bKash/Nagad payments, reports and a free online store.',
+            'AndgatePOS is POS and Business OS software in Bangladesh for retail shops, grocery stores, pharmacies, restaurants and fashion businesses. Manage billing, inventory, CRM, supplier dues, cash closing, bKash/Nagad payments, reports and online store.',
         h1: 'POS Software in Bangladesh for Retail, Billing and Inventory',
         eyebrow: 'Bangladesh POS Solution',
         intro:
-            'AndgatePOS helps Bangladeshi shop owners run sales, stock, billing, accounting and customer management from one simple web-based POS system.',
+            'AndgatePOS helps Bangladeshi shop owners run sales, stock, billing, CRM, supplier dues, cash closing, accounting and ecommerce from one simple web-based POS system.',
         banglaIntro:
             'বাংলাদেশের দোকানদারদের জন্য AndgatePOS একটি সহজ POS সফটওয়্যার। বিক্রি, স্টক, হিসাব, পেমেন্ট আর রিপোর্ট এক জায়গা থেকেই চালাতে পারবেন।',
         primaryKeyword: 'POS software in Bangladesh',
@@ -319,13 +319,13 @@ export const landingPages: LandingPage[] = [
         ],
         audience: 'Retail shops, grocery stores, pharmacies, fashion shops, restaurants, electronics stores and multi-branch businesses.',
         image: '/assets/LandingImage/updated/pos.webp',
-        highlights: ['Works offline at the counter', 'bKash, Nagad, Rocket and cash payment tracking', 'Free Hawkeri online store', '20+ business reports'],
+        highlights: ['Works offline at the counter', 'Business OS for daily shop operations', 'CRM, supplier dues and cash closing', 'Hawkeri online store and 20+ reports'],
         modules: commonModules,
         useCases: [
             'Replace manual cash memo books with digital invoices',
             'Know which products are selling and which are stuck in stock',
             'Manage multiple branches from one dashboard',
-            'Track supplier dues, customer dues and daily expenses',
+            'Track supplier dues, customer dues, petty cash and counter closing',
         ],
         faq: [
             {

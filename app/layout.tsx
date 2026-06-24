@@ -4,6 +4,7 @@ import PwaStandaloneGate from '@/components/layouts/PwaStandaloneGate';
 import PwaUpdateRecovery from '@/components/layouts/PwaUpdateRecovery';
 import { BD_KEYWORDS, getAppUrl } from '@/lib/seo-config';
 import { Metadata } from 'next';
+import { headers } from 'next/headers';
 import Script from 'next/script';
 import { ToastContainer } from 'react-toastify';
 import 'react-perfect-scrollbar/dist/css/styles.css';
@@ -17,10 +18,10 @@ export const metadata: Metadata = {
     metadataBase: new URL(getAppUrl()),
     title: {
         template: '%s | AndgatePOS',
-        default: 'AndgatePOS — POS Software in Bangladesh | Billing, Inventory & Reports',
+        default: 'AndgatePOS — POS Software in Bangladesh | Business OS for SMEs',
     },
     description:
-        'AndgatePOS is Bangladesh-focused POS software for retail shops, grocery stores, pharmacies, and fashion stores. Manage inventory, billing, purchase orders, reports, and a Hawkeri online store. Start free today!',
+        'AndgatePOS is Bangladesh-focused POS and business operating software for retail SMEs. Manage billing, inventory, CRM, supplier dues, cash closing, petty cash, staff attendance, reports, and a Hawkeri online store. Start free today!',
     keywords: BD_KEYWORDS,
     authors: [{ name: 'Andgate Technologies', url: BASE_URL }],
     creator: 'Andgate Technologies',
@@ -44,7 +45,7 @@ export const metadata: Metadata = {
         siteName: 'AndgatePOS',
         title: 'AndgatePOS — POS Software in Bangladesh',
         description:
-            'Complete POS solution for Bangladesh businesses. Inventory management, billing, purchase orders, reports, and an online store powered by Hawkeri.',
+            'Complete POS and Business OS for Bangladesh SMEs. Billing, inventory, CRM, supplier dues, cash closing, petty cash, HR attendance, reports, and a Hawkeri online store.',
         images: [
             {
                 url: '/images/og-image.jpg',
@@ -58,12 +59,12 @@ export const metadata: Metadata = {
         card: 'summary_large_image',
         title: 'AndgatePOS — POS Software in Bangladesh',
         description:
-            'Complete POS solution for Bangladesh businesses. Inventory, billing, reports, and a free online store. Start free today!',
+            'Complete POS and Business OS for Bangladesh businesses. Billing, stock, CRM, supplier dues, cash closing, reports, and online store. Start free today!',
         images: ['/images/og-image.jpg'],
         creator: '@andgatetech',
     },
     verification: {
-        google: 'your-google-site-verification-code',
+        google: process.env.GOOGLE_SITE_VERIFICATION,
     },
     alternates: {
         canonical: BASE_URL,
@@ -81,7 +82,11 @@ export const metadata: Metadata = {
     },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+    const headerStore = await headers();
+    const pathname = headerStore.get('x-pathname') || '';
+    const htmlLang = pathname.startsWith('/bn') ? 'bn-BD' : 'en-BD';
+
     const organizationJsonLd = {
         '@context': 'https://schema.org',
         '@type': 'Organization',
@@ -147,7 +152,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     };
 
     return (
-        <html lang="en-BD" data-scroll-behavior="smooth" suppressHydrationWarning>
+        <html lang={htmlLang} data-scroll-behavior="smooth" suppressHydrationWarning>
             <head>
                 <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }} />
                 <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }} />

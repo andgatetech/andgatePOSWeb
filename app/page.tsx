@@ -7,7 +7,7 @@ const BASE_URL = 'https://andgatepos.com';
 export const metadata: Metadata = {
     title: 'POS Software in Bangladesh | AndgatePOS Retail Billing & Inventory',
     description:
-        'AndgatePOS is POS software in Bangladesh for retail shops, grocery stores, pharmacies, restaurants and fashion stores. Manage billing, inventory, bKash/Nagad payments, purchase orders, 20+ reports and a free online store.',
+        'AndgatePOS is POS and Business OS software in Bangladesh for retail shops, grocery stores, pharmacies, restaurants and fashion stores. Manage billing, inventory, CRM, supplier dues, cash closing, petty cash, bKash/Nagad payments, reports and online store.',
     keywords: BD_KEYWORDS,
     alternates: {
         canonical: BASE_URL,
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     openGraph: {
         title: 'POS Software in Bangladesh | AndgatePOS',
         description:
-            'Complete POS solution for Bangladesh businesses. Inventory, billing, purchase orders, 20+ reports & a free Hawkeri online store. 100+ shop owners trust AndgatePOS.',
+            'Complete POS and Business OS for Bangladesh businesses. Inventory, billing, CRM, supplier dues, cash closing, petty cash, reports and Hawkeri online store. 100+ shop owners trust AndgatePOS.',
         url: BASE_URL,
         images: [{ url: '/images/og-image.jpg', width: 1200, height: 630, alt: 'AndgatePOS — POS Software Bangladesh' }],
     },
@@ -41,7 +41,7 @@ export default function HomePage() {
             name: 'Bangladesh',
         },
         description:
-            'AndgatePOS is cloud POS software for Bangladeshi retail shops, grocery stores, pharmacies, restaurants and fashion businesses with billing, inventory, payments, reports and ecommerce.',
+            'AndgatePOS is cloud POS and business operating software for Bangladeshi retail shops, grocery stores, pharmacies, restaurants and fashion businesses with billing, inventory, payments, CRM, supplier 360, cash closing, petty cash, HR attendance, service jobs, reports and ecommerce.',
         offers: {
             '@type': 'Offer',
             priceCurrency: 'BDT',
@@ -61,39 +61,88 @@ export default function HomePage() {
             'Barcode scanning',
             'bKash, Nagad, Rocket and cash payment tracking',
             'Purchase orders',
+            'Customer CRM',
+            'Supplier 360',
+            'Business OS command center',
+            'Cash and counter closing',
+            'Petty cash management',
+            'Staff attendance',
+            'Service and repair jobs',
             'Sales reports',
             'Profit and loss reports',
             'Offline POS mode',
-            'Free Hawkeri online store',
+            'Hawkeri online store and courier setup',
         ],
     };
 
+    // Kept in sync with the visible FAQ accordion (faq_q1..faq_q8 / faq_a1..faq_a8 in
+    // public/locales/en.json) — mismatched JSON-LD vs visible content is a known AI/Google red flag.
     const faqSchema = {
         '@context': 'https://schema.org',
         '@type': 'FAQPage',
         mainEntity: [
             {
                 '@type': 'Question',
-                name: 'Is AndgatePOS suitable for small shops in Bangladesh?',
+                name: 'Does AndgatePOS work without internet?',
                 acceptedAnswer: {
                     '@type': 'Answer',
-                    text: 'Yes. AndgatePOS is built for Bangladeshi retail shops, grocery stores, pharmacies, restaurants, fashion shops and multi-branch businesses.',
+                    text: 'Yes. The POS terminal works fully offline — sell, accept payments, and print receipts with no connection. Orders save locally and sync to the cloud automatically when your internet returns.',
                 },
             },
             {
                 '@type': 'Question',
-                name: 'Does AndgatePOS support offline selling?',
+                name: 'Does it support bKash, Nagad, and Rocket?',
                 acceptedAnswer: {
                     '@type': 'Answer',
-                    text: 'Yes. The POS workflow can keep selling during internet interruptions, queue orders locally, and sync them when the connection returns.',
+                    text: 'Yes. bKash, Nagad, Rocket, Upay, Bank Transfer, Cash, and Card are all built in. No third-party integration or extra fees required.',
                 },
             },
             {
                 '@type': 'Question',
-                name: 'Which payment methods does AndgatePOS support?',
+                name: 'Can I manage multiple shops?',
                 acceptedAnswer: {
                     '@type': 'Answer',
-                    text: 'AndgatePOS supports cash, bKash, Nagad, Rocket, Upay, card, bank transfer, partial payment and customer due tracking.',
+                    text: 'Yes. Add unlimited stores to one account. Switch between branches instantly, compare sales across locations, and run unified reports.',
+                },
+            },
+            {
+                '@type': 'Question',
+                name: 'Do I need accounting knowledge?',
+                acceptedAnswer: {
+                    '@type': 'Answer',
+                    text: 'No. The system handles double-entry bookkeeping automatically. Every sale, purchase, and expense posts to the right ledger — no accounting degree needed.',
+                },
+            },
+            {
+                '@type': 'Question',
+                name: 'Is there a free plan?',
+                acceptedAnswer: {
+                    '@type': 'Answer',
+                    text: 'Yes. The Starter plan is completely free — no credit card required, no time limit. Upgrade only when your business grows.',
+                },
+            },
+            {
+                '@type': 'Question',
+                name: 'Do I get an online store too?',
+                acceptedAnswer: {
+                    '@type': 'Answer',
+                    text: 'Yes. Every plan includes a free Hawkeri-powered online store. Products you add in your POS dashboard appear in your online store instantly.',
+                },
+            },
+            {
+                '@type': 'Question',
+                name: 'Is my data safe?',
+                acceptedAnswer: {
+                    '@type': 'Answer',
+                    text: 'Yes. Your data is stored securely in the cloud with 99.9% uptime. Automatic backups ensure nothing is ever lost.',
+                },
+            },
+            {
+                '@type': 'Question',
+                name: 'Can I try before upgrading?',
+                acceptedAnswer: {
+                    '@type': 'Answer',
+                    text: 'Yes. Start with the free plan — no credit card, no commitment. Explore every feature before deciding to upgrade.',
                 },
             },
         ],

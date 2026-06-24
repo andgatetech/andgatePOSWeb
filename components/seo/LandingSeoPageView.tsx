@@ -43,15 +43,15 @@ export const landingCopyBn: Record<string, LocalizedLandingCopy> = {
         title: 'বাংলাদেশে POS সফটওয়্যার',
         h1: 'বাংলাদেশের দোকানের জন্য POS সফটওয়্যার, বিলিং ও ইনভেন্টরি',
         eyebrow: 'বাংলাদেশ POS সলিউশন',
-        intro: 'AndgatePOS দিয়ে দোকানের বিক্রি, স্টক, বিল, হিসাব, পেমেন্ট আর কাস্টমার ম্যানেজমেন্ট এক জায়গা থেকে সহজে চালানো যায়।',
+        intro: 'AndgatePOS দিয়ে দোকানের বিক্রি, স্টক, বিল, CRM, সাপ্লায়ার বকেয়া, ক্যাশ ক্লোজিং, হিসাব, পেমেন্ট আর অনলাইন স্টোর এক জায়গা থেকে চালানো যায়।',
         audience: 'রিটেইল দোকান, মুদি দোকান, ফার্মেসি, ফ্যাশন শপ, রেস্টুরেন্ট, ইলেকট্রনিক্স দোকান এবং multi-branch ব্যবসা।',
-        highlights: ['কাউন্টারে internet সমস্যা হলেও কাজ চালানো যায়', 'bKash, Nagad, Rocket ও cash payment tracking', 'Free Hawkeri online store', '২০টির বেশি business report'],
+        highlights: ['কাউন্টারে internet সমস্যা হলেও কাজ চালানো যায়', 'বিজনেস ওএসে daily operation দেখা যায়', 'CRM, supplier due ও cash closing', 'Hawkeri online store ও ২০টির বেশি report'],
         modules: commonModulesBn,
         useCases: [
             'হাতে লেখা cash memo বাদ দিয়ে digital invoice তৈরি করুন',
             'কোন পণ্য বিক্রি হচ্ছে আর কোনটা স্টকে পড়ে আছে তা বুঝুন',
             'এক dashboard থেকে একাধিক branch ম্যানেজ করুন',
-            'Supplier due, customer due এবং daily expense track করুন',
+            'Supplier due, customer due, petty cash ও counter closing track করুন',
         ],
         faq: [
             {

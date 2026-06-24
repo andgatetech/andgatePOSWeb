@@ -31,6 +31,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
         { label: t('layout.nav.pricing'), href: '/pricing' },
         { label: t('layout.nav.compare'), href: '/compare' },
         { label: t('layout.nav.training'), href: '/training' },
+        { label: t('layout.nav.about'), href: '/about' },
         { label: t('layout.nav.contact'), href: '/contact' },
     ];
 

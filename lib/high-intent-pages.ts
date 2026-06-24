@@ -148,27 +148,28 @@ export const highIntentPages: HighIntentSeoPage[] = [
         title: 'Best POS Software Bangladesh',
         metaTitle: 'Best POS Software in Bangladesh | What to Look For | AndgatePOS',
         metaDescription:
-            'Looking for the best POS software in Bangladesh? Compare must-have features like billing, inventory, bKash/Nagad payments, reports, offline mode and online store support.',
+            'Looking for the best POS software in Bangladesh? Compare must-have features like billing, inventory, CRM, supplier 360, cash closing, petty cash, reports, offline mode and online store support.',
         h1: 'Best POS Software in Bangladesh: What Your Shop Should Look For',
         eyebrow: 'Buyer Guide',
         intro:
-            'The best POS software for Bangladesh should match local shop workflows: fast billing, inventory, local payment tracking, reports, staff control and simple onboarding.',
+            'The best POS software for Bangladesh should match local shop workflows: fast billing, inventory, local payment tracking, CRM, supplier dues, cash closing, staff control, reports and simple onboarding.',
         banglaIntro:
             'বাংলাদেশে ভালো POS সফটওয়্যার হতে হলে দোকানের বাস্তব কাজের সাথে মিল থাকতে হবে — দ্রুত বিল, স্টক, পেমেন্ট, রিপোর্ট আর সহজ ব্যবহার।',
         primaryKeyword: 'best POS software in Bangladesh',
         secondaryKeywords: ['top POS software Bangladesh', 'best retail POS Bangladesh', 'best shop management software Bangladesh', 'POS software price in Bangladesh', 'POS software for small business Bangladesh'],
         image: '/assets/LandingImage/updated/dashboard.webp',
         verdict:
-            'AndgatePOS is built for Bangladeshi retailers that need POS, inventory, accounting, payments, reports and a free online store in one system.',
+            'AndgatePOS is built for Bangladeshi retailers that need POS, inventory, CRM, supplier 360, accounting, payments, cash closing, petty cash, reports and an online store in one system.',
         comparison: [
             { label: 'Local payments', oldWay: 'Many generic systems do not fit bKash/Nagad/Rocket workflows.', andgate: 'Cash, bKash, Nagad, Rocket, Upay, card and bank transfer can be recorded.' },
             { label: 'Inventory', oldWay: 'Basic billing tools often ignore stock depth.', andgate: 'Variants, serials, stock alerts, purchase orders and labels are supported.' },
-            { label: 'Reporting', oldWay: 'Some tools only show sales totals.', andgate: '20+ reports cover sales, tax, stock, profit, customers and supplier dues.' },
-            { label: 'Growth', oldWay: 'Single-counter tools become limiting.', andgate: 'Multi-store, staff roles and online store support help the business grow.' },
+            { label: 'Daily operations', oldWay: 'Cash closing, petty cash and staff attendance often stay in paper notes.', andgate: 'Business OS keeps cash closing, petty cash, HR attendance and service jobs visible.' },
+            { label: 'Reporting', oldWay: 'Some tools only show sales totals.', andgate: '20+ reports cover sales, tax, stock, profit, customers, supplier dues and reorder signals.' },
+            { label: 'Growth', oldWay: 'Single-counter tools become limiting.', andgate: 'Multi-store, staff roles, CRM and online store support help the business grow.' },
         ],
         reasons: [
             { title: 'Built for Bangladesh', description: 'Local payment methods, Bangla-friendly content and Bangladesh business workflows are considered.' },
-            { title: 'Full shop operations', description: 'POS, inventory, supplier, customer, accounting and reporting modules work together.' },
+            { title: 'Full shop operations', description: 'POS, inventory, CRM, supplier 360, cash closing, petty cash, accounting and reporting modules work together.' },
             { title: 'Start small, grow later', description: 'A business can begin simply and add more modules as operations grow.' },
         ],
         guideSections: [
@@ -176,12 +177,12 @@ export const highIntentPages: HighIntentSeoPage[] = [
                 title: 'Start with your shop type, not a generic feature list',
                 description:
                     'A pharmacy, grocery shop, fashion store and restaurant do not use POS in exactly the same way. The best POS software in Bangladesh should support your counter workflow first, then add reporting and growth features.',
-                items: ['Grocery shops need fast barcode checkout and supplier dues.', 'Pharmacies need accurate stock visibility and reorder alerts.', 'Fashion stores need variants such as size, color and style.', 'Restaurants and cafes need fast billing and daily cash/expense reports.'],
+                items: ['Grocery shops need fast barcode checkout, supplier dues and petty cash control.', 'Pharmacies need accurate stock visibility and reorder alerts.', 'Fashion stores need variants such as size, color and style.', 'Restaurants and cafes need fast billing and daily cash/counter closing.'],
             },
             {
                 title: 'Check local payment and due tracking',
                 description:
-                    'Bangladesh shops often receive cash, bKash, Nagad, Rocket, card and partial payments in the same day. A good POS should record payment method, due amount and customer balance clearly.',
+                    'Bangladesh shops often receive cash, bKash, Nagad, Rocket, card and partial payments in the same day. A good POS should record payment method, due amount, customer balance and daily cash closing clearly.',
                 items: ['Cash and mobile payment breakdown', 'Partial payment and customer due records', 'Daily collection report by method', 'Clean invoice history for repeat customers'],
             },
             {
@@ -206,28 +207,29 @@ export const highIntentPages: HighIntentSeoPage[] = [
             title: 'বাংলাদেশের সেরা POS সফটওয়্যার',
             h1: 'বাংলাদেশে সেরা POS সফটওয়্যার বাছাই করার সময় যা দেখবেন',
             eyebrow: 'বায়ার গাইড',
-            intro: 'বাংলাদেশে ভালো POS সফটওয়্যার হতে হলে দোকানের বাস্তব কাজের সাথে মিল থাকতে হবে — দ্রুত বিল, স্টক, পেমেন্ট, রিপোর্ট আর সহজ ব্যবহার।',
-            verdict: 'AndgatePOS বাংলাদেশি রিটেইল ব্যবসার জন্য POS, ইনভেন্টরি, হিসাব, পেমেন্ট, রিপোর্ট আর ফ্রি অনলাইন স্টোর এক সিস্টেমে দেয়।',
+            intro: 'বাংলাদেশে ভালো POS সফটওয়্যার হতে হলে দোকানের বাস্তব কাজের সাথে মিল থাকতে হবে — দ্রুত বিল, স্টক, পেমেন্ট, CRM, সাপ্লায়ার বকেয়া, ক্যাশ ক্লোজিং, রিপোর্ট আর সহজ ব্যবহার।',
+            verdict: 'AndgatePOS বাংলাদেশি রিটেইল ব্যবসার জন্য POS, ইনভেন্টরি, CRM, সাপ্লায়ার ৩৬০, হিসাব, পেমেন্ট, ক্যাশ ক্লোজিং, পেটি ক্যাশ, রিপোর্ট আর অনলাইন স্টোর এক সিস্টেমে দেয়।',
             comparison: [
                 { label: 'লোকাল পেমেন্ট', oldWay: 'অনেক জেনেরিক সিস্টেম বিকাশ/নগদ/রকেটের কাজের ধরনে মানায় না।', andgate: 'ক্যাশ, বিকাশ, নগদ, রকেট, উপায়, কার্ড ও ব্যাংক ট্রান্সফার রেকর্ড করা যায়।' },
                 { label: 'ইনভেন্টরি', oldWay: 'বেসিক বিলিং টুলে স্টকের গভীরতা থাকে না।', andgate: 'ভ্যারিয়েন্ট, সিরিয়াল, স্টক অ্যালার্ট, ক্রয় অর্ডার ও লেবেল সাপোর্ট করে।' },
-                { label: 'রিপোর্টিং', oldWay: 'কিছু টুল শুধু বিক্রির মোট দেখায়।', andgate: '২০+ রিপোর্টে বিক্রি, ট্যাক্স, স্টক, লাভ, কাস্টমার ও সাপ্লায়ার বাকি দেখা যায়।' },
-                { label: 'গ্রোথ', oldWay: 'এক কাউন্টারের টুল বড় হলে সীমাবদ্ধ হয়ে যায়।', andgate: 'মাল্টি-স্টোর, স্টাফ রোল আর অনলাইন স্টোর ব্যবসা বড় করতে সাহায্য করে।' },
+                { label: 'দৈনিক অপারেশন', oldWay: 'ক্যাশ ক্লোজিং, পেটি ক্যাশ ও হাজিরা অনেক সময় কাগজে থাকে।', andgate: 'বিজনেস ওএসে ক্যাশ ক্লোজিং, পেটি ক্যাশ, হাজিরা ও সার্ভিস জব দেখা যায়।' },
+                { label: 'রিপোর্টিং', oldWay: 'কিছু টুল শুধু বিক্রির মোট দেখায়।', andgate: '২০+ রিপোর্টে বিক্রি, ট্যাক্স, স্টক, লাভ, কাস্টমার, সাপ্লায়ার বাকি ও রি-অর্ডার সিগন্যাল দেখা যায়।' },
+                { label: 'গ্রোথ', oldWay: 'এক কাউন্টারের টুল বড় হলে সীমাবদ্ধ হয়ে যায়।', andgate: 'মাল্টি-স্টোর, স্টাফ রোল, CRM আর অনলাইন স্টোর ব্যবসা বড় করতে সাহায্য করে।' },
             ],
             reasons: [
                 { title: 'বাংলাদেশের জন্য তৈরি', description: 'লোকাল পেমেন্ট, বাংলা-ফ্রেন্ডলি কনটেন্ট আর বাংলাদেশের দোকানের কাজের ধরন মাথায় রাখা হয়েছে।' },
-                { title: 'দোকানের পূর্ণ অপারেশন', description: 'POS, ইনভেন্টরি, সাপ্লায়ার, কাস্টমার, অ্যাকাউন্টিং আর রিপোর্ট একসাথে কাজ করে।' },
+                { title: 'দোকানের পূর্ণ অপারেশন', description: 'POS, ইনভেন্টরি, CRM, সাপ্লায়ার ৩৬০, ক্যাশ ক্লোজিং, পেটি ক্যাশ, অ্যাকাউন্টিং আর রিপোর্ট একসাথে কাজ করে।' },
                 { title: 'ছোট থেকে শুরু, পরে বড়', description: 'ব্যবসা ছোট অবস্থায় শুরু করে পরে প্রয়োজন অনুযায়ী মডিউল বাড়ানো যায়।' },
             ],
             guideSections: [
                 {
                     title: 'শুধু ফিচার নয়, দোকানের ধরন দেখে বাছাই করুন',
                     description: 'মুদি দোকান, ফার্মেসি, ফ্যাশন শপ ও রেস্টুরেন্টের POS ব্যবহার একরকম নয়। তাই আগে নিজের দোকানের কাউন্টার, স্টক ও রিপোর্টের বাস্তব কাজ মিলিয়ে দেখুন।',
-                    items: ['মুদি দোকানে দ্রুত বারকোড বিলিং দরকার।', 'ফার্মেসিতে স্টক ও রি-অর্ডার অ্যালার্ট জরুরি।', 'ফ্যাশন শপে সাইজ, কালার ও ভ্যারিয়েন্ট দরকার।', 'রেস্টুরেন্টে দ্রুত বিলিং ও দৈনিক ক্যাশ রিপোর্ট দরকার।'],
+                    items: ['মুদি দোকানে দ্রুত বারকোড বিলিং, সাপ্লায়ার বকেয়া ও পেটি ক্যাশ দরকার।', 'ফার্মেসিতে স্টক ও রি-অর্ডার অ্যালার্ট জরুরি।', 'ফ্যাশন শপে সাইজ, কালার ও ভ্যারিয়েন্ট দরকার।', 'রেস্টুরেন্টে দ্রুত বিলিং ও দৈনিক ক্যাশ/কাউন্টার ক্লোজিং দরকার।'],
                 },
                 {
                     title: 'লোকাল পেমেন্ট ও বাকির হিসাব দেখুন',
-                    description: 'বাংলাদেশের দোকানে একই দিনে ক্যাশ, বিকাশ, নগদ, রকেট, কার্ড ও আংশিক পেমেন্ট আসে। ভালো POS-এ এগুলো আলাদা করে পরিষ্কারভাবে দেখা উচিত।',
+                    description: 'বাংলাদেশের দোকানে একই দিনে ক্যাশ, বিকাশ, নগদ, রকেট, কার্ড ও আংশিক পেমেন্ট আসে। ভালো POS-এ পেমেন্ট মেথড, বাকি, কাস্টমার ব্যালেন্স ও দৈনিক ক্যাশ ক্লোজিং পরিষ্কার দেখা উচিত।',
                     items: ['পেমেন্ট মেথড অনুযায়ী কালেকশন রিপোর্ট', 'কাস্টমার বাকি ও পার্শিয়াল পেমেন্ট', 'রিপিট কাস্টমারের ইনভয়েস হিস্ট্রি', 'দৈনিক ক্যাশ মিলানোর সুবিধা'],
                 },
                 {
@@ -253,11 +255,11 @@ export const highIntentPages: HighIntentSeoPage[] = [
         title: 'POS Software Price Bangladesh',
         metaTitle: 'POS Software Price in Bangladesh | Cost Guide | AndgatePOS',
         metaDescription:
-            'Compare POS software price in Bangladesh. Learn what affects monthly cost, setup, users, inventory, reports, support, ecommerce and when a free POS plan is enough.',
+            'Compare POS software price in Bangladesh. Learn what affects monthly cost, setup, users, inventory, CRM, supplier management, cash closing, reports, support, ecommerce and when a free POS plan is enough.',
         h1: 'POS Software Price in Bangladesh: What Shop Owners Should Know',
         eyebrow: 'Pricing Guide',
         intro:
-            'POS software price in Bangladesh depends on users, stores, inventory depth, reporting, support and whether you need ecommerce or advanced accounting.',
+            'POS software price in Bangladesh depends on users, stores, inventory depth, CRM, supplier dues, cash closing, reporting, support and whether you need ecommerce or advanced accounting.',
         banglaIntro:
             'বাংলাদেশে POS সফটওয়্যারের দাম নির্ভর করে ইউজার, স্টোর, ইনভেন্টরি, রিপোর্ট, সাপোর্ট ও ইকমার্স দরকার আছে কি না তার উপর।',
         primaryKeyword: 'POS software price in Bangladesh',
@@ -273,7 +275,7 @@ export const highIntentPages: HighIntentSeoPage[] = [
         ],
         reasons: [
             { title: 'Start with total cost', description: 'Monthly fee is only one part. Check setup, training, user limits, store limits and support availability.' },
-            { title: 'Match plan to growth', description: 'A starting shop may only need core billing and stock, while a growing shop needs staff roles, reports and multi-store controls.' },
+            { title: 'Match plan to growth', description: 'A starting shop may only need core billing and stock, while a growing shop needs staff roles, CRM, supplier dues, cash closing, reports and multi-store controls.' },
             { title: 'Free can be a smart start', description: 'A free POS plan helps a shop test digital workflow before paying for advanced modules.' },
         ],
         guideSections: [
@@ -281,23 +283,23 @@ export const highIntentPages: HighIntentSeoPage[] = [
                 title: 'What affects POS software price?',
                 description:
                     'Most POS pricing changes based on operational complexity, not only software brand. A single-counter shop and a multi-branch retailer need different controls.',
-                items: ['Number of users or cashiers', 'Number of branches or stores', 'Inventory features such as variants, serials and purchase orders', 'Advanced reports, accounting and ecommerce support'],
+                items: ['Number of users or cashiers', 'Number of branches or stores', 'Inventory features such as variants, serials and purchase orders', 'CRM, supplier 360, cash closing, petty cash, advanced reports, accounting and ecommerce support'],
             },
             {
                 title: 'When is a free POS plan enough?',
                 description:
                     'A free plan is useful when a business wants to test digital billing, add products, record sales and understand daily reports before moving fully from khata or Excel.',
-                items: ['New shop testing digital billing', 'Owner wants to train staff first', 'Limited product count and one counter', 'Business is not ready for advanced controls yet'],
+                items: ['New shop testing digital billing', 'Owner wants to train staff first', 'Limited product count and one counter', 'Business is not ready for CRM, approvals or advanced controls yet'],
             },
             {
                 title: 'When should you upgrade?',
                 description:
                     'Upgrade when the cost of manual work, missing stock, unclear dues or staff mistakes becomes higher than the subscription fee.',
-                items: ['More staff need separate access', 'Stock mistakes are affecting profit', 'Owner needs branch-wise or product-wise reports', 'Customer dues and supplier payments need proper tracking'],
+                items: ['More staff need separate access', 'Stock mistakes are affecting profit', 'Owner needs branch-wise or product-wise reports', 'Customer dues, supplier payments, petty cash and counter closing need proper tracking'],
             },
         ],
         faq: [
-            { question: 'How much does POS software cost in Bangladesh?', answer: 'The price varies by plan, users, stores and features. A good approach is to start with a free or basic plan, then upgrade when you need advanced reports, staff controls or multi-store support.' },
+            { question: 'How much does POS software cost in Bangladesh?', answer: 'The price varies by plan, users, stores and features. A good approach is to start with a free or basic plan, then upgrade when you need CRM, supplier dues, cash closing, advanced reports, staff controls or multi-store support.' },
             { question: 'Is free POS software enough for a small shop?', answer: 'Free POS can be enough for testing and starting. Growing shops usually need stronger controls, more users, better reports and support.' },
             { question: 'Should I choose the cheapest POS software?', answer: 'Not always. The cheapest option can become expensive if it lacks inventory, payment tracking, support or useful reports.' },
         ],
@@ -305,7 +307,7 @@ export const highIntentPages: HighIntentSeoPage[] = [
             title: 'বাংলাদেশে POS সফটওয়্যারের দাম',
             h1: 'বাংলাদেশে POS সফটওয়্যারের দাম: দোকানদারের যা জানা দরকার',
             eyebrow: 'প্রাইসিং গাইড',
-            intro: 'বাংলাদেশে POS সফটওয়্যারের দাম নির্ভর করে ইউজার, স্টোর, ইনভেন্টরি, রিপোর্ট, সাপোর্ট ও ইকমার্স দরকার আছে কি না তার উপর।',
+            intro: 'বাংলাদেশে POS সফটওয়্যারের দাম নির্ভর করে ইউজার, স্টোর, ইনভেন্টরি, CRM, সাপ্লায়ার বকেয়া, ক্যাশ ক্লোজিং, রিপোর্ট, সাপোর্ট ও ইকমার্স দরকার আছে কি না তার উপর।',
             verdict: 'ব্যবসার ধাপ অনুযায়ী POS প্ল্যান বাছাই করুন। আগে ফ্রি দিয়ে বিলিং ও স্টক টেস্ট করুন, পরে বেশি ইউজার, রিপোর্ট বা ব্রাঞ্চ দরকার হলে আপগ্রেড করুন।',
             comparison: [
                 { label: 'ফ্রি প্ল্যান', oldWay: 'টেস্ট করার জন্য ভালো, কিন্তু ব্যবসা বড় হলে সীমাবদ্ধ হতে পারে।', andgate: 'মূল POS workflow দিয়ে শুরু করে দোকান বড় হলে আপগ্রেড করা যায়।' },
@@ -315,28 +317,28 @@ export const highIntentPages: HighIntentSeoPage[] = [
             ],
             reasons: [
                 { title: 'মোট খরচ দেখুন', description: 'শুধু মাসিক ফি নয়; সেটআপ, ট্রেনিং, ইউজার লিমিট, স্টোর লিমিট ও সাপোর্ট দেখুন।' },
-                { title: 'গ্রোথ অনুযায়ী প্ল্যান', description: 'শুরু করা দোকানে বিলিং ও স্টক যথেষ্ট হতে পারে, বড় দোকানে স্টাফ রোল, রিপোর্ট ও মাল্টি-স্টোর দরকার।' },
+                { title: 'গ্রোথ অনুযায়ী প্ল্যান', description: 'শুরু করা দোকানে বিলিং ও স্টক যথেষ্ট হতে পারে, বড় দোকানে স্টাফ রোল, CRM, সাপ্লায়ার বকেয়া, ক্যাশ ক্লোজিং, রিপোর্ট ও মাল্টি-স্টোর দরকার।' },
                 { title: 'ফ্রি দিয়ে শুরু করা যায়', description: 'পেইড মডিউলে যাওয়ার আগে ফ্রি POS প্ল্যান দিয়ে ডিজিটাল workflow পরীক্ষা করা যায়।' },
             ],
             guideSections: [
                 {
                     title: 'POS সফটওয়্যারের দাম কী কী কারণে বদলায়?',
                     description: 'সাধারণত দাম নির্ভর করে অপারেশনের জটিলতার উপর। এক কাউন্টারের দোকান ও মাল্টি-ব্রাঞ্চ ব্যবসার দরকার এক নয়।',
-                    items: ['ইউজার বা ক্যাশিয়ারের সংখ্যা', 'ব্রাঞ্চ বা স্টোরের সংখ্যা', 'ভ্যারিয়েন্ট, সিরিয়াল ও purchase order', 'অ্যাডভান্স রিপোর্ট, অ্যাকাউন্টিং ও ইকমার্স'],
+                    items: ['ইউজার বা ক্যাশিয়ারের সংখ্যা', 'ব্রাঞ্চ বা স্টোরের সংখ্যা', 'ভ্যারিয়েন্ট, সিরিয়াল ও purchase order', 'CRM, সাপ্লায়ার ৩৬০, ক্যাশ ক্লোজিং, পেটি ক্যাশ, অ্যাডভান্স রিপোর্ট, অ্যাকাউন্টিং ও ইকমার্স'],
                 },
                 {
                     title: 'কখন ফ্রি POS যথেষ্ট?',
                     description: 'খাতা বা Excel থেকে ডিজিটাল বিলিংয়ে যাওয়ার আগে পণ্য সেটআপ, বিক্রি রেকর্ড ও দৈনিক রিপোর্ট টেস্ট করতে ফ্রি প্ল্যান কাজে লাগে।',
-                    items: ['নতুন দোকান digital billing টেস্ট করছে', 'মালিক আগে staff train করতে চান', 'পণ্য ও কাউন্টার কম', 'অ্যাডভান্স কন্ট্রোল এখনো দরকার নেই'],
+                    items: ['নতুন দোকান digital billing টেস্ট করছে', 'মালিক আগে staff train করতে চান', 'পণ্য ও কাউন্টার কম', 'CRM, approval বা অ্যাডভান্স কন্ট্রোল এখনো দরকার নেই'],
                 },
                 {
                     title: 'কখন আপগ্রেড করবেন?',
                     description: 'ম্যানুয়াল কাজ, স্টক ভুল, অস্পষ্ট বাকি বা staff mistake-এর খরচ সাবস্ক্রিপশন ফি থেকে বেশি হলে আপগ্রেড করা উচিত।',
-                    items: ['একাধিক staff আলাদা access দরকার', 'স্টক ভুল লাভে প্রভাব ফেলছে', 'Branch-wise বা product-wise report দরকার', 'Customer due ও supplier payment ঠিকভাবে track করতে হবে'],
+                    items: ['একাধিক staff আলাদা access দরকার', 'স্টক ভুল লাভে প্রভাব ফেলছে', 'Branch-wise বা product-wise report দরকার', 'Customer due, supplier payment, petty cash ও counter closing ঠিকভাবে track করতে হবে'],
                 },
             ],
             faq: [
-                { question: 'বাংলাদেশে POS সফটওয়্যারের দাম কত?', answer: 'দাম plan, user, store ও feature অনুযায়ী বদলায়। ভালো পদ্ধতি হলো free/basic plan দিয়ে শুরু করে advanced report, staff control বা multi-store দরকার হলে upgrade করা।' },
+                { question: 'বাংলাদেশে POS সফটওয়্যারের দাম কত?', answer: 'দাম plan, user, store ও feature অনুযায়ী বদলায়। ভালো পদ্ধতি হলো free/basic plan দিয়ে শুরু করে CRM, supplier dues, cash closing, advanced report, staff control বা multi-store দরকার হলে upgrade করা।' },
                 { question: 'ছোট দোকানের জন্য ফ্রি POS যথেষ্ট?', answer: 'শুরু ও test করার জন্য যথেষ্ট হতে পারে। তবে দোকান বড় হলে বেশি user, report, control ও support দরকার হয়।' },
                 { question: 'সবচেয়ে সস্তা POS নেওয়া উচিত?', answer: 'সবসময় নয়। inventory, payment tracking, support বা useful report না থাকলে সস্তা software পরে বেশি খরচ করাতে পারে।' },
             ],
