@@ -100,7 +100,12 @@ const hasAllPermissionsFromContext = (context: PermissionContext, permissions: s
 export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     // ── Dashboard (no restriction — all authenticated users) ───
     '/dashboard': [],
-    '/business-os': ['orders.index', 'orders.create', 'reports.sales', 'expenses.index'],
+    '/business-os': ['business-os.view', 'orders.index', 'reports.sales', 'expenses.index'],
+    '/cash-closing': ['cash-closing.create', 'cash-closing.view', 'orders.index', 'orders.create'],
+    '/petty-cash': ['petty-cash.create', 'petty-cash.view', 'expenses.index', 'expenses.create'],
+    '/hr': ['hr.attendance.create', 'hr.attendance.view', 'users.view'],
+    '/hr/attendance': ['hr.attendance.create', 'hr.attendance.view', 'users.view'],
+    '/service-jobs': ['service-jobs.create', 'service-jobs.view', 'orders.index', 'products.index'],
 
     // ── Store ──────────────────────────────────────────────────
     '/store': ['stores.view'],

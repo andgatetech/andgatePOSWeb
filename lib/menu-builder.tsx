@@ -1,5 +1,5 @@
 // lib/menu-builder.tsx
-import { BarChart, Bell, BookOpen, BrainCircuit, BriefcaseBusiness, FileText, Home, Layers, Link2, MessagesSquare, Package, Receipt, Settings, Shield, ShoppingBag, ShoppingCart, Tag, Truck, Users } from 'lucide-react';
+import { BarChart, Bell, BookOpen, BrainCircuit, BriefcaseBusiness, CalendarCheck, FileText, Home, Layers, Link2, MessagesSquare, Package, Receipt, Settings, Shield, ShoppingBag, ShoppingCart, Tag, Truck, Users } from 'lucide-react';
 import React from 'react';
 
 export interface MenuItem {
@@ -27,7 +27,41 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         label: 'business_os_title',
         icon: React.createElement(BriefcaseBusiness),
         href: '/business-os',
-        requiredPermissions: ['orders.index', 'orders.create', 'reports.sales', 'expenses.index'],
+        requiredPermissions: ['business-os.view', 'orders.index', 'reports.sales', 'expenses.index'],
+    },
+    {
+        label: 'operations_title',
+        icon: React.createElement(Receipt),
+        requiredPermissions: ['cash-closing.create', 'cash-closing.view', 'orders.index', 'orders.create', 'petty-cash.create', 'petty-cash.view', 'expenses.index', 'service-jobs.view', 'service-jobs.create', 'products.index'],
+        subMenu: [
+            {
+                label: 'cash_closing_title',
+                href: '/cash-closing',
+                requiredPermissions: ['cash-closing.create', 'cash-closing.view', 'orders.index', 'orders.create'],
+            },
+            {
+                label: 'petty_cash_title',
+                href: '/petty-cash',
+                requiredPermissions: ['petty-cash.create', 'petty-cash.view', 'expenses.index', 'expenses.create'],
+            },
+            {
+                label: 'service_jobs_title',
+                href: '/service-jobs',
+                requiredPermissions: ['service-jobs.view', 'service-jobs.create', 'orders.index', 'products.index'],
+            },
+        ],
+    },
+    {
+        label: 'hr_title',
+        icon: React.createElement(CalendarCheck),
+        requiredPermissions: ['hr.attendance.create', 'hr.attendance.view', 'users.view'],
+        subMenu: [
+            {
+                label: 'hr_attendance_title',
+                href: '/hr/attendance',
+                requiredPermissions: ['hr.attendance.create', 'hr.attendance.view', 'users.view'],
+            },
+        ],
     },
     {
         label: 'Store',

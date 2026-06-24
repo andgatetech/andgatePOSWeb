@@ -142,6 +142,7 @@ export const baseApi = createApi({
         'Coupons',
         'ManualPayments',
         'PurchaseReturns',
+        'BusinessOS',
     ],
     endpoints: () => ({}),
 });
