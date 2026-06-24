@@ -65,13 +65,7 @@ const PurchaseCompletedTable: React.FC<PurchaseCompletedTableProps> = ({ orders,
                 label: t('order_items'),
                 render: (value) => {
                     const itemCount = value?.length || 0;
-                    return (
-                        <div className="flex flex-col gap-1">
-                            <span className="inline-flex w-fit items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
-                                {itemCount} {t('lbl_items')}
-                            </span>
-                        </div>
-                    );
+                    return <span className="text-sm text-gray-700">{itemCount} {t('lbl_items')}</span>;
                 },
             },
             {
@@ -84,7 +78,7 @@ const PurchaseCompletedTable: React.FC<PurchaseCompletedTableProps> = ({ orders,
                 key: 'amount_paid',
                 label: t('lbl_paid'),
                 sortable: true,
-                render: (value) => <span className="font-semibold text-green-600">{formatCurrency(value || 0)}</span>,
+                render: (value) => <span className="font-semibold text-success">{formatCurrency(value || 0)}</span>,
             },
             {
                 key: 'payment_status',
@@ -119,25 +113,25 @@ const PurchaseCompletedTable: React.FC<PurchaseCompletedTableProps> = ({ orders,
             {
                 label: t('purchase_action_view'),
                 onClick: onViewItems,
-                className: 'text-blue-600',
+                className: 'text-gray-700',
                 icon: <Eye className="h-4 w-4" />,
             },
             {
                 label: 'View receiving',
                 onClick: onViewTransactions,
-                className: 'text-indigo-600',
+                className: 'text-gray-700',
                 icon: <Clock className="h-4 w-4" />,
             },
             {
                 label: t('btn_print'),
                 onClick: onPrint,
-                className: 'text-gray-600',
+                className: 'text-gray-700',
                 icon: <Printer className="h-4 w-4" />,
             },
             {
                 label: t('purchase_action_return') || 'Return',
                 onClick: onReturn,
-                className: 'text-danger',
+                className: 'text-warning',
                 icon: <RotateCcw className="h-4 w-4" />,
             },
         ],

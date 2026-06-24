@@ -177,13 +177,13 @@ const StockReportPage = () => {
                     const isLow = r.is_low_stock;
                     const isOut = r.is_out_of_stock;
                     let c = 'text-gray-900';
-                    if (isOut) c = 'text-red-600';
-                    else if (isLow) c = 'text-orange-600';
+                    if (isOut) c = 'text-danger';
+                    else if (isLow) c = 'text-warning';
                     return (
                         <div className="flex items-center gap-2">
                             <span className={`font-bold ${c}`}>{v}</span>
-                            {isLow && !isOut && <AlertTriangle className="h-4 w-4 text-orange-500" />}
-                            {isOut && <XCircle className="h-4 w-4 text-red-500" />}
+                            {isLow && !isOut && <AlertTriangle className="h-4 w-4 text-warning" />}
+                            {isOut && <XCircle className="h-4 w-4 text-danger" />}
                         </div>
                     );
                 },
@@ -194,7 +194,7 @@ const StockReportPage = () => {
                 key: 'profit_margin',
                 label: t('lbl_margin'),
                 sortable: true,
-                render: (v: any) => <span className={`font-semibold ${Number(v) < 0 ? 'text-red-600' : 'text-green-600'}`}>{Number(v).toFixed(2)}%</span>,
+                render: (v: any) => <span className={`font-semibold ${Number(v) < 0 ? 'text-danger' : 'text-success'}`}>{Number(v).toFixed(2)}%</span>,
             },
             { key: 'price', label: t('lbl_selling_price'), render: (v: any) => <span className="text-sm text-gray-700">{formatCurrency(v)}</span> },
             {
@@ -202,11 +202,11 @@ const StockReportPage = () => {
                 label: t('lbl_status'),
                 render: (v: any, r: any) =>
                     r.is_out_of_stock ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">Out of Stock</span>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-danger">Out of Stock</span>
                     ) : r.is_low_stock ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-medium text-orange-800">Low Stock</span>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-medium text-warning">Low Stock</span>
                     ) : (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">In Stock</span>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-success">In Stock</span>
                     ),
             },
         ],

@@ -164,7 +164,7 @@ const PurchaseItemsReportPage = () => {
             { key: 'product_name', label: t('lbl_product'), sortable: true, render: (v: any) => <span className="font-medium text-gray-900">{v}</span> },
             { key: 'category', label: t('lbl_category'), render: (v: any) => <span className="text-sm text-gray-700">{v || 'Uncategorized'}</span> },
             { key: 'brand', label: t('brand_title'), render: (v: any) => <span className="text-sm text-gray-700">{v || 'Unbranded'}</span> },
-            { key: 'instock_qty', label: t('status_in_stock'), render: (v: any) => <span className={`font-semibold ${Number(v) > 0 ? 'text-gray-900' : 'text-red-600'}`}>{v}</span> },
+            { key: 'instock_qty', label: t('status_in_stock'), render: (v: any) => <span className={`font-semibold ${Number(v) > 0 ? 'text-gray-900' : 'text-danger'}`}>{v}</span> },
             { key: 'purchase_qty', label: t('lbl_qty'), sortable: true, render: (v: any) => <span className="font-bold text-blue-600">{v}</span> },
             {
                 key: 'received_qty',
@@ -172,7 +172,7 @@ const PurchaseItemsReportPage = () => {
                 render: (v: any, r: any) => {
                     const f = Number(v) >= Number(r.purchase_qty);
                     return (
-                        <span className={`inline-flex items-center gap-1 font-medium ${f ? 'text-green-600' : 'text-orange-600'}`}>
+                        <span className={`inline-flex items-center gap-1 font-medium ${f ? 'text-success' : 'text-warning'}`}>
                             {v}
                             {f && <CheckCircle className="h-3 w-3" />}
                         </span>

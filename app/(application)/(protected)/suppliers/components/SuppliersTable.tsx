@@ -126,19 +126,19 @@ const SuppliersTable: React.FC<SuppliersTableProps> = ({ suppliers, isLoading, p
             {
                 label: t('supplier_action_view'),
                 onClick: onViewDetails,
-                className: 'text-blue-600',
+                className: 'text-gray-700',
                 icon: <Eye className="h-4 w-4" />,
             },
             {
                 label: t('supplier_action_edit'),
                 onClick: onEdit,
-                className: 'text-orange-600',
+                className: 'text-gray-700',
                 icon: <Edit className="h-4 w-4" />,
             },
             {
                 label: t('supplier_action_delete'),
                 onClick: onDelete,
-                className: 'text-red-600',
+                className: 'text-danger',
                 icon: <Trash2 className="h-4 w-4" />,
             },
         ],

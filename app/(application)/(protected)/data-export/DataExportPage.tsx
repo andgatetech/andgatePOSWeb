@@ -253,14 +253,14 @@ const DataExportPage = () => {
             {
                 label: t('btn_download'),
                 icon: <Download className="h-4 w-4" />,
-                className: 'text-green-600',
+                className: 'text-gray-700',
                 hidden: (row) => row.status !== 'completed',
                 onClick: handleDownloadJob,
             },
             {
                 label: t('btn_delete'),
                 icon: <Trash2 className="h-4 w-4" />,
-                className: 'text-red-600',
+                className: 'text-danger',
                 onClick: handleDeleteJob,
             },
         ],

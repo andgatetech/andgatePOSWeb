@@ -108,7 +108,7 @@ const OrderReturnsTable: React.FC<OrderReturnsTableProps> = ({ returns, isLoadin
                 key: 'total_return_amount',
                 label: t('lbl_amount'),
                 sortable: true,
-                render: (value) => <span className="font-semibold text-red-600">{formatCurrency(value || 0)}</span>,
+                render: (value) => <span className="font-semibold text-danger">{formatCurrency(value || 0)}</span>,
             },
             {
                 key: 'net_amount',
@@ -119,15 +119,15 @@ const OrderReturnsTable: React.FC<OrderReturnsTableProps> = ({ returns, isLoadin
                     if (netAmount < 0) {
                         return (
                             <div className="flex flex-col">
-                                <span className="font-semibold text-emerald-600">{formatCurrency(Math.abs(netAmount))}</span>
-                                <span className="text-xs text-emerald-600">{t('lbl_refund')}</span>
+                                <span className="font-semibold text-success">{formatCurrency(Math.abs(netAmount))}</span>
+                                <span className="text-xs text-success">{t('lbl_refund')}</span>
                             </div>
                         );
                     } else if (netAmount > 0) {
                         return (
                             <div className="flex flex-col">
-                                <span className="font-semibold text-amber-600">{formatCurrency(netAmount)}</span>
-                                <span className="text-xs text-amber-600">{t('lbl_customer_paid')}</span>
+                                <span className="font-semibold text-warning">{formatCurrency(netAmount)}</span>
+                                <span className="text-xs text-warning">{t('lbl_customer_paid')}</span>
                             </div>
                         );
                     }
@@ -190,7 +190,7 @@ const OrderReturnsTable: React.FC<OrderReturnsTableProps> = ({ returns, isLoadin
             {
                 label: t('order_action_view'),
                 onClick: handleViewDetails,
-                className: 'text-blue-600',
+                className: 'text-gray-700',
                 icon: <Eye className="h-4 w-4" />,
             },
         ],

@@ -216,7 +216,7 @@ const EcommerceOrdersPage = () => {
             {
                 key: 'store_items_count',
                 label: t('ecommerce_store_items'),
-                render: (value, row) => <span className="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">{value ?? row?.items_count ?? row?.items?.length ?? 0}</span>,
+                render: (value, row) => <span className="text-sm text-gray-700">{value ?? row?.items_count ?? row?.items?.length ?? 0}</span>,
             },
             {
                 key: 'store_items_subtotal',
@@ -251,7 +251,7 @@ const EcommerceOrdersPage = () => {
             {
                 label: t('btn_view'),
                 icon: <Eye className="h-4 w-4" />,
-                className: 'text-blue-600',
+                className: 'text-gray-700',
                 onClick: handleOpenOrder,
             },
         ],

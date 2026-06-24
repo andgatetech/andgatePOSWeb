@@ -244,7 +244,7 @@ const ProductReportPage = () => {
                 sortable: true,
                 render: (v: any, r: any) => (
                     <div className="flex flex-col">
-                        <span className={`font-bold ${Number(v) > 0 ? 'text-gray-900' : 'text-red-600'}`}>
+                        <span className={`font-bold ${Number(v) > 0 ? 'text-gray-900' : 'text-danger'}`}>
                             {v} <span className="text-[10px] font-normal lowercase text-gray-500">{r.unit || 'pcs'}</span>
                         </span>
                         <span className="text-[10px] text-gray-400">Rate: {formatCurrency(r.price)}</span>
@@ -258,7 +258,7 @@ const ProductReportPage = () => {
                 render: (v: any) => (
                     <div className="flex items-center gap-1.5">
                         <BarChart3 className="h-3.5 w-3.5 text-blue-400" />
-                        <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-bold text-blue-800">{v || 0}</span>
+                        <span className="text-sm text-gray-700">{v || 0}</span>
                     </div>
                 ),
             },
@@ -268,9 +268,7 @@ const ProductReportPage = () => {
                 sortable: true,
                 render: (v: any) => (
                     <div className="flex items-center gap-1.5">
-                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${Number(v) > 0 ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-600'}`}>
-                            {v || 0}
-                        </span>
+                        <span className={`text-sm ${Number(v) > 0 ? 'font-medium text-danger' : 'text-gray-700'}`}>{v || 0}</span>
                     </div>
                 ),
             },
@@ -280,7 +278,7 @@ const ProductReportPage = () => {
                 sortable: true,
                 render: (v: any) => (
                     <div className="flex items-center gap-1.5">
-                        <span className="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-800">{v || 0}</span>
+                        <span className="text-sm text-gray-700">{v || 0}</span>
                     </div>
                 ),
             },
@@ -299,15 +297,15 @@ const ProductReportPage = () => {
                 key: 'return_amount',
                 label: t('lbl_return'),
                 sortable: true,
-                render: (v: any) => <div className="flex items-center gap-1.5 font-medium text-red-600">{Number(v) > 0 ? `-${formatCurrency(v)}` : formatCurrency(0)}</div>,
+                render: (v: any) => <div className="flex items-center gap-1.5 font-medium text-danger">{Number(v) > 0 ? `-${formatCurrency(v)}` : formatCurrency(0)}</div>,
             },
             {
                 key: 'net_revenue',
                 label: t('lbl_revenue'),
                 sortable: true,
                 render: (v: any) => (
-                    <div className="flex items-center gap-1.5 font-bold text-emerald-600">
-                        <TrendingUp className="h-3.5 w-3.5 text-emerald-400" />
+                    <div className="flex items-center gap-1.5 font-bold text-success">
+                        <TrendingUp className="h-3.5 w-3.5 text-success" />
                         {formatCurrency(v)}
                     </div>
                 ),
@@ -318,7 +316,7 @@ const ProductReportPage = () => {
                 sortable: true,
                 render: (v: any) => {
                     const rate = Number(v || 0);
-                    const colorClass = rate > 15 ? 'text-red-600 bg-red-100' : rate > 5 ? 'text-yellow-600 bg-yellow-100' : 'text-green-600 bg-green-100';
+                    const colorClass = rate > 15 ? 'text-danger bg-red-100' : rate > 5 ? 'text-warning bg-yellow-100' : 'text-success bg-green-100';
                     return <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-bold ${colorClass}`}>{rate.toFixed(2)}%</span>;
                 },
             },

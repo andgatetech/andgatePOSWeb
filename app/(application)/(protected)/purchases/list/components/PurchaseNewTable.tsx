@@ -83,10 +83,8 @@ const PurchaseNewTable: React.FC<PurchaseNewTableProps> = ({
                     const newItems = value?.filter((item: any) => item.is_new_product).length || 0;
                     return (
                         <div className="flex flex-col gap-1">
-                            <span className="inline-flex w-fit items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
-                                {itemCount} {t('lbl_items')}
-                            </span>
-                            {newItems > 0 && <span className="text-xs text-green-600">+{newItems} {t('lbl_new')}</span>}
+                            <span className="text-sm text-gray-700">{itemCount} {t('lbl_items')}</span>
+                            {newItems > 0 && <span className="text-xs text-success">+{newItems} {t('lbl_new')}</span>}
                         </div>
                     );
                 },
@@ -104,7 +102,7 @@ const PurchaseNewTable: React.FC<PurchaseNewTableProps> = ({
                 render: (value) => {
                     const dueAmount = Number(value || 0);
                     if (dueAmount > 0) {
-                        return <span className="font-semibold text-red-600">{formatCurrency(dueAmount)}</span>;
+                        return <span className="font-semibold text-danger">{formatCurrency(dueAmount)}</span>;
                     }
                     return <span className="text-sm text-gray-500">{formatCurrency(0)}</span>;
                 },
@@ -162,7 +160,7 @@ const PurchaseNewTable: React.FC<PurchaseNewTableProps> = ({
             {
                 label: t('purchase_action_view'),
                 onClick: onViewItems,
-                className: 'text-blue-600',
+                className: 'text-gray-700',
                 icon: <Eye className="h-4 w-4" />,
             },
             {
@@ -172,13 +170,13 @@ const PurchaseNewTable: React.FC<PurchaseNewTableProps> = ({
                         onReceiveItems(row);
                     }
                 },
-                className: 'text-purple-600',
+                className: 'text-gray-700',
                 icon: <PackageCheck className="h-4 w-4" />,
             },
             {
                 label: 'Track receiving',
                 onClick: onViewTransactions,
-                className: 'text-indigo-600',
+                className: 'text-gray-700',
                 icon: <Clock className="h-4 w-4" />,
             },
             {
@@ -188,7 +186,7 @@ const PurchaseNewTable: React.FC<PurchaseNewTableProps> = ({
                         onPartialPayment(row);
                     }
                 },
-                className: 'text-orange-600',
+                className: 'text-gray-700',
                 icon: <CreditCard className="h-4 w-4" />,
             },
             {
@@ -198,19 +196,19 @@ const PurchaseNewTable: React.FC<PurchaseNewTableProps> = ({
                         onClearFullDue(row);
                     }
                 },
-                className: 'text-green-600',
+                className: 'text-gray-700',
                 icon: <CreditCard className="h-4 w-4" />,
             },
             {
                 label: t('btn_print'),
                 onClick: onPrint,
-                className: 'text-gray-600',
+                className: 'text-gray-700',
                 icon: <Printer className="h-4 w-4" />,
             },
             {
                 label: t('btn_delete'),
                 onClick: onDelete,
-                className: 'text-red-600',
+                className: 'text-danger',
                 icon: <Trash2 className="h-4 w-4" />,
             },
         ],

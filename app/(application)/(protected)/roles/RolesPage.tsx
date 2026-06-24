@@ -84,7 +84,7 @@ const RolesPage = () => {
             {
                 key: 'assigned_users_count',
                 label: t('roles_users_count'),
-                render: (value) => <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">{value ?? 0}</span>,
+                render: (value) => <span className="text-sm text-gray-700">{value ?? 0}</span>,
             },
         ],
         [t]
@@ -95,13 +95,13 @@ const RolesPage = () => {
             {
                 label: t('btn_edit'),
                 icon: <Pencil className="h-4 w-4" />,
-                className: 'text-[#046ca9]',
+                className: 'text-gray-700',
                 onClick: (role: any) => router.push(`/roles/edit/${role.id}`),
             },
             {
                 label: t('btn_delete'),
                 icon: <Trash2 className="h-4 w-4" />,
-                className: 'text-red-600',
+                className: 'text-danger',
                 onClick: handleDelete,
             },
         ],

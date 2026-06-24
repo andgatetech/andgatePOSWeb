@@ -203,12 +203,13 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, isLoading, pagination
             {
                 label: t('store_settings_title'),
                 onClick: () => router.push('/store/setting'),
+                className: 'text-gray-700',
                 icon: <Settings className="h-4 w-4" />,
             },
             {
                 label: t('btn_delete'),
                 onClick: onDelete,
-                className: 'text-red-600',
+                className: 'text-danger',
                 icon: <Trash2 className="h-4 w-4" />,
             },
         ],

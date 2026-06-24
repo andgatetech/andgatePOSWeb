@@ -255,8 +255,8 @@ const SupplierDueReportPage = () => {
             { key: 'reference', label: t('lbl_reference'), sortable: true, render: (v: any) => <span className="font-mono text-sm font-semibold text-gray-900">{v}</span> },
             { key: 'supplier', label: t('lbl_supplier'), render: (v: any) => <span className="text-sm text-gray-700">{v || 'N/A'}</span> },
             { key: 'total_amount', label: t('lbl_total'), sortable: true, render: (v: any) => <span className="font-semibold text-gray-900">{formatCurrency(v)}</span> },
-            { key: 'paid', label: t('status_paid'), sortable: true, render: (v: any) => <span className="font-semibold text-green-600">{formatCurrency(v)}</span> },
-            { key: 'due', label: t('lbl_due'), sortable: true, render: (v: any) => <span className="font-bold text-red-600">{formatCurrency(v)}</span> },
+            { key: 'paid', label: t('status_paid'), sortable: true, render: (v: any) => <span className="font-semibold text-success">{formatCurrency(v)}</span> },
+            { key: 'due', label: t('lbl_due'), sortable: true, render: (v: any) => <span className="font-bold text-danger">{formatCurrency(v)}</span> },
             {
                 key: 'status',
                 label: t('lbl_status'),
@@ -288,14 +288,14 @@ const SupplierDueReportPage = () => {
         {
             label: t('btn_make_partial_payment'),
             icon: <CreditCard className="h-4 w-4" />,
-            className: 'text-blue-600',
+            className: 'text-gray-700',
             onClick: (row: any) => openPaymentModal('partial', row),
             hidden: (row: any) => Number(row.due || 0) <= 0,
         },
         {
             label: t('btn_clear_full_due'),
             icon: <CheckCircle2 className="h-4 w-4" />,
-            className: 'text-green-600',
+            className: 'text-gray-700',
             onClick: (row: any) => openPaymentModal('full', row),
             hidden: (row: any) => Number(row.due || 0) <= 0,
         },

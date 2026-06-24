@@ -49,7 +49,7 @@ const EcommerceStoresPage = () => {
             {
                 key: 'active_ecommerce_products_count',
                 label: t('ecommerce_visible_products'),
-                render: (value) => <span className="font-semibold text-green-700">{value ?? 0}</span>,
+                render: (value) => <span className="font-semibold text-gray-900">{value ?? 0}</span>,
             },
             {
                 key: 'is_active',
@@ -68,14 +68,14 @@ const EcommerceStoresPage = () => {
             {
                 label: t('ecommerce_request_enable'),
                 icon: <Send className="h-4 w-4" />,
-                className: 'text-blue-600',
+                className: 'text-gray-700',
                 hidden: (row) => Boolean(row.is_ecommerce_enabled),
                 onClick: (row) => setSelectedRequestStore(row),
             },
             {
                 label: t('ecommerce_request_disable'),
                 icon: <Send className="h-4 w-4" />,
-                className: 'text-amber-600',
+                className: 'text-gray-700',
                 hidden: (row) => !row.is_ecommerce_enabled,
                 onClick: (row) => setSelectedRequestStore(row),
             },

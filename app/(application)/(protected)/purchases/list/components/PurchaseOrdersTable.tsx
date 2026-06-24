@@ -98,9 +98,7 @@ const PurchaseOrdersTable: React.FC<PurchaseOrdersTableProps> = ({
                 key: 'items_count',
                 label: t('order_items'),
                 render: (value) => (
-                    <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700">
-                        {value ?? 0}
-                    </span>
+                    <span className="text-sm text-gray-700">{value ?? 0}</span>
                 ),
             },
             {
@@ -120,9 +118,9 @@ const PurchaseOrdersTable: React.FC<PurchaseOrdersTableProps> = ({
                     const due = parseFloat(row.amount_due) || 0;
                     return (
                         <div className="space-y-0.5">
-                            <span className="text-sm font-medium text-emerald-600">{formatCurrency(paid)}</span>
+                            <span className="text-sm font-medium text-success">{formatCurrency(paid)}</span>
                             {due > 0 && (
-                                <span className="block text-xs text-red-500">{t('lbl_due')}: {formatCurrency(due)}</span>
+                                <span className="block text-xs text-danger">{t('lbl_due')}: {formatCurrency(due)}</span>
                             )}
                         </div>
                     );
@@ -163,13 +161,13 @@ const PurchaseOrdersTable: React.FC<PurchaseOrdersTableProps> = ({
             {
                 label: t('btn_view'),
                 icon: <Eye className="h-4 w-4" />,
-                className: 'text-blue-600',
+                className: 'text-gray-700',
                 onClick: onViewItems,
             },
             {
                 label: t('btn_print'),
                 icon: <Printer className="h-4 w-4" />,
-                className: 'text-gray-600',
+                className: 'text-gray-700',
                 onClick: onPrint,
             },
         ];
@@ -178,7 +176,7 @@ const PurchaseOrdersTable: React.FC<PurchaseOrdersTableProps> = ({
             actions.push({
                 label: t('purchase_receive'),
                 icon: <PackageCheck className="h-4 w-4" />,
-                className: 'text-emerald-600',
+                className: 'text-gray-700',
                 onClick: onReceiveItems,
             });
         }
@@ -186,7 +184,7 @@ const PurchaseOrdersTable: React.FC<PurchaseOrdersTableProps> = ({
         actions.push({
             label: t('lbl_payment'),
             icon: <CreditCard className="h-4 w-4" />,
-            className: 'text-amber-600',
+            className: 'text-gray-700',
             onClick: (order) => {
                 const due = parseFloat(order.amount_due) || 0;
                 if (due <= 0) return;
@@ -198,7 +196,7 @@ const PurchaseOrdersTable: React.FC<PurchaseOrdersTableProps> = ({
             actions.push({
                 label: t('lbl_return'),
                 icon: <RotateCcw className="h-4 w-4" />,
-                className: 'text-purple-600',
+                className: 'text-warning',
                 onClick: onReturn,
             });
         }
@@ -207,7 +205,7 @@ const PurchaseOrdersTable: React.FC<PurchaseOrdersTableProps> = ({
             actions.push({
                 label: t('lbl_delete'),
                 icon: <Trash2 className="h-4 w-4" />,
-                className: 'text-red-600',
+                className: 'text-danger',
                 onClick: onDelete,
             });
         }

@@ -246,17 +246,17 @@ const CustomerReportPage = () => {
                 render: (value: any) => (
                     <div className="flex items-center gap-1.5">
                         <ShoppingCart className="h-4 w-4 text-gray-400" />
-                        <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-bold text-blue-800">{value}</span>
+                        <span className="text-sm text-gray-700">{value}</span>
                     </div>
                 ),
             },
             { key: 'amount', label: t('lbl_amount'), sortable: true, render: (value: any) => <span className="font-bold text-gray-900">{formatCurrency(value)}</span> },
-            { key: 'paid', label: t('lbl_paid'), render: (value: any) => <span className="font-medium text-emerald-600">{formatCurrency(value)}</span> },
+            { key: 'paid', label: t('lbl_paid'), render: (value: any) => <span className="font-medium text-success">{formatCurrency(value)}</span> },
             {
                 key: 'due',
                 label: t('lbl_due'),
                 sortable: true,
-                render: (value: any) => <span className={`font-bold ${Number(value) > 0 ? 'text-red-600' : 'text-gray-400'}`}>{formatCurrency(value)}</span>,
+                render: (value: any) => <span className={`font-bold ${Number(value) > 0 ? 'text-danger' : 'text-gray-400'}`}>{formatCurrency(value)}</span>,
             },
             {
                 key: 'total_returns',
@@ -264,9 +264,7 @@ const CustomerReportPage = () => {
                 sortable: true,
                 render: (value: any) => (
                     <div className="flex items-center gap-1.5">
-                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${Number(value) > 0 ? 'bg-orange-100 text-orange-800' : 'bg-gray-100 text-gray-600'}`}>
-                            {value || 0}
-                        </span>
+                        <span className="text-sm text-gray-700">{value || 0}</span>
                     </div>
                 ),
             },
@@ -275,14 +273,14 @@ const CustomerReportPage = () => {
                 label: t('lbl_amount'),
                 sortable: true,
                 render: (value: any) => (
-                    <span className={`font-medium ${Number(value) > 0 ? 'text-red-600' : 'text-gray-400'}`}>{Number(value) > 0 ? `-${formatCurrency(value)}` : formatCurrency(0)}</span>
+                    <span className={`font-medium ${Number(value) > 0 ? 'text-danger' : 'text-gray-400'}`}>{Number(value) > 0 ? `-${formatCurrency(value)}` : formatCurrency(0)}</span>
                 ),
             },
             {
                 key: 'net_purchase_value',
                 label: t('lbl_purchase'),
                 sortable: true,
-                render: (value: any) => <span className="font-bold text-emerald-600">{formatCurrency(value)}</span>,
+                render: (value: any) => <span className="font-bold text-success">{formatCurrency(value)}</span>,
             },
             {
                 key: 'return_rate',
@@ -290,7 +288,7 @@ const CustomerReportPage = () => {
                 sortable: true,
                 render: (value: any) => {
                     const rate = Number(value || 0);
-                    const colorClass = rate > 20 ? 'text-red-600 bg-red-100' : rate > 10 ? 'text-yellow-600 bg-yellow-100' : 'text-green-600 bg-green-100';
+                    const colorClass = rate > 20 ? 'text-danger bg-red-100' : rate > 10 ? 'text-warning bg-yellow-100' : 'text-success bg-green-100';
                     return (
                         <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-bold ${colorClass}`}>
                             {rate > 20 && <AlertCircle className="mr-0.5 h-3 w-3" />}

@@ -73,11 +73,7 @@ export default function CompanyBranchesPage() {
             {
                 key: 'currency',
                 label: t('lbl_currency'),
-                render: (value) => (
-                    <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700">
-                        {value?.code ?? '-'}
-                    </span>
-                ),
+                render: (value) => <span className="text-sm text-gray-700">{value?.code ?? '-'}</span>,
             },
             {
                 key: 'is_active',
@@ -97,7 +93,7 @@ export default function CompanyBranchesPage() {
             {
                 label: t('company_branch_manage'),
                 icon: <ExternalLink className="h-4 w-4" />,
-                className: 'text-[#046ca9]',
+                className: 'text-gray-700',
                 onClick: () => router.push('/store'),
             },
         ],

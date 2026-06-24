@@ -221,7 +221,7 @@ const OrderReturnsReportPage = () => {
                 key: 'total_return_amount',
                 label: t('lbl_return'),
                 sortable: true,
-                render: (value: any) => <span className="font-semibold text-red-600">-{formatCurrency(value)}</span>,
+                render: (value: any) => <span className="font-semibold text-danger">-{formatCurrency(value)}</span>,
             },
             {
                 key: 'payment_status',

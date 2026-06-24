@@ -345,7 +345,7 @@ const CustomerDueReportPage = () => {
             },
             { key: 'total_due', label: t('lbl_total_due'), sortable: true, render: (v: any) => <span className="font-semibold text-gray-900">{formatCurrency(v)}</span> },
             { key: 'paid', label: t('lbl_paid'), sortable: true, render: (v: any) => <span className="font-semibold text-emerald-600">{formatCurrency(v)}</span> },
-            { key: 'remaining', label: t('lbl_remaining_due'), sortable: true, render: (v: any) => <span className="font-bold text-red-600">{formatCurrency(v)}</span> },
+            { key: 'remaining', label: t('lbl_remaining_due'), sortable: true, render: (v: any) => <span className="font-bold text-danger">{formatCurrency(v)}</span> },
             {
                 key: 'aging_bucket',
                 label: t('lbl_aging'),
@@ -374,21 +374,21 @@ const CustomerDueReportPage = () => {
             {
                 label: 'Follow up',
                 icon: <MessageCircle className="h-4 w-4" />,
-                className: 'text-amber-600',
+                className: 'text-gray-700',
                 onClick: (row: any) => openFollowUpModal(row),
                 hidden: (row: any) => Number(row.remaining || 0) <= 0,
             },
             {
                 label: t('btn_make_partial_payment'),
                 icon: <CreditCard className="h-4 w-4" />,
-                className: 'text-blue-600',
+                className: 'text-gray-700',
                 onClick: (row: any) => openPaymentModal('partial', row),
                 hidden: (row: any) => Number(row.remaining || 0) <= 0,
             },
             {
                 label: t('btn_clear_full_due'),
                 icon: <CheckCircle2 className="h-4 w-4" />,
-                className: 'text-green-600',
+                className: 'text-gray-700',
                 onClick: (row: any) => openPaymentModal('full', row),
                 hidden: (row: any) => Number(row.remaining || 0) <= 0,
             },

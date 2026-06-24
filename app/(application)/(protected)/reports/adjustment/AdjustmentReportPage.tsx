@@ -190,11 +190,11 @@ const AdjustmentReportPage = () => {
                         {changed && (
                             <>
                                 <span className="text-gray-300">→</span>
-                                <span className={`text-xs font-semibold ${increased ? 'text-emerald-600' : decreased ? 'text-rose-600' : 'text-gray-700'}`}>
+                                <span className={`text-xs font-semibold ${increased ? 'text-success' : decreased ? 'text-danger' : 'text-gray-700'}`}>
                                     {adjVal !== null ? formatPrice(adjVal) : '—'}
                                 </span>
-                                {increased && <ArrowUp className="h-3 w-3 text-emerald-500" />}
-                                {decreased && <ArrowDown className="h-3 w-3 text-rose-500" />}
+                                {increased && <ArrowUp className="h-3 w-3 text-success" />}
+                                {decreased && <ArrowDown className="h-3 w-3 text-danger" />}
                             </>
                         )}
                     </div>
@@ -243,7 +243,7 @@ const AdjustmentReportPage = () => {
                     const i = r.direction?.toLowerCase() === 'increase';
                     return (
                         <div className="flex flex-col">
-                            <div className={`flex items-center gap-1 font-bold ${i ? 'text-emerald-600' : 'text-rose-600'}`}>
+                            <div className={`flex items-center gap-1 font-bold ${i ? 'text-success' : 'text-danger'}`}>
                                 {i ? <ArrowUp className="h-3.5 w-3.5" /> : <ArrowDown className="h-3.5 w-3.5" />}
                                 {formatNumber(v)}
                             </div>

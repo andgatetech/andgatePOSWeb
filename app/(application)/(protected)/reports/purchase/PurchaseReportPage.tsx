@@ -241,15 +241,15 @@ const PurchaseReportPage = () => {
                 label: t('lbl_paid_due'),
                 render: (value: any, row: any) => (
                     <div className="flex flex-col">
-                        <span className="text-xs font-medium text-green-600">P: {formatCurrency(value)}</span>
-                        <span className={`text-xs font-medium ${Number(row.amount_due) > 0 ? 'text-red-600' : 'text-gray-400'}`}>D: {formatCurrency(row.amount_due)}</span>
+                        <span className="text-xs font-medium text-success">P: {formatCurrency(value)}</span>
+                        <span className={`text-xs font-medium ${Number(row.amount_due) > 0 ? 'text-danger' : 'text-gray-400'}`}>D: {formatCurrency(row.amount_due)}</span>
                     </div>
                 ),
             },
             {
                 key: 'items_count',
                 label: t('order_items'),
-                render: (value: any) => <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-[11px] font-bold text-slate-600">{value}</span>,
+                render: (value: any) => <span className="text-sm text-gray-700">{value}</span>,
             },
             {
                 key: 'created_at',
@@ -338,7 +338,7 @@ const PurchaseReportPage = () => {
                                     </div>
                                     <div className="text-right">
                                         <p className="text-sm font-bold text-gray-900">{formatCurrency(item.total)}</p>
-                                        {Number(item.total_due) > 0 && <p className="mt-1 text-[10px] font-medium leading-none text-red-500">Due: {formatCurrency(item.total_due)}</p>}
+                                        {Number(item.total_due) > 0 && <p className="mt-1 text-[10px] font-medium leading-none text-danger">Due: {formatCurrency(item.total_due)}</p>}
                                     </div>
                                 </div>
                             ))}

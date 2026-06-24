@@ -160,7 +160,7 @@ const StaffManagement = () => {
         {
             label: t('employee_action_edit'),
             icon: <Pencil className="h-4 w-4" />,
-            className: 'text-[#046ca9]',
+            className: 'text-gray-700',
             onClick: (row) => {
                 const params = new URLSearchParams({
                     name: row.name || '',
@@ -176,7 +176,7 @@ const StaffManagement = () => {
         {
             label: t('btn_delete'),
             icon: <Trash2 className="h-4 w-4" />,
-            className: 'text-red-700',
+            className: 'text-danger',
             onClick: (row) => {
                 showMessage(t('msg_employee_delete_coming_soon'), 'info');
             },

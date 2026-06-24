@@ -229,8 +229,8 @@ const SalesItemsReportPage = () => {
                     const profit = Number(v);
                     return (
                         <div className="flex items-center gap-1">
-                            {profit >= 0 ? <TrendingUp className="h-3.5 w-3.5 text-emerald-500" /> : <TrendingDown className="h-3.5 w-3.5 text-red-500" />}
-                            <span className={`font-medium ${profit >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>{formatCurrency(profit)}</span>
+                            {profit >= 0 ? <TrendingUp className="h-3.5 w-3.5 text-success" /> : <TrendingDown className="h-3.5 w-3.5 text-danger" />}
+                            <span className={`font-medium ${profit >= 0 ? 'text-success' : 'text-danger'}`}>{formatCurrency(profit)}</span>
                         </div>
                     );
                 },
@@ -242,7 +242,7 @@ const SalesItemsReportPage = () => {
                 render: (v: any) => {
                     const profit = Number(v);
                     return (
-                        <span className={`font-bold ${profit >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>
+                        <span className={`font-bold ${profit >= 0 ? 'text-success' : 'text-danger'}`}>
                             {profit >= 0 ? '+' : ''}
                             {formatCurrency(profit)}
                         </span>

@@ -69,11 +69,7 @@ const CompanyPage = () => {
             {
                 key: 'stores_count',
                 label: t('lbl_branches'),
-                render: (value) => (
-                    <span className="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
-                        {value ?? 0}
-                    </span>
-                ),
+                render: (value) => <span className="text-sm text-gray-700">{value ?? 0}</span>,
             },
             {
                 key: 'subscription',
@@ -110,13 +106,13 @@ const CompanyPage = () => {
             {
                 label: t('company_view_branches'),
                 icon: <GitBranch className="h-4 w-4" />,
-                className: 'text-indigo-600',
+                className: 'text-gray-700',
                 onClick: (row) => router.push(`/company/${row.id}/branches`),
             },
             {
                 label: t('btn_edit'),
                 icon: <Pencil className="h-4 w-4" />,
-                className: 'text-[#046ca9]',
+                className: 'text-gray-700',
                 onClick: (row) => router.push(`/company/${row.id}/edit`),
             },
         ],

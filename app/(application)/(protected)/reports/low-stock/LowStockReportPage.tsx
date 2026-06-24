@@ -257,9 +257,9 @@ const LowStockReportPage = () => {
                 render: (v: any, r: any) => {
                     const pct = Number(v);
                     const isOut = r.is_out_of_stock;
-                    let tc = 'text-orange-700';
-                    if (isOut || pct <= 0) tc = 'text-rose-700';
-                    else if (pct <= 20) tc = 'text-red-700';
+                    let tc = 'text-warning';
+                    if (isOut || pct <= 0) tc = 'text-danger';
+                    else if (pct <= 20) tc = 'text-danger';
                     return (
                         <div className="flex flex-col gap-1">
                             <span className={`text-xs font-black uppercase tracking-wider ${tc}`}>{isOut ? 'OUT OF STOCK' : `${pct.toFixed(0)}% LEVEL`}</span>

@@ -103,8 +103,8 @@ const CustomersTable: React.FC<CustomersTableProps> = ({ customers, isLoading, p
                     const isPositive = balance > 0;
                     return (
                         <div className="flex flex-col">
-                            <span className={`text-sm font-semibold ${isPositive ? 'text-green-600' : balance < 0 ? 'text-red-600' : 'text-gray-900'}`}>{formatCurrency(Math.abs(balance))}</span>
-                            {balance < 0 && <span className="text-xs text-red-500">{t('lbl_due')}</span>}
+                            <span className={`text-sm font-semibold ${isPositive ? 'text-success' : balance < 0 ? 'text-danger' : 'text-gray-900'}`}>{formatCurrency(Math.abs(balance))}</span>
+                            {balance < 0 && <span className="text-xs text-danger">{t('lbl_due')}</span>}
                         </div>
                     );
                 },
@@ -143,19 +143,19 @@ const CustomersTable: React.FC<CustomersTableProps> = ({ customers, isLoading, p
             {
                 label: t('customer_action_view'),
                 onClick: onViewDetails,
-                className: 'text-blue-600',
+                className: 'text-gray-700',
                 icon: <Eye className="h-4 w-4" />,
             },
             {
                 label: t('customer_action_edit'),
                 onClick: onEdit,
-                className: 'text-orange-600',
+                className: 'text-gray-700',
                 icon: <Edit className="h-4 w-4" />,
             },
             {
                 label: t('customer_action_delete'),
                 onClick: onDelete,
-                className: 'text-red-600',
+                className: 'text-danger',
                 icon: <Trash2 className="h-4 w-4" />,
             },
         ],

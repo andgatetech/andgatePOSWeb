@@ -191,7 +191,7 @@ const ExpenseReportPage = () => {
                     </div>
                 ),
             },
-            { key: 'amount', label: t('lbl_amount'), sortable: true, render: (value: any) => <span className="font-bold text-rose-600">{formatCurrency(value)}</span> },
+            { key: 'amount', label: t('lbl_amount'), sortable: true, render: (value: any) => <span className="font-bold text-danger">{formatCurrency(value)}</span> },
             {
                 key: 'created_at',
                 label: t('lbl_date'),

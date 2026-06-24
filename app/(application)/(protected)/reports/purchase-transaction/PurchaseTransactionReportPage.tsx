@@ -175,9 +175,9 @@ const PurchaseTransactionReportPage = () => {
             {
                 key: 'payment_method',
                 label: t('lbl_payment_method'),
-                render: (v: any) => <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium capitalize text-blue-800">{v}</span>,
+                render: (v: any) => <span className="text-sm capitalize text-gray-700">{v}</span>,
             },
-            { key: 'amount', label: t('lbl_amount_paid'), sortable: true, render: (v: any) => <span className="font-bold text-green-600">{formatCurrency(v)}</span> },
+            { key: 'amount', label: t('lbl_amount_paid'), sortable: true, render: (v: any) => <span className="font-bold text-success">{formatCurrency(v)}</span> },
             { key: 'user_name', label: t('lbl_processed_by'), render: (v: any) => <span className="text-sm text-gray-600">{v}</span> },
             {
                 key: 'paid_at',

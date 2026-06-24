@@ -214,7 +214,7 @@ const IdleProductReportPage = () => {
                 label: t('lbl_last_sale'),
                 render: (v: any, r: any) => (
                     <div className="flex flex-col">
-                        <div className={`flex items-center gap-1.5 text-sm font-bold ${v ? 'text-amber-700' : 'text-rose-700'}`}>
+                        <div className={`flex items-center gap-1.5 text-sm font-bold ${v ? 'text-warning' : 'text-danger'}`}>
                             {v ? (
                                 <>
                                     <BarChart3 className="h-3.5 w-3.5" />
@@ -237,8 +237,8 @@ const IdleProductReportPage = () => {
                 sortable: true,
                 render: (v: any) => {
                     const d = Number(v);
-                    let i = 'bg-amber-100 text-amber-700 border-amber-200';
-                    if (d > 180) i = 'bg-rose-100 text-rose-700 border-rose-200';
+                    let i = 'bg-amber-100 text-warning border-amber-200';
+                    if (d > 180) i = 'bg-rose-100 text-danger border-rose-200';
                     else if (d > 90) i = 'bg-orange-100 text-orange-700 border-orange-200';
                     return (
                         <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-black uppercase tracking-widest ${i}`}>

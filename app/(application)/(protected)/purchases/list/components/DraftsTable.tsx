@@ -65,14 +65,11 @@ const DraftsTable: React.FC<DraftsTableProps> = ({ drafts, isLoading, pagination
                 label: t('order_items'),
                 render: (value) => {
                     const totalItems = value?.total_items || 0;
-                    const existingProducts = value?.existing_products || 0;
                     const newProducts = value?.new_products || 0;
                     return (
                         <div className="flex flex-col gap-1">
-                            <span className="inline-flex w-fit items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
-                                {totalItems} {t('lbl_items')}
-                            </span>
-                            {newProducts > 0 && <span className="text-xs text-green-600">+{newProducts} {t('lbl_new')}</span>}
+                            <span className="text-sm text-gray-700">{totalItems} {t('lbl_items')}</span>
+                            {newProducts > 0 && <span className="text-xs text-success">+{newProducts} {t('lbl_new')}</span>}
                         </div>
                     );
                 },
@@ -117,27 +114,27 @@ const DraftsTable: React.FC<DraftsTableProps> = ({ drafts, isLoading, pagination
     const actions: TableAction[] = useMemo(
         () => [
             {
-                label: t('purchase_action_edit'),
-                onClick: (draft) => router.push(`/purchases/edit/${draft.id}`),
-                className: 'text-orange-600',
-                icon: <Edit className="h-4 w-4" />,
-            },
-            {
                 label: t('purchase_action_view'),
                 onClick: onViewItems,
-                className: 'text-blue-600',
+                className: 'text-gray-700',
                 icon: <Eye className="h-4 w-4" />,
+            },
+            {
+                label: t('purchase_action_edit'),
+                onClick: (draft) => router.push(`/purchases/edit/${draft.id}`),
+                className: 'text-gray-700',
+                icon: <Edit className="h-4 w-4" />,
             },
             {
                 label: 'Create purchase order',
                 onClick: onConvertToPO,
-                className: 'text-green-600',
+                className: 'text-gray-700',
                 icon: <FileText className="h-4 w-4" />,
             },
             {
                 label: t('purchase_action_delete'),
                 onClick: onDelete,
-                className: 'text-red-600',
+                className: 'text-danger',
                 icon: <Trash2 className="h-4 w-4" />,
             },
         ],

@@ -201,7 +201,7 @@ const InvoiceReportPage = () => {
                 render: (v: any) => (
                     <div className="flex items-center gap-1.5">
                         <Package className="h-3.5 w-3.5 text-gray-400" />
-                        <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-bold text-blue-800">{v}</span>
+                        <span className="text-sm text-gray-700">{v}</span>
                     </div>
                 ),
             },
@@ -225,8 +225,8 @@ const InvoiceReportPage = () => {
                     const d = Number(v || 0);
                     return (
                         <div className="flex flex-col">
-                            <span className="text-xs font-semibold text-emerald-600">P: {formatCurrency(r.paid)}</span>
-                            <span className={`text-xs font-semibold ${d > 0 ? 'text-red-600' : 'text-gray-400'}`}>D: {formatCurrency(d)}</span>
+                            <span className="text-xs font-semibold text-success">P: {formatCurrency(r.paid)}</span>
+                            <span className={`text-xs font-semibold ${d > 0 ? 'text-danger' : 'text-gray-400'}`}>D: {formatCurrency(d)}</span>
                         </div>
                     );
                 },

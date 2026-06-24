@@ -222,7 +222,7 @@ const SalesReportPage = () => {
             {
                 key: 'discount',
                 label: t('lbl_discount'),
-                render: (value: any) => <span className="text-red-500">-{formatCurrency(value)}</span>,
+                render: (value: any) => <span className="text-danger">-{formatCurrency(value)}</span>,
             },
             {
                 key: 'grand_total',
@@ -233,12 +233,12 @@ const SalesReportPage = () => {
             {
                 key: 'amount_paid',
                 label: t('status_paid'),
-                render: (value: any) => <span className="font-semibold text-emerald-600">{formatCurrency(value)}</span>,
+                render: (value: any) => <span className="font-semibold text-success">{formatCurrency(value)}</span>,
             },
             {
                 key: 'due_amount',
                 label: t('lbl_due'),
-                render: (value: any) => <span className={`font-semibold ${Number(value) > 0 ? 'text-red-600' : 'text-gray-400'}`}>{formatCurrency(value)}</span>,
+                render: (value: any) => <span className={`font-semibold ${Number(value) > 0 ? 'text-danger' : 'text-gray-400'}`}>{formatCurrency(value)}</span>,
             },
             {
                 key: 'payment_status',

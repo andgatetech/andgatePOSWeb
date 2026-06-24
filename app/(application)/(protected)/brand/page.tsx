@@ -443,13 +443,13 @@ const BrandManagement = () => {
                 label: t('brand_action_edit'),
                 onClick: (brand) => router.push(`/brand/edit/${brand.id}`),
                 icon: <Edit className="h-4 w-4" />,
-                className: 'text-blue-600 hover:bg-blue-50',
+                className: 'text-gray-700 hover:bg-gray-50',
             },
             {
                 label: t('brand_action_delete'),
                 onClick: (brand) => handleDelete(brand.id),
                 icon: <Trash2 className="h-4 w-4" />,
-                className: 'text-red-600 hover:bg-red-50',
+                className: 'text-danger hover:bg-red-50',
             },
         ],
         [t, openModal, handleDelete]

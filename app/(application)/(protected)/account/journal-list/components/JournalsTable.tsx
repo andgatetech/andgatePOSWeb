@@ -65,7 +65,7 @@ const JournalsTable: React.FC<JournalsTableProps> = ({ journals, isLoading, pagi
                 sortable: true,
                 render: (value) => {
                     const amount = parseFloat(value || '0');
-                    return <span className={`text-sm font-semibold ${amount > 0 ? 'text-red-600' : 'text-gray-400'}`}>{amount > 0 ? formatCurrency(value) : '-'}</span>;
+                    return <span className={`text-sm font-semibold ${amount > 0 ? 'text-danger' : 'text-gray-400'}`}>{amount > 0 ? formatCurrency(value) : '-'}</span>;
                 },
             },
             {
@@ -74,7 +74,7 @@ const JournalsTable: React.FC<JournalsTableProps> = ({ journals, isLoading, pagi
                 sortable: true,
                 render: (value) => {
                     const amount = parseFloat(value || '0');
-                    return <span className={`text-sm font-semibold ${amount > 0 ? 'text-green-600' : 'text-gray-400'}`}>{amount > 0 ? formatCurrency(value) : '-'}</span>;
+                    return <span className={`text-sm font-semibold ${amount > 0 ? 'text-success' : 'text-gray-400'}`}>{amount > 0 ? formatCurrency(value) : '-'}</span>;
                 },
             },
             {
@@ -84,7 +84,7 @@ const JournalsTable: React.FC<JournalsTableProps> = ({ journals, isLoading, pagi
                 render: (value) => {
                     const balance = parseFloat(value || '0');
                     return (
-                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${balance >= 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                        <span className={`text-sm font-semibold ${balance >= 0 ? 'text-success' : 'text-danger'}`}>
                             {formatCurrency(value)}
                         </span>
                     );
@@ -115,19 +115,19 @@ const JournalsTable: React.FC<JournalsTableProps> = ({ journals, isLoading, pagi
             {
                 label: t('btn_view'),
                 onClick: onViewDetails,
-                className: 'text-blue-600',
+                className: 'text-gray-700',
                 icon: <Eye className="h-4 w-4" />,
             },
             {
                 label: t('btn_edit'),
                 onClick: onEdit,
-                className: 'text-orange-600',
+                className: 'text-gray-700',
                 icon: <Edit className="h-4 w-4" />,
             },
             {
                 label: t('btn_delete'),
                 onClick: onDelete,
-                className: 'text-red-600',
+                className: 'text-danger',
                 icon: <Trash2 className="h-4 w-4" />,
             },
         ],

@@ -74,7 +74,7 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({ expenses, isLoading, pagi
                 key: 'debit',
                 label: t('lbl_amount'),
                 sortable: true,
-                render: (value) => <span className="text-sm font-semibold text-red-600">{formatCurrency(value)}</span>,
+                render: (value) => <span className="text-sm font-semibold text-danger">{formatCurrency(value)}</span>,
             },
             {
                 key: 'payment_type',
@@ -114,19 +114,19 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({ expenses, isLoading, pagi
             {
                 label: t('btn_view'),
                 onClick: onViewDetails,
-                className: 'text-blue-600',
+                className: 'text-gray-700',
                 icon: <Eye className="h-4 w-4" />,
             },
             {
                 label: t('btn_edit'),
                 onClick: onEdit,
-                className: 'text-orange-600',
+                className: 'text-gray-700',
                 icon: <Edit className="h-4 w-4" />,
             },
             {
                 label: t('btn_delete'),
                 onClick: onDelete,
-                className: 'text-red-600',
+                className: 'text-danger',
                 icon: <Trash2 className="h-4 w-4" />,
             },
         ],

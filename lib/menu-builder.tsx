@@ -1,5 +1,5 @@
 // lib/menu-builder.tsx
-import { BarChart, Bell, BookOpen, BrainCircuit, FileText, Home, Layers, Link2, MessagesSquare, Package, Receipt, Settings, Shield, ShoppingBag, ShoppingCart, Tag, Truck, Users } from 'lucide-react';
+import { BarChart, Bell, BookOpen, BrainCircuit, BriefcaseBusiness, FileText, Home, Layers, Link2, MessagesSquare, Package, Receipt, Settings, Shield, ShoppingBag, ShoppingCart, Tag, Truck, Users } from 'lucide-react';
 import React from 'react';
 
 export interface MenuItem {
@@ -22,6 +22,12 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         icon: React.createElement(Home),
         href: '/dashboard',
        
+    },
+    {
+        label: 'business_os_title',
+        icon: React.createElement(BriefcaseBusiness),
+        href: '/business-os',
+        requiredPermissions: ['orders.index', 'orders.create', 'reports.sales', 'expenses.index'],
     },
     {
         label: 'Store',

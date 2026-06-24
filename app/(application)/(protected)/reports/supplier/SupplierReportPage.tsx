@@ -182,7 +182,7 @@ const SupplierReportPage = () => {
                     !v || v === 'N/A' ? (
                         <span className="text-xs text-gray-400">Not specified</span>
                     ) : (
-                        <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium capitalize text-blue-800">{v}</span>
+                        <span className="text-sm capitalize text-gray-700">{v}</span>
                     ),
             },
             {

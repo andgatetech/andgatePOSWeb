@@ -224,7 +224,7 @@ const TaxReportPage = () => {
             {
                 key: 'order_count',
                 label: t('order_title'),
-                render: (v: any) => <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">{v || 0}</span>,
+                render: (v: any) => <span className="text-sm text-gray-700">{v || 0}</span>,
             },
             { key: 'total_sales', label: t('report_sales_title'), sortable: true, render: (v: any) => <span className="text-gray-900">{formatCurrency(v)}</span> },
             {
@@ -232,7 +232,7 @@ const TaxReportPage = () => {
                 label: t('lbl_rate'),
                 render: (v: any, r: any) => {
                     const rate = v !== undefined ? v : r.total_sales > 0 ? (r.total_tax / r.total_sales) * 100 : 0;
-                    return <span className="inline-flex items-center rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-medium text-orange-800">{Number(rate || 0).toFixed(2)}%</span>;
+                    return <span className="text-sm text-gray-700">{Number(rate || 0).toFixed(2)}%</span>;
                 },
             },
         ];
