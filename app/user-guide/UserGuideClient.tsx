@@ -13,23 +13,32 @@ type GuideSection = {
     intro: string;
     image?: string;
     imageAlt?: string;
+    gallery?: { title: string; image: string; imageAlt: string }[];
     steps: string[];
     checks?: string[];
 };
 
 const screenshots = {
-    dashboard: '/assets/LandingImage/updated/dashboard.webp',
-    pos: '/assets/LandingImage/updated/pos.webp',
-    products: '/assets/LandingImage/updated/products.webp',
-    productCreate: '/assets/LandingImage/updated/product-create.webp',
-    purchase: '/assets/LandingImage/updated/purchase-create.webp',
-    supplierDue: '/assets/LandingImage/updated/supplier-due.webp',
-    customerDue: '/assets/LandingImage/updated/customer-due.webp',
-    salesReport: '/assets/LandingImage/updated/sales-report.webp',
-    profitLoss: '/assets/LandingImage/updated/profit-loss.webp',
-    stock: '/assets/LandingImage/updated/stock-report.webp',
-    mobile: '/assets/LandingImage/updated/mobile-dashboard.webp',
-    label: '/assets/LandingImage/updated/label.webp',
+    audit: '/assets/user-guide/current/desktop/audit-logs/audit-logs__audit-logs.png',
+    businessOS: '/assets/user-guide/current/desktop/business-os/business-os__business-os.png',
+    cashClosing: '/assets/user-guide/current/desktop/cash-closing/cash-closing__cash-closing.png',
+    customerDue: '/assets/user-guide/current/desktop/customer/customers-due__customers__due.png',
+    customerCrm: '/assets/user-guide/current/desktop/customer/customers-crm__customers__crm.png',
+    dashboard: '/assets/user-guide/current/desktop/dashboard/dashboard__dashboard.png',
+    ecommerce: '/assets/user-guide/current/desktop/ecommerce/ecommerce-orders__ecommerce__orders.png',
+    hrAttendance: '/assets/user-guide/current/desktop/hr/hr-attendance__hr__attendance.png',
+    label: '/assets/user-guide/current/desktop/label/label__label.png',
+    pettyCash: '/assets/user-guide/current/desktop/petty-cash/petty-cash__petty-cash.png',
+    pos: '/assets/user-guide/current/desktop/pos/pos__pos.png',
+    products: '/assets/user-guide/current/desktop/product/products__products.png',
+    productCreate: '/assets/user-guide/current/desktop/product/products-create__products__create.png',
+    stockThresholds: '/assets/user-guide/current/desktop/product/products-thresholds__products__thresholds.png',
+    purchase: '/assets/user-guide/current/desktop/purchase/purchases-create__purchases__create.png',
+    supplierDue: '/assets/user-guide/current/desktop/supplier/suppliers-due__suppliers__due.png',
+    supplierList: '/assets/user-guide/current/desktop/supplier/suppliers-list__suppliers__list.png',
+    profitLoss: '/assets/user-guide/current/desktop/reports-profit-loss/reports-profit-loss__reports__profit-loss.png',
+    serviceJobs: '/assets/user-guide/current/desktop/service-jobs/service-jobs__service-jobs.png',
+    mobile: '/assets/user-guide/current/mobile/dashboard/dashboard__dashboard.png',
 };
 
 const copy: Record<
@@ -134,7 +143,13 @@ const copy: Record<
                 title: '3. Business OS, Cash Closing, Petty Cash, HR, and Service Jobs',
                 intro: 'This is the daily operating area for Bangladeshi SME businesses. Owners get control, employees get clear tasks.',
                 image: screenshots.dashboard,
-                imageAlt: 'Business dashboard for daily operations',
+                imageAlt: 'Business OS dashboard for daily operations',
+                gallery: [
+                    { title: 'Cash closing', image: screenshots.cashClosing, imageAlt: 'Cash closing screen' },
+                    { title: 'Petty cash', image: screenshots.pettyCash, imageAlt: 'Petty cash screen' },
+                    { title: 'HR attendance', image: screenshots.hrAttendance, imageAlt: 'HR attendance screen' },
+                    { title: 'Service jobs', image: screenshots.serviceJobs, imageAlt: 'Service jobs screen' },
+                ],
                 steps: [
                     'Use Business OS to review daily tasks, counter status, cash movement, stock warnings, supplier/customer dues, and staff activity.',
                     'Use Cash and Counter Closing at the end of each shift. Employee can submit closing, owner/manager can review.',
@@ -166,8 +181,13 @@ const copy: Record<
                 id: 'products',
                 title: '5. Products, Variants, Barcode Label, and Stock Alerts',
                 intro: 'Clean product data makes POS faster and reports more reliable.',
-                image: screenshots.products,
+                image: screenshots.productCreate,
                 imageAlt: 'AndgatePOS product list',
+                gallery: [
+                    { title: 'Product list', image: screenshots.products, imageAlt: 'Product list screen' },
+                    { title: 'Stock alert', image: screenshots.stockThresholds, imageAlt: 'Stock thresholds screen' },
+                    { title: 'Barcode label', image: screenshots.label, imageAlt: 'Barcode label screen' },
+                ],
                 steps: [
                     'Create categories and brands first.',
                     'Add product name, SKU/barcode, purchase price, retail price, unit, tax, and opening stock.',
@@ -184,6 +204,10 @@ const copy: Record<
                 intro: 'Purchase flow controls supplier due, landed stock cost, and inventory quantity.',
                 image: screenshots.purchase,
                 imageAlt: 'AndgatePOS purchase creation screen',
+                gallery: [
+                    { title: 'Supplier list', image: screenshots.supplierList, imageAlt: 'Supplier list screen' },
+                    { title: 'Supplier due', image: screenshots.supplierDue, imageAlt: 'Supplier due screen' },
+                ],
                 steps: [
                     'Create supplier with name, mobile, address, opening balance if any, and payment terms.',
                     'Create purchase with supplier, invoice number, date, product, quantity, purchase price, discount, tax, and transport cost if needed.',
@@ -197,8 +221,8 @@ const copy: Record<
                 id: 'crm',
                 title: '7. Customers, CRM, Loyalty, and Due Follow-up',
                 intro: 'CRM helps owners keep regular customers, follow dues, and run local promotions.',
-                image: screenshots.customerDue,
-                imageAlt: 'Customer due report',
+                image: screenshots.customerCrm,
+                imageAlt: 'Customer CRM dashboard',
                 steps: [
                     'Create customer with name, mobile, address, opening due if any, and customer type.',
                     'Use customer in POS for due sales, loyalty, warranty, service jobs, and repeat purchase tracking.',
@@ -227,8 +251,8 @@ const copy: Record<
                 id: 'ecommerce',
                 title: '9. Ecommerce Orders and Courier',
                 intro: 'For Facebook/website orders, keep order, customer, stock, delivery, and payment status together.',
-                image: screenshots.salesReport,
-                imageAlt: 'Sales report used for order review',
+                image: screenshots.ecommerce,
+                imageAlt: 'Ecommerce orders screen',
                 steps: [
                     'Create or import ecommerce order with customer name, mobile, address, product, delivery charge, and payment status.',
                     'Confirm stock before accepting delivery order.',
@@ -242,8 +266,8 @@ const copy: Record<
                 id: 'control',
                 title: '10. Multi-store, Notifications, Audit, Backup, and Security',
                 intro: 'These controls protect the business when more staff, counters, and branches use the system.',
-                image: screenshots.stock,
-                imageAlt: 'Stock report for branch control',
+                image: screenshots.audit,
+                imageAlt: 'Audit logs for branch control',
                 steps: [
                     'Use separate branches/stores when stock and cash are handled separately.',
                     'Give role-based permissions and review them monthly.',
@@ -319,7 +343,7 @@ const copy: Record<
                 id: 'setup',
                 title: '২. দোকান সেটআপ এবং স্টাফ পারমিশন',
                 intro: 'লাইভ বিক্রির আগে দোকানের তথ্য, payment method, invoice style, return rule এবং staff access ঠিক করুন।',
-                image: screenshots.dashboard,
+                image: screenshots.businessOS,
                 imageAlt: 'AndgatePOS ড্যাশবোর্ড',
                 steps: [
                     'Store Settings-এ business name, phone, address, VAT/BIN থাকলে সেটি, এবং invoice footer দিন।',
@@ -334,8 +358,14 @@ const copy: Record<
                 id: 'business-os',
                 title: '৩. Business OS, ক্যাশ ক্লোজিং, Petty Cash, HR এবং Service Job',
                 intro: 'এটি বাংলাদেশি SME ব্যবসার দৈনিক অপারেশন জায়গা। মালিক নিয়ন্ত্রণ পায়, কর্মচারী কাজ পরিষ্কার বুঝতে পারে।',
-                image: screenshots.dashboard,
-                imageAlt: 'দৈনিক অপারেশন ড্যাশবোর্ড',
+                image: screenshots.businessOS,
+                imageAlt: 'দৈনিক অপারেশনের Business OS ড্যাশবোর্ড',
+                gallery: [
+                    { title: 'ক্যাশ ক্লোজিং', image: screenshots.cashClosing, imageAlt: 'Cash closing screen' },
+                    { title: 'Petty cash', image: screenshots.pettyCash, imageAlt: 'Petty cash screen' },
+                    { title: 'HR হাজিরা', image: screenshots.hrAttendance, imageAlt: 'HR attendance screen' },
+                    { title: 'Service jobs', image: screenshots.serviceJobs, imageAlt: 'Service jobs screen' },
+                ],
                 steps: [
                     'Business OS থেকে daily task, counter status, cash movement, stock warning, supplier/customer due এবং staff activity দেখুন।',
                     'প্রতিটি shift শেষে Cash and Counter Closing করুন। Employee submit করবে, owner/manager review করতে পারবে।',
@@ -367,8 +397,13 @@ const copy: Record<
                 id: 'products',
                 title: '৫. পণ্য, ভ্যারিয়েন্ট, বারকোড লেবেল এবং স্টক সতর্কতা',
                 intro: 'পরিষ্কার product data থাকলে POS দ্রুত চলে এবং report বেশি নির্ভরযোগ্য হয়।',
-                image: screenshots.products,
+                image: screenshots.productCreate,
                 imageAlt: 'AndgatePOS product list',
+                gallery: [
+                    { title: 'Product list', image: screenshots.products, imageAlt: 'Product list screen' },
+                    { title: 'Stock alert', image: screenshots.stockThresholds, imageAlt: 'Stock thresholds screen' },
+                    { title: 'Barcode label', image: screenshots.label, imageAlt: 'Barcode label screen' },
+                ],
                 steps: [
                     'আগে category এবং brand তৈরি করুন।',
                     'Product name, SKU/barcode, purchase price, retail price, unit, tax এবং opening stock দিন।',
@@ -385,6 +420,10 @@ const copy: Record<
                 intro: 'Purchase flow supplier due, stock cost এবং inventory quantity নিয়ন্ত্রণ করে।',
                 image: screenshots.purchase,
                 imageAlt: 'AndgatePOS purchase creation screen',
+                gallery: [
+                    { title: 'Supplier list', image: screenshots.supplierList, imageAlt: 'Supplier list screen' },
+                    { title: 'Supplier due', image: screenshots.supplierDue, imageAlt: 'Supplier due screen' },
+                ],
                 steps: [
                     'Supplier name, mobile, address, opening balance থাকলে সেটি, এবং payment terms দিয়ে supplier তৈরি করুন।',
                     'Supplier, invoice number, date, product, quantity, purchase price, discount, tax এবং transport cost দিয়ে purchase তৈরি করুন।',
@@ -398,8 +437,8 @@ const copy: Record<
                 id: 'crm',
                 title: '৭. Customer, CRM, Loyalty এবং Due Follow-up',
                 intro: 'CRM নিয়মিত customer ধরে রাখতে, due follow-up করতে এবং local promotion চালাতে সাহায্য করে।',
-                image: screenshots.customerDue,
-                imageAlt: 'Customer due report',
+                image: screenshots.customerCrm,
+                imageAlt: 'Customer CRM dashboard',
                 steps: [
                     'Customer name, mobile, address, opening due থাকলে সেটি এবং customer type দিয়ে customer তৈরি করুন।',
                     'Due sale, loyalty, warranty, service job এবং repeat purchase tracking-এর জন্য POS-এ customer ব্যবহার করুন।',
@@ -428,8 +467,8 @@ const copy: Record<
                 id: 'ecommerce',
                 title: '৯. ই-কমার্স অর্ডার এবং কুরিয়ার',
                 intro: 'Facebook/website order-এর জন্য order, customer, stock, delivery এবং payment status একসাথে রাখুন।',
-                image: screenshots.salesReport,
-                imageAlt: 'Sales report used for order review',
+                image: screenshots.ecommerce,
+                imageAlt: 'Ecommerce orders screen',
                 steps: [
                     'Customer name, mobile, address, product, delivery charge এবং payment status দিয়ে ecommerce order create/import করুন।',
                     'Delivery order accept করার আগে stock confirm করুন।',
@@ -443,8 +482,8 @@ const copy: Record<
                 id: 'control',
                 title: '১০. Multi-store, Notification, Audit, Backup এবং Security',
                 intro: 'বেশি staff, counter বা branch হলে এই control ব্যবসা নিরাপদ রাখে।',
-                image: screenshots.stock,
-                imageAlt: 'Stock report for branch control',
+                image: screenshots.audit,
+                imageAlt: 'Audit logs for branch control',
                 steps: [
                     'Stock ও cash আলাদা হলে separate branch/store ব্যবহার করুন।',
                     'Role-based permission দিন এবং মাসে একবার review করুন।',
@@ -658,6 +697,16 @@ export default function UserGuideClient() {
                                     </div>
                                     {section.image && <Image src={section.image} alt={section.imageAlt ?? section.title} width={720} height={460} className="rounded-xl border border-slate-200 bg-white object-cover" />}
                                 </div>
+                                {section.gallery && (
+                                    <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                                        {section.gallery.map((shot) => (
+                                            <figure key={shot.image} className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+                                                <Image src={shot.image} alt={shot.imageAlt} width={720} height={460} className="h-44 w-full object-cover object-top" />
+                                                <figcaption className="border-t border-slate-200 px-3 py-2 text-sm font-bold text-slate-700">{shot.title}</figcaption>
+                                            </figure>
+                                        ))}
+                                    </div>
+                                )}
                             </section>
                         ))}
 
