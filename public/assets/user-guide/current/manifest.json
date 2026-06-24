@@ -1,0 +1,315 @@
+{
+  "baseUrl": "https://andgatepos.com",
+  "outDir": "public/assets/user-guide/current",
+  "startedAt": "2026-06-24T23:26:19.056Z",
+  "lang": "app-default",
+  "pages": [
+    {
+      "status": "ok",
+      "viewport": "desktop",
+      "group": "dashboard",
+      "name": "dashboard",
+      "path": "/dashboard",
+      "file": "public/assets/user-guide/current/desktop/dashboard/dashboard__dashboard.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "desktop",
+      "group": "business-os",
+      "name": "business-os",
+      "path": "/business-os",
+      "file": "public/assets/user-guide/current/desktop/business-os/business-os__business-os.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "desktop",
+      "group": "cash-closing",
+      "name": "cash-closing",
+      "path": "/cash-closing",
+      "file": "public/assets/user-guide/current/desktop/cash-closing/cash-closing__cash-closing.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "desktop",
+      "group": "petty-cash",
+      "name": "petty-cash",
+      "path": "/petty-cash",
+      "file": "public/assets/user-guide/current/desktop/petty-cash/petty-cash__petty-cash.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "desktop",
+      "group": "hr",
+      "name": "hr-attendance",
+      "path": "/hr/attendance",
+      "file": "public/assets/user-guide/current/desktop/hr/hr-attendance__hr__attendance.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "desktop",
+      "group": "service-jobs",
+      "name": "service-jobs",
+      "path": "/service-jobs",
+      "file": "public/assets/user-guide/current/desktop/service-jobs/service-jobs__service-jobs.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "desktop",
+      "group": "pos",
+      "name": "pos",
+      "path": "/pos",
+      "file": "public/assets/user-guide/current/desktop/pos/pos__pos.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "desktop",
+      "group": "product",
+      "name": "products",
+      "path": "/products",
+      "file": "public/assets/user-guide/current/desktop/product/products__products.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "desktop",
+      "group": "product",
+      "name": "products-create",
+      "path": "/products/create",
+      "file": "public/assets/user-guide/current/desktop/product/products-create__products__create.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "desktop",
+      "group": "product",
+      "name": "products-thresholds",
+      "path": "/products/thresholds",
+      "file": "public/assets/user-guide/current/desktop/product/products-thresholds__products__thresholds.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "desktop",
+      "group": "label",
+      "name": "label",
+      "path": "/label",
+      "file": "public/assets/user-guide/current/desktop/label/label__label.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "desktop",
+      "group": "purchase",
+      "name": "purchases-create",
+      "path": "/purchases/create",
+      "file": "public/assets/user-guide/current/desktop/purchase/purchases-create__purchases__create.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "desktop",
+      "group": "supplier",
+      "name": "suppliers-list",
+      "path": "/suppliers/list",
+      "file": "public/assets/user-guide/current/desktop/supplier/suppliers-list__suppliers__list.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "desktop",
+      "group": "supplier",
+      "name": "suppliers-due",
+      "path": "/suppliers/due",
+      "file": "public/assets/user-guide/current/desktop/supplier/suppliers-due__suppliers__due.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "desktop",
+      "group": "customer",
+      "name": "customers-crm",
+      "path": "/customers/crm",
+      "file": "public/assets/user-guide/current/desktop/customer/customers-crm__customers__crm.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "desktop",
+      "group": "customer",
+      "name": "customers-due",
+      "path": "/customers/due",
+      "file": "public/assets/user-guide/current/desktop/customer/customers-due__customers__due.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "desktop",
+      "group": "ecommerce",
+      "name": "ecommerce-orders",
+      "path": "/ecommerce/orders",
+      "file": "public/assets/user-guide/current/desktop/ecommerce/ecommerce-orders__ecommerce__orders.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "desktop",
+      "group": "reports-profit-loss",
+      "name": "reports-profit-loss",
+      "path": "/reports/profit-loss",
+      "file": "public/assets/user-guide/current/desktop/reports-profit-loss/reports-profit-loss__reports__profit-loss.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "desktop",
+      "group": "audit-logs",
+      "name": "audit-logs",
+      "path": "/audit-logs",
+      "file": "public/assets/user-guide/current/desktop/audit-logs/audit-logs__audit-logs.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "mobile",
+      "group": "dashboard",
+      "name": "dashboard",
+      "path": "/dashboard",
+      "file": "public/assets/user-guide/current/mobile/dashboard/dashboard__dashboard.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "mobile",
+      "group": "business-os",
+      "name": "business-os",
+      "path": "/business-os",
+      "file": "public/assets/user-guide/current/mobile/business-os/business-os__business-os.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "mobile",
+      "group": "cash-closing",
+      "name": "cash-closing",
+      "path": "/cash-closing",
+      "file": "public/assets/user-guide/current/mobile/cash-closing/cash-closing__cash-closing.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "mobile",
+      "group": "petty-cash",
+      "name": "petty-cash",
+      "path": "/petty-cash",
+      "file": "public/assets/user-guide/current/mobile/petty-cash/petty-cash__petty-cash.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "mobile",
+      "group": "hr",
+      "name": "hr-attendance",
+      "path": "/hr/attendance",
+      "file": "public/assets/user-guide/current/mobile/hr/hr-attendance__hr__attendance.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "mobile",
+      "group": "service-jobs",
+      "name": "service-jobs",
+      "path": "/service-jobs",
+      "file": "public/assets/user-guide/current/mobile/service-jobs/service-jobs__service-jobs.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "mobile",
+      "group": "pos",
+      "name": "pos",
+      "path": "/pos",
+      "file": "public/assets/user-guide/current/mobile/pos/pos__pos.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "mobile",
+      "group": "product",
+      "name": "products",
+      "path": "/products",
+      "file": "public/assets/user-guide/current/mobile/product/products__products.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "mobile",
+      "group": "product",
+      "name": "products-create",
+      "path": "/products/create",
+      "file": "public/assets/user-guide/current/mobile/product/products-create__products__create.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "mobile",
+      "group": "product",
+      "name": "products-thresholds",
+      "path": "/products/thresholds",
+      "file": "public/assets/user-guide/current/mobile/product/products-thresholds__products__thresholds.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "mobile",
+      "group": "label",
+      "name": "label",
+      "path": "/label",
+      "file": "public/assets/user-guide/current/mobile/label/label__label.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "mobile",
+      "group": "purchase",
+      "name": "purchases-create",
+      "path": "/purchases/create",
+      "file": "public/assets/user-guide/current/mobile/purchase/purchases-create__purchases__create.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "mobile",
+      "group": "supplier",
+      "name": "suppliers-list",
+      "path": "/suppliers/list",
+      "file": "public/assets/user-guide/current/mobile/supplier/suppliers-list__suppliers__list.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "mobile",
+      "group": "supplier",
+      "name": "suppliers-due",
+      "path": "/suppliers/due",
+      "file": "public/assets/user-guide/current/mobile/supplier/suppliers-due__suppliers__due.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "mobile",
+      "group": "customer",
+      "name": "customers-crm",
+      "path": "/customers/crm",
+      "file": "public/assets/user-guide/current/mobile/customer/customers-crm__customers__crm.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "mobile",
+      "group": "customer",
+      "name": "customers-due",
+      "path": "/customers/due",
+      "file": "public/assets/user-guide/current/mobile/customer/customers-due__customers__due.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "mobile",
+      "group": "ecommerce",
+      "name": "ecommerce-orders",
+      "path": "/ecommerce/orders",
+      "file": "public/assets/user-guide/current/mobile/ecommerce/ecommerce-orders__ecommerce__orders.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "mobile",
+      "group": "reports-profit-loss",
+      "name": "reports-profit-loss",
+      "path": "/reports/profit-loss",
+      "file": "public/assets/user-guide/current/mobile/reports-profit-loss/reports-profit-loss__reports__profit-loss.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "mobile",
+      "group": "audit-logs",
+      "name": "audit-logs",
+      "path": "/audit-logs",
+      "file": "public/assets/user-guide/current/mobile/audit-logs/audit-logs__audit-logs.png"
+    }
+  ],
+  "finishedAt": "2026-06-24T23:29:27.871Z",
+  "total": 38,
+  "failed": 0
+}

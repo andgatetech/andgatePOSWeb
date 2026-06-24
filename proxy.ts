@@ -29,7 +29,7 @@ const clearAuthCookies = (response: NextResponse) => {
 // Public pages that do not require authentication
 const PUBLIC_PATHS = [
     '/', '/login', '/register', '/forgot-password',
-    '/pricing', '/price', '/subscription', '/training', '/contact', '/promotion',
+    '/pricing', '/price', '/subscription', '/training', '/user-guide', '/contact', '/promotion',
     '/affiliate', '/features', '/landing', '/blog', '/seo', '/pos-overview',
     '/training', '/about', '/privacy-policy', '/terms-of-service', '/cookie-policy',
     // SEO route groups whose URL has no path prefix to match against (Next.js
@@ -190,6 +190,6 @@ export function proxy(request: NextRequest) {
 
 export const config = {
     matcher: [
-        '/((?!_next|api|.*\\..*).*)',
+        '/((?!_next|api|user-guide|.*\\..*).*)',
     ],
 };
