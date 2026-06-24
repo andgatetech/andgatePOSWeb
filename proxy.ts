@@ -31,7 +31,7 @@ const PUBLIC_PATHS = [
     '/', '/login', '/register', '/forgot-password',
     '/pricing', '/price', '/subscription', '/training', '/contact', '/promotion',
     '/affiliate', '/features', '/landing', '/blog', '/seo', '/pos-overview',
-    '/about', '/privacy-policy', '/terms-of-service', '/cookie-policy',
+    '/training', '/about', '/privacy-policy', '/terms-of-service', '/cookie-policy',
     // SEO route groups whose URL has no path prefix to match against (Next.js
     // route groups like `(seo)` are stripped from the URL), plus their
     // localized/comparison variants — these must stay crawlable or every
