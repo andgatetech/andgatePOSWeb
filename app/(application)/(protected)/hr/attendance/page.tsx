@@ -27,7 +27,7 @@ export default function HrAttendancePage() {
     );
     const [createAttendance] = useCreateStaffAttendanceMutation();
 
-    const shifts = (data?.data?.shifts || []).reverse();
+    const shifts = useMemo(() => [...(data?.data?.shifts || [])].reverse(), [data]);
     const members = membersData?.data?.data || membersData?.data || [];
 
     const filteredShifts = shifts.filter((s: any) => {
