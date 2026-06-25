@@ -5,43 +5,37 @@ import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import { showMessage } from '@/lib/toast';
 import { useCreateCashClosingMutation, useGetBusinessOsQuery, useGetCashClosingPrefillQuery, useUpdateCashClosingMutation } from '@/store/features/businessOs/businessOsApi';
-import { ArrowDownUp, Calculator, CheckCircle2, Clock, Download, Receipt, RefreshCw, XCircle } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { ArrowDownUp, Calculator, CheckCircle2, Clock, Lock, Receipt, RefreshCw, XCircle } from 'lucide-react';
+import { useMemo, useState } from 'react';
 
 export default function CashClosingPage() {
     const { t } = getTranslation();
     const { currentStoreId } = useCurrentStore();
     const { formatCurrency } = useCurrency();
     const { data, refetch } = useGetBusinessOsQuery({ store_id: currentStoreId }, { skip: !currentStoreId });
-    const { data: prefillData } = useGetCashClosingPrefillQuery({ store_id: currentStoreId }, { skip: !currentStoreId });
+    const { data: prefillData, isFetching: prefillLoading, isError: prefillError, refetch: refetchPrefill } = useGetCashClosingPrefillQuery({ store_id: currentStoreId }, { skip: !currentStoreId });
     const [createClosing] = useCreateCashClosingMutation();
     const [updateClosing] = useUpdateCashClosingMutation();
 
-    const [form, setForm] = useState({
-        openingCash: '', cashSales: '', cashExpense: '',
-        dueCollection: '', supplierPayment: '', actualCash: '', note: ''
-    });
+    // Only actualCash (physically counted till) and note are staff-editable.
+    // openingCash/cashSales/cashExpense/dueCollection/supplierPayment are
+    // system-computed from today's real transactions (server-authoritative —
+    // the backend recomputes and ignores any client-submitted values for these
+    // fields too) to prevent a cashier from typing fabricated numbers to hide theft.
+    const [form, setForm] = useState({ actualCash: '', note: '' });
 
-    useEffect(() => {
-        if (prefillData?.data) {
-            const p = prefillData.data;
-            setForm((prev) => ({
-                openingCash: p.opening_cash?.toString() || '',
-                cashSales: p.cash_sales?.toString() || '',
-                cashExpense: p.cash_expense?.toString() || '',
-                dueCollection: p.due_collection?.toString() || '',
-                supplierPayment: p.supplier_payment?.toString() || '',
-                actualCash: prev.actualCash, note: prev.note,
-            }));
-        }
-    }, [prefillData]);
+    const prefill = prefillData?.data;
+    const openingCash = Number(prefill?.opening_cash || 0);
+    const cashSales = Number(prefill?.cash_sales || 0);
+    const cashExpense = Number(prefill?.cash_expense || 0);
+    const dueCollection = Number(prefill?.due_collection || 0);
+    const supplierPayment = Number(prefill?.supplier_payment || 0);
 
     const closings = (data?.data?.closings || []).reverse();
 
     const expected = useMemo(() =>
-        Number(form.openingCash || 0) + Number(form.cashSales || 0) + Number(form.dueCollection || 0)
-        - Number(form.cashExpense || 0) - Number(form.supplierPayment || 0),
-    [form]);
+        openingCash + cashSales + dueCollection - cashExpense - supplierPayment,
+    [openingCash, cashSales, dueCollection, cashExpense, supplierPayment]);
     const difference = Number(form.actualCash || 0) - expected;
 
     const todayClosings = closings.filter((c: any) => {
@@ -55,16 +49,12 @@ export default function CashClosingPage() {
         try {
             await createClosing({
                 store_id: currentStoreId,
-                opening_cash: Number(form.openingCash || 0),
-                cash_sales: Number(form.cashSales || 0),
-                cash_expense: Number(form.cashExpense || 0),
-                due_collection: Number(form.dueCollection || 0),
-                supplier_payment: Number(form.supplierPayment || 0),
                 actual_cash: Number(form.actualCash || 0),
                 note: form.note || undefined,
             }).unwrap();
-            setForm({ openingCash: '', cashSales: '', cashExpense: '', dueCollection: '', supplierPayment: '', actualCash: '', note: '' });
+            setForm({ actualCash: '', note: '' });
             refetch();
+            refetchPrefill();
             showMessage(t('closing_saved'), 'success');
         } catch {
             showMessage(t('msg_error_generic'), 'error');
@@ -117,31 +107,44 @@ export default function CashClosingPage() {
 
             {/* New Closing Form */}
             <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
-                <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-gray-700">
-                    {t('closing_new')}
-                    {prefillData?.data && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">
-                            <CheckCircle2 className="h-3 w-3" /> Values pulled from today&apos;s transactions
-                        </span>
-                    )}
+                <h3 className="mb-4 flex items-center justify-between gap-2 text-sm font-semibold text-gray-700">
+                    <span className="flex items-center gap-2">
+                        {t('closing_new')}
+                        {prefill && !prefillError && (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">
+                                <CheckCircle2 className="h-3 w-3" /> {t('closing_prefill_live') || "Live from today's transactions"}
+                            </span>
+                        )}
+                        {prefillError && (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">
+                                <XCircle className="h-3 w-3" /> {t('closing_prefill_error') || 'Could not load today\'s figures'}
+                            </span>
+                        )}
+                    </span>
+                    <button onClick={() => refetchPrefill()} className="flex items-center gap-1 rounded-lg border border-gray-200 px-2 py-1 text-xs text-gray-500 hover:bg-gray-50" title={t('btn_refresh') || 'Refresh'}>
+                        <RefreshCw className={`h-3.5 w-3.5 ${prefillLoading ? 'animate-spin' : ''}`} />
+                    </button>
                 </h3>
                 <div className="space-y-3">
-                    {/* Cash In */}
+                    {/* System-computed values — locked, not editable, to prevent theft */}
                     <div>
-                        <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-emerald-600">{t('closing_cash_in')}</p>
+                        <p className="mb-2 flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-emerald-600">
+                            <Lock className="h-3 w-3" /> {t('closing_cash_in')}
+                        </p>
                         <div className="grid gap-2 sm:grid-cols-3">
-                            <input type="number" className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary" value={form.openingCash} onChange={(e) => setForm((p) => ({ ...p, openingCash: e.target.value }))} placeholder={t('closing_opening')} />
-                            <input type="number" className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary" value={form.cashSales} onChange={(e) => setForm((p) => ({ ...p, cashSales: e.target.value }))} placeholder={t('closing_sales')} />
-                            <input type="number" className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary" value={form.dueCollection} onChange={(e) => setForm((p) => ({ ...p, dueCollection: e.target.value }))} placeholder={t('closing_collection')} />
+                            <LockedField label={t('closing_opening')} value={openingCash} loading={prefillLoading} formatCurrency={formatCurrency} />
+                            <LockedField label={t('closing_sales')} value={cashSales} loading={prefillLoading} formatCurrency={formatCurrency} />
+                            <LockedField label={t('closing_collection')} value={dueCollection} loading={prefillLoading} formatCurrency={formatCurrency} />
                         </div>
                     </div>
 
-                    {/* Cash Out */}
                     <div>
-                        <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-red-500">{t('closing_cash_out')}</p>
+                        <p className="mb-2 flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-red-500">
+                            <Lock className="h-3 w-3" /> {t('closing_cash_out')}
+                        </p>
                         <div className="grid gap-2 sm:grid-cols-2">
-                            <input type="number" className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary" value={form.cashExpense} onChange={(e) => setForm((p) => ({ ...p, cashExpense: e.target.value }))} placeholder={t('closing_expense')} />
-                            <input type="number" className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary" value={form.supplierPayment} onChange={(e) => setForm((p) => ({ ...p, supplierPayment: e.target.value }))} placeholder={t('closing_supplier')} />
+                            <LockedField label={t('closing_expense')} value={cashExpense} loading={prefillLoading} formatCurrency={formatCurrency} />
+                            <LockedField label={t('closing_supplier')} value={supplierPayment} loading={prefillLoading} formatCurrency={formatCurrency} />
                         </div>
                     </div>
 
@@ -221,6 +224,16 @@ export default function CashClosingPage() {
                     </div>
                 )}
             </div>
+        </div>
+    );
+}
+
+/** Read-only display for a system-computed figure — never a plain editable input, by design. */
+function LockedField({ label, value, loading, formatCurrency }: { label: string; value: number; loading: boolean; formatCurrency: (n: number) => string }) {
+    return (
+        <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
+            <p className="truncate text-[11px] text-gray-400">{label}</p>
+            <p className="text-sm font-semibold text-gray-700">{loading ? '…' : formatCurrency(value)}</p>
         </div>
     );
 }
