@@ -46,6 +46,10 @@ export const businessOsApi = baseApi.injectEndpoints({
             query: (params) => ({ url: '/attendance/summary', params }),
             providesTags: ['BusinessOS'],
         }),
+        getCashClosingPrefill: builder.query({
+            query: (params) => ({ url: '/business-os/cash-closings/prefill', params }),
+            providesTags: ['BusinessOS'],
+        }),
         createBusinessTask: builder.mutation({
             query: (body) => ({
                 url: '/business-os/tasks',
@@ -105,6 +109,7 @@ export const {
     useGetAttendanceListQuery,
     useGetAttendanceTodayQuery,
     useGetAttendanceSummaryQuery,
+    useGetCashClosingPrefillQuery,
     useCreateBusinessTaskMutation,
     useUpdateBusinessTaskMutation,
     useCreatePettyCashRequestMutation,

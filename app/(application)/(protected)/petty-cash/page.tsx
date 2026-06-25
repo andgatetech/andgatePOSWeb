@@ -79,7 +79,7 @@ export default function PettyCashPage() {
         <div className="space-y-5 p-4 sm:p-6">
             {/* Header */}
             <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-sm">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 text-white shadow-sm">
                     <Banknote className="h-5 w-5" />
                 </div>
                 <div>

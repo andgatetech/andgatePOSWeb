@@ -4,15 +4,16 @@ import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import { showMessage } from '@/lib/toast';
-import { useCreateCashClosingMutation, useGetBusinessOsQuery, useUpdateCashClosingMutation } from '@/store/features/businessOs/businessOsApi';
-import { ArrowDownUp, Calculator, CheckCircle2, Clock, Receipt, XCircle } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useCreateCashClosingMutation, useGetBusinessOsQuery, useGetCashClosingPrefillQuery, useUpdateCashClosingMutation } from '@/store/features/businessOs/businessOsApi';
+import { ArrowDownUp, Calculator, CheckCircle2, Clock, Download, Receipt, RefreshCw, XCircle } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 
 export default function CashClosingPage() {
     const { t } = getTranslation();
     const { currentStoreId } = useCurrentStore();
     const { formatCurrency } = useCurrency();
     const { data, refetch } = useGetBusinessOsQuery({ store_id: currentStoreId }, { skip: !currentStoreId });
+    const { data: prefillData } = useGetCashClosingPrefillQuery({ store_id: currentStoreId }, { skip: !currentStoreId });
     const [createClosing] = useCreateCashClosingMutation();
     const [updateClosing] = useUpdateCashClosingMutation();
 
@@ -20,6 +21,22 @@ export default function CashClosingPage() {
         openingCash: '', cashSales: '', cashExpense: '',
         dueCollection: '', supplierPayment: '', actualCash: '', note: ''
     });
+    const [autoFilled, setAutoFilled] = useState(false);
+
+    useEffect(() => {
+        if (prefillData?.data && !autoFilled) {
+            const p = prefillData.data;
+            setForm({
+                openingCash: p.opening_cash?.toString() || '',
+                cashSales: p.cash_sales?.toString() || '',
+                cashExpense: p.cash_expense?.toString() || '',
+                dueCollection: p.due_collection?.toString() || '',
+                supplierPayment: p.supplier_payment?.toString() || '',
+                actualCash: '', note: '',
+            });
+            setAutoFilled(true);
+        }
+    }, [prefillData, autoFilled]);
 
     const closings = (data?.data?.closings || []).reverse();
 
@@ -102,7 +119,14 @@ export default function CashClosingPage() {
 
             {/* New Closing Form */}
             <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
-                <h3 className="mb-4 text-sm font-semibold text-gray-700">{t('closing_new')}</h3>
+                <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-gray-700">
+                    {t('closing_new')}
+                    {autoFilled && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">
+                            <CheckCircle2 className="h-3 w-3" /> Auto-filled from today&apos;s transactions
+                        </span>
+                    )}
+                </h3>
                 <div className="space-y-3">
                     {/* Cash In */}
                     <div>
@@ -126,6 +150,7 @@ export default function CashClosingPage() {
                     {/* Actual Cash */}
                     <div className="rounded-lg border-2 border-primary/20 bg-primary/5 p-3">
                         <label className="mb-1 block text-xs font-semibold text-gray-700">{t('closing_actual')} *</label>
+                        <p className="mb-2 text-xs text-gray-400">{t('closing_actual_hint')}</p>
                         <input type="number" className="w-full rounded-lg border border-primary/30 bg-white px-3 py-2.5 text-lg font-bold focus:border-primary" value={form.actualCash} onChange={(e) => setForm((p) => ({ ...p, actualCash: e.target.value }))} placeholder="0" />
                     </div>
 

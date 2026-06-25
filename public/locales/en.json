@@ -6137,5 +6137,6 @@
     "bos_due_collection": "Due Collection",
     "bos_supplier_due": "Supplier Due",
     "bos_open_tasks_title": "Open Tasks",
-    "bos_no_tasks": "No open tasks"
+    "bos_no_tasks": "No open tasks",
+    "closing_actual_hint": "All other fields auto-populated from today's transactions. You only need to count physical cash."
 }
