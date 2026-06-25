@@ -671,6 +671,7 @@ export default function TrainingPage() {
             desc: t('training.resource_manual_desc'),
             action: t('training.resource_manual_action'),
             href: '/resources/andgatepos-user-guide-en.pdf',
+            external: true,
         },
         {
             icon: <BookOpen className="h-9 w-9" />,
@@ -678,6 +679,7 @@ export default function TrainingPage() {
             desc: t('training.resource_manual_bn_desc'),
             action: t('training.resource_manual_bn_action'),
             href: '/resources/andgatepos-user-guide-bn.pdf',
+            external: true,
         },
         {
             icon: <Lightbulb className="h-9 w-9" />,
@@ -988,6 +990,7 @@ export default function TrainingPage() {
                                 <p className="mb-6 flex-1 text-sm leading-relaxed text-slate-400">{res.desc}</p>
                                 <a
                                     href={res.href}
+                                    {...((res as any).external ? { target: '_blank', rel: 'noopener noreferrer', download: '' } : {})}
                                     className="inline-flex items-center gap-2 self-start rounded-full border border-white/20 bg-white/10 px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-white hover:text-[#046ca9]"
                                 >
                                     {res.action}

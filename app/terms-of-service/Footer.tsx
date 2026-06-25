@@ -8,18 +8,12 @@ import {
     Mail,
     MapPin,
     Phone,
-    Truck,
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
 const AndGate = '/images/andgatePOS.jpeg';
 const FACEBOOK_URL = 'https://www.facebook.com/andgatepos';
-const courierPartners = [
-    { name: 'Pathao', logo: '/images/delivery/pathao.svg', width: 92, height: 32 },
-    { name: 'REDX', logo: '/images/delivery/redx.svg', width: 88, height: 34 },
-    { name: 'Steadfast', logo: '/images/delivery/steadfast.svg', width: 126, height: 28 },
-];
 
 const Footer = () => {
     const { t, data } = getTranslation();
@@ -204,24 +198,6 @@ const Footer = () => {
             {/* Footer Bottom Bar */}
             <div className="border-t border-white/10">
                 <div className="mx-auto flex max-w-7xl flex-col gap-5 px-4 py-6 sm:px-6 lg:px-8">
-                    <div className="flex flex-col items-center justify-between gap-4 rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3 md:flex-row">
-                        <div className="flex items-center gap-2 text-sm font-medium text-slate-300">
-                            <Truck className="h-4 w-4 text-[#4db8f2]" aria-hidden="true" />
-                            <span>We support courier delivery with</span>
-                        </div>
-
-                        <div className="flex flex-wrap items-center justify-center gap-2.5">
-                            {courierPartners.map((partner) => (
-                                <div
-                                    key={partner.name}
-                                    className="inline-flex h-11 items-center justify-center rounded-md border border-white/10 bg-white px-3 shadow-sm transition-colors hover:border-[#4db8f2]/40"
-                                >
-                                    <Image src={partner.logo} alt={`${partner.name} courier logo`} width={partner.width} height={partner.height} className="max-h-7 w-auto object-contain" />
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
                     <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
                         <p className="text-xs text-slate-500">
                             © {convertNumberByLanguage(new Date().getFullYear().toString())}{' '}
