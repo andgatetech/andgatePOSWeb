@@ -4,146 +4,144 @@ import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import { useGetBusinessOsQuery } from '@/store/features/businessOs/businessOsApi';
-import { Banknote, BriefcaseBusiness, CalendarCheck, ClipboardList, CreditCard, PackageSearch, Receipt, Users, Wrench } from 'lucide-react';
+import { Banknote, BriefcaseBusiness, CalendarCheck, CheckCircle2, ClipboardList, Clock, Receipt, Wrench } from 'lucide-react';
 import Link from 'next/link';
 
-const copy = {
-    en: {
-        title: 'Business OS',
-        desc: 'Owner command center. Operational work is separated into the right modules.',
-        todayAt: 'Today at',
-        pending: 'Pending',
-        open: 'Open',
-        recent: 'Recent',
-        cashClosing: 'Cash & Counter Closing',
-        pettyCash: 'Petty Cash',
-        hrAttendance: 'HR Attendance',
-        serviceJobs: 'Service Jobs',
-        dueCollection: 'Due Collection',
-        purchasePlanning: 'Purchase Planning',
-        businessTasks: 'Business Tasks',
-        cashDesc: 'Cashier submits, owner/manager approves.',
-        pettyDesc: 'Staff requests, owner approves small cash.',
-        hrDesc: 'Clock in/out and view attendance records.',
-        serviceDesc: 'Repair, warranty and service job tracking.',
-        dueDesc: 'Customer and supplier due follow-up.',
-        purchaseDesc: 'Low stock and reorder action board.',
-        tasksDesc: 'Daily owner/manager task list.',
-        customerDue: 'Customer Due',
-        supplierDue: 'Supplier Due',
-        lowStock: 'Low Stock',
-        reorder: 'Reorder Suggestions',
-        crm: 'CRM Dashboard',
-        supplierList: 'Supplier List',
-    },
-    bn: {
-        title: 'বিজনেস ওএস',
-        desc: 'মালিকের কমান্ড সেন্টার। অপারেশনাল কাজ আলাদা সঠিক মডিউলে রাখা হয়েছে।',
-        todayAt: 'আজকের স্টোর',
-        pending: 'পেন্ডিং',
-        open: 'ওপেন',
-        recent: 'সাম্প্রতিক',
-        cashClosing: 'ক্যাশ ও কাউন্টার ক্লোজিং',
-        pettyCash: 'পেটি ক্যাশ',
-        hrAttendance: 'HR হাজিরা',
-        serviceJobs: 'সার্ভিস জব',
-        dueCollection: 'বাকি কালেকশন',
-        purchasePlanning: 'ক্রয় পরিকল্পনা',
-        businessTasks: 'ব্যবসার টাস্ক',
-        cashDesc: 'ক্যাশিয়ার সাবমিট করবে, মালিক/ম্যানেজার অনুমোদন করবে।',
-        pettyDesc: 'স্টাফ ছোট ক্যাশ রিকোয়েস্ট করবে, মালিক অনুমোদন করবে।',
-        hrDesc: 'চেক ইন/আউট এবং হাজিরা রেকর্ড দেখুন।',
-        serviceDesc: 'রিপেয়ার, ওয়ারেন্টি ও সার্ভিস জব ট্র্যাকিং।',
-        dueDesc: 'গ্রাহক ও সাপ্লায়ারের বাকি ফলো-আপ।',
-        purchaseDesc: 'কম স্টক ও রি-অর্ডার অ্যাকশন বোর্ড।',
-        tasksDesc: 'মালিক/ম্যানেজারের দৈনিক টাস্ক তালিকা।',
-        customerDue: 'গ্রাহকের বাকি',
-        supplierDue: 'সাপ্লায়ারের বাকি',
-        lowStock: 'কম স্টক',
-        reorder: 'রি-অর্ডার সাজেশন',
-        crm: 'CRM ড্যাশবোর্ড',
-        supplierList: 'সাপ্লায়ার তালিকা',
-    },
-};
-
 export default function BusinessOsPage() {
-    const { i18n } = getTranslation();
-    const t = copy[i18n.language === 'en' ? 'en' : 'bn'];
-    const { currentStoreId, currentStore } = useCurrentStore();
+    const { t } = getTranslation();
+    const { currentStoreId } = useCurrentStore();
     const { formatCurrency } = useCurrency();
     const { data } = useGetBusinessOsQuery({ store_id: currentStoreId }, { skip: !currentStoreId });
     const bos = data?.data || {};
-    const pendingClosings = (bos.closings || []).filter((item: any) => item.status === 'submitted').length;
-    const pendingPetty = (bos.petty_cash || []).filter((item: any) => item.status === 'pending').length;
-    const openTasks = (bos.tasks || []).filter((item: any) => item.status === 'open').length;
-    const openJobs = (bos.repairs || []).filter((item: any) => item.status !== 'delivered').length;
-    const lastClosing = bos.closings?.[0];
 
-    const modules = [
-        { href: '/cash-closing', title: t.cashClosing, desc: t.cashDesc, icon: Receipt, stat: `${pendingClosings} ${t.pending}` },
-        { href: '/petty-cash', title: t.pettyCash, desc: t.pettyDesc, icon: Banknote, stat: `${pendingPetty} ${t.pending}` },
-        { href: '/hr/attendance', title: t.hrAttendance, desc: t.hrDesc, icon: CalendarCheck, stat: `${bos.shifts?.length || 0} ${t.recent}` },
-        { href: '/service-jobs', title: t.serviceJobs, desc: t.serviceDesc, icon: Wrench, stat: `${openJobs} ${t.open}` },
-        { href: '/customers/crm', title: t.businessTasks, desc: t.tasksDesc, icon: ClipboardList, stat: `${openTasks} ${t.open}` },
-        { href: '/reports/low-stock', title: t.purchasePlanning, desc: t.purchaseDesc, icon: PackageSearch, stat: t.lowStock },
+    const pendingClosings = (bos.closings || []).filter((i: any) => i.status === 'submitted').length;
+    const pendingPetty = (bos.petty_cash || []).filter((i: any) => i.status === 'pending').length;
+    const openTasks = (bos.tasks || []).filter((i: any) => i.status === 'open').length;
+    const openJobs = (bos.repairs || []).filter((i: any) => i.status !== 'delivered').length;
+
+    const summaryCards = [
+        { icon: Receipt, value: pendingClosings, label: t('bos_pending_closings'), href: '/cash-closing', color: 'text-blue-600', bg: 'bg-blue-50' },
+        { icon: Banknote, value: pendingPetty, label: t('bos_pending_petty'), href: '/petty-cash', color: 'text-amber-600', bg: 'bg-amber-50' },
+        { icon: ClipboardList, value: openTasks, label: t('bos_open_tasks'), href: '/business-os', color: 'text-purple-600', bg: 'bg-purple-50' },
+        { icon: Wrench, value: openJobs, label: t('bos_open_jobs'), href: '/business-os', color: 'text-orange-600', bg: 'bg-orange-50' },
     ];
 
+    const modules = [
+        { icon: Receipt, label: t('bos_cash_closing'), desc: t('bos_cash_closing_desc'), href: '/cash-closing', bg: 'from-blue-500 to-blue-600' },
+        { icon: Banknote, label: t('bos_petty_cash'), desc: t('bos_petty_cash_desc'), href: '/petty-cash', bg: 'from-amber-500 to-orange-600' },
+        { icon: CalendarCheck, label: t('bos_attendance'), desc: t('bos_attendance_desc'), href: '/hr/attendance', bg: 'from-emerald-500 to-teal-600' },
+        { icon: Wrench, label: t('bos_service_jobs'), desc: t('bos_service_jobs_desc'), href: '/business-os', bg: 'from-purple-500 to-violet-600' },
+    ];
+
+    const quickLinks = [
+        { label: t('bos_tasks'), href: '/business-os', icon: <CheckCircle2 className="h-3.5 w-3.5" /> },
+        { label: t('bos_due_collection'), href: '/customers/due', icon: <BriefcaseBusiness className="h-3.5 w-3.5" /> },
+        { label: t('bos_supplier_due'), href: '/suppliers/due', icon: <BriefcaseBusiness className="h-3.5 w-3.5" /> },
+    ];
+
+    const lastClosings = (bos.closings || []).slice(0, 5);
+    const recentTasks = (bos.tasks || []).filter((i: any) => i.status === 'open').slice(0, 5);
+
     return (
-        <div className="space-y-5">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="space-y-5 p-4 sm:p-6">
+            {/* Header */}
+            <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 text-white shadow-sm">
+                    <BriefcaseBusiness className="h-5 w-5" />
+                </div>
                 <div>
-                    <h1 className="flex items-center gap-2 text-xl font-bold text-gray-900"><BriefcaseBusiness className="h-5 w-5 text-primary" /> {t.title}</h1>
-                    <p className="text-sm text-gray-500">{t.desc}</p>
-                </div>
-                <div className="rounded-lg border border-gray-100 bg-white px-4 py-2 text-sm text-gray-600 shadow-sm">
-                    {t.todayAt}: <span className="font-semibold text-gray-900">{currentStore?.store_name || '-'}</span>
+                    <h1 className="text-xl font-bold text-gray-900">{t('bos_title')}</h1>
+                    <p className="text-sm text-gray-500">{t('bos_desc')}</p>
                 </div>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-3">
-                <SummaryCard label={t.cashClosing} value={lastClosing ? formatCurrency(lastClosing.actual_cash || 0) : '-'} />
-                <SummaryCard label={t.pettyCash} value={`${pendingPetty} ${t.pending}`} />
-                <SummaryCard label={t.serviceJobs} value={`${openJobs} ${t.open}`} />
+            {/* Summary Cards — Pending Actions */}
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {summaryCards.map((card) => (
+                    <Link key={card.label} href={card.href} className={`rounded-xl border border-gray-100 p-4 text-center shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md ${card.bg}`}>
+                        <card.icon className={`mx-auto mb-1 h-5 w-5 ${card.color}`} />
+                        <div className={`text-xl font-bold ${card.color}`}>{card.value}</div>
+                        <p className="text-xs text-gray-500">{card.label}</p>
+                    </Link>
+                ))}
             </div>
 
-            <div className="grid gap-4 lg:grid-cols-3">
-                {modules.map((module) => {
-                    const Icon = module.icon;
-                    return (
-                        <Link key={module.href} href={module.href} className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition hover:border-primary/30 hover:bg-primary/5">
-                            <div className="flex items-start justify-between gap-3">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                                    <Icon className="h-5 w-5" />
+            {/* Module Cards */}
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                {modules.map((mod) => (
+                    <Link key={mod.label} href={mod.href} className={`group relative overflow-hidden rounded-xl bg-gradient-to-br ${mod.bg} p-5 text-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg`}>
+                        <mod.icon className="mb-3 h-8 w-8 opacity-80" />
+                        <h3 className="text-lg font-bold">{mod.label}</h3>
+                        <p className="mt-1 text-sm text-white/80">{mod.desc}</p>
+                        <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-white/90 group-hover:text-white">
+                            Open → 
+                        </span>
+                    </Link>
+                ))}
+            </div>
+
+            {/* Recent Activity + Quick Links */}
+            <div className="grid gap-5 lg:grid-cols-2">
+                {/* Recent Cash Closings */}
+                <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
+                    <div className="mb-4 flex items-center justify-between">
+                        <h3 className="text-sm font-semibold text-gray-700">{t('bos_recent_closings')}</h3>
+                        <Link href="/cash-closing" className="text-xs text-primary hover:underline">{t('lbl_view_all')}</Link>
+                    </div>
+                    {lastClosings.length === 0 ? (
+                        <p className="py-6 text-center text-sm text-gray-400">{t('bos_no_closings')}</p>
+                    ) : (
+                        <div className="space-y-2">
+                            {lastClosings.map((c: any) => (
+                                <div key={c.id} className="flex items-center justify-between rounded-lg border border-gray-50 px-3 py-2 text-sm">
+                                    <div>
+                                        <span className="font-medium text-gray-900">{formatCurrency(c.actual_cash || 0)}</span>
+                                        <span className={`ml-2 text-xs ${parseFloat(c.difference || 0) < 0 ? 'text-red-500' : 'text-emerald-600'}`}>
+                                            {parseFloat(c.difference || 0) > 0 ? '+' : ''}{formatCurrency(c.difference || 0)}
+                                        </span>
+                                    </div>
+                                    <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
+                                        c.status === 'approved' ? 'bg-emerald-100 text-emerald-700' :
+                                        c.status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'
+                                    }`}>
+                                        {c.status === 'approved' ? t('bos_approved') : c.status === 'rejected' ? t('bos_rejected') : t('bos_submitted')}
+                                    </span>
                                 </div>
-                                <span className="rounded-full bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-600">{module.stat}</span>
-                            </div>
-                            <h2 className="mt-4 font-bold text-gray-900">{module.title}</h2>
-                            <p className="mt-1 text-sm text-gray-500">{module.desc}</p>
-                        </Link>
-                    );
-                })}
-            </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
 
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                <QuickLink href="/customers/due" icon={Users} label={t.customerDue} />
-                <QuickLink href="/suppliers/due" icon={CreditCard} label={t.supplierDue} />
-                <QuickLink href="/reports/reorder-suggestions" icon={PackageSearch} label={t.reorder} />
-                <QuickLink href="/suppliers/list" icon={Users} label={t.supplierList} />
+                {/* Quick Links + Tasks */}
+                <div className="space-y-4">
+                    <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
+                        <h3 className="mb-3 text-sm font-semibold text-gray-700">{t('bos_quick_links')}</h3>
+                        <div className="space-y-1.5">
+                            {quickLinks.map((link) => (
+                                <Link key={link.label} href={link.href} className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-gray-600 transition-colors hover:bg-gray-50 hover:text-primary">
+                                    {link.icon} {link.label}
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
+                        <h3 className="mb-3 text-sm font-semibold text-gray-700">{t('bos_open_tasks_title')}</h3>
+                        {recentTasks.length === 0 ? (
+                            <p className="py-4 text-center text-sm text-gray-400">{t('bos_no_tasks')}</p>
+                        ) : (
+                            <div className="space-y-2">
+                                {recentTasks.map((task: any) => (
+                                    <div key={task.id} className="flex items-center gap-2 rounded-lg border border-gray-50 px-3 py-2 text-sm">
+                                        <Clock className="h-3.5 w-3.5 flex-shrink-0 text-amber-500" />
+                                        <span className="text-gray-700">{task.title}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
             </div>
         </div>
     );
 }
-
-const SummaryCard = ({ label, value }: { label: string; value: string }) => (
-    <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
-        <p className="text-sm text-gray-500">{label}</p>
-        <p className="mt-2 text-2xl font-black text-gray-900">{value}</p>
-    </div>
-);
-
-const QuickLink = ({ href, icon: Icon, label }: { href: string; icon: any; label: string }) => (
-    <Link href={href} className="flex items-center gap-2 rounded-lg border border-gray-100 bg-white px-3 py-3 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50">
-        <Icon className="h-4 w-4 text-primary" />
-        {label}
-    </Link>
-);
