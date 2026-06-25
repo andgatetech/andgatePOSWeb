@@ -143,6 +143,7 @@ export const baseApi = createApi({
         'ManualPayments',
         'PurchaseReturns',
         'BusinessOS',
+        'CashDrawer',
     ],
     endpoints: () => ({}),
 });

@@ -136,6 +136,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
     const postActionRef = useRef<'invoice' | 'receipt'>('invoice');
     const [returnPreviewSnapshot, setReturnPreviewSnapshot] = useState<any>(null);
     const [quotePreview, setQuotePreview] = useState<any>(null);
+    const [quoteErrorMsg, setQuoteErrorMsg] = useState<string | null>(null);
 
     const [formData, setFormData] = useState<PosFormData>({
         customerId: null,
@@ -914,10 +915,13 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                 const response = await quoteOrder(quotePayload).unwrap();
                 if (quoteRequestSeqRef.current === requestSeq) {
                     setQuotePreview(response.data || response);
+                    setQuoteErrorMsg(null);
                 }
-            } catch {
+            } catch (err: any) {
                 if (quoteRequestSeqRef.current === requestSeq) {
                     setQuotePreview(null);
+                    const msg = err?.data?.errors?.quote?.[0] || err?.data?.message || 'Quote calculation failed';
+                    setQuoteErrorMsg(msg);
                 }
             }
         }, 350);
@@ -1247,12 +1251,12 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                 };
 
                 const createdCustomer = await createCustomer(newCustomerData).unwrap();
-                orderData.customer_id = createdCustomer.data.id;
+                const customerResult = createdCustomer?.data || createdCustomer;
+                orderData.customer_id = customerResult?.id ?? null;
                 orderData.is_walk_in = false;
 
                 showMessage(t('msg_customer_created_success'), 'success');
                 } catch (customerErr: any) {
-                console.error('Failed to create customer:', customerErr);
                 orderData.customer_id = null;
                 if (formData.customerName?.trim()) {
                     // Has a name → pass as new-customer fields; backend will create on sync
@@ -1402,7 +1406,6 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                 errorMessage = err.error;
             }
 
-            console.error('Failed to create order:', errorMessage);
             showMessage(errorMessage, 'error');
         }
     };
@@ -1530,7 +1533,6 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
 
             router.push(`/orders?showReturn=${response.data.id}`);
         } catch (error: any) {
-            console.error('Return error:', error);
             const message =
                 error?.status === 422 && error?.data?.errors
                     ? Object.values(error.data.errors).flat().join('\n')
@@ -1937,7 +1939,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                             {currentStore?.store_name?.charAt(0)?.toUpperCase() || 'P'}
                         </div>
                         <div className="min-w-0">
-                            <p className="truncate text-sm font-bold text-gray-800">{currentStore?.store_name || 'POS Terminal'}</p>
+                            <p className="truncate text-sm font-bold text-gray-800">{currentStore?.store_name || t('lbl_pos_terminal')}</p>
                             {currentStore?.store_location && (
                                 <p className="truncate text-xs text-gray-400">{currentStore.store_location}</p>
                             )}
@@ -2087,6 +2089,11 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                     </div>
                 ) : (
                     <div className="mt-4 rounded-xl border border-primary/15 bg-primary/5 p-4 pb-20 sm:pb-4">
+                        {quoteErrorMsg && (
+                            <div className="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+                                ⚠ {quoteErrorMsg}
+                            </div>
+                        )}
                         <div className="mb-3 flex items-center justify-between text-sm">
                             <span className="font-medium text-gray-500">
                                 {invoiceItems.length} {invoiceItems.length === 1 ? t('lbl_item') : t('lbl_items')}

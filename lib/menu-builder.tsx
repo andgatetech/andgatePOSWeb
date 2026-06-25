@@ -40,6 +40,11 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                 requiredPermissions: ['cash-closing.create', 'cash-closing.view', 'orders.index', 'orders.create'],
             },
             {
+                label: 'cash_drawer_history_title',
+                href: '/cash-drawer/history',
+                requiredPermissions: ['cash-drawer.view', 'reports.sales'],
+            },
+            {
                 label: 'petty_cash_title',
                 href: '/petty-cash',
                 requiredPermissions: ['petty-cash.create', 'petty-cash.view', 'expenses.index', 'expenses.create'],

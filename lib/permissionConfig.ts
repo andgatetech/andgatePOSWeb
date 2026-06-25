@@ -91,6 +91,29 @@ export const PERMISSION_MENU_MAP: Record<string, string[]> = {
     'feedbacks.delete': [],
     'feedbacks.view': [],
     'affiliate.manage': ['Affiliate Program', 'Affiliate Admin', 'Affiliate Dashboard'],
+
+    // ── Business OS (Bangladesh SME Operating Modules) ──────
+    'business-os.view': ['Business OS'],
+    'business-tasks.create': [],
+    'business-tasks.update': [],
+    'cash-closing.create': ['Cash Closing'],
+    'cash-closing.view': [],
+    'cash-closing.approve': [],
+    'petty-cash.create': ['Petty Cash'],
+    'petty-cash.view': [],
+    'petty-cash.approve': [],
+    'hr.attendance.create': ['HR Attendance'],
+    'hr.attendance.view': [],
+    'service-jobs.create': ['Service Jobs'],
+    'service-jobs.view': [],
+    'service-jobs.update': [],
+
+    // ── Cash Drawer ───────────────────────────────────────────
+    'cash-drawer.view': ['Cash Drawer'],
+    'cash-drawer.open': [],
+    'cash-drawer.close': [],
+    'cash-drawer.movement.create': [],
+    'cash-drawer.manage': [],
 };
 
 // ─── Action Labels ────────────────────────────────────────────────────────────
@@ -118,6 +141,10 @@ export const ACTION_LABELS: Record<string, string> = {
     'profit-loss': 'Profit & Loss Reports',
     expense: 'Expense Reports',
     tax: 'Tax Reports',
+    approve: 'Approve',
+    open: 'Open Drawer',
+    close: 'Close Drawer',
+    'movement.create': 'Record Cash In/Out',
 };
 
 // ─── Category Labels ──────────────────────────────────────────────────────────
@@ -143,6 +170,13 @@ export const CATEGORY_LABELS: Record<string, string> = {
     'payment-methods': 'Payment Methods',
     notifications: 'Notifications',
     feedbacks: 'Feedback',
+    'business-os': 'Business OS',
+    'business-tasks': 'Business Tasks',
+    'cash-closing': 'Cash Closing',
+    'petty-cash': 'Petty Cash',
+    hr: 'HR & Attendance',
+    'service-jobs': 'Service Jobs',
+    'cash-drawer': 'Cash Drawer',
 };
 
 // ─── Category Sort Order ──────────────────────────────────────────────────────
@@ -168,6 +202,13 @@ export const CATEGORY_ORDER: string[] = [
     'payment-methods',
     'notifications',
     'feedbacks',
+    'business-os',
+    'business-tasks',
+    'cash-closing',
+    'petty-cash',
+    'hr',
+    'service-jobs',
+    'cash-drawer',
 ];
 
 // ─── Category Theme Colors ──────────────────────────────────────────────────
@@ -193,6 +234,13 @@ export const CATEGORY_COLORS: Record<string, { border: string; bg: string; icon:
     'payment-methods': { border: 'border-[#046ca9]/20', bg: 'bg-[#046ca9]/5', icon: 'text-[#046ca9]', badge: 'bg-[#046ca9]/10 text-[#034d79] border-[#046ca9]/20' },
     notifications: { border: 'border-[#046ca9]/20', bg: 'bg-[#046ca9]/5', icon: 'text-[#046ca9]', badge: 'bg-[#046ca9]/10 text-[#034d79] border-[#046ca9]/20' },
     feedbacks: { border: 'border-[#e79237]/25', bg: 'bg-[#e79237]/10', icon: 'text-[#c47920]', badge: 'bg-[#e79237]/15 text-[#9a5a14] border-[#e79237]/25' },
+    'business-os': { border: 'border-[#046ca9]/20', bg: 'bg-[#046ca9]/5', icon: 'text-[#046ca9]', badge: 'bg-[#046ca9]/10 text-[#034d79] border-[#046ca9]/20' },
+    'business-tasks': { border: 'border-[#046ca9]/20', bg: 'bg-[#046ca9]/5', icon: 'text-[#046ca9]', badge: 'bg-[#046ca9]/10 text-[#034d79] border-[#046ca9]/20' },
+    'cash-closing': { border: 'border-[#00ab55]/20', bg: 'bg-[#00ab55]/5', icon: 'text-[#00ab55]', badge: 'bg-[#00ab55]/10 text-[#00813f] border-[#00ab55]/20' },
+    'petty-cash': { border: 'border-[#00ab55]/20', bg: 'bg-[#00ab55]/5', icon: 'text-[#00ab55]', badge: 'bg-[#00ab55]/10 text-[#00813f] border-[#00ab55]/20' },
+    hr: { border: 'border-[#e79237]/25', bg: 'bg-[#e79237]/10', icon: 'text-[#c47920]', badge: 'bg-[#e79237]/15 text-[#9a5a14] border-[#e79237]/25' },
+    'service-jobs': { border: 'border-[#034d79]/20', bg: 'bg-[#034d79]/5', icon: 'text-[#034d79]', badge: 'bg-[#034d79]/10 text-[#034d79] border-[#034d79]/20' },
+    'cash-drawer': { border: 'border-[#00ab55]/20', bg: 'bg-[#00ab55]/5', icon: 'text-[#00ab55]', badge: 'bg-[#00ab55]/10 text-[#00813f] border-[#00ab55]/20' },
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────

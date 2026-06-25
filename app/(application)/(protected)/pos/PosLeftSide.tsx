@@ -29,6 +29,7 @@ import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import BrandPanel from './pos-left-side/BrandPanel';
 import CameraScanner from './pos-left-side/CameraScanner';
+import CashDrawerWidget from './pos-left-side/CashDrawerWidget';
 import CategoryPanel from './pos-left-side/CategoryPanel';
 import FilterButtons from './pos-left-side/FilterButtons';
 import MobileCartButton from './pos-left-side/MobileCartButton';
@@ -990,6 +991,8 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                                 </div>
                             </div>
                             <div className="flex items-center gap-2">
+                                {/* Cash drawer status */}
+                                <CashDrawerWidget />
                                 {/* Offline readiness indicator */}
                                 <div className="relative">
                                     <button

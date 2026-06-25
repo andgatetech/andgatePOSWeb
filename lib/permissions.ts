@@ -106,6 +106,7 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     '/hr': ['hr.attendance.create', 'hr.attendance.view', 'users.view'],
     '/hr/attendance': ['hr.attendance.create', 'hr.attendance.view', 'users.view'],
     '/service-jobs': ['service-jobs.create', 'service-jobs.view', 'orders.index', 'products.index'],
+    '/cash-drawer/history': ['cash-drawer.view', 'reports.sales'],
 
     // ── Store ──────────────────────────────────────────────────
     '/store': ['stores.view'],
