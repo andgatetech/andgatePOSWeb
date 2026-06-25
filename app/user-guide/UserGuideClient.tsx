@@ -1,7 +1,7 @@
 'use client';
 
 import MainLayout from '@/components/layouts/MainLayout';
-import { ArrowRight, BookOpen, CalendarDays, CheckCircle2, Download, Languages, Printer, Search, ShieldCheck } from 'lucide-react';
+import { ArrowRight, BookOpen, CalendarDays, CheckCircle2, Download, Languages, Search, ShieldCheck } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -70,8 +70,8 @@ const copy: Record<
         title: 'AndgatePOS User Guide',
         subtitle:
             'A step-by-step operating guide for Bangladeshi SME business owners, shop managers, cashiers, inventory teams, accountants, ecommerce teams, and service staff.',
-        print: 'Print or Save PDF',
-        printHelp: 'Use the print button, then choose "Save as PDF" from your browser.',
+        print: 'Download PDF Guide',
+        printHelp: 'Download the real PDF guide with selectable text and screenshots.',
         toc: 'Guide Menu',
         quickStart: 'First Sale in 15 Minutes',
         learningPath: 'Recommended Learning Path',
@@ -287,8 +287,8 @@ const copy: Record<
         title: 'AndgatePOS ব্যবহার নির্দেশিকা',
         subtitle:
             'বাংলাদেশি SME ব্যবসার মালিক, ম্যানেজার, ক্যাশিয়ার, ইনভেন্টরি টিম, হিসাব টিম, ই-কমার্স টিম এবং সার্ভিস স্টাফদের জন্য ধাপে ধাপে শেখার গাইড।',
-        print: 'প্রিন্ট বা PDF সেভ করুন',
-        printHelp: 'প্রিন্ট বাটনে চাপুন, তারপর ব্রাউজার থেকে "Save as PDF" নির্বাচন করুন।',
+        print: 'PDF গাইড ডাউনলোড করুন',
+        printHelp: 'Selectable text ও screenshot সহ আসল PDF গাইড ডাউনলোড করুন।',
         toc: 'গাইড মেনু',
         quickStart: '১৫ মিনিটে প্রথম বিক্রয়',
         learningPath: 'শেখার সঠিক ক্রম',
@@ -511,6 +511,7 @@ export default function UserGuideClient() {
     }, []);
 
     const guide = copy[lang];
+    const pdfHref = `/resources/andgatepos-user-guide-${lang}.pdf`;
     const quickSale = useMemo(
         () =>
             lang === 'bn'
@@ -578,14 +579,14 @@ export default function UserGuideClient() {
                                 >
                                     বাংলা
                                 </button>
-                                <button
-                                    type="button"
-                                    onClick={() => window.print()}
+                                <a
+                                    href={pdfHref}
+                                    download
                                     className="inline-flex items-center gap-2 rounded-full bg-[#e79237] px-5 py-3 text-sm font-bold text-white shadow-lg shadow-black/10 transition hover:bg-[#d07d25]"
                                 >
-                                    <Printer className="h-4 w-4" />
+                                    <Download className="h-4 w-4" />
                                     {guide.print}
-                                </button>
+                                </a>
                             </div>
                             <p className="no-print mt-3 text-sm text-sky-100">{guide.printHelp}</p>
                         </div>
@@ -782,14 +783,14 @@ export default function UserGuideClient() {
                         </section>
 
                         <div className="no-print flex justify-center pb-10">
-                            <button
-                                type="button"
-                                onClick={() => window.print()}
+                            <a
+                                href={pdfHref}
+                                download
                                 className="inline-flex items-center gap-2 rounded-full bg-[#046ca9] px-6 py-3 text-sm font-bold text-white shadow-lg shadow-[#046ca9]/20 transition hover:bg-[#034d79]"
                             >
                                 <Download className="h-4 w-4" />
                                 {guide.print}
-                            </button>
+                            </a>
                         </div>
                     </main>
                 </section>
