@@ -6138,5 +6138,18 @@
     "bos_supplier_due": "Supplier Due",
     "bos_open_tasks_title": "Open Tasks",
     "bos_no_tasks": "No open tasks",
-    "closing_actual_hint": "All other fields auto-populated from today's transactions. You only need to count physical cash."
+    "closing_actual_hint": "All other fields auto-populated from today's transactions. You only need to count physical cash.",
+    "attendance_devices": "Devices",
+    "attendance_devices_desc": "Connect physical attendance machines (ZKTeco, Suprema) to auto-record punches.",
+    "attendance_add_device": "Add Device",
+    "attendance_device_name": "Device Name",
+    "attendance_device_ip": "IP Address",
+    "attendance_save_device": "Save Device",
+    "attendance_device_saved": "Device saved",
+    "attendance_no_devices": "No devices configured",
+    "attendance_no_devices_hint": "Add a physical attendance device to auto-import punches",
+    "attendance_token_copied": "Token copied",
+    "attendance_device_howto": "How to configure your device",
+    "bos_pending_label": "pending",
+    "lbl_customers": "Customers"
 }

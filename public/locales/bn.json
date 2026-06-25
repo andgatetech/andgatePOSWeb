@@ -6138,5 +6138,18 @@
     "bos_supplier_due": "সাপ্লায়ারের বাকি",
     "bos_open_tasks_title": "ওপেন টাস্ক",
     "bos_no_tasks": "কোনো ওপেন টাস্ক নেই",
-    "closing_actual_hint": "বাকি সব ফিল্ড আজকের লেনদেন থেকে স্বয়ংক্রিয়ভাবে পূরণ হয়েছে। শুধু গোনা ক্যাশের পরিমাণ দিন।"
+    "closing_actual_hint": "বাকি সব ফিল্ড আজকের লেনদেন থেকে স্বয়ংক্রিয়ভাবে পূরণ হয়েছে। শুধু গোনা ক্যাশের পরিমাণ দিন।",
+    "attendance_devices": "ডিভাইস",
+    "attendance_devices_desc": "ফিজিক্যাল হাজিরা মেশিন (ZKTeco, Suprema) সংযুক্ত করুন অটো পাঞ্চ রেকর্ডের জন্য।",
+    "attendance_add_device": "ডিভাইস যোগ করুন",
+    "attendance_device_name": "ডিভাইসের নাম",
+    "attendance_device_ip": "IP ঠিকানা",
+    "attendance_save_device": "ডিভাইস সেভ",
+    "attendance_device_saved": "ডিভাইস সেভ হয়েছে",
+    "attendance_no_devices": "কোনো ডিভাইস কনফিগার করা হয়নি",
+    "attendance_no_devices_hint": "অটো পাঞ্চ ইম্পোর্টের জন্য একটি ফিজিক্যাল হাজিরা ডিভাইস যোগ করুন",
+    "attendance_token_copied": "টোকেন কপি হয়েছে",
+    "attendance_device_howto": "আপনার ডিভাইস কীভাবে কনফিগার করবেন",
+    "bos_pending_label": "পেন্ডিং",
+    "lbl_customers": "গ্রাহক"
 }

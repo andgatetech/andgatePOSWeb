@@ -50,6 +50,18 @@ export const businessOsApi = baseApi.injectEndpoints({
             query: (params) => ({ url: '/business-os/cash-closings/prefill', params }),
             providesTags: ['BusinessOS'],
         }),
+        getAttendanceDevices: builder.query({
+            query: (params) => ({ url: '/attendance/devices', params }),
+            providesTags: ['BusinessOS'],
+        }),
+        createAttendanceDevice: builder.mutation({
+            query: (body) => ({ url: '/attendance/devices', method: 'POST', body }),
+            invalidatesTags: ['BusinessOS'],
+        }),
+        updateAttendanceDevice: builder.mutation({
+            query: ({ id, ...body }) => ({ url: `/attendance/devices/${id}`, method: 'PATCH', body }),
+            invalidatesTags: ['BusinessOS'],
+        }),
         createBusinessTask: builder.mutation({
             query: (body) => ({
                 url: '/business-os/tasks',
@@ -110,6 +122,9 @@ export const {
     useGetAttendanceTodayQuery,
     useGetAttendanceSummaryQuery,
     useGetCashClosingPrefillQuery,
+    useGetAttendanceDevicesQuery,
+    useCreateAttendanceDeviceMutation,
+    useUpdateAttendanceDeviceMutation,
     useCreateBusinessTaskMutation,
     useUpdateBusinessTaskMutation,
     useCreatePettyCashRequestMutation,

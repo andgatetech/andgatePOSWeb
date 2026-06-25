@@ -3,12 +3,12 @@
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import { showMessage } from '@/lib/toast';
-import { useCreateStaffAttendanceMutation, useGetAttendanceListQuery, useGetAttendanceSummaryQuery, useGetAttendanceTodayQuery } from '@/store/features/businessOs/businessOsApi';
+import { useCreateStaffAttendanceMutation, useGetAttendanceListQuery, useGetAttendanceSummaryQuery, useGetAttendanceTodayQuery, useGetAttendanceDevicesQuery, useCreateAttendanceDeviceMutation, useUpdateAttendanceDeviceMutation } from '@/store/features/businessOs/businessOsApi';
 import { useGetStaffMemberQuery } from '@/store/features/store/storeApi';
-import { ArrowRightLeft, CalendarCheck, Clock, Download, Filter, LogIn, LogOut, Search, UserCheck, Users } from 'lucide-react';
+import { ArrowRightLeft, CalendarCheck, Clock, Copy, Cpu, Download, Filter, LogIn, LogOut, Plus, Search, UserCheck, Users, Wifi, WifiOff } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
-type Tab = 'record' | 'log' | 'summary';
+type Tab = 'record' | 'log' | 'summary' | 'devices';
 
 export default function HrAttendancePage() {
     const { t } = getTranslation();
@@ -36,6 +36,13 @@ export default function HrAttendancePage() {
         { store_id: currentStoreId }, { skip: !currentStoreId }
     );
     const [createAttendance] = useCreateStaffAttendanceMutation();
+    const { data: devicesData } = useGetAttendanceDevicesQuery({ store_id: currentStoreId }, { skip: !currentStoreId });
+    const [createDevice] = useCreateAttendanceDeviceMutation();
+    const [updateDevice] = useUpdateAttendanceDeviceMutation();
+    const [deviceForm, setDeviceForm] = useState({ name: '', type: 'generic_http', ip_address: '', port: '80' });
+    const [showDeviceForm, setShowDeviceForm] = useState(false);
+
+    const devices = devicesData?.data || [];
 
     const today = todayData?.data || {};
     const logItems = logData?.data?.items || [];
@@ -98,6 +105,7 @@ export default function HrAttendancePage() {
                     { key: 'record' as Tab, label: t('attendance_record_new'), icon: <ArrowRightLeft className="h-4 w-4" /> },
                     { key: 'log' as Tab, label: t('attendance_recent_log'), icon: <Filter className="h-4 w-4" /> },
                     { key: 'summary' as Tab, label: t('attendance_summary'), icon: <Download className="h-4 w-4" /> },
+                    { key: 'devices' as Tab, label: t('attendance_devices'), icon: <Cpu className="h-4 w-4" /> },
                 ]).map((tb) => (
                     <button
                         key={tb.key}
@@ -233,6 +241,92 @@ export default function HrAttendancePage() {
                                     ))}
                                 </tbody>
                             </table>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Devices Tab */}
+            {tab === 'devices' && (
+                <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                        <p className="text-sm text-gray-500">{t('attendance_devices_desc')}</p>
+                        <button onClick={() => setShowDeviceForm(!showDeviceForm)} className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary/90">
+                            <Plus className="h-3.5 w-3.5" /> {t('attendance_add_device')}
+                        </button>
+                    </div>
+
+                    {showDeviceForm && (
+                        <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+                            <div className="grid gap-3 sm:grid-cols-4">
+                                <input className="rounded-lg border border-gray-200 px-3 py-2 text-sm" value={deviceForm.name} onChange={(e) => setDeviceForm((p) => ({ ...p, name: e.target.value }))} placeholder={t('attendance_device_name')} />
+                                <select className="rounded-lg border border-gray-200 px-3 py-2 text-sm" value={deviceForm.type} onChange={(e) => setDeviceForm((p) => ({ ...p, type: e.target.value }))}>
+                                    <option value="generic_http">Generic HTTP</option>
+                                    <option value="zkt_http">ZKTeco HTTP</option>
+                                    <option value="suprema_http">Suprema HTTP</option>
+                                </select>
+                                <input className="rounded-lg border border-gray-200 px-3 py-2 text-sm" value={deviceForm.ip_address} onChange={(e) => setDeviceForm((p) => ({ ...p, ip_address: e.target.value }))} placeholder={t('attendance_device_ip')} />
+                                <input className="rounded-lg border border-gray-200 px-3 py-2 text-sm" value={deviceForm.port} onChange={(e) => setDeviceForm((p) => ({ ...p, port: e.target.value }))} placeholder="Port (80)" />
+                            </div>
+                            <button onClick={async () => {
+                                if (!deviceForm.name.trim()) return;
+                                try { await createDevice({ store_id: currentStoreId, ...deviceForm, port: Number(deviceForm.port) || 80 }).unwrap(); setDeviceForm({ name: '', type: 'generic_http', ip_address: '', port: '80' }); setShowDeviceForm(false); showMessage(t('attendance_device_saved'), 'success'); }
+                                catch { showMessage(t('msg_error_generic'), 'error'); }
+                            }} className="mt-3 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white">{t('attendance_save_device')}</button>
+                        </div>
+                    )}
+
+                    {devices.length === 0 && !showDeviceForm ? (
+                        <div className="rounded-xl border border-gray-100 bg-white p-10 text-center shadow-sm">
+                            <Cpu className="mx-auto h-8 w-8 text-gray-300" />
+                            <p className="mt-3 text-sm text-gray-500">{t('attendance_no_devices')}</p>
+                            <p className="mt-1 text-xs text-gray-400">{t('attendance_no_devices_hint')}</p>
+                        </div>
+                    ) : (
+                        <div className="space-y-3">
+                            {devices.map((device: any) => (
+                                <div key={device.id} className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+                                    <div className="flex items-start justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${device.is_active ? 'bg-emerald-100' : 'bg-gray-100'}`}>
+                                                {device.is_active ? <Wifi className="h-5 w-5 text-emerald-600" /> : <WifiOff className="h-5 w-5 text-gray-400" />}
+                                            </div>
+                                            <div>
+                                                <h3 className="font-semibold text-gray-900">{device.name}</h3>
+                                                <p className="text-xs text-gray-500">{device.type} {device.ip_address && `· ${device.ip_address}:${device.port}`}</p>
+                                                {device.last_sync_at && <p className="text-xs text-gray-400">Last sync: {new Date(device.last_sync_at).toLocaleString('en-BD')} · {device.last_sync_count} punches</p>}
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <button
+                                                onClick={async () => { try { await updateDevice({ id: device.id, is_active: !device.is_active }).unwrap(); } catch {} }}
+                                                className={`rounded-lg px-2.5 py-1 text-xs font-semibold ${device.is_active ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-50 text-gray-600'}`}
+                                            >
+                                                {device.is_active ? t('lbl_active') : t('lbl_inactive')}
+                                            </button>
+                                        </div>
+                                    </div>
+                                    {device.api_token && (
+                                        <div className="mt-3 flex items-center gap-2 rounded-lg bg-gray-50 px-3 py-2">
+                                            <code className="flex-1 text-xs text-gray-600 truncate select-all">{device.api_token}</code>
+                                            <button onClick={() => { navigator.clipboard.writeText(device.api_token); showMessage(t('attendance_token_copied'), 'success'); }} className="flex-shrink-0 rounded p-1 text-gray-400 hover:text-primary" title="Copy">
+                                                <Copy className="h-3.5 w-3.5" />
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {devices.length > 0 && (
+                        <div className="rounded-lg border border-blue-100 bg-blue-50 p-4">
+                            <p className="text-sm font-semibold text-blue-800">{t('attendance_device_howto')}</p>
+                            <p className="mt-1 text-xs text-blue-600">
+                                Configure your device to POST to:<br />
+                                <code className="rounded bg-blue-100 px-1.5 py-0.5 font-mono">POST https://api.andgatepos.com/api/attendance/device/punch</code><br />
+                                Header: <code className="rounded bg-blue-100 px-1.5 py-0.5 font-mono">Authorization: Bearer YOUR_API_TOKEN</code>
+                            </p>
                         </div>
                     )}
                 </div>

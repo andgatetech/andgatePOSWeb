@@ -19,24 +19,11 @@ export default function BusinessOsPage() {
     const openTasks = (bos.tasks || []).filter((i: any) => i.status === 'open').length;
     const openJobs = (bos.repairs || []).filter((i: any) => i.status !== 'delivered').length;
 
-    const summaryCards = [
-        { icon: Receipt, value: pendingClosings, label: t('bos_pending_closings'), href: '/cash-closing', color: 'text-blue-600', bg: 'bg-blue-50' },
-        { icon: Banknote, value: pendingPetty, label: t('bos_pending_petty'), href: '/petty-cash', color: 'text-amber-600', bg: 'bg-amber-50' },
-        { icon: ClipboardList, value: openTasks, label: t('bos_open_tasks'), href: '/business-os', color: 'text-purple-600', bg: 'bg-purple-50' },
-        { icon: Wrench, value: openJobs, label: t('bos_open_jobs'), href: '/business-os', color: 'text-orange-600', bg: 'bg-orange-50' },
-    ];
-
     const modules = [
-        { icon: Receipt, label: t('bos_cash_closing'), desc: t('bos_cash_closing_desc'), href: '/cash-closing', bg: 'from-blue-500 to-blue-600' },
-        { icon: Banknote, label: t('bos_petty_cash'), desc: t('bos_petty_cash_desc'), href: '/petty-cash', bg: 'from-amber-500 to-orange-600' },
-        { icon: CalendarCheck, label: t('bos_attendance'), desc: t('bos_attendance_desc'), href: '/hr/attendance', bg: 'from-emerald-500 to-teal-600' },
-        { icon: Wrench, label: t('bos_service_jobs'), desc: t('bos_service_jobs_desc'), href: '/business-os', bg: 'from-purple-500 to-violet-600' },
-    ];
-
-    const quickLinks = [
-        { label: t('bos_tasks'), href: '/business-os', icon: <CheckCircle2 className="h-3.5 w-3.5" /> },
-        { label: t('bos_due_collection'), href: '/customers/due', icon: <BriefcaseBusiness className="h-3.5 w-3.5" /> },
-        { label: t('bos_supplier_due'), href: '/suppliers/due', icon: <BriefcaseBusiness className="h-3.5 w-3.5" /> },
+        { icon: Receipt, label: t('bos_cash_closing'), desc: t('bos_cash_closing_desc'), href: '/cash-closing', badge: pendingClosings, badgeColor: 'text-blue-600 bg-blue-50' },
+        { icon: Banknote, label: t('bos_petty_cash'), desc: t('bos_petty_cash_desc'), href: '/petty-cash', badge: pendingPetty, badgeColor: 'text-amber-600 bg-amber-50' },
+        { icon: CalendarCheck, label: t('bos_attendance'), desc: t('bos_attendance_desc'), href: '/hr/attendance', badge: 0, badgeColor: 'text-emerald-600 bg-emerald-50' },
+        { icon: Wrench, label: t('bos_service_jobs'), desc: t('bos_service_jobs_desc'), href: '/business-os', badge: openJobs, badgeColor: 'text-orange-600 bg-orange-50' },
     ];
 
     const lastClosings = (bos.closings || []).slice(0, 5);
@@ -55,52 +42,54 @@ export default function BusinessOsPage() {
                 </div>
             </div>
 
-            {/* Summary Cards — Pending Actions */}
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                {summaryCards.map((card) => (
-                    <Link key={card.label} href={card.href} className={`rounded-xl border border-gray-100 p-4 text-center shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md ${card.bg}`}>
-                        <card.icon className={`mx-auto mb-1 h-5 w-5 ${card.color}`} />
-                        <div className={`text-xl font-bold ${card.color}`}>{card.value}</div>
-                        <p className="text-xs text-gray-500">{card.label}</p>
-                    </Link>
-                ))}
-            </div>
-
-            {/* Module Cards */}
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {/* Module Cards — Primary navigation grid */}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {modules.map((mod) => (
-                    <Link key={mod.label} href={mod.href} className={`group relative overflow-hidden rounded-xl bg-gradient-to-br ${mod.bg} p-5 text-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg`}>
-                        <mod.icon className="mb-3 h-8 w-8 opacity-80" />
-                        <h3 className="text-lg font-bold">{mod.label}</h3>
-                        <p className="mt-1 text-sm text-white/80">{mod.desc}</p>
-                        <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-white/90 group-hover:text-white">
-                            Open → 
-                        </span>
+                    <Link
+                        key={mod.label}
+                        href={mod.href}
+                        className="group rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md"
+                    >
+                        <div className="flex items-start justify-between">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+                                <mod.icon className="h-5 w-5 text-primary" />
+                            </div>
+                            {mod.badge > 0 && (
+                                <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${mod.badgeColor}`}>
+                                    {mod.badge} {t('bos_pending_label')}
+                                </span>
+                            )}
+                        </div>
+                        <h3 className="mt-3 text-base font-bold text-gray-900 group-hover:text-primary transition-colors">{mod.label}</h3>
+                        <p className="mt-1 text-sm text-gray-500">{mod.desc}</p>
                     </Link>
                 ))}
             </div>
 
-            {/* Recent Activity + Quick Links */}
+            {/* Two-column detail */}
             <div className="grid gap-5 lg:grid-cols-2">
-                {/* Recent Cash Closings */}
-                <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
+                {/* Recent Closings */}
+                <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
                     <div className="mb-4 flex items-center justify-between">
-                        <h3 className="text-sm font-semibold text-gray-700">{t('bos_recent_closings')}</h3>
-                        <Link href="/cash-closing" className="text-xs text-primary hover:underline">{t('lbl_view_all')}</Link>
+                        <h3 className="text-sm font-bold text-gray-700 flex items-center gap-2">
+                            <Receipt className="h-4 w-4 text-primary" />
+                            {t('bos_recent_closings')}
+                        </h3>
+                        <Link href="/cash-closing" className="text-xs font-medium text-primary hover:underline">{t('lbl_view_all')} →</Link>
                     </div>
                     {lastClosings.length === 0 ? (
-                        <p className="py-6 text-center text-sm text-gray-400">{t('bos_no_closings')}</p>
+                        <p className="py-8 text-center text-sm text-gray-400">{t('bos_no_closings')}</p>
                     ) : (
                         <div className="space-y-2">
                             {lastClosings.map((c: any) => (
-                                <div key={c.id} className="flex items-center justify-between rounded-lg border border-gray-50 px-3 py-2 text-sm">
+                                <div key={c.id} className="flex items-center justify-between rounded-lg border border-gray-50 px-4 py-3 text-sm hover:bg-gray-50">
                                     <div>
-                                        <span className="font-medium text-gray-900">{formatCurrency(c.actual_cash || 0)}</span>
-                                        <span className={`ml-2 text-xs ${parseFloat(c.difference || 0) < 0 ? 'text-red-500' : 'text-emerald-600'}`}>
+                                        <span className="font-semibold text-gray-900">{formatCurrency(c.actual_cash || 0)}</span>
+                                        <span className={`ml-2 text-xs font-medium ${parseFloat(c.difference || 0) < 0 ? 'text-red-500' : 'text-emerald-600'}`}>
                                             {parseFloat(c.difference || 0) > 0 ? '+' : ''}{formatCurrency(c.difference || 0)}
                                         </span>
                                     </div>
-                                    <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
+                                    <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
                                         c.status === 'approved' ? 'bg-emerald-100 text-emerald-700' :
                                         c.status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'
                                     }`}>
@@ -112,33 +101,44 @@ export default function BusinessOsPage() {
                     )}
                 </div>
 
-                {/* Quick Links + Tasks */}
+                {/* Tasks + Quick Links */}
                 <div className="space-y-4">
-                    <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
-                        <h3 className="mb-3 text-sm font-semibold text-gray-700">{t('bos_quick_links')}</h3>
-                        <div className="space-y-1.5">
-                            {quickLinks.map((link) => (
-                                <Link key={link.label} href={link.href} className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-gray-600 transition-colors hover:bg-gray-50 hover:text-primary">
-                                    {link.icon} {link.label}
-                                </Link>
-                            ))}
-                        </div>
-                    </div>
-
-                    <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
-                        <h3 className="mb-3 text-sm font-semibold text-gray-700">{t('bos_open_tasks_title')}</h3>
+                    {/* Open Tasks */}
+                    <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+                        <h3 className="mb-3 text-sm font-bold text-gray-700 flex items-center gap-2">
+                            <ClipboardList className="h-4 w-4 text-primary" />
+                            {t('bos_open_tasks_title')}
+                            {openTasks > 0 && <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">{openTasks}</span>}
+                        </h3>
                         {recentTasks.length === 0 ? (
-                            <p className="py-4 text-center text-sm text-gray-400">{t('bos_no_tasks')}</p>
+                            <p className="py-6 text-center text-sm text-gray-400">{t('bos_no_tasks')}</p>
                         ) : (
-                            <div className="space-y-2">
+                            <div className="space-y-1.5">
                                 {recentTasks.map((task: any) => (
-                                    <div key={task.id} className="flex items-center gap-2 rounded-lg border border-gray-50 px-3 py-2 text-sm">
+                                    <div key={task.id} className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-gray-50">
                                         <Clock className="h-3.5 w-3.5 flex-shrink-0 text-amber-500" />
-                                        <span className="text-gray-700">{task.title}</span>
+                                        <span className="text-gray-700 truncate">{task.title}</span>
                                     </div>
                                 ))}
                             </div>
                         )}
+                    </div>
+
+                    {/* Quick Links */}
+                    <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+                        <h3 className="mb-3 text-sm font-bold text-gray-700">{t('bos_quick_links')}</h3>
+                        <div className="grid grid-cols-2 gap-1.5">
+                            {[
+                                { label: t('bos_due_collection'), href: '/customers/due' },
+                                { label: t('bos_supplier_due'), href: '/suppliers/due' },
+                                { label: t('lbl_customers'), href: '/customers/crm' },
+                                { label: t('lbl_low_stock'), href: '/reports/low-stock' },
+                            ].map((link) => (
+                                <Link key={link.label} href={link.href} className="rounded-lg px-3 py-2 text-sm text-gray-600 transition-colors hover:bg-primary/5 hover:text-primary">
+                                    {link.label} →
+                                </Link>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>

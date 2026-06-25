@@ -21,22 +21,20 @@ export default function CashClosingPage() {
         openingCash: '', cashSales: '', cashExpense: '',
         dueCollection: '', supplierPayment: '', actualCash: '', note: ''
     });
-    const [autoFilled, setAutoFilled] = useState(false);
 
     useEffect(() => {
-        if (prefillData?.data && !autoFilled) {
+        if (prefillData?.data) {
             const p = prefillData.data;
-            setForm({
+            setForm((prev) => ({
                 openingCash: p.opening_cash?.toString() || '',
                 cashSales: p.cash_sales?.toString() || '',
                 cashExpense: p.cash_expense?.toString() || '',
                 dueCollection: p.due_collection?.toString() || '',
                 supplierPayment: p.supplier_payment?.toString() || '',
-                actualCash: '', note: '',
-            });
-            setAutoFilled(true);
+                actualCash: prev.actualCash, note: prev.note,
+            }));
         }
-    }, [prefillData, autoFilled]);
+    }, [prefillData]);
 
     const closings = (data?.data?.closings || []).reverse();
 
@@ -121,9 +119,9 @@ export default function CashClosingPage() {
             <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
                 <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-gray-700">
                     {t('closing_new')}
-                    {autoFilled && (
+                    {prefillData?.data && (
                         <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">
-                            <CheckCircle2 className="h-3 w-3" /> Auto-filled from today&apos;s transactions
+                            <CheckCircle2 className="h-3 w-3" /> Values pulled from today&apos;s transactions
                         </span>
                     )}
                 </h3>
