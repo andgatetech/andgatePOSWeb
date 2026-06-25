@@ -61,6 +61,16 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                 href: '/hr/attendance',
                 requiredPermissions: ['hr.attendance.create', 'hr.attendance.view', 'users.view'],
             },
+            {
+                label: 'Employees Management',
+                href: '/employees',
+                ownerOnly: true,
+            },
+            {
+                label: 'Roles',
+                href: '/roles',
+                requiredPermissions: ['users.view'],
+            },
         ],
     },
     {
@@ -498,16 +508,6 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         sectionBreak: true,
         requiredPermissions: ['users.view', 'stores.view'],
         subMenu: [
-            {
-                label: 'Employees Management',
-                href: '/employees',
-                ownerOnly: true,
-            },
-            {
-                label: 'Roles',
-                href: '/roles',
-                requiredPermissions: ['users.view'],
-            },
             {
                 label: 'Audit Logs',
                 href: '/audit-logs',
