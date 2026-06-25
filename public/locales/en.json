@@ -6061,5 +6061,10 @@
     "attendance_filter_staff": "Filter staff...",
     "attendance_label_in": "In",
     "attendance_label_out": "Out",
-    "attendance_no_records": "No attendance records found"
+    "attendance_no_records": "No attendance records found",
+    "attendance_summary": "Daily Summary",
+    "attendance_hours": "Hours",
+    "attendance_status_completed": "Completed",
+    "attendance_status_active": "Active",
+    "attendance_status_absent": "Absent"
 }

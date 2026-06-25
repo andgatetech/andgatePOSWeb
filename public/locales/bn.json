@@ -3722,7 +3722,7 @@
     "lbl_partially_received": "আংশিক প্রাপ্ত",
     "lbl_cancelled": "বাতিল",
     "lbl_blocked": "অবরুদ্ধ",
-    "lbl_staff": "কর্মী",
+    "lbl_staff": "স্টাফ",
     "lbl_manager": "ম্যানেজার",
     "lbl_cashier": "ক্যাশিয়ার",
     "lbl_store_admin": "বিজনেস অ্যাডমিন",
@@ -6061,5 +6061,10 @@
     "attendance_filter_staff": "স্টাফ ফিল্টার...",
     "attendance_label_in": "ইন",
     "attendance_label_out": "আউট",
-    "attendance_no_records": "কোনো হাজিরা রেকর্ড পাওয়া যায়নি"
+    "attendance_no_records": "কোনো হাজিরা রেকর্ড পাওয়া যায়নি",
+    "attendance_summary": "দৈনিক সারসংক্ষেপ",
+    "attendance_hours": "ঘন্টা",
+    "attendance_status_completed": "সম্পন্ন",
+    "attendance_status_active": "সক্রিয়",
+    "attendance_status_absent": "অনুপস্থিত"
 }

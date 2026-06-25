@@ -34,6 +34,18 @@ export const businessOsApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['BusinessOS'],
         }),
+        getAttendanceList: builder.query({
+            query: (params) => ({ url: '/attendance', params }),
+            providesTags: ['BusinessOS'],
+        }),
+        getAttendanceToday: builder.query({
+            query: (params) => ({ url: '/attendance/today', params }),
+            providesTags: ['BusinessOS'],
+        }),
+        getAttendanceSummary: builder.query({
+            query: (params) => ({ url: '/attendance/summary', params }),
+            providesTags: ['BusinessOS'],
+        }),
         createBusinessTask: builder.mutation({
             query: (body) => ({
                 url: '/business-os/tasks',
@@ -90,6 +102,9 @@ export const {
     useCreateCashClosingMutation,
     useUpdateCashClosingMutation,
     useCreateStaffAttendanceMutation,
+    useGetAttendanceListQuery,
+    useGetAttendanceTodayQuery,
+    useGetAttendanceSummaryQuery,
     useCreateBusinessTaskMutation,
     useUpdateBusinessTaskMutation,
     useCreatePettyCashRequestMutation,
