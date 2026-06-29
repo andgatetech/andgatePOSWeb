@@ -276,7 +276,7 @@ export default function StockTransfersPage() {
                                                 {[product.variant_name, product.sku ? `SKU: ${product.sku}` : null].filter(Boolean).join(' · ')}
                                             </div>
                                             <div className="mt-auto pt-2 text-xs font-semibold text-primary">
-                                                {product.selected ? t('msg_item_added_to_order') : product.available_quantity <= 0 ? t('lbl_out_of_stock') : t('btn_add')}
+                                                {product.selected ? t('lbl_selected') : product.available_quantity <= 0 ? t('lbl_out_of_stock') : t('btn_add')}
                                             </div>
                                         </button>
                                     );
