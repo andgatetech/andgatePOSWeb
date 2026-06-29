@@ -3,6 +3,7 @@
 import MainLayout from '@/components/layouts/MainLayout';
 import { getTranslation } from '@/i18n';
 import { BarChart3, CheckCircle, Clock, Cookie, Eye, RefreshCw, Settings, Shield, X } from 'lucide-react';
+import Link from 'next/link';
 
 export default function CookiePolicyPage() {
     const { t } = getTranslation();
@@ -312,12 +313,12 @@ export default function CookiePolicyPage() {
                                         >
                                             {t('cookie-policy.contact.button_primary')}
                                         </a>
-                                        <a
+                                        <Link
                                             href="/contact"
                                             className="rounded-full border border-white/20 px-6 py-3 text-sm font-bold text-white transition hover:bg-white/10"
                                         >
                                             {t('cookie-policy.contact.button_secondary')}
-                                        </a>
+                                        </Link>
                                     </div>
                                     <p className="mt-4 text-xs text-slate-500">{t('cookie-policy.contact.compliance')}</p>
                                 </div>

@@ -2,6 +2,7 @@
 
 import { getTranslation } from '@/i18n';
 import { Quote, Star } from 'lucide-react';
+import Image from 'next/image';
 
 export default function TestimonialsSection() {
     const { t, data } = getTranslation();
@@ -82,9 +83,11 @@ export default function TestimonialsSection() {
                                 {/* Author */}
                                 <div className="flex items-center gap-3">
                                     {testimonial.image ? (
-                                        <img
+                                        <Image
                                             src={testimonial.image}
                                             alt={testimonial.business}
+                                            width={44}
+                                            height={44}
                                             className="h-11 w-11 rounded-xl bg-gray-100 object-contain p-1.5 ring-1 ring-gray-100"
                                         />
                                     ) : (

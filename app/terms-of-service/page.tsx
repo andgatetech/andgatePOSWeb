@@ -2,6 +2,7 @@
 import MainLayout from '@/components/layouts/MainLayout';
 import { getTranslation } from '@/i18n';
 import { AlertTriangle, Ban, CheckCircle, Clock, CreditCard, FileText, RefreshCw, Scale, Shield, Users } from 'lucide-react';
+import Link from 'next/link';
 
 export default function TermsOfServicePage() {
     const { t } = getTranslation();
@@ -302,12 +303,12 @@ export default function TermsOfServicePage() {
                                         >
                                             {t('terms-service.contact.email')}
                                         </a>
-                                        <a
+                                        <Link
                                             href="/contact"
                                             className="rounded-full border border-white/20 px-6 py-3 text-sm font-bold text-white transition hover:bg-white/10"
                                         >
                                             {t('terms-service.contact.contactButton')}
-                                        </a>
+                                        </Link>
                                     </div>
                                     <p className="mt-4 text-xs text-slate-500">{t('terms-service.contact.availability')}</p>
                                 </div>

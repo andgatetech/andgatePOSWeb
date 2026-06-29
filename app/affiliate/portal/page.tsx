@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import {
     useGetPortalDashboardQuery,
     useGetPortalConversionsQuery,
@@ -98,7 +99,7 @@ export default function AffiliatePortalPage() {
             <div className="p-6 text-center">
                 <AlertCircle className="mx-auto mb-3 h-10 w-10 text-warning" />
                 <p className="text-slate-600">{t('aff_portal_load_error')}</p>
-                <a href="/affiliate/login" className="mt-4 inline-block rounded-xl bg-primary text-white px-6 py-2 font-semibold">{t('aff_portal_login_btn')}</a>
+                <Link href="/affiliate/login" className="mt-4 inline-block rounded-xl bg-primary text-white px-6 py-2 font-semibold">{t('aff_portal_login_btn')}</Link>
             </div>
         );
     }

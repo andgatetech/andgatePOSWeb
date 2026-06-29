@@ -2,6 +2,7 @@
 import MainLayout from '@/components/layouts/MainLayout';
 import { getTranslation } from '@/i18n';
 import { CheckCircle, Clock, CreditCard, Database, Eye, Lock, Mail, Shield, Users } from 'lucide-react';
+import Link from 'next/link';
 
 export default function PrivacyPolicyPage() {
     const { t } = getTranslation();
@@ -216,12 +217,12 @@ export default function PrivacyPolicyPage() {
                                         >
                                             {t('privacy_policy.contact.email')}
                                         </a>
-                                        <a
+                                        <Link
                                             href="/contact"
                                             className="rounded-full border border-white/20 px-6 py-3 text-sm font-bold text-white transition hover:bg-white/10"
                                         >
                                             {t('privacy_policy.contact.contact_us')}
-                                        </a>
+                                        </Link>
                                     </div>
                                 </div>
                             </div>

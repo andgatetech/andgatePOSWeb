@@ -3,6 +3,7 @@
 import { useGetAffiliateLeaderboardQuery } from '@/store/features/affiliate/affiliateApi';
 import { Trophy, Loader2 } from 'lucide-react';
 import { getTranslation } from '@/i18n';
+import Link from 'next/link';
 
 const MEDALS = ['🥇', '🥈', '🥉'];
 const TIER_COLORS: Record<string, string> = {
@@ -33,7 +34,7 @@ export default function AffiliateLeaderboardPage() {
                 ) : leaders.length === 0 ? (
                     <div className="text-center text-slate-400 py-12">
                         <p>{t('aff_leader_empty')}</p>
-                        <a href="/affiliate" className="mt-4 inline-block text-primary font-semibold hover:underline">{t('aff_leader_be_first')}</a>
+                        <Link href="/affiliate" className="mt-4 inline-block text-primary font-semibold hover:underline">{t('aff_leader_be_first')}</Link>
                     </div>
                 ) : (
                     <div className="space-y-3">
@@ -82,9 +83,9 @@ export default function AffiliateLeaderboardPage() {
                 )}
 
                 <div className="mt-8 text-center">
-                    <a href="/affiliate" className="rounded-xl bg-primary text-white font-bold px-8 py-3 hover:opacity-90 transition inline-block">
+                    <Link href="/affiliate" className="rounded-xl bg-primary text-white font-bold px-8 py-3 hover:opacity-90 transition inline-block">
                         {t('aff_leader_join')}
-                    </a>
+                    </Link>
                 </div>
             </div>
         </div>

@@ -75,7 +75,7 @@ export default function PromoHero() {
                         </div>
 
                         {/* Floating social proof chip */}
-                        <div className="absolute -bottom-4 -left-4 flex items-center gap-2 rounded-2xl border border-gray-100 bg-white px-4 py-2.5 shadow-xl">
+                        <div className="absolute -top-4 -left-4 z-10 flex items-center gap-2 rounded-2xl border border-gray-100 bg-white px-4 py-2.5 shadow-xl">
                             <div className="flex -space-x-1.5">
                                 {['র', 'স', 'আ'].map((l, i) => (
                                     <div

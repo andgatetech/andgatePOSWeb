@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useGetAffiliateCalculatorQuery } from '@/store/features/affiliate/affiliateApi';
 import { useGetPlansQuery, type Plan } from '@/store/features/plans/plansApi';
 import { getTranslation } from '@/i18n';
+import Link from 'next/link';
 
 const TIERS = [
     { value: 'bronze',   label: 'ব্রোঞ্জ',   pct: '৫০% + ১০%' },
@@ -187,12 +188,12 @@ export default function AffiliateCalculatorPage() {
                             Income depends on actual successful customer subscriptions. AndgatePOS does not guarantee any fixed income.
                         </p>
                         <div className="mt-4 text-center">
-                            <a
+                            <Link
                                 href="/affiliate"
                                 className="inline-block rounded-xl bg-yellow-400 text-slate-900 font-bold px-8 py-2.5 hover:bg-yellow-300 transition"
                             >
                                 {t('aff_calc_join_btn')}
-                            </a>
+                            </Link>
                         </div>
                     </div>
                 )}
