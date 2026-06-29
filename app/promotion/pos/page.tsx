@@ -2,6 +2,7 @@
 
 import Navbar from '../components/navbar';
 import PromoFAQ from '../components/promo-faq';
+import PromoFeatureProof from '../components/promo-feature-proof';
 import PromoFooter from '../components/promo-footer';
 import PromoHero from '../components/promo-hero';
 import PromoLossHook from '../components/promo-loss-hook';
@@ -84,22 +85,25 @@ export default function PromotionPage() {
                 {/* 2. Trust stats bar */}
                 <PromoStats />
 
-                {/* 3. Loss-aversion + Before/After transformation */}
+                {/* 3. Updated product proof for ad traffic */}
+                <PromoFeatureProof />
+
+                {/* 4. Loss-aversion + Before/After transformation */}
                 <PromoLossHook />
 
-                {/* 4. Pain point pairs — emotionally charged */}
+                {/* 5. Pain point pairs — emotionally charged */}
                 <PromoProblemSolution />
 
-                {/* 5. Registration form — primary conversion for store-owner ad traffic */}
+                {/* 6. Registration form — primary conversion for store-owner ad traffic */}
                 <PromoRegisterForm />
 
-                {/* 6. Pricing plans — after signup intent is captured */}
+                {/* 7. Pricing plans — after signup intent is captured */}
                 <PromoPricing />
 
-                {/* 7. Testimonials marquee */}
+                {/* 8. Testimonials marquee */}
                 <PromoTestimonials />
 
-                {/* 8. FAQ — objection handling */}
+                {/* 9. FAQ — objection handling */}
                 <PromoFAQ />
             </main>
 

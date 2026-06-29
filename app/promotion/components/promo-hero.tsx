@@ -111,11 +111,11 @@ export default function PromoHero() {
                             <br className="hidden sm:block" /> এখন থাকবে <span className="text-primary">আপনার নিয়ন্ত্রণে।</span>
                         </h1>
 
-                        <p className="mb-6 text-base leading-relaxed text-gray-600 sm:text-lg">১ মিনিটে ফ্রি POS ট্রায়াল শুরু করুন। মোবাইল থেকেই বিলিং, স্টক, বিক্রি আর লাভের হিসাব দেখুন।</p>
+                        <p className="mb-6 text-base leading-relaxed text-gray-600 sm:text-lg">১ মিনিটে ফ্রি POS ট্রায়াল শুরু করুন। ফর্ম পূরণ করলেই অ্যাকাউন্ট তৈরি হবে, তারপর সরাসরি ড্যাশবোর্ডে ঢুকে সফটওয়্যার দেখে নিতে পারবেন।</p>
 
                         {/* Trust points */}
                         <div className="mb-8 flex flex-col gap-2.5 text-sm font-medium text-gray-700 sm:flex-row sm:flex-wrap sm:justify-center lg:justify-start">
-                            {['কোনো কার্ড লাগবে না', 'মোবাইল দিয়েই বিল করা যায়', 'বাংলায় সেটআপ সাপোর্ট'].map((t, i) => (
+                            {['কোনো কার্ড লাগবে না', 'মোবাইল দিয়েই বিল করা যায়', 'বাংলায় সেটআপ সাপোর্ট', 'স্টক ও লাভ-লস রিপোর্ট'].map((t, i) => (
                                 <span key={i} className="inline-flex items-center gap-1 rounded-full bg-green-50 px-3 py-1 text-green-800">
                                     {t}
                                 </span>
