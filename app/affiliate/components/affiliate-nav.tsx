@@ -13,7 +13,7 @@ const ANDGATE_LOGO = '/images/andgatePOS.jpeg';
 const LINKS = [
     { href: '/affiliate',             labelKey: 'aff_nav_home',        icon: '🏠', desc: 'রেজিস্ট্রেশন, টায়ার তথ্য ও FAQ',              public: true  },
     { href: '/affiliate/calculator',  labelKey: 'aff_nav_calculator',  icon: '🧮', desc: 'রিয়েল প্ল্যান দিয়ে কমিশন হিসাব করুন',        public: true  },
-    { href: '/affiliate/leaderboard', labelKey: 'aff_nav_leaderboard', icon: '🏆', desc: 'সেরা পার্টনারদের তালিকা',                     public: true  },
+    { href: '/affiliate/leaderboard', labelKey: 'aff_nav_leaderboard', icon: '🏆', desc: 'সেরা অ্যাফিলিয়েটদের তালিকা',                     public: true  },
     { href: '/affiliate/assets',      labelKey: 'aff_nav_assets',      icon: '📦', desc: 'ব্রোশার, সোশ্যাল ছবি ও পিচ স্ক্রিপ্ট',       public: true  },
     { href: '/affiliate/policies',    labelKey: 'aff_nav_policies',    icon: '🛡️', desc: 'কমিশন, পেআউট ও প্রোমোশন নীতি',               public: true  },
     { href: '/affiliate/portal',      labelKey: 'aff_nav_portal',      icon: '📊', desc: 'ব্যালেন্স, কমিশন ও পেআউট (লগইন লাগবে)',       public: false },
@@ -45,7 +45,7 @@ export default function AffiliateNav() {
                             />
                         </span>
                         <span className="rounded-full bg-[#e79237]/15 px-2 py-0.5 text-xs font-semibold text-[#c47920]">
-                            Partner
+                            Affiliate
                         </span>
                     </Link>
                     <div className="flex items-center gap-1.5 flex-wrap justify-end text-xs text-slate-500">
@@ -58,7 +58,7 @@ export default function AffiliateNav() {
                             {i18n.language === 'bn' ? 'EN' : 'বাং'}
                         </button>
                         <a
-                            href={`${ADMIN_WHATSAPP}?text=${encodeURIComponent('আমি AndgatePOS Partner Program সদস্য। আমার একটু সাহায্য দরকার।')}`}
+                            href={`${ADMIN_WHATSAPP}?text=${encodeURIComponent('আমি AndgatePOS অ্যাফিলিয়েট প্রোগ্রামের সদস্য। আমার একটু সাহায্য দরকার।')}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             title="WhatsApp-এ সাহায্য নিন"

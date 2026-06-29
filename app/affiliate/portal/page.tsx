@@ -514,7 +514,7 @@ export default function AffiliatePortalPage() {
 
             {/* Floating WhatsApp support button */}
             <a
-                href={`https://wa.me/8801577303608?text=${encodeURIComponent(`আমি AndgatePOS পার্টনার (কোড: ${stats.code})। আমার একটু সাহায্য দরকার।`)}`}
+                href={`https://wa.me/8801577303608?text=${encodeURIComponent(`আমি AndgatePOS অ্যাফিলিয়েট (কোড: ${stats.code})। আমার একটু সাহায্য দরকার।`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 title="WhatsApp-এ সাহায্য নিন"

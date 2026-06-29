@@ -13,8 +13,8 @@ export default function PromotionTracker() {
         if (firedPaths.has(pathname)) return;
         firedPaths.add(pathname);
 
-        const isPartner = pathname.includes('/promotion/partner');
-        const contentName = isPartner ? 'Partner Promotion Page' : 'POS Promotion Page';
+        const isAffiliate = pathname.includes('/promotion/affiliate');
+        const contentName = isAffiliate ? 'Affiliate Promotion Page' : 'POS Promotion Page';
 
         trackPixelEvent('ViewContent', {
             content_name: contentName,

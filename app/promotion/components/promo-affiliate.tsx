@@ -21,7 +21,7 @@ export default function PromoAffiliate() {
             <div className="mx-auto max-w-5xl px-4 sm:px-6">
                 {/* Header */}
                 <div className="mb-10 text-center">
-                    <span className="mb-3 inline-block rounded-full border border-[#e79237]/50 bg-[#e79237]/20 px-4 py-1 text-sm font-semibold text-[#e79237]">পার্টনার প্রোগ্রাম</span>
+                    <span className="mb-3 inline-block rounded-full border border-[#e79237]/50 bg-[#e79237]/20 px-4 py-1 text-sm font-semibold text-[#e79237]">অ্যাফিলিয়েট প্রোগ্রাম</span>
                     <h2 className="text-3xl font-bold text-white sm:text-4xl">পরিচিত দোকানদারকে AndgatePOS দেখান, পেইড সাবস্ক্রিপশন থেকে কমিশন পান</h2>
                     <p className="mt-3 text-lg text-blue-100">আইটি সার্ভিস, হিসাবরক্ষণ, হার্ডওয়্যার বিক্রি বা স্থানীয় ব্যবসায়ী নেটওয়ার্ক থাকলে বাস্তব দোকানদারের সাথে সরাসরি কাজ শুরু করুন।</p>
                 </div>
@@ -73,8 +73,8 @@ export default function PromoAffiliate() {
 
                 {/* CTA */}
                 <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-                    <Link href="/promotion/partner" className="rounded-xl bg-[#e79237] px-8 py-3 text-base font-bold text-white shadow-lg transition-all hover:bg-[#c47920] hover:shadow-xl">
-                        পার্টনার প্রোগ্রাম দেখুন →
+                    <Link href="/promotion/affiliate" className="rounded-xl bg-[#e79237] px-8 py-3 text-base font-bold text-white shadow-lg transition-all hover:bg-[#c47920] hover:shadow-xl">
+                        অ্যাফিলিয়েট প্রোগ্রাম দেখুন →
                     </Link>
                     <Link href="/affiliate/calculator" className="rounded-xl border border-white/30 bg-white/10 px-8 py-3 text-base font-semibold text-white transition-all hover:bg-white/20">
                         কমিশন ক্যালকুলেটর দেখুন

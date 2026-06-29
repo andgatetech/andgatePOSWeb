@@ -15,22 +15,22 @@ export const metadata: Metadata = {
         'সফটওয়্যার অ্যাফিলিয়েট প্রোগ্রাম বাংলাদেশ',
     ],
     alternates: {
-        canonical: `${BASE_URL}/promotion/partner`,
+        canonical: `${BASE_URL}/promotion/affiliate`,
     },
     openGraph: {
         title: 'AndgatePOS Affiliate Program Bangladesh',
         description: 'Register free, take training, show demos to shop owners, and earn commission from successful paid subscriptions.',
-        url: `${BASE_URL}/promotion/partner`,
-        images: [{ url: '/images/ads/andgatepos-partner-facebook-ad-real-logo.png', width: 1200, height: 630, alt: 'AndgatePOS Affiliate Program Bangladesh' }],
+        url: `${BASE_URL}/promotion/affiliate`,
+        images: [{ url: '/images/ads/andgatepos-affiliate-facebook-ad-real-logo.png', width: 1200, height: 630, alt: 'AndgatePOS Affiliate Program Bangladesh' }],
     },
     twitter: {
         card: 'summary_large_image',
         title: 'AndgatePOS Affiliate Program Bangladesh',
         description: 'Earn commission by helping Bangladeshi shop owners adopt AndgatePOS.',
-        images: ['/images/ads/andgatepos-partner-facebook-ad-real-logo.png'],
+        images: ['/images/ads/andgatepos-affiliate-facebook-ad-real-logo.png'],
     },
 };
 
-export default function PromotionPartnerLayout({ children }: { children: React.ReactNode }) {
+export default function PromotionAffiliateLayout({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
 }

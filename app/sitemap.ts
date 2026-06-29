@@ -118,7 +118,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
             priority: 0.82,
         },
         {
-            url: `${baseUrl}/promotion/partner`,
+            url: `${baseUrl}/promotion/affiliate`,
             lastModified: now,
             changeFrequency: 'weekly',
             priority: 0.72,

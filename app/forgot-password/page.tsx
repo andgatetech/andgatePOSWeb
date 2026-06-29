@@ -1,6 +1,7 @@
 'use client';
 
 import { useForgotPasswordMutation } from '@/store/features/auth/authApi';
+import { showMessage } from '@/lib/toast';
 import { ArrowLeft, Lock, Mail, Shield, Zap } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -17,10 +18,9 @@ const ForgotPasswordPage = () => {
         e.preventDefault();
         try {
             await forgotPassword({ email }).unwrap();
-        } catch (_) {
-            // Never reveal if email exists
-        } finally {
             setShowSuccess(true);
+        } catch (_) {
+            showMessage('Unable to send reset instructions right now. Please try again.', 'error');
         }
     };
 
