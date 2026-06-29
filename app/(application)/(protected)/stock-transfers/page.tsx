@@ -12,8 +12,8 @@ import {
     useReceiveStockTransferMutation,
     useShipStockTransferMutation,
 } from '@/store/features/stockTransfer/stockTransferApi';
-import { ArrowRightLeft, CheckCircle2, PackageCheck, Plus, Send, Trash2, XCircle } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { ArrowRightLeft, CheckCircle2, Loader2, Package, PackageCheck, Plus, Search, Send, Trash2, X, XCircle } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 
 type Tab = 'outgoing' | 'incoming';
 
@@ -26,6 +26,16 @@ interface DraftItem {
     quantity: number;
 }
 
+interface ProductOption {
+    product_id: number;
+    product_stock_id: number;
+    product_name: string;
+    variant_name?: string;
+    sku?: string;
+    available_quantity: number;
+    selected: boolean;
+}
+
 export default function StockTransfersPage() {
     const { t } = getTranslation();
     const { currentStoreId, userStores } = useCurrentStore();
@@ -34,8 +44,14 @@ export default function StockTransfersPage() {
     const [toStoreId, setToStoreId] = useState('');
     const [note, setNote] = useState('');
     const [productSearch, setProductSearch] = useState('');
+    const [debouncedProductSearch, setDebouncedProductSearch] = useState('');
     const [draftItems, setDraftItems] = useState<DraftItem[]>([]);
     const [selectedTransferId, setSelectedTransferId] = useState<number | null>(null);
+
+    useEffect(() => {
+        const handle = setTimeout(() => setDebouncedProductSearch(productSearch.trim()), 300);
+        return () => clearTimeout(handle);
+    }, [productSearch]);
 
     const { data: transfersData, refetch: refetchList } = useGetStockTransfersQuery(
         { store_id: currentStoreId, direction: tab }, { skip: !currentStoreId }
@@ -44,9 +60,9 @@ export default function StockTransfersPage() {
         { id: selectedTransferId as number, store_id: currentStoreId },
         { skip: !selectedTransferId || !currentStoreId }
     );
-    const { data: productsData } = useGetAllProductsQuery(
-        { store_id: currentStoreId, search: productSearch || undefined, per_page: 10, light: true },
-        { skip: !currentStoreId || !productSearch.trim() }
+    const { data: productsData, isFetching: searchingProducts } = useGetAllProductsQuery(
+        { store_id: currentStoreId, search: debouncedProductSearch || undefined, per_page: 24, light: true },
+        { skip: !currentStoreId || !debouncedProductSearch }
     );
     const [createTransfer] = useCreateStockTransferMutation();
     const [shipTransfer] = useShipStockTransferMutation();
@@ -59,22 +75,48 @@ export default function StockTransfersPage() {
         () => userStores.filter((s: any) => Number(s.id) !== Number(currentStoreId)),
         [userStores, currentStoreId]
     );
-    const searchResults = productsData?.data?.data || productsData?.data || [];
+    const searchResults = useMemo<ProductOption[]>(() => {
+        if (!debouncedProductSearch) return [];
+        const rawProducts = productsData?.data?.data || productsData?.data || [];
+        if (!Array.isArray(rawProducts)) return [];
 
-    const addItem = (product: any, stock: any) => {
-        if (draftItems.some((d) => d.product_stock_id === stock.id)) return;
+        return rawProducts.flatMap((product: any) => {
+            const stocks = Array.isArray(product.stocks) ? product.stocks : [];
+            return stocks
+                .map((stock: any) => {
+                    const variantName = stock.variant_data ? Object.values(stock.variant_data).join(' - ') : undefined;
+                    const availableQuantity = parseFloat(stock.quantity || '0') || 0;
+                    const productStockId = Number(stock.id);
+
+                    return {
+                        product_id: Number(product.id),
+                        product_stock_id: productStockId,
+                        product_name: product.product_name || product.name || 'Unknown product',
+                        variant_name: variantName,
+                        sku: stock.sku || product.sku,
+                        available_quantity: availableQuantity,
+                        selected: draftItems.some((item) => item.product_stock_id === productStockId),
+                    };
+                })
+                .filter((stock: ProductOption) => stock.product_stock_id > 0);
+        });
+    }, [productsData, debouncedProductSearch, draftItems]);
+
+    const addSearchResult = (product: ProductOption) => {
+        if (product.selected || product.available_quantity <= 0) return;
         setDraftItems((prev) => [
             ...prev,
             {
-                product_id: product.id,
-                product_stock_id: stock.id,
+                product_id: product.product_id,
+                product_stock_id: product.product_stock_id,
                 product_name: product.product_name,
-                variant_name: stock.variant_data ? Object.values(stock.variant_data).join(' - ') : undefined,
-                available_quantity: parseFloat(stock.quantity || '0'),
+                variant_name: product.variant_name,
+                available_quantity: product.available_quantity,
                 quantity: 1,
             },
         ]);
         setProductSearch('');
+        setDebouncedProductSearch('');
     };
 
     const updateQuantity = (productStockId: number, quantity: number) => {
@@ -165,48 +207,99 @@ export default function StockTransfersPage() {
                         <input type="text" className="rounded-lg border border-gray-200 px-3 py-2 text-sm" value={note} onChange={(e) => setNote(e.target.value)} placeholder={t('transfer_note_placeholder')} />
                     </div>
 
-                    <div className="relative">
-                        <input
-                            type="text"
-                            className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
-                            value={productSearch}
-                            onChange={(e) => setProductSearch(e.target.value)}
-                            placeholder={t('transfer_search_product')}
-                        />
-                        {productSearch.trim() && searchResults.length > 0 && (
-                            <div className="absolute z-10 mt-1 w-full rounded-lg border border-gray-200 bg-white shadow-lg max-h-56 overflow-y-auto">
-                                {searchResults.map((p: any) => (
-                                    (p.stocks || []).map((s: any) => (
+                    <div className="rounded-lg border border-slate-200 bg-white p-3">
+                        <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">{t('transfer_product')}</label>
+                        <div className="relative">
+                            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                            {searchingProducts ? (
+                                <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-primary" />
+                            ) : productSearch ? (
+                                <button
+                                    type="button"
+                                    aria-label="Clear product search"
+                                    onClick={() => {
+                                        setProductSearch('');
+                                        setDebouncedProductSearch('');
+                                    }}
+                                    className="absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-md text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                                >
+                                    <X className="h-4 w-4" />
+                                </button>
+                            ) : null}
+                            <input
+                                type="text"
+                                className="w-full rounded-lg border border-gray-300 py-2.5 pl-9 pr-10 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
+                                value={productSearch}
+                                onChange={(e) => setProductSearch(e.target.value)}
+                                placeholder={t('transfer_search_product')}
+                            />
+                        </div>
+
+                        {debouncedProductSearch && !searchingProducts && searchResults.length === 0 && (
+                            <p className="mt-3 rounded-lg border border-dashed border-gray-200 px-4 py-5 text-center text-sm text-gray-400">{t('msg_no_products_found')}</p>
+                        )}
+
+                        {searchResults.length > 0 && (
+                            <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3">
+                                {searchResults.map((product) => {
+                                    const disabled = product.selected || product.available_quantity <= 0;
+                                    return (
                                         <button
-                                            key={s.id}
+                                            key={product.product_stock_id}
                                             type="button"
-                                            onClick={() => addItem(p, s)}
-                                            className="flex w-full items-center justify-between px-4 py-2 text-left text-sm hover:bg-gray-50"
+                                            onClick={() => addSearchResult(product)}
+                                            disabled={disabled}
+                                            className={`group flex min-h-[118px] flex-col rounded-lg border p-3 text-left transition ${
+                                                disabled
+                                                    ? 'cursor-not-allowed border-gray-100 bg-gray-50 opacity-70'
+                                                    : 'border-gray-200 bg-white hover:border-primary/40 hover:shadow-sm'
+                                            }`}
                                         >
-                                            <span>{p.product_name} {s.variant_data ? `(${Object.values(s.variant_data).join(' - ')})` : ''}</span>
-                                            <span className="text-xs text-gray-400">{t('transfer_available')}: {s.quantity}</span>
+                                            <div className="mb-2 flex items-start justify-between gap-2">
+                                                <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-md bg-slate-50">
+                                                    <Package className="h-4 w-4 text-slate-400" />
+                                                </div>
+                                                <span
+                                                    className={`rounded-md px-2 py-1 text-[10px] font-semibold ${
+                                                        product.available_quantity > 10
+                                                            ? 'bg-green-50 text-green-600'
+                                                            : product.available_quantity > 0
+                                                            ? 'bg-amber-50 text-amber-600'
+                                                            : 'bg-red-50 text-red-500'
+                                                    }`}
+                                                >
+                                                    {t('transfer_available')}: {product.available_quantity}
+                                                </span>
+                                            </div>
+                                            <p className="line-clamp-2 text-sm font-semibold text-gray-900">{product.product_name}</p>
+                                            <div className="mt-1 min-h-[18px] text-xs text-gray-400">
+                                                {[product.variant_name, product.sku ? `SKU: ${product.sku}` : null].filter(Boolean).join(' · ')}
+                                            </div>
+                                            <div className="mt-auto pt-2 text-xs font-semibold text-primary">
+                                                {product.selected ? t('msg_item_added_to_order') : product.available_quantity <= 0 ? t('lbl_out_of_stock') : t('btn_add')}
+                                            </div>
                                         </button>
-                                    ))
-                                ))}
+                                    );
+                                })}
                             </div>
                         )}
                     </div>
 
                     {draftItems.length > 0 && (
-                        <div className="space-y-1.5">
+                        <div className="space-y-2">
                             {draftItems.map((item) => (
-                                <div key={item.product_stock_id} className="flex items-center justify-between rounded-lg bg-white px-3 py-2 text-sm">
-                                    <div>
+                                <div key={item.product_stock_id} className="flex flex-col gap-3 rounded-lg bg-white px-3 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+                                    <div className="min-w-0">
                                         <span className="font-medium text-gray-900">{item.product_name}</span>
                                         {item.variant_name && <span className="ml-1 text-xs text-gray-400">({item.variant_name})</span>}
-                                        <span className="ml-2 text-xs text-gray-400">{t('transfer_available')}: {item.available_quantity}</span>
+                                        <span className="mt-0.5 block text-xs text-gray-400">{t('transfer_available')}: {item.available_quantity}</span>
                                     </div>
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center justify-between gap-2 sm:justify-end">
                                         <input
                                             type="number"
                                             min={0.01}
                                             max={item.available_quantity}
-                                            className="w-20 rounded border border-gray-200 px-2 py-1 text-sm"
+                                            className="w-24 rounded border border-gray-200 px-2 py-1.5 text-sm"
                                             value={item.quantity}
                                             onChange={(e) => updateQuantity(item.product_stock_id, Number(e.target.value))}
                                         />
