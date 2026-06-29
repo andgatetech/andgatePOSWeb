@@ -5,14 +5,13 @@ import { useLoginMutation } from '@/store/features/auth/authApi';
 import { Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { FormEvent, forwardRef, useEffect, useImperativeHandle, useMemo, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { FormEvent, forwardRef, useImperativeHandle, useMemo, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
 
 import IconLockDots from '@/components/icon/icon-lock-dots';
 import IconMail from '@/components/icon/icon-mail';
 import { AUTH_TOKEN_EXPIRES_AT_COOKIE, AUTH_TOKEN_EXPIRES_AT_KEY, getCookieMaxAgeFromExpiry, getLoginTokenExpiresAt, isTokenExpired, setAuthCookie } from '@/lib/auth-session';
-import type { RootState } from '@/store';
 import { login } from '@/store/features/auth/authSlice';
 import { persistor } from '@/store';
 
@@ -49,7 +48,6 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
     const searchParams = useSearchParams();
     const dispatch = useDispatch();
     const { t } = getTranslation();
-    const { isAuthenticated, token, tokenExpiresAt } = useSelector((state: RootState) => state.auth);
 
     const [loginApi, { isLoading }] = useLoginMutation();
 
@@ -92,12 +90,6 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
             return '/dashboard';
         }
     }, [searchParams]);
-
-    useEffect(() => {
-        if (!isAuthenticated || !token || isTokenExpired(tokenExpiresAt)) return;
-
-        router.replace(safeRedirectPath);
-    }, [isAuthenticated, token, tokenExpiresAt, router, safeRedirectPath]);
 
     const togglePasswordVisibility = (e: React.MouseEvent) => {
         e.preventDefault();

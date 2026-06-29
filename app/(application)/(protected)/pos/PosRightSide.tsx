@@ -88,18 +88,18 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
     const returnItemsData = useSelector((state: RootState) => selectReturnItems(currentStoreId)(state));
     const exchangeItemsData = useSelector((state: RootState) => selectExchangeItems(currentStoreId)(state));
     const returnReasonData = useSelector((state: RootState) => selectReturnReason(currentStoreId)(state));
-    const posItemsData = useSelector((state: RootState) => (currentStoreId && state.invoice.itemsByStore ? state.invoice.itemsByStore[currentStoreId] || EMPTY_ARRAY : EMPTY_ARRAY));
+    const posItemsData = useSelector((state: RootState) => (currentStoreId && state?.invoice?.itemsByStore ? state.invoice.itemsByStore[currentStoreId] || EMPTY_ARRAY : EMPTY_ARRAY));
 
     // Memoize invoice items to prevent new references on every render
     const invoiceItems = useMemo((): InvoiceLineItem[] => {
         if (reduxSlice === 'orderReturn') {
             // In return mode, combine original order items (returnItems) with new exchange items
             // Map return items to match Item interface
-            const mappedReturns = returnItemsData.map((item) => ({
+            const mappedReturns = returnItemsData.map((item: any) => ({
                 ...item,
                 // In return mode, quantity means "how many units to return".
-                quantity: item.returnQuantity,
-                amount: item.rate * item.returnQuantity,
+                quantity: Number(item?.returnQuantity) || 0,
+                amount: (Number(item?.rate) || 0) * (Number(item?.returnQuantity) || 0),
                 isReturnItem: true,
             }));
 
@@ -110,7 +110,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
     }, [reduxSlice, returnItemsData, exchangeItemsData, posItemsData]);
 
     const totalQty = useMemo(
-        () => invoiceItems.reduce((sum, item) => sum + (item.has_serial && item.serials?.length ? item.serials.length : item.quantity || 0), 0),
+        () => invoiceItems.reduce((sum, item: any) => sum + (item?.has_serial && item?.serials?.length ? item.serials.length : Number(item?.quantity) || 0), 0),
         [invoiceItems]
     );
 
@@ -194,13 +194,17 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
     // Value of items being returned
     const returnTotal = useMemo(() => {
         if (!isReturnMode) return 0;
-        return returnItems.reduce((sum: number, item: any) => sum + item.rate * item.returnQuantity, 0);
+        return returnItems.reduce((sum: number, item: any) => {
+            const rate = Number(item?.rate) || 0;
+            const qty = Number(item?.returnQuantity) || 0;
+            return sum + rate * qty;
+        }, 0);
     }, [isReturnMode, returnItems]);
 
     // Value of NEW exchange items only (not kept items from original order)
     const newItemsTotal = useMemo(() => {
         if (!isReturnMode) return 0;
-        return exchangeItemsData.reduce((sum: number, item: any) => sum + item.amount, 0);
+        return exchangeItemsData.reduce((sum: number, item: any) => sum + (Number(item?.amount) || 0), 0);
     }, [isReturnMode, exchangeItemsData]);
 
     // Net transaction for this return:
@@ -542,18 +546,15 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
 
     const checkReturnReasons = async () => {
         if (returnReasons.length === 0) {
-            const result = await Swal.fire({
+            const confirmed = await showConfirmDialog({
                 title: t('pos_no_return_reasons_title'),
                 text: t('pos_no_return_reasons_text'),
                 icon: 'warning',
-                showCancelButton: true,
                 confirmButtonText: t('pos_go_to_settings'),
                 cancelButtonText: t('btn_cancel'),
-                confirmButtonColor: '#10b981',
-                cancelButtonColor: '#d1d5db',
             });
 
-            if (result.isConfirmed) {
+            if (confirmed) {
                 router.push('/store/setting?tab=returnreasons');
             }
             return false;
@@ -776,10 +777,14 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
     };
 
     const calculateItemTax = (item: any) => {
-        if (!item.tax_rate) return 0;
+        if (!item || !item.tax_rate) return 0;
 
-        const itemTotal = item.rate * item.quantity;
-        const taxRate = item.tax_rate / 100;
+        const rate = Number(item.rate) || 0;
+        const quantity = Number(item.quantity) || 0;
+        const itemTotal = rate * quantity;
+        const taxRate = Number(item.tax_rate) / 100;
+
+        if (!Number.isFinite(itemTotal) || !Number.isFinite(taxRate)) return 0;
 
         if (item.tax_included) {
             return itemTotal - itemTotal / (1 + taxRate);

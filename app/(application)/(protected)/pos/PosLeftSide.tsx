@@ -822,7 +822,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                     }
                 }
             } catch (err: any) {
-                alert(`${t('msg_scan_handler_error')}: ${err.message}\n\n${t('msg_refresh_page')}`);
+                toast.error(`${t('msg_scan_handler_error')}: ${err?.message || t('msg_unknown_error')}`);
             }
         },
         [handleSearchChange, t]
@@ -842,8 +842,8 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
         }
     }, []);
 
-    const handleBarcodeError = (err: any) => {
-        console.error('Barcode scan error:', err);
+    const handleBarcodeError = () => {
+        // No-op: scanner errors are surfaced via the scanner UI.
     };
 
     // Toggle camera scanner

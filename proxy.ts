@@ -30,7 +30,7 @@ const clearAuthCookies = (response: NextResponse) => {
 const PUBLIC_PATHS = [
     '/', '/login', '/register', '/forgot-password',
     '/pricing', '/price', '/subscription', '/training', '/user-guide', '/contact', '/promotion',
-    '/affiliate', '/features', '/landing', '/blog', '/seo', '/pos-overview',
+    '/affiliate', '/hawkeri', '/features', '/landing', '/blog', '/seo', '/pos-overview',
     '/training', '/demo', '/about', '/privacy-policy', '/terms-of-service', '/cookie-policy',
     // SEO route groups whose URL has no path prefix to match against (Next.js
     // route groups like `(seo)` are stripped from the URL), plus their
