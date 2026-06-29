@@ -11,7 +11,7 @@ import { toast } from 'react-toastify';
 
 import IconLockDots from '@/components/icon/icon-lock-dots';
 import IconMail from '@/components/icon/icon-mail';
-import { AUTH_TOKEN_EXPIRES_AT_COOKIE, AUTH_TOKEN_EXPIRES_AT_KEY, getCookieMaxAgeFromExpiry, getLoginTokenExpiresAt, isTokenExpired, setAuthCookie } from '@/lib/auth-session';
+import { AUTH_TOKEN_EXPIRES_AT_COOKIE, AUTH_TOKEN_EXPIRES_AT_KEY, AUTH_TOKEN_STORAGE_KEY, getCookieMaxAgeFromExpiry, getLoginTokenExpiresAt, isTokenExpired, setAuthCookie } from '@/lib/auth-session';
 import { login } from '@/store/features/auth/authSlice';
 import { persistor } from '@/store';
 
@@ -140,6 +140,7 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
             setAuthCookie('permissions', encodedPermissions, maxAge);
             setAuthCookie(AUTH_TOKEN_EXPIRES_AT_COOKIE, validTokenExpiresAt, maxAge);
 
+            safeLocalStorageSet(AUTH_TOKEN_STORAGE_KEY, token);
             safeLocalStorageSet(AUTH_TOKEN_EXPIRES_AT_KEY, validTokenExpiresAt);
             safeLocalStorageSet(REMEMBER_LOGIN_KEY, String(rememberMe));
 

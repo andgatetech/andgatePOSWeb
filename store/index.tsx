@@ -6,6 +6,7 @@ import { baseApi } from '@/store/api/baseApi';
 import { affiliateAdminApi } from '@/store/features/affiliate/affiliateAdminApi';
 import { affiliatePortalApi } from '@/store/features/affiliate/affiliatePortalApi';
 import authReducer from '@/store/features/auth/authSlice';
+import { AUTH_TOKEN_EXPIRES_AT_KEY, AUTH_TOKEN_STORAGE_KEY, isTokenExpired } from '@/lib/auth-session';
 import labelReducer from '@/store/features/Label/labelSlice';
 import cachedProductsReducer from '@/store/features/offline/cachedProductsSlice';
 import offlineOrdersReducer from '@/store/features/offline/offlineOrdersSlice';
@@ -36,12 +37,42 @@ const authTokenTransform = createTransform(
         const { token, ...rest } = inboundState;
         return rest;
     },
-    // Never restore a token from persisted storage.
-    (outboundState: any) => ({
-        ...outboundState,
-        token: null,
-        isAuthenticated: false,
-    }),
+    // Restore the separately saved token only if its backend expiry is still valid.
+    (outboundState: any) => {
+        if (typeof window === 'undefined') {
+            return {
+                ...outboundState,
+                token: null,
+                isAuthenticated: false,
+            };
+        }
+
+        let token: string | null = null;
+        let tokenExpiresAt: string | null = null;
+        try {
+            token = localStorage.getItem(AUTH_TOKEN_STORAGE_KEY);
+            tokenExpiresAt = localStorage.getItem(AUTH_TOKEN_EXPIRES_AT_KEY) || outboundState?.tokenExpiresAt || null;
+        } catch {
+            token = null;
+            tokenExpiresAt = null;
+        }
+
+        if (!token || isTokenExpired(tokenExpiresAt)) {
+            return {
+                ...outboundState,
+                token: null,
+                tokenExpiresAt,
+                isAuthenticated: false,
+            };
+        }
+
+        return {
+            ...outboundState,
+            token,
+            tokenExpiresAt,
+            isAuthenticated: Boolean(outboundState?.user),
+        };
+    },
     { whitelist: ['auth'] }
 );
 
