@@ -1,6 +1,7 @@
 'use client';
 
 import WhatsAppFloat from '@/components/whatsapp-float';
+import { trackEvent } from '@/lib/analytics';
 import { buildAttribution } from '@/lib/attribution';
 import { useRegisterAffiliateMutation } from '@/store/features/affiliate/affiliateApi';
 import { ArrowRight, BadgeCheck, Banknote, BarChart3, CheckCircle2, ClipboardCheck, MessageCircle, ShieldCheck, Sparkles, Users } from 'lucide-react';
@@ -126,8 +127,24 @@ export default function PartnerPromotionPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
+            trackEvent('partner_register_submit', 'Lead', {
+                content_name: 'Partner Registration',
+                source: 'promotion_partner',
+                user_data: {
+                    email: formData.email,
+                    phone: formData.mobile,
+                },
+            });
             const res = await registerAffiliate({ ...formData, ...attribution }).unwrap();
             setSuccess(res.data);
+            trackEvent('partner_register_success', 'PartnerRegistration', {
+                content_name: 'Partner Registration',
+                status: true,
+                user_data: {
+                    email: formData.email,
+                    phone: formData.mobile,
+                },
+            });
         } catch {}
     };
 
@@ -169,6 +186,7 @@ export default function PartnerPromotionPage() {
                             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                                 <a
                                     href="#register-section"
+                                    onClick={() => trackEvent('partner_hero_register_click', 'Lead', { section: 'hero', content_name: 'Partner Registration CTA' })}
                                     className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#e79237] px-6 py-3 font-bold text-white shadow-lg transition hover:bg-[#d17b24]"
                                 >
                                     ফ্রিতে পার্টনার হিসেবে রেজিস্টার করুন
@@ -176,6 +194,7 @@ export default function PartnerPromotionPage() {
                                 </a>
                                 <Link
                                     href="/affiliate/calculator"
+                                    onClick={() => trackEvent('partner_calculator_click', 'ViewContent', { section: 'hero', content_name: 'Affiliate Calculator' })}
                                     className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-6 py-3 font-bold text-white transition hover:bg-white/15"
                                 >
                                     কমিশন হিসাব করুন
@@ -218,6 +237,7 @@ export default function PartnerPromotionPage() {
                                 </p>
                                 <a
                                     href="#register-section"
+                                    onClick={() => trackEvent('partner_card_register_click', 'Lead', { section: 'hero_card', content_name: 'Partner Registration CTA' })}
                                     className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#046ca9] px-5 py-3 font-bold text-white transition hover:bg-[#035887]"
                                 >
                                     এখনই ফ্রি রেজিস্ট্রেশন
@@ -514,12 +534,17 @@ export default function PartnerPromotionPage() {
                     <h2 className="text-3xl font-black">আজই AndgatePOS পার্টনার প্রোগ্রাম শুরু করুন</h2>
                     <p className="mx-auto mt-3 max-w-2xl text-white/80">বাস্তব দোকানদারের সাথে সরাসরি কাজ, পরিষ্কার কমিশন ট্র্যাকিং এবং বাংলাদেশের জন্য সহজ পেমেন্ট প্রক্রিয়া।</p>
                     <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
-                        <a href="#register-section" className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-7 py-3 font-bold text-[#046ca9] transition hover:bg-slate-100">
+                        <a
+                            href="#register-section"
+                            onClick={() => trackEvent('partner_bottom_register_click', 'Lead', { section: 'bottom_cta', content_name: 'Partner Registration CTA' })}
+                            className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-7 py-3 font-bold text-[#046ca9] transition hover:bg-slate-100"
+                        >
                             ফ্রিতে পার্টনার হিসেবে রেজিস্টার করুন
                             <ArrowRight className="h-4 w-4" />
                         </a>
                         <Link
                             href="/affiliate/policies"
+                            onClick={() => trackEvent('partner_policy_click', 'ViewContent', { section: 'bottom_cta', content_name: 'Affiliate Policies' })}
                             className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/30 px-7 py-3 font-bold text-white transition hover:bg-white/10"
                         >
                             নীতিমালা দেখুন
@@ -530,7 +555,11 @@ export default function PartnerPromotionPage() {
             </main>
 
             <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 p-3 shadow-2xl backdrop-blur sm:hidden">
-                <a href="#register-section" className="flex items-center justify-center gap-2 rounded-xl bg-[#e79237] px-4 py-3 text-sm font-black text-white">
+                <a
+                    href="#register-section"
+                    onClick={() => trackEvent('partner_mobile_sticky_register_click', 'Lead', { section: 'mobile_sticky', content_name: 'Partner Registration CTA' })}
+                    className="flex items-center justify-center gap-2 rounded-xl bg-[#e79237] px-4 py-3 text-sm font-black text-white"
+                >
                     ফ্রিতে রেজিস্টার করুন
                     <ArrowRight className="h-4 w-4" />
                 </a>

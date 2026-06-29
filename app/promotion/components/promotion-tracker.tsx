@@ -1,29 +1,33 @@
 'use client';
 
 import { trackGTMEvent, trackPixelEvent } from '@/lib/analytics';
+import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 
-// Module-level flag — lives OUTSIDE the component.
-// Unlike useRef, this survives React StrictMode's unmount→remount cycle,
-// so the events fire exactly once per page session no matter what.
-let promotionEventFired = false;
+const firedPaths = new Set<string>();
 
 export default function PromotionTracker() {
+    const pathname = usePathname();
+
     useEffect(() => {
-        if (promotionEventFired) return;
-        promotionEventFired = true;
+        if (firedPaths.has(pathname)) return;
+        firedPaths.add(pathname);
+
+        const isPartner = pathname.includes('/promotion/partner');
+        const contentName = isPartner ? 'Partner Promotion Page' : 'POS Promotion Page';
 
         trackPixelEvent('ViewContent', {
-            content_name: 'Promotion Page',
+            content_name: contentName,
             content_category: 'Landing Page',
+            page_path: pathname,
         });
 
         trackGTMEvent('promotion_page_view', {
-            page_title: 'AndgatePOS Promotion',
+            page_title: contentName,
             page_location: window.location.href,
+            page_path: pathname,
         });
-    }, []);
+    }, [pathname]);
 
     return null;
 }
-

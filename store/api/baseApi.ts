@@ -33,6 +33,14 @@ const subscriptionErrorTypes = new Set([
     'subscription_required',
 ]);
 
+const renewalErrorTypes = new Set([
+    'no_subscription',
+    'no_active_subscription',
+    'subscription_expired',
+    'expired',
+    'subscription_required',
+]);
+
 const baseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> = async (args, api, extraOptions) => {
     const result = await rawBaseQuery(args, api, extraOptions);
     const data = result.error?.data as Record<string, any> | undefined;
@@ -54,6 +62,8 @@ const baseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> =
         && typeof errorType === 'string'
         && subscriptionErrorTypes.has(errorType)
         && !window.location.pathname.includes('/subscription')
+        && !window.location.pathname.includes('/manual-payments')
+        && !window.location.pathname.includes('/dashboard')
     ) {
         const params = new URLSearchParams();
         params.set('error_type', errorType);
@@ -77,7 +87,8 @@ const baseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> =
 
         // Delay redirect to allow redux-persist to flush state before page unloads
         setTimeout(() => {
-            window.location.assign(`/subscription?${params.toString()}`);
+            const targetPath = renewalErrorTypes.has(errorType) ? '/manual-payments' : '/subscription';
+            window.location.assign(`${targetPath}?${params.toString()}`);
         }, 100);
     }
 

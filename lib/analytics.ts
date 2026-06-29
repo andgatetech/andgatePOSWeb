@@ -2,6 +2,7 @@
  * Analytics utility for Facebook Pixel and Google Tag Manager
  * Usage: import { trackEvent, trackPixelEvent } from '@/lib/analytics'
  */
+import { apiBaseUrl } from './api-url';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -42,8 +43,16 @@ export function trackGTMEvent(eventName: string, params: Record<string, unknown>
  * @param data      - optional event parameters
  */
 export function trackPixelEvent(eventName: string, data: Record<string, unknown> = {}) {
-    if (typeof window === 'undefined' || typeof window.fbq !== 'function') return;
-    window.fbq('track', eventName, data);
+    if (typeof window === 'undefined') return;
+    const standardEvents = new Set(['ViewContent', 'Lead', 'InitiateCheckout', 'CompleteRegistration', 'Contact', 'PageView']);
+    const eventId = typeof data.event_id === 'string' ? data.event_id : createEventId(eventName);
+    const payload = { ...data, event_id: eventId };
+
+    if (typeof window.fbq === 'function') {
+        window.fbq(standardEvents.has(eventName) ? 'track' : 'trackCustom', eventName, payload, { eventID: eventId });
+    }
+
+    sendConversionsApiEvent(eventName, payload, eventId);
 }
 
 // ─── Combined helper ──────────────────────────────────────────────────────────
@@ -63,4 +72,52 @@ export function trackEvent(
 ) {
     trackGTMEvent(eventName, data);
     trackPixelEvent(pixelEvent, data);
+}
+
+function createEventId(eventName: string) {
+    const random = typeof crypto !== 'undefined' && 'randomUUID' in crypto
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+    return `${eventName}-${random}`;
+}
+
+function readCookie(name: string) {
+    if (typeof document === 'undefined') return '';
+    return document.cookie
+        .split('; ')
+        .find((row) => row.startsWith(`${name}=`))
+        ?.split('=')
+        .slice(1)
+        .join('=') || '';
+}
+
+function sendConversionsApiEvent(eventName: string, data: Record<string, unknown>, eventId: string) {
+    if (typeof window === 'undefined') return;
+
+    const userData = data.user_data && typeof data.user_data === 'object' ? data.user_data as Record<string, unknown> : {};
+    const customData = Object.fromEntries(
+        Object.entries(data).filter(([key]) => !['user_data', 'event_id'].includes(key))
+    );
+
+    fetch(`${apiBaseUrl()}/marketing/meta/events`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+        },
+        body: JSON.stringify({
+            event_name: eventName,
+            event_id: eventId,
+            event_source_url: window.location.href,
+            source: 'browser_pixel',
+            user_data: {
+                ...userData,
+                fbp: userData.fbp || decodeURIComponent(readCookie('_fbp')),
+                fbc: userData.fbc || decodeURIComponent(readCookie('_fbc')),
+            },
+            custom_data: customData,
+        }),
+        keepalive: true,
+    }).catch(() => {});
 }

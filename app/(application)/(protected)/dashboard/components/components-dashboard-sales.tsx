@@ -7,6 +7,7 @@ import { resolveStorageUrl } from '@/lib/image-url';
 import { RootState } from '@/store';
 import { Store } from 'lucide-react';
 import Image from 'next/image';
+import ManualPaymentsPage from '../../manual-payments/page';
 import AlertStrip from './AlertStrip';
 import Analytics from './Analytics';
 import BusinessHealthScore from './BusinessHealthScore';
@@ -25,6 +26,12 @@ const ComponentsDashboardSales = () => {
     const { t } = getTranslation();
     const { currentStore } = useCurrentStore();
     const user = useSelector((state: RootState) => state.auth.user);
+    const subscription = user?.subscription_user;
+    const subscriptionExpired = !subscription || ['expired', 'blocked', 'hold'].includes(String(subscription.status || '').toLowerCase());
+
+    if (subscriptionExpired) {
+        return <ManualPaymentsPage />;
+    }
 
     return (
         <div className="space-y-6">

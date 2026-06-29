@@ -41,14 +41,14 @@ export default function PromoHero() {
             <div className="pointer-events-none absolute inset-x-0 top-0 h-[500px] bg-gradient-to-b from-blue-50/60 to-transparent" />
 
             <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
-                    {/* Video — top on mobile */}
-                    <div className="relative order-first mx-auto w-full max-w-sm lg:order-last lg:max-w-[500px]">
+                <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-16">
+                    {/* Video */}
+                    <div id="demo-section" className="relative order-last mx-auto w-full max-w-sm scroll-mt-20 lg:max-w-[500px]">
                         <div className="relative rounded-2xl border border-gray-100 bg-white p-2 shadow-2xl">
                             <div ref={videoContainerRef} className="overflow-hidden rounded-xl bg-black">
                                 <iframe
                                     ref={iframeRef}
-                                    className="block h-[580px] w-full rounded-xl sm:h-[640px]"
+                                    className="block h-[360px] w-full rounded-xl sm:h-[640px]"
                                     src="https://www.youtube.com/embed/gELTWs7hFtc?autoplay=1&mute=1&loop=1&playlist=gELTWs7hFtc&controls=0&modestbranding=1&enablejsapi=1"
                                     title="AndgatePOS Demo"
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -98,7 +98,7 @@ export default function PromoHero() {
                     </div>
 
                     {/* Copy — second on mobile, first on desktop */}
-                    <div className="order-last text-center lg:order-first lg:text-left">
+                    <div className="order-first text-center lg:text-left">
                         {/* Urgency badge */}
                         <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-4 py-1.5">
                             <span className="flex h-2 w-2 animate-pulse rounded-full bg-orange-500" />
@@ -106,16 +106,16 @@ export default function PromoHero() {
                         </div>
 
                         {/* Headline */}
-                        <h1 className="mb-4 text-4xl font-extrabold leading-[1.1] tracking-tight text-gray-900 sm:text-5xl lg:text-[3.2rem]">
+                        <h1 className="mb-4 text-3xl font-extrabold leading-[1.12] tracking-tight text-gray-900 sm:text-5xl lg:text-[3.2rem]">
                             দোকানের টাকা, স্টক আর হিসাব
                             <br className="hidden sm:block" /> এখন থাকবে <span className="text-primary">আপনার নিয়ন্ত্রণে।</span>
                         </h1>
 
-                        <p className="mb-6 text-lg leading-relaxed text-gray-600">খাতা আর আন্দাজের হিসাব বাদ দিন। মোবাইল থেকেই দেখুন আজ কত বিক্রি হলো, কোন পণ্য শেষের পথে, আর আসল লাভ কত।</p>
+                        <p className="mb-6 text-base leading-relaxed text-gray-600 sm:text-lg">১ মিনিটে ফ্রি POS ট্রায়াল শুরু করুন। মোবাইল থেকেই বিলিং, স্টক, বিক্রি আর লাভের হিসাব দেখুন।</p>
 
                         {/* Trust points */}
                         <div className="mb-8 flex flex-col gap-2.5 text-sm font-medium text-gray-700 sm:flex-row sm:flex-wrap sm:justify-center lg:justify-start">
-                            {['ফ্রি প্ল্যানে শুরু করা যায়', 'মোবাইল দিয়েই বিল করা যায়', 'পছন্দ না হলে ১৪ দিনের মধ্যে টাকা ফেরত'].map((t, i) => (
+                            {['কোনো কার্ড লাগবে না', 'মোবাইল দিয়েই বিল করা যায়', 'বাংলায় সেটআপ সাপোর্ট'].map((t, i) => (
                                 <span key={i} className="inline-flex items-center gap-1 rounded-full bg-green-50 px-3 py-1 text-green-800">
                                     {t}
                                 </span>
@@ -130,7 +130,7 @@ export default function PromoHero() {
                                 onClick={() => trackEvent('hero_cta_click', 'Lead', { button_label: 'ফ্রিতে শুরু করুন', section: 'hero' })}
                             >
                                 <span className="flex items-center gap-2">
-                                    ফ্রি POS অ্যাকাউন্ট খুলুন
+                                    ১ মিনিটে ফ্রি ট্রায়াল শুরু করুন
                                     <ArrowRight className="h-4 w-4" />
                                 </span>
                             </PromoButton>
@@ -139,7 +139,7 @@ export default function PromoHero() {
                                 className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-8 py-4 text-base font-semibold text-gray-700 transition-all hover:bg-gray-50 sm:w-auto"
                                 onClick={() => trackEvent('hero_demo_click', 'ViewContent', { button_label: 'সমস্যাগুলো দেখুন', section: 'hero' })}
                             >
-                                আগে সমস্যাগুলো মিলিয়ে দেখুন ↓
+                                ডেমো ভিডিও দেখুন ↓
                             </a>
                         </div>
 

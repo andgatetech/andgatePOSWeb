@@ -1,7 +1,17 @@
 'use client';
 
-import ComponentsAuthRegisterForm from '@/app/register/components-auth-register-form';
-import { CheckCircle2, ClipboardCheck, ShieldCheck, Star } from 'lucide-react';
+import SearchableStoreType from '@/components/common/SearchableStoreType';
+import { trackEvent } from '@/lib/analytics';
+import { AUTH_TOKEN_EXPIRES_AT_COOKIE, AUTH_TOKEN_EXPIRES_AT_KEY, getCookieMaxAgeFromExpiry, getLoginTokenExpiresAt, isTokenExpired, setAuthCookie } from '@/lib/auth-session';
+import { buildAttribution } from '@/lib/attribution';
+import { RootState } from '@/store';
+import { useRegisterMutation } from '@/store/features/auth/authApi';
+import { login } from '@/store/features/auth/authSlice';
+import { CheckCircle2, ClipboardCheck, Loader2, Phone, ShieldCheck, Star } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { FormEvent, useMemo, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 
 const benefits = [
     { text: 'ফ্রি প্ল্যানে শুরু করা যায় — কোনো কার্ড লাগবে না' },
@@ -14,6 +24,105 @@ const benefits = [
 const nextSteps = ['ফর্ম পূরণ করলেই আপনার POS অ্যাকাউন্ট তৈরি হবে', 'মোবাইল বা ল্যাপটপ থেকে পণ্য যোগ করে বিল করা শুরু করতে পারবেন', 'প্রয়োজন হলে AndgatePOS টিম সেটআপে সাহায্য করবে'];
 
 export default function PromoRegisterForm() {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const dispatch = useDispatch();
+    const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+    const [registerApi, { isLoading }] = useRegisterMutation();
+    const attribution = useMemo(
+        () =>
+            buildAttribution(searchParams, {
+                source: searchParams.get('source') || 'promotion_pos',
+                campaign: 'pos_landing',
+            }),
+        [searchParams]
+    );
+    const [form, setForm] = useState({
+        name: '',
+        phone: '',
+        email: '',
+        store_name: '',
+        store_type: 'retail',
+    });
+
+    const update = (key: keyof typeof form, value: string) => setForm((prev) => ({ ...prev, [key]: value }));
+
+    const generatedPassword = () => {
+        const phoneDigits = form.phone.replace(/\D/g, '').slice(-6) || '123456';
+        return `Ag${phoneDigits}!`;
+    };
+
+    const submitForm = async (e: FormEvent) => {
+        e.preventDefault();
+
+        if (isAuthenticated) {
+            router.push('/dashboard');
+            return;
+        }
+
+        try {
+            trackEvent('promo_register_submit', 'Lead', {
+                content_name: 'POS Trial Registration',
+                source: 'promotion_pos',
+                user_data: {
+                    email: form.email,
+                    phone: form.phone,
+                },
+            });
+
+            const password = generatedPassword();
+            const result = await registerApi({
+                ...form,
+                ...attribution,
+                password,
+                password_confirmation: password,
+            }).unwrap();
+            const { user, token, permissions } = result.data;
+            const tokenExpiresAt = getLoginTokenExpiresAt(result.data);
+
+            if (isTokenExpired(tokenExpiresAt)) {
+                toast.error('Registration token expired. Please login again.');
+                return;
+            }
+
+            const validTokenExpiresAt = tokenExpiresAt as string;
+            const maxAge = getCookieMaxAgeFromExpiry(validTokenExpiresAt);
+            const encodedPermissions = (() => {
+                try {
+                    return btoa(JSON.stringify(permissions ?? []));
+                } catch {
+                    return btoa('[]');
+                }
+            })();
+
+            setAuthCookie('token', token, maxAge);
+            setAuthCookie('role', user.role, maxAge);
+            setAuthCookie('permissions', encodedPermissions, maxAge);
+            setAuthCookie(AUTH_TOKEN_EXPIRES_AT_COOKIE, validTokenExpiresAt, maxAge);
+            localStorage.setItem(AUTH_TOKEN_EXPIRES_AT_KEY, validTokenExpiresAt);
+            dispatch(login({ user, token, tokenExpiresAt: validTokenExpiresAt, permissions }));
+
+            trackEvent('promo_register_success', 'CompleteRegistration', {
+                content_name: 'POS Trial Registration',
+                status: true,
+                user_data: {
+                    email: form.email,
+                    phone: form.phone,
+                },
+            });
+            toast.success('ফ্রি POS অ্যাকাউন্ট তৈরি হয়েছে। ড্যাশবোর্ডে নিয়ে যাওয়া হচ্ছে...');
+            setTimeout(() => router.push('/dashboard'), 700);
+        } catch (error: any) {
+            const message =
+                error?.data?.message ||
+                error?.data?.errors?.email?.[0] ||
+                error?.data?.errors?.phone?.[0] ||
+                error?.data?.errors?.store_name?.[0] ||
+                'Registration failed. Please try again.';
+            toast.error(message);
+        }
+    };
+
     return (
         <section id="register" className="scroll-mt-16 bg-gradient-to-br from-primary/5 via-white to-blue-50/40 py-20">
             <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
@@ -86,7 +195,47 @@ export default function PromoRegisterForm() {
                                 <p className="text-sm text-gray-500">নিচের তথ্যগুলো দিয়ে এখনই শুরু করুন</p>
                             </div>
 
-                            <ComponentsAuthRegisterForm defaultSource="promotion_pos" defaultCampaign="pos_landing" />
+                            <form className="space-y-4" onSubmit={submitForm}>
+                                <div>
+                                    <label className="mb-1 block text-sm font-bold text-gray-700">আপনার নাম</label>
+                                    <input required value={form.name} onChange={(e) => update('name', e.target.value)} className="form-input" placeholder="যেমন: রহিম উদ্দিন" />
+                                </div>
+                                <div>
+                                    <label className="mb-1 block text-sm font-bold text-gray-700">মোবাইল নম্বর</label>
+                                    <input required value={form.phone} onChange={(e) => update('phone', e.target.value)} type="tel" className="form-input" placeholder="01XXXXXXXXX" />
+                                </div>
+                                <div>
+                                    <label className="mb-1 block text-sm font-bold text-gray-700">ইমেইল</label>
+                                    <input required value={form.email} onChange={(e) => update('email', e.target.value)} type="email" className="form-input" placeholder="আপনার ইমেইল" />
+                                    <p className="mt-1 text-xs text-gray-400">লগইন ও অ্যাকাউন্ট রিকভারি জন্য লাগবে।</p>
+                                </div>
+                                <div>
+                                    <label className="mb-1 block text-sm font-bold text-gray-700">দোকানের নাম</label>
+                                    <input required value={form.store_name} onChange={(e) => update('store_name', e.target.value)} className="form-input" placeholder="যেমন: মদিনা স্টোর" />
+                                </div>
+                                <div>
+                                    <label className="mb-1 block text-sm font-bold text-gray-700">দোকানের ধরন</label>
+                                    <SearchableStoreType value={form.store_type} onChange={(value) => update('store_type', value)} />
+                                </div>
+                                <button
+                                    type="submit"
+                                    disabled={isLoading}
+                                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#046ca9] to-[#034d79] py-3 text-sm font-black text-white shadow-[0_10px_20px_-10px_rgba(4,108,169,0.44)] transition-all hover:from-[#034d79] hover:to-[#02395b] disabled:opacity-60"
+                                >
+                                    {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+                                    ১ মিনিটে ফ্রি ট্রায়াল শুরু করুন
+                                </button>
+                                <a
+                                    href="https://wa.me/8801577303608?text=%E0%A6%86%E0%A6%AE%E0%A6%BF%20AndgatePOS%20%E0%A6%AB%E0%A7%8D%E0%A6%B0%E0%A6%BF%20%E0%A6%9F%E0%A7%8D%E0%A6%B0%E0%A6%BE%E0%A6%AF%E0%A6%BC%E0%A6%BE%E0%A6%B2%20%E0%A6%B6%E0%A7%81%E0%A6%B0%E0%A7%81%20%E0%A6%95%E0%A6%B0%E0%A6%A4%E0%A7%87%20%E0%A6%9A%E0%A6%BE%E0%A6%87"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    onClick={() => trackEvent('promo_whatsapp_click', 'Contact', { section: 'register_form' })}
+                                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-green-200 bg-green-50 py-3 text-sm font-bold text-green-700"
+                                >
+                                    <Phone className="h-4 w-4" />
+                                    WhatsApp-এ সেটআপ সহায়তা নিন
+                                </a>
+                            </form>
 
                             {/* Trust strip */}
                             <div className="mt-5 flex items-center justify-center gap-1.5 text-xs text-gray-400">
