@@ -48,7 +48,6 @@ const CouponModal = ({ showModal, modalType, selectedCoupon, onClose, onSubmit, 
                 setFormData(emptyForm);
             }
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [showModal, modalType, selectedCoupon]);
 
     const handleSubmit = (e: React.FormEvent) => {

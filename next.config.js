@@ -59,10 +59,13 @@ const withPWA = require('@ducanh2912/next-pwa').default({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    outputFileTracingRoot: __dirname,
     compiler: {
         removeConsole: process.env.NODE_ENV === 'production'
     },
-    turbopack: {},
+    turbopack: {
+        root: __dirname,
+    },
     images: {
         // Serve modern formats (WebP/AVIF) automatically
         formats: ['image/avif', 'image/webp'],
