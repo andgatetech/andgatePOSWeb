@@ -162,15 +162,7 @@ const StaffManagement = () => {
             icon: <Pencil className="h-4 w-4" />,
             className: 'text-gray-700',
             onClick: (row) => {
-                const params = new URLSearchParams({
-                    name: row.name || '',
-                    phone: row.phone || '',
-                    address: row.address || '',
-                    store_id: String(currentStoreId || ''),
-                    role_id: String(row.role_id || ''),
-                    role_in_store: row.role_in_store || '',
-                });
-                router.push(`/employees/edit/${row.id}?${params.toString()}`);
+                router.push(`/employees/edit/${row.id}`);
             },
         },
         {

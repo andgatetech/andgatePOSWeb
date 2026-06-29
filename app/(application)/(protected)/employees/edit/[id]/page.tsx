@@ -8,7 +8,7 @@ import { RootState } from '@/store';
 import { useAssignRoleMutation, useGetRolesQuery, useUnassignRoleMutation } from '@/store/features/roles/rolesApi';
 import { useGetStaffMemberQuery, useStaffUpdateMutation } from '@/store/features/store/storeApi';
 import { ArrowLeft, Eye, EyeOff, Store, Users, Wallet } from 'lucide-react';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 
@@ -16,7 +16,6 @@ const EmployeeEditPage = () => {
     const { t } = getTranslation();
     const router = useRouter();
     const params = useParams();
-    const searchParams = useSearchParams();
     const { currentStore, currentStoreId } = useCurrentStore();
     const user = useSelector((state: RootState) => state.auth.user);
     const canManageCompensation = hasAnyPermission(user, ['hr.payroll.manage']);
@@ -25,11 +24,10 @@ const EmployeeEditPage = () => {
 
     const [activeTab, setActiveTab] = useState<'profile' | 'compensation'>('profile');
 
-    // Pre-fill from URL search params (passed by the list page)
     const [formData, setFormData] = useState({
-        name: searchParams.get('name') || '',
-        phone: searchParams.get('phone') || '',
-        address: searchParams.get('address') || '',
+        name: '',
+        phone: '',
+        address: '',
         password: '',
         password_confirmation: '',
     });
@@ -38,13 +36,16 @@ const EmployeeEditPage = () => {
         pay_type: '' as '' | 'monthly' | 'hourly',
         monthly_salary: '',
         hourly_rate: '',
+        payment_mode: '',
+        bank_account_name: '',
         bank_account_number: '',
+        bank_name: '',
+        bank_branch: '',
         joining_date: '',
     });
 
     const storeId = Number(searchParams.get('store_id')) || currentStoreId;
     const initialRoleId = searchParams.get('role_id') ? Number(searchParams.get('role_id')) : null;
-    const isBusinessAdmin = searchParams.get('role_in_store') === 'business_admin';
 
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -62,6 +63,7 @@ const EmployeeEditPage = () => {
 
         return items.find((member: any) => Number(member.id) === employeeId) || null;
     }, [employeeId, staffResponse]);
+    const isBusinessAdmin = (staffMember?.role_in_store || searchParams.get('role_in_store')) === 'business_admin';
     const availableRoles = useMemo(() => {
         const d = rolesResponse as any;
         if (Array.isArray(d?.data?.roles)) return d.data.roles as { id: number; name: string }[];
@@ -87,7 +89,11 @@ const EmployeeEditPage = () => {
             pay_type: staffMember.pay_type || '',
             monthly_salary: staffMember.monthly_salary != null ? String(staffMember.monthly_salary) : '',
             hourly_rate: staffMember.hourly_rate != null ? String(staffMember.hourly_rate) : '',
+            payment_mode: staffMember.payment_mode || '',
+            bank_account_name: staffMember.bank_account_name || '',
             bank_account_number: staffMember.bank_account_number || '',
+            bank_name: staffMember.bank_name || '',
+            bank_branch: staffMember.bank_branch || '',
             joining_date: staffMember.joining_date || '',
         });
 
@@ -97,7 +103,19 @@ const EmployeeEditPage = () => {
 
     const handleCompensationChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        setCompensationData((prev) => ({ ...prev, [name]: value }));
+        setCompensationData((prev) => ({
+            ...prev,
+            [name]: value,
+            ...(name === 'payment_mode' && value !== 'bank'
+                ? {
+                      bank_account_name: '',
+                      bank_account_number: '',
+                      bank_name: '',
+                      bank_branch: '',
+                  }
+                : {}),
+        }));
+        if (formErrors[name]) setFormErrors((prev) => ({ ...prev, [name]: '' }));
     };
 
     const handleRoleAssign = async (newRoleId: string) => {
@@ -132,6 +150,15 @@ const EmployeeEditPage = () => {
         if (!formData.name.trim()) errors.name = t('msg_name_required');
         if (formData.password && formData.password.length < 6) errors.password = t('msg_password_min_6');
         if (formData.password && formData.password !== formData.password_confirmation) errors.password_confirmation = t('msg_passwords_not_match');
+        if (canManageCompensation) {
+            if (!compensationData.payment_mode) errors.payment_mode = t('msg_payment_mode_required');
+            if (compensationData.payment_mode === 'bank') {
+                if (!compensationData.bank_account_name.trim()) errors.bank_account_name = t('msg_bank_account_name_required');
+                if (!compensationData.bank_account_number.trim()) errors.bank_account_number = t('msg_bank_account_number_required');
+                if (!compensationData.bank_name.trim()) errors.bank_name = t('msg_bank_name_required');
+                if (!compensationData.bank_branch.trim()) errors.bank_branch = t('msg_bank_branch_required');
+            }
+        }
         setFormErrors(errors);
         return Object.keys(errors).length === 0;
     };
@@ -157,7 +184,11 @@ const EmployeeEditPage = () => {
                 payload.pay_type = compensationData.pay_type || null;
                 payload.monthly_salary = compensationData.monthly_salary !== '' ? Number(compensationData.monthly_salary) : null;
                 payload.hourly_rate = compensationData.hourly_rate !== '' ? Number(compensationData.hourly_rate) : null;
-                payload.bank_account_number = compensationData.bank_account_number || null;
+                payload.payment_mode = compensationData.payment_mode;
+                payload.bank_account_name = compensationData.payment_mode === 'bank' ? compensationData.bank_account_name.trim() : null;
+                payload.bank_account_number = compensationData.payment_mode === 'bank' ? compensationData.bank_account_number.trim() : null;
+                payload.bank_name = compensationData.payment_mode === 'bank' ? compensationData.bank_name.trim() : null;
+                payload.bank_branch = compensationData.payment_mode === 'bank' ? compensationData.bank_branch.trim() : null;
                 payload.joining_date = compensationData.joining_date || null;
             }
 
@@ -420,18 +451,87 @@ const EmployeeEditPage = () => {
                                     </div>
 
                                     <div className="space-y-6">
-                                        {/* Bank account */}
                                         <div>
-                                            <label className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_bank_account_number')}</label>
-                                            <input
-                                                type="text"
-                                                name="bank_account_number"
-                                                value={compensationData.bank_account_number}
+                                            <label className="mb-2 block text-sm font-medium text-gray-700">
+                                                {t('lbl_payment_mode')} <span className="text-red-500">*</span>
+                                            </label>
+                                            <select
+                                                name="payment_mode"
+                                                value={compensationData.payment_mode}
                                                 onChange={handleCompensationChange}
-                                                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
-                                                placeholder={t('placeholder_bank_account_number')}
-                                            />
+                                                className={`w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${formErrors.payment_mode ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-[#046ca9] focus:ring-[#046ca9]'}`}
+                                            >
+                                                <option value="">{t('lbl_select_payment_mode')}</option>
+                                                <option value="cash">{t('lbl_payment_mode_cash')}</option>
+                                                <option value="bank">{t('lbl_payment_mode_bank')}</option>
+                                                <option value="mobile">{t('lbl_payment_mode_mobile')}</option>
+                                            </select>
+                                            {formErrors.payment_mode && <p className="mt-1 text-xs text-red-500">{formErrors.payment_mode}</p>}
                                         </div>
+
+                                        {compensationData.payment_mode === 'bank' && (
+                                            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                                                <div>
+                                                    <label className="mb-2 block text-sm font-medium text-gray-700">
+                                                        {t('lbl_bank_account_name')} <span className="text-red-500">*</span>
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        name="bank_account_name"
+                                                        value={compensationData.bank_account_name}
+                                                        onChange={handleCompensationChange}
+                                                        className={`w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${formErrors.bank_account_name ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-[#046ca9] focus:ring-[#046ca9]'}`}
+                                                        placeholder={t('placeholder_bank_account_name')}
+                                                    />
+                                                    {formErrors.bank_account_name && <p className="mt-1 text-xs text-red-500">{formErrors.bank_account_name}</p>}
+                                                </div>
+
+                                                <div>
+                                                    <label className="mb-2 block text-sm font-medium text-gray-700">
+                                                        {t('lbl_bank_account_number')} <span className="text-red-500">*</span>
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        name="bank_account_number"
+                                                        value={compensationData.bank_account_number}
+                                                        onChange={handleCompensationChange}
+                                                        className={`w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${formErrors.bank_account_number ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-[#046ca9] focus:ring-[#046ca9]'}`}
+                                                        placeholder={t('placeholder_bank_account_number')}
+                                                    />
+                                                    {formErrors.bank_account_number && <p className="mt-1 text-xs text-red-500">{formErrors.bank_account_number}</p>}
+                                                </div>
+
+                                                <div>
+                                                    <label className="mb-2 block text-sm font-medium text-gray-700">
+                                                        {t('lbl_bank_name')} <span className="text-red-500">*</span>
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        name="bank_name"
+                                                        value={compensationData.bank_name}
+                                                        onChange={handleCompensationChange}
+                                                        className={`w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${formErrors.bank_name ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-[#046ca9] focus:ring-[#046ca9]'}`}
+                                                        placeholder={t('placeholder_bank_name')}
+                                                    />
+                                                    {formErrors.bank_name && <p className="mt-1 text-xs text-red-500">{formErrors.bank_name}</p>}
+                                                </div>
+
+                                                <div>
+                                                    <label className="mb-2 block text-sm font-medium text-gray-700">
+                                                        {t('lbl_bank_branch')} <span className="text-red-500">*</span>
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        name="bank_branch"
+                                                        value={compensationData.bank_branch}
+                                                        onChange={handleCompensationChange}
+                                                        className={`w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${formErrors.bank_branch ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-[#046ca9] focus:ring-[#046ca9]'}`}
+                                                        placeholder={t('placeholder_bank_branch')}
+                                                    />
+                                                    {formErrors.bank_branch && <p className="mt-1 text-xs text-red-500">{formErrors.bank_branch}</p>}
+                                                </div>
+                                            </div>
+                                        )}
 
                                         {/* Joining date */}
                                         <div>

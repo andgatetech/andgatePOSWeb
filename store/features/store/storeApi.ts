@@ -209,7 +209,11 @@ const StoreApi = baseApi.injectEndpoints({
                 pay_type?: 'monthly' | 'hourly' | null;
                 monthly_salary?: number | null;
                 hourly_rate?: number | null;
+                payment_mode?: 'cash' | 'bank' | 'mobile' | null;
+                bank_account_name?: string | null;
                 bank_account_number?: string | null;
+                bank_name?: string | null;
+                bank_branch?: string | null;
                 joining_date?: string | null;
             }) => ({
                 url: `/staff/${userId}`,
