@@ -1536,7 +1536,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                 dispatch(clearReturnSession(currentStoreId));
             }
 
-            router.push(`/orders?showReturn=${response.data.id}`);
+            router.push(`/orders/return/${response.data.id}`);
         } catch (error: any) {
             const message =
                 error?.status === 422 && error?.data?.errors

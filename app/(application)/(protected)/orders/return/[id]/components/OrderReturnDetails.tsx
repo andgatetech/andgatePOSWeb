@@ -53,7 +53,7 @@ const OrderReturnDetails: React.FC<OrderReturnDetailsProps> = ({ orderReturn }) 
                                 <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-gray-600">
                                     <span>{t('lbl_invoice')}: {orderReturn.order?.invoice || na}</span>
                                     {orderReturn.order?.id && (
-                                        <Link href={`/orders?orderId=${orderReturn.order.id}`} className="print:hidden inline-flex items-center gap-1 font-semibold text-[#046ca9] hover:text-[#034d79]">
+                                        <Link href={`/orders/edit/${orderReturn.order.id}`} className="print:hidden inline-flex items-center gap-1 font-semibold text-[#046ca9] hover:text-[#034d79]">
                                             {t('lbl_order')} <ExternalLink className="h-3.5 w-3.5" />
                                         </Link>
                                     )}
