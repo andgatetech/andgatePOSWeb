@@ -25,10 +25,20 @@ interface ProtectedRouteProps {
 export default function ProtectedRoute({ children, requiredPermissions = [], redirectTo = '/dashboard' }: ProtectedRouteProps) {
     const router = useRouter();
     const user = useSelector((state: RootState) => state.auth.user);
+    const token = useSelector((state: RootState) => state.auth.token);
+    const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
     const [isAuthorized, setIsAuthorized] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
+        // Require explicit authentication and a token
+        if (!isAuthenticated || !token) {
+            router.replace('/login');
+            setIsAuthorized(false);
+            setIsLoading(false);
+            return;
+        }
+
         // Admin always has access
         if (user?.role === 'business_admin') {
             setIsAuthorized(true);
@@ -53,7 +63,7 @@ export default function ProtectedRoute({ children, requiredPermissions = [], red
         }
 
         setIsLoading(false);
-    }, [user, requiredPermissions, router, redirectTo]);
+    }, [user, token, isAuthenticated, requiredPermissions, router, redirectTo]);
 
     // Show loading state
     if (isLoading) {

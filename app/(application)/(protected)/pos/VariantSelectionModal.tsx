@@ -6,6 +6,7 @@ import { getPrimaryProductImageUrl, resolveProductImageUrl } from '@/lib/image-u
 import { Dialog, Transition } from '@headlessui/react';
 import { Check, Package, ShoppingCart, X } from 'lucide-react';
 import Image from 'next/image';
+import { showMessage } from '@/lib/toast';
 import { Fragment, useState } from 'react';
 
 interface VariantSelectionModalProps {

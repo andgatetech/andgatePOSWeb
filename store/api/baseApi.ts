@@ -43,7 +43,10 @@ const renewalErrorTypes = new Set([
 
 const baseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> = async (args, api, extraOptions) => {
     const result = await rawBaseQuery(args, api, extraOptions);
-    const data = result.error?.data as Record<string, any> | undefined;
+    const data =
+        typeof result.error?.data === 'object' && result.error.data !== null
+            ? (result.error.data as Record<string, any>)
+            : undefined;
     const errorType = data?.error_type;
 
     if (typeof window !== 'undefined' && result.error?.status === 401) {

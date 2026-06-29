@@ -28,7 +28,7 @@ export const getTokenExpiryTime = (expiresAt?: string | null): number | null => 
 };
 
 export const isTokenExpired = (expiresAt?: string | null, now = Date.now()): boolean => {
-    if (!expiresAt) return false; // no expiry info = assume valid; 401 handler will force logout if needed
+    if (!expiresAt) return true; // missing expiry info = treat token as expired
     const expiryTime = getTokenExpiryTime(expiresAt);
     return !expiryTime || expiryTime <= now;
 };
@@ -44,15 +44,15 @@ export const setAuthCookie = (name: string, value: string, maxAge: number) => {
     if (typeof document === 'undefined') return;
 
     const secure = window.location.protocol === 'https:' ? '; Secure' : '';
-    document.cookie = `${name}=${encodeAuthCookieValue(value)}; path=/; max-age=${maxAge}; SameSite=Strict${secure}`;
+    document.cookie = `${name}=${encodeAuthCookieValue(value)}; path=/; max-age=${maxAge}; SameSite=Strict; HttpOnly${secure}`;
 };
 
 export const clearAuthCookies = () => {
     if (typeof document === 'undefined') return;
 
     AUTH_COOKIE_NAMES.forEach((name) => {
-        document.cookie = `${name}=; path=/; max-age=0; SameSite=Strict`;
-        document.cookie = `${name}=; path=/; max-age=0; Secure; SameSite=Strict`;
+        document.cookie = `${name}=; path=/; max-age=0; SameSite=Strict; HttpOnly`;
+        document.cookie = `${name}=; path=/; max-age=0; Secure; SameSite=Strict; HttpOnly`;
     });
 };
 

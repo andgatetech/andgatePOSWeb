@@ -35,14 +35,9 @@ const withPWA = require('@ducanh2912/next-pwa').default({
                 },
             },
             {
-                // Network-first for API — falls through to offline queue on fail
+                // Never cache API responses — they contain user data and depend on auth headers.
                 urlPattern: /^https?:\/\/.*\/api\/.*/i,
-                handler: 'NetworkFirst',
-                options: {
-                    cacheName: 'api-cache',
-                    networkTimeoutSeconds: 30,
-                    expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 },
-                },
+                handler: 'NetworkOnly',
             },
             {
                 // Cache-first for static assets

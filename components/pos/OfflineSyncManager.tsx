@@ -24,8 +24,9 @@ import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 
-const SYNC_CONCURRENCY = 3; // sync up to 3 orders simultaneously
+const SYNC_CONCURRENCY = 1; // sequential sync to avoid stock/payment conflicts
 
 export default function OfflineSyncManager() {
     const { t } = getTranslation();
@@ -199,7 +200,7 @@ export default function OfflineSyncManager() {
             await createOrder(order.payload).unwrap();
             return { type: 'success' };
         } catch (err: any) {
-            console.error('[OfflineSync] order failed', order.localId, JSON.stringify(err));
+            toast.error(`${t('pos_sync_order_failed') || 'Sync failed'}: ${order.localInvoice ?? order.localId}`, { duration: 3000, position: 'top-center' });
             const status = err?.status ?? err?.originalStatus;
 
             if (status === 401) return { type: 'session_expired' };

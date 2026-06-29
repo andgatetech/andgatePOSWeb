@@ -27,7 +27,7 @@ const safeLocalStorageSet = (key: string, value: string | boolean) => {
 };
 
 const themeConfigSlice = createSlice({
-    name: 'auth',
+    name: 'themeConfig',
     initialState: initialState,
     reducers: {
         toggleTheme(state, { payload }) {

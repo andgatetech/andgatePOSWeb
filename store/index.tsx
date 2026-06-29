@@ -5,7 +5,6 @@ import createWebStorage from 'redux-persist/lib/storage/createWebStorage';
 import { baseApi } from '@/store/api/baseApi';
 import { affiliateAdminApi } from '@/store/features/affiliate/affiliateAdminApi';
 import { affiliatePortalApi } from '@/store/features/affiliate/affiliatePortalApi';
-import { AUTH_TOKEN_EXPIRES_AT_KEY, AUTH_TOKEN_STORAGE_KEY, isTokenExpired } from '@/lib/auth-session';
 import authReducer from '@/store/features/auth/authSlice';
 import labelReducer from '@/store/features/Label/labelSlice';
 import cachedProductsReducer from '@/store/features/offline/cachedProductsSlice';
@@ -27,66 +26,22 @@ const createNoopStorage = () => ({
 
 const storage = typeof window !== 'undefined' ? createWebStorage('local') : createNoopStorage();
 
-const safeLocalStorageGet = (key: string): string | null => {
-    try {
-        return localStorage.getItem(key);
-    } catch {
-        return null;
-    }
-};
-
-const safeLocalStorageSet = (key: string, value: string) => {
-    try {
-        localStorage.setItem(key, value);
-    } catch {
-        // Persistence is best-effort; blocked storage should not stop rendering.
-    }
-};
-
-const safeLocalStorageRemove = (key: string) => {
-    try {
-        localStorage.removeItem(key);
-    } catch {
-        // Persistence is best-effort; blocked storage should not stop rendering.
-    }
-};
-
 // PWA/offline login persistence:
 // Keep the API token in localStorage with its real expiry so an installed app can reopen like Gmail.
 // The backend expiry remains authoritative; expired tokens are removed during rehydration.
 
 const authTokenTransform = createTransform(
-    // Before writing redux-persist auth state: keep token in a dedicated key and store metadata normally.
+    // Do not persist the API token; keep everything else.
     (inboundState: any) => {
-        if (typeof window !== 'undefined') {
-            if (inboundState.token) {
-                safeLocalStorageSet(AUTH_TOKEN_STORAGE_KEY, inboundState.token);
-            } else {
-                safeLocalStorageRemove(AUTH_TOKEN_STORAGE_KEY);
-            }
-        }
         const { token, ...rest } = inboundState;
         return rest;
     },
-    // On rehydration: restore token only while the saved expiry is still valid.
-    (outboundState: any) => {
-        const token = typeof window !== 'undefined' ? safeLocalStorageGet(AUTH_TOKEN_STORAGE_KEY) : null;
-        const tokenExpiresAt = outboundState?.tokenExpiresAt || (typeof window !== 'undefined' ? safeLocalStorageGet(AUTH_TOKEN_EXPIRES_AT_KEY) : null);
-
-        if (!token || isTokenExpired(tokenExpiresAt)) {
-            if (typeof window !== 'undefined') {
-                safeLocalStorageRemove(AUTH_TOKEN_STORAGE_KEY);
-            }
-            return {
-                ...outboundState,
-                token: null,
-                tokenExpiresAt: tokenExpiresAt || null,
-                isAuthenticated: false,
-            };
-        }
-
-        return { ...outboundState, token: token || null };
-    },
+    // Never restore a token from persisted storage.
+    (outboundState: any) => ({
+        ...outboundState,
+        token: null,
+        isAuthenticated: false,
+    }),
     { whitelist: ['auth'] }
 );
 

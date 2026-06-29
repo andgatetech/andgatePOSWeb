@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
-import { AUTH_TOKEN_STORAGE_KEY } from '@/lib/auth-session';
+import { useValidateCouponMutation } from '@/store/features/coupon/couponApi';
 
 interface CouponResult {
     coupon_id: number;
@@ -33,48 +33,27 @@ const CouponInput: React.FC<CouponInputProps> = ({
     const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
     const [code, setCode] = useState('');
-    const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-
-    const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL ?? '';
+    const [validateCoupon, { isLoading: loading }] = useValidateCouponMutation();
 
     const handleApply = async () => {
         const trimmed = code.trim().toUpperCase();
         if (!trimmed) return;
-        setLoading(true);
         setError('');
 
         try {
-            const token = typeof window !== 'undefined' ? localStorage.getItem(AUTH_TOKEN_STORAGE_KEY) : null;
+            const response = await validateCoupon({
+                code: trimmed,
+                store_id: storeId,
+                order_total: orderTotal,
+                customer_id: customerId ?? null,
+            }).unwrap();
 
-            const res = await fetch(`${apiBase}/api/coupons/validate`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({
-                    code: trimmed,
-                    store_id: storeId,
-                    order_total: orderTotal,
-                    customer_id: customerId ?? null,
-                }),
-            });
-
-            const json = await res.json();
-
-            if (!res.ok) {
-                const msg = json?.errors?.code?.[0] ?? json?.message ?? 'Invalid coupon.';
-                setError(msg);
-                return;
-            }
-
-            onApply(json.data);
+            onApply(response.data);
             setCode('');
-        } catch {
-            setError('Failed to validate coupon. Try again.');
-        } finally {
-            setLoading(false);
+        } catch (err: any) {
+            const msg = err?.data?.errors?.code?.[0] ?? err?.data?.message ?? t('msg_invalid_coupon') ?? 'Invalid coupon.';
+            setError(msg);
         }
     };
 

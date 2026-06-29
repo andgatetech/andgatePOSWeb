@@ -51,9 +51,16 @@ const CashDrawerWidget = () => {
     // Auto-provision a default drawer for stores that don't have one yet.
     useEffect(() => {
         if (currentStoreId && drawersData && drawers.length === 0) {
-            createDrawer({ store_id: currentStoreId, name: 'Main Drawer' });
+            createDrawer({ store_id: currentStoreId, name: 'Main Drawer' })
+                .unwrap()
+                .then(() => {
+                    toast.success(t('cash_drawer_created') || 'Cash drawer created', { duration: 2000, position: 'top-center' });
+                })
+                .catch((err: any) => {
+                    toast.error(err?.data?.message || t('cash_drawer_create_failed') || 'Could not create cash drawer', { duration: 3000, position: 'top-center' });
+                });
         }
-    }, [currentStoreId, drawersData, drawers.length, createDrawer]);
+    }, [currentStoreId, drawersData, drawers.length, createDrawer, t]);
 
     const isOpen = session?.status === 'open';
 

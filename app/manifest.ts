@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
         name: 'AndgatePOS',
         short_name: 'AndgatePOS',
         description: 'Complete point of sale system for modern businesses',
-        start_url: '/login',
+        start_url: '/dashboard',
         scope: '/',
         display: 'standalone',
         orientation: 'portrait',

@@ -33,6 +33,20 @@ export interface CouponPayload {
     is_active?: boolean;
 }
 
+export interface ValidateCouponRequest {
+    code: string;
+    store_id: number | null;
+    order_total: number;
+    customer_id?: number | null;
+}
+
+export interface ValidateCouponResponse {
+    coupon_id: number;
+    code: string;
+    name: string;
+    discount_amount: number;
+}
+
 const couponApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         getCoupons: builder.query<{ success: boolean; data: Coupon[] }, void>({
@@ -51,7 +65,10 @@ const couponApi = baseApi.injectEndpoints({
             query: (id) => ({ url: `/coupons/${id}`, method: 'DELETE' }),
             invalidatesTags: [{ type: 'Coupons', id: 'LIST' }],
         }),
+        validateCoupon: builder.mutation<{ success: boolean; data: ValidateCouponResponse }, ValidateCouponRequest>({
+            query: (body) => ({ url: '/coupons/validate', method: 'POST', body }),
+        }),
     }),
 });
 
-export const { useGetCouponsQuery, useCreateCouponMutation, useUpdateCouponMutation, useDeleteCouponMutation } = couponApi;
+export const { useGetCouponsQuery, useCreateCouponMutation, useUpdateCouponMutation, useDeleteCouponMutation, useValidateCouponMutation } = couponApi;

@@ -7,6 +7,7 @@ import { closeReservedPdfWindow, downloadPdfMake, reservePdfWindow } from '@/lib
 import { useGetStoreLogoQuery, useGetStoreQuery } from '@/store/features/store/storeApi';
 import { RootState } from '@/store';
 import Image from 'next/image';
+import { showMessage } from '@/lib/toast';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 
@@ -379,7 +380,7 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
         return status || t('status_pending');
     };
 
-    const totalQty = invoiceItems.reduce((sum, item) => sum + item.quantity, 0);
+    const totalQty = invoiceItems.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0);
     const cashierName = cashier?.name || created_by?.name || user?.name || data?.user_name || currentUser?.name || t('lbl_na');
     const customerName = customer.name || t('pos_walk_in_customer');
     const receiptTitle = isReturn ? t('lbl_return_receipt') : t('lbl_receipt');
@@ -537,7 +538,7 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
 
         if (!_pdfCache.pm) {
             closeReservedPdfWindow(mobilePdfWindow);
-            alert(t('msg_pdf_loading'));
+            showMessage(t('msg_pdf_loading'), 'warning');
             setIsPrinting(false);
             return;
         }
@@ -1029,8 +1030,7 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
             await downloadPdfMake(_pdfCache.pm.createPdf(docDefinition), filename, mobilePdfWindow);
         } catch (error) {
             closeReservedPdfWindow(mobilePdfWindow);
-            console.error('[PDF] generation failed:', error);
-            alert(t('msg_pdf_generate_failed'));
+            showMessage(t('msg_pdf_generate_failed'), 'error');
         } finally {
             setIsPrinting(false);
         }
