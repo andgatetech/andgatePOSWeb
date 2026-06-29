@@ -111,6 +111,46 @@ const Sidebar = () => {
 
     const toggleMenu = (label: string) => setCurrentMenu((prev) => (prev === label ? '' : label));
 
+    // Refreshes the cached permissions array for the current store. Permissions are
+    // otherwise only fetched once at login and persisted, so a role change made
+    // elsewhere wouldn't show up until next login — this keeps it reasonably fresh
+    // without needing a push/websocket channel for a low-frequency event.
+    const refreshPermissions = async (storeId: number | null) => {
+        if (!storeId) return;
+        try {
+            const result = await fetchStorePermissions(storeId).unwrap();
+            const perms = result?.data?.permissions ?? result?.permissions;
+            if (Array.isArray(perms) && perms.length > 0) {
+                dispatch(setPermissions(perms));
+            }
+        } catch {
+            // Non-fatal — keep showing the last known permissions
+        }
+    };
+
+    // Periodic refresh (every 5 minutes) for long-lived single-tab sessions.
+    useEffect(() => {
+        if (!currentStoreId) return;
+        const interval = setInterval(() => refreshPermissions(currentStoreId), 5 * 60 * 1000);
+        return () => clearInterval(interval);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentStoreId]);
+
+    // Refresh on tab/window focus regain — catches "admin changed my role while I was away".
+    useEffect(() => {
+        if (!currentStoreId) return;
+        const handleFocus = () => {
+            if (document.visibilityState === 'visible') refreshPermissions(currentStoreId);
+        };
+        window.addEventListener('focus', handleFocus);
+        document.addEventListener('visibilitychange', handleFocus);
+        return () => {
+            window.removeEventListener('focus', handleFocus);
+            document.removeEventListener('visibilitychange', handleFocus);
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentStoreId]);
+
     const handleStoreChange = async (store: any) => {
         if (Number(selectedStore?.id) === Number(store.id)) { setIsStoreDropdownOpen(false); return; }
         setStoreWarning(null);
@@ -129,15 +169,7 @@ const Sidebar = () => {
         if (pathname?.match(/^\/orders\/return\/(\d+)$/) || pathname?.match(/^\/orders\/return\/create\/(\d+)$/) || pathname === '/orders/return') router.push('/orders/return/list');
         if (pathname?.match(/^\/products\/edit\/(\d+)$/)) router.push('/products');
         if (pathname?.match(/^\/purchases\/receive\/(\d+)$/)) router.push('/purchases/receive');
-        try {
-            const result = await fetchStorePermissions(store.id).unwrap();
-            const perms = result?.data?.permissions ?? result?.permissions;
-            if (Array.isArray(perms) && perms.length > 0) {
-                dispatch(setPermissions(perms));
-            }
-        } catch {
-            // Non-fatal
-        }
+        await refreshPermissions(store.id);
         setIsSwitchingStore(false);
     };
 

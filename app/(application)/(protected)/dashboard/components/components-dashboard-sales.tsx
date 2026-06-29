@@ -3,10 +3,7 @@
 import { useSelector } from 'react-redux';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
-import { resolveStorageUrl } from '@/lib/image-url';
 import { RootState } from '@/store';
-import { Store } from 'lucide-react';
-import Image from 'next/image';
 import ManualPaymentsPage from '../../manual-payments/page';
 import AlertStrip from './AlertStrip';
 import Analytics from './Analytics';
@@ -44,29 +41,6 @@ const ComponentsDashboardSales = () => {
                     <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                         {currentStore?.store_name || t('lbl_store')} &middot; {t('dashboard_store_activity')} {t('lbl_today')}
                     </p>
-                </div>
-                <div className="flex flex-shrink-0 items-center gap-3">
-                    {currentStore?.logo_path && (
-                        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-                            <Image
-                                src={resolveStorageUrl(currentStore.logo_path)}
-                                alt={currentStore.store_name}
-                                width={48} height={48}
-                                className="h-12 w-12 object-contain p-1"
-                                unoptimized
-                            />
-                        </div>
-                    )}
-                    <div className="hidden overflow-hidden rounded-xl border border-primary/20 bg-white shadow-sm sm:block">
-                        <Image
-                            src="/images/andgatePOS.jpeg"
-                            alt="AndgatePOS"
-                            width={120} height={40}
-                            className="h-12 w-auto object-contain px-3 py-1"
-                            style={{ width: 'auto' }}
-                            unoptimized
-                        />
-                    </div>
                 </div>
             </div>
 

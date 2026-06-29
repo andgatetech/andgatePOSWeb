@@ -106,6 +106,15 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
         }
     }, []);
 
+    // Periodically re-trigger the offline product cache prefetch below while online,
+    // so a long-running POS session doesn't keep serving an hours-old catalog snapshot
+    // if the device ever does drop offline later in the same session.
+    useEffect(() => {
+        if (!isOnline) return;
+        const interval = setInterval(() => setOfflineCacheRefreshTick((tick) => tick + 1), 20 * 60 * 1000);
+        return () => clearInterval(interval);
+    }, [isOnline]);
+
     useEffect(() => {
         if (!currentStoreId) return;
         let cancelled = false;
