@@ -29,7 +29,7 @@ const partnerTypes = [
 ];
 
 const steps = [
-    { icon: Users, title: 'পার্টনার হিসেবে রেজিস্টার করুন', desc: 'আপনার নাম, মোবাইল নম্বর, এলাকা এবং কোন ধরনের দোকানদারের সাথে কাজ করতে পারবেন সেটি জানান।' },
+    { icon: Users, title: 'অ্যাফিলিয়েট হিসেবে রেজিস্টার করুন', desc: 'আপনার নাম, মোবাইল নম্বর, এলাকা এবং কোন ধরনের দোকানদারের সাথে কাজ করতে পারবেন সেটি জানান।' },
     { icon: Sparkles, title: 'AndgatePOS ট্রেনিং নিন', desc: 'বিলিং, স্টক, রিপোর্ট, পেমেন্ট এবং সাবস্ক্রিপশন প্ল্যান কীভাবে বোঝাতে হবে, সেগুলো হাতে-কলমে শিখে নিন।' },
     { icon: BadgeCheck, title: 'দোকানদারের সাথে সরাসরি কথা বলে ডেমো দেখান', desc: 'দোকানের বর্তমান হিসাব, স্টক বা বিলিং সমস্যার সাথে AndgatePOS-এর ব্যবহার মিলিয়ে সহজ ভাষায় লাইভ ডেমো দেখান।' },
     { icon: Banknote, title: 'পেইড সাবস্ক্রিপশন করিয়ে কমিশন পান', desc: 'দোকান মালিক পেইড সাবস্ক্রিপশন নিলে এবং পেমেন্ট যাচাই শেষ হলে আপনার কমিশন যোগ হবে।' },
@@ -45,7 +45,7 @@ const trustPoints = [
     'শুধু সফল পেইড সাবস্ক্রিপশন পেমেন্টের পর কমিশন',
     '৩০ দিনের যাচাইয়ের সময় শেষে উত্তোলনের সুযোগ',
     'নিজের নামে বা ভুয়া কাস্টমার দেখিয়ে কমিশন নেওয়া যাবে না',
-    'পার্টনার ড্যাশবোর্ডে কাজের অগ্রগতি দেখা যাবে',
+    'অ্যাফিলিয়েট ড্যাশবোর্ডে কাজের অগ্রগতি দেখা যাবে',
 ];
 
 const heroProof = [
@@ -57,14 +57,14 @@ const heroProof = [
 const afterSubmitSteps = [
     'ফর্ম জমা দেওয়ার পর AndgatePOS টিম আপনার তথ্য যাচাই করবে।',
     '২৪-৪৮ ঘণ্টার মধ্যে WhatsApp বা ফোনে যোগাযোগ করা হবে।',
-    'অ্যাপ্রুভ হলে ট্রেনিং, ডেমো গাইড ও পার্টনার কোড পাবেন।',
+    'অ্যাপ্রুভ হলে ট্রেনিং, ডেমো গাইড ও অ্যাফিলিয়েট কোড পাবেন।',
     'তারপর দোকানদারকে সরাসরি ডেমো দেখিয়ে পেইড সাবস্ক্রিপশন নিতে সাহায্য করবেন।',
 ];
 
 const faqs = [
     {
         q: 'রেজিস্ট্রেশন কি ফ্রি?',
-        a: 'হ্যাঁ, পার্টনার হিসেবে রেজিস্ট্রেশন ফ্রি। কোনো যোগদান ফি নেই।',
+        a: 'হ্যাঁ, অ্যাফিলিয়েট হিসেবে রেজিস্ট্রেশন ফ্রি। কোনো যোগদান ফি নেই।',
     },
     {
         q: 'কমিশন কখন পাব?',
@@ -83,9 +83,9 @@ const faqs = [
 const partnerProgramSchema = {
     '@context': 'https://schema.org',
     '@type': 'Service',
-    name: 'AndgatePOS Partner Program',
+    name: 'AndgatePOS Affiliate Program',
     url: 'https://andgatepos.com/promotion/partner',
-    description: 'Partner program for Bangladesh where approved partners get training, show AndgatePOS demos to shop owners, and earn commission from verified paid subscriptions.',
+    description: 'Affiliate program for Bangladesh where approved affiliates get training, show AndgatePOS demos to shop owners, and earn commission from verified paid subscriptions.',
     provider: {
         '@type': 'Organization',
         name: 'Andgate Technologies',
@@ -117,8 +117,8 @@ const partnerFaqSchema = {
 export default function PartnerPromotionPage() {
     const searchParams = useSearchParams();
     const attribution = buildAttribution(searchParams, {
-        source: searchParams.get('source') || 'promotion_partner',
-        campaign: 'partner_landing',
+        source: searchParams.get('source') || 'promotion_affiliate',
+        campaign: 'affiliate_landing',
     });
     const [formData, setFormData] = useState({ name: '', mobile: '', email: '', type: 'other', bkash_number: '', network_description: '', parent_code: '' });
     const [success, setSuccess] = useState<any>(null);
@@ -128,8 +128,8 @@ export default function PartnerPromotionPage() {
         e.preventDefault();
         try {
             trackEvent('partner_register_submit', 'Lead', {
-                content_name: 'Partner Registration',
-                source: 'promotion_partner',
+                content_name: 'Affiliate Registration',
+                source: 'promotion_affiliate',
                 user_data: {
                     email: formData.email,
                     phone: formData.mobile,
@@ -137,8 +137,8 @@ export default function PartnerPromotionPage() {
             });
             const res = await registerAffiliate({ ...formData, ...attribution }).unwrap();
             setSuccess(res.data);
-            trackEvent('partner_register_success', 'PartnerRegistration', {
-                content_name: 'Partner Registration',
+            trackEvent('partner_register_success', 'AffiliateRegistration', {
+                content_name: 'Affiliate Registration',
                 status: true,
                 user_data: {
                     email: formData.email,
@@ -153,7 +153,9 @@ export default function PartnerPromotionPage() {
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(partnerProgramSchema) }} />
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(partnerFaqSchema) }} />
             <PromotionTracker />
-            <WhatsAppFloat />
+            <div className="hidden sm:block">
+                <WhatsAppFloat />
+            </div>
             <Navbar />
 
             <main className="flex flex-1 flex-col pt-16">
@@ -161,7 +163,7 @@ export default function PartnerPromotionPage() {
                     <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'linear-gradient(135deg, #ffffff 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
                     <div className="relative mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
                         <div>
-                            <span className="inline-flex rounded-full border border-[#e79237]/50 bg-[#e79237]/15 px-4 py-1.5 text-sm font-bold text-[#ffd29f]">AndgatePOS Partner Program</span>
+                            <span className="inline-flex rounded-full border border-[#e79237]/50 bg-[#e79237]/15 px-4 py-1.5 text-sm font-bold text-[#ffd29f]">AndgatePOS Affiliate Program</span>
                             <h1 className="mt-5 max-w-3xl text-4xl font-black leading-tight sm:text-5xl lg:text-6xl">দোকানদারকে ডেমো দেখান, পেইড সাবস্ক্রিপশন থেকে কমিশন পান</h1>
                             <p className="mt-5 max-w-2xl text-base leading-8 text-slate-200 sm:text-lg">
                                 বাংলাদেশের দোকানগুলো এখন খাতার হিসাব ছেড়ে ডিজিটাল বিলিং, স্টক কন্ট্রোল ও পরিষ্কার রিপোর্টের দিকে যাচ্ছে। আপনি ট্রেনিং নিয়ে দোকানদারের সাথে সরাসরি কথা বলবেন, ডেমো
@@ -186,10 +188,10 @@ export default function PartnerPromotionPage() {
                             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                                 <a
                                     href="#register-section"
-                                    onClick={() => trackEvent('partner_hero_register_click', 'Lead', { section: 'hero', content_name: 'Partner Registration CTA' })}
+                                    onClick={() => trackEvent('partner_hero_register_click', 'Lead', { section: 'hero', content_name: 'Affiliate Registration CTA' })}
                                     className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#e79237] px-6 py-3 font-bold text-white shadow-lg transition hover:bg-[#d17b24]"
                                 >
-                                    ফ্রিতে পার্টনার হিসেবে রেজিস্টার করুন
+                                    ফ্রিতে অ্যাফিলিয়েট হিসেবে রেজিস্টার করুন
                                     <ArrowRight className="h-4 w-4" />
                                 </a>
                                 <Link
@@ -237,7 +239,7 @@ export default function PartnerPromotionPage() {
                                 </p>
                                 <a
                                     href="#register-section"
-                                    onClick={() => trackEvent('partner_card_register_click', 'Lead', { section: 'hero_card', content_name: 'Partner Registration CTA' })}
+                                    onClick={() => trackEvent('partner_card_register_click', 'Lead', { section: 'hero_card', content_name: 'Affiliate Registration CTA' })}
                                     className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#046ca9] px-5 py-3 font-bold text-white transition hover:bg-[#035887]"
                                 >
                                     এখনই ফ্রি রেজিস্ট্রেশন
@@ -252,7 +254,7 @@ export default function PartnerPromotionPage() {
                     <div className="mx-auto max-w-6xl">
                         <div className="max-w-2xl">
                             <p className="text-sm font-bold uppercase tracking-wider text-[#046ca9]">কারা যোগ দিতে পারবেন</p>
-                            <h2 className="mt-2 text-3xl font-black text-slate-950">যাদের জন্য AndgatePOS পার্টনার প্রোগ্রাম ভালো</h2>
+                            <h2 className="mt-2 text-3xl font-black text-slate-950">যাদের জন্য AndgatePOS অ্যাফিলিয়েট প্রোগ্রাম ভালো</h2>
                             <p className="mt-3 text-slate-600">
                                 অপরিচিত মানুষকে ফোন করার দরকার নেই। আপনার পরিচিত ব্যবসায়ীদের হিসাব, স্টক বা বিলিংয়ের সমস্যা বুঝে তাদের জন্য AndgatePOS সমাধান হিসেবে পরিচয় করিয়ে দিন।
                             </p>
@@ -350,8 +352,8 @@ export default function PartnerPromotionPage() {
                 <section id="register" className="scroll-mt-20 bg-white px-4 py-14 sm:px-6">
                     <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[0.85fr_1fr] lg:items-start">
                         <div>
-                            <p className="text-sm font-bold uppercase tracking-wider text-[#046ca9]">পার্টনার রেজিস্ট্রেশন</p>
-                            <h2 className="mt-2 text-3xl font-black text-slate-950">ফ্রিতে পার্টনার হিসেবে রেজিস্টার করুন</h2>
+                            <p className="text-sm font-bold uppercase tracking-wider text-[#046ca9]">অ্যাফিলিয়েট রেজিস্ট্রেশন</p>
+                            <h2 className="mt-2 text-3xl font-black text-slate-950">ফ্রিতে অ্যাফিলিয়েট হিসেবে রেজিস্টার করুন</h2>
                             <p className="mt-3 max-w-xl text-slate-600">বিনামূল্যে রেজিস্ট্রেশন করুন, ট্রেনিং নিন এবং দোকানদারদের ডিজিটাল বিলিংয়ে সাহায্য করে কমিশন আয় করুন।</p>
 
                             <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-5">
@@ -387,7 +389,7 @@ export default function PartnerPromotionPage() {
                                 <div className="py-6 text-center">
                                     <CheckCircle2 className="mx-auto mb-4 h-14 w-14 text-emerald-500" />
                                     <h3 className="text-xl font-black text-slate-950">রেজিস্ট্রেশন সফল হয়েছে!</h3>
-                                    <p className="mt-2 text-slate-500">আপনার পার্টনার কোড</p>
+                                    <p className="mt-2 text-slate-500">আপনার অ্যাফিলিয়েট কোড</p>
                                     <div className="mx-auto mt-3 w-fit rounded-xl bg-[#046ca9]/10 px-8 py-3 text-2xl font-black tracking-widest text-[#046ca9]">{success.code}</div>
                                     {success.promo_code && (
                                         <p className="mt-3 text-sm text-slate-500">
@@ -396,7 +398,7 @@ export default function PartnerPromotionPage() {
                                     )}
                                     {success.ref_link && <div className="mt-3 break-all rounded-lg bg-slate-50 px-4 py-2 text-xs text-slate-600">রেফারেল লিংক: {success.ref_link}</div>}
                                     <Link href="/affiliate/portal" className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#046ca9] px-6 py-2.5 font-bold text-white transition hover:opacity-90">
-                                        পার্টনার পোর্টালে যান <ArrowRight className="h-4 w-4" />
+                                        অ্যাফিলিয়েট পোর্টালে যান <ArrowRight className="h-4 w-4" />
                                     </Link>
                                 </div>
                             ) : (
@@ -456,7 +458,7 @@ export default function PartnerPromotionPage() {
                                         </div>
 
                                         <div className="sm:col-span-2">
-                                            <label className="mb-1 block text-sm font-semibold text-slate-700">আপনি কোন ধরনের পার্টনার?</label>
+                                            <label className="mb-1 block text-sm font-semibold text-slate-700">আপনি কোন ধরনের অ্যাফিলিয়েট?</label>
                                             <select
                                                 className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-[#046ca9] focus:ring-1 focus:ring-[#046ca9]"
                                                 value={formData.type}
@@ -497,13 +499,13 @@ export default function PartnerPromotionPage() {
                                     </div>
 
                                     <button type="submit" disabled={isLoading} className="w-full rounded-xl bg-[#046ca9] py-3 font-bold text-white transition hover:opacity-90 disabled:opacity-60">
-                                        {isLoading ? 'অপেক্ষা করুন...' : 'ফ্রিতে পার্টনার হিসেবে রেজিস্টার করুন'}
+                                        {isLoading ? 'অপেক্ষা করুন...' : 'ফ্রিতে অ্যাফিলিয়েট হিসেবে রেজিস্টার করুন'}
                                     </button>
                                     <p className="text-center text-xs font-semibold text-slate-500">রেজিস্ট্রেশনের পর সাধারণত ২৪-৪৮ ঘণ্টার মধ্যে যোগাযোগ করা হবে।</p>
                                     <p className="text-center text-xs text-slate-400">
                                         রেজিস্টার করলে আপনি AndgatePOS-এর{' '}
                                         <Link href="/affiliate/policies" className="text-[#046ca9] underline">
-                                            পার্টনার নীতিমালা
+                                            অ্যাফিলিয়েট নীতিমালা
                                         </Link>
                                         -তে সম্মত হচ্ছেন।
                                     </p>
@@ -517,7 +519,7 @@ export default function PartnerPromotionPage() {
                     <div className="mx-auto max-w-5xl">
                         <div className="text-center">
                             <p className="text-sm font-bold uppercase tracking-wider text-[#046ca9]">প্রশ্নোত্তর</p>
-                            <h2 className="mt-2 text-3xl font-black text-slate-950">পার্টনার হওয়ার আগে সাধারণ প্রশ্ন</h2>
+                            <h2 className="mt-2 text-3xl font-black text-slate-950">অ্যাফিলিয়েট হওয়ার আগে সাধারণ প্রশ্ন</h2>
                         </div>
                         <div className="mt-8 grid gap-4 md:grid-cols-2">
                             {faqs.map((faq) => (
@@ -531,15 +533,15 @@ export default function PartnerPromotionPage() {
                 </section>
 
                 <section className="bg-[#046ca9] px-4 py-14 text-center text-white sm:px-6">
-                    <h2 className="text-3xl font-black">আজই AndgatePOS পার্টনার প্রোগ্রাম শুরু করুন</h2>
+                    <h2 className="text-3xl font-black">আজই AndgatePOS অ্যাফিলিয়েট প্রোগ্রাম শুরু করুন</h2>
                     <p className="mx-auto mt-3 max-w-2xl text-white/80">বাস্তব দোকানদারের সাথে সরাসরি কাজ, পরিষ্কার কমিশন ট্র্যাকিং এবং বাংলাদেশের জন্য সহজ পেমেন্ট প্রক্রিয়া।</p>
                     <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
                         <a
                             href="#register-section"
-                            onClick={() => trackEvent('partner_bottom_register_click', 'Lead', { section: 'bottom_cta', content_name: 'Partner Registration CTA' })}
+                            onClick={() => trackEvent('partner_bottom_register_click', 'Lead', { section: 'bottom_cta', content_name: 'Affiliate Registration CTA' })}
                             className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-7 py-3 font-bold text-[#046ca9] transition hover:bg-slate-100"
                         >
-                            ফ্রিতে পার্টনার হিসেবে রেজিস্টার করুন
+                            ফ্রিতে অ্যাফিলিয়েট হিসেবে রেজিস্টার করুন
                             <ArrowRight className="h-4 w-4" />
                         </a>
                         <Link
@@ -554,14 +556,25 @@ export default function PartnerPromotionPage() {
                 </section>
             </main>
 
-            <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 p-3 shadow-2xl backdrop-blur sm:hidden">
+            <div className="fixed inset-x-0 bottom-0 z-[60] grid grid-cols-2 gap-2 border-t border-slate-200 bg-white/95 p-3 shadow-2xl backdrop-blur sm:hidden">
                 <a
                     href="#register-section"
-                    onClick={() => trackEvent('partner_mobile_sticky_register_click', 'Lead', { section: 'mobile_sticky', content_name: 'Partner Registration CTA' })}
+                    onClick={() => trackEvent('partner_mobile_sticky_register_click', 'Lead', { section: 'mobile_sticky', content_name: 'Affiliate Registration CTA' })}
                     className="flex items-center justify-center gap-2 rounded-xl bg-[#e79237] px-4 py-3 text-sm font-black text-white"
                 >
-                    ফ্রিতে রেজিস্টার করুন
+                    রেজিস্টার
                     <ArrowRight className="h-4 w-4" />
+                </a>
+                <a
+                    href="https://wa.me/8801577303608?text=%E0%A6%86%E0%A6%AE%E0%A6%BF%20AndgatePOS%20%E0%A6%85%E0%A7%8D%E0%A6%AF%E0%A6%BE%E0%A6%AB%E0%A6%BF%E0%A6%B2%E0%A6%BF%E0%A6%AF%E0%A6%BC%E0%A7%87%E0%A6%9F%20%E0%A6%AA%E0%A7%8D%E0%A6%B0%E0%A7%8B%E0%A6%97%E0%A7%8D%E0%A6%B0%E0%A6%BE%E0%A6%AE%20%E0%A6%B8%E0%A6%AE%E0%A7%8D%E0%A6%AA%E0%A6%B0%E0%A7%8D%E0%A6%95%E0%A7%87%20%E0%A6%9C%E0%A6%BE%E0%A6%A8%E0%A6%A4%E0%A7%87%20%E0%A6%9A%E0%A6%BE%E0%A6%87"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => trackEvent('partner_mobile_sticky_whatsapp_click', 'Contact', { section: 'mobile_sticky' })}
+                    className="flex items-center justify-center gap-2 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-black text-green-700"
+                    aria-label="WhatsApp support"
+                >
+                    <MessageCircle className="h-5 w-5" />
+                    WhatsApp
                 </a>
             </div>
 

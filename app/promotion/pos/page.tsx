@@ -75,7 +75,9 @@ export default function PromotionPage() {
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(posPromotionSchema) }} />
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(posFaqSchema) }} />
             <PromotionTracker />
-            <WhatsAppFloat />
+            <div className="hidden sm:block">
+                <WhatsAppFloat />
+            </div>
             <Navbar />
 
             <main className="flex flex-1 flex-col pt-16">
@@ -107,7 +109,7 @@ export default function PromotionPage() {
                 <PromoFAQ />
             </main>
 
-            <div className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-[1fr_auto] gap-2 border-t border-slate-200 bg-white/95 p-3 shadow-2xl backdrop-blur sm:hidden">
+            <div className="fixed inset-x-0 bottom-0 z-[60] grid grid-cols-2 gap-2 border-t border-slate-200 bg-white/95 p-3 shadow-2xl backdrop-blur sm:hidden">
                 <a href="#register-section" className="flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-black text-white">
                     ফ্রি ট্রায়াল
                     <ArrowRight className="h-4 w-4" />
@@ -117,10 +119,11 @@ export default function PromotionPage() {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => trackEvent('mobile_sticky_whatsapp_click', 'Contact', { section: 'mobile_sticky' })}
-                    className="flex h-12 w-12 items-center justify-center rounded-xl border border-green-200 bg-green-50 text-green-700"
+                    className="flex items-center justify-center gap-2 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-black text-green-700"
                     aria-label="WhatsApp support"
                 >
                     <Phone className="h-5 w-5" />
+                    WhatsApp
                 </a>
             </div>
 

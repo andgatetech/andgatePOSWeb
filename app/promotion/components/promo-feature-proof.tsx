@@ -4,10 +4,10 @@ import Image from 'next/image';
 import PromoButton from './promo-button';
 
 const features = [
-    { title: 'দ্রুত POS বিলিং', desc: 'মোবাইল বা ল্যাপটপ থেকে পণ্য খুঁজে বিল করুন, ডিসকাউন্ট দিন, রসিদ তৈরি করুন।', image: '/assets/LandingImage/updated/mobile-pos.webp' },
+    { title: 'দ্রুত POS বিলিং', desc: 'মোবাইল বা ল্যাপটপ থেকে পণ্য খুঁজে বিল করুন, ডিসকাউন্ট দিন, রসিদ তৈরি করুন।', image: '/assets/LandingImage/updated/pos.webp' },
     { title: 'স্টক ও লো-স্টক অ্যালার্ট', desc: 'কোন পণ্য কমে যাচ্ছে, কোন পণ্য বেশি বিক্রি হচ্ছে — রিপোর্টে পরিষ্কার দেখুন।', image: '/assets/LandingImage/updated/stock-report.webp' },
     { title: 'লাভ-লস ও বিক্রির রিপোর্ট', desc: 'দিন, মাস বা বছর ধরে বিক্রি, খরচ, লাভ-লস ও ক্যাশ বুক দেখুন।', image: '/assets/LandingImage/updated/profit-loss.webp' },
-    { title: 'অনলাইন অর্ডার ও দোকান', desc: 'POS-এর পণ্য দিয়ে অনলাইন স্টোর চালু করুন, অর্ডার ও কুরিয়ার কাজ এক জায়গায় রাখুন।', image: '/assets/LandingImage/updated/mobile-dashboard.webp' },
+    { title: 'বাকি ও কাস্টমার হিসাব', desc: 'কোন কাস্টমারের কাছে কত টাকা বাকি আছে, কবে দিয়েছে — সব হিসাব এক জায়গায় রাখুন।', image: '/assets/LandingImage/updated/customer-due.webp' },
 ];
 
 const quickWins = ['Barcode/SKU', 'bKash/Nagad/Cash', 'Customer due', 'Supplier due', 'Employee access', 'Multi-store', 'Expense tracking', 'Barcode label'];
@@ -22,7 +22,7 @@ export default function PromoFeatureProof() {
                     <span className="mb-3 inline-block rounded-full bg-emerald-100 px-4 py-1.5 text-sm font-bold text-emerald-700">আপনি আসলে কী পাবেন</span>
                     <h2 className="text-3xl font-extrabold leading-tight text-gray-900 sm:text-4xl">শুধু বিলিং না — পুরো দোকানের হিসাব এক জায়গায়</h2>
                     <p className="mt-3 text-base leading-relaxed text-gray-600">
-                        Facebook থেকে যারা প্রথমবার আসবেন, তারা যেন সাথে সাথে বুঝতে পারেন: AndgatePOS দোকানের বিক্রি, স্টক, বাকি, পেমেন্ট, রিপোর্ট এবং অনলাইন অর্ডার একসাথে সামলাতে সাহায্য করে।
+                        আজ কত বিক্রি হলো, কত টাকা বাকিতে গেল, কোন পণ্য শেষ হচ্ছে আর মাস শেষে লাভ হলো নাকি লস — সব উত্তর মোবাইলেই পরিষ্কার দেখুন।
                     </p>
                 </div>
 
