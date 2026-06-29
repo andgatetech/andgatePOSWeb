@@ -2,12 +2,15 @@
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
+import { hasAnyPermission } from '@/lib/permissions';
 import { showMessage } from '@/lib/toast';
+import { RootState } from '@/store';
 import { useAssignRoleMutation, useGetRolesQuery, useUnassignRoleMutation } from '@/store/features/roles/rolesApi';
 import { useGetStaffMemberQuery, useStaffUpdateMutation } from '@/store/features/store/storeApi';
-import { ArrowLeft, Eye, EyeOff, Store, Users } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff, Store, Users, Wallet } from 'lucide-react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
+import { useSelector } from 'react-redux';
 
 const EmployeeEditPage = () => {
     const { t } = getTranslation();
@@ -15,8 +18,12 @@ const EmployeeEditPage = () => {
     const params = useParams();
     const searchParams = useSearchParams();
     const { currentStore, currentStoreId } = useCurrentStore();
+    const user = useSelector((state: RootState) => state.auth.user);
+    const canManageCompensation = hasAnyPermission(user, ['hr.payroll.manage']);
 
     const employeeId = Number(params.id);
+
+    const [activeTab, setActiveTab] = useState<'profile' | 'compensation'>('profile');
 
     // Pre-fill from URL search params (passed by the list page)
     const [formData, setFormData] = useState({
@@ -25,6 +32,14 @@ const EmployeeEditPage = () => {
         address: searchParams.get('address') || '',
         password: '',
         password_confirmation: '',
+    });
+
+    const [compensationData, setCompensationData] = useState({
+        pay_type: '' as '' | 'monthly' | 'hourly',
+        monthly_salary: '',
+        hourly_rate: '',
+        bank_account_number: '',
+        joining_date: '',
     });
 
     const storeId = Number(searchParams.get('store_id')) || currentStoreId;
@@ -68,9 +83,22 @@ const EmployeeEditPage = () => {
             address: staffMember.address || '',
         }));
 
+        setCompensationData({
+            pay_type: staffMember.pay_type || '',
+            monthly_salary: staffMember.monthly_salary != null ? String(staffMember.monthly_salary) : '',
+            hourly_rate: staffMember.hourly_rate != null ? String(staffMember.hourly_rate) : '',
+            bank_account_number: staffMember.bank_account_number || '',
+            joining_date: staffMember.joining_date || '',
+        });
+
         const loadedRoleId = staffMember.role_id ?? staffMember.role?.id ?? null;
         setSelectedRoleId(loadedRoleId ? Number(loadedRoleId) : null);
     }, [staffMember]);
+
+    const handleCompensationChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setCompensationData((prev) => ({ ...prev, [name]: value }));
+    };
 
     const handleRoleAssign = async (newRoleId: string) => {
         const next = newRoleId === '' ? null : Number(newRoleId);
@@ -123,6 +151,14 @@ const EmployeeEditPage = () => {
             if (formData.password) {
                 payload.password = formData.password;
                 payload.password_confirmation = formData.password_confirmation;
+            }
+
+            if (canManageCompensation) {
+                payload.pay_type = compensationData.pay_type || null;
+                payload.monthly_salary = compensationData.monthly_salary !== '' ? Number(compensationData.monthly_salary) : null;
+                payload.hourly_rate = compensationData.hourly_rate !== '' ? Number(compensationData.hourly_rate) : null;
+                payload.bank_account_number = compensationData.bank_account_number || null;
+                payload.joining_date = compensationData.joining_date || null;
             }
 
             await staffUpdate(payload).unwrap();
@@ -181,12 +217,33 @@ const EmployeeEditPage = () => {
                             </div>
                         </div>
                     )}
+
+                    {canManageCompensation && (
+                        <div className="mt-4 flex gap-2 border-b border-gray-200 sm:mt-6">
+                            <button
+                                type="button"
+                                onClick={() => setActiveTab('profile')}
+                                className={`flex items-center gap-2 border-b-2 px-3 py-2 text-sm font-medium transition-colors ${activeTab === 'profile' ? 'border-[#046ca9] text-[#046ca9]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+                            >
+                                <Users className="h-4 w-4" />
+                                {t('tab_profile')}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setActiveTab('compensation')}
+                                className={`flex items-center gap-2 border-b-2 px-3 py-2 text-sm font-medium transition-colors ${activeTab === 'compensation' ? 'border-[#046ca9] text-[#046ca9]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+                            >
+                                <Wallet className="h-4 w-4" />
+                                {t('tab_compensation')}
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 {/* Form Card */}
                 <form onSubmit={handleSubmit}>
                     <div className="overflow-hidden rounded-xl bg-white shadow-xl sm:rounded-2xl">
-                        <div className="p-4 sm:p-6 md:p-8">
+                        <div className={`p-4 sm:p-6 md:p-8 ${activeTab === 'compensation' ? 'hidden' : ''}`}>
                             <h2 className="mb-4 text-lg font-semibold text-gray-900 sm:mb-6 sm:text-xl">{t('lbl_employee_information')}</h2>
 
                             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -308,6 +365,89 @@ const EmployeeEditPage = () => {
                                 </div>
                             </div>
                         </div>
+
+                        {canManageCompensation && activeTab === 'compensation' && (
+                            <div className="p-4 sm:p-6 md:p-8">
+                                <h2 className="mb-4 text-lg font-semibold text-gray-900 sm:mb-6 sm:text-xl">{t('lbl_compensation_information')}</h2>
+                                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                                    <div className="space-y-6">
+                                        {/* Pay type */}
+                                        <div>
+                                            <label className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_pay_type')}</label>
+                                            <select
+                                                name="pay_type"
+                                                value={compensationData.pay_type}
+                                                onChange={handleCompensationChange}
+                                                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
+                                            >
+                                                <option value="">{t('lbl_not_set')}</option>
+                                                <option value="monthly">{t('lbl_pay_type_monthly')}</option>
+                                                <option value="hourly">{t('lbl_pay_type_hourly')}</option>
+                                            </select>
+                                        </div>
+
+                                        {compensationData.pay_type === 'monthly' && (
+                                            <div>
+                                                <label className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_monthly_salary')}</label>
+                                                <input
+                                                    type="number"
+                                                    min="0"
+                                                    step="0.01"
+                                                    name="monthly_salary"
+                                                    value={compensationData.monthly_salary}
+                                                    onChange={handleCompensationChange}
+                                                    className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
+                                                    placeholder={t('placeholder_monthly_salary')}
+                                                />
+                                            </div>
+                                        )}
+
+                                        {compensationData.pay_type === 'hourly' && (
+                                            <div>
+                                                <label className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_hourly_rate')}</label>
+                                                <input
+                                                    type="number"
+                                                    min="0"
+                                                    step="0.01"
+                                                    name="hourly_rate"
+                                                    value={compensationData.hourly_rate}
+                                                    onChange={handleCompensationChange}
+                                                    className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
+                                                    placeholder={t('placeholder_hourly_rate')}
+                                                />
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="space-y-6">
+                                        {/* Bank account */}
+                                        <div>
+                                            <label className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_bank_account_number')}</label>
+                                            <input
+                                                type="text"
+                                                name="bank_account_number"
+                                                value={compensationData.bank_account_number}
+                                                onChange={handleCompensationChange}
+                                                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
+                                                placeholder={t('placeholder_bank_account_number')}
+                                            />
+                                        </div>
+
+                                        {/* Joining date */}
+                                        <div>
+                                            <label className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_joining_date')}</label>
+                                            <input
+                                                type="date"
+                                                name="joining_date"
+                                                value={compensationData.joining_date}
+                                                onChange={handleCompensationChange}
+                                                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         {/* Footer */}
                         <div className="border-t bg-gray-50 px-4 py-4 sm:px-6 sm:py-6 md:px-8">

@@ -194,7 +194,24 @@ const StoreApi = baseApi.injectEndpoints({
 
         //  Update a staff member
         staffUpdate: builder.mutation({
-            query: ({ userId, ...data }: { userId: number; store_id: number; name?: string; phone?: string; address?: string; role_in_store?: string; password?: string; password_confirmation?: string }) => ({
+            query: ({
+                userId,
+                ...data
+            }: {
+                userId: number;
+                store_id: number;
+                name?: string;
+                phone?: string;
+                address?: string;
+                role_in_store?: string;
+                password?: string;
+                password_confirmation?: string;
+                pay_type?: 'monthly' | 'hourly' | null;
+                monthly_salary?: number | null;
+                hourly_rate?: number | null;
+                bank_account_number?: string | null;
+                joining_date?: string | null;
+            }) => ({
                 url: `/staff/${userId}`,
                 method: 'PUT',
                 body: data,
