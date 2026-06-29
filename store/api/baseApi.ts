@@ -162,6 +162,7 @@ export const baseApi = createApi({
         'Holiday',
         'Shift',
         'EmployeeDocument',
+        'StockTransfer',
     ],
     endpoints: () => ({}),
 });

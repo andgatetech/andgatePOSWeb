@@ -1,5 +1,5 @@
 // lib/menu-builder.tsx
-import { BarChart, Bell, BookOpen, BrainCircuit, BriefcaseBusiness, CalendarCheck, FileText, Home, Layers, Link2, MessagesSquare, Package, Receipt, Settings, Shield, ShoppingBag, ShoppingCart, Tag, Truck, Users } from 'lucide-react';
+import { ArrowRightLeft, BarChart, Bell, BookOpen, BrainCircuit, BriefcaseBusiness, CalendarCheck, FileText, Home, Layers, Link2, MessagesSquare, Package, Receipt, Settings, Shield, ShoppingBag, ShoppingCart, Tag, Truck, Users } from 'lucide-react';
 import React from 'react';
 
 export interface MenuItem {
@@ -107,6 +107,12 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                 requiredPermissions: ['users.view'],
             },
         ],
+    },
+    {
+        label: 'transfer_title',
+        icon: React.createElement(ArrowRightLeft),
+        href: '/stock-transfers',
+        ownerOnly: true,
     },
     {
         label: 'Store',

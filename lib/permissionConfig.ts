@@ -120,6 +120,8 @@ export const PERMISSION_MENU_MAP: Record<string, string[]> = {
     'hr.shift.manage': [],
     'hr.documents.view': ['Employee Documents'],
     'hr.documents.manage': [],
+    'stock-transfer.view': ['Stock Transfers'],
+    'stock-transfer.manage': [],
     'service-jobs.create': ['Service Jobs'],
     'service-jobs.view': [],
     'service-jobs.update': [],
@@ -209,6 +211,7 @@ export const CATEGORY_LABELS: Record<string, string> = {
     hr: 'HR & Attendance',
     'service-jobs': 'Service Jobs',
     'cash-drawer': 'Cash Drawer',
+    'stock-transfer': 'Stock Transfers',
 };
 
 // ─── Category Sort Order ──────────────────────────────────────────────────────
@@ -241,6 +244,7 @@ export const CATEGORY_ORDER: string[] = [
     'hr',
     'service-jobs',
     'cash-drawer',
+    'stock-transfer',
 ];
 
 // ─── Category Theme Colors ──────────────────────────────────────────────────
@@ -273,6 +277,7 @@ export const CATEGORY_COLORS: Record<string, { border: string; bg: string; icon:
     hr: { border: 'border-[#e79237]/25', bg: 'bg-[#e79237]/10', icon: 'text-[#c47920]', badge: 'bg-[#e79237]/15 text-[#9a5a14] border-[#e79237]/25' },
     'service-jobs': { border: 'border-[#034d79]/20', bg: 'bg-[#034d79]/5', icon: 'text-[#034d79]', badge: 'bg-[#034d79]/10 text-[#034d79] border-[#034d79]/20' },
     'cash-drawer': { border: 'border-[#00ab55]/20', bg: 'bg-[#00ab55]/5', icon: 'text-[#00ab55]', badge: 'bg-[#00ab55]/10 text-[#00813f] border-[#00ab55]/20' },
+    'stock-transfer': { border: 'border-[#034d79]/20', bg: 'bg-[#034d79]/5', icon: 'text-[#034d79]', badge: 'bg-[#034d79]/10 text-[#034d79] border-[#034d79]/20' },
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
