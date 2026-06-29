@@ -155,6 +155,13 @@ export const baseApi = createApi({
         'PurchaseReturns',
         'BusinessOS',
         'CashDrawer',
+        'Payroll',
+        'SalaryAdvance',
+        'FestivalBonus',
+        'Leave',
+        'Holiday',
+        'Shift',
+        'EmployeeDocument',
     ],
     endpoints: () => ({}),
 });

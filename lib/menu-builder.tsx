@@ -67,6 +67,36 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                 requiredPermissions: ['hr.attendance.create', 'hr.attendance.view', 'users.view'],
             },
             {
+                label: 'payroll_title',
+                href: '/hr/payroll',
+                requiredPermissions: ['hr.payroll.view', 'hr.payroll.manage'],
+            },
+            {
+                label: 'advance_title',
+                href: '/hr/salary-advance',
+                requiredPermissions: ['hr.advance.view', 'hr.advance.create', 'hr.advance.approve'],
+            },
+            {
+                label: 'bonus_title',
+                href: '/hr/festival-bonus',
+                requiredPermissions: ['hr.bonus.view', 'hr.bonus.manage'],
+            },
+            {
+                label: 'leave_title',
+                href: '/hr/leave',
+                requiredPermissions: ['hr.leave.view', 'hr.leave.create', 'hr.leave.approve', 'hr.holiday.view', 'hr.holiday.manage'],
+            },
+            {
+                label: 'shift_title',
+                href: '/hr/shifts',
+                requiredPermissions: ['hr.shift.view', 'hr.shift.manage'],
+            },
+            {
+                label: 'document_title',
+                href: '/hr/documents',
+                requiredPermissions: ['hr.documents.view', 'hr.documents.manage'],
+            },
+            {
                 label: 'Employees Management',
                 href: '/employees',
                 ownerOnly: true,

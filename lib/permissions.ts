@@ -105,6 +105,12 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     '/petty-cash': ['petty-cash.create', 'petty-cash.view', 'expenses.index', 'expenses.create'],
     '/hr': ['hr.attendance.create', 'hr.attendance.view', 'users.view'],
     '/hr/attendance': ['hr.attendance.create', 'hr.attendance.view', 'users.view'],
+    '/hr/payroll': ['hr.payroll.view', 'hr.payroll.manage'],
+    '/hr/salary-advance': ['hr.advance.view', 'hr.advance.create', 'hr.advance.approve'],
+    '/hr/festival-bonus': ['hr.bonus.view', 'hr.bonus.manage'],
+    '/hr/leave': ['hr.leave.view', 'hr.leave.create', 'hr.leave.approve', 'hr.holiday.view', 'hr.holiday.manage'],
+    '/hr/shifts': ['hr.shift.view', 'hr.shift.manage'],
+    '/hr/documents': ['hr.documents.view', 'hr.documents.manage'],
     '/service-jobs': ['service-jobs.create', 'service-jobs.view', 'orders.index', 'products.index'],
     '/cash-drawer/history': ['cash-drawer.view', 'reports.sales'],
 
