@@ -44,13 +44,14 @@ const EmployeeEditPage = () => {
         joining_date: '',
     });
 
-    const storeId = Number(searchParams.get('store_id')) || currentStoreId;
-    const initialRoleId = searchParams.get('role_id') ? Number(searchParams.get('role_id')) : null;
+
+
+    const storeId = currentStoreId;
 
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-    const [selectedRoleId, setSelectedRoleId] = useState<number | null>(initialRoleId);
+    const [selectedRoleId, setSelectedRoleId] = useState<number | null>(null);
     const [isAssigningRole, setIsAssigningRole] = useState(false);
 
     const [staffUpdate, { isLoading: isSubmitting }] = useStaffUpdateMutation();
@@ -63,7 +64,7 @@ const EmployeeEditPage = () => {
 
         return items.find((member: any) => Number(member.id) === employeeId) || null;
     }, [employeeId, staffResponse]);
-    const isBusinessAdmin = (staffMember?.role_in_store || searchParams.get('role_in_store')) === 'business_admin';
+    const isBusinessAdmin = staffMember?.role_in_store === 'business_admin';
     const availableRoles = useMemo(() => {
         const d = rolesResponse as any;
         if (Array.isArray(d?.data?.roles)) return d.data.roles as { id: number; name: string }[];
