@@ -6,7 +6,9 @@ export const stockTransferApi = baseApi.injectEndpoints({
             query: (params: { store_id: number; direction?: 'incoming' | 'outgoing'; status?: string }) => ({
                 url: '/stock-transfers',
                 method: 'GET',
-                params,
+                params: Object.fromEntries(
+                    Object.entries(params).filter(([, value]) => value !== undefined && value !== null && value !== '')
+                ),
             }),
             providesTags: ['StockTransfer'],
         }),

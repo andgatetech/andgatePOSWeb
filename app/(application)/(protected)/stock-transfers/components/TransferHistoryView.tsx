@@ -11,18 +11,32 @@ import {
     useShipStockTransferMutation,
 } from '@/store/features/stockTransfer/stockTransferApi';
 import { ArrowRight, CheckCircle2, ClipboardList, PackageCheck, Plus, Send, XCircle } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
-type Tab = 'outgoing' | 'incoming';
+type Tab = 'all' | 'outgoing' | 'incoming';
+
+const formatTransferDateTime = (value?: string | null) => {
+    if (!value) return '—';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return value;
+
+    return date.toLocaleString('en-BD', {
+        year: 'numeric',
+        month: 'short',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+    });
+};
 
 export default function TransferHistoryView({ onCreateNew }: { onCreateNew: () => void }) {
     const { t } = useTranslation();
     const { currentStoreId } = useCurrentStore();
-    const [tab, setTab] = useState<Tab>('outgoing');
+    const [tab, setTab] = useState<Tab>('all');
     const [selectedTransferId, setSelectedTransferId] = useState<number | null>(null);
 
     const { data: transfersData, refetch: refetchList } = useGetStockTransfersQuery(
-        { store_id: currentStoreId, direction: tab },
+        { store_id: Number(currentStoreId), direction: tab === 'all' ? undefined : tab },
         { skip: !currentStoreId }
     );
     const { data: transferData, refetch: refetchDetail } = useGetStockTransferQuery(
@@ -33,7 +47,13 @@ export default function TransferHistoryView({ onCreateNew }: { onCreateNew: () =
     const [receiveTransfer] = useReceiveStockTransferMutation();
     const [cancelTransfer] = useCancelStockTransferMutation();
 
-    const transfers = transfersData?.data?.transfers || [];
+    const transfers = useMemo(() => {
+        const data = transfersData?.data;
+        if (Array.isArray(data)) return data;
+        if (Array.isArray(data?.transfers)) return data.transfers;
+        if (Array.isArray(data?.items)) return data.items;
+        return [];
+    }, [transfersData]);
     const transfer = transferData?.data?.transfer;
 
     const handleShip = async (id: number) => {
@@ -96,6 +116,7 @@ export default function TransferHistoryView({ onCreateNew }: { onCreateNew: () =
 
             <div className="flex rounded-xl border border-gray-200 bg-gray-50 p-1">
                 {([
+                    { key: 'all' as Tab, label: t('transfer_all_tab') },
                     { key: 'outgoing' as Tab, label: t('transfer_outgoing_tab') },
                     { key: 'incoming' as Tab, label: t('transfer_incoming_tab') },
                 ]).map((tb) => (
@@ -133,7 +154,12 @@ export default function TransferHistoryView({ onCreateNew }: { onCreateNew: () =
                                             {tr.status}
                                         </span>
                                     </div>
-                                    <p className="mt-1 text-xs text-gray-400">#{tr.id} · {(tr.items || []).length} {t('lbl_items')}</p>
+                                    <div className="mt-2 space-y-0.5 text-xs text-gray-400">
+                                        <p>#{tr.id} · {(tr.items || []).length} {t('lbl_items')}</p>
+                                        <p>{t('transfer_created_at')}: {formatTransferDateTime(tr.created_at)}</p>
+                                        {tr.shipped_at && <p>{t('transfer_shipped_at')}: {formatTransferDateTime(tr.shipped_at)}</p>}
+                                        {tr.received_at && <p>{t('transfer_received_at')}: {formatTransferDateTime(tr.received_at)}</p>}
+                                    </div>
                                 </button>
                             ))}
                         </div>
@@ -176,6 +202,21 @@ export default function TransferHistoryView({ onCreateNew }: { onCreateNew: () =
                                             <CheckCircle2 className="h-3.5 w-3.5" /> {t('transfer_received_label')}
                                         </span>
                                     )}
+                                </div>
+                            </div>
+
+                            <div className="grid gap-2 rounded-lg border border-gray-100 bg-gray-50 p-3 text-xs text-gray-600 sm:grid-cols-3">
+                                <div>
+                                    <p className="font-semibold text-gray-500">{t('transfer_created_at')}</p>
+                                    <p className="mt-0.5 text-gray-900">{formatTransferDateTime(transfer.created_at)}</p>
+                                </div>
+                                <div>
+                                    <p className="font-semibold text-gray-500">{t('transfer_shipped_at')}</p>
+                                    <p className="mt-0.5 text-gray-900">{formatTransferDateTime(transfer.shipped_at)}</p>
+                                </div>
+                                <div>
+                                    <p className="font-semibold text-gray-500">{t('transfer_received_at')}</p>
+                                    <p className="mt-0.5 text-gray-900">{formatTransferDateTime(transfer.received_at)}</p>
                                 </div>
                             </div>
 
