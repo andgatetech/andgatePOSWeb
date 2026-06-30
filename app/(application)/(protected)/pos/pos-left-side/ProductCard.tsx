@@ -13,7 +13,7 @@ interface ProductCardProps {
     isMobileView?: boolean;
     onAddToCart: (product: Product) => void;
     onImageShow: (product: Product) => void;
-    mode?: 'pos' | 'stock' | 'label' | 'orderEdit' | 'orderReturn' | 'purchase' | 'transfer';
+    mode?: 'pos' | 'stock' | 'label' | 'orderEdit' | 'orderReturn' | 'purchase';
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
@@ -29,7 +29,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
     const totalQuantity =
         product.stocks?.reduce((sum: number, stock: any) => sum + parseFloat(stock.quantity || '0'), 0) || 0;
-    const isUnavailable = product.available === false || ((mode === 'pos' || mode === 'transfer') && totalQuantity <= 0);
+    const isUnavailable = product.available === false || (mode === 'pos' && totalQuantity <= 0);
 
     const stockStatus =
         totalQuantity > 10 ? 'high' : totalQuantity > 0 ? 'low' : 'out';

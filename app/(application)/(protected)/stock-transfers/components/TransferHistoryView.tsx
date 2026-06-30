@@ -10,7 +10,7 @@ import {
     useReceiveStockTransferMutation,
     useShipStockTransferMutation,
 } from '@/store/features/stockTransfer/stockTransferApi';
-import { CheckCircle2, PackageCheck, Plus, Send, XCircle } from 'lucide-react';
+import { ArrowRight, CheckCircle2, ClipboardList, PackageCheck, Plus, Send, XCircle } from 'lucide-react';
 import { useState } from 'react';
 
 type Tab = 'outgoing' | 'incoming';
@@ -69,10 +69,23 @@ export default function TransferHistoryView({ onCreateNew }: { onCreateNew: () =
         }
     };
 
+    const statusBadge = (status: string) => {
+        const map: Record<string, string> = {
+            received: 'bg-emerald-50 text-emerald-700 border-emerald-100',
+            shipped: 'bg-blue-50 text-blue-700 border-blue-100',
+            cancelled: 'bg-red-50 text-red-700 border-red-100',
+            pending: 'bg-amber-50 text-amber-700 border-amber-100',
+        };
+        return map[status] || 'bg-gray-50 text-gray-600 border-gray-100';
+    };
+
     return (
-        <div className="space-y-4 p-4 sm:p-6">
+        <div className="mx-auto max-w-6xl space-y-4 p-4 sm:p-6">
             <div className="flex items-center justify-between">
-                <h2 className="text-lg font-bold text-gray-900">{t('transfer_history')}</h2>
+                <div className="flex items-center gap-2 text-lg font-bold text-gray-900">
+                    <ClipboardList className="h-5 w-5 text-primary" />
+                    {t('transfer_history')}
+                </div>
                 <button
                     onClick={onCreateNew}
                     className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary/90"
@@ -98,51 +111,57 @@ export default function TransferHistoryView({ onCreateNew }: { onCreateNew: () =
                 ))}
             </div>
 
-            <div className="grid gap-5 lg:grid-cols-3">
-                <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm lg:col-span-1">
+            <div className="grid gap-4 lg:grid-cols-3">
+                <div className="rounded-xl border border-gray-200 bg-white p-3 shadow-sm lg:col-span-1">
                     {transfers.length === 0 ? (
-                        <p className="py-6 text-center text-sm text-gray-400">{t('transfer_no_records')}</p>
+                        <p className="py-8 text-center text-sm text-gray-400">{t('transfer_no_records')}</p>
                     ) : (
                         <div className="space-y-2">
                             {transfers.map((tr: any) => (
                                 <button
                                     key={tr.id}
                                     onClick={() => setSelectedTransferId(tr.id)}
-                                    className={`w-full rounded-lg border px-3 py-2.5 text-left text-sm transition-all ${
+                                    className={`w-full rounded-lg border px-3 py-3 text-left text-sm transition-all ${
                                         selectedTransferId === tr.id ? 'border-primary bg-primary/5' : 'border-gray-100 hover:bg-gray-50'
                                     }`}
                                 >
-                                    <div className="flex items-center justify-between">
-                                        <span className="font-medium text-gray-900">{tr.from_store?.store_name} → {tr.to_store?.store_name}</span>
-                                        <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
-                                            tr.status === 'received' ? 'bg-emerald-100 text-emerald-700' :
-                                            tr.status === 'shipped' ? 'bg-blue-100 text-blue-700' :
-                                            tr.status === 'cancelled' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600'
-                                        }`}>{tr.status}</span>
+                                    <div className="flex items-center justify-between gap-2">
+                                        <span className="flex items-center gap-1.5 font-medium text-gray-900">
+                                            {tr.from_store?.store_name} <ArrowRight className="h-3 w-3 text-gray-400" /> {tr.to_store?.store_name}
+                                        </span>
+                                        <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${statusBadge(tr.status)}`}>
+                                            {tr.status}
+                                        </span>
                                     </div>
-                                    <p className="mt-0.5 text-xs text-gray-400">#{tr.id}</p>
+                                    <p className="mt-1 text-xs text-gray-400">#{tr.id} · {(tr.items || []).length} {t('lbl_items')}</p>
                                 </button>
                             ))}
                         </div>
                     )}
                 </div>
 
-                <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm lg:col-span-2">
+                <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm lg:col-span-2">
                     {!transfer ? (
-                        <p className="py-10 text-center text-sm text-gray-400">{t('transfer_select_one')}</p>
+                        <div className="flex flex-col items-center justify-center py-12 text-center">
+                            <ClipboardList className="mb-3 h-12 w-12 text-gray-200" />
+                            <p className="text-sm font-medium text-gray-500">{t('transfer_select_one')}</p>
+                        </div>
                     ) : (
-                        <>
-                            <div className="mb-4 flex items-center justify-between">
-                                <h3 className="text-sm font-semibold text-gray-700">
-                                    {transfer.from_store?.store_name} → {transfer.to_store?.store_name}
-                                </h3>
-                                <div className="flex gap-2">
+                        <div className="space-y-4">
+                            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                <div>
+                                    <h3 className="text-sm font-bold text-gray-900">
+                                        {transfer.from_store?.store_name} <span className="mx-1 text-gray-400">→</span> {transfer.to_store?.store_name}
+                                    </h3>
+                                    <p className="text-xs text-gray-400">#{transfer.id}</p>
+                                </div>
+                                <div className="flex flex-wrap gap-2">
                                     {transfer.status === 'pending' && Number(transfer.from_store_id) === Number(currentStoreId) && (
                                         <>
                                             <button onClick={() => handleShip(transfer.id)} className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700">
                                                 <Send className="h-3.5 w-3.5" /> {t('transfer_ship')}
                                             </button>
-                                            <button onClick={() => handleCancel(transfer.id)} className="flex items-center gap-1.5 rounded-lg bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-100">
+                                            <button onClick={() => handleCancel(transfer.id)} className="flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-100">
                                                 <XCircle className="h-3.5 w-3.5" /> {t('transfer_cancel')}
                                             </button>
                                         </>
@@ -160,12 +179,12 @@ export default function TransferHistoryView({ onCreateNew }: { onCreateNew: () =
                                 </div>
                             </div>
 
-                            {transfer.note && <p className="mb-3 text-xs text-gray-400">{transfer.note}</p>}
+                            {transfer.note && <p className="rounded-lg bg-gray-50 px-3 py-2 text-xs text-gray-500">{transfer.note}</p>}
 
-                            <div className="overflow-x-auto">
+                            <div className="overflow-hidden rounded-lg border border-gray-100">
                                 <table className="w-full text-sm">
-                                    <thead>
-                                        <tr className="border-b border-gray-100 text-left text-xs font-semibold text-gray-500 uppercase">
+                                    <thead className="bg-gray-50">
+                                        <tr className="text-left text-xs font-semibold uppercase text-gray-500">
                                             <th className="px-3 py-2">{t('transfer_product')}</th>
                                             <th className="px-3 py-2">{t('transfer_quantity')}</th>
                                         </tr>
@@ -180,7 +199,7 @@ export default function TransferHistoryView({ onCreateNew }: { onCreateNew: () =
                                     </tbody>
                                 </table>
                             </div>
-                        </>
+                        </div>
                     )}
                 </div>
             </div>

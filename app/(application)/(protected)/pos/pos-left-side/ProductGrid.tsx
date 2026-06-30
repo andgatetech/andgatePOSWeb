@@ -10,7 +10,7 @@ interface ProductGridProps {
     isMobileView: boolean;
     onAddToCart: (product: Product) => void;
     onImageShow: (product: Product) => void;
-    mode?: 'pos' | 'stock' | 'label' | 'orderEdit' | 'orderReturn' | 'purchase' | 'transfer';
+    mode?: 'pos' | 'stock' | 'label' | 'orderEdit' | 'orderReturn' | 'purchase';
     emptyTitle?: string;
     emptyDescription?: string;
 }
