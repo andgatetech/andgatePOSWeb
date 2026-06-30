@@ -74,8 +74,15 @@ export default function CreateTransferView({ onCreated }: { onCreated: () => voi
 
     const productOptions = useMemo<ProductOption[]>(() => {
         if (!debouncedSearch) return [];
-        const raw = productsData?.data?.data || productsData?.data || [];
-        if (!Array.isArray(raw)) return [];
+        const responseData = productsData?.data;
+        const raw = Array.isArray(responseData)
+            ? responseData
+            : Array.isArray(responseData?.items)
+                ? responseData.items
+                : Array.isArray(responseData?.data)
+                    ? responseData.data
+                    : [];
+
         return raw.flatMap((product: any) => {
             const stocks = Array.isArray(product.stocks) ? product.stocks : [];
             return stocks
@@ -91,7 +98,7 @@ export default function CreateTransferView({ onCreated }: { onCreated: () => voi
                         available_quantity: parseFloat(stock.quantity || '0') || 0,
                     };
                 })
-                .filter((opt: ProductOption) => opt.product_stock_id > 0);
+                .filter((opt: ProductOption) => opt.product_stock_id > 0 && opt.available_quantity > 0);
         });
     }, [productsData, debouncedSearch, t]);
 
