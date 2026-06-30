@@ -50,7 +50,7 @@ import Link from 'next/link';
 
 import { convertNumberByLanguage } from '@/components/custom/convertNumberByLanguage';
 import InstallAppButton from '@/components/custom/InstallAppButton';
-import { getTranslation } from '@/i18n';
+import { useTranslation } from '@/components/i18n/TranslationProvider';
 import { highIntentPages } from '@/lib/high-intent-pages';
 import { landingPages } from '@/lib/landing-pages';
 import { landingCopyBn } from '@/components/seo/LandingSeoPageView';
@@ -104,8 +104,9 @@ const BangladeshMap = dynamic(
 );
 
 export default function HomePageClient() {
-    const { t, data, i18n } = getTranslation();
+    const { t, data, i18n } = useTranslation();
     const isBn = i18n.language === 'bn';
+    const localizeNumber = useCallback((value: string | number) => convertNumberByLanguage(value, i18n.language), [i18n.language]);
 
     const videoRef = useRef<HTMLIFrameElement>(null);
     const [isPlaying, setIsPlaying] = useState(true);
@@ -160,7 +161,7 @@ export default function HomePageClient() {
     }, [isDemoModalOpen]);
 
     const stats = [
-        { number: `${convertNumberByLanguage(String(businessCount))}+`, label: t('stats_businesses'), icon: <Users className="h-5 w-5" /> },
+        { number: `${localizeNumber(String(businessCount))}+`, label: t('stats_businesses'), icon: <Users className="h-5 w-5" /> },
         { number: '৳1M+', label: t('stats_order'), icon: <TrendingUp className="h-5 w-5" /> },
         { number: '99.9%', label: t('stats_uptime'), icon: <Shield className="h-5 w-5" /> },
         { number: '24/7', label: t('stats_support'), icon: <Clock className="h-5 w-5" /> },
@@ -266,10 +267,10 @@ export default function HomePageClient() {
     ];
 
     const quickStartSteps = [
-        { step: convertNumberByLanguage(1, i18n.language).padStart(2, isBn ? '০' : '0'), title: t('quick_step_1'), description: t('quick_step_1_desc'), icon: <Target className="h-6 w-6 text-white" />, gradient: 'from-[#046ca9] to-[#034d79]' },
-        { step: convertNumberByLanguage(2, i18n.language).padStart(2, isBn ? '০' : '0'), title: t('quick_step_2'), description: t('quick_step_2_desc'), icon: <Settings className="h-6 w-6 text-white" />, gradient: 'from-[#046ca9] to-[#0586cb]' },
-        { step: convertNumberByLanguage(3, i18n.language).padStart(2, isBn ? '০' : '0'), title: t('quick_step_3'), description: t('quick_step_3_desc'), icon: <Package className="h-6 w-6 text-white" />, gradient: 'from-[#035887] to-[#046ca9]' },
-        { step: convertNumberByLanguage(4, i18n.language).padStart(2, isBn ? '০' : '0'), title: t('quick_step_4'), description: t('quick_step_4_desc'), icon: <ShoppingCart className="h-6 w-6 text-white" />, gradient: 'from-[#e79237] to-[#c47920]' },
+        { step: localizeNumber(1).padStart(2, isBn ? '০' : '0'), title: t('quick_step_1'), description: t('quick_step_1_desc'), icon: <Target className="h-6 w-6 text-white" />, gradient: 'from-[#046ca9] to-[#034d79]' },
+        { step: localizeNumber(2).padStart(2, isBn ? '০' : '0'), title: t('quick_step_2'), description: t('quick_step_2_desc'), icon: <Settings className="h-6 w-6 text-white" />, gradient: 'from-[#046ca9] to-[#0586cb]' },
+        { step: localizeNumber(3).padStart(2, isBn ? '০' : '0'), title: t('quick_step_3'), description: t('quick_step_3_desc'), icon: <Package className="h-6 w-6 text-white" />, gradient: 'from-[#035887] to-[#046ca9]' },
+        { step: localizeNumber(4).padStart(2, isBn ? '০' : '0'), title: t('quick_step_4'), description: t('quick_step_4_desc'), icon: <ShoppingCart className="h-6 w-6 text-white" />, gradient: 'from-[#e79237] to-[#c47920]' },
     ];
 
     const businessTypes = [
@@ -365,11 +366,11 @@ export default function HomePageClient() {
                                         <div className="mb-4 flex items-center justify-between gap-4">
                                             <div>
                                                 <p className="text-xs font-bold uppercase tracking-wide text-gray-400">{t('dashboard_today_sales')}</p>
-                                                <p className="mt-1 text-3xl font-black text-gray-950">৳{convertNumberByLanguage('48,250')}</p>
+                                                <p className="mt-1 text-3xl font-black text-gray-950">৳{localizeNumber('48,250')}</p>
                                             </div>
                                             <div className="rounded-xl bg-[#046ca9]/10 px-3 py-2 text-right">
                                                 <p className="text-xs font-bold text-[#046ca9]">{t('hero_floating_orders_label')}</p>
-                                                <p className="text-lg font-black text-[#034d79]">{convertNumberByLanguage('128')}</p>
+                                                <p className="text-lg font-black text-[#034d79]">{localizeNumber('128')}</p>
                                             </div>
                                         </div>
                                         <div className="grid grid-cols-3 gap-2">
@@ -380,7 +381,7 @@ export default function HomePageClient() {
                                             ].map((item) => (
                                                 <div key={item.label} className="rounded-xl bg-gray-50 px-3 py-2">
                                                     <p className="text-[11px] font-bold text-gray-400">{item.label}</p>
-                                                    <p className="text-sm font-black text-gray-900">৳{convertNumberByLanguage(item.value)}</p>
+                                                    <p className="text-sm font-black text-gray-900">৳{localizeNumber(item.value)}</p>
                                                 </div>
                                             ))}
                                         </div>
@@ -390,7 +391,7 @@ export default function HomePageClient() {
                                         <div className="mb-3 flex items-center justify-between">
                                             <p className="text-sm font-black text-gray-950">{t('quick_step_4')}</p>
                                             <span className="rounded-full bg-[#e79237]/10 px-2.5 py-1 text-xs font-bold text-[#c47920]">
-                                                {convertNumberByLanguage('3')} {isBn ? 'টি পণ্য' : 'items'}
+                                                {localizeNumber('3')} {isBn ? 'টি পণ্য' : 'items'}
                                             </span>
                                         </div>
                                         <div className="space-y-2">
@@ -402,15 +403,15 @@ export default function HomePageClient() {
                                                 <div key={item.name} className="flex items-center justify-between gap-3 rounded-xl bg-gray-50 px-3 py-2">
                                                     <div className="min-w-0">
                                                         <p className="truncate text-sm font-bold text-gray-900">{item.name}</p>
-                                                        <p className="text-xs text-gray-500">{isBn ? 'পরিমাণ' : 'Qty'} {convertNumberByLanguage(item.qty)}</p>
+                                                        <p className="text-xs text-gray-500">{isBn ? 'পরিমাণ' : 'Qty'} {localizeNumber(item.qty)}</p>
                                                     </div>
-                                                    <p className="flex-shrink-0 text-sm font-black text-gray-950">৳{convertNumberByLanguage(item.price)}</p>
+                                                    <p className="flex-shrink-0 text-sm font-black text-gray-950">৳{localizeNumber(item.price)}</p>
                                                 </div>
                                             ))}
                                         </div>
                                         <div className="mt-3 flex items-center justify-between rounded-xl bg-[#034d79] px-4 py-3 text-white">
                                             <span className="text-sm font-bold">{t('lbl_total')}</span>
-                                            <span className="text-xl font-black">৳{convertNumberByLanguage('2,830')}</span>
+                                            <span className="text-xl font-black">৳{localizeNumber('2,830')}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -420,7 +421,7 @@ export default function HomePageClient() {
                                         <div className="mb-4 flex items-center justify-between">
                                             <div>
                                                 <p className="text-sm font-black text-gray-950">{t('feature_inventory')}</p>
-                                                <p className="text-xs text-gray-500">{t('dashboard_low_stock')}: {convertNumberByLanguage('12')}</p>
+                                                <p className="text-xs text-gray-500">{t('dashboard_low_stock')}: {localizeNumber('12')}</p>
                                             </div>
                                             <Archive className="h-5 w-5 text-red-500" />
                                         </div>
@@ -433,7 +434,7 @@ export default function HomePageClient() {
                                                 <div key={item.label}>
                                                     <div className="mb-1 flex justify-between text-xs font-semibold text-gray-500">
                                                         <span>{item.label}</span>
-                                                        <span>{convertNumberByLanguage(item.value)}%</span>
+                                                        <span>{localizeNumber(item.value)}%</span>
                                                     </div>
                                                     <div className="h-2 rounded-full bg-gray-100">
                                                         <div className={`h-2 rounded-full bg-gradient-to-r from-[#046ca9] to-[#e79237] ${item.width}`} />
@@ -447,12 +448,12 @@ export default function HomePageClient() {
                                         <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-3">
                                             <Users className="mb-2 h-4 w-4 text-emerald-700" />
                                             <p className="text-xs font-bold text-emerald-800">{t('lbl_customer')}</p>
-                                            <p className="text-xl font-black text-emerald-900">{convertNumberByLanguage('342')}</p>
+                                            <p className="text-xl font-black text-emerald-900">{localizeNumber('342')}</p>
                                         </div>
                                         <div className="rounded-2xl border border-[#e79237]/20 bg-[#fff7ed] p-3">
                                             <Barcode className="mb-2 h-4 w-4 text-[#c47920]" />
                                             <p className="text-xs font-bold text-[#9a5b19]">{isBn ? 'বারকোড' : 'Barcode'}</p>
-                                            <p className="text-xl font-black text-[#7a4511]">{convertNumberByLanguage('1.2')}s</p>
+                                            <p className="text-xl font-black text-[#7a4511]">{localizeNumber('1.2')}s</p>
                                         </div>
                                     </div>
                                 </div>
@@ -572,7 +573,7 @@ export default function HomePageClient() {
                                     {stat.icon}
                                 </div>
                                 <div>
-                                    <div className="text-2xl font-black text-white">{convertNumberByLanguage(stat.number)}</div>
+                                    <div className="text-2xl font-black text-white">{localizeNumber(stat.number)}</div>
                                     <div className="text-sm text-white/70">{stat.label}</div>
                                 </div>
                             </div>
@@ -588,7 +589,7 @@ export default function HomePageClient() {
                         <span className="mb-4 inline-block rounded-full border border-[#046ca9]/20 bg-[#046ca9]/5 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[#046ca9]">
                             {t('why_us_badge')}
                         </span>
-                        <h2 className="mb-3 text-3xl font-black text-gray-900 sm:text-4xl">{t('why_us_heading').replace('{count}', convertNumberByLanguage(String(businessCount)))}</h2>
+                        <h2 className="mb-3 text-3xl font-black text-gray-900 sm:text-4xl">{t('why_us_heading').replace('{count}', localizeNumber(String(businessCount)))}</h2>
                         <p className="mx-auto max-w-2xl text-base text-gray-500">{t('why_us_subtitle')}</p>
                     </div>
 
@@ -1074,9 +1075,9 @@ export default function HomePageClient() {
                         ))}
                     </div>
                     <h2 className="mb-5 text-4xl font-black leading-tight text-white sm:text-5xl md:text-6xl">
-                        {t('cta_title').replace('{count}', convertNumberByLanguage(String(businessCount)))}
+                        {t('cta_title').replace('{count}', localizeNumber(String(businessCount)))}
                     </h2>
-                    <p className="mb-10 text-lg leading-relaxed text-white/75">{t('cta_desc').replace('{count}', convertNumberByLanguage(String(businessCount)))}</p>
+                    <p className="mb-10 text-lg leading-relaxed text-white/75">{t('cta_desc').replace('{count}', localizeNumber(String(businessCount)))}</p>
                     <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
                         <Link
                             href="/register"

@@ -2,7 +2,7 @@
 
 import { convertNumberByLanguage } from '@/components/custom/convertNumberByLanguage';
 import MainLayout from '@/components/layouts/MainLayout';
-import { getTranslation } from '@/i18n';
+import { useTranslation } from '@/components/i18n/TranslationProvider';
 import { useGetPublicStatsQuery } from '@/store/features/publicStats/publicStatsApi';
 import { BarChart3, Package, Shield, Store, Zap } from 'lucide-react';
 import Image from 'next/image';
@@ -10,7 +10,8 @@ import Link from 'next/link';
 import ComponentsAuthRegisterForm from './components-auth-register-form';
 
 const RegisterPage = () => {
-    const { t } = getTranslation();
+    const { t, i18n } = useTranslation();
+
     const { data: statsData } = useGetPublicStatsQuery();
     // Round down to the nearest 10 for a clean "X+" display; fall back to a safe floor while loading.
     const activeStores = statsData?.data?.active_stores;
@@ -26,12 +27,13 @@ const RegisterPage = () => {
     return (
         <MainLayout>
             <div className="mt-16 flex min-h-[calc(100vh-64px)]">
-
                 {/* ── Left panel ── */}
                 <div className="relative hidden overflow-hidden lg:flex lg:w-5/12 xl:w-[45%]">
                     <div className="absolute inset-0 bg-gradient-to-br from-[#046ca9] via-[#035887] to-[#034d79]" />
-                    <div className="pointer-events-none absolute inset-0 opacity-[0.07]"
-                        style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '22px 22px' }} />
+                    <div
+                        className="pointer-events-none absolute inset-0 opacity-[0.07]"
+                        style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '22px 22px' }}
+                    />
                     <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-24 -right-12 h-80 w-80 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute left-1/2 top-1/2 h-48 w-48 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/5 blur-2xl" />
@@ -40,23 +42,19 @@ const RegisterPage = () => {
                         {/* Badge */}
                         <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 text-xs font-semibold text-white/90 backdrop-blur-sm">
                             <Zap className="h-3.5 w-3.5 text-yellow-300" />
-                            {t('register_panel_badge').replace('{count}', convertNumberByLanguage(String(businessCount)))}
+                            {t('register_panel_badge').replace('{count}', convertNumberByLanguage(String(businessCount), i18n.language))}
                         </div>
 
                         {/* Centre copy */}
                         <div>
-                            <h2 className="mb-4 text-3xl font-black leading-tight text-white xl:text-4xl">
-                                {t('register_panel_headline')}
-                            </h2>
-                            <p className="mb-7 max-w-md text-sm leading-relaxed text-white/70">
-                                {t('register_panel_sub')}
-                            </p>
+                            <h2 className="mb-4 text-3xl font-black leading-tight text-white xl:text-4xl">{t('register_panel_headline')}</h2>
+                            <p className="mb-7 max-w-md text-sm leading-relaxed text-white/70">{t('register_panel_sub')}</p>
 
                             <div className="relative mb-10">
                                 <div className="overflow-hidden rounded-2xl border border-white/15 bg-white/10 p-2 shadow-2xl shadow-black/20 backdrop-blur-sm">
                                     <Image
                                         src="/assets/LandingImage/updated/pos.webp"
-                                        alt="AndgatePOS point of sale preview"
+                                        alt={t('register_pos_preview_alt')}
                                         width={1280}
                                         height={800}
                                         sizes="(min-width: 1280px) 560px, 42vw"
@@ -67,7 +65,7 @@ const RegisterPage = () => {
                                 <div className="absolute -bottom-8 right-5 w-[27%] min-w-[112px] overflow-hidden rounded-2xl border border-white/25 bg-white/15 p-1.5 shadow-xl shadow-black/25 backdrop-blur-sm">
                                     <Image
                                         src="/assets/LandingImage/updated/mobile-pos.webp"
-                                        alt="AndgatePOS mobile store preview"
+                                        alt={t('register_mobile_preview_alt')}
                                         width={520}
                                         height={933}
                                         sizes="150px"
@@ -80,9 +78,7 @@ const RegisterPage = () => {
                             <div className="grid grid-cols-2 gap-3">
                                 {perks.map((p, i) => (
                                     <div key={i} className="rounded-xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm transition-all duration-200 hover:bg-white/15">
-                                        <span className="mb-3 inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white/20 text-white">
-                                            {p.icon}
-                                        </span>
+                                        <span className="mb-3 inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white/20 text-white">{p.icon}</span>
                                         <p className="text-xs font-bold text-white">{p.title}</p>
                                         <p className="mt-0.5 text-xs leading-relaxed text-white/60">{p.desc}</p>
                                     </div>
@@ -94,13 +90,13 @@ const RegisterPage = () => {
                         <div className="flex items-center gap-3 rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm">
                             <div className="flex -space-x-2">
                                 {['from-[#046ca9] to-[#034d79]', 'from-[#035887] to-[#046ca9]', 'from-[#034d79] to-[#035887]'].map((g, i) => (
-                                    <div key={i} className={`flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br ${g} ring-2 ring-white/30 text-[11px] font-black text-white`}>
+                                    <div key={i} className={`flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br ${g} text-[11px] font-black text-white ring-2 ring-white/30`}>
                                         {String.fromCharCode(65 + i)}
                                     </div>
                                 ))}
                             </div>
                             <p className="text-xs text-white/70">
-                                <span className="font-bold text-white">{convertNumberByLanguage(String(businessCount))}+</span>{' '}{t('register_social_proof')}
+                                <span className="font-bold text-white">{convertNumberByLanguage(String(businessCount), i18n.language)}+</span> {t('register_social_proof')}
                             </p>
                         </div>
                     </div>
@@ -145,11 +141,11 @@ const RegisterPage = () => {
                             © {new Date().getFullYear()}{' '}
                             <a href="https://andgatetech.net" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-gray-500">
                                 Andgate Technologies
-                            </a>. {t('login-page.copyright').split('.').pop()?.trim() || 'All rights reserved.'}
+                            </a>
+                            . {t('login-page.copyright').split('.').pop()?.trim() || 'All rights reserved.'}
                         </p>
                     </div>
                 </div>
-
             </div>
         </MainLayout>
     );

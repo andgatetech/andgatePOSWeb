@@ -1,6 +1,6 @@
 'use client';
 import GlobalDigitLocalizer from '@/components/i18n/GlobalDigitLocalizer';
-import { getTranslation } from '@/i18n';
+
 import type { RootState } from '@/store';
 import { toggleAnimation, toggleLayout, toggleMenu, toggleNavbar, toggleRTL, toggleSemidark, toggleTheme } from '@/store/themeConfigSlice';
 import { PropsWithChildren, useEffect } from 'react';
@@ -17,7 +17,6 @@ const safeLocalStorageGet = (key: string): string | null => {
 function App({ children }: PropsWithChildren) {
     const themeConfig = useSelector((state: RootState) => state.themeConfig);
     const dispatch = useDispatch();
-    const { initLocale } = getTranslation();
     useEffect(() => {
         dispatch(toggleTheme(safeLocalStorageGet('theme') || themeConfig.theme));
         dispatch(toggleMenu(safeLocalStorageGet('menu') || themeConfig.menu));
@@ -26,7 +25,8 @@ function App({ children }: PropsWithChildren) {
         dispatch(toggleAnimation(safeLocalStorageGet('animation') || themeConfig.animation));
         dispatch(toggleNavbar(safeLocalStorageGet('navbar') || themeConfig.navbar));
         dispatch(toggleSemidark(safeLocalStorageGet('semidark') || themeConfig.semidark));
-        initLocale(themeConfig.locale);
+        // Language is owned by TranslationProvider, which reads the cookie server-side.
+        // Only keep theme-related localStorage sync here.
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 

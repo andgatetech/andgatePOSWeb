@@ -2,6 +2,7 @@
 
 import App from '@/App';
 import Loading from '@/app/loading';
+import { TranslationProvider } from '@/components/i18n/TranslationProvider';
 
 import { clearAuthCookies, clearAuthLocalStorage, isTokenExpired } from '@/lib/auth-session';
 import { persistor, store } from '@/store';
@@ -12,6 +13,7 @@ import type { RootState } from '@/store';
 
 interface ReduxProviderProps {
     children: ReactNode;
+    initialLang?: string;
 }
 
 const PERSIST_BOOT_TIMEOUT_MS = 2000;
@@ -62,16 +64,18 @@ function AuthExpiryWatcher() {
     return null;
 }
 
-export default function ReduxProvider({ children }: ReduxProviderProps) {
+export default function ReduxProvider({ children, initialLang = 'bn' }: ReduxProviderProps) {
     return (
-        <Provider store={store}>
-            <PersistBootstrapGate>
-                <AuthExpiryWatcher />
-                <Suspense fallback={<Loading />}>
-                    <App>{children}</App>
-                </Suspense>
-            </PersistBootstrapGate>
-        </Provider>
+        <TranslationProvider initialLang={initialLang}>
+            <Provider store={store}>
+                <PersistBootstrapGate>
+                    <AuthExpiryWatcher />
+                    <Suspense fallback={<Loading />}>
+                        <App>{children}</App>
+                    </Suspense>
+                </PersistBootstrapGate>
+            </Provider>
+        </TranslationProvider>
     );
 }
 

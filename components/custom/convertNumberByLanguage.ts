@@ -34,7 +34,7 @@ export function convertNumberByLanguage(input: string | number, language?: strin
             ?.find((x) => x.startsWith('i18nextLng='))
             ?.split('=')?.[1]
             : undefined) ||
-        'en';
+        'bn'; // app default language; avoids SSR/client mismatch when caller does not pass language
 
     if (lang === 'bn') {
         // English → Bangla

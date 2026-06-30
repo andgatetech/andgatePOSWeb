@@ -39,6 +39,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
 
     return (
         <div
+            data-testid="pos-product-grid"
             className="grid gap-2 sm:gap-3"
             style={{
                 gridTemplateColumns: isMobileView

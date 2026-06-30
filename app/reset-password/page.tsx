@@ -2,6 +2,7 @@
 
 import IconLockDots from '@/components/icon/icon-lock-dots';
 import MainLayout from '@/components/layouts/MainLayout';
+import { getTranslation } from '@/i18n';
 import { showErrorDialog, showMessage } from '@/lib/toast';
 import { useResetPasswordMutation } from '@/store/features/auth/authApi';
 import { Eye, EyeOff } from 'lucide-react';
@@ -22,31 +23,32 @@ const ResetPasswordForm = () => {
     const [showPasswordConfirmation, setShowPasswordConfirmation] = useState(false);
 
     const [resetPassword, { isLoading }] = useResetPasswordMutation();
+    const { t } = getTranslation();
 
     useEffect(() => {
         const tokenParam = searchParams.get('token');
         const emailParam = searchParams.get('email');
 
         if (!tokenParam || !emailParam) {
-            showErrorDialog('Invalid Link', 'This password reset link is invalid or has expired.');
+            showErrorDialog(t('reset_password_invalid_link_title'), t('reset_password_invalid_link_desc'));
             router.push('/forgot-password');
             return;
         }
 
         setToken(tokenParam);
         setEmail(emailParam);
-    }, [searchParams, router]);
+    }, [searchParams, router, t]);
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
 
         if (password !== passwordConfirmation) {
-            showMessage('Passwords do not match', 'error');
+            showMessage(t('reset_password_mismatch'), 'error');
             return;
         }
 
         if (password.length < 8) {
-            showMessage('Password must be at least 8 characters long', 'error');
+            showMessage(t('reset_password_min_length'), 'error');
             return;
         }
 
@@ -58,11 +60,11 @@ const ResetPasswordForm = () => {
                 password_confirmation: passwordConfirmation,
             }).unwrap();
 
-            showMessage('Password reset successful! Please login with your new password.', 'success');
+            showMessage(t('reset_password_success'), 'success');
             router.push('/login');
         } catch (error: any) {
-            const message = error?.data?.message || 'Failed to reset password. The link may be expired.';
-            showErrorDialog('Reset Failed', message);
+            const message = error?.data?.message || t('reset_password_failed_default');
+            showErrorDialog(t('reset_password_failed_title'), message);
         }
     };
 
@@ -105,13 +107,13 @@ const ResetPasswordForm = () => {
                         <div className="relative flex w-full flex-col items-center justify-center gap-6 px-4 pb-16 pt-6 sm:px-6 lg:max-w-[667px]">
                             <div className="w-full max-w-[440px] lg:mt-16">
                                 <div className="mb-10">
-                                    <h1 className="text-3xl font-extrabold uppercase !leading-snug text-primary md:text-4xl">Reset Password</h1>
-                                    <p className="text-base font-bold leading-normal text-white-dark">Enter your new password</p>
+                                    <h1 className="text-3xl font-extrabold uppercase !leading-snug text-primary md:text-4xl">{t('reset_password_title')}</h1>
+                                    <p className="text-base font-bold leading-normal text-white-dark">{t('reset_password_subtitle')}</p>
                                 </div>
 
                                 <form className="space-y-5 dark:text-white" onSubmit={handleSubmit}>
                                     <div>
-                                        <label htmlFor="email">Email Address</label>
+                                        <label htmlFor="email">{t('reset_password_email_label')}</label>
                                         <div className="relative text-white-dark">
                                             <input
                                                 id="email"
@@ -128,14 +130,14 @@ const ResetPasswordForm = () => {
                                     </div>
 
                                     <div>
-                                        <label htmlFor="password">New Password</label>
+                                        <label htmlFor="password">{t('reset_password_new_password_label')}</label>
                                         <div className="relative text-white-dark">
                                             <input
                                                 id="password"
                                                 value={password}
                                                 onChange={(e) => setPassword(e.target.value)}
                                                 type={showPassword ? 'text' : 'password'}
-                                                placeholder="Enter new password"
+                                                placeholder={t('reset_password_new_password_placeholder')}
                                                 className="form-input pe-10 ps-10 placeholder:text-white-dark"
                                                 required
                                                 minLength={8}
@@ -148,16 +150,16 @@ const ResetPasswordForm = () => {
                                                 type="button"
                                                 onClick={togglePasswordVisibility}
                                                 className="absolute end-4 top-1/2 -translate-y-1/2 text-white-dark transition-colors duration-200 hover:text-primary focus:outline-none"
-                                                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                                                aria-label={showPassword ? t('reset_password_hide_password') : t('reset_password_show_password')}
                                             >
                                                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                             </button>
                                         </div>
-                                        <small className="text-xs text-white-dark">Must be at least 8 characters</small>
+                                        <small className="text-xs text-white-dark">{t('reset_password_min_hint')}</small>
                                     </div>
 
                                     <div>
-                                        <label htmlFor="password_confirmation">Confirm New Password</label>
+                                        <label htmlFor="password_confirmation">{t('reset_password_confirm_password_label')}</label>
                                         <div className="relative text-white-dark">
                                             <input
                                                 id="password_confirmation"
@@ -165,7 +167,7 @@ const ResetPasswordForm = () => {
                                                 value={passwordConfirmation}
                                                 onChange={(e) => setPasswordConfirmation(e.target.value)}
                                                 type={showPasswordConfirmation ? 'text' : 'password'}
-                                                placeholder="Confirm new password"
+                                                placeholder={t('reset_password_confirm_password_placeholder')}
                                                 className="form-input pe-10 ps-10 placeholder:text-white-dark"
                                                 required
                                                 autoComplete="new-password"
@@ -177,30 +179,28 @@ const ResetPasswordForm = () => {
                                                 type="button"
                                                 onClick={togglePasswordConfirmationVisibility}
                                                 className="absolute end-4 top-1/2 -translate-y-1/2 text-white-dark transition-colors duration-200 hover:text-primary focus:outline-none"
-                                                aria-label={showPasswordConfirmation ? 'Hide password' : 'Show password'}
+                                                aria-label={showPasswordConfirmation ? t('reset_password_hide_password') : t('reset_password_show_password')}
                                             >
                                                 {showPasswordConfirmation ? <EyeOff size={18} /> : <Eye size={18} />}
                                             </button>
                                         </div>
                                     </div>
 
-                                    <button
-                                        type="submit"
-                                        className="btn btn-gradient !mt-6 w-full border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]"
-                                        disabled={isLoading}
-                                    >
-                                        {isLoading ? 'Resetting Password...' : 'Reset Password'}
+                                    <button type="submit" className="btn btn-gradient !mt-6 w-full border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]" disabled={isLoading}>
+                                        {isLoading ? t('reset_password_submit_loading') : t('reset_password_submit')}
                                     </button>
                                 </form>
 
                                 <div className="mt-6 text-center dark:text-white">
-                                    Remember your password?&nbsp;
+                                    {t('reset_password_remember')}&nbsp;
                                     <Link href="/login" className="uppercase text-primary underline transition hover:text-black dark:hover:text-white">
-                                        Back to Login
+                                        {t('reset_password_back_to_login')}
                                     </Link>
                                 </div>
                             </div>
-                            <p className="absolute bottom-6 w-full text-center dark:text-white">© {new Date().getFullYear()} Andgate Technologies. All rights reserved.</p>
+                            <p className="absolute bottom-6 w-full text-center dark:text-white">
+                                © {new Date().getFullYear()} Andgate Technologies. {t('footer_all_rights_reserved')}
+                            </p>
                         </div>
                     </div>
                 </div>

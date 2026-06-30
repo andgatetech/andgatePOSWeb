@@ -11,6 +11,8 @@
         "video:voices:google": "node scripts/list-google-tts-voices.mjs",
         "start": "next start",
         "lint": "eslint .",
+        "test:e2e": "playwright test",
+        "test:e2e:ui": "playwright test --ui",
         "postinstall": "patch-package"
     },
     "dependencies": {

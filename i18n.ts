@@ -73,7 +73,7 @@ const getNestedValue = (obj: any, path: string): any => {
     return current;
 };
 
-const createTranslation = (lang: string) => {
+export const createTranslation = (lang: string) => {
     const data: any = langObj[lang] || langObj[DEFAULT_LANG];
     // Translation function that supports both flat and nested keys
     const t = (key: string, options?: Record<string, string | number | null | undefined>): string => {

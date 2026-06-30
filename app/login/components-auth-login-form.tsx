@@ -1,6 +1,6 @@
 'use client';
 
-import { getTranslation } from '@/i18n';
+import { useTranslation } from '@/components/i18n/TranslationProvider';
 import { useLoginMutation } from '@/store/features/auth/authApi';
 import { Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
@@ -47,7 +47,7 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
     const router = useRouter();
     const searchParams = useSearchParams();
     const dispatch = useDispatch();
-    const { t } = getTranslation();
+    const { t } = useTranslation();
 
     const [loginApi, { isLoading }] = useLoginMutation();
 
@@ -63,8 +63,7 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
         const savedPreference = safeLocalStorageGet(REMEMBER_LOGIN_KEY);
         if (savedPreference !== null) return savedPreference === 'true';
 
-        return /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent) ||
-            window.matchMedia('(display-mode: standalone)').matches;
+        return /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent) || window.matchMedia('(display-mode: standalone)').matches;
     });
 
     useImperativeHandle(ref, () => ({
@@ -115,12 +114,12 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
             const tokenExpiresAt = getLoginTokenExpiresAt(payload);
 
             if (!user || !token) {
-                toast.error('Login response was incomplete. Please try again.');
+                toast.error(t('login_incomplete_response'));
                 return;
             }
 
             if (isTokenExpired(tokenExpiresAt)) {
-                toast.error('Login token expired. Please login again.');
+                toast.error(t('login_token_expired'));
                 return;
             }
             const validTokenExpiresAt = tokenExpiresAt as string;
@@ -156,10 +155,8 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
 
             router.replace(safeRedirectPath);
         } catch (error: any) {
-            console.error('Login failed:', error);
-
             // Show only the top-level message
-            const message = error?.data?.errors || 'Login failed. Please try again.';
+            const message = error?.data?.errors || t('login_failed');
             toast.error(message);
         }
     };
@@ -214,13 +211,7 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
 
             <div className="flex items-center justify-between gap-3">
                 <label htmlFor="remember-me" className="flex cursor-pointer items-center gap-2 text-sm text-white-dark">
-                    <input
-                        id="remember-me"
-                        type="checkbox"
-                        checked={rememberMe}
-                        onChange={(e) => setRememberMe(e.target.checked)}
-                        className="form-checkbox rounded border-white-dark text-primary"
-                    />
+                    <input id="remember-me" type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="form-checkbox rounded border-white-dark text-primary" />
                     <span>{t('login-page.form.remember_me')}</span>
                 </label>
                 <Link href="/forgot-password" className="text-sm text-primary underline transition hover:text-black dark:hover:text-white">

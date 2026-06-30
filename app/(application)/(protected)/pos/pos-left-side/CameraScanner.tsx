@@ -16,15 +16,7 @@ interface CameraScannerProps {
     subHelperText?: string;
 }
 
-const CameraScanner: React.FC<CameraScannerProps> = ({
-    isOpen,
-    onClose,
-    onScan,
-    autoClose = true,
-    autoCloseDelay = 500,
-    title,
-    helperText,
-}) => {
+const CameraScanner: React.FC<CameraScannerProps> = ({ isOpen, onClose, onScan, autoClose = true, autoCloseDelay = 500, title, helperText }) => {
     const { t } = getTranslation();
     const reactId = useId();
     const readerId = `qr-reader-${reactId.replace(/:/g, '')}`;
@@ -44,6 +36,7 @@ const CameraScanner: React.FC<CameraScannerProps> = ({
 
     const [scanCount, setScanCount] = useState(0);
     const [scanSuccess, setScanSuccess] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const stopScanner = useCallback(async () => {
         const scanner = scannerRef.current;
@@ -57,9 +50,15 @@ const CameraScanner: React.FC<CameraScannerProps> = ({
         try {
             const state = scanner.getState();
             if (state === 2 || state === 3) await scanner.stop();
-        } catch { /* already stopped */ }
+        } catch {
+            /* already stopped */
+        }
 
-        try { scanner.clear(); } catch { /* already cleared */ }
+        try {
+            scanner.clear();
+        } catch {
+            /* already cleared */
+        }
 
         scannerRef.current = null;
         isStartingRef.current = false;
@@ -102,7 +101,11 @@ const CameraScanner: React.FC<CameraScannerProps> = ({
                 const html5QrCode = new Html5Qrcode(readerId, { formatsToSupport, verbose: false });
 
                 if (cancelled) {
-                    try { html5QrCode.clear(); } catch { /* ignore */ }
+                    try {
+                        html5QrCode.clear();
+                    } catch {
+                        /* ignore */
+                    }
                     isStartingRef.current = false;
                     return;
                 }
@@ -138,7 +141,9 @@ const CameraScanner: React.FC<CameraScannerProps> = ({
                             setTimeout(() => onCloseRef.current(), autoCloseDelay);
                         }
                     },
-                    () => { /* continuous decode attempts — silent */ }
+                    () => {
+                        /* continuous decode attempts — silent */
+                    }
                 );
 
                 if (cancelled) {
@@ -153,10 +158,9 @@ const CameraScanner: React.FC<CameraScannerProps> = ({
                 else if (err.name === 'NotFoundError') msg = t('pos_camera_not_found');
                 else if (err.name === 'NotReadableError') msg = t('pos_camera_in_use');
 
-                alert(`📷 ${msg}\n\n${t('pos_camera_alert_try')}:\n• ${t('pos_camera_help_permission')}\n• ${t('pos_camera_help_close_apps')}\n• ${t('pos_camera_help_refresh')}`);
+                setError(`${msg}\n\n${t('pos_camera_alert_try')}:\n• ${t('pos_camera_help_permission')}\n• ${t('pos_camera_help_close_apps')}\n• ${t('pos_camera_help_refresh')}`);
                 scannerRef.current = null;
                 isStartingRef.current = false;
-                onCloseRef.current();
             }
         }, 300);
 
@@ -173,10 +177,20 @@ const CameraScanner: React.FC<CameraScannerProps> = ({
     return (
         <>
             <style jsx global>{`
-                #${readerId} { border: none !important; background: transparent !important; }
-                #${readerId}__dashboard_section { display: none !important; }
-                #${readerId} video { border-radius: 0 !important; width: 100% !important; }
-                #${readerId} img { display: none !important; }
+                #${readerId} {
+                    border: none !important;
+                    background: transparent !important;
+                }
+                #${readerId}__dashboard_section {
+                    display: none !important;
+                }
+                #${readerId} video {
+                    border-radius: 0 !important;
+                    width: 100% !important;
+                }
+                #${readerId} img {
+                    display: none !important;
+                }
             `}</style>
 
             <div className="mb-3 overflow-hidden rounded-xl border border-gray-700 bg-gray-950 shadow-2xl">
@@ -186,32 +200,26 @@ const CameraScanner: React.FC<CameraScannerProps> = ({
                         <Camera className="h-4 w-4 text-primary" />
                         <span className="text-sm font-semibold text-white">{title || t('pos_camera_title')}</span>
                         <span className="flex h-2 w-2 animate-pulse rounded-full bg-green-400" />
-                        {scanCount > 0 && (
-                            <span className="rounded-full bg-primary px-2 py-0.5 text-xs font-bold text-white">
-                                {scanCount}
-                            </span>
-                        )}
+                        {scanCount > 0 && <span className="rounded-full bg-primary px-2 py-0.5 text-xs font-bold text-white">{scanCount}</span>}
                     </div>
-                    <button
-                        onClick={onClose}
-                        className="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-gray-700 hover:text-white"
-                    >
+                    <button onClick={onClose} className="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-gray-700 hover:text-white">
                         <X className="h-4 w-4" />
                     </button>
                 </div>
 
+                {/* Error banner */}
+                {error && (
+                    <div className="border-b border-red-900/30 bg-red-900/20 px-3 py-2.5">
+                        <p className="whitespace-pre-line text-xs leading-relaxed text-red-300">{error}</p>
+                    </div>
+                )}
+
                 {/* Camera feed with success flash */}
-                <div
-                    className={`relative bg-gray-950 transition-all duration-200 ${
-                        scanSuccess ? 'ring-4 ring-inset ring-green-400' : ''
-                    }`}
-                >
+                <div className={`relative bg-gray-950 transition-all duration-200 ${scanSuccess ? 'ring-4 ring-inset ring-green-400' : ''}`}>
                     <div id={readerId} style={{ border: 'none' }} />
 
                     {/* Success overlay flash */}
-                    {scanSuccess && (
-                        <div className="pointer-events-none absolute inset-0 animate-ping bg-green-400/20" />
-                    )}
+                    {scanSuccess && <div className="pointer-events-none absolute inset-0 animate-ping bg-green-400/20" />}
                 </div>
 
                 {/* Footer hint */}

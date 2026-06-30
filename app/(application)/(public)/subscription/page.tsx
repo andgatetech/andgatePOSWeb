@@ -2,8 +2,7 @@
 
 import SubscriptionError from '@/components/common/SubscriptionError';
 import { convertNumberByLanguage } from '@/components/custom/convertNumberByLanguage';
-
-import { getTranslation } from '@/i18n';
+import { useTranslation } from '@/components/i18n/TranslationProvider';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { RootState } from '@/store';
 import { useCreateLeadMutation } from '@/store/features/auth/authApi';
@@ -67,7 +66,7 @@ function PlanCard({
     billingCycle: 'monthly' | 'annually';
     onSelect: (plan: Plan) => void;
 }) {
-    const { t, i18n } = getTranslation();
+    const { t, i18n } = useTranslation();
     const lang = i18n.language as 'en' | 'bn';
     const colorKey = getPlanColor(index);
     const colors = colorClasses[colorKey];
@@ -181,7 +180,7 @@ function PlanCard({
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export default function SubscriptionPage() {
-    const { t, i18n } = getTranslation();
+    const { t, i18n } = useTranslation();
     const lang = i18n.language as 'en' | 'bn';
     const displayNumber = (value: string | number) => convertNumberByLanguage(value, lang);
     const displayPrice = (value: string | number) => displayNumber(formatPrice(value));

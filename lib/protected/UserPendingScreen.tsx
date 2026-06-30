@@ -1,6 +1,7 @@
 'use client';
 import ContactSupportCard from '@/lib/protected/ContactSupportCard';
 import { clearAuthCookies, clearAuthLocalStorage } from '@/lib/auth-session';
+import { getTranslation } from '@/i18n';
 import { RootState } from '@/store';
 import { useLogoutMutation } from '@/store/features/auth/authApi';
 import { AlertCircle, Clock, Shield } from 'lucide-react';
@@ -11,26 +12,27 @@ export default function UserPendingScreen() {
     const router = useRouter();
     const [logout] = useLogoutMutation();
     const user = useSelector((state: RootState) => state.auth?.user);
+    const { t } = getTranslation();
 
     const whatsappMessage = [
-        'Hello andgate Support,',
+        t('support_whatsapp_greeting'),
         '',
-        'My account is PENDING APPROVAL and I am waiting for activation.',
+        t('support_whatsapp_pending_body'),
         '',
-        `User ID   : ${user?.id ?? 'N/A'}`,
-        `Name      : ${user?.name ?? 'N/A'}`,
-        `Email     : ${user?.email ?? 'N/A'}`,
-        `Issue     : Account Pending Verification`,
+        `${t('support_whatsapp_user_id')}: ${user?.id ?? 'N/A'}`,
+        `${t('support_whatsapp_name')}: ${user?.name ?? 'N/A'}`,
+        `${t('support_whatsapp_email')}: ${user?.email ?? 'N/A'}`,
+        `${t('support_whatsapp_issue')}: ${t('support_whatsapp_issue_pending')}`,
         '',
-        'Please approve or update my account status.',
+        t('support_whatsapp_please_approve'),
     ].join('\n');
 
     const handleLogout = async () => {
         router.push('/login');
         try {
             await logout(null);
-        } catch (err) {
-            console.error('Logout API failed:', err);
+        } catch {
+            // Ignore API failures; local session cleanup is what matters.
         }
         clearAuthLocalStorage();
         try {
@@ -58,35 +60,33 @@ export default function UserPendingScreen() {
                             </div>
                             <div className="inline-flex items-center rounded-full bg-yellow-100 px-4 py-2 text-xs font-semibold text-yellow-800">
                                 <AlertCircle className="mr-2 h-4 w-4" />
-                                Pending Verification
+                                {t('status_pending_badge')}
                             </div>
                         </div>
 
                         {/* Middle: Info */}
                         <div className="lg:col-span-2">
-                            <h1 className="mb-3 text-2xl font-black text-gray-900 lg:text-3xl">Account Pending Approval</h1>
-                            <p className="mb-4 text-sm text-gray-600 lg:text-base">
-                                Your account has been created successfully, but it&apos;s currently pending for admin approval. Please wait while our team reviews your registration.
-                            </p>
+                            <h1 className="mb-3 text-2xl font-black text-gray-900 lg:text-3xl">{t('status_pending_title')}</h1>
+                            <p className="mb-4 text-sm text-gray-600 lg:text-base">{t('status_pending_desc')}</p>
 
                             {/* Info Box */}
                             <div className="mb-4 rounded-lg bg-blue-50 p-4">
                                 <div className="mb-2 flex items-center">
                                     <Shield className="mr-2 h-4 w-4 text-blue-600" />
-                                    <h3 className="text-sm font-semibold text-blue-900">What happens next?</h3>
+                                    <h3 className="text-sm font-semibold text-blue-900">{t('status_what_happens_next')}</h3>
                                 </div>
                                 <ul className="space-y-1 text-xs text-blue-800 lg:text-sm">
                                     <li className="flex items-start">
                                         <span className="mr-2">•</span>
-                                        <span>Review within 24-48 hours</span>
+                                        <span>{t('status_pending_tip_1')}</span>
                                     </li>
                                     <li className="flex items-start">
                                         <span className="mr-2">•</span>
-                                        <span>Email notification once approved</span>
+                                        <span>{t('status_pending_tip_2')}</span>
                                     </li>
                                     <li className="flex items-start">
                                         <span className="mr-2">•</span>
-                                        <span>Full access after approval</span>
+                                        <span>{t('status_pending_tip_3')}</span>
                                     </li>
                                 </ul>
                             </div>
@@ -98,7 +98,7 @@ export default function UserPendingScreen() {
                                     onClick={handleLogout}
                                     className="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition-all hover:bg-gray-50"
                                 >
-                                    Logout
+                                    {t('btn_logout')}
                                 </button>
                             </div>
                         </div>
@@ -106,7 +106,7 @@ export default function UserPendingScreen() {
                 </div>
 
                 {/* Footer Note */}
-                <p className="mt-4 text-center text-xs text-gray-500 lg:text-sm">This usually takes 24-48 hours. Thank you for your patience!</p>
+                <p className="mt-4 text-center text-xs text-gray-500 lg:text-sm">{t('status_pending_footer')}</p>
             </div>
         </div>
     );

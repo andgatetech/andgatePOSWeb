@@ -2,6 +2,7 @@
 import UpgradePlans from '@/components/common/UpgradePlans';
 import ContactSupportCard from '@/lib/protected/ContactSupportCard';
 import { clearAuthCookies, clearAuthLocalStorage } from '@/lib/auth-session';
+import { getTranslation } from '@/i18n';
 import { RootState } from '@/store';
 import { useLogoutMutation } from '@/store/features/auth/authApi';
 import { AlertCircle, Clock, Crown } from 'lucide-react';
@@ -18,20 +19,21 @@ export default function SubscriptionPendingScreen({ status, subscriptionName = '
     const router = useRouter();
     const [logout] = useLogoutMutation();
     const user = useSelector((state: RootState) => state.auth?.user);
+    const { t } = getTranslation();
 
     const whatsappMessage = [
-        'Hello andgate Support,',
+        t('support_whatsapp_greeting'),
         '',
-        `My subscription is ${status.toUpperCase()} and I cannot access the system.`,
+        t('support_whatsapp_subscription_body', { status: status.toUpperCase() }),
         '',
-        `User ID   : ${user?.id ?? 'N/A'}`,
-        `Name      : ${user?.name ?? 'N/A'}`,
-        `Email     : ${user?.email ?? 'N/A'}`,
-        `Plan      : ${subscriptionName}`,
-        `Issue     : Subscription ${status.charAt(0).toUpperCase() + status.slice(1)}`,
-        expireDate ? `Expired On: ${new Date(expireDate).toLocaleDateString()}` : '',
+        `${t('support_whatsapp_user_id')}: ${user?.id ?? 'N/A'}`,
+        `${t('support_whatsapp_name')}: ${user?.name ?? 'N/A'}`,
+        `${t('support_whatsapp_email')}: ${user?.email ?? 'N/A'}`,
+        `${t('support_whatsapp_plan')}: ${subscriptionName}`,
+        `${t('support_whatsapp_issue')}: ${t('support_whatsapp_issue_subscription', { status: status.charAt(0).toUpperCase() + status.slice(1) })}`,
+        expireDate ? `${t('support_whatsapp_expired_on')}: ${new Date(expireDate).toLocaleDateString()}` : '',
         '',
-        'Please help me renew or activate my subscription.',
+        t('support_whatsapp_please_renew_subscription'),
     ]
         .filter(Boolean)
         .join('\n');
@@ -40,8 +42,8 @@ export default function SubscriptionPendingScreen({ status, subscriptionName = '
         router.push('/login');
         try {
             await logout(null);
-        } catch (err) {
-            console.error('Logout API failed:', err);
+        } catch {
+            // Ignore API failures; local session cleanup is what matters.
         }
         clearAuthLocalStorage();
         try {
@@ -60,8 +62,8 @@ export default function SubscriptionPendingScreen({ status, subscriptionName = '
         switch (status.toLowerCase()) {
             case 'expired':
                 return {
-                    title: 'Subscription Expired',
-                    description: 'Your subscription has expired. Please renew to continue using our services.',
+                    titleKey: 'status_subscription_expired_title',
+                    descriptionKey: 'status_subscription_expired_desc',
                     icon: Clock,
                     color: 'red',
                     bgColor: 'from-slate-50 via-red-50 to-orange-50',
@@ -74,8 +76,8 @@ export default function SubscriptionPendingScreen({ status, subscriptionName = '
             case 'blocked':
             case 'hold':
                 return {
-                    title: 'Subscription On Hold',
-                    description: 'Your subscription is currently on hold. Please contact support or upgrade your plan.',
+                    titleKey: 'status_subscription_hold_title',
+                    descriptionKey: 'status_subscription_hold_desc',
                     icon: AlertCircle,
                     color: 'orange',
                     bgColor: 'from-slate-50 via-orange-50 to-yellow-50',
@@ -88,8 +90,8 @@ export default function SubscriptionPendingScreen({ status, subscriptionName = '
             case 'pending':
             default:
                 return {
-                    title: 'Subscription Pending',
-                    description: 'Your subscription is pending activation. Please upgrade your plan or wait for admin approval.',
+                    titleKey: 'status_subscription_pending_title',
+                    descriptionKey: 'status_subscription_pending_desc',
                     icon: Crown,
                     color: 'yellow',
                     bgColor: 'from-slate-50 via-yellow-50 to-blue-50',
@@ -120,8 +122,8 @@ export default function SubscriptionPendingScreen({ status, subscriptionName = '
 
                         {/* Middle: Info */}
                         <div className="lg:col-span-3">
-                            <h1 className="mb-2 text-2xl font-black text-gray-900 lg:text-3xl">{config.title}</h1>
-                            <p className="mb-4 text-sm text-gray-600 lg:text-base">{config.description}</p>
+                            <h1 className="mb-2 text-2xl font-black text-gray-900 lg:text-3xl">{t(config.titleKey)}</h1>
+                            <p className="mb-4 text-sm text-gray-600 lg:text-base">{t(config.descriptionKey)}</p>
 
                             {/* Status Info */}
                             <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -138,7 +140,7 @@ export default function SubscriptionPendingScreen({ status, subscriptionName = '
                                 {expireDate && (
                                     <div className="inline-flex items-center rounded-full bg-gray-100 px-4 py-1.5 text-xs font-semibold text-gray-800">
                                         <Clock className="mr-2 h-3 w-3" />
-                                        Expired: {new Date(expireDate).toLocaleDateString()}
+                                        {t('status_subscription_expired_label')}: {new Date(expireDate).toLocaleDateString()}
                                     </div>
                                 )}
                             </div>
@@ -150,7 +152,7 @@ export default function SubscriptionPendingScreen({ status, subscriptionName = '
                                     onClick={handleLogout}
                                     className="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition-all hover:bg-gray-50"
                                 >
-                                    Logout
+                                    {t('btn_logout')}
                                 </button>
                             </div>
                         </div>

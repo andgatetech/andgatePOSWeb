@@ -28,7 +28,7 @@ const clearAuthCookies = (response: NextResponse) => {
 
 // Public pages that do not require authentication
 const PUBLIC_PATHS = [
-    '/', '/login', '/register', '/forgot-password',
+    '/', '/login', '/register', '/forgot-password', '/unauthorized',
     '/pricing', '/price', '/subscription', '/training', '/user-guide', '/contact', '/promotion',
     '/affiliate', '/hawkeri', '/features', '/landing', '/blog', '/seo', '/pos-overview',
     '/training', '/demo', '/about', '/privacy-policy', '/terms-of-service', '/cookie-policy',
@@ -182,7 +182,7 @@ export function proxy(request: NextRequest) {
     const permissions = decodePermissionsCookie(request.cookies.get('permissions')?.value);
     const matchedRoute = findMatchingRouteKey(normalizedPath);
     if (!matchedRoute || !canAccessRoute(role, permissions, matchedRoute)) {
-        return NextResponse.redirect(new URL('/login', request.url));
+        return NextResponse.redirect(new URL('/unauthorized', request.url));
     }
 
     return response;

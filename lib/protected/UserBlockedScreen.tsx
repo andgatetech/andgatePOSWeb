@@ -1,6 +1,7 @@
 'use client';
 import ContactSupportCard from '@/lib/protected/ContactSupportCard';
 import { clearAuthCookies, clearAuthLocalStorage } from '@/lib/auth-session';
+import { getTranslation } from '@/i18n';
 import { RootState } from '@/store';
 import { useLogoutMutation } from '@/store/features/auth/authApi';
 import { AlertTriangle, ShieldAlert } from 'lucide-react';
@@ -11,26 +12,27 @@ export default function UserBlockedScreen() {
     const router = useRouter();
     const [logout] = useLogoutMutation();
     const user = useSelector((state: RootState) => state.auth?.user);
+    const { t } = getTranslation();
 
     const whatsappMessage = [
-        'Hello andgate Support,',
+        t('support_whatsapp_greeting'),
         '',
-        'My account has been BLOCKED and I cannot access the system.',
+        t('support_whatsapp_blocked_body'),
         '',
-        `User ID   : ${user?.id ?? 'N/A'}`,
-        `Name      : ${user?.name ?? 'N/A'}`,
-        `Email     : ${user?.email ?? 'N/A'}`,
-        `Issue     : Account Blocked`,
+        `${t('support_whatsapp_user_id')}: ${user?.id ?? 'N/A'}`,
+        `${t('support_whatsapp_name')}: ${user?.name ?? 'N/A'}`,
+        `${t('support_whatsapp_email')}: ${user?.email ?? 'N/A'}`,
+        `${t('support_whatsapp_issue')}: ${t('support_whatsapp_issue_blocked')}`,
         '',
-        'Please help me resolve this as soon as possible.',
+        t('support_whatsapp_please_resolve'),
     ].join('\n');
 
     const handleLogout = async () => {
         router.push('/login');
         try {
             await logout(null);
-        } catch (err) {
-            console.error('Logout API failed:', err);
+        } catch {
+            // Ignore API failures; local session cleanup is what matters.
         }
         clearAuthLocalStorage();
         try {
@@ -58,35 +60,33 @@ export default function UserBlockedScreen() {
                             </div>
                             <div className="inline-flex items-center rounded-full bg-red-100 px-4 py-2 text-xs font-semibold text-red-800">
                                 <AlertTriangle className="mr-2 h-4 w-4" />
-                                Blocked
+                                {t('status_blocked_badge')}
                             </div>
                         </div>
 
                         {/* Middle: Info */}
                         <div className="lg:col-span-2">
-                            <h1 className="mb-3 text-2xl font-black text-gray-900 lg:text-3xl">Account Access Restricted</h1>
-                            <p className="mb-4 text-sm text-gray-600 lg:text-base">
-                                Your account has been temporarily blocked. This may be due to policy violations, payment issues, or security concerns.
-                            </p>
+                            <h1 className="mb-3 text-2xl font-black text-gray-900 lg:text-3xl">{t('status_blocked_title')}</h1>
+                            <p className="mb-4 text-sm text-gray-600 lg:text-base">{t('status_blocked_desc')}</p>
 
                             {/* Info Box */}
                             <div className="mb-4 rounded-lg bg-orange-50 p-4">
                                 <div className="mb-2 flex items-center">
                                     <AlertTriangle className="mr-2 h-4 w-4 text-orange-600" />
-                                    <h3 className="text-sm font-semibold text-orange-900">What should you do?</h3>
+                                    <h3 className="text-sm font-semibold text-orange-900">{t('status_what_should_you_do')}</h3>
                                 </div>
                                 <ul className="space-y-1 text-xs text-orange-800 lg:text-sm">
                                     <li className="flex items-start">
                                         <span className="mr-2">•</span>
-                                        <span>Contact support immediately to resolve this</span>
+                                        <span>{t('status_blocked_tip_1')}</span>
                                     </li>
                                     <li className="flex items-start">
                                         <span className="mr-2">•</span>
-                                        <span>Provide your account details for verification</span>
+                                        <span>{t('status_blocked_tip_2')}</span>
                                     </li>
                                     <li className="flex items-start">
                                         <span className="mr-2">•</span>
-                                        <span>Our team will investigate and assist you</span>
+                                        <span>{t('status_blocked_tip_3')}</span>
                                     </li>
                                 </ul>
                             </div>
@@ -98,7 +98,7 @@ export default function UserBlockedScreen() {
                                     onClick={handleLogout}
                                     className="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition-all hover:bg-gray-50"
                                 >
-                                    Logout
+                                    {t('btn_logout')}
                                 </button>
                             </div>
                         </div>
@@ -106,7 +106,7 @@ export default function UserBlockedScreen() {
                 </div>
 
                 {/* Footer Note */}
-                <p className="mt-4 text-center text-xs text-gray-500 lg:text-sm">We&apos;re here to help. Please reach out to our support team for assistance.</p>
+                <p className="mt-4 text-center text-xs text-gray-500 lg:text-sm">{t('status_blocked_footer')}</p>
             </div>
         </div>
     );

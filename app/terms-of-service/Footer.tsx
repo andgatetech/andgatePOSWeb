@@ -1,6 +1,6 @@
 'use client';
 import { convertNumberByLanguage } from '@/components/custom/convertNumberByLanguage';
-import { getTranslation } from '@/i18n';
+import { useTranslation } from '@/components/i18n/TranslationProvider';
 import { comparePages } from '@/lib/high-intent-pages';
 import {
     ArrowRight,
@@ -16,7 +16,7 @@ const AndGate = '/images/andgatePOS.jpeg';
 const FACEBOOK_URL = 'https://www.facebook.com/andgatepos';
 
 const Footer = () => {
-    const { t, data } = getTranslation();
+    const { t, data, i18n } = useTranslation();
 
     const productLinks = [
         { label: t('footer.nav.features'), href: '/#features' },
@@ -200,7 +200,7 @@ const Footer = () => {
                 <div className="mx-auto flex max-w-7xl flex-col gap-5 px-4 py-6 sm:px-6 lg:px-8">
                     <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
                         <p className="text-xs text-slate-500">
-                            © {convertNumberByLanguage(new Date().getFullYear().toString())}{' '}
+                            © {convertNumberByLanguage(new Date().getFullYear().toString(), i18n.language)}{' '}
                             <a href="https://andgatetech.net" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-slate-300">
                                 Andgate Technologies
                             </a>. {t('footer.footerNote')}

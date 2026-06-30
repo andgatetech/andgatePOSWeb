@@ -1,5 +1,6 @@
 'use client';
 import ContactSupportCard from '@/lib/protected/ContactSupportCard';
+import { getTranslation } from '@/i18n';
 import { RootState } from '@/store';
 import { AlertTriangle, Ban } from 'lucide-react';
 import { useSelector } from 'react-redux';
@@ -10,19 +11,20 @@ interface StoreDisabledScreenProps {
 
 export default function StoreDisabledScreen({ storeName }: StoreDisabledScreenProps) {
     const user = useSelector((state: RootState) => state.auth?.user);
+    const { t } = getTranslation();
 
     const whatsappMessage = [
-        'Hello andgate Support,',
+        t('support_whatsapp_greeting'),
         '',
-        'My store has been DISABLED and I cannot access it.',
+        t('support_whatsapp_store_disabled_body'),
         '',
-        `User ID   : ${user?.id ?? 'N/A'}`,
-        `Name      : ${user?.name ?? 'N/A'}`,
-        `Email     : ${user?.email ?? 'N/A'}`,
-        `Store     : ${storeName ?? 'N/A'}`,
-        `Issue     : Store Disabled`,
+        `${t('support_whatsapp_user_id')}: ${user?.id ?? 'N/A'}`,
+        `${t('support_whatsapp_name')}: ${user?.name ?? 'N/A'}`,
+        `${t('support_whatsapp_email')}: ${user?.email ?? 'N/A'}`,
+        `${t('support_whatsapp_store')}: ${storeName ?? 'N/A'}`,
+        `${t('support_whatsapp_issue')}: ${t('support_whatsapp_issue_store_disabled')}`,
         '',
-        'Please help re-enable my store.',
+        t('support_whatsapp_please_reenable_store'),
     ].join('\n');
 
     return (
@@ -38,37 +40,38 @@ export default function StoreDisabledScreen({ storeName }: StoreDisabledScreenPr
                             </div>
                             <div className="inline-flex items-center rounded-full bg-red-100 px-4 py-2 text-xs font-semibold text-red-800">
                                 <AlertTriangle className="mr-2 h-4 w-4" />
-                                Store Disabled
+                                {t('status_store_disabled_badge')}
                             </div>
                         </div>
 
                         {/* Middle: Info */}
                         <div className="lg:col-span-2">
-                            <h1 className="mb-3 text-2xl font-black text-gray-900 lg:text-3xl">Store Has Been Disabled</h1>
-                            {storeName && <p className="mb-2 text-sm font-semibold text-red-600">Store: {storeName}</p>}
-                            <p className="mb-4 text-sm text-gray-600 lg:text-base">
-                                This store has been disabled by the administrator. You cannot access its data or perform any operations. Please contact your administrator or support team to resolve
-                                this issue.
-                            </p>
+                            <h1 className="mb-3 text-2xl font-black text-gray-900 lg:text-3xl">{t('status_store_disabled_title')}</h1>
+                            {storeName && (
+                                <p className="mb-2 text-sm font-semibold text-red-600">
+                                    {t('status_store_label')}: {storeName}
+                                </p>
+                            )}
+                            <p className="mb-4 text-sm text-gray-600 lg:text-base">{t('status_store_disabled_desc')}</p>
 
                             {/* Info Box */}
                             <div className="mb-4 rounded-lg bg-red-50 p-4">
                                 <div className="mb-2 flex items-center">
                                     <AlertTriangle className="mr-2 h-4 w-4 text-red-600" />
-                                    <h3 className="text-sm font-semibold text-red-900">What should you do?</h3>
+                                    <h3 className="text-sm font-semibold text-red-900">{t('status_what_should_you_do')}</h3>
                                 </div>
                                 <ul className="space-y-1 text-xs text-red-800 lg:text-sm">
                                     <li className="flex items-start">
                                         <span className="mr-2">•</span>
-                                        <span>Switch to another active store from the sidebar</span>
+                                        <span>{t('status_store_disabled_tip_1')}</span>
                                     </li>
                                     <li className="flex items-start">
                                         <span className="mr-2">•</span>
-                                        <span>Contact the administrator to enable this store</span>
+                                        <span>{t('status_store_disabled_tip_2')}</span>
                                     </li>
                                     <li className="flex items-start">
                                         <span className="mr-2">•</span>
-                                        <span>This may be due to policy violations or payment issues</span>
+                                        <span>{t('status_store_disabled_tip_3')}</span>
                                     </li>
                                 </ul>
                             </div>
@@ -80,7 +83,7 @@ export default function StoreDisabledScreen({ storeName }: StoreDisabledScreenPr
                 </div>
 
                 {/* Footer Note */}
-                <p className="mt-4 text-center text-xs text-gray-500 lg:text-sm">Please switch to an active store or contact support for assistance.</p>
+                <p className="mt-4 text-center text-xs text-gray-500 lg:text-sm">{t('status_store_footer')}</p>
             </div>
         </div>
     );

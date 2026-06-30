@@ -1,6 +1,6 @@
 'use client';
 
-import { getTranslation } from '@/i18n';
+import { useTranslation } from '@/components/i18n/TranslationProvider';
 import SearchableStoreType from '@/components/common/SearchableStoreType';
 import { AUTH_TOKEN_EXPIRES_AT_COOKIE, AUTH_TOKEN_EXPIRES_AT_KEY, getCookieMaxAgeFromExpiry, getLoginTokenExpiresAt, isTokenExpired, setAuthCookie } from '@/lib/auth-session';
 import { buildAttribution } from '@/lib/attribution';
@@ -26,7 +26,7 @@ const ComponentsAuthRegisterForm = ({ defaultSource = 'website_registration', de
     const router = useRouter();
     const searchParams = useSearchParams();
     const dispatch = useDispatch();
-    const { t } = getTranslation();
+    const { t } = useTranslation();
     const { isAuthenticated } = useSelector((state: RootState) => state.auth);
     const [registerApi, { isLoading }] = useRegisterMutation();
 
@@ -73,7 +73,7 @@ const ComponentsAuthRegisterForm = ({ defaultSource = 'website_registration', de
             const tokenExpiresAt = getLoginTokenExpiresAt(result.data);
 
             if (isTokenExpired(tokenExpiresAt)) {
-                toast.error('Registration token expired. Please login again.');
+                toast.error(t('register_token_expired'));
                 return;
             }
             const validTokenExpiresAt = tokenExpiresAt as string;
@@ -82,8 +82,7 @@ const ComponentsAuthRegisterForm = ({ defaultSource = 'website_registration', de
             const encodedPermissions = (() => {
                 try {
                     return btoa(JSON.stringify(permissions ?? []));
-                } catch (err) {
-                    console.error('Failed to encode permissions cookie', err);
+                } catch {
                     return btoa('[]');
                 }
             })();
@@ -99,19 +98,17 @@ const ComponentsAuthRegisterForm = ({ defaultSource = 'website_registration', de
             // Save full user data + permissions in Redux
             dispatch(login({ user, token, tokenExpiresAt: validTokenExpiresAt, permissions }));
 
-            toast.success('Registration successful! Redirecting to dashboard...');
+            toast.success(t('register_success_redirect'));
             setTimeout(() => router.push('/dashboard'), 800);
         } catch (error: any) {
-            console.error('Registration failed:', error);
-
             // Handle all RTK Query error shapes
             const message =
                 error?.data?.message ||
                 error?.data?.errors?.email?.[0] ||
                 error?.data?.errors?.phone?.[0] ||
                 error?.data?.errors?.password?.[0] ||
-                (error?.status === 'FETCH_ERROR' ? 'Cannot connect to server. Please check your connection.' : null) ||
-                'Registration failed. Please try again.';
+                (error?.status === 'FETCH_ERROR' ? t('error_cannot_connect_server') : null) ||
+                t('register_failed');
             toast.error(message);
         }
     };
@@ -119,9 +116,15 @@ const ComponentsAuthRegisterForm = ({ defaultSource = 'website_registration', de
     return (
         <form className="space-y-5 dark:text-white" onSubmit={submitForm}>
             {refCode && (
-                <div className="flex items-center gap-2 rounded-lg bg-success/10 border border-success/20 px-3 py-2 text-sm text-success font-medium">
+                <div className="flex items-center gap-2 rounded-lg border border-success/20 bg-success/10 px-3 py-2 text-sm font-medium text-success">
                     <span>🤝</span>
-                    <span>রেফারেল কোড: <strong lang="en" dir="ltr">{refCode.toUpperCase()}</strong> — কমিশন ট্র্যাক হবে</span>
+                    <span>
+                        রেফারেল কোড:{' '}
+                        <strong lang="en" dir="ltr">
+                            {refCode.toUpperCase()}
+                        </strong>{' '}
+                        — কমিশন ট্র্যাক হবে
+                    </span>
                 </div>
             )}
             <div>
@@ -193,10 +196,7 @@ const ComponentsAuthRegisterForm = ({ defaultSource = 'website_registration', de
 
             <div>
                 <label htmlFor="StoreType">{t('lbl_store_type')}</label>
-                <SearchableStoreType
-                    value={credentials.store_type}
-                    onChange={(val) => setCredentials({ ...credentials, store_type: val })}
-                />
+                <SearchableStoreType value={credentials.store_type} onChange={(val) => setCredentials({ ...credentials, store_type: val })} />
             </div>
 
             <div>
@@ -245,7 +245,11 @@ const ComponentsAuthRegisterForm = ({ defaultSource = 'website_registration', de
                 </div>
             </div>
 
-            <button type="submit" disabled={isLoading} className="mt-6 w-full rounded-xl bg-gradient-to-r from-[#046ca9] to-[#034d79] py-3 text-sm font-semibold uppercase text-white shadow-[0_10px_20px_-10px_rgba(4,108,169,0.44)] transition-all hover:from-[#034d79] hover:to-[#02395b] disabled:opacity-50">
+            <button
+                type="submit"
+                disabled={isLoading}
+                className="mt-6 w-full rounded-xl bg-gradient-to-r from-[#046ca9] to-[#034d79] py-3 text-sm font-semibold uppercase text-white shadow-[0_10px_20px_-10px_rgba(4,108,169,0.44)] transition-all hover:from-[#034d79] hover:to-[#02395b] disabled:opacity-50"
+            >
                 {isLoading ? t('register-page.form.signing_up') : t('register-page.form.sign_up_button')}
             </button>
         </form>

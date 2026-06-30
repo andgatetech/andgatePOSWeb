@@ -29,7 +29,7 @@ export default function VariantSelectionModal({ isOpen, onClose, product, onSele
 
     const handleAddToCart = async () => {
         if (selectedVariantIndex === null) {
-            alert(t('msg_select_variant'));
+            showMessage(t('msg_select_variant'), 'error');
             return;
         }
 
@@ -37,7 +37,7 @@ export default function VariantSelectionModal({ isOpen, onClose, product, onSele
 
         // Only validate stock quantity in POS mode
         if (mode === 'pos' && quantity > selectedVariant.quantity) {
-            alert(`${t('msg_only')} ${formatNumber(selectedVariant.quantity)} ${t('msg_items_available')}`);
+            showMessage(`${t('msg_only')} ${formatNumber(selectedVariant.quantity)} ${t('msg_items_available')}`, 'error');
             return;
         }
 
@@ -52,9 +52,8 @@ export default function VariantSelectionModal({ isOpen, onClose, product, onSele
             setUseWholesale(false);
             setQuantity(1);
             onClose();
-        } catch (error) {
-            console.error('Error adding to cart:', error);
-            alert(t('msg_failed_add_to_cart'));
+        } catch {
+            showMessage(t('msg_failed_add_to_cart'), 'error');
         } finally {
             setIsAdding(false);
         }
@@ -187,7 +186,8 @@ export default function VariantSelectionModal({ isOpen, onClose, product, onSele
                                                                     d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
                                                                 />
                                                             </svg>
-                                                            {variantWarranty.duration_months ? `${formatNumber(variantWarranty.duration_months)}mo` : `${formatNumber(variantWarranty.duration_days)}d`} {t('lbl_warranty')}
+                                                            {variantWarranty.duration_months ? `${formatNumber(variantWarranty.duration_months)}mo` : `${formatNumber(variantWarranty.duration_days)}d`}{' '}
+                                                            {t('lbl_warranty')}
                                                         </div>
                                                     )}
 
@@ -238,7 +238,7 @@ export default function VariantSelectionModal({ isOpen, onClose, product, onSele
                                             <button
                                                 onClick={handleAddToCart}
                                                 disabled={selectedVariantIndex === null || isAdding}
-                                                className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-6 py-2.5 text-sm font-bold text-white shadow-md transition-all hover:bg-primary/90 hover:shadow-lg active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40 sm:flex-none sm:px-7"
+                                                className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-6 py-2.5 text-sm font-bold text-white shadow-md transition-all hover:bg-primary/90 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 sm:flex-none sm:px-7"
                                             >
                                                 {isAdding ? (
                                                     <>
@@ -248,9 +248,7 @@ export default function VariantSelectionModal({ isOpen, onClose, product, onSele
                                                 ) : (
                                                     <>
                                                         <ShoppingCart className="h-4 w-4" />
-                                                        {selectedVariantIndex !== null && totalPrice > 0
-                                                            ? formatCurrency(totalPrice)
-                                                            : t('btn_add')}
+                                                        {selectedVariantIndex !== null && totalPrice > 0 ? formatCurrency(totalPrice) : t('btn_add')}
                                                     </>
                                                 )}
                                             </button>

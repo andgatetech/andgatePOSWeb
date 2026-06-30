@@ -2,7 +2,7 @@
 
 import { convertNumberByLanguage } from '@/components/custom/convertNumberByLanguage';
 import MainLayout from '@/components/layouts/MainLayout';
-import { getTranslation } from '@/i18n';
+import { useTranslation } from '@/components/i18n/TranslationProvider';
 import { formatLocalizedNumber } from '@/lib/localized-number';
 import { useGetPublicStatsQuery } from '@/store/features/publicStats/publicStatsApi';
 import { BarChart3, CheckCircle, ShoppingCart, Store, TrendingUp, Zap } from 'lucide-react';
@@ -14,7 +14,8 @@ import ComponentsAuthLoginForm from './components-auth-login-form';
 
 const LoginPage = () => {
     const loginFormRef = useRef<any>(null);
-    const { t, i18n } = getTranslation();
+    const { t, i18n } = useTranslation();
+
     const { data: statsData } = useGetPublicStatsQuery();
     const activeStores = statsData?.data?.active_stores;
     const businessCount = activeStores ? Math.max(10, Math.floor(activeStores / 10) * 10) : 100;
@@ -35,12 +36,13 @@ const LoginPage = () => {
     return (
         <MainLayout>
             <div className="mt-16 flex min-h-[calc(100vh-64px)]">
-
                 {/* ── Left panel ── */}
                 <div className="relative hidden overflow-hidden lg:flex lg:w-5/12 xl:w-[45%]">
                     <div className="absolute inset-0 bg-gradient-to-br from-[#046ca9] via-[#035887] to-[#034d79]" />
-                    <div className="pointer-events-none absolute inset-0 opacity-[0.07]"
-                        style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '22px 22px' }} />
+                    <div
+                        className="pointer-events-none absolute inset-0 opacity-[0.07]"
+                        style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '22px 22px' }}
+                    />
                     <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-24 -right-12 h-80 w-80 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute left-1/2 top-1/2 h-48 w-48 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/5 blur-2xl" />
@@ -49,23 +51,19 @@ const LoginPage = () => {
                         {/* Top badge */}
                         <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 text-xs font-semibold text-white/90 backdrop-blur-sm">
                             <Zap className="h-3.5 w-3.5 text-yellow-300" />
-                            {t('login_panel_badge').replace('{count}', convertNumberByLanguage(String(businessCount)))}
+                            {t('login_panel_badge').replace('{count}', convertNumberByLanguage(String(businessCount), i18n.language))}
                         </div>
 
                         {/* Centre copy */}
                         <div className="space-y-7">
-                            <h2 className="mb-4 text-3xl font-black leading-tight text-white xl:text-4xl">
-                                {t('login_panel_headline')}
-                            </h2>
-                            <p className="max-w-md text-sm leading-relaxed text-white/70">
-                                {t('login_panel_sub')}
-                            </p>
+                            <h2 className="mb-4 text-3xl font-black leading-tight text-white xl:text-4xl">{t('login_panel_headline')}</h2>
+                            <p className="max-w-md text-sm leading-relaxed text-white/70">{t('login_panel_sub')}</p>
 
                             <div className="relative">
                                 <div className="overflow-hidden rounded-2xl border border-white/15 bg-white/10 p-2 shadow-2xl shadow-black/20 backdrop-blur-sm">
                                     <Image
                                         src="/assets/LandingImage/updated/sales-report.webp"
-                                        alt="AndgatePOS dashboard preview"
+                                        alt={t('login_dashboard_preview_alt')}
                                         width={1280}
                                         height={800}
                                         sizes="(min-width: 1280px) 560px, 42vw"
@@ -76,7 +74,7 @@ const LoginPage = () => {
                                 <div className="absolute -bottom-8 right-5 w-[27%] min-w-[112px] overflow-hidden rounded-2xl border border-white/25 bg-white/15 p-1.5 shadow-xl shadow-black/25 backdrop-blur-sm">
                                     <Image
                                         src="/assets/LandingImage/updated/mobile-pos.webp"
-                                        alt="AndgatePOS mobile preview"
+                                        alt={t('login_mobile_preview_alt')}
                                         width={520}
                                         height={933}
                                         sizes="150px"
@@ -88,9 +86,7 @@ const LoginPage = () => {
                             <ul className="grid grid-cols-2 gap-3 pt-6">
                                 {benefits.map((b, i) => (
                                     <li key={i} className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/10 px-3 py-2.5 text-xs text-white/90 backdrop-blur-sm">
-                                        <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-white/15 text-white">
-                                            {b.icon}
-                                        </span>
+                                        <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-white/15 text-white">{b.icon}</span>
                                         <span className="leading-snug">{b.text}</span>
                                     </li>
                                 ))}
@@ -106,9 +102,7 @@ const LoginPage = () => {
                                     </svg>
                                 ))}
                             </div>
-                            <p className="mb-4 text-sm leading-relaxed text-white/80 italic">
-                                &ldquo;{t('login_panel_quote')}&rdquo;
-                            </p>
+                            <p className="mb-4 text-sm italic leading-relaxed text-white/80">&ldquo;{t('login_panel_quote')}&rdquo;</p>
                             <div className="flex items-center gap-3">
                                 <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#046ca9] to-[#034d79] text-xs font-black text-white shadow-md">
                                     {t('login_panel_quote_name').charAt(0)}
@@ -155,9 +149,7 @@ const LoginPage = () => {
                                         <div className="w-full border-t border-gray-100" />
                                     </div>
                                     <div className="relative flex justify-center">
-                                        <span className="bg-white px-3 text-[11px] uppercase tracking-wider text-gray-400">
-                                            {t('login-page.or')}
-                                        </span>
+                                        <span className="bg-white px-3 text-[11px] uppercase tracking-wider text-gray-400">{t('login-page.or')}</span>
                                     </div>
                                 </div>
 
@@ -170,23 +162,14 @@ const LoginPage = () => {
                                     <div className="flex items-center justify-between">
                                         <div>
                                             <p className="text-xs font-bold text-[#046ca9]">{t('login-page.demo_credentials.store_admin')}</p>
-                                            <p
-                                                suppressHydrationWarning
-                                                lang="en"
-                                                dir="ltr"
-                                                translate="no"
-                                                data-no-localize-digits
-                                                className="mt-0.5 text-xs text-[#046ca9]/70"
-                                            >
+                                            <p suppressHydrationWarning lang="en" dir="ltr" translate="no" data-no-localize-digits className="mt-0.5 text-xs text-[#046ca9]/70">
                                                 {t('login-page.demo_credentials.email_password')}
                                             </p>
                                         </div>
                                         <CheckCircle className="h-4 w-4 flex-shrink-0 text-[#046ca9]" />
                                     </div>
                                 </button>
-                                <p className="mt-2 text-center text-[11px] text-gray-400">
-                                    {t('login-page.demo_credentials.hint')}
-                                </p>
+                                <p className="mt-2 text-center text-[11px] text-gray-400">{t('login-page.demo_credentials.hint')}</p>
                             </div>
                         </div>
 
@@ -202,7 +185,6 @@ const LoginPage = () => {
                         </p>
                     </div>
                 </div>
-
             </div>
         </MainLayout>
     );

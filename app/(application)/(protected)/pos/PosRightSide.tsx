@@ -34,7 +34,7 @@ import { useRouter } from 'next/navigation';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
-import Swal from 'sweetalert2';
+import ReturnReasonModal from './ReturnReasonModal';
 import CashPaymentSection from './pos-right-side/CashPaymentSection';
 import CustomerSection from './pos-right-side/CustomerSection';
 import LoadingOverlay from './pos-right-side/LoadingOverlay';
@@ -47,7 +47,6 @@ import type { Customer, CustomerApiResponse, PosFormData, SplitPayment } from '.
 import { MEMBERSHIP_DISCOUNTS } from './pos-right-side/types';
 import ReturnQuotePreviewModal from '@/components/pos/ReturnQuotePreviewModal';
 
-
 export interface PosRightSideProps {
     mode?: 'pos' | 'return';
     reduxSlice?: 'pos' | 'orderReturn';
@@ -59,7 +58,9 @@ const EMPTY_ARRAY: Item[] = [];
 type InvoiceLineItem = Item | ExchangeItem | (ReturnItem & { quantity: number; isReturnItem: true });
 
 const canonicalPaymentMethodName = (name?: string) => {
-    const normalized = String(name || '').trim().toLowerCase();
+    const normalized = String(name || '')
+        .trim()
+        .toLowerCase();
     if (normalized === 'mfc' || normalized === 'mfs' || normalized === 'mobile financial service') return 'Nagad';
     if (normalized === 'bkash') return 'bKash';
     if (normalized === 'nagad') return 'Nagad';
@@ -109,10 +110,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         return posItemsData;
     }, [reduxSlice, returnItemsData, exchangeItemsData, posItemsData]);
 
-    const totalQty = useMemo(
-        () => invoiceItems.reduce((sum, item: any) => sum + (item?.has_serial && item?.serials?.length ? item.serials.length : Number(item?.quantity) || 0), 0),
-        [invoiceItems]
-    );
+    const totalQty = useMemo(() => invoiceItems.reduce((sum, item: any) => sum + (item?.has_serial && item?.serials?.length ? item.serials.length : Number(item?.quantity) || 0), 0), [invoiceItems]);
 
     // Return items from original order (for return mode)
     const returnItems = useMemo(() => {
@@ -125,6 +123,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
     const searchInputRef = useRef<HTMLDivElement | null>(null);
     const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const quoteRequestSeqRef = useRef(0);
+    const isSubmittingRef = useRef(false);
 
     const [customerSearch, setCustomerSearch] = useState('');
     const [searchParams, setSearchParams] = useState('');
@@ -176,6 +175,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
     const [returnQuotePreview, setReturnQuotePreview] = useState<QuoteOrderReturnResult | null>(null);
     const [pendingReturnData, setPendingReturnData] = useState<any>(null);
     const [showReturnQuoteModal, setShowReturnQuoteModal] = useState(false);
+    const [showReturnReasonModal, setShowReturnReasonModal] = useState(false);
 
     // Return reasons from store settings (for return mode)
     const returnReasons = useMemo(() => {
@@ -326,29 +326,31 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
     // Use payment methods from Redux (loaded during login) - no API call needed
     const paymentMethodOptions = useMemo<any[]>(() => {
         const methods = Array.isArray(currentStore?.payment_methods) ? currentStore.payment_methods : [];
-        const activeMethods = methods.filter((method: any) => {
-            if (!method) return false;
-            const status = method.is_active;
-            if (status === undefined || status === null) return true;
-            if (typeof status === 'boolean') return status;
-            if (typeof status === 'number') return status === 1;
-            if (typeof status === 'string') {
-                const normalized = status.toLowerCase();
-                return normalized === '1' || normalized === 'true';
-            }
-            return true;
-        }).map((method: any) => ({
-            ...method,
-            payment_method_name: canonicalPaymentMethodName(method.payment_method_name),
-        }));
+        const activeMethods = methods
+            .filter((method: any) => {
+                if (!method) return false;
+                const status = method.is_active;
+                if (status === undefined || status === null) return true;
+                if (typeof status === 'boolean') return status;
+                if (typeof status === 'number') return status === 1;
+                if (typeof status === 'string') {
+                    const normalized = status.toLowerCase();
+                    return normalized === '1' || normalized === 'true';
+                }
+                return true;
+            })
+            .map((method: any) => ({
+                ...method,
+                payment_method_name: canonicalPaymentMethodName(method.payment_method_name),
+            }));
 
         if (activeMethods.length === 0) {
             return [DEFAULT_PAYMENT_METHOD];
         }
 
-        const uniqueMethods = activeMethods.filter((method: any, index: number, list: any[]) => (
-            list.findIndex((item: any) => paymentMethodKey(item.payment_method_name) === paymentMethodKey(method.payment_method_name)) === index
-        ));
+        const uniqueMethods = activeMethods.filter(
+            (method: any, index: number, list: any[]) => list.findIndex((item: any) => paymentMethodKey(item.payment_method_name) === paymentMethodKey(method.payment_method_name)) === index
+        );
 
         // Cash must always be available regardless of store configuration.
         const hasCash = uniqueMethods.some((m: any) => paymentMethodKey(m.payment_method_name) === 'cash');
@@ -358,9 +360,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
     // When going offline, lock payment method to Cash + status to paid
     useEffect(() => {
         if (!isOnline) {
-            const cashMethod = paymentMethodOptions.find(
-                (m: any) => m.payment_method_name?.toLowerCase() === 'cash'
-            );
+            const cashMethod = paymentMethodOptions.find((m: any) => m.payment_method_name?.toLowerCase() === 'cash');
             const cashName = cashMethod?.payment_method_name || DEFAULT_PAYMENT_METHOD.payment_method_name;
             setFormData((prev) => ({
                 ...prev,
@@ -844,12 +844,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         }
 
         const isCash = formData.paymentMethod.toLowerCase() === 'cash';
-        const amountPaid =
-            formData.paymentStatus === 'paid'
-                ? isCash ? formData.amountPaid : calculateTotal()
-                : formData.paymentStatus === 'partial'
-                  ? formData.partialPaymentAmount
-                  : 0;
+        const amountPaid = formData.paymentStatus === 'paid' ? (isCash ? formData.amountPaid : calculateTotal()) : formData.paymentStatus === 'partial' ? formData.partialPaymentAmount : 0;
 
         return {
             store_id: currentStoreId,
@@ -955,7 +950,17 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                 dueAmount: 0,
             }));
         }
-    }, [backendGrandTotal, formData.paymentStatus, formData.partialPaymentAmount, invoiceItems, formData.discount, formData.usePoints, formData.pointsToUse, formData.useBalance, formData.balanceToUse]);
+    }, [
+        backendGrandTotal,
+        formData.paymentStatus,
+        formData.partialPaymentAmount,
+        invoiceItems,
+        formData.discount,
+        formData.usePoints,
+        formData.pointsToUse,
+        formData.useBalance,
+        formData.balanceToUse,
+    ]);
 
     useEffect(() => {
         const total = backendGrandTotal;
@@ -1041,377 +1046,381 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
     };
 
     const handleSubmit = async () => {
-        // Validation: Customer Check
-        // If not walk-in and no customer selected/entered (checking customerId null and name/phone empty)
-        if (formData.customerId !== 'walk-in' && !formData.customerId && (!formData.customerName.trim() || !formData.customerPhone.trim())) {
-            showMessage(t('pos_select_customer_or_walk_in'), 'error');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            return;
-        }
+        if (isSubmittingRef.current) return;
+        isSubmittingRef.current = true;
 
-        // Validation: Manual Customer Details - Name and Phone are required, email is optional
-        if (formData.customerId !== 'walk-in' && !formData.customerId) {
-            if (!formData.customerName.trim()) {
-                showMessage(t('msg_customer_name_required'), 'error');
+        try {
+            // Validation: Customer Check
+            // If not walk-in and no customer selected/entered (checking customerId null and name/phone empty)
+            if (formData.customerId !== 'walk-in' && !formData.customerId && (!formData.customerName.trim() || !formData.customerPhone.trim())) {
+                showMessage(t('pos_select_customer_or_walk_in'), 'error');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
                 return;
             }
-            if (!formData.customerPhone.trim()) {
-                showMessage(t('msg_customer_phone_required'), 'error');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                return;
-            }
-            // Email validation only if provided
-            if (formData.customerEmail.trim()) {
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailRegex.test(formData.customerEmail)) {
-                    showMessage(t('msg_valid_email_required'), 'error');
+
+            // Validation: Manual Customer Details - Name and Phone are required, email is optional
+            if (formData.customerId !== 'walk-in' && !formData.customerId) {
+                if (!formData.customerName.trim()) {
+                    showMessage(t('msg_customer_name_required'), 'error');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                     return;
                 }
-            }
-        }
-
-        if (invoiceItems.length === 0) {
-            showMessage(t('msg_at_least_one_item_required'), 'error');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            return;
-        }
-
-        const invalidItems = invoiceItems.filter((item) => !item.productId || item.quantity <= 0);
-        if (invalidItems.length > 0) {
-            showMessage(t('msg_select_products_set_quantities'), 'error');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            return;
-        }
-
-        let freshQuoteData = quotePreview;
-        if (!isOnline) {
-            // Offline: skip quote API, use local computed totals
-            freshQuoteData = null;
-        } else {
-            try {
-                if (quotePayload) {
-                    setLoading(true);
-                    const freshQuote = await quoteOrder(quotePayload).unwrap();
-                    freshQuoteData = freshQuote?.data || freshQuote;
-                    setQuotePreview(freshQuoteData);
+                if (!formData.customerPhone.trim()) {
+                    showMessage(t('msg_customer_phone_required'), 'error');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    return;
                 }
-            } catch (err: any) {
-                const message =
-                    err?.status === 422 && err?.data?.errors
-                        ? Object.values(err.data.errors).flat().join('\n')
-                        : err?.data?.message || err?.data?.error || err?.error || t('msg_failed_create_order');
-                showMessage(message, 'error');
-                setLoading(false);
+                // Email validation only if provided
+                if (formData.customerEmail.trim()) {
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(formData.customerEmail)) {
+                        showMessage(t('msg_valid_email_required'), 'error');
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        return;
+                    }
+                }
+            }
+
+            if (invoiceItems.length === 0) {
+                showMessage(t('msg_at_least_one_item_required'), 'error');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
                 return;
             }
-        }
 
-        const freshTotals = freshQuoteData?.totals || {};
-        const freshPayment = freshQuoteData?.payment || {};
-        const grandTotal = Number(freshTotals.grand_total ?? backendGrandTotal);
-        const orderTax = Number(freshTotals.tax ?? backendTax);
-        const orderDiscount = Number(freshTotals.discount ?? backendDiscount);
-        const orderSubtotal = Number(freshTotals.total ?? backendSubtotal);
-        setLoading(false);
+            const invalidItems = invoiceItems.filter((item) => !item.productId || item.quantity <= 0);
+            if (invalidItems.length > 0) {
+                showMessage(t('msg_select_products_set_quantities'), 'error');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                return;
+            }
+
+            let freshQuoteData = quotePreview;
+            if (!isOnline) {
+                // Offline: skip quote API, use local computed totals
+                freshQuoteData = null;
+            } else {
+                try {
+                    if (quotePayload) {
+                        setLoading(true);
+                        const freshQuote = await quoteOrder(quotePayload).unwrap();
+                        freshQuoteData = freshQuote?.data || freshQuote;
+                        setQuotePreview(freshQuoteData);
+                    }
+                } catch (err: any) {
+                    const message =
+                        err?.status === 422 && err?.data?.errors
+                            ? Object.values(err.data.errors).flat().join('\n')
+                            : err?.data?.message || err?.data?.error || err?.error || t('msg_failed_create_order');
+                    showMessage(message, 'error');
+                    setLoading(false);
+                    return;
+                }
+            }
+
+            const freshTotals = freshQuoteData?.totals || {};
+            const freshPayment = freshQuoteData?.payment || {};
+            const grandTotal = Number(freshTotals.grand_total ?? backendGrandTotal);
+            const orderTax = Number(freshTotals.tax ?? backendTax);
+            const orderDiscount = Number(freshTotals.discount ?? backendDiscount);
+            const orderSubtotal = Number(freshTotals.total ?? backendSubtotal);
+            setLoading(false);
 
         // Validation: Split Payment — rows must sum to grand total
         if (formData.isSplitPayment) {
             if (formData.splitPayments.length < 2) {
-                showMessage('Split payment requires at least 2 payment methods.', 'error');
+                showMessage(t('msg_split_payment_min_two'), 'error');
                 return;
             }
             const splitSum = formData.splitPayments.reduce((s, p) => s + p.amount, 0);
             if (Math.abs(splitSum - grandTotal) > 0.01) {
-                showMessage(`Split payment total (${splitSum.toFixed(2)}) must equal order total (${grandTotal.toFixed(2)}).`, 'error');
+                showMessage(
+                    t('msg_split_payment_total_mismatch', { split: splitSum.toFixed(2), total: grandTotal.toFixed(2) }),
+                    'error'
+                );
                 return;
             }
         }
 
-        // Validation: Cash Payment Amount Received
-        if (!formData.isSplitPayment && formData.paymentStatus === 'paid' && formData.paymentMethod.toLowerCase() === 'cash') {
-            if (!formData.amountPaid || formData.amountPaid <= 0) {
-                showMessage(t('msg_enter_amount_received'), 'error');
-                // You might want to scroll to the specific section, but top is safe
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                return;
-            }
-            // Optional: Check if amount is enough? usually 'paid' implies full payment
-            if (formData.amountPaid < grandTotal) {
-                showMessage(t('msg_amount_received_less_total'), 'error');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                return;
-            }
-        }
-
-        // Validation for partial payment
-        if (formData.paymentStatus === 'partial') {
-            if (!formData.partialPaymentAmount || formData.partialPaymentAmount <= 0) {
-                showMessage(t('msg_enter_partial_payment_amount'), 'error');
-                return;
-            }
-            if (formData.partialPaymentAmount >= grandTotal) {
-                // Use already calculated grandTotal
-                showMessage(t('msg_partial_payment_less_than_total'), 'error');
-                return;
-            }
-        }
-
-        // Calculate amount paid based on payment status
-        let actualAmountPaid = 0;
-        let actualChangeAmount = 0;
-        let dueAmount = 0;
-
-        if (formData.paymentStatus === 'paid') {
-            // For paid status, use amountPaid for cash or full amount for other methods
-            actualAmountPaid = Number(freshPayment.amount_paid ?? (formData.paymentMethod.toLowerCase() === 'cash' ? formData.amountPaid : grandTotal));
-            actualChangeAmount = Number(freshPayment.change_amount ?? (formData.paymentMethod.toLowerCase() === 'cash' ? formData.changeAmount : 0));
-            dueAmount = 0;
-        } else if (formData.paymentStatus === 'partial') {
-            // For partial, use the partial payment amount
-            actualAmountPaid = Number(freshPayment.amount_paid ?? formData.partialPaymentAmount);
-            actualChangeAmount = 0;
-            dueAmount = Number(freshPayment.due_amount ?? grandTotal - formData.partialPaymentAmount);
-        } else if (formData.paymentStatus === 'due') {
-            // For due, no amount paid
-            actualAmountPaid = 0;
-            actualChangeAmount = 0;
-            dueAmount = Number(freshPayment.due_amount ?? grandTotal);
-        }
-
-        const orderData: any = {
-            store_id: currentStoreId,
-            payment_status: formData.paymentStatus,
-            ...(formData.isSplitPayment
-                ? { payments: formData.splitPayments, payment_method: 'Split' }
-                : { payment_method: formData.paymentMethod }),
-            tax: orderTax,
-            discount: orderDiscount,
-            total: orderSubtotal,
-            grand_total: grandTotal,
-            amount_paid: actualAmountPaid,
-            change_amount: actualChangeAmount,
-            due_amount: dueAmount,
-            points_to_redeem: selectedCustomer && formData.usePoints ? formData.pointsToUse : 0,
-            balance_to_redeem: selectedCustomer && formData.useBalance ? formData.balanceToUse : 0,
-            ...(formData.couponCode ? { coupon_code: formData.couponCode } : {}),
-            items: invoiceItems.map((item) => {
-                const itemBasePrice = item.rate * item.quantity;
-                const itemTax = calculateItemTax(item);
-                const itemSubtotal = item.tax_included && item.tax_rate ? itemBasePrice : itemBasePrice + itemTax;
-
-                const orderItem: any = {
-                    product_id: item.productId,
-                    stock_id: item.stockId, // Include stock_id for variants
-                    quantity: item.quantity,
-                    unit_price: item.rate,
-                    unit: item.unit || 'piece',
-                    discount: 0,
-                    tax: item.tax_rate || 0,
-                    tax_included: item.tax_included || false,
-                    subtotal: itemSubtotal,
-                };
-
-                // Include serial numbers if present
-                if (item.has_serial && item.serials && item.serials.length > 0) {
-                    orderItem.serial_ids = item.serials.map((s: any) => s.id);
+            // Validation: Cash Payment Amount Received
+            if (!formData.isSplitPayment && formData.paymentStatus === 'paid' && formData.paymentMethod.toLowerCase() === 'cash') {
+                if (!formData.amountPaid || formData.amountPaid <= 0) {
+                    showMessage(t('msg_enter_amount_received'), 'error');
+                    // You might want to scroll to the specific section, but top is safe
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    return;
                 }
-
-                // Include warranty if present
-                if (item.has_warranty && item.warranty) {
-                    orderItem.warranty_id = item.warranty.id;
-                    orderItem.activate_warranty = true; // Flag to activate warranty on invoice creation
+                // Optional: Check if amount is enough? usually 'paid' implies full payment
+                if (formData.amountPaid < grandTotal) {
+                    showMessage(t('msg_amount_received_less_total'), 'error');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    return;
                 }
+            }
 
-                return orderItem;
-            }),
-        };
+            // Validation for partial payment
+            if (formData.paymentStatus === 'partial') {
+                if (!formData.partialPaymentAmount || formData.partialPaymentAmount <= 0) {
+                    showMessage(t('msg_enter_partial_payment_amount'), 'error');
+                    return;
+                }
+                if (formData.partialPaymentAmount >= grandTotal) {
+                    // Use already calculated grandTotal
+                    showMessage(t('msg_partial_payment_less_than_total'), 'error');
+                    return;
+                }
+            }
 
-        if (formData.customerId === 'walk-in') {
-            orderData.customer_id = null;
-            orderData.is_walk_in = true;
-        } else if (formData.customerId && formData.customerId !== 'walk-in') {
-            orderData.customer_id = formData.customerId;
-            orderData.is_walk_in = false;
-        } else {
-            // Create customer instantly if new customer data is provided
-            if (!isOnline) {
+            // Calculate amount paid based on payment status
+            let actualAmountPaid = 0;
+            let actualChangeAmount = 0;
+            let dueAmount = 0;
+
+            if (formData.paymentStatus === 'paid') {
+                // For paid status, use amountPaid for cash or full amount for other methods
+                actualAmountPaid = Number(freshPayment.amount_paid ?? (formData.paymentMethod.toLowerCase() === 'cash' ? formData.amountPaid : grandTotal));
+                actualChangeAmount = Number(freshPayment.change_amount ?? (formData.paymentMethod.toLowerCase() === 'cash' ? formData.changeAmount : 0));
+                dueAmount = 0;
+            } else if (formData.paymentStatus === 'partial') {
+                // For partial, use the partial payment amount
+                actualAmountPaid = Number(freshPayment.amount_paid ?? formData.partialPaymentAmount);
+                actualChangeAmount = 0;
+                dueAmount = Number(freshPayment.due_amount ?? grandTotal - formData.partialPaymentAmount);
+            } else if (formData.paymentStatus === 'due') {
+                // For due, no amount paid
+                actualAmountPaid = 0;
+                actualChangeAmount = 0;
+                dueAmount = Number(freshPayment.due_amount ?? grandTotal);
+            }
+
+            const orderData: any = {
+                store_id: currentStoreId,
+                payment_status: formData.paymentStatus,
+                ...(formData.isSplitPayment ? { payments: formData.splitPayments, payment_method: 'Split' } : { payment_method: formData.paymentMethod }),
+                tax: orderTax,
+                discount: orderDiscount,
+                total: orderSubtotal,
+                grand_total: grandTotal,
+                amount_paid: actualAmountPaid,
+                change_amount: actualChangeAmount,
+                due_amount: dueAmount,
+                points_to_redeem: selectedCustomer && formData.usePoints ? formData.pointsToUse : 0,
+                balance_to_redeem: selectedCustomer && formData.useBalance ? formData.balanceToUse : 0,
+                ...(formData.couponCode ? { coupon_code: formData.couponCode } : {}),
+                items: invoiceItems.map((item) => {
+                    const itemBasePrice = item.rate * item.quantity;
+                    const itemTax = calculateItemTax(item);
+                    const itemSubtotal = item.tax_included && item.tax_rate ? itemBasePrice : itemBasePrice + itemTax;
+
+                    const orderItem: any = {
+                        product_id: item.productId,
+                        stock_id: item.stockId, // Include stock_id for variants
+                        quantity: item.quantity,
+                        unit_price: item.rate,
+                        unit: item.unit || 'piece',
+                        discount: 0,
+                        tax: item.tax_rate || 0,
+                        tax_included: item.tax_included || false,
+                        subtotal: itemSubtotal,
+                    };
+
+                    // Include serial numbers if present
+                    if (item.has_serial && item.serials && item.serials.length > 0) {
+                        orderItem.serial_ids = item.serials.map((s: any) => s.id);
+                    }
+
+                    // Include warranty if present
+                    if (item.has_warranty && item.warranty) {
+                        orderItem.warranty_id = item.warranty.id;
+                        orderItem.activate_warranty = true; // Flag to activate warranty on invoice creation
+                    }
+
+                    return orderItem;
+                }),
+            };
+
+            if (formData.customerId === 'walk-in') {
                 orderData.customer_id = null;
+                orderData.is_walk_in = true;
+            } else if (formData.customerId && formData.customerId !== 'walk-in') {
+                orderData.customer_id = formData.customerId;
                 orderData.is_walk_in = false;
-                orderData.customer_name = formData.customerName.trim();
-                orderData.customer_number = formData.customerPhone?.trim() || null;
-                orderData.customer_email = formData.customerEmail?.trim() || null;
             } else {
-                try {
-                const newCustomerData = {
-                    name: formData.customerName.trim(),
-                    phone: formData.customerPhone.trim(),
-                    email: formData.customerEmail.trim() || null,
-                    store_id: currentStoreId,
-                    membership: 'normal',
-                    points: 0,
-                    balance: 0,
-                    is_active: true,
-                };
-
-                const createdCustomer = await createCustomer(newCustomerData).unwrap();
-                const customerResult = createdCustomer?.data || createdCustomer;
-                orderData.customer_id = customerResult?.id ?? null;
-                orderData.is_walk_in = false;
-
-                showMessage(t('msg_customer_created_success'), 'success');
-                } catch (customerErr: any) {
-                orderData.customer_id = null;
-                if (formData.customerName?.trim()) {
-                    // Has a name → pass as new-customer fields; backend will create on sync
+                // Create customer instantly if new customer data is provided
+                if (!isOnline) {
+                    orderData.customer_id = null;
                     orderData.is_walk_in = false;
                     orderData.customer_name = formData.customerName.trim();
                     orderData.customer_number = formData.customerPhone?.trim() || null;
                     orderData.customer_email = formData.customerEmail?.trim() || null;
                 } else {
-                    // No name at all → treat as walk-in (avoids "customer name required" 500)
-                    orderData.is_walk_in = true;
-                }
-                showMessage(t('msg_customer_create_failed_order_continue'), 'error');
+                    try {
+                        const newCustomerData = {
+                            name: formData.customerName.trim(),
+                            phone: formData.customerPhone.trim(),
+                            email: formData.customerEmail.trim() || null,
+                            store_id: currentStoreId,
+                            membership: 'normal',
+                            points: 0,
+                            balance: 0,
+                            is_active: true,
+                        };
+
+                        const createdCustomer = await createCustomer(newCustomerData).unwrap();
+                        const customerResult = createdCustomer?.data || createdCustomer;
+                        orderData.customer_id = customerResult?.id ?? null;
+                        orderData.is_walk_in = false;
+
+                        showMessage(t('msg_customer_created_success'), 'success');
+                    } catch (customerErr: any) {
+                        orderData.customer_id = null;
+                        if (formData.customerName?.trim()) {
+                            // Has a name → pass as new-customer fields; backend will create on sync
+                            orderData.is_walk_in = false;
+                            orderData.customer_name = formData.customerName.trim();
+                            orderData.customer_number = formData.customerPhone?.trim() || null;
+                            orderData.customer_email = formData.customerEmail?.trim() || null;
+                        } else {
+                            // No name at all → treat as walk-in (avoids "customer name required" 500)
+                            orderData.is_walk_in = true;
+                        }
+                        showMessage(t('msg_customer_create_failed_order_continue'), 'error');
+                    }
                 }
             }
-        }
 
-        if (!isOnline) {
-            // Offline path: queue the order locally
-            const localId = `OFFLINE-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-            const localInvoice = generateLocalInvoiceNumber();
-            const deviceId = getDeviceId();
-            const offlineOrder = {
-                localId,
-                storeId: currentStoreId!,
-                localInvoice,
-                payload: {
-                    ...orderData,
-                    // Sanitize: empty string fails nullable|email validation on API routes
-                    customer_email: orderData.customer_email || null,
-                    // Non-cash paid: send 0 so backend normalizes to fresh grand_total (avoids amount mismatch 422)
-                    amount_paid:
-                        orderData.payment_status === 'paid' &&
-                        orderData.payment_method?.toLowerCase() !== 'cash'
-                            ? 0
-                            : orderData.amount_paid,
-                    local_order_id: localId,
-                    idempotency_key: localId,
-                    device_id: deviceId,
-                    offline_created_at: new Date().toISOString(),
-                },
-                queuedAt: new Date().toISOString(),
-                status: 'pending' as const,
-                retryCount: 0,
-                totalAmount: grandTotal,
-                itemCount: invoiceItems.length,
-            };
-            await saveOfflineOrder(offlineOrder);
-            dispatch(queueOfflineOrder(offlineOrder));
-            // Clear cart immediately — prevents duplicate queuing if app crashes before preview closes
-            dispatch(clearItemsRedux(currentStoreId!));
-            setQuotePreview(null);
-            setOrderResponse({
-                data: {
-                    id: localId,
-                    order_id: localId,
-                    invoice: localInvoice,
-                    invoice_number: localInvoice,
-                    customer: {
-                        name: formData.customerName || t('pos_walk_in_customer'),
-                        email: formData.customerEmail || '',
-                        phone: formData.customerPhone || '',
+            if (!isOnline) {
+                // Offline path: queue the order locally
+                const localId = `OFFLINE-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+                const localInvoice = generateLocalInvoiceNumber();
+                const deviceId = getDeviceId();
+                const offlineOrder = {
+                    localId,
+                    storeId: currentStoreId!,
+                    localInvoice,
+                    payload: {
+                        ...orderData,
+                        // Sanitize: empty string fails nullable|email validation on API routes
+                        customer_email: orderData.customer_email || null,
+                        // Non-cash paid: send 0 so backend normalizes to fresh grand_total (avoids amount mismatch 422)
+                        amount_paid: orderData.payment_status === 'paid' && orderData.payment_method?.toLowerCase() !== 'cash' ? 0 : orderData.amount_paid,
+                        local_order_id: localId,
+                        idempotency_key: localId,
+                        device_id: deviceId,
+                        offline_created_at: new Date().toISOString(),
                     },
-                    products: invoiceItems.map((item) => ({
-                        product_id: item.productId,
-                        product_name: item.title || t('lbl_untitled'),
-                        name: item.title || t('lbl_untitled'),
-                        quantity: item.quantity,
-                        unit_price: item.rate,
-                        price: item.rate,
-                        unit: item.unit || 'piece',
-                        subtotal: item.amount || item.rate * item.quantity,
-                        tax: item.tax_rate || 0,
-                        tax_included: item.tax_included || false,
-                    })),
-                    payment_method: formData.paymentMethod,
-                    payment_status: formData.paymentStatus,
-                    amount_paid: actualAmountPaid,
-                    change_amount: actualChangeAmount,
-                    due_amount: dueAmount,
-                    tax: orderTax,
-                    discount: orderDiscount,
-                    total: orderSubtotal,
-                    grand_total: grandTotal,
-                    totals: {
-                        total: orderSubtotal,
-                        subtotal: orderSubtotal,
+                    queuedAt: new Date().toISOString(),
+                    status: 'pending' as const,
+                    retryCount: 0,
+                    totalAmount: grandTotal,
+                    itemCount: invoiceItems.length,
+                };
+                await saveOfflineOrder(offlineOrder);
+                dispatch(queueOfflineOrder(offlineOrder));
+                // Clear cart immediately — prevents duplicate queuing if app crashes before preview closes
+                dispatch(clearItemsRedux(currentStoreId!));
+                setQuotePreview(null);
+                setOrderResponse({
+                    data: {
+                        id: localId,
+                        order_id: localId,
+                        invoice: localInvoice,
+                        invoice_number: localInvoice,
+                        customer: {
+                            name: formData.customerName || t('pos_walk_in_customer'),
+                            email: formData.customerEmail || '',
+                            phone: formData.customerPhone || '',
+                        },
+                        products: invoiceItems.map((item) => ({
+                            product_id: item.productId,
+                            product_name: item.title || t('lbl_untitled'),
+                            name: item.title || t('lbl_untitled'),
+                            quantity: item.quantity,
+                            unit_price: item.rate,
+                            price: item.rate,
+                            unit: item.unit || 'piece',
+                            subtotal: item.amount || item.rate * item.quantity,
+                            tax: item.tax_rate || 0,
+                            tax_included: item.tax_included || false,
+                        })),
+                        payment_method: formData.paymentMethod,
+                        payment_status: formData.paymentStatus,
+                        amount_paid: actualAmountPaid,
+                        change_amount: actualChangeAmount,
+                        due_amount: dueAmount,
                         tax: orderTax,
                         discount: orderDiscount,
+                        total: orderSubtotal,
                         grand_total: grandTotal,
+                        totals: {
+                            total: orderSubtotal,
+                            subtotal: orderSubtotal,
+                            tax: orderTax,
+                            discount: orderDiscount,
+                            grand_total: grandTotal,
+                        },
+                        offline: true,
                     },
-                    offline: true,
-                },
-            });
-            setAutoPrint(postActionRef.current === 'receipt' ? 'receipt' : null);
-            setShowPreview(true);
-            showMessage(t('msg_order_queued_offline'), 'success');
-            return;
-        }
-
-        try {
-            setLoading(true);
-            const response = await createOrder(orderData).unwrap();
-            setQuotePreview(null);
-            setOrderResponse(response);
-            setAutoPrint(postActionRef.current === 'receipt' ? 'receipt' : null);
-            setShowPreview(true);
-
-            refetch();
-            setLoading(false);
-            showMessage(t('msg_order_created_success'), 'success');
-
-            // Don't clear items yet - we need them for the preview to show variant/warranty data
-            // They will be cleared when the preview is closed
-            // dispatch(clearItemsRedux());
-            // clearCustomerSelection();
-            // setFormData({
-            //     customerId: null,
-            //     customerName: '',
-            //     customerEmail: '',
-            //     customerPhone: '',
-            //     discount: 0,
-            //     membershipDiscount: 0,
-            //     paymentMethod: '',
-            //     paymentStatus: '',
-            //     usePoints: false,
-            //     useBalance: false,
-            //     pointsToUse: 0,
-            //     balanceToUse: 0,
-            //     useWholesale: false,
-            //     amountPaid: 0,
-            //     changeAmount: 0,
-            //     partialPaymentAmount: 0,
-            //     dueAmount: 0,
-            // });
-        } catch (err: any) {
-            setLoading(false);
-
-            let errorMessage = t('msg_failed_create_order');
-
-            if (err?.status === 422 && err?.data?.errors) {
-                errorMessage = Object.values(err.data.errors).flat().join('\n');
-            } else if (err?.data?.message) {
-                errorMessage = err.data.message;
-            } else if (err?.data?.error) {
-                errorMessage = err.data.error;
-            } else if (err?.error) {
-                errorMessage = err.error;
+                });
+                setAutoPrint(postActionRef.current === 'receipt' ? 'receipt' : null);
+                setShowPreview(true);
+                showMessage(t('msg_order_queued_offline'), 'success');
+                return;
             }
 
-            showMessage(errorMessage, 'error');
+            try {
+                setLoading(true);
+                const response = await createOrder(orderData).unwrap();
+                setQuotePreview(null);
+                setOrderResponse(response);
+                setAutoPrint(postActionRef.current === 'receipt' ? 'receipt' : null);
+                setShowPreview(true);
+
+                refetch();
+                setLoading(false);
+                showMessage(t('msg_order_created_success'), 'success');
+
+                // Don't clear items yet - we need them for the preview to show variant/warranty data
+                // They will be cleared when the preview is closed
+                // dispatch(clearItemsRedux());
+                // clearCustomerSelection();
+                // setFormData({
+                //     customerId: null,
+                //     customerName: '',
+                //     customerEmail: '',
+                //     customerPhone: '',
+                //     discount: 0,
+                //     membershipDiscount: 0,
+                //     paymentMethod: '',
+                //     paymentStatus: '',
+                //     usePoints: false,
+                //     useBalance: false,
+                //     pointsToUse: 0,
+                //     balanceToUse: 0,
+                //     useWholesale: false,
+                //     amountPaid: 0,
+                //     changeAmount: 0,
+                //     partialPaymentAmount: 0,
+                //     dueAmount: 0,
+                // });
+            } catch (err: any) {
+                setLoading(false);
+
+                let errorMessage = t('msg_failed_create_order');
+
+                if (err?.status === 422 && err?.data?.errors) {
+                    errorMessage = Object.values(err.data.errors).flat().join('\n');
+                } else if (err?.data?.message) {
+                    errorMessage = err.data.message;
+                } else if (err?.data?.error) {
+                    errorMessage = err.data.error;
+                } else if (err?.error) {
+                    errorMessage = err.error;
+                }
+
+                showMessage(errorMessage, 'error');
+            }
+        } finally {
+            isSubmittingRef.current = false;
         }
     };
 
@@ -1434,56 +1443,33 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
 
         if (!(await checkReturnReasons())) return;
 
-        // Check if return reason is already set in Redux
-        let reasonId = returnReasonData.reasonId;
-        let notes = returnReasonData.notes;
-
-        if (!reasonId) {
-            // Show return reason selection modal ONLY if not already set
-            const result = await Swal.fire({
-                title: t('pos_select_return_reason'),
-                input: 'select',
-                inputOptions: returnReasons.reduce((acc: Record<string, string>, reason: any) => {
-                    acc[reason.id] = reason.name;
-                    return acc;
-                }, {}),
-                inputPlaceholder: t('pos_select_reason_placeholder'),
-                showCancelButton: true,
-                confirmButtonText: t('btn_submit_return'),
-                confirmButtonColor: '#f59e0b',
-                cancelButtonColor: '#6b7280',
-                inputValidator: (value) => {
-                    if (!value) {
-                        return t('msg_select_return_reason');
-                    }
-                    return null;
-                },
-            });
-
-            if (!result.isConfirmed || !result.value) return;
-
-            reasonId = parseInt(result.value);
-
-            // Optional: ask for notes
-            const notesResult = await Swal.fire({
-                title: t('pos_return_notes_optional'),
-                input: 'textarea',
-                inputPlaceholder: t('pos_return_notes_placeholder'),
-                showCancelButton: true,
-                confirmButtonText: t('pos_complete_return'),
-                confirmButtonColor: '#10b981',
-                cancelButtonText: t('btn_skip'),
-            });
-
-            notes = notesResult.value || '';
-
-            // Update return reason in Redux
-            if (currentStoreId) {
-                dispatch(setReturnReason({ storeId: currentStoreId, reasonId, notes }));
-            }
+        // If return reason is already set in Redux, proceed directly
+        if (returnReasonData.reasonId) {
+            await proceedReturnSubmission(returnReasonData.reasonId, returnReasonData.notes || '');
+            return;
         }
 
-        // Prepare return data
+        // Open custom modal to collect reason + notes
+        setShowReturnReasonModal(true);
+    };
+
+    const handleReturnReasonConfirm = async (reasonId: number, notes: string) => {
+        setShowReturnReasonModal(false);
+        if (currentStoreId) {
+            dispatch(setReturnReason({ storeId: currentStoreId, reasonId, notes }));
+        }
+        await proceedReturnSubmission(reasonId, notes);
+    };
+
+    const proceedReturnSubmission = async (reasonId: number, notes: string) => {
+        const validReturnItems = returnItemsData
+            .filter((item) => item.returnQuantity > 0)
+            .map((item) => ({
+                order_item_id: item.orderItemId,
+                quantity_returned: item.returnQuantity,
+            }));
+        const validExchangeItems = exchangeItemsData.filter((item) => Number(item.quantity) > 0);
+
         const returnData = {
             order_id: orderId,
             store_id: currentStoreId,
@@ -1517,7 +1503,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             setPendingReturnData(returnData);
             setReturnQuotePreview((quoteResult as any)?.data || quoteResult);
             setShowReturnQuoteModal(true);
-        } catch (error: any) {
+        } catch {
             setLoading(false);
             // If quote endpoint fails, fall through directly to submit
             await submitReturnDirectly(returnData);
@@ -1579,9 +1565,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             setShowPreview(true);
         } catch (err: any) {
             const message =
-                err?.status === 422 && err?.data?.errors
-                    ? Object.values(err.data.errors).flat().join('\n')
-                    : err?.data?.message || err?.data?.error || err?.error || t('msg_failed_create_order');
+                err?.status === 422 && err?.data?.errors ? Object.values(err.data.errors).flat().join('\n') : err?.data?.message || err?.data?.error || err?.error || t('msg_failed_create_order');
             showMessage(message, 'error');
         } finally {
             setLoading(false);
@@ -1935,6 +1919,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                     isLoading={loading}
                 />
             )}
+            <ReturnReasonModal isOpen={showReturnReasonModal} onClose={() => setShowReturnReasonModal(false)} reasons={returnReasons} onConfirm={handleReturnReasonConfirm} />
 
             {/* Store Branding Header */}
             {!isReturnMode && (
@@ -1945,9 +1930,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                         </div>
                         <div className="min-w-0">
                             <p className="truncate text-sm font-bold text-gray-800">{currentStore?.store_name || t('lbl_pos_terminal')}</p>
-                            {currentStore?.store_location && (
-                                <p className="truncate text-xs text-gray-400">{currentStore.store_location}</p>
-                            )}
+                            {currentStore?.store_location && <p className="truncate text-xs text-gray-400">{currentStore.store_location}</p>}
                         </div>
                     </div>
                     <div className="shrink-0 text-right">
@@ -2007,18 +1990,22 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                             customerId={typeof formData.customerId === 'number' ? formData.customerId : null}
                             appliedCode={formData.couponCode}
                             couponDiscount={formData.couponDiscount}
-                            onApply={(result) => setFormData((prev) => ({
-                                ...prev,
-                                couponCode: result.code,
-                                couponDiscount: result.discount_amount,
-                                couponId: result.coupon_id,
-                            }))}
-                            onRemove={() => setFormData((prev) => ({
-                                ...prev,
-                                couponCode: '',
-                                couponDiscount: 0,
-                                couponId: null,
-                            }))}
+                            onApply={(result) =>
+                                setFormData((prev) => ({
+                                    ...prev,
+                                    couponCode: result.code,
+                                    couponDiscount: result.discount_amount,
+                                    couponId: result.coupon_id,
+                                }))
+                            }
+                            onRemove={() =>
+                                setFormData((prev) => ({
+                                    ...prev,
+                                    couponCode: '',
+                                    couponDiscount: 0,
+                                    couponId: null,
+                                }))
+                            }
                         />
                     </div>
                 )}
@@ -2094,11 +2081,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                     </div>
                 ) : (
                     <div className="mt-4 rounded-xl border border-primary/15 bg-primary/5 p-4 pb-20 sm:pb-4">
-                        {quoteErrorMsg && (
-                            <div className="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
-                                ⚠ {quoteErrorMsg}
-                            </div>
-                        )}
+                        {quoteErrorMsg && <div className="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">⚠ {quoteErrorMsg}</div>}
                         <div className="mb-3 flex items-center justify-between text-sm">
                             <span className="font-medium text-gray-500">
                                 {invoiceItems.length} {invoiceItems.length === 1 ? t('lbl_item') : t('lbl_items')}
@@ -2107,29 +2090,28 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                         </div>
                         <div className="grid gap-3 sm:grid-cols-[1fr_1fr]">
                             <button
+                                data-testid="pos-confirm-order"
                                 type="button"
-                                onClick={() => { postActionRef.current = 'invoice'; handleSubmit(); }}
+                                onClick={() => {
+                                    postActionRef.current = 'invoice';
+                                    handleSubmit();
+                                }}
                                 disabled={loading || invoiceItems.length === 0}
-                                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#046ca9] to-[#034d79] px-4 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 sm:text-base"
+                                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#046ca9] to-[#034d79] px-4 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-50 sm:text-base"
                             >
-                                {loading ? (
-                                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                                ) : (
-                                    <IconSave />
-                                )}
+                                {loading ? <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" /> : <IconSave />}
                                 {t('btn_confirm_order')}
                             </button>
                             <button
                                 type="button"
-                                onClick={() => { postActionRef.current = 'receipt'; handleSubmit(); }}
+                                onClick={() => {
+                                    postActionRef.current = 'receipt';
+                                    handleSubmit();
+                                }}
                                 disabled={loading || invoiceItems.length === 0}
                                 className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 sm:text-base"
                             >
-                                {loading ? (
-                                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                                ) : (
-                                    <IconPrinter />
-                                )}
+                                {loading ? <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" /> : <IconPrinter />}
                                 {t('btn_confirm_print_receipt')}
                             </button>
                         </div>

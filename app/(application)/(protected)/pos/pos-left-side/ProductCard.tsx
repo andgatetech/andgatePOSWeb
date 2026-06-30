@@ -96,6 +96,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
     return (
         <div
+            data-testid="pos-product-card"
             onClick={handleClick}
             className={`group relative flex flex-col overflow-hidden rounded-xl border bg-white transition-all duration-150 select-none ${
                 isUnavailable

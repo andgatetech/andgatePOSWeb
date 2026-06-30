@@ -4,7 +4,7 @@ import PwaStandaloneGate from '@/components/layouts/PwaStandaloneGate';
 import PwaUpdateRecovery from '@/components/layouts/PwaUpdateRecovery';
 import { BD_KEYWORDS, getAppUrl } from '@/lib/seo-config';
 import { Metadata } from 'next';
-import { headers } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import Script from 'next/script';
 import { ToastContainer } from 'react-toastify';
 import 'react-perfect-scrollbar/dist/css/styles.css';
@@ -85,7 +85,10 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
     const headerStore = await headers();
     const pathname = headerStore.get('x-pathname') || '';
-    const htmlLang = pathname.startsWith('/bn') ? 'bn-BD' : 'en-BD';
+    const cookieStore = await cookies();
+    const langCookie = cookieStore.get('i18nextLng')?.value;
+    const initialLang = langCookie?.replace('_', '-')?.split('-')?.[0] || 'bn';
+    const htmlLang = pathname.startsWith('/bn') ? 'bn-BD' : `${initialLang}-BD`;
 
     const organizationJsonLd = {
         '@context': 'https://schema.org',
@@ -259,7 +262,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                     })();
                 `}
             </Script> */}
-                <ProviderComponent>
+                <ProviderComponent initialLang={initialLang}>
                     <PwaStandaloneGate />
                     <PwaUpdateRecovery />
                     {children}

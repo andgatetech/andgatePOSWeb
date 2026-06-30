@@ -1,5 +1,6 @@
 'use client';
 import ContactSupportCard from '@/lib/protected/ContactSupportCard';
+import { getTranslation } from '@/i18n';
 import { RootState } from '@/store';
 import { AlertTriangle, StoreIcon } from 'lucide-react';
 import { useSelector } from 'react-redux';
@@ -10,19 +11,20 @@ interface StoreInactiveScreenProps {
 
 export default function StoreInactiveScreen({ storeName }: StoreInactiveScreenProps) {
     const user = useSelector((state: RootState) => state.auth?.user);
+    const { t } = getTranslation();
 
     const whatsappMessage = [
-        'Hello andgate Support,',
+        t('support_whatsapp_greeting'),
         '',
-        'My store is INACTIVE and I cannot access it.',
+        t('support_whatsapp_store_inactive_body'),
         '',
-        `User ID   : ${user?.id ?? 'N/A'}`,
-        `Name      : ${user?.name ?? 'N/A'}`,
-        `Email     : ${user?.email ?? 'N/A'}`,
-        `Store     : ${storeName ?? 'N/A'}`,
-        `Issue     : Store Inactive`,
+        `${t('support_whatsapp_user_id')}: ${user?.id ?? 'N/A'}`,
+        `${t('support_whatsapp_name')}: ${user?.name ?? 'N/A'}`,
+        `${t('support_whatsapp_email')}: ${user?.email ?? 'N/A'}`,
+        `${t('support_whatsapp_store')}: ${storeName ?? 'N/A'}`,
+        `${t('support_whatsapp_issue')}: ${t('support_whatsapp_issue_store_inactive')}`,
         '',
-        'Please help reactivate my store.',
+        t('support_whatsapp_please_reactivate_store'),
     ].join('\n');
 
     return (
@@ -38,37 +40,38 @@ export default function StoreInactiveScreen({ storeName }: StoreInactiveScreenPr
                             </div>
                             <div className="inline-flex items-center rounded-full bg-orange-100 px-4 py-2 text-xs font-semibold text-orange-800">
                                 <AlertTriangle className="mr-2 h-4 w-4" />
-                                Store Inactive
+                                {t('status_store_inactive_badge')}
                             </div>
                         </div>
 
                         {/* Middle: Info */}
                         <div className="lg:col-span-2">
-                            <h1 className="mb-3 text-2xl font-black text-gray-900 lg:text-3xl">Store is Currently Inactive</h1>
-                            {storeName && <p className="mb-2 text-sm font-semibold text-orange-600">Store: {storeName}</p>}
-                            <p className="mb-4 text-sm text-gray-600 lg:text-base">
-                                This store has been deactivated. You cannot access its data or perform any operations until it is reactivated. Please contact your administrator or support team to
-                                resolve this.
-                            </p>
+                            <h1 className="mb-3 text-2xl font-black text-gray-900 lg:text-3xl">{t('status_store_inactive_title')}</h1>
+                            {storeName && (
+                                <p className="mb-2 text-sm font-semibold text-orange-600">
+                                    {t('status_store_label')}: {storeName}
+                                </p>
+                            )}
+                            <p className="mb-4 text-sm text-gray-600 lg:text-base">{t('status_store_inactive_desc')}</p>
 
                             {/* Info Box */}
                             <div className="mb-4 rounded-lg bg-orange-50 p-4">
                                 <div className="mb-2 flex items-center">
                                     <AlertTriangle className="mr-2 h-4 w-4 text-orange-600" />
-                                    <h3 className="text-sm font-semibold text-orange-900">What should you do?</h3>
+                                    <h3 className="text-sm font-semibold text-orange-900">{t('status_what_should_you_do')}</h3>
                                 </div>
                                 <ul className="space-y-1 text-xs text-orange-800 lg:text-sm">
                                     <li className="flex items-start">
                                         <span className="mr-2">•</span>
-                                        <span>Switch to another active store from the sidebar</span>
+                                        <span>{t('status_store_inactive_tip_1')}</span>
                                     </li>
                                     <li className="flex items-start">
                                         <span className="mr-2">•</span>
-                                        <span>Contact the administrator to reactivate this store</span>
+                                        <span>{t('status_store_inactive_tip_2')}</span>
                                     </li>
                                     <li className="flex items-start">
                                         <span className="mr-2">•</span>
-                                        <span>Reach out to support if you believe this is a mistake</span>
+                                        <span>{t('status_store_inactive_tip_3')}</span>
                                     </li>
                                 </ul>
                             </div>
@@ -80,7 +83,7 @@ export default function StoreInactiveScreen({ storeName }: StoreInactiveScreenPr
                 </div>
 
                 {/* Footer Note */}
-                <p className="mt-4 text-center text-xs text-gray-500 lg:text-sm">Please switch to an active store or contact support for assistance.</p>
+                <p className="mt-4 text-center text-xs text-gray-500 lg:text-sm">{t('status_store_footer')}</p>
             </div>
         </div>
     );
