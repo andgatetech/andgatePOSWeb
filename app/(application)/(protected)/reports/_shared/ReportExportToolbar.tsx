@@ -4,6 +4,7 @@ import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { closeReservedPdfWindow, downloadPdfMake, isMobilePdfDownloadRisk, reservePdfWindow } from '@/lib/pdf-mobile-download';
+import { showErrorDialog } from '@/lib/toast';
 import enLocale from '@/public/locales/en.json';
 import { RootState } from '@/store';
 import { format } from 'date-fns';
@@ -38,32 +39,57 @@ const _ensureRptPdf = (): Promise<void> => {
             const vfsFonts: any = await import('pdfmake/build/vfs_fonts');
             pm.addVirtualFileSystem(vfsFonts.default ?? vfsFonts);
 
-            const [rr, br] = await Promise.all([
-                fetch('/fonts/NotoSansBengali-Regular.ttf'),
-                fetch('/fonts/NotoSansBengali-Bold.ttf'),
-            ]);
-            if (rr.ok && br.ok) {
-                const [rb64, bb64] = await Promise.all([rr.blob().then(blobToBase64), br.blob().then(blobToBase64)]);
-                // pdfMake 0.3 public API — writes to the internal singleton VirtualFileSystem
-                pm.addVirtualFileSystem({
-                    'NotoSansBengali-Regular.ttf': rb64,
-                    'NotoSansBengali-Bold.ttf': bb64,
-                });
-                pm.addFonts({
-                    NotoSansBengali: {
-                        normal: 'NotoSansBengali-Regular.ttf',
-                        bold: 'NotoSansBengali-Bold.ttf',
-                        italics: 'NotoSansBengali-Regular.ttf',
-                        bolditalics: 'NotoSansBengali-Bold.ttf',
-                    },
-                });
-                _rptPdf.bnLoaded = true;
+            try {
+                const [rr, br] = await Promise.all([
+                    fetch('/fonts/NotoSansBengali-Regular.ttf'),
+                    fetch('/fonts/NotoSansBengali-Bold.ttf'),
+                ]);
+                if (rr.ok && br.ok) {
+                    const [rb64, bb64] = await Promise.all([rr.blob().then(blobToBase64), br.blob().then(blobToBase64)]);
+                    // pdfMake 0.3 public API — writes to the internal singleton VirtualFileSystem
+                    pm.addVirtualFileSystem({
+                        'NotoSansBengali-Regular.ttf': rb64,
+                        'NotoSansBengali-Bold.ttf': bb64,
+                    });
+                    pm.addFonts({
+                        NotoSansBengali: {
+                            normal: 'NotoSansBengali-Regular.ttf',
+                            bold: 'NotoSansBengali-Bold.ttf',
+                            italics: 'NotoSansBengali-Regular.ttf',
+                            bolditalics: 'NotoSansBengali-Bold.ttf',
+                        },
+                    });
+                    _rptPdf.bnLoaded = true;
+                }
+            } catch {
+                // PDF export still works in English fallback mode if Bengali fonts cannot be fetched.
             }
-        } catch {
+        } catch (error) {
+            _rptPdf.pm = null;
+            _rptPdf.bnLoaded = false;
             _rptPdfPromise = null; // allow retry
+            throw error;
         }
     })();
     return _rptPdfPromise;
+};
+
+const sanitizeExportFileName = (value: string): string => {
+    const normalized = String(value || 'report')
+        .trim()
+        .replace(/[<>:"/\\|?*\x00-\x1F]/g, '_')
+        .replace(/\s+/g, '_')
+        .replace(/_+/g, '_')
+        .replace(/^_+|_+$/g, '');
+    return normalized || 'report';
+};
+
+const sanitizeExcelSheetName = (value: string): string => {
+    const cleaned = String(value || 'Report')
+        .replace(/[\[\]:*?/\\]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+    return (cleaned || 'Report').slice(0, 31);
 };
 
 // Recursively routes text by Unicode script: Bengali (U+0980-U+09FF) → NotoSansBengali, rest → Roboto
@@ -143,6 +169,11 @@ const breakLongPdfWords = (value: string, chunkSize = 16): string => {
 
 type ExportAction = 'print' | 'pdf' | 'excel';
 
+const reportExportErrorMessage = (action: ExportAction, t: (key: string) => string) => {
+    if (action === 'pdf' || action === 'print') return t('msg_pdf_generate_failed');
+    return t('msg_export_failed');
+};
+
 const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
     reportTitle,
     reportDescription,
@@ -194,7 +225,7 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
     }, [filterSummary?.dateRange, t]);
 
     const storeDisplayText = filterSummary?.storeName || currentStore?.store_name || t('lbl_all_stores');
-    const baseFileName = fileName || reportTitle.toLowerCase().replace(/\s+/g, '_');
+    const baseFileName = sanitizeExportFileName(fileName || reportTitle.toLowerCase().replace(/\s+/g, '_'));
 
     const displayTitle = useMemo(() => {
         const filterParts: string[] = [];
@@ -256,8 +287,11 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
             const workbook = XLSX.utils.book_new();
             const colWidths = columns.map((col) => ({ wch: col.width || Math.max(col.label.length + 2, 15) }));
             worksheet['!cols'] = colWidths;
-            XLSX.utils.book_append_sheet(workbook, worksheet, reportTitle.substring(0, 31));
+            XLSX.utils.book_append_sheet(workbook, worksheet, sanitizeExcelSheetName(reportTitle));
             XLSX.writeFile(workbook, `${baseFileName}_${format(new Date(), 'yyyy-MM-dd')}.xlsx`);
+        } catch (error) {
+            console.error('[Excel] report export failed:', error);
+            showErrorDialog(t('msg_error'), reportExportErrorMessage('excel', t));
         } finally {
             setActiveExport(null);
         }
@@ -267,7 +301,7 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
     const generatePdf = useCallback(
         async (mode: 'download' | 'print', reservedPdfWindow?: Window | null) => {
             await _ensureRptPdf();
-            if (!_rptPdf.pm) return;
+            if (!_rptPdf.pm) throw new Error('PDF generator is not ready.');
 
             const exportData = await getExportData();
             const useBnFont = isBn && _rptPdf.bnLoaded;
@@ -476,8 +510,16 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
     const handlePdfExport = useCallback(async () => {
         const mobilePdfWindow = reservePdfWindow(`${baseFileName}_${format(new Date(), 'yyyy-MM-dd')}.pdf`);
         setActiveExport('pdf');
-        try { await generatePdf('download', mobilePdfWindow); } catch (error) { closeReservedPdfWindow(mobilePdfWindow); console.error('[PDF] report export failed:', error); } finally { setActiveExport(null); }
-    }, [generatePdf, baseFileName]);
+        try {
+            await generatePdf('download', mobilePdfWindow);
+        } catch (error) {
+            closeReservedPdfWindow(mobilePdfWindow);
+            console.error('[PDF] report export failed:', error);
+            showErrorDialog(t('msg_error'), reportExportErrorMessage('pdf', t));
+        } finally {
+            setActiveExport(null);
+        }
+    }, [generatePdf, baseFileName, t]);
 
     const handlePrint = useCallback(async () => {
         const mobilePdfWindow = isMobilePdfDownloadRisk()
@@ -489,10 +531,11 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
         } catch (error) {
             closeReservedPdfWindow(mobilePdfWindow);
             console.error('[PDF] print failed:', error);
+            showErrorDialog(t('msg_error'), reportExportErrorMessage('print', t));
         } finally {
             setActiveExport(null);
         }
-    }, [generatePdf, baseFileName]);
+    }, [generatePdf, baseFileName, t]);
 
     return (
         <div className="mb-6">

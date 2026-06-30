@@ -2541,6 +2541,7 @@
   "status_loading": "Loading...",
   "msg_pdf_loading": "PDF library is still loading. Please try again in a moment.",
   "msg_pdf_generate_failed": "Failed to generate PDF. Please try again.",
+  "msg_export_failed": "Failed to export report. Please try again.",
   "msg_allow_popups_print_receipts": "Please allow popups to print receipts.",
   "msg_print_window_failed": "Failed to open print window. Please try again.",
   "msg_thank_you": "Thank you!",

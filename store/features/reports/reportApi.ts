@@ -255,6 +255,78 @@ const ReportApi = baseApi.injectEndpoints({
                 body: data,
             }),
         }),
+
+        getCashClosingReport: builder.mutation({
+            query: (data: ReportFilters) => ({
+                url: '/reports/operations/cash-closing',
+                method: 'POST',
+                body: data,
+            }),
+        }),
+
+        getPaymentSummaryReport: builder.mutation({
+            query: (data: ReportFilters) => ({
+                url: '/reports/operations/payment-summary',
+                method: 'POST',
+                body: data,
+            }),
+        }),
+
+        getEmployeeSalesReport: builder.mutation({
+            query: (data: ReportFilters) => ({
+                url: '/reports/operations/employee-sales',
+                method: 'POST',
+                body: data,
+            }),
+        }),
+
+        getStockMovementReport: builder.mutation({
+            query: (data: ReportFilters) => ({
+                url: '/reports/operations/stock-movement',
+                method: 'POST',
+                body: data,
+            }),
+        }),
+
+        getDiscountReport: builder.mutation({
+            query: (data: ReportFilters) => ({
+                url: '/reports/operations/discount',
+                method: 'POST',
+                body: data,
+            }),
+        }),
+
+        getCustomerStatementReport: builder.mutation({
+            query: (data: ReportFilters) => ({
+                url: '/reports/operations/customer-statement',
+                method: 'POST',
+                body: data,
+            }),
+        }),
+
+        getSupplierStatementReport: builder.mutation({
+            query: (data: ReportFilters) => ({
+                url: '/reports/operations/supplier-statement',
+                method: 'POST',
+                body: data,
+            }),
+        }),
+
+        getTransferLedgerReport: builder.mutation({
+            query: (data: ReportFilters) => ({
+                url: '/reports/operations/transfer-ledger',
+                method: 'POST',
+                body: data,
+            }),
+        }),
+
+        getAuditActivityReport: builder.mutation({
+            query: (data: ReportFilters) => ({
+                url: '/reports/operations/audit-activity',
+                method: 'POST',
+                body: data,
+            }),
+        }),
     }),
 });
 
@@ -288,4 +360,14 @@ export const {
     useGetBdVatWorkspaceMutation,
     // Receivables
     useGetArAgingReportMutation,
+    // SME operating reports
+    useGetCashClosingReportMutation,
+    useGetPaymentSummaryReportMutation,
+    useGetEmployeeSalesReportMutation,
+    useGetStockMovementReportMutation,
+    useGetDiscountReportMutation,
+    useGetCustomerStatementReportMutation,
+    useGetSupplierStatementReportMutation,
+    useGetTransferLedgerReportMutation,
+    useGetAuditActivityReportMutation,
 } = ReportApi;

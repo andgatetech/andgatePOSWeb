@@ -402,6 +402,9 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                     { label: 'Sales Report', href: '/reports/sales', requiredPermissions: ['reports.sales'] },
                     { label: 'Order Returns', href: '/reports/order-returns', requiredPermissions: ['reports.sales'] },
                     { label: 'Transactions', href: '/reports/transaction', requiredPermissions: ['reports.transaction'] },
+                    { label: 'Payment Mode Summary', href: '/reports/payment-summary', requiredPermissions: ['reports.transaction'] },
+                    { label: 'Employee Sales', href: '/reports/employee-sales', requiredPermissions: ['reports.sales'] },
+                    { label: 'Discount Report', href: '/reports/discount', requiredPermissions: ['reports.sales'] },
                     { label: 'Invoices', href: '/reports/invoice', requiredPermissions: ['reports.sales'] },
                     { label: 'Sales Items', href: '/reports/sales-items', requiredPermissions: ['reports.sales'] },
                 ],
@@ -413,6 +416,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                 subMenu: [
                     { label: 'Customer Report', href: '/reports/customer', requiredPermissions: ['reports.sales'] },
                     { label: 'Customer Due', href: '/reports/customer-due', requiredPermissions: ['reports.sales'] },
+                    { label: 'Customer Statement', href: '/reports/customer-statement', requiredPermissions: ['reports.sales'] },
                 ],
             },
             // Purchase & Supplier Reports
@@ -425,6 +429,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                     { label: 'Purchase Transactions', href: '/reports/purchase-transaction', requiredPermissions: ['reports.purchase-transaction'] },
                     { label: 'Supplier Report', href: '/reports/supplier', requiredPermissions: ['reports.purchase'] },
                     { label: 'Supplier Dues', href: '/reports/supplier-due', requiredPermissions: ['reports.purchase'] },
+                    { label: 'Supplier Statement', href: '/reports/supplier-statement', requiredPermissions: ['reports.purchase'] },
                 ],
             },
             // Inventory Reports
@@ -435,6 +440,8 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                     { label: 'Stock Report', href: '/reports/stock', requiredPermissions: ['stock.reports'] },
                     { label: 'Low Stock', href: '/reports/low-stock', requiredPermissions: ['reports.low-stock'] },
                     { label: 'Threshold Intelligence', href: '/reports/threshold-intelligence', requiredPermissions: ['reports.low-stock'] },
+                    { label: 'Stock Movement Ledger', href: '/reports/stock-movement', requiredPermissions: ['stock.reports'] },
+                    { label: 'Transfer Ledger', href: '/reports/transfer-ledger', requiredPermissions: ['stock.reports'] },
                     { label: 'Idle Products', href: '/reports/idle-product', requiredPermissions: ['reports.inventory'] },
                     { label: 'Adjustments', href: '/reports/adjustment', requiredPermissions: ['stock.reports'] },
                     { label: 'Product Report', href: '/reports/product', requiredPermissions: ['reports.inventory'] },
@@ -448,6 +455,8 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                     { label: 'Profit & Loss', href: '/reports/profit-loss', requiredPermissions: ['reports.profit-loss'] },
                     { label: 'Expense Report', href: '/reports/expense', requiredPermissions: ['reports.expense'] },
                     { label: 'Tax Report', href: '/reports/tax', requiredPermissions: ['reports.tax'] },
+                    { label: 'Cash Closing Report', href: '/reports/cash-closing', requiredPermissions: ['reports.sales'] },
+                    { label: 'Audit Activity', href: '/reports/audit-activity', requiredPermissions: ['reports.sales'] },
                 ],
             },
             // AI Insights
