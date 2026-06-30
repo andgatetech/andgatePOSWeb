@@ -146,9 +146,16 @@ export default function ShiftsPage() {
                             </div>
                             <div className="space-y-1">
                                 {dayShifts.map((s: any) => (
-                                    <div key={s.id} className="flex items-center justify-between rounded-lg bg-gray-50 px-2 py-1.5 text-xs">
-                                        <span className="font-medium text-gray-800">{s.user?.name}</span>
-                                        <button onClick={() => handleRemove(s.id)} className="text-gray-400 hover:text-red-500">
+                                    <div key={s.id} className="flex items-center justify-between gap-1 rounded-lg bg-gray-50 px-2 py-1.5 text-xs">
+                                        <div className="min-w-0">
+                                            <p className="truncate font-medium text-gray-800">{s.user?.name}</p>
+                                            {s.shiftTemplate && (
+                                                <span className="mt-0.5 inline-block rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary">
+                                                    {s.shiftTemplate.name} · {s.shiftTemplate.start_time}–{s.shiftTemplate.end_time}
+                                                </span>
+                                            )}
+                                        </div>
+                                        <button onClick={() => handleRemove(s.id)} className="shrink-0 text-gray-400 hover:text-red-500">
                                             <Trash2 className="h-3 w-3" />
                                         </button>
                                     </div>

@@ -268,8 +268,8 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     '/feedbacks': ['feedbacks.index'],
     '/feedbacks/create-feedback': ['feedbacks.create'],
 
-    // ── Stock Transfers (subscription owner / business_admin only) ────────
-    '/stock-transfers': ['subscription.owner'],
+    // ── Stock Transfers (business_admin bypass, or manager/staff with stock-transfer permission) ────────
+    '/stock-transfers': ['stock-transfer.view', 'stock-transfer.manage'],
 
     // ── Employees Management (subscription owner / business_admin only) ───
     '/employees': ['subscription.owner'],

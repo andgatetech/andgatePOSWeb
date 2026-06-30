@@ -15,6 +15,13 @@ import { useGetStaffMemberQuery } from '@/store/features/store/storeApi';
 import { CalendarOff, CheckCircle2, Plane, Plus, Trash2, XCircle } from 'lucide-react';
 import { useState } from 'react';
 
+const formatLeaveDate = (value: string) => {
+    if (!value) return '';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return value;
+    return date.toLocaleDateString('en-BD', { year: 'numeric', month: 'short', day: 'numeric' });
+};
+
 type Tab = 'requests' | 'holidays';
 
 export default function LeavePage() {
@@ -178,7 +185,7 @@ export default function LeavePage() {
                                 <div key={req.id} className="flex items-center justify-between rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
                                     <div>
                                         <p className="font-semibold text-gray-900">{req.user?.name} — {req.leaveType?.name}</p>
-                                        <p className="text-xs text-gray-400">{req.start_date} → {req.end_date} ({req.days} {t('leave_days')})</p>
+                                        <p className="text-xs text-gray-400">{formatLeaveDate(req.start_date)} → {formatLeaveDate(req.end_date)} ({req.days} {t('leave_days')})</p>
                                         {req.reason && <p className="text-xs text-gray-400">{req.reason}</p>}
                                     </div>
                                     <div className="flex items-center gap-2">
@@ -224,7 +231,7 @@ export default function LeavePage() {
                                 <div key={h.id} className="flex items-center justify-between rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
                                     <div>
                                         <p className="font-semibold text-gray-900">{h.name}</p>
-                                        <p className="text-xs text-gray-400">{h.date}</p>
+                                        <p className="text-xs text-gray-400">{formatLeaveDate(h.date)}</p>
                                     </div>
                                     <button onClick={() => handleDeleteHoliday(h.id)} className="rounded-lg p-1.5 text-red-600 hover:bg-red-50">
                                         <Trash2 className="h-4 w-4" />

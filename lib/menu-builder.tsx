@@ -1,5 +1,5 @@
 // lib/menu-builder.tsx
-import { ArrowRightLeft, BarChart, Bell, BookOpen, BrainCircuit, BriefcaseBusiness, CalendarCheck, FileText, Home, Layers, Link2, MessagesSquare, Package, Receipt, Settings, Shield, ShoppingBag, ShoppingCart, Tag, Truck, Users } from 'lucide-react';
+import { BarChart, Bell, BookOpen, BrainCircuit, BriefcaseBusiness, CalendarCheck, FileText, Home, Layers, Link2, MessagesSquare, Package, Receipt, Settings, Shield, ShoppingBag, ShoppingCart, Tag, Truck, Users } from 'lucide-react';
 import React from 'react';
 
 export interface MenuItem {
@@ -8,6 +8,7 @@ export interface MenuItem {
     href?: string;
     subMenu?: MenuItem[];
     requiredPermissions?: string[];
+    allowedRoles?: string[];
     ownerOnly?: boolean; // true = only visible to subscription owner (business_admin role)
     sectionBreak?: boolean; // true = render a visual divider above this item
 }
@@ -109,12 +110,6 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         ],
     },
     {
-        label: 'transfer_title',
-        icon: React.createElement(ArrowRightLeft),
-        href: '/stock-transfers',
-        ownerOnly: true,
-    },
-    {
         label: 'Store',
         icon: React.createElement(ShoppingBag),
         requiredPermissions: ['stores.view'],
@@ -173,7 +168,8 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
     {
         label: 'Product',
         icon: React.createElement(Package),
-        requiredPermissions: ['products.index'],
+        requiredPermissions: ['products.index', 'stock-transfer.view', 'stock-transfer.manage'],
+        allowedRoles: ['business_admin'],
         subMenu: [
             {
                 label: 'Add Product',
@@ -189,6 +185,12 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                 label: 'Stock Adjustment',
                 href: '/products/stock/adjustments',
                 requiredPermissions: ['stock.adjustments'],
+            },
+            {
+                label: 'transfer_title',
+                href: '/stock-transfers',
+                requiredPermissions: ['stock-transfer.view', 'stock-transfer.manage'],
+                allowedRoles: ['business_admin'],
             },
             {
                 label: 'Bulk Upload',
@@ -597,8 +599,10 @@ function filterMenuItem(item: MenuItem, userPermissions: string[] | undefined, u
         return null;
     }
 
+    const isAllowedRole = !!userRole && !!item.allowedRoles?.includes(userRole);
+
     // Check if user has permission for this menu item
-    if (!item.ownerOnly && !hasAnyPermission(userPermissions, item.requiredPermissions)) {
+    if (!item.ownerOnly && !isAllowedRole && !hasAnyPermission(userPermissions, item.requiredPermissions)) {
         return null;
     }
 

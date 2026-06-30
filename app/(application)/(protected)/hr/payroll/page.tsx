@@ -13,6 +13,13 @@ import {
 import { Banknote, Calculator, CheckCircle2, Plus, Wallet } from 'lucide-react';
 import { useState } from 'react';
 
+const formatCycleDate = (value: string) => {
+    if (!value) return '';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return value;
+    return date.toLocaleDateString('en-BD', { year: 'numeric', month: 'short', day: 'numeric' });
+};
+
 export default function PayrollPage() {
     const { t } = getTranslation();
     const { currentStoreId } = useCurrentStore();
@@ -116,7 +123,7 @@ export default function PayrollPage() {
                                     }`}
                                 >
                                     <div className="flex items-center justify-between">
-                                        <span className="font-medium text-gray-900">{c.period_start} → {c.period_end}</span>
+                                        <span className="font-medium text-gray-900">{formatCycleDate(c.period_start)} → {formatCycleDate(c.period_end)}</span>
                                         <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
                                             c.status === 'paid' ? 'bg-emerald-100 text-emerald-700' :
                                             c.status === 'processing' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'
@@ -135,7 +142,7 @@ export default function PayrollPage() {
                     ) : (
                         <>
                             <div className="mb-4 flex items-center justify-between">
-                                <h3 className="text-sm font-semibold text-gray-700">{cycle.period_start} → {cycle.period_end}</h3>
+                                <h3 className="text-sm font-semibold text-gray-700">{formatCycleDate(cycle.period_start)} → {formatCycleDate(cycle.period_end)}</h3>
                                 <div className="flex gap-2">
                                     {cycle.status !== 'paid' && (
                                         <button onClick={handleGenerate} disabled={generating} className="flex items-center gap-1.5 rounded-lg bg-gray-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-gray-800 disabled:opacity-50">

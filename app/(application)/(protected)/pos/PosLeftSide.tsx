@@ -15,6 +15,7 @@ import { addItemRedux } from '@/store/features/Order/OrderSlice';
 import { useGetAllProductsQuery, useLazyGetAllProductsQuery, useLazyGetSingleProductQuery } from '@/store/features/Product/productApi';
 import { addItemRedux as addPurchaseItem } from '@/store/features/PurchaseOrder/PurchaseOrderSlice';
 import { addStockItem } from '@/store/features/StockAdjustment/stockAdjustmentSlice';
+import { addTransferItem } from '@/store/features/StockTransfer/stockTransferSlice';
 
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 import { usePOSMasterDataSync } from '@/hooks/usePOSMasterDataSync';
@@ -47,7 +48,7 @@ interface PosLeftSideProps {
         hideIcon: React.ReactNode;
         label?: string;
     };
-    reduxSlice?: 'pos' | 'stock' | 'label' | 'orderEdit' | 'orderReturn' | 'purchase'; // Which Redux slice to use
+    reduxSlice?: 'pos' | 'stock' | 'label' | 'orderEdit' | 'orderReturn' | 'purchase' | 'transfer'; // Which Redux slice to use
     enableOfflinePrefetch?: boolean;
 }
 
@@ -203,8 +204,8 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
             light: true,
         };
 
-        // Only filter by available in POS mode
-        if (reduxSlice === 'pos') {
+        // Transfer should only show stock that can actually be moved.
+        if (reduxSlice === 'pos' || reduxSlice === 'transfer') {
             params.available = 'yes';
         }
 
@@ -344,6 +345,8 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                 return currentStoreId && state.orderReturn?.sessionsByStore ? state.orderReturn.sessionsByStore[currentStoreId]?.exchangeItems || [] : [];
             case 'purchase':
                 return currentStoreId && state.purchaseOrder.ordersByStore ? state.purchaseOrder.ordersByStore[currentStoreId]?.items || [] : [];
+            case 'transfer':
+                return currentStoreId && state.stockTransfer.itemsByStore ? state.stockTransfer.itemsByStore[currentStoreId] || [] : [];
             case 'pos':
             default:
                 return currentStoreId && state.invoice.itemsByStore ? state.invoice.itemsByStore[currentStoreId] || [] : [];
@@ -446,16 +449,17 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
             // Simple product (no variants, no serials) - original logic
             const totalQuantity = product.stocks?.reduce((sum: number, stock: any) => sum + parseFloat(stock.quantity || '0'), 0) || 0;
 
-            // Only check availability and stock in POS mode
-            if (reduxSlice === 'pos' && (product.available === false || totalQuantity <= 0)) {
+            // Only check availability and stock in POS / transfer mode
+            const isStockConstrained = reduxSlice === 'pos' || reduxSlice === 'transfer';
+            if (isStockConstrained && (product.available === false || totalQuantity <= 0)) {
                 showMessage(t('status_out_of_stock'), 'error');
                 return;
             }
 
-            // Check stock limit - only in POS mode
+            // Check stock limit - only in POS / transfer mode
             const currentQuantityInCart = reduxItems.filter((item) => item.productId === product.id).reduce((sum, item) => sum + item.quantity, 0);
 
-            if (reduxSlice === 'pos' && currentQuantityInCart >= totalQuantity) {
+            if (isStockConstrained && currentQuantityInCart >= totalQuantity) {
                 showMessage(t('status_out_of_stock'), 'error');
                 return;
             }
@@ -530,6 +534,9 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                         })
                     );
                     break;
+                case 'transfer':
+                    dispatch(addTransferItem({ storeId: currentStoreId, item: itemToAdd }));
+                    break;
                 case 'pos':
                 default:
                     dispatch(addItemRedux({ storeId: currentStoreId, item: itemToAdd }));
@@ -590,7 +597,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
             const variantPurchasePrice = parseFloat(variant.purchase_price || 0);
             const price = useWholesale ? wholesalePrice : regularPrice;
 
-            // Check stock limit for this specific variant - only in POS mode
+            // Check stock limit for this specific variant - only in POS / transfer mode
             const currentQuantityInCart = reduxItems
                 .filter((item) => {
                     const itemStockId = 'stockId' in item ? item.stockId : 'productStockId' in item ? item.productStockId : undefined;
@@ -598,7 +605,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                 })
                 .reduce((sum, item) => sum + item.quantity, 0);
 
-            if (reduxSlice === 'pos' && currentQuantityInCart + quantity > parseFloat(variant.quantity)) {
+            if ((reduxSlice === 'pos' || reduxSlice === 'transfer') && currentQuantityInCart + quantity > parseFloat(variant.quantity)) {
                 showMessage(t('pos_stock_limit_reached'), 'error');
                 return;
             }
@@ -674,6 +681,9 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                             },
                         })
                     );
+                    break;
+                case 'transfer':
+                    dispatch(addTransferItem({ storeId: currentStoreId, item: itemToAdd }));
                     break;
                 case 'pos':
                 default:
@@ -762,6 +772,9 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                                 },
                             })
                         );
+                        break;
+                    case 'transfer':
+                        dispatch(addTransferItem({ storeId: currentStoreId, item: itemToAdd }));
                         break;
                     case 'pos':
                     default:
@@ -1054,6 +1067,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                             searchTerm={searchTerm}
                             barcodeEnabled={barcodeEnabled}
                             showCameraScanner={showCameraScanner}
+                            placeholder={reduxSlice === 'transfer' ? t('transfer_search_product') : undefined}
                             onSearchChange={handleSearchChange}
                             onToggleBarcodeScanner={toggleBarcodeScanner}
                             onToggleCameraScanner={toggleCameraScanner}
@@ -1061,7 +1075,16 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
 
                         <CameraScanner isOpen={showCameraScanner} onClose={handleCameraClose} onScan={handleCameraScan} autoClose={false} />
 
-                        <ProductGrid products={currentProducts} leftWidth={leftWidth} isMobileView={isMobileView} onAddToCart={addToCart} onImageShow={handleImageShow} mode={reduxSlice} />
+                        <ProductGrid
+                            products={currentProducts}
+                            leftWidth={leftWidth}
+                            isMobileView={isMobileView}
+                            onAddToCart={addToCart}
+                            onImageShow={handleImageShow}
+                            mode={reduxSlice}
+                            emptyTitle={reduxSlice === 'transfer' ? t('transfer_no_products_found') : undefined}
+                            emptyDescription={reduxSlice === 'transfer' ? t('transfer_no_products_desc') : undefined}
+                        />
                     </div>
 
                     {/* Fixed Pagination Footer */}

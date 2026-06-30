@@ -10,7 +10,9 @@ interface ProductGridProps {
     isMobileView: boolean;
     onAddToCart: (product: Product) => void;
     onImageShow: (product: Product) => void;
-    mode?: 'pos' | 'stock' | 'label' | 'orderEdit' | 'orderReturn' | 'purchase';
+    mode?: 'pos' | 'stock' | 'label' | 'orderEdit' | 'orderReturn' | 'purchase' | 'transfer';
+    emptyTitle?: string;
+    emptyDescription?: string;
 }
 
 const ProductGrid: React.FC<ProductGridProps> = ({
@@ -20,6 +22,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     onAddToCart,
     onImageShow,
     mode = 'pos',
+    emptyTitle,
+    emptyDescription,
 }) => {
     const { t } = getTranslation();
 
@@ -31,8 +35,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({
                         <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                     </svg>
                 </div>
-                <p className="text-sm font-semibold text-gray-500">{t('msg_no_data')}</p>
-                <p className="mt-1 text-xs text-gray-400">{t('pos_search_product')}</p>
+                <p className="text-sm font-semibold text-gray-500">{emptyTitle || t('msg_no_data')}</p>
+                <p className="mt-1 text-xs text-gray-400">{emptyDescription || t('pos_search_product')}</p>
             </div>
         );
     }

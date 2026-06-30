@@ -15,6 +15,7 @@ import orderReturnReducer from '@/store/features/Order/OrderReturnSlice';
 import invoiceReducer from '@/store/features/Order/OrderSlice';
 import purchaseOrderReducer from '@/store/features/PurchaseOrder/PurchaseOrderSlice';
 import stockAdjustmentReducer from '@/store/features/StockAdjustment/stockAdjustmentSlice';
+import stockTransferReducer from '@/store/features/StockTransfer/stockTransferSlice';
 import supplierReducer from '@/store/features/supplier/supplierSlice';
 import themeConfigSlice from '@/store/themeConfigSlice';
 
@@ -95,6 +96,7 @@ const rootReducer = combineReducers({
     orderReturn: orderReturnReducer,
     purchaseOrder: purchaseOrderReducer,
     stockAdjustment: stockAdjustmentReducer,
+    stockTransfer: stockTransferReducer,
     label: labelReducer,
     offlineOrders: offlineOrdersReducer,
     cachedProducts: cachedProductsReducer,

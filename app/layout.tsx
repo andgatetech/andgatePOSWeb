@@ -170,7 +170,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 <meta name="language" content="English, Bengali" />
                 <meta name="target" content="all" />
                 <meta name="audience" content="all" />
-                <link rel="manifest" href="/manifest.json" />
+                <link rel="manifest" href="/manifest.webmanifest" />
                 <link rel="icon" href="/favicon.ico" />
                 <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
                 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192x192.png" />
