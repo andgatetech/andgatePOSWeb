@@ -2,8 +2,16 @@
 import Loader from '@/lib/Loader';
 import { getTranslation } from '@/i18n';
 import { unwrapApiData } from '@/lib/api-response';
+import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetPurchaseDraftByIdQuery } from '@/store/features/PurchaseOrder/PurchaseOrderApi';
-import { setItemsRedux, setNotesRedux, setPurchaseTypeRedux, setSupplierDetailsRedux } from '@/store/features/PurchaseOrder/PurchaseOrderSlice';
+import {
+    resetPurchaseOrderRedux,
+    setDraftReferenceRedux,
+    setItemsRedux,
+    setNotesRedux,
+    setPurchaseTypeRedux,
+    setSupplierDetailsRedux,
+} from '@/store/features/PurchaseOrder/PurchaseOrderSlice';
 import { ArrowLeft, Box, Package } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
@@ -17,6 +25,7 @@ const EditPurchaseDraftPage = () => {
     const params = useParams();
     const router = useRouter();
     const dispatch = useDispatch();
+    const { currentStoreId } = useCurrentStore();
     const draftId = params.id as string;
 
     // Fetch draft data
@@ -24,47 +33,75 @@ const EditPurchaseDraftPage = () => {
     const draft = unwrapApiData(draftResponse, ['draft', 'purchase_draft', 'purchase_order']);
 
     useEffect(() => {
-        if (draft) {
-            // Load purchase type
-            dispatch(setPurchaseTypeRedux(draft.purchase_type || 'supplier'));
+        if (!draft || !currentStoreId) {
+            return;
+        }
 
-            // Load supplier details
-            if (draft.supplier) {
-                dispatch(
-                    setSupplierDetailsRedux({
+        // Reset store-scoped purchase order state before loading draft values
+        dispatch(resetPurchaseOrderRedux(currentStoreId));
+
+        // Load purchase type
+        dispatch(
+            setPurchaseTypeRedux({
+                storeId: currentStoreId,
+                purchaseType: (draft.purchase_type as any) || 'supplier',
+            })
+        );
+
+        // Load supplier details
+        if (draft.supplier) {
+            dispatch(
+                setSupplierDetailsRedux({
+                    storeId: currentStoreId,
+                    supplierId: draft.supplier.id,
+                    supplier: {
                         id: draft.supplier.id,
                         name: draft.supplier.name,
                         email: draft.supplier.email,
                         phone: draft.supplier.phone,
                         contact_person: draft.supplier.contact_person || '',
-                    })
-                );
-            }
-
-            // Load notes
-            if (draft.notes) {
-                dispatch(setNotesRedux(draft.notes));
-            }
-
-            // Load items into Redux
-            if (draft.items && draft.items.length > 0) {
-                const items = draft.items.map((item: any) => ({
-                    id: item.id,
-                    productId: item.product_id || undefined,
-                    itemType: item.type === 'existing' ? 'existing' : 'new',
-                    title: item.product_name,
-                    description: item.product_description || '',
-                    unit: item.unit || 'piece',
-                    quantity: item.quantity_ordered,
-                    purchasePrice: item.purchase_price || 0,
-                    amount: (item.quantity_ordered || 0) * (item.purchase_price || 0),
-                    status: 'ordered',
-                }));
-
-                dispatch(setItemsRedux(items));
-            }
+                    },
+                })
+            );
         }
-    }, [draft, dispatch]);
+
+        // Load notes
+        if (draft.notes) {
+            dispatch(setNotesRedux({ storeId: currentStoreId, notes: draft.notes }));
+        }
+
+        // Load draft reference
+        if (draft.draft_reference) {
+            dispatch(
+                setDraftReferenceRedux({
+                    storeId: currentStoreId,
+                    draftReference: draft.draft_reference,
+                })
+            );
+        }
+
+        // Load items into Redux
+        if (draft.items && draft.items.length > 0) {
+            const items = draft.items.map((item: any) => ({
+                id: item.id,
+                productId: item.product_id || undefined,
+                productStockId: item.product_stock_id || undefined,
+                itemType: item.item_type === 'existing' ? 'existing' : 'new',
+                title: item.product_name,
+                description: item.product_description || '',
+                unit: item.unit || 'piece',
+                quantity: item.quantity_ordered,
+                purchasePrice: item.purchase_price || 0,
+                taxRate: 0,
+                taxIncluded: false,
+                inputVatCreditable: false,
+                amount: 0,
+                status: 'ordered',
+            }));
+
+            dispatch(setItemsRedux({ storeId: currentStoreId, items }));
+        }
+    }, [draft, currentStoreId, dispatch]);
 
     if (isLoading) {
         return <Loader message="Loading draft..." />;

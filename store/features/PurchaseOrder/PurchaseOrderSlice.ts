@@ -96,7 +96,10 @@ const purchaseOrderSlice = createSlice({
         setItemsRedux(state, action: PayloadAction<{ storeId: number; items: PurchaseItem[] }>) {
             const { storeId, items } = action.payload;
             const order = getStoreOrder(state, storeId);
-            order.items = items.filter((item) => item.productId !== undefined);
+            order.items = items.map((item) => ({
+                ...item,
+                amount: calculatePurchaseItemTotal(item),
+            }));
             order.grandTotal = order.items.reduce((total, item) => total + item.amount, 0);
         },
 
