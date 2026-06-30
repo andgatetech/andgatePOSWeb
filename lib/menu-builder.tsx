@@ -385,6 +385,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         requiredPermissions: [
             'reports.sales',
             'reports.expense',
+            'reports.profit-loss',
             'reports.tax',
             'reports.transaction',
             'reports.purchase',
@@ -450,7 +451,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
             // Financial Reports
             {
                 label: 'Financial Reports',
-                requiredPermissions: ['reports.profit-loss', 'reports.expense', 'reports.tax'],
+                requiredPermissions: ['reports.profit-loss', 'reports.expense', 'reports.tax', 'reports.sales'],
                 subMenu: [
                     { label: 'Profit & Loss', href: '/reports/profit-loss', requiredPermissions: ['reports.profit-loss'] },
                     { label: 'Expense Report', href: '/reports/expense', requiredPermissions: ['reports.expense'] },
