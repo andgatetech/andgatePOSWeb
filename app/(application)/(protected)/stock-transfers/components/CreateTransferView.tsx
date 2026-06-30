@@ -84,7 +84,7 @@ export default function CreateTransferView({ onCreated }: { onCreated: () => voi
                     return {
                         product_id: Number(product.id),
                         product_stock_id: Number(stock.id),
-                        product_name: product.product_name || product.name || t('unknown_product'),
+                        product_name: product.product_name || product.name || t('lbl_unknown_product'),
                         variant_name: variantName,
                         sku: stock.sku || product.sku,
                         unit: stock.unit || product.unit || 'pcs',
