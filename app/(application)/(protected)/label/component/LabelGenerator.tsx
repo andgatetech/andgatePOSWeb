@@ -155,14 +155,24 @@ const LabelGenerator = () => {
             paperHeight = customPaperDims.height;
         }
 
-        const isSheet = paperWidth > labelSize.width + 10;
+        const isThermalRoll = Boolean(selectedPaper.isThermal);
+        const isSheet = !isThermalRoll && paperWidth > labelSize.width + 10;
         const labelsPerRow = isSheet ? Math.floor((paperWidth - 6) / (labelSize.width + 2)) : 1;
-        const pageSize = isSheet ? `${paperWidth}mm ${paperHeight}mm` : `${labelSize.width}mm ${labelSize.height}mm`;
+        const pageSize = isThermalRoll ? `${paperWidth}mm auto` : isSheet ? `${paperWidth}mm ${paperHeight}mm` : `${labelSize.width}mm ${labelSize.height}mm`;
 
         const styles = `
             @page { size: ${pageSize}; margin: 0; }
             * { margin: 0; padding: 0; box-sizing: border-box; }
-            body { background: white; font-family: Arial, sans-serif; }
+            html, body {
+                margin: 0 !important;
+                padding: 0 !important;
+                width: ${isThermalRoll ? `${paperWidth}mm` : 'auto'};
+                height: auto !important;
+                min-height: 0 !important;
+                background: white;
+                font-family: Arial, sans-serif;
+                overflow: visible !important;
+            }
             .label-card {
                 width: ${labelSize.width}mm;
                 height: ${labelSize.height}mm;
@@ -185,6 +195,7 @@ const LabelGenerator = () => {
             .qr-container { width: 100%; display: flex; justify-content: center; align-items: center; max-height: 50%; margin-top: 1mm; overflow: hidden; }
             .qr-container img { max-width: 50%; max-height: 100%; aspect-ratio: 1/1; object-fit: contain; image-rendering: pixelated; }
             .break-page { page-break-after: always; }
+            .roll-container { width: ${paperWidth}mm; display: flex; flex-direction: column; align-items: center; gap: 0; }
             .page-container { width: 100%; padding: 5mm; display: grid; grid-template-columns: repeat(${Math.max(labelsPerRow, 1)}, ${labelSize.width}mm); gap: 2mm; }
         `;
 
@@ -195,7 +206,7 @@ const LabelGenerator = () => {
         const content = generatedLabels
             .map(
                 (l) => `
-            <div class="label-card ${!isSheet ? 'break-page' : ''}">
+            <div class="label-card">
                 <div style="width:100%">
                     <h3>${esc(l.product_name || 'Product')}</h3>
                     ${l.variant_name ? `<div class="variant">${esc(l.variant_name)}</div>` : ''}
@@ -207,12 +218,29 @@ const LabelGenerator = () => {
             )
             .join('');
 
+        const singleLabelPages = generatedLabels
+            .map(
+                (l, index) => `
+            <div class="label-card ${index < generatedLabels.length - 1 ? 'break-page' : ''}">
+                <div style="width:100%">
+                    <h3>${esc(l.product_name || 'Product')}</h3>
+                    ${l.variant_name ? `<div class="variant">${esc(l.variant_name)}</div>` : ''}
+                    <div class="sku">${esc(l.sku || 'N/A')}</div>
+                </div>
+                <div class="${containerClass}">${l.barcode ? `<img src="${esc(l.barcode)}" alt="${labelType === 'qrcode' ? 'QR code' : 'Barcode'}"/>` : ''}</div>
+            </div>
+        `
+            )
+            .join('');
+
+        const bodyContent = isThermalRoll ? `<div class="roll-container">${content}</div>` : isSheet ? `<div class="page-container">${content}</div>` : singleLabelPages;
+
         return `<!DOCTYPE html><html><head>
             <meta charset="utf-8">
             <meta name="viewport" content="width=device-width,initial-scale=1">
             <title>${esc(t('lbl_label_generator'))}</title>
             <style>${styles}</style>
-        </head><body>${!isSheet ? content : `<div class="page-container">${content}</div>`}</body></html>`;
+        </head><body>${bodyContent}</body></html>`;
     };
 
     const handlePrint = () => {

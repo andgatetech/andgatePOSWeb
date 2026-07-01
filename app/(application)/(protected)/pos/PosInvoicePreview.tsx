@@ -490,22 +490,31 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
                           </style>`
                         : `<style>
                             @page { size: 58mm auto; margin: 0; }
+                            * {
+                                box-sizing: border-box;
+                            }
                             html, body {
                                 margin: 0 !important;
                                 padding: 0 !important;
+                                width: 58mm !important;
                                 height: auto !important;
                                 min-height: 0 !important;
+                                max-height: none !important;
                                 overflow: visible !important;
                                 background: #fff;
                             }
-                            body { display: block; }
+                            body { display: block; line-height: 1.15; }
                             .thermal-receipt-print-area {
                                 width: 58mm !important;
                                 margin: 0 !important;
                                 padding: 3mm !important;
+                                height: auto !important;
+                                min-height: 0 !important;
                                 box-shadow: none !important;
                                 break-after: avoid;
                                 page-break-after: avoid;
+                                break-before: avoid;
+                                page-break-before: avoid;
                                 overflow: visible !important;
                             }
                           </style>`;

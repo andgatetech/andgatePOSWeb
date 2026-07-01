@@ -169,17 +169,24 @@ const Orders = () => {
             font-size: 11px;
             line-height: 1.2;
             width: 80mm;
+            height: auto;
+            min-height: 0;
             margin: 0;
             padding: 4px;
             background: white;
             color: black;
-            display: table;
+            display: block;
+            overflow: visible;
         }
         .receipt-container {
             width: 100%;
+            height: auto;
+            min-height: 0;
             margin: 0;
             padding: 0;
-            display: table;
+            display: block;
+            page-break-after: avoid;
+            break-after: avoid;
         }
         .receipt-header {
             text-align: center;
@@ -300,10 +307,14 @@ const Orders = () => {
             body {
                 margin: 0;
                 padding: 4px;
+                height: auto;
+                min-height: 0;
             }
             .receipt-container {
                 margin: 0;
                 padding: 0;
+                page-break-after: avoid;
+                break-after: avoid;
             }
         }
     </style>
