@@ -99,21 +99,23 @@ const OperationalReportPage: React.FC<OperationalReportPageProps> = ({
     const summary = useMemo(() => reportData?.data?.summary || {}, [reportData]);
     const pagination = useMemo(() => reportData?.data?.pagination || {}, [reportData]);
     const Icon = iconMap[icon];
+    const reportTitle = t(title);
+    const reportDescription = t(description);
 
     const formatValue = useCallback(
         (value: any, type: FieldType = 'text') => {
             if (type === 'money') return formatCurrency(Number(value || 0));
             if (type === 'number') return formatNumber(Number(value || 0));
-            return value ?? 'N/A';
+            return value ?? t('lbl_na');
         },
-        [formatCurrency, formatNumber]
+        [formatCurrency, formatNumber, t]
     );
 
     const columns = useMemo(
         () =>
             fields.map((field) => ({
                 key: field.key,
-                label: field.label,
+                label: t(field.label),
                 sortable: field.sortable,
                 render: (value: any) =>
                     field.type === 'date' ? (
@@ -124,36 +126,36 @@ const OperationalReportPage: React.FC<OperationalReportPageProps> = ({
                         </span>
                     ),
             })),
-        [fields, formatValue]
+        [fields, formatValue, t]
     );
 
     const exportColumns: ExportColumn[] = useMemo(
         () =>
             fields.map((field) => ({
                 key: field.key,
-                label: field.label,
+                label: t(field.label),
                 width: field.width || 16,
                 format: (value) => formatValue(value, field.type),
             })),
-        [fields, formatValue]
+        [fields, formatValue, t]
     );
 
     const summaryItems = useMemo(
         () =>
             summaryFields.map((field, index) => ({
-                label: field.label,
+                label: t(field.label),
                 value: formatValue(summary[field.key], field.type),
                 icon: index % 3 === 0 ? <Icon className="h-4 w-4 text-blue-600" /> : index % 3 === 1 ? <ClipboardList className="h-4 w-4 text-emerald-600" /> : <Banknote className="h-4 w-4 text-purple-600" />,
                 bgColor: index % 3 === 0 ? 'bg-blue-500' : index % 3 === 1 ? 'bg-emerald-500' : 'bg-purple-500',
                 lightBg: index % 3 === 0 ? 'bg-blue-50' : index % 3 === 1 ? 'bg-emerald-50' : 'bg-purple-50',
                 textColor: index % 3 === 0 ? 'text-blue-600' : index % 3 === 1 ? 'text-emerald-600' : 'text-purple-600',
             })),
-        [Icon, formatValue, summary, summaryFields]
+        [Icon, formatValue, summary, summaryFields, t]
     );
 
     const exportSummary = useMemo(
-        () => summaryFields.map((field) => ({ label: field.label, value: formatValue(summary[field.key], field.type) })),
-        [formatValue, summary, summaryFields]
+        () => summaryFields.map((field) => ({ label: t(field.label), value: formatValue(summary[field.key], field.type) })),
+        [formatValue, summary, summaryFields, t]
     );
 
     const filterSummary = useMemo(() => {
@@ -197,8 +199,8 @@ const OperationalReportPage: React.FC<OperationalReportPageProps> = ({
     return (
         <div className="space-y-6">
             <ReportExportToolbar
-                reportTitle={title}
-                reportDescription={description}
+                reportTitle={reportTitle}
+                reportDescription={reportDescription}
                 reportIcon={<Icon className="h-6 w-6 text-white" />}
                 data={rows}
                 columns={exportColumns}
@@ -228,8 +230,8 @@ const OperationalReportPage: React.FC<OperationalReportPageProps> = ({
                 sorting={{ field: sortField, direction: sortDirection, onSort: handleSort }}
                 emptyState={{
                     icon: <FileText className="mx-auto h-16 w-16" />,
-                    title: 'No report data found',
-                    description: 'Try changing the date range, store, or search keyword.',
+                    title: t('report_no_data_found'),
+                    description: t('report_no_data_hint'),
                 }}
             />
         </div>

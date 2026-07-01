@@ -3,6 +3,7 @@
 import ReportExportToolbar, { ExportColumn } from '@/app/(application)/(protected)/reports/_shared/ReportExportToolbar';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { getTranslation } from '@/i18n';
 import { useGetArAgingReportMutation } from '@/store/features/reports/reportApi';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -47,6 +48,7 @@ const BucketBadge = ({ value, variant }: { value: number; variant: 'green' | 'ye
 };
 
 const ArAgingReportPage = () => {
+    const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
     const { currentStoreId } = useCurrentStore();
 
@@ -60,18 +62,18 @@ const ArAgingReportPage = () => {
 
     const exportColumns = useMemo<ExportColumn[]>(
         () => [
-            { key: 'customer_name', label: 'Customer', width: 18 },
-            { key: 'customer_phone', label: 'Phone', width: 15 },
-            { key: 'open_due_count', label: 'Open Dues', width: 9 },
+            { key: 'customer_name', label: t('lbl_customer'), width: 18 },
+            { key: 'customer_phone', label: t('lbl_phone'), width: 15 },
+            { key: 'open_due_count', label: t('ar_aging_open_dues'), width: 9 },
             { key: 'bucket_0_30', label: '0-30 Days', width: 11, format: (value) => formatCurrency(Number(value) || 0) },
             { key: 'bucket_31_60', label: '31-60 Days', width: 11, format: (value) => formatCurrency(Number(value) || 0) },
             { key: 'bucket_61_90', label: '61-90 Days', width: 11, format: (value) => formatCurrency(Number(value) || 0) },
             { key: 'bucket_91_plus', label: '91+ Days', width: 11, format: (value) => formatCurrency(Number(value) || 0) },
-            { key: 'total_due', label: 'Total Due', width: 12, format: (value) => formatCurrency(Number(value) || 0) },
-            { key: 'total_paid', label: 'Paid', width: 11, format: (value) => formatCurrency(Number(value) || 0) },
-            { key: 'total_remaining', label: 'Outstanding', width: 13, format: (value) => formatCurrency(Number(value) || 0) },
+            { key: 'total_due', label: t('ar_aging_total_due'), width: 12, format: (value) => formatCurrency(Number(value) || 0) },
+            { key: 'total_paid', label: t('lbl_paid'), width: 11, format: (value) => formatCurrency(Number(value) || 0) },
+            { key: 'total_remaining', label: t('ar_aging_outstanding'), width: 13, format: (value) => formatCurrency(Number(value) || 0) },
         ],
-        [formatCurrency]
+        [formatCurrency, t]
     );
 
     const fetchReport = async () => {
@@ -110,21 +112,21 @@ const ArAgingReportPage = () => {
                 { label: '31-60 Days', value: formatCurrency(summary.bucket_31_60) },
                 { label: '61-90 Days', value: formatCurrency(summary.bucket_61_90) },
                 { label: '91+ Days', value: formatCurrency(summary.bucket_91_plus) },
-                { label: 'Total Outstanding', value: formatCurrency(summary.total_remaining) },
-                { label: 'Customers', value: summary.total_customers },
+                { label: t('ar_aging_total_outstanding'), value: formatCurrency(summary.total_remaining) },
+                { label: t('lbl_customers'), value: summary.total_customers },
             ]
             : [],
-        [formatCurrency, summary]
+        [formatCurrency, summary, t]
     );
 
     const exportFilters = useMemo(
         () => ({
             customFilters: [
-                { label: 'As of', value: reportAsOf || 'Today' },
-                ...(search.trim() ? [{ label: 'Search', value: search.trim() }] : []),
+                { label: t('ar_aging_as_of'), value: reportAsOf || t('lbl_today') },
+                ...(search.trim() ? [{ label: t('lbl_search'), value: search.trim() }] : []),
             ],
         }),
-        [reportAsOf, search]
+        [reportAsOf, search, t]
     );
 
     return (
@@ -132,14 +134,14 @@ const ArAgingReportPage = () => {
             {/* Header */}
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                    <h1 className="text-xl font-bold text-gray-800">A/R Aging Report</h1>
+                    <h1 className="text-xl font-bold text-gray-800">{t('ar_aging_title')}</h1>
                     {reportAsOf && (
-                        <p className="text-xs text-gray-400 mt-0.5">As of {reportAsOf}</p>
+                        <p className="text-xs text-gray-400 mt-0.5">{t('ar_aging_as_of_date_value', { date: reportAsOf })}</p>
                     )}
                 </div>
                 <ReportExportToolbar
-                    reportTitle="A/R Aging Report"
-                    reportDescription="Customer outstanding balance by due age"
+                    reportTitle={t('ar_aging_title')}
+                    reportDescription={t('ar_aging_desc')}
                     data={rows}
                     columns={exportColumns}
                     summary={exportSummary}
@@ -159,7 +161,7 @@ const ArAgingReportPage = () => {
             {/* Filters */}
             <div className="flex flex-wrap items-end gap-3 rounded-xl border border-gray-100 bg-gray-50 p-4">
                 <div className="flex-1 min-w-[180px]">
-                    <label className="mb-1 block text-xs font-semibold text-gray-500">As of Date</label>
+                    <label className="mb-1 block text-xs font-semibold text-gray-500">{t('ar_aging_as_of_date')}</label>
                     <input
                         type="date"
                         value={asOfDate}
@@ -168,13 +170,13 @@ const ArAgingReportPage = () => {
                     />
                 </div>
                 <div className="flex-1 min-w-[200px]">
-                    <label className="mb-1 block text-xs font-semibold text-gray-500">Search Customer</label>
+                    <label className="mb-1 block text-xs font-semibold text-gray-500">{t('ar_aging_search_customer')}</label>
                     <input
                         type="text"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && fetchReport()}
-                        placeholder="Name or phone..."
+                        placeholder={t('ar_aging_search_placeholder')}
                         className="form-input w-full rounded-lg border-gray-200 py-2 text-sm"
                     />
                 </div>
@@ -184,7 +186,7 @@ const ArAgingReportPage = () => {
                     disabled={isLoading}
                     className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50 hover:bg-primary/90"
                 >
-                    {isLoading ? 'Loading...' : 'Run Report'}
+                    {isLoading ? t('btn_loading') : t('ar_aging_run_report')}
                 </button>
             </div>
 
@@ -207,9 +209,9 @@ const ArAgingReportPage = () => {
                         );
                     })}
                     <div className="rounded-xl border border-primary/30 bg-primary/5 p-3 text-primary">
-                        <p className="text-xs font-semibold opacity-70">Total Outstanding</p>
+                        <p className="text-xs font-semibold opacity-70">{t('ar_aging_total_outstanding')}</p>
                         <p className="mt-1 text-lg font-black">{formatCurrency(summary.total_remaining)}</p>
-                        <p className="text-xs opacity-60">{summary.total_customers} customers</p>
+                        <p className="text-xs opacity-60">{t('ar_aging_customers_count', { count: summary.total_customers })}</p>
                     </div>
                 </div>
             )}
@@ -219,26 +221,26 @@ const ArAgingReportPage = () => {
                 <table className="w-full text-sm">
                     <thead>
                         <tr className="border-b border-gray-100 bg-gray-50 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
-                            <th className="px-4 py-3">Customer</th>
+                            <th className="px-4 py-3">{t('lbl_customer')}</th>
                             <th className="px-4 py-3 text-right">0–30 days</th>
                             <th className="px-4 py-3 text-right">31–60 days</th>
                             <th className="px-4 py-3 text-right">61–90 days</th>
                             <th className="px-4 py-3 text-right">91+ days</th>
-                            <th className="px-4 py-3 text-right">Total Due</th>
-                            <th className="px-4 py-3 text-right">Paid</th>
-                            <th className="px-4 py-3 text-right font-bold text-gray-700">Outstanding</th>
+                            <th className="px-4 py-3 text-right">{t('ar_aging_total_due')}</th>
+                            <th className="px-4 py-3 text-right">{t('lbl_paid')}</th>
+                            <th className="px-4 py-3 text-right font-bold text-gray-700">{t('ar_aging_outstanding')}</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-50">
                         {isLoading && (
                             <tr>
-                                <td colSpan={8} className="py-12 text-center text-sm text-gray-400">Loading...</td>
+                                <td colSpan={8} className="py-12 text-center text-sm text-gray-400">{t('btn_loading')}</td>
                             </tr>
                         )}
                         {!isLoading && rows.length === 0 && (
                             <tr>
                                 <td colSpan={8} className="py-12 text-center text-sm text-gray-400">
-                                    No outstanding receivables found.
+                                    {t('ar_aging_no_receivables')}
                                 </td>
                             </tr>
                         )}
@@ -247,7 +249,7 @@ const ArAgingReportPage = () => {
                                 <td className="px-4 py-3">
                                     <p className="font-semibold text-gray-800">{row.customer_name}</p>
                                     <p className="text-xs text-gray-400">{row.customer_phone}</p>
-                                    <p className="text-xs text-gray-300">{row.open_due_count} open due{row.open_due_count !== 1 ? 's' : ''}</p>
+                                    <p className="text-xs text-gray-300">{t('ar_aging_open_due_count', { count: row.open_due_count })}</p>
                                 </td>
                                 <td className="px-4 py-3 text-right">
                                     <BucketBadge value={Number(row.bucket_0_30)} variant="green" />
@@ -276,7 +278,7 @@ const ArAgingReportPage = () => {
                     {rows.length > 0 && summary && (
                         <tfoot>
                             <tr className="border-t-2 border-gray-200 bg-gray-50 font-bold">
-                                <td className="px-4 py-3 text-xs uppercase tracking-wider text-gray-500">Totals</td>
+                                <td className="px-4 py-3 text-xs uppercase tracking-wider text-gray-500">{t('lbl_totals')}</td>
                                 <td className="px-4 py-3 text-right text-green-700">{formatCurrency(summary.bucket_0_30)}</td>
                                 <td className="px-4 py-3 text-right text-yellow-700">{formatCurrency(summary.bucket_31_60)}</td>
                                 <td className="px-4 py-3 text-right text-orange-700">{formatCurrency(summary.bucket_61_90)}</td>

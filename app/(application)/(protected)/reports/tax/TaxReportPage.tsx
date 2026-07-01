@@ -62,8 +62,8 @@ const TaxReportPage = () => {
     }, [reportData, apiParams.group_by, viewMode]);
 
     const summary = useMemo(() => reportData?.data?.summary || {}, [reportData]);
-    const bdVat = summary.bd_vat || {};
-    const vatWorkspace = vatWorkspaceData?.data || {};
+    const bdVat = useMemo(() => summary.bd_vat || {}, [summary]);
+    const vatWorkspace = useMemo(() => vatWorkspaceData?.data || {}, [vatWorkspaceData]);
     const pagination = useMemo(() => reportData?.data?.pagination || {}, [reportData]);
 
     const handleFilterChange = useCallback((n: Record<string, any>) => {
@@ -122,7 +122,7 @@ const TaxReportPage = () => {
             { key: 'total_sales', label: t('report_total_sales'), width: 15, format: (v) => formatCurrency(v) },
             { key: 'effective_rate', label: t('lbl_effective_rate'), width: 10, format: (v, r) => `${Number(r.total_sales > 0 ? (r.total_tax / r.total_sales) * 100 : 0).toFixed(2)}%` },
         ];
-    }, [formatCurrency, viewMode]);
+    }, [formatCurrency, t, viewMode]);
 
     const filterSummary = useMemo(() => {
         const selectedStore = apiParams.store_ids
@@ -134,21 +134,21 @@ const TaxReportPage = () => {
         if (apiParams.date_range_type) dateType = apiParams.date_range_type;
         else if (apiParams.start_date || apiParams.end_date) dateType = 'custom';
         return { dateRange: { startDate: apiParams.start_date, endDate: apiParams.end_date, type: dateType }, storeName: selectedStore, customFilters: [] };
-    }, [apiParams, currentStore, userStores]);
+    }, [apiParams, currentStore, t, userStores]);
 
     const exportSummary = useMemo(
         () => [
-            { label: 'lbl_tax', value: formatCurrency(summary.total_tax_collected) },
-            { label: 'report_total_sales', value: formatCurrency(summary.total_sales) },
-            { label: 'lbl_effective_rate', value: `${Number(summary.effective_tax_rate || 0).toFixed(2)}%` },
+            { label: t('lbl_tax'), value: formatCurrency(summary.total_tax_collected) },
+            { label: t('report_total_sales'), value: formatCurrency(summary.total_sales) },
+            { label: t('lbl_effective_rate'), value: `${Number(summary.effective_tax_rate || 0).toFixed(2)}%` },
         ],
-        [summary, bdVat, formatCurrency]
+        [summary, formatCurrency, t]
     );
 
     const summaryItems = useMemo(
         () => [
             {
-                label: 'Output VAT',
+                label: t('tax_output_vat'),
                 value: formatCurrency(Number(summary.total_tax_collected || 0)),
                 icon: <Calculator className="h-4 w-4 text-blue-600" />,
                 bgColor: 'bg-blue-500',
@@ -156,7 +156,7 @@ const TaxReportPage = () => {
                 textColor: 'text-blue-600',
             },
             {
-                label: 'Input VAT',
+                label: t('tax_input_vat'),
                 value: formatCurrency(Number(bdVat.input_vat || 0)),
                 icon: <ReceiptText className="h-4 w-4 text-green-600" />,
                 bgColor: 'bg-green-500',
@@ -164,7 +164,7 @@ const TaxReportPage = () => {
                 textColor: 'text-green-600',
             },
             {
-                label: 'Net VAT Payable',
+                label: t('tax_net_vat_payable'),
                 value: formatCurrency(Number(bdVat.net_payable || 0)),
                 icon: <Banknote className="h-4 w-4 text-purple-600" />,
                 bgColor: 'bg-purple-500',
@@ -172,7 +172,7 @@ const TaxReportPage = () => {
                 textColor: 'text-purple-600',
             },
             {
-                label: 'VAT Reversal',
+                label: t('tax_vat_reversal'),
                 value: formatCurrency(Number(bdVat.output_vat_reversal || 0) + Number(bdVat.input_vat_reversal || 0)),
                 icon: <Percent className="h-4 w-4 text-orange-600" />,
                 bgColor: 'bg-orange-500',
@@ -180,7 +180,7 @@ const TaxReportPage = () => {
                 textColor: 'text-orange-600',
             },
         ],
-        [summary, bdVat, formatCurrency]
+        [summary, bdVat, formatCurrency, t]
     );
 
     const columns = useMemo(() => {
@@ -201,10 +201,10 @@ const TaxReportPage = () => {
                 { key: 'store_name', label: t('lbl_store'), render: (v: any) => <span className="text-gray-700">{v}</span> },
                 { key: 'customer_name', label: t('lbl_customer'), render: (v: any) => <span className="text-gray-700">{v}</span> },
                 { key: 'total', label: t('lbl_net_total'), render: (v: any) => <span className="text-gray-900">{formatCurrency(v)}</span> },
-                { key: 'taxable_amount', label: 'Taxable', render: (v: any) => <span className="text-gray-900">{formatCurrency(v || 0)}</span> },
+                { key: 'taxable_amount', label: t('tax_taxable'), render: (v: any) => <span className="text-gray-900">{formatCurrency(v || 0)}</span> },
                 { key: 'tax', label: t('lbl_tax'), render: (v: any) => <span className="font-semibold text-red-600">{formatCurrency(v)}</span> },
-                { key: 'seller_bin', label: 'Seller BIN', render: (v: any) => <span className="text-xs text-gray-600">{v || '-'}</span> },
-                { key: 'buyer_bin', label: 'Buyer BIN', render: (v: any) => <span className="text-xs text-gray-600">{v || '-'}</span> },
+                { key: 'seller_bin', label: t('tax_seller_bin'), render: (v: any) => <span className="text-xs text-gray-600">{v || '-'}</span> },
+                { key: 'buyer_bin', label: t('tax_buyer_bin'), render: (v: any) => <span className="text-xs text-gray-600">{v || '-'}</span> },
                 { key: 'grand_total', label: t('lbl_total'), sortable: true, render: (v: any) => <span className="font-bold text-gray-900">{formatCurrency(v)}</span> },
             ];
         }
@@ -236,7 +236,7 @@ const TaxReportPage = () => {
                 },
             },
         ];
-    }, [formatCurrency, viewMode]);
+    }, [formatCurrency, t, viewMode]);
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -258,22 +258,22 @@ const TaxReportPage = () => {
                     <div className="rounded-lg border border-sky-100 bg-white p-4 shadow-sm lg:col-span-2">
                         <div className="mb-3 flex items-center justify-between">
                             <div>
-                                <h3 className="text-base font-semibold text-gray-900">Bangladesh VAT Workspace</h3>
-                                <p className="text-xs text-gray-500">Output VAT - reversals - input VAT + input reversals.</p>
+                                <h3 className="text-base font-semibold text-gray-900">{t('tax_bd_vat_workspace')}</h3>
+                                <p className="text-xs text-gray-500">{t('tax_bd_vat_workspace_desc')}</p>
                             </div>
-                            {isVatWorkspaceLoading && <span className="text-xs text-gray-400">Loading...</span>}
+                            {isVatWorkspaceLoading && <span className="text-xs text-gray-400">{t('btn_loading')}</span>}
                         </div>
                         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-                            <div className="rounded-md bg-blue-50 p-3"><p className="text-xs text-blue-700">Output VAT</p><p className="text-lg font-bold text-blue-900">{formatCurrency(vatWorkspace.summary?.output_vat || bdVat.output_vat || 0)}</p></div>
-                            <div className="rounded-md bg-green-50 p-3"><p className="text-xs text-green-700">Input VAT</p><p className="text-lg font-bold text-green-900">{formatCurrency(vatWorkspace.summary?.input_vat || bdVat.input_vat || 0)}</p></div>
-                            <div className="rounded-md bg-amber-50 p-3"><p className="text-xs text-amber-700">Reversals</p><p className="text-lg font-bold text-amber-900">{formatCurrency((vatWorkspace.summary?.output_vat_reversal || 0) + (vatWorkspace.summary?.input_vat_reversal || 0))}</p></div>
-                            <div className="rounded-md bg-slate-900 p-3"><p className="text-xs text-slate-200">Net Payable</p><p className="text-lg font-bold text-white">{formatCurrency(vatWorkspace.summary?.net_payable ?? bdVat.net_payable ?? 0)}</p></div>
+                            <div className="rounded-md bg-blue-50 p-3"><p className="text-xs text-blue-700">{t('tax_output_vat')}</p><p className="text-lg font-bold text-blue-900">{formatCurrency(vatWorkspace.summary?.output_vat || bdVat.output_vat || 0)}</p></div>
+                            <div className="rounded-md bg-green-50 p-3"><p className="text-xs text-green-700">{t('tax_input_vat')}</p><p className="text-lg font-bold text-green-900">{formatCurrency(vatWorkspace.summary?.input_vat || bdVat.input_vat || 0)}</p></div>
+                            <div className="rounded-md bg-amber-50 p-3"><p className="text-xs text-amber-700">{t('tax_reversals')}</p><p className="text-lg font-bold text-amber-900">{formatCurrency((vatWorkspace.summary?.output_vat_reversal || 0) + (vatWorkspace.summary?.input_vat_reversal || 0))}</p></div>
+                            <div className="rounded-md bg-slate-900 p-3"><p className="text-xs text-slate-200">{t('tax_net_payable')}</p><p className="text-lg font-bold text-white">{formatCurrency(vatWorkspace.summary?.net_payable ?? bdVat.net_payable ?? 0)}</p></div>
                         </div>
                     </div>
                     <div className="rounded-lg border border-amber-100 bg-white p-4 shadow-sm">
-                        <div className="mb-2 flex items-center gap-2 text-amber-700"><AlertTriangle className="h-4 w-4" /><h3 className="text-sm font-semibold">Compliance Warnings</h3></div>
+                        <div className="mb-2 flex items-center gap-2 text-amber-700"><AlertTriangle className="h-4 w-4" /><h3 className="text-sm font-semibold">{t('tax_compliance_warnings')}</h3></div>
                         {(vatWorkspace.warnings || []).length === 0 ? (
-                            <p className="text-sm text-gray-500">No VAT evidence warnings for selected period.</p>
+                            <p className="text-sm text-gray-500">{t('tax_no_warnings')}</p>
                         ) : (
                             <div className="space-y-2">
                                 {vatWorkspace.warnings.map((warning: any) => <div key={warning.code} className="rounded-md bg-amber-50 p-2 text-xs text-amber-800">{warning.message} ({warning.count})</div>)}
@@ -289,7 +289,7 @@ const TaxReportPage = () => {
                                 viewMode === 'summary' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'
                             }`}
                         >
-                            Summary
+                            {t('lbl_summary')}
                         </button>
                         <button
                             onClick={() => setViewMode('transactions')}
@@ -297,10 +297,10 @@ const TaxReportPage = () => {
                                 viewMode === 'transactions' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'
                             }`}
                         >
-                            Transactions
+                            {t('lbl_transactions')}
                         </button>
                     </div>
-                    <BasicReportFilter onFilterChange={handleFilterChange} placeholder="Search..." />
+                    <BasicReportFilter onFilterChange={handleFilterChange} placeholder={t('lbl_search')} />
                 </div>
                 <ReusableTable
                     data={items}
