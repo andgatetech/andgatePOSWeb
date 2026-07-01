@@ -604,15 +604,17 @@ function hasAnyPermission(userPermissions: string[] | undefined, requiredPermiss
  * Recursively filter menu items based on user permissions and role
  */
 function filterMenuItem(item: MenuItem, userPermissions: string[] | undefined, userRole: string | undefined): MenuItem | null {
+    const isBusinessAdmin = userRole === 'business_admin';
+
     // ownerOnly items require business_admin role
-    if (item.ownerOnly && userRole !== 'business_admin') {
+    if (item.ownerOnly && !isBusinessAdmin) {
         return null;
     }
 
     const isAllowedRole = !!userRole && !!item.allowedRoles?.includes(userRole);
 
     // Check if user has permission for this menu item
-    if (!item.ownerOnly && !isAllowedRole && !hasAnyPermission(userPermissions, item.requiredPermissions)) {
+    if (!isBusinessAdmin && !item.ownerOnly && !isAllowedRole && !hasAnyPermission(userPermissions, item.requiredPermissions)) {
         return null;
     }
 

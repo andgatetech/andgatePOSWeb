@@ -220,6 +220,7 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     '/reports/sales-items': ['reports.sales'],
     '/reports/customer': ['reports.sales'],
     '/reports/customer-due': ['reports.sales'],
+    '/reports/ar-aging': ['reports.sales'],
 
     // ── Reports: Purchase & Supplier ────────────────────────────
     '/reports/purchase': ['reports.purchase'],
@@ -227,14 +228,17 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     '/reports/purchase-transaction': ['reports.purchase-transaction'],
     '/reports/supplier': ['reports.purchase'],
     '/reports/supplier-due': ['reports.purchase'],
+    '/reports/supplier-statement': ['reports.purchase'],
 
     // ── Reports: Inventory & Stock ──────────────────────────────
     '/reports/stock': ['stock.reports'],
+    '/reports/stock-movement': ['stock.reports'],
     '/reports/low-stock': ['reports.low-stock'],
     '/reports/threshold-intelligence': ['reports.low-stock'],
     '/reports/idle-product': ['reports.inventory'],
     '/reports/adjustment': ['stock.reports'],
     '/reports/product': ['reports.inventory'],
+    '/reports/transfer-ledger': ['stock.reports'],
 
     // ── Reports: AI Insights ────────────────────────────────────
     '/reports/reorder-suggestions': ['reports.sales'],
@@ -246,6 +250,15 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     '/reports/profit-loss': ['reports.profit-loss'],
     '/reports/expense': ['reports.expense'],
     '/reports/tax': ['reports.tax'],
+    '/reports/bd-vat-workspace': ['reports.tax'],
+
+    // ── Reports: Operations ─────────────────────────────────────
+    '/reports/cash-closing': ['reports.sales'],
+    '/reports/payment-summary': ['reports.transaction'],
+    '/reports/employee-sales': ['reports.sales'],
+    '/reports/discount': ['reports.sales'],
+    '/reports/customer-statement': ['reports.sales'],
+    '/reports/audit-activity': ['reports.sales'],
 
     // ── Notifications ──────────────────────────────────────────
     '/notifications': ['notifications.index'],
