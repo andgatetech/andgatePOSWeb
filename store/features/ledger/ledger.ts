@@ -57,7 +57,7 @@ export const ledgerApi = baseApi.injectEndpoints({
                 method: 'GET',
                 params,
             }),
-            providesTags: ['Journals'],
+            providesTags: ['Journal'],
         }),
 
         // 4️⃣ Update ledger

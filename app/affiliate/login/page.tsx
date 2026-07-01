@@ -72,7 +72,7 @@ export default function AffiliateLoginPage() {
         setMode(nextMode);
         setSetPasswordClientError('');
         if (nextMode === 'set-password') {
-            setPassForm((current) => ({ ...current, mobile: current.mobile || loginForm.mobile }));
+            setSetPassForm((current) => ({ ...current, mobile: current.mobile || loginForm.mobile }));
         }
         if (nextMode === 'login') {
             resetSetPassword();

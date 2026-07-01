@@ -64,6 +64,7 @@ const PeriodFilter = ({
     onEndChange,
     onApply,
     label,
+    periodOptions,
 }: {
     period: PeriodType;
     onPeriodChange: (p: PeriodType) => void;
@@ -73,6 +74,7 @@ const PeriodFilter = ({
     onEndChange: (d: string) => void;
     onApply: () => void;
     label: string;
+    periodOptions: { value: PeriodType; label: string }[];
 }) => {
     const { t } = getTranslation();
     const [open, setOpen] = useState(false);
@@ -243,7 +245,7 @@ const ProfitLossReportPage = () => {
         { value: 'yearly', label: t('lbl_this_year') },
         { value: 'custom', label: t('lbl_custom_range') },
     ];
-        const { formatCurrency, formatNumber, symbol } = useCurrency();
+    const { formatCurrency, formatNumber, symbol } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
 
     const [period, setPeriod] = useState<PeriodType>('monthly');
@@ -387,6 +389,7 @@ const ProfitLossReportPage = () => {
                         onEndChange={setCustomEnd}
                         onApply={handleApplyCustom}
                         label={getPeriodLabel()}
+                        periodOptions={periodOptions}
                     />
                 </div>
 

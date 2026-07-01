@@ -14,7 +14,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import PosLeftSide from '../../pos/PosLeftSide';
 import PosRightSide from '../../pos/PosRightSide';
 
-export const OrderReturnPageContent = ({ routeOrderId }: { routeOrderId?: number }) => {
+const OrderReturnPageContent = ({ routeOrderId }: { routeOrderId?: number }) => {
     const { t } = getTranslation();
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -30,12 +30,6 @@ export const OrderReturnPageContent = ({ routeOrderId }: { routeOrderId?: number
     const orderId = routeOrderId || legacyOrderId || returnSession?.orderId;
 
     const [isLoadingOrder, setIsLoadingOrder] = useState(true);
-
-    useEffect(() => {
-        if (!routeOrderId && legacyOrderId) {
-            router.replace(`/orders/return/create/${legacyOrderId}`);
-        }
-    }, [legacyOrderId, routeOrderId, router]);
 
     // Direct links such as /orders/return?orderId=93 must load the order first,
     // then initialize the return session from the fetched order data.
@@ -83,10 +77,6 @@ export const OrderReturnPageContent = ({ routeOrderId }: { routeOrderId?: number
             }
         };
     }, [dispatch, currentStoreId]);
-
-    if (!routeOrderId && legacyOrderId) {
-        return <Loader message={t('order_loading')} />;
-    }
 
     if (!orderId) {
         return (

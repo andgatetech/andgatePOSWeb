@@ -3,7 +3,7 @@
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import Loader from '@/lib/Loader';
-import { isMobilePdfDownloadRisk, reservePdfWindow } from '@/lib/pdf-mobile-download';
+import { closeReservedPdfWindow, isMobilePdfDownloadRisk, reservePdfWindow } from '@/lib/pdf-mobile-download';
 import enLocale from '@/public/locales/en.json';
 import { useGetCashBookQuery } from '@/store/features/accounting/accountingApi';
 import { ArrowDownCircle, ArrowUpCircle, FileText, Loader2, Printer, TrendingUp } from 'lucide-react';

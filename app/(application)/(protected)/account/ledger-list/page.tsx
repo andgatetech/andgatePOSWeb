@@ -167,7 +167,15 @@ const LedgerListPage = () => {
             </div>
 
             {/* Modals */}
-            <ViewLedgerModal ledger={selectedLedger} isOpen={isViewModalOpen} onClose={() => setIsViewModalOpen(false)} />
+            <ViewLedgerModal
+                ledger={selectedLedger}
+                isOpen={isViewModalOpen}
+                onClose={() => setIsViewModalOpen(false)}
+                onEdit={() => {
+                    setIsViewModalOpen(false);
+                    handleEdit(selectedLedger);
+                }}
+            />
             <EditLedgerModal ledger={selectedLedger} isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} onSuccess={handleEditSuccess} />
         </div>
     );
