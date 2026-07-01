@@ -9,8 +9,11 @@ import ScrollToTop from '@/components/layouts/scroll-to-top';
 import Sidebar from '@/components/layouts/sidebar';
 import Portals from '@/components/portals';
 import StatusGuard from '@/lib/protected/StatusGuard';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 
-export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
+function ProtectedLayoutInner({ children }: { children: React.ReactNode }) {
+    usePushNotifications();
+
     return (
         <StatusGuard>
             <div className="relative">
@@ -32,4 +35,8 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
             </div>
         </StatusGuard>
     );
+}
+
+export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
+    return <ProtectedLayoutInner>{children}</ProtectedLayoutInner>;
 }

@@ -65,6 +65,21 @@ const notificationApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['Notifications'],
         }),
+
+        // 7. Get VAPID public key for push subscription
+        getVapidPublicKey: builder.query<{ public_key: string }, void>({
+            query: () => ({ url: '/push/vapid-public-key', method: 'GET' }),
+        }),
+
+        // 8. Save push subscription
+        subscribeToPush: builder.mutation<{ success: boolean }, { endpoint: string; public_key: string; auth_token: string }>({
+            query: (body) => ({ url: '/push/subscribe', method: 'POST', body }),
+        }),
+
+        // 9. Remove push subscription
+        unsubscribeFromPush: builder.mutation<{ success: boolean }, { endpoint: string }>({
+            query: (body) => ({ url: '/push/unsubscribe', method: 'POST', body }),
+        }),
     }),
     overrideExisting: true,
 });
@@ -76,4 +91,7 @@ export const {
     useMarkAllReadMutation,
     useArchiveNotificationMutation,
     useSendAnnouncementMutation,
+    useGetVapidPublicKeyQuery,
+    useSubscribeToPushMutation,
+    useUnsubscribeFromPushMutation,
 } = notificationApi;

@@ -436,7 +436,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
             // Inventory Reports
             {
                 label: 'Inventory Reports',
-                requiredPermissions: ['stock.reports', 'reports.inventory', 'reports.low-stock'],
+                requiredPermissions: ['stock.reports', 'stock.adjustments', 'reports.inventory', 'reports.low-stock'],
                 subMenu: [
                     { label: 'Stock Report', href: '/reports/stock', requiredPermissions: ['stock.reports'] },
                     { label: 'Low Stock', href: '/reports/low-stock', requiredPermissions: ['reports.low-stock'] },
@@ -444,7 +444,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                     { label: 'Stock Movement Ledger', href: '/reports/stock-movement', requiredPermissions: ['stock.reports'] },
                     { label: 'Transfer Ledger', href: '/reports/transfer-ledger', requiredPermissions: ['stock.reports'] },
                     { label: 'Idle Products', href: '/reports/idle-product', requiredPermissions: ['reports.inventory'] },
-                    { label: 'Adjustments', href: '/reports/adjustment', requiredPermissions: ['stock.reports'] },
+                    { label: 'Adjustments', href: '/reports/adjustment', requiredPermissions: ['stock.adjustments'] },
                     { label: 'Product Report', href: '/reports/product', requiredPermissions: ['reports.inventory'] },
                 ],
             },

@@ -47,7 +47,7 @@ const SalesReportFilter: React.FC<SalesReportFilterProps> = ({ onFilterChange })
         if (filters.storeId === 'all') {
             const allStoreIds = userStores.map((store: any) => store.id);
             if (allStoreIds.length > 1) {
-                additionalParams.store_ids = allStoreIds.join(',');
+                additionalParams.store_ids = allStoreIds;
             } else if (allStoreIds.length === 1) {
                 additionalParams.store_id = allStoreIds[0];
             }

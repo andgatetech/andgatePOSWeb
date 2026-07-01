@@ -34,7 +34,7 @@ export const PERMISSION_MENU_MAP: Record<string, string[]> = {
     'stock.adjustments': ['Stock Adjustment'],
     'stock.summary': [],
     'stock.movement': [],
-    'stock.reports': ['Stock Report', 'Adjustments Report'],
+    'stock.reports': ['Stock Report'],
     'orders.index': ['Order List', 'Order Returns List', 'Ecommerce Management', 'Store Ecommerce Status', 'Ecommerce Orders', 'Ecommerce Products', 'Ecommerce Settings', 'Courier Credentials'],
     'orders.create': ['POS Terminal'],
     'orders.edit': [],

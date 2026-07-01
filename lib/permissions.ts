@@ -236,7 +236,7 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     '/reports/low-stock': ['reports.low-stock'],
     '/reports/threshold-intelligence': ['reports.low-stock'],
     '/reports/idle-product': ['reports.inventory'],
-    '/reports/adjustment': ['stock.reports'],
+    '/reports/adjustment': ['stock.adjustments'],
     '/reports/product': ['reports.inventory'],
     '/reports/transfer-ledger': ['stock.reports'],
 
