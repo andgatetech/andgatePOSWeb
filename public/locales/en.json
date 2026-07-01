@@ -3916,6 +3916,7 @@
   "lbl_approved": "Approved",
   "lbl_partially_received": "Partially Received",
   "lbl_cancelled": "Cancelled",
+  "lbl_settled": "Settled",
   "lbl_blocked": "Blocked",
   "lbl_staff": "Staff",
   "lbl_manager": "Manager",

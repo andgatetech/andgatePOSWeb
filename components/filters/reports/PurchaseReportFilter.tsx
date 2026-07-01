@@ -64,8 +64,12 @@ const PurchaseReportFilter: React.FC<PurchaseReportFilterProps> = ({ onFilterCha
                     className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:w-auto"
                 >
                     <option value="all">{t('lbl_all_status')}</option>
+                    <option value="draft">{t('lbl_draft')}</option>
+                    <option value="approved">{t('lbl_approved')}</option>
                     <option value="ordered">{t('lbl_ordered')}</option>
+                    <option value="partially_received">{t('lbl_partially_received')}</option>
                     <option value="received">{t('lbl_received')}</option>
+                    <option value="cancelled">{t('lbl_cancelled')}</option>
                 </select>
                 <ClipboardList className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
             </div>

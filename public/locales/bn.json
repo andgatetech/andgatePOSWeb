@@ -3916,6 +3916,7 @@
   "lbl_approved": "অনুমোদিত",
   "lbl_partially_received": "আংশিক প্রাপ্ত",
   "lbl_cancelled": "বাতিল",
+  "lbl_settled": "নিষ্পত্তি হয়েছে",
   "lbl_blocked": "অবরুদ্ধ",
   "lbl_staff": "স্টাফ",
   "lbl_manager": "ম্যানেজার",

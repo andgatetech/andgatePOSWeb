@@ -3,7 +3,7 @@ import UniversalFilter from '@/components/common/UniversalFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useUniversalFilter } from '@/hooks/useUniversalFilter';
 import { getTranslation } from '@/i18n';
-import { CreditCard, RefreshCw, Tag } from 'lucide-react';
+import { CreditCard, RefreshCw } from 'lucide-react';
 import React from 'react';
 
 interface OrderReturnsReportFilterProps {
@@ -14,7 +14,6 @@ const OrderReturnsReportFilter: React.FC<OrderReturnsReportFilterProps> = ({ onF
     const { t } = getTranslation();
     const [selectedReturnType, setSelectedReturnType] = React.useState<string>('all');
     const [selectedPaymentStatus, setSelectedPaymentStatus] = React.useState<string>('all');
-    const [selectedReturnReason, setSelectedReturnReason] = React.useState<string>('all');
 
     const { userStores } = useCurrentStore();
     const { filters, handleFilterChange, buildApiParams } = useUniversalFilter();
@@ -24,7 +23,6 @@ const OrderReturnsReportFilter: React.FC<OrderReturnsReportFilterProps> = ({ onF
     const handleReset = React.useCallback(() => {
         setSelectedReturnType('all');
         setSelectedPaymentStatus('all');
-        setSelectedReturnReason('all');
     }, []);
 
     React.useEffect(() => {
@@ -35,9 +33,6 @@ const OrderReturnsReportFilter: React.FC<OrderReturnsReportFilterProps> = ({ onF
         }
         if (selectedPaymentStatus !== 'all') {
             additionalParams.payment_status = selectedPaymentStatus;
-        }
-        if (selectedReturnReason !== 'all') {
-            additionalParams.return_reason = selectedReturnReason;
         }
 
         if (filters.storeId === 'all') {
@@ -52,12 +47,11 @@ const OrderReturnsReportFilter: React.FC<OrderReturnsReportFilterProps> = ({ onF
         const apiParams = buildApiParams(additionalParams);
         stableOnFilterChange(apiParams);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [filters, selectedReturnType, selectedPaymentStatus, selectedReturnReason]);
+    }, [filters, selectedReturnType, selectedPaymentStatus]);
 
     React.useEffect(() => {
         setSelectedReturnType('all');
         setSelectedPaymentStatus('all');
-        setSelectedReturnReason('all');
     }, [filters.storeId]);
 
     const customFilters = (
@@ -85,27 +79,11 @@ const OrderReturnsReportFilter: React.FC<OrderReturnsReportFilterProps> = ({ onF
                 >
                     <option value="all">{t('lbl_all_status')}</option>
                     <option value="pending">{t('lbl_pending')}</option>
-                    <option value="completed">{t('lbl_completed')}</option>
-                    <option value="partial">{t('lbl_partial')}</option>
+                    <option value="paid">{t('lbl_paid')}</option>
+                    <option value="refunded">{t('status_refunded')}</option>
+                    <option value="settled">{t('lbl_settled')}</option>
                 </select>
                 <CreditCard className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-            </div>
-
-            {/* Return Reason Filter */}
-            <div className="relative">
-                <select
-                    value={selectedReturnReason}
-                    onChange={(e) => setSelectedReturnReason(e.target.value)}
-                    className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:w-auto"
-                >
-                    <option value="all">{t('lbl_all_reasons')}</option>
-                    <option value="defective">{t('lbl_defective')}</option>
-                    <option value="wrong_item">{t('lbl_wrong_item')}</option>
-                    <option value="damaged">{t('lbl_damaged')}</option>
-                    <option value="customer_request">{t('lbl_customer_request')}</option>
-                    <option value="other">{t('lbl_other')}</option>
-                </select>
-                <Tag className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
             </div>
         </>
     );
@@ -118,7 +96,7 @@ const OrderReturnsReportFilter: React.FC<OrderReturnsReportFilterProps> = ({ onF
             showDateFilter={true}
             showSearch={true}
             customFilters={customFilters}
-            customActiveCount={(selectedReturnType !== 'all' ? 1 : 0) + (selectedPaymentStatus !== 'all' ? 1 : 0) + (selectedReturnReason !== 'all' ? 1 : 0)}
+            customActiveCount={(selectedReturnType !== 'all' ? 1 : 0) + (selectedPaymentStatus !== 'all' ? 1 : 0)}
             onResetFilters={handleReset}
         />
     );
