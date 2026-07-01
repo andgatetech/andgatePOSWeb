@@ -8,6 +8,7 @@ import PurchaseReportFilter from '@/components/filters/reports/PurchaseReportFil
 import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { escapePrintHtml, printInWindow } from '@/lib/printUtil';
 import { useClearFullDueMutation, useMakePartialPaymentMutation } from '@/store/features/PurchaseOrder/PurchaseOrderApi';
 import { useGetSupplierDueReportMutation } from '@/store/features/reports/reportApi';
 import { AlertCircle, Banknote, CheckCircle2, CreditCard, FileText, Receipt, TrendingUp } from 'lucide-react';
@@ -144,13 +145,14 @@ const SupplierDueReportPage = () => {
 
     const printReceipt = useCallback(
         (due: any, amount: number, method: string) => {
-            const receiptWindow = window.open('', '_blank', 'width=420,height=720');
-            if (!receiptWindow) return;
+            const esc = escapePrintHtml;
             const remaining = Math.max(0, Number(due.due || 0) - amount);
-            receiptWindow.document.write(`
+            const html = `<!DOCTYPE html>
                 <html>
                     <head>
-                        <title>${t('lbl_money_receipt')}</title>
+                        <meta charset="utf-8">
+                        <meta name="viewport" content="width=device-width,initial-scale=1">
+                        <title>${esc(t('lbl_money_receipt'))}</title>
                         <style>
                             body { font-family: Arial, sans-serif; padding: 20px; color: #111827; }
                             .receipt { max-width: 360px; margin: 0 auto; }
@@ -166,21 +168,20 @@ const SupplierDueReportPage = () => {
                     </head>
                     <body>
                         <div class="receipt">
-                            <h1>${selectedStoreName}</h1>
-                            <h2>${t('lbl_money_receipt')}</h2>
-                            <div class="amount">${formatCurrency(amount)}</div>
-                            <div class="row"><span class="label">${t('lbl_reference')}</span><span class="value">${due.reference}</span></div>
-                            <div class="row"><span class="label">${t('lbl_supplier')}</span><span class="value">${due.supplier || '-'}</span></div>
-                            <div class="row"><span class="label">${t('lbl_payment_method')}</span><span class="value">${method}</span></div>
-                            <div class="row"><span class="label">${t('lbl_payment_for')}</span><span class="value">${t('lbl_supplier_due')}</span></div>
-                            <div class="row"><span class="label">${t('lbl_remaining_due')}</span><span class="value">${formatCurrency(remaining)}</span></div>
-                            <div class="footer"><span>${new Date().toLocaleString()}</span><span>${t('lbl_signature')}</span></div>
+                            <h1>${esc(selectedStoreName)}</h1>
+                            <h2>${esc(t('lbl_money_receipt'))}</h2>
+                            <div class="amount">${esc(formatCurrency(amount))}</div>
+                            <div class="row"><span class="label">${esc(t('lbl_reference'))}</span><span class="value">${esc(due.reference)}</span></div>
+                            <div class="row"><span class="label">${esc(t('lbl_supplier'))}</span><span class="value">${esc(due.supplier || '-')}</span></div>
+                            <div class="row"><span class="label">${esc(t('lbl_payment_method'))}</span><span class="value">${esc(method)}</span></div>
+                            <div class="row"><span class="label">${esc(t('lbl_payment_for'))}</span><span class="value">${esc(t('lbl_supplier_due'))}</span></div>
+                            <div class="row"><span class="label">${esc(t('lbl_remaining_due'))}</span><span class="value">${esc(formatCurrency(remaining))}</span></div>
+                            <div class="footer"><span>${esc(new Date().toLocaleString())}</span><span>${esc(t('lbl_signature'))}</span></div>
                         </div>
-                        <script>window.print(); setTimeout(() => window.close(), 500);</script>
                     </body>
                 </html>
-            `);
-            receiptWindow.document.close();
+            `;
+            printInWindow(html);
         },
         [formatCurrency, selectedStoreName, t]
     );

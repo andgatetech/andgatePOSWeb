@@ -8,6 +8,7 @@ import UniversalFilter from '@/components/common/UniversalFilter';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
+import { escapePrintHtml, printInWindow } from '@/lib/printUtil';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import type { RootState } from '@/store';
 import {
@@ -164,9 +165,7 @@ const PurchaseOrderListPage = () => {
     };
 
     const handlePrint = (item: any) => {
-        const printWindow = window.open('', '_blank');
-        if (!printWindow) return;
-
+        const esc = escapePrintHtml;
         const isDraft = !!item.draft_reference;
         const title = isDraft
             ? `${t('lbl_purchase_draft')}: ${item.draft_reference}`
@@ -176,7 +175,10 @@ const PurchaseOrderListPage = () => {
             return sum + (parseFloat(itm.estimated_subtotal) || parseFloat(itm.subtotal) || parseFloat(itm.total) || 0);
         }, 0);
 
-        printWindow.document.write(`<!DOCTYPE html><html><head><title>${title}</title>
+        const html = `<!DOCTYPE html><html><head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width,initial-scale=1">
+            <title>${esc(title)}</title>
             <style>
                 *{margin:0;padding:0;box-sizing:border-box}
                 body{font-family:system-ui,sans-serif;padding:40px;color:#1e293b}
@@ -194,25 +196,24 @@ const PurchaseOrderListPage = () => {
                 .text-right{text-align:right}
                 @media print{body{padding:20px}}
             </style></head><body>
-            <div class="header"><h1>${title}</h1><p>${item.store_name || t('lbl_store')}</p></div>
+            <div class="header"><h1>${esc(title)}</h1><p>${esc(item.store_name || t('lbl_store'))}</p></div>
             <div class="info">
-                <div><h3>${t('lbl_date')}</h3><p>${item.created_at || '—'}</p></div>
-                ${item.supplier?.name ? `<div><h3>${t('lbl_supplier')}</h3><p>${item.supplier.name}</p></div>` : ''}
-                <div><h3>${t('lbl_total')}</h3><p>৳${total.toLocaleString()}</p></div>
+                <div><h3>${esc(t('lbl_date'))}</h3><p>${esc(item.created_at || '-')}</p></div>
+                ${item.supplier?.name ? `<div><h3>${esc(t('lbl_supplier'))}</h3><p>${esc(item.supplier.name)}</p></div>` : ''}
+                <div><h3>${esc(t('lbl_total'))}</h3><p>৳${esc(total.toLocaleString())}</p></div>
             </div>
-            <table><thead><tr><th>#</th><th>${t('lbl_product')}</th><th>${t('lbl_qty')}</th><th>${t('lbl_unit_price')}</th><th class="text-right">${t('lbl_subtotal')}</th></tr></thead><tbody>
+            <table><thead><tr><th>#</th><th>${esc(t('lbl_product'))}</th><th>${esc(t('lbl_qty'))}</th><th>${esc(t('lbl_unit_price'))}</th><th class="text-right">${esc(t('lbl_subtotal'))}</th></tr></thead><tbody>
             ${items.map((itm: any, i: number) => {
                 const name = itm.product_name || itm.product || t('lbl_na');
                 const qty = itm.quantity_ordered || itm.quantity || 0;
                 const price = parseFloat(itm.purchase_price || itm.unit_price || 0);
                 const subtotal = parseFloat(itm.estimated_subtotal) || parseFloat(itm.subtotal) || (qty * price);
-                return `<tr><td>${i + 1}</td><td>${name}</td><td>${qty}</td><td>৳${price.toLocaleString()}</td><td class="text-right">৳${subtotal.toLocaleString()}</td></tr>`;
+                return `<tr><td>${i + 1}</td><td>${esc(name)}</td><td>${esc(qty)}</td><td>৳${esc(price.toLocaleString())}</td><td class="text-right">৳${esc(subtotal.toLocaleString())}</td></tr>`;
             }).join('')}
-            <tr class="total-row"><td colspan="4" class="text-right"><strong>${t('lbl_total')}</strong></td><td class="text-right"><strong>৳${total.toLocaleString()}</strong></td></tr>
+            <tr class="total-row"><td colspan="4" class="text-right"><strong>${esc(t('lbl_total'))}</strong></td><td class="text-right"><strong>৳${esc(total.toLocaleString())}</strong></td></tr>
             </tbody></table>
-            <script>window.onload=function(){window.print();window.onafterprint=function(){window.close();};}</script>
-            </body></html>`);
-        printWindow.document.close();
+            </body></html>`;
+        printInWindow(html);
     };
 
     const handleReceiveItems = (order: any) => router.push(`/purchases/receive/${order.id}`);

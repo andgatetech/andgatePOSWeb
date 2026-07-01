@@ -4,6 +4,7 @@ import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import Loader from '@/lib/Loader';
 import { closeReservedPdfWindow, downloadJsPdf, reservePdfWindow } from '@/lib/pdf-mobile-download';
+import { escapePrintHtml, printInWindow } from '@/lib/printUtil';
 import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import type { RootState } from '@/store';
 import type { GeneratedLabel, LabelItem } from '@/store/features/Label/labelSlice';
@@ -189,35 +190,34 @@ const LabelGenerator = () => {
 
         const isQR = labelType === 'qrcode';
         const containerClass = isQR ? 'qr-container' : 'barcode-container';
+        const esc = escapePrintHtml;
 
         const content = generatedLabels
             .map(
                 (l) => `
             <div class="label-card ${!isSheet ? 'break-page' : ''}">
                 <div style="width:100%">
-                    <h3>${l.product_name || 'Product'}</h3>
-                    ${l.variant_name ? `<div class="variant">${l.variant_name}</div>` : ''}
-                    <div class="sku">${l.sku || 'N/A'}</div>
+                    <h3>${esc(l.product_name || 'Product')}</h3>
+                    ${l.variant_name ? `<div class="variant">${esc(l.variant_name)}</div>` : ''}
+                    <div class="sku">${esc(l.sku || 'N/A')}</div>
                 </div>
-                <div class="${containerClass}">${l.barcode ? `<img src="${l.barcode}"/>` : ''}</div>
+                <div class="${containerClass}">${l.barcode ? `<img src="${esc(l.barcode)}" alt="${labelType === 'qrcode' ? 'QR code' : 'Barcode'}"/>` : ''}</div>
             </div>
         `
             )
             .join('');
 
-        return `<html><head><style>${styles}</style></head><body>${!isSheet ? content : `<div class="page-container">${content}</div>`}</body></html>`;
+        return `<!DOCTYPE html><html><head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width,initial-scale=1">
+            <title>${esc(t('lbl_label_generator'))}</title>
+            <style>${styles}</style>
+        </head><body>${!isSheet ? content : `<div class="page-container">${content}</div>`}</body></html>`;
     };
 
     const handlePrint = () => {
         if (!generatedLabels.length) return showErrorDialog(t('msg_error'), t('msg_generate_first'));
-        const win = window.open('', '_blank', 'width=800,height=600');
-        if (win) {
-            win.document.write(generatePrintHTML());
-            win.document.close();
-            win.onload = () => {
-                setTimeout(() => win.print(), 250);
-            };
-        }
+        printInWindow(generatePrintHTML());
     };
 
     // Helper: Convert any image data URI (SVG, PNG, JPEG) to a PNG data URL via canvas

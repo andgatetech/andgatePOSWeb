@@ -5,6 +5,7 @@ import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import Loader from '@/lib/Loader';
 import { normalizePaymentStatus } from '@/lib/paymentConstants';
+import { escapePrintHtml, printInWindow } from '@/lib/printUtil';
 import { useGetAllOrdersQuery } from '@/store/features/Order/Order';
 import { getTranslation } from '@/i18n';
 import { ShoppingBag } from 'lucide-react';
@@ -136,6 +137,7 @@ const Orders = () => {
     // Handle thermal receipt print (direct print without modal)
     const handleThermalReceiptPrint = useCallback((order: any) => {
         setSelectedOrder(order);
+        const esc = escapePrintHtml;
         
         // Create HTML content optimized for Android thermal printers
         const receiptHTML = `
@@ -309,29 +311,29 @@ const Orders = () => {
 <body>
     <div class="receipt-container">
         <div class="receipt-header">
-            <div class="store-name">${currentStore?.store_name || 'andgatePOS'}</div>
-            ${currentStore?.store_location ? `<div class="store-info">${currentStore.store_location}</div>` : ''}
-            ${currentStore?.store_contact ? `<div class="store-info">Ph: ${currentStore.store_contact}</div>` : ''}
-            ${currentStore?.store_email ? `<div class="store-info">${currentStore.store_email}</div>` : ''}
+            <div class="store-name">${esc(currentStore?.store_name || 'andgatePOS')}</div>
+            ${currentStore?.store_location ? `<div class="store-info">${esc(currentStore.store_location)}</div>` : ''}
+            ${currentStore?.store_contact ? `<div class="store-info">Ph: ${esc(currentStore.store_contact)}</div>` : ''}
+            ${currentStore?.store_email ? `<div class="store-info">${esc(currentStore.store_email)}</div>` : ''}
             <div class="receipt-title">RECEIPT</div>
         </div>
 
         <div class="receipt-section">
             <div class="receipt-row">
                 <div class="row-label">Invoice No:</div>
-                <div class="row-value">${order.invoice || `#${order.id}`}</div>
+                <div class="row-value">${esc(order.invoice || `#${order.id}`)}</div>
             </div>
             ${order.id ? `<div class="receipt-row">
                 <div class="row-label">Order ID:</div>
-                <div class="row-value">#${order.id}</div>
+                <div class="row-value">#${esc(order.id)}</div>
             </div>` : ''}
             <div class="receipt-row">
                 <div class="row-label">Date:</div>
-                <div class="row-value">${new Date().toLocaleDateString()}</div>
+                <div class="row-value">${esc(new Date().toLocaleDateString())}</div>
             </div>
             <div class="receipt-row">
                 <div class="row-label">Cashier:</div>
-                <div class="row-value">${currentUser?.name || 'Staff'}</div>
+                <div class="row-value">${esc(currentUser?.name || 'Staff')}</div>
             </div>
         </div>
 
@@ -340,11 +342,11 @@ const Orders = () => {
         <div class="receipt-section">
             <div class="receipt-row">
                 <div class="row-label">Customer:</div>
-                <div class="row-value">${order.is_walk_in ? 'Walk-in' : (order.customer?.name || 'N/A')}</div>
+                <div class="row-value">${esc(order.is_walk_in ? 'Walk-in' : (order.customer?.name || 'N/A'))}</div>
             </div>
             ${!order.is_walk_in && order.customer?.phone ? `<div class="receipt-row">
                 <div class="row-label">Ph:</div>
-                <div class="row-value">${order.customer.phone}</div>
+                <div class="row-value">${esc(order.customer.phone)}</div>
             </div>` : ''}
         </div>
 
@@ -357,9 +359,9 @@ const Orders = () => {
                 const itemQty = item.quantity;
                 return `
                 <div class="item-row">
-                    <div class="item-name">${itemName}</div>
-                    <div class="item-details">${itemQty}x${itemPrice}</div>
-                    ${item.variant_name || item.variant?.name ? `<div class="item-details">Var: ${item.variant_name || item.variant?.name}</div>` : ''}
+                    <div class="item-name">${esc(itemName)}</div>
+                    <div class="item-details">${esc(itemQty)}x${esc(itemPrice)}</div>
+                    ${item.variant_name || item.variant?.name ? `<div class="item-details">Var: ${esc(item.variant_name || item.variant?.name)}</div>` : ''}
                 </div>
                 `;
             }).join('')}
@@ -370,27 +372,27 @@ const Orders = () => {
         <div class="totals-section">
             <div class="total-row">
                 <div class="total-label">Subtotal:</div>
-                <div class="total-value">${formatCurrency(order.financial?.subtotal ?? order.subtotal ?? order.total)}</div>
+                <div class="total-value">${esc(formatCurrency(order.financial?.subtotal ?? order.subtotal ?? order.total))}</div>
             </div>
             ${(order.financial?.tax ?? order.tax ?? 0) > 0 ? `<div class="total-row">
                 <div class="total-label">Tax:</div>
-                <div class="total-value">${formatCurrency(order.financial?.tax ?? order.tax ?? 0)}</div>
+                <div class="total-value">${esc(formatCurrency(order.financial?.tax ?? order.tax ?? 0))}</div>
             </div>` : ''}
             ${(order.financial?.discount ?? order.discount ?? 0) > 0 ? `<div class="total-row">
                 <div class="total-label">Discount:</div>
-                <div class="total-value">-${formatCurrency(order.financial?.discount ?? order.discount ?? 0)}</div>
+                <div class="total-value">-${esc(formatCurrency(order.financial?.discount ?? order.discount ?? 0))}</div>
             </div>` : ''}
             <div class="total-row" style="border-top: 1px solid black; padding-top: 1px; margin-top: 1px;">
                 <div class="total-label">TOTAL:</div>
-                <div class="total-value">${formatCurrency(order.financial?.grand_total ?? order.grand_total ?? order.total)}</div>
+                <div class="total-value">${esc(formatCurrency(order.financial?.grand_total ?? order.grand_total ?? order.total))}</div>
             </div>
             ${(order.financial?.amount_paid ?? order.amount_paid ?? 0) > 0 ? `<div class="total-row">
                 <div class="total-label">Paid:</div>
-                <div class="total-value">${formatCurrency(order.financial?.amount_paid ?? order.amount_paid ?? 0)}</div>
+                <div class="total-value">${esc(formatCurrency(order.financial?.amount_paid ?? order.amount_paid ?? 0))}</div>
             </div>` : ''}
             ${(order.financial?.due_amount ?? order.due_amount ?? 0) > 0 ? `<div class="total-row">
                 <div class="total-label">Due:</div>
-                <div class="total-value">${formatCurrency(order.financial?.due_amount ?? order.due_amount ?? 0)}</div>
+                <div class="total-value">${esc(formatCurrency(order.financial?.due_amount ?? order.due_amount ?? 0))}</div>
             </div>` : ''}
         </div>
 
@@ -404,9 +406,7 @@ const Orders = () => {
         `;
 
         // Isolated window print — single print() call, works with Bluetooth POS printers
-        import('@/lib/printUtil').then(({ printInWindow }) => {
-            printInWindow(receiptHTML);
-        });
+        printInWindow(receiptHTML);
     }, [currentStore, currentUser, formatCurrency]);
 
     // Close invoice preview

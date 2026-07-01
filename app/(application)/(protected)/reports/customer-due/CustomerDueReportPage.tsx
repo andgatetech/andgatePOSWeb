@@ -7,6 +7,7 @@ import ReusableTable from '@/components/common/ReusableTable';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
+import { escapePrintHtml, printInWindow } from '@/lib/printUtil';
 import { useClearCustomerDueMutation, useCollectCustomerDuePaymentMutation, useGetCustomerDuesQuery, useUpdateCustomerDueFollowUpMutation } from '@/store/features/customerDue/customerDueApi';
 import { AlertCircle, Bell, CalendarClock, CheckCircle2, Clock, CreditCard, FileText, MessageCircle, Phone, Receipt, Search, Users, Wallet } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
@@ -139,13 +140,13 @@ const CustomerDueReportPage = () => {
 
     const printReceipt = useCallback(
         (due: any, payment: any) => {
-            const receiptWindow = window.open('', '_blank', 'width=420,height=720');
-            if (!receiptWindow) return;
-
-            receiptWindow.document.write(`
+            const esc = escapePrintHtml;
+            const html = `<!DOCTYPE html>
                 <html>
                     <head>
-                        <title>${t('lbl_money_receipt')}</title>
+                        <meta charset="utf-8">
+                        <meta name="viewport" content="width=device-width,initial-scale=1">
+                        <title>${esc(t('lbl_money_receipt'))}</title>
                         <style>
                             body { font-family: Arial, sans-serif; padding: 20px; color: #111827; }
                             .receipt { max-width: 360px; margin: 0 auto; }
@@ -161,22 +162,21 @@ const CustomerDueReportPage = () => {
                     </head>
                     <body>
                         <div class="receipt">
-                            <h1>${selectedStoreName}</h1>
-                            <h2>${t('lbl_money_receipt')}</h2>
-                            <div class="amount">${formatCurrency(payment.paid_amount || payment.amount || 0)}</div>
-                            <div class="row"><span class="label">${t('lbl_receipt_no')}</span><span class="value">${payment.reference_no || due.reference}</span></div>
-                            <div class="row"><span class="label">${t('lbl_received_from')}</span><span class="value">${due.customer}</span></div>
-                            <div class="row"><span class="label">${t('lbl_contact_no')}</span><span class="value">${due.phone || '-'}</span></div>
-                            <div class="row"><span class="label">${t('lbl_payment_method')}</span><span class="value">${payment.payment_method || paymentMethod}</span></div>
-                            <div class="row"><span class="label">${t('lbl_payment_for')}</span><span class="value">${t('lbl_customer_due')}</span></div>
-                            <div class="row"><span class="label">${t('lbl_remaining_due')}</span><span class="value">${formatCurrency(payment.remaining ?? Math.max(0, Number(due.remaining || 0) - Number(payment.paid_amount || payment.amount || 0)))}</span></div>
-                            <div class="footer"><span>${new Date().toLocaleString()}</span><span>${t('lbl_signature')}</span></div>
+                            <h1>${esc(selectedStoreName)}</h1>
+                            <h2>${esc(t('lbl_money_receipt'))}</h2>
+                            <div class="amount">${esc(formatCurrency(payment.paid_amount || payment.amount || 0))}</div>
+                            <div class="row"><span class="label">${esc(t('lbl_receipt_no'))}</span><span class="value">${esc(payment.reference_no || due.reference)}</span></div>
+                            <div class="row"><span class="label">${esc(t('lbl_received_from'))}</span><span class="value">${esc(due.customer)}</span></div>
+                            <div class="row"><span class="label">${esc(t('lbl_contact_no'))}</span><span class="value">${esc(due.phone || '-')}</span></div>
+                            <div class="row"><span class="label">${esc(t('lbl_payment_method'))}</span><span class="value">${esc(payment.payment_method || paymentMethod)}</span></div>
+                            <div class="row"><span class="label">${esc(t('lbl_payment_for'))}</span><span class="value">${esc(t('lbl_customer_due'))}</span></div>
+                            <div class="row"><span class="label">${esc(t('lbl_remaining_due'))}</span><span class="value">${esc(formatCurrency(payment.remaining ?? Math.max(0, Number(due.remaining || 0) - Number(payment.paid_amount || payment.amount || 0))))}</span></div>
+                            <div class="footer"><span>${esc(new Date().toLocaleString())}</span><span>${esc(t('lbl_signature'))}</span></div>
                         </div>
-                        <script>window.print(); setTimeout(() => window.close(), 500);</script>
                     </body>
                 </html>
-            `);
-            receiptWindow.document.close();
+            `;
+            printInWindow(html);
         },
         [formatCurrency, paymentMethod, selectedStoreName, t]
     );

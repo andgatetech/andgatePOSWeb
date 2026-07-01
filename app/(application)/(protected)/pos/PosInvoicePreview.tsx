@@ -4,6 +4,7 @@ import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { closeReservedPdfWindow, downloadPdfMake, reservePdfWindow } from '@/lib/pdf-mobile-download';
+import { printInWindow } from '@/lib/printUtil';
 import { useGetStoreLogoQuery, useGetStoreQuery } from '@/store/features/store/storeApi';
 import { RootState } from '@/store';
 import Image from 'next/image';
@@ -517,11 +518,9 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
 
                 // Open receipt in an isolated window — guaranteed single print call,
                 // works with Bluetooth POS printers paired as a system printer.
-                import('@/lib/printUtil').then(({ printInWindow }) => {
-                    printInWindow(html, () => {
-                        setPrintMode(null);
-                        setIsPrinting(false);
-                    });
+                printInWindow(html, () => {
+                    setPrintMode(null);
+                    setIsPrinting(false);
                 });
             }, 100);
         });
