@@ -2,6 +2,7 @@
 
 import { convertNumberByLanguage } from '@/components/custom/convertNumberByLanguage';
 import { getTranslation } from '@/i18n';
+import { trackEvent } from '@/lib/analytics';
 import {
     applyDiscount,
     calcYearlySavings,
@@ -46,6 +47,34 @@ export default function PricingPlansGrid({ showComparison = true }: PricingPlans
     const visiblePlanCount = 5;
     const maxPlanSlide = Math.max(plans.length - visiblePlanCount, 0);
     const visiblePlans = plans.slice(planSlideIndex, planSlideIndex + visiblePlanCount);
+
+    const handlePlanCta = (plan: any, isEnterprise: boolean) => {
+        trackEvent('pricing_plan_view_content', 'ViewContent', {
+            content_name: plan.name || plan.name_en || 'Pricing Plan',
+            content_category: 'Pricing',
+            plan_id: plan.id,
+            billing_cycle: billingCycle,
+            value: billingCycle === 'annually' ? Number(plan.yearly_price || 0) : Number(plan.monthly_price || 0),
+            currency: 'BDT',
+        });
+
+        if (!isEnterprise) {
+            trackEvent('trial_started_intent', 'StartTrial', {
+                content_name: plan.name || plan.name_en || 'Pricing Plan',
+                content_category: 'SaaS Trial',
+                plan_id: plan.id,
+                billing_cycle: billingCycle,
+            });
+            trackEvent('trial_started_intent_custom', 'TrialStarted', {
+                content_name: plan.name || plan.name_en || 'Pricing Plan',
+                content_category: 'SaaS Trial',
+                plan_id: plan.id,
+                billing_cycle: billingCycle,
+            });
+        }
+
+        window.location.href = isEnterprise ? '/contact' : '/register';
+    };
 
     const topSavings = plans.length > 0 ? calcYearlySavings(plans[0].monthly_price, plans[0].yearly_price) : 0;
 
@@ -269,7 +298,7 @@ export default function PricingPlansGrid({ showComparison = true }: PricingPlans
                                 <div className={cn('flex flex-1 flex-col p-5', isMostPopular && 'bg-white')}>
                                     {/* CTA */}
                                     <button
-                                        onClick={() => (window.location.href = isEnterprise ? '/contact' : '/register')}
+                                        onClick={() => handlePlanCta(plan, isEnterprise)}
                                         className={cn(
                                             'mb-2 w-full rounded-xl px-3 py-2.5 text-center text-sm font-bold shadow-sm transition-all duration-200 hover:scale-[1.02]',
                                             isMostPopular

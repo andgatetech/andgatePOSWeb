@@ -2,6 +2,7 @@
 import MainLayout from '@/components/layouts/MainLayout';
 import { getTranslation } from '@/i18n';
 import { useCurrency } from '@/hooks/useCurrency';
+import { buildAttribution } from '@/lib/attribution';
 import { useCreateLeadMutation } from '@/store/features/auth/authApi';
 import { useGetPlansQuery } from '@/store/features/plans/plansApi';
 import {
@@ -18,11 +19,13 @@ import {
     Zap,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useMemo, useState } from 'react';
 
 export default function ContactPage() {
     const { t, i18n } = getTranslation();
     const { formatNumber } = useCurrency();
+    const searchParams = useSearchParams();
     const [createLead] = useCreateLeadMutation();
     const { data: plansData, isLoading: plansLoading } = useGetPlansQuery();
     const activePlans = plansData?.data?.filter((p) => p.status) ?? [];
@@ -37,6 +40,14 @@ export default function ContactPage() {
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false);
+    const attribution = useMemo(
+        () =>
+            buildAttribution(searchParams, {
+                source: searchParams.get('source') || 'contact_page',
+                campaign: 'contact_form',
+            }),
+        [searchParams]
+    );
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -54,6 +65,7 @@ export default function ContactPage() {
                 business_location: formData.business_location,
                 store_size: formData.store_size,
                 package: formData.package,
+                ...attribution,
             }).unwrap();
             setIsSubmitted(true);
             setFormData({ name: '', email: '', phone: '', business_name: '', business_location: '', store_size: '', package: '' });

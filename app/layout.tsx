@@ -1,4 +1,6 @@
 import ProviderComponent from '@/components/layouts/provider-component';
+import MarketingPixelTracker from '@/components/analytics/MarketingPixelTracker';
+import PixelRouteTracker from '@/components/analytics/PixelRouteTracker';
 import OrientationLock from '@/components/layouts/OrientationLock';
 import PwaStandaloneGate from '@/components/layouts/PwaStandaloneGate';
 import PwaUpdateRecovery from '@/components/layouts/PwaUpdateRecovery';
@@ -263,6 +265,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 `}
             </Script> */}
                 <ProviderComponent initialLang={initialLang}>
+                    <PixelRouteTracker />
+                    <MarketingPixelTracker />
                     <PwaStandaloneGate />
                     <PwaUpdateRecovery />
                     {children}

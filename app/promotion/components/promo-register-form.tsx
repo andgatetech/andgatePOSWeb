@@ -112,6 +112,24 @@ export default function PromoRegisterForm() {
                     phone: form.phone,
                 },
             });
+            trackEvent('promo_trial_started', 'StartTrial', {
+                content_name: 'POS Trial Registration',
+                status: true,
+                source: 'promotion_pos',
+                user_data: {
+                    email: form.email,
+                    phone: form.phone,
+                },
+            });
+            trackEvent('promo_trial_started_custom', 'TrialStarted', {
+                content_name: 'POS Trial Registration',
+                status: true,
+                source: 'promotion_pos',
+                user_data: {
+                    email: form.email,
+                    phone: form.phone,
+                },
+            });
             toast.success('ফ্রি POS অ্যাকাউন্ট তৈরি হয়েছে। ড্যাশবোর্ডে নিয়ে যাওয়া হচ্ছে...');
             setTimeout(() => router.push('/dashboard'), 700);
         } catch (error: any) {

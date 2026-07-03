@@ -4,6 +4,7 @@ import { useTranslation } from '@/components/i18n/TranslationProvider';
 import SearchableStoreType from '@/components/common/SearchableStoreType';
 import { AUTH_TOKEN_EXPIRES_AT_COOKIE, AUTH_TOKEN_EXPIRES_AT_KEY, getCookieMaxAgeFromExpiry, getLoginTokenExpiresAt, isTokenExpired, setAuthCookie } from '@/lib/auth-session';
 import { buildAttribution } from '@/lib/attribution';
+import { trackEvent } from '@/lib/analytics';
 import { RootState } from '@/store';
 import { useRegisterMutation } from '@/store/features/auth/authApi';
 import { login } from '@/store/features/auth/authSlice';
@@ -97,6 +98,45 @@ const ComponentsAuthRegisterForm = ({ defaultSource = 'website_registration', de
 
             // Save full user data + permissions in Redux
             dispatch(login({ user, token, tokenExpiresAt: validTokenExpiresAt, permissions }));
+
+            trackEvent('register_success', 'CompleteRegistration', {
+                content_name: 'AndgatePOS Registration',
+                content_category: 'SaaS Signup',
+                status: true,
+                store_type: credentials.store_type,
+                source: credentials.source,
+                campaign: credentials.campaign,
+                user_data: {
+                    email: credentials.email,
+                    phone: credentials.phone,
+                },
+            });
+
+            trackEvent('trial_started', 'StartTrial', {
+                content_name: 'AndgatePOS Trial',
+                content_category: 'SaaS Trial',
+                status: true,
+                store_type: credentials.store_type,
+                source: credentials.source,
+                campaign: credentials.campaign,
+                user_data: {
+                    email: credentials.email,
+                    phone: credentials.phone,
+                },
+            });
+
+            trackEvent('trial_started_custom', 'TrialStarted', {
+                content_name: 'AndgatePOS Trial',
+                content_category: 'SaaS Trial',
+                status: true,
+                store_type: credentials.store_type,
+                source: credentials.source,
+                campaign: credentials.campaign,
+                user_data: {
+                    email: credentials.email,
+                    phone: credentials.phone,
+                },
+            });
 
             toast.success(t('register_success_redirect'));
             setTimeout(() => router.push('/dashboard'), 800);

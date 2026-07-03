@@ -12,6 +12,7 @@ import { toast } from 'react-toastify';
 import IconLockDots from '@/components/icon/icon-lock-dots';
 import IconMail from '@/components/icon/icon-mail';
 import { AUTH_TOKEN_EXPIRES_AT_COOKIE, AUTH_TOKEN_EXPIRES_AT_KEY, AUTH_TOKEN_STORAGE_KEY, getCookieMaxAgeFromExpiry, getLoginTokenExpiresAt, isTokenExpired, setAuthCookie } from '@/lib/auth-session';
+import { trackEvent } from '@/lib/analytics';
 import { login } from '@/store/features/auth/authSlice';
 import { persistor } from '@/store';
 
@@ -149,6 +150,17 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
 
             // Save **full user details + permissions** in Redux
             dispatch(login({ user, token, tokenExpiresAt: validTokenExpiresAt, permissions }));
+
+            trackEvent('login_success', 'Login', {
+                content_name: 'AndgatePOS Login',
+                status: true,
+                remember_me: rememberMe,
+                user_role: user.role,
+                user_data: {
+                    email: credentials.email,
+                    phone: user.phone,
+                },
+            });
 
             // Give redux-persist a short chance to write auth state without trapping the login UI.
             await waitForPersistFlush();

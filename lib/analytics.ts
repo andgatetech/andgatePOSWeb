@@ -36,7 +36,8 @@ export function trackGTMEvent(eventName: string, params: Record<string, unknown>
 /**
  * Fire a Facebook Pixel standard or custom event.
  *
- * Standard events: 'ViewContent', 'Lead', 'InitiateCheckout', 'CompleteRegistration', 'Contact'
+ * Standard events: 'PageView', 'ViewContent', 'Lead', 'InitiateCheckout',
+ * 'CompleteRegistration', 'StartTrial', 'Purchase', 'Contact'
  * Custom events:   any string you define
  *
  * @param eventName - Facebook standard or custom event name
@@ -44,7 +45,16 @@ export function trackGTMEvent(eventName: string, params: Record<string, unknown>
  */
 export function trackPixelEvent(eventName: string, data: Record<string, unknown> = {}) {
     if (typeof window === 'undefined') return;
-    const standardEvents = new Set(['ViewContent', 'Lead', 'InitiateCheckout', 'CompleteRegistration', 'Contact', 'PageView']);
+    const standardEvents = new Set([
+        'PageView',
+        'ViewContent',
+        'Lead',
+        'InitiateCheckout',
+        'CompleteRegistration',
+        'StartTrial',
+        'Purchase',
+        'Contact',
+    ]);
     const eventId = typeof data.event_id === 'string' ? data.event_id : createEventId(eventName);
     const payload = { ...data, event_id: eventId };
 
