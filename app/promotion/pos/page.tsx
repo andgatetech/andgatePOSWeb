@@ -1,6 +1,7 @@
 'use client';
 
 import Navbar from '../components/navbar';
+import PromoEngagementTracker from '../components/promo-engagement-tracker';
 import PromoFAQ from '../components/promo-faq';
 import PromoFeatureProof from '../components/promo-feature-proof';
 import PromoFooter from '../components/promo-footer';
@@ -75,6 +76,7 @@ export default function PromotionPage() {
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(posPromotionSchema) }} />
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(posFaqSchema) }} />
             <PromotionTracker />
+            <PromoEngagementTracker />
             <div className="hidden sm:block">
                 <WhatsAppFloat />
             </div>
@@ -82,31 +84,49 @@ export default function PromotionPage() {
 
             <main className="flex flex-1 flex-col pt-16">
                 {/* 1. Hero — hook + video + urgency badge */}
-                <PromoHero />
+                <div data-section-track="hero">
+                    <PromoHero />
+                </div>
 
                 {/* 2. Trust stats bar */}
-                <PromoStats />
+                <div data-section-track="stats">
+                    <PromoStats />
+                </div>
 
                 {/* 3. Updated product proof for ad traffic */}
-                <PromoFeatureProof />
+                <div data-section-track="feature_proof">
+                    <PromoFeatureProof />
+                </div>
 
                 {/* 4. Loss-aversion + Before/After transformation */}
-                <PromoLossHook />
+                <div data-section-track="loss_hook">
+                    <PromoLossHook />
+                </div>
 
                 {/* 5. Pain point pairs — emotionally charged */}
-                <PromoProblemSolution />
+                <div data-section-track="problem_solution">
+                    <PromoProblemSolution />
+                </div>
 
                 {/* 6. Registration form — primary conversion for store-owner ad traffic */}
-                <PromoRegisterForm />
+                <div data-section-track="register_form">
+                    <PromoRegisterForm />
+                </div>
 
                 {/* 7. Pricing plans — after signup intent is captured */}
-                <PromoPricing />
+                <div data-section-track="pricing">
+                    <PromoPricing />
+                </div>
 
                 {/* 8. Testimonials marquee */}
-                <PromoTestimonials />
+                <div data-section-track="testimonials">
+                    <PromoTestimonials />
+                </div>
 
                 {/* 9. FAQ — objection handling */}
-                <PromoFAQ />
+                <div data-section-track="faq">
+                    <PromoFAQ />
+                </div>
             </main>
 
             <div className="fixed inset-x-0 bottom-0 z-[60] grid grid-cols-2 gap-2 border-t border-slate-200 bg-white/95 p-3 shadow-2xl backdrop-blur sm:hidden">

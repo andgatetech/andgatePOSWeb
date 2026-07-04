@@ -5,6 +5,25 @@ import { ArrowRight, Maximize2, Minimize2, ShieldCheck, Star, Volume2, VolumeX }
 import { useCallback, useEffect, useRef, useState } from 'react';
 import PromoButton from './promo-button';
 
+const HERO_VIDEO_ID = 'gELTWs7hFtc';
+
+type YTPlayer = {
+    getCurrentTime: () => number;
+    getDuration: () => number;
+};
+
+declare global {
+    interface Window {
+        YT?: {
+            Player: new (
+                element: HTMLElement,
+                options: { events: { onStateChange: (event: { data: number }) => void } },
+            ) => YTPlayer;
+        };
+        onYouTubeIframeAPIReady?: () => void;
+    }
+}
+
 export default function PromoHero() {
     const videoContainerRef = useRef<HTMLDivElement>(null);
     const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -27,12 +46,92 @@ export default function PromoHero() {
         const fn = isMuted ? 'unMute' : 'mute';
         iframe.contentWindow?.postMessage(`{"event":"command","func":"${fn}","args":""}`, '*');
         setIsMuted((prev) => !prev);
+        trackEvent(isMuted ? 'video_unmute_click' : 'video_mute_click', isMuted ? 'VideoUnmuted' : 'VideoMuted', {
+            section: 'hero',
+            video_id: HERO_VIDEO_ID,
+        });
     }, [isMuted]);
 
     useEffect(() => {
-        const onChange = () => setIsFullscreen(!!document.fullscreenElement);
+        const onChange = () => {
+            const fullscreen = !!document.fullscreenElement;
+            setIsFullscreen(fullscreen);
+            if (fullscreen) {
+                trackEvent('video_fullscreen_click', 'VideoFullscreen', { section: 'hero', video_id: HERO_VIDEO_ID });
+            }
+        };
         document.addEventListener('fullscreenchange', onChange);
         return () => document.removeEventListener('fullscreenchange', onChange);
+    }, []);
+
+    // YouTube IFrame API — video start/progress/complete milestones as full Pixel + CAPI events.
+    useEffect(() => {
+        const firedMilestones = new Set<string>();
+        const fireOnce = (key: string, gtmName: string, pixelEvent: string) => {
+            if (firedMilestones.has(key)) return;
+            firedMilestones.add(key);
+            trackEvent(gtmName, pixelEvent, { section: 'hero', video_id: HERO_VIDEO_ID });
+        };
+
+        let player: YTPlayer | undefined;
+        let progressInterval: ReturnType<typeof setInterval> | undefined;
+
+        const stopProgressPolling = () => {
+            if (progressInterval) {
+                clearInterval(progressInterval);
+                progressInterval = undefined;
+            }
+        };
+
+        const startProgressPolling = () => {
+            if (progressInterval) return;
+            progressInterval = setInterval(() => {
+                if (!player) return;
+                const duration = player.getDuration();
+                if (!duration) return;
+                const percent = (player.getCurrentTime() / duration) * 100;
+                if (percent >= 25) fireOnce('progress_25', 'video_progress_25', 'VideoProgress25');
+                if (percent >= 50) fireOnce('progress_50', 'video_progress_50', 'VideoProgress50');
+                if (percent >= 75) fireOnce('progress_75', 'video_progress_75', 'VideoProgress75');
+                if (percent >= 95) fireOnce('video_watched_complete', 'video_watched_complete', 'VideoWatched');
+            }, 1000);
+        };
+
+        const onPlayerStateChange = (event: { data: number }) => {
+            if (event.data === 1) {
+                fireOnce('start', 'video_start', 'VideoStart');
+                startProgressPolling();
+            } else if (event.data === 2 || event.data === 0) {
+                stopProgressPolling();
+            }
+        };
+
+        const initPlayer = () => {
+            if (!iframeRef.current || !window.YT?.Player) return;
+            player = new window.YT.Player(iframeRef.current, {
+                events: { onStateChange: onPlayerStateChange },
+            });
+        };
+
+        if (window.YT?.Player) {
+            initPlayer();
+        } else {
+            if (!document.getElementById('youtube-iframe-api')) {
+                const script = document.createElement('script');
+                script.id = 'youtube-iframe-api';
+                script.src = 'https://www.youtube.com/iframe_api';
+                document.body.appendChild(script);
+            }
+            const previousCallback = window.onYouTubeIframeAPIReady;
+            window.onYouTubeIframeAPIReady = () => {
+                previousCallback?.();
+                initPlayer();
+            };
+        }
+
+        return () => {
+            stopProgressPolling();
+        };
     }, []);
 
     return (
@@ -49,7 +148,7 @@ export default function PromoHero() {
                                 <iframe
                                     ref={iframeRef}
                                     className="block h-[360px] w-full rounded-xl sm:h-[640px]"
-                                    src="https://www.youtube.com/embed/gELTWs7hFtc?autoplay=1&mute=1&loop=1&playlist=gELTWs7hFtc&controls=0&modestbranding=1&enablejsapi=1"
+                                    src={`https://www.youtube.com/embed/${HERO_VIDEO_ID}?autoplay=1&mute=1&loop=1&playlist=${HERO_VIDEO_ID}&controls=0&modestbranding=1&enablejsapi=1`}
                                     title="AndgatePOS Demo"
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                     allowFullScreen
