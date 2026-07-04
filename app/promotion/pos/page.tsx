@@ -108,14 +108,14 @@ export default function PromotionPage() {
                     <PromoProblemSolution />
                 </div>
 
-                {/* 6. Registration form — primary conversion for store-owner ad traffic */}
-                <div data-section-track="register_form">
-                    <PromoRegisterForm />
-                </div>
-
-                {/* 7. Pricing plans — after signup intent is captured */}
+                {/* 6. Pricing plans — answers the cost objection before the form asks for info */}
                 <div data-section-track="pricing">
                     <PromoPricing />
+                </div>
+
+                {/* 7. Registration form — primary conversion for store-owner ad traffic */}
+                <div data-section-track="register_form">
+                    <PromoRegisterForm />
                 </div>
 
                 {/* 8. Testimonials marquee */}
