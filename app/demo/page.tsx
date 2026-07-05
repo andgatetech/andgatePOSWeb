@@ -1,101 +1,75 @@
 'use client';
 
-import { Metadata } from 'next';
-import MainLayout from '@/components/layouts/MainLayout';
-import { getTranslation } from '@/i18n';
-import { Play, Clock, Shield, Zap, Users, ArrowRight, CheckCircle2 } from 'lucide-react';
-import Link from 'next/link';
-
-const highlights = (t: any) => [
-    { icon: Zap, title: t('demo_pos_title'), desc: t('demo_pos_desc') },
-    { icon: Shield, title: t('demo_inventory_title'), desc: t('demo_inventory_desc') },
-    { icon: Clock, title: t('demo_accounting_title'), desc: t('demo_accounting_desc') },
-    { icon: Users, title: t('demo_ecommerce_title'), desc: t('demo_ecommerce_desc') },
-];
+import Navbar from '../promotion/components/navbar';
+import DemoHero from '../promotion/components/demo-hero';
+import PromoEngagementTracker from '../promotion/components/promo-engagement-tracker';
+import PromoFAQ from '../promotion/components/promo-faq';
+import PromoFeatureProof from '../promotion/components/promo-feature-proof';
+import PromoFooter from '../promotion/components/promo-footer';
+import PromoPricing from '../promotion/components/promo-pricing';
+import PromoRegisterForm from '../promotion/components/promo-register-form';
+import PromoTestimonials from '../promotion/components/promo-testimonials';
+import { trackEvent } from '@/lib/analytics';
+import { ArrowRight, Phone } from 'lucide-react';
 
 export default function DemoPage() {
-    const { t } = getTranslation();
-    const H = highlights(t);
-    const moreItems = t('demo_more_items').split(',');
-
     return (
-        <MainLayout>
-            <section className="bg-gradient-to-b from-[#023a5c] to-[#046ca9] px-4 pb-16 pt-28 sm:px-6 lg:px-8">
-                <div className="mx-auto max-w-4xl text-center">
-                    <span className="inline-block rounded-full bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-blue-200">
-                        {t('demo_badge')}
-                    </span>
-                    <h1 className="mt-4 text-3xl font-black text-white sm:text-4xl lg:text-5xl">{t('demo_hero_title')}</h1>
-                    <p className="mx-auto mt-4 max-w-2xl text-lg text-blue-100">{t('demo_hero_subtitle')}</p>
-                </div>
-            </section>
+        <div className="flex min-h-screen flex-col bg-white pb-20 sm:pb-0">
+            <Navbar />
 
-            <section className="-mt-8 px-4 pb-12 sm:px-6 lg:px-8">
-                <div className="mx-auto max-w-4xl">
-                    <div className="overflow-hidden rounded-2xl shadow-2xl">
-                        <div className="relative bg-black" style={{ paddingBottom: '56.25%' }}>
-                            <iframe
-                                className="absolute inset-0 h-full w-full"
-                                src="https://www.youtube.com/embed/EwQRFTYUXn0?rel=0&modestbranding=1"
-                                title="AndgatePOS Demo"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                allowFullScreen
-                            />
-                        </div>
-                    </div>
-                    <p className="mt-3 text-center text-sm text-gray-400">{t('demo_video_hint')}</p>
-                </div>
-            </section>
-
-            <section className="bg-gray-50 px-4 py-16 sm:px-6 lg:px-8">
-                <div className="mx-auto max-w-4xl text-center">
-                    <p className="text-xs font-bold uppercase tracking-widest text-[#046ca9]">{t('demo_features_eyebrow')}</p>
-                    <h2 className="mt-3 text-2xl font-black text-gray-900 sm:text-3xl">{t('demo_features_title')}</h2>
-                </div>
-                <div className="mx-auto mt-10 grid max-w-4xl gap-4 sm:grid-cols-2">
-                    {H.map((h) => (
-                        <div key={h.title} className="flex gap-4 rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
-                            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[#046ca9]/10">
-                                <h.icon className="h-5 w-5 text-[#046ca9]" />
-                            </div>
-                            <div>
-                                <h3 className="font-bold text-gray-900">{h.title}</h3>
-                                <p className="mt-1 text-sm text-gray-500">{h.desc}</p>
-                            </div>
-                        </div>
-                    ))}
+            <main className="flex flex-1 flex-col pt-16">
+                {/* 1. Video first — this is exactly why the lead is here */}
+                <div data-section-track="demo_hero">
+                    <DemoHero />
                 </div>
 
-                <div className="mx-auto mt-10 max-w-4xl">
-                    <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-                        <h3 className="text-lg font-bold text-gray-900">{t('demo_more_title')}</h3>
-                        <div className="mt-4 grid grid-cols-1 gap-1.5 sm:grid-cols-2">
-                            {moreItems.map((item) => (
-                                <div key={item} className="flex items-center gap-2 text-sm text-gray-600">
-                                    <CheckCircle2 className="h-4 w-4 flex-shrink-0 text-emerald-500" />
-                                    {item}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
+                {/* 2. Concrete proof of what they just watched */}
+                <div data-section-track="feature_proof">
+                    <PromoFeatureProof />
                 </div>
-            </section>
 
-            <section className="bg-gradient-to-r from-[#046ca9] to-[#023a5c] px-4 py-16 text-white sm:px-6 lg:px-8">
-                <div className="mx-auto flex max-w-3xl flex-col items-center gap-6 text-center">
-                    <Play className="h-10 w-10" />
-                    <h2 className="text-2xl font-black sm:text-3xl">{t('demo_cta_title')}</h2>
-                    <p className="max-w-xl text-blue-100">{t('demo_cta_subtitle')}</p>
-                    <div className="flex flex-wrap justify-center gap-4">
-                        <Link href="/register" className="inline-flex items-center gap-2 rounded-full bg-white px-7 py-3 text-sm font-bold text-[#046ca9] shadow-xl transition-all hover:scale-105">
-                            {t('demo_cta_start')} <ArrowRight className="h-4 w-4" />
-                        </Link>
-                        <Link href="/contact" className="rounded-full border-2 border-white/40 px-7 py-3 text-sm font-semibold text-white transition-all hover:border-white hover:bg-white/10">
-                            {t('demo_cta_talk')}
-                        </Link>
-                    </div>
+                {/* 3. Pricing — a demo-request lead's next question is usually cost */}
+                <div data-section-track="pricing">
+                    <PromoPricing />
                 </div>
-            </section>
-        </MainLayout>
+
+                {/* 4. Registration form — primary conversion */}
+                <div data-section-track="register_form">
+                    <PromoRegisterForm defaultSource="demo_page" defaultCampaign="demo_follow_up" />
+                </div>
+
+                {/* 5. Testimonials */}
+                <div data-section-track="testimonials">
+                    <PromoTestimonials />
+                </div>
+
+                {/* 6. FAQ — objection handling */}
+                <div data-section-track="faq">
+                    <PromoFAQ />
+                </div>
+            </main>
+
+            <PromoEngagementTracker />
+
+            <div className="fixed inset-x-0 bottom-0 z-[60] grid grid-cols-2 gap-2 border-t border-slate-200 bg-white/95 p-3 shadow-2xl backdrop-blur sm:hidden">
+                <a href="#register-section" className="flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-black text-white">
+                    ফ্রি ট্রায়াল
+                    <ArrowRight className="h-4 w-4" />
+                </a>
+                <a
+                    href="https://wa.me/8801577303608?text=%E0%A6%86%E0%A6%AE%E0%A6%BF%20AndgatePOS%20%E0%A6%A1%E0%A7%87%E0%A6%AE%E0%A7%8B%20%E0%A6%A6%E0%A7%87%E0%A6%96%E0%A7%87%20%E0%A6%AA%E0%A7%8D%E0%A6%B0%E0%A6%B6%E0%A7%8D%E0%A6%A8%20%E0%A6%95%E0%A6%B0%E0%A6%A4%E0%A7%87%20%E0%A6%9A%E0%A6%BE%E0%A6%87"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => trackEvent('mobile_sticky_whatsapp_click', 'Contact', { section: 'mobile_sticky', page: 'demo' })}
+                    className="flex items-center justify-center gap-2 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-black text-green-700"
+                    aria-label="WhatsApp support"
+                >
+                    <Phone className="h-5 w-5" />
+                    WhatsApp
+                </a>
+            </div>
+
+            <PromoFooter variant="pos" />
+        </div>
     );
 }

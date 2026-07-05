@@ -25,7 +25,12 @@ const benefits = [
 
 const nextSteps = ['ফর্ম পূরণ করলেই আপনার POS অ্যাকাউন্ট তৈরি হবে', 'আপনি সরাসরি ড্যাশবোর্ডে ঢুকে মেনু, রিপোর্ট ও POS দেখে নিতে পারবেন', 'মোবাইল বা ল্যাপটপ থেকে পণ্য যোগ করে বিল করা শুরু করতে পারবেন', 'প্রয়োজন হলে AndgatePOS টিম সেটআপে সাহায্য করবে'];
 
-export default function PromoRegisterForm() {
+interface PromoRegisterFormProps {
+    defaultSource?: string;
+    defaultCampaign?: string;
+}
+
+export default function PromoRegisterForm({ defaultSource = 'promotion_pos', defaultCampaign = 'pos_landing' }: PromoRegisterFormProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
     const dispatch = useDispatch();
@@ -34,10 +39,10 @@ export default function PromoRegisterForm() {
     const attribution = useMemo(
         () =>
             buildAttribution(searchParams, {
-                source: searchParams.get('source') || 'promotion_pos',
-                campaign: 'pos_landing',
+                source: searchParams.get('source') || defaultSource,
+                campaign: defaultCampaign,
             }),
-        [searchParams]
+        [searchParams, defaultSource, defaultCampaign]
     );
     const [form, setForm] = useState({
         name: '',
@@ -65,7 +70,7 @@ export default function PromoRegisterForm() {
         try {
             trackEvent('promo_register_submit', 'Lead', {
                 content_name: 'POS Trial Registration',
-                source: 'promotion_pos',
+                source: defaultSource,
                 user_data: {
                     email: form.email,
                     phone: form.phone,
@@ -115,7 +120,7 @@ export default function PromoRegisterForm() {
             trackEvent('promo_trial_started', 'StartTrial', {
                 content_name: 'POS Trial Registration',
                 status: true,
-                source: 'promotion_pos',
+                source: defaultSource,
                 user_data: {
                     email: form.email,
                     phone: form.phone,
@@ -124,7 +129,7 @@ export default function PromoRegisterForm() {
             trackEvent('promo_trial_started_custom', 'TrialStarted', {
                 content_name: 'POS Trial Registration',
                 status: true,
-                source: 'promotion_pos',
+                source: defaultSource,
                 user_data: {
                     email: form.email,
                     phone: form.phone,
