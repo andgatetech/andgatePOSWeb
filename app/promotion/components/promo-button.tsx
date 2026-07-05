@@ -13,7 +13,11 @@ export default function PromoButton({ href, children = 'শুরু করু�
 
     if (href) {
         return (
-            <Link href={href} className={combinedClasses}>
+            <Link
+                href={href}
+                className={combinedClasses}
+                {...(props as Omit<React.ComponentProps<typeof Link>, 'href' | 'className' | 'children'>)}
+            >
                 {children}
             </Link>
         );

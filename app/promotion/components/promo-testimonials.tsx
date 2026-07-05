@@ -1,5 +1,6 @@
 'use client';
 
+import { trackEvent } from '@/lib/analytics';
 import Marquee from 'react-fast-marquee';
 import PromoButton from './promo-button';
 
@@ -96,7 +97,11 @@ export default function PromoTestimonials() {
             </div>
 
             <div className="mt-10 flex justify-center">
-                <PromoButton href="#register-section" className="px-10 py-4 text-base">
+                <PromoButton
+                    href="#register-section"
+                    className="px-10 py-4 text-base"
+                    onClick={() => trackEvent('testimonials_cta_click', 'Lead', { section: 'testimonials' })}
+                >
                     আমিও শুরু করতে চাই →
                 </PromoButton>
             </div>

@@ -1,5 +1,6 @@
 'use client';
 
+import { trackEvent } from '@/lib/analytics';
 import Image from 'next/image';
 import PromoButton from './promo-button';
 
@@ -64,7 +65,11 @@ export default function PromoFeatureProof() {
                 </div>
 
                 <div className="mt-10 flex flex-col items-center gap-3">
-                    <PromoButton href="#register-section" className="px-10 py-4 text-base">
+                    <PromoButton
+                        href="#register-section"
+                        className="px-10 py-4 text-base"
+                        onClick={() => trackEvent('feature_proof_cta_click', 'Lead', { section: 'feature_proof' })}
+                    >
                         ফর্ম পূরণ করে ড্যাশবোর্ড দেখুন →
                     </PromoButton>
                     <p className="text-center text-xs text-gray-400">ফর্ম সাবমিট করলেই অ্যাকাউন্ট তৈরি হবে · তারপর সরাসরি ড্যাশবোর্ডে যেতে পারবেন</p>

@@ -204,13 +204,12 @@ export default function PromoHero() {
                             <span className="text-sm font-bold text-orange-600">এখনই শুরু করলে সেটআপ ফি লাগবে না</span>
                         </div>
 
-                        {/* Headline */}
+                        {/* Headline — pain-led hook, recognizable within 3 seconds */}
                         <h1 className="mb-4 text-3xl font-extrabold leading-[1.12] tracking-tight text-gray-900 sm:text-5xl lg:text-[3.2rem]">
-                            দোকানের টাকা, স্টক আর হিসাব
-                            <br className="hidden sm:block" /> এখন থাকবে <span className="text-primary">আপনার নিয়ন্ত্রণে।</span>
+                            খাতার হিসাব <span className="text-primary">রাতে মেলে না?</span>
                         </h1>
 
-                        <p className="mb-6 text-base leading-relaxed text-gray-600 sm:text-lg">১ মিনিটে ফ্রি POS ট্রায়াল শুরু করুন। ফর্ম পূরণ করলেই অ্যাকাউন্ট তৈরি হবে, তারপর সরাসরি ড্যাশবোর্ডে ঢুকে সফটওয়্যার দেখে নিতে পারবেন।</p>
+                        <p className="mb-6 text-base leading-relaxed text-gray-600 sm:text-lg">মোবাইলেই এখন ১ মিনিটে মিলবে — ফর্ম পূরণ করলেই অ্যাকাউন্ট তৈরি হবে, সরাসরি ড্যাশবোর্ডে ঢুকে সফটওয়্যার দেখে নিতে পারবেন।</p>
 
                         {/* Trust points */}
                         <div className="mb-8 flex flex-col gap-2.5 text-sm font-medium text-gray-700 sm:flex-row sm:flex-wrap sm:justify-center lg:justify-start">

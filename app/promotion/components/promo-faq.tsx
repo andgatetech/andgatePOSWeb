@@ -34,7 +34,7 @@ export default function PromoFAQ() {
     const [open, setOpen] = useState<number | null>(0);
 
     return (
-        <section className="bg-gray-50 py-20">
+        <section id="faq" className="scroll-mt-20 bg-gray-50 py-20">
             <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
                 <div className="mb-12 text-center">
                     <span className="mb-3 inline-block rounded-full bg-blue-100 px-4 py-1.5 text-sm font-bold uppercase tracking-wider text-blue-600">সাধারণ প্রশ্ন</span>

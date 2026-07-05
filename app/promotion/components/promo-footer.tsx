@@ -30,13 +30,19 @@ const LINKS = {
     ],
 };
 
-export default function PromoFooter() {
+interface PromoFooterProps {
+    /** 'pos' drops the affiliate off-ramp and login/subscription links — keeps ad traffic on the registration path. */
+    variant?: 'affiliate' | 'pos';
+}
+
+export default function PromoFooter({ variant = 'affiliate' }: PromoFooterProps) {
     const year = new Date().getFullYear();
+    const accountLinks = variant === 'pos' ? LINKS.account.filter(({ href }) => href === '#register-section') : LINKS.account;
 
     return (
         <footer className="bg-[#022d45] text-white">
             <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-                <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-5">
+                <div className={`grid gap-10 sm:grid-cols-2 ${variant === 'pos' ? 'lg:grid-cols-4' : 'lg:grid-cols-5'}`}>
 
                     {/* Brand */}
                     <div className="lg:col-span-2">
@@ -74,36 +80,38 @@ export default function PromoFooter() {
                         </ul>
                     </div>
 
-                    {/* Affiliate Program — highlighted */}
-                    <div>
-                        <h4 className="mb-4 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#e79237]">
-                            অ্যাফিলিয়েট প্রোগ্রাম
-                        </h4>
-                        <ul className="space-y-2.5">
-                            {LINKS.affiliate.map(({ label, href }) => (
-                                <li key={label}>
-                                    <Link href={href} className="text-sm text-slate-300 hover:text-[#e79237] transition">
-                                        {label}
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
-                        <div className="mt-4">
-                            <Link
-                                href="/promotion/affiliate"
-                                className="inline-block rounded-lg bg-[#e79237]/20 border border-[#e79237]/40 px-3 py-1.5 text-xs font-semibold text-[#e79237] hover:bg-[#e79237]/30 transition"
-                            >
-                                অ্যাফিলিয়েট হন →
-                            </Link>
+                    {/* Affiliate Program — highlighted; skipped on the POS landing page to keep ad traffic on the registration path */}
+                    {variant === 'affiliate' && (
+                        <div>
+                            <h4 className="mb-4 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#e79237]">
+                                অ্যাফিলিয়েট প্রোগ্রাম
+                            </h4>
+                            <ul className="space-y-2.5">
+                                {LINKS.affiliate.map(({ label, href }) => (
+                                    <li key={label}>
+                                        <Link href={href} className="text-sm text-slate-300 hover:text-[#e79237] transition">
+                                            {label}
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
+                            <div className="mt-4">
+                                <Link
+                                    href="/promotion/affiliate"
+                                    className="inline-block rounded-lg bg-[#e79237]/20 border border-[#e79237]/40 px-3 py-1.5 text-xs font-semibold text-[#e79237] hover:bg-[#e79237]/30 transition"
+                                >
+                                    অ্যাফিলিয়েট হন →
+                                </Link>
+                            </div>
                         </div>
-                    </div>
+                    )}
 
                     {/* Account & Contact */}
                     <div className="space-y-8">
                         <div>
                             <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">অ্যাকাউন্ট</h4>
                             <ul className="space-y-2.5">
-                                {LINKS.account.map(({ label, href }) => (
+                                {accountLinks.map(({ label, href }) => (
                                     <li key={label}>
                                         <Link href={href} className="text-sm text-slate-300 hover:text-white transition">
                                             {label}

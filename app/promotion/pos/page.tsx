@@ -8,7 +8,6 @@ import PromoFooter from '../components/promo-footer';
 import PromoHero from '../components/promo-hero';
 import PromoLossHook from '../components/promo-loss-hook';
 import PromoPricing from '../components/promo-pricing';
-import PromoProblemSolution from '../components/promo-problem-solution';
 import PromoRegisterForm from '../components/promo-register-form';
 import PromoStats from '../components/promo-stats';
 import PromoTestimonials from '../components/promo-testimonials';
@@ -98,32 +97,27 @@ export default function PromotionPage() {
                     <PromoFeatureProof />
                 </div>
 
-                {/* 4. Loss-aversion + Before/After transformation */}
+                {/* 4. Loss-aversion warning + consolidated problem/solution pairs */}
                 <div data-section-track="loss_hook">
                     <PromoLossHook />
                 </div>
 
-                {/* 5. Pain point pairs — emotionally charged */}
-                <div data-section-track="problem_solution">
-                    <PromoProblemSolution />
-                </div>
-
-                {/* 6. Pricing plans — answers the cost objection before the form asks for info */}
+                {/* 5. Pricing plans — answers the cost objection before the form asks for info */}
                 <div data-section-track="pricing">
                     <PromoPricing />
                 </div>
 
-                {/* 7. Registration form — primary conversion for store-owner ad traffic */}
+                {/* 6. Registration form — primary conversion for store-owner ad traffic */}
                 <div data-section-track="register_form">
                     <PromoRegisterForm />
                 </div>
 
-                {/* 8. Testimonials marquee */}
+                {/* 7. Testimonials marquee */}
                 <div data-section-track="testimonials">
                     <PromoTestimonials />
                 </div>
 
-                {/* 9. FAQ — objection handling */}
+                {/* 8. FAQ — objection handling */}
                 <div data-section-track="faq">
                     <PromoFAQ />
                 </div>
@@ -147,7 +141,7 @@ export default function PromotionPage() {
                 </a>
             </div>
 
-            <PromoFooter />
+            <PromoFooter variant="pos" />
         </div>
     );
 }

@@ -1,3 +1,4 @@
+import { trackEvent } from '@/lib/analytics';
 import Image from 'next/image';
 import Link from 'next/link';
 import PromoButton from './promo-button';
@@ -32,7 +33,11 @@ export default function Navbar() {
                     </svg>
                     Affiliate হন
                 </Link>
-                <PromoButton href="#register-section" className="px-4 py-2 text-sm">
+                <PromoButton
+                    href="#register-section"
+                    className="px-4 py-2 text-sm"
+                    onClick={() => trackEvent('navbar_cta_click', 'Lead', { section: 'navbar' })}
+                >
                     ফ্রিতে শুরু করুন
                 </PromoButton>
             </div>

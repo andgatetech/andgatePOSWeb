@@ -10,7 +10,7 @@ export default function PromoPricing() {
     return (
         <>
             {/* Blue gradient hero — mirrors /pricing page */}
-            <section className="relative overflow-hidden bg-gradient-to-br from-[#046ca9] via-[#035887] to-[#034d79] pb-24 pt-16 sm:pt-20">
+            <section id="pricing" className="relative scroll-mt-20 overflow-hidden bg-gradient-to-br from-[#046ca9] via-[#035887] to-[#034d79] pb-24 pt-16 sm:pt-20">
                 <div className="absolute -left-40 -top-40 h-80 w-80 rounded-full bg-white/10 blur-3xl" />
                 <div className="absolute -bottom-20 right-0 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
                 <div
