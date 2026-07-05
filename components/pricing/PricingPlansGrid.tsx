@@ -33,9 +33,11 @@ const PLAN_ICONS = [Rocket, Star, TrendingUp, Zap, Shield];
 
 interface PricingPlansGridProps {
     showComparison?: boolean;
+    /** Where non-enterprise plan CTAs send the visitor. Defaults to the standalone /register page. */
+    registerHref?: string;
 }
 
-export default function PricingPlansGrid({ showComparison = true }: PricingPlansGridProps) {
+export default function PricingPlansGrid({ showComparison = true, registerHref = '/register' }: PricingPlansGridProps) {
     const { t, i18n } = getTranslation();
     const lang = i18n.language as 'en' | 'bn';
     const { data, isLoading, isError } = useGetPlansQuery();
@@ -73,7 +75,7 @@ export default function PricingPlansGrid({ showComparison = true }: PricingPlans
             });
         }
 
-        window.location.href = isEnterprise ? '/contact' : '/register';
+        window.location.href = isEnterprise ? '/contact' : registerHref;
     };
 
     const topSavings = plans.length > 0 ? calcYearlySavings(plans[0].monthly_price, plans[0].yearly_price) : 0;
@@ -417,7 +419,7 @@ export default function PricingPlansGrid({ showComparison = true }: PricingPlans
                                                         </span>}
                                                     </div>
                                                     <a
-                                                        href={isEnterprise ? '/contact' : '/register'}
+                                                        href={isEnterprise ? '/contact' : registerHref}
                                                         className={cn(
                                                             'mt-1.5 rounded-lg px-4 py-1.5 text-[11px] font-bold transition-all hover:scale-105',
                                                             isMostPopular
@@ -516,7 +518,7 @@ export default function PricingPlansGrid({ showComparison = true }: PricingPlans
                                                 className={cn('px-4 py-5 text-center', isMostPopular ? 'bg-[#eef6fd]' : 'bg-white')}
                                             >
                                                 <Link
-                                                    href="/register"
+                                                    href={registerHref}
                                                     className={cn(
                                                         'inline-flex items-center justify-center rounded-xl px-5 py-2.5 text-xs font-bold shadow-sm transition-all hover:scale-105',
                                                         isMostPopular

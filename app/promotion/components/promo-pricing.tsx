@@ -49,7 +49,7 @@ export default function PromoPricing() {
             {/* Plans grid — same section as /pricing page */}
             <section className="bg-slate-50 py-14 sm:py-20">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <PricingPlansGrid showComparison={false} />
+                    <PricingPlansGrid showComparison={false} registerHref="#register-section" />
                 </div>
             </section>
         </>
