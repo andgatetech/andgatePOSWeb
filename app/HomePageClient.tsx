@@ -476,11 +476,11 @@ export default function HomePageClient() {
                                             </p>
                                             <div className="mt-3 flex flex-wrap gap-2">
                                                 <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
-                                                    <Check className="h-3 w-3" />
+                                                    <CheckCircle className="h-3 w-3" />
                                                     {isBn ? '২ মিনিটের ভিডিও' : '2-min video'}
                                                 </span>
                                                 <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-semibold text-amber-700">
-                                                    <Check className="h-3 w-3" />
+                                                    <CheckCircle className="h-3 w-3" />
                                                     {isBn ? 'সহজ বাংলায়' : 'Simple Bangla guide'}
                                                 </span>
                                             </div>
