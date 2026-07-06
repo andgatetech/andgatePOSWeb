@@ -7,6 +7,7 @@ export interface PlanItem {
     title_bn: string;
     slug: string | null;
     value: string | null;
+    value_bn: string | null;
 }
 
 export interface Plan {

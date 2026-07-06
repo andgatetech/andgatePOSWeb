@@ -524,7 +524,9 @@ export default function PricingPlansGrid({ showComparison = true, registerHref =
                                                                     <span className={cn('text-sm font-semibold', isMostPopular ? 'text-[#046ca9]' : 'text-gray-900')}>
                                                                         {item.value === 'unlimited'
                                                                             ? (t('pricing_page.comparison.unlimited') || '∞')
-                                                                            : displayNumber(item.value)}
+                                                                            : lang === 'bn' && item.value_bn
+                                                                                ? item.value_bn
+                                                                                : displayNumber(item.value)}
                                                                     </span>
                                                                 ) : (
                                                                     <Check className={cn('mx-auto h-4 w-4', isMostPopular ? 'text-[#046ca9]' : 'text-emerald-500')} />
