@@ -5,6 +5,7 @@ export interface PlanItem {
     subscription_id: number;
     title_en: string;
     title_bn: string;
+    slug: string | null;
     value: string | null;
 }
 

@@ -471,52 +471,68 @@ export default function PricingPlansGrid({ showComparison = true, registerHref =
                                     })}
                                 </tr>
 
-                                {/* Feature rows — show all items from the plan with the most display items */}
+                                {/* Feature rows — one row per distinct feature (matched by slug, falling back to
+                                    title_en), not by array position. Plans list features in different orders and
+                                    counts, so index-based matching previously paired unrelated features together. */}
                                 {(() => {
-                                    const maxItems = Math.max(...plans.map((p) => p.items.length), 0);
-                                    return Array.from({ length: maxItems }).map((_, itemIndex) => {
-                                    const featureLabel = lang === 'bn'
-                                        ? plans[0].items[itemIndex]?.title_bn || plans.find(p => p.items[itemIndex])?.items[itemIndex]?.title_bn
-                                        : plans[0].items[itemIndex]?.title_en || plans.find(p => p.items[itemIndex])?.items[itemIndex]?.title_en;
-                                    const isEven = itemIndex % 2 === 0;
-                                    return (
-                                        <tr key={itemIndex}>
-                                            <td
-                                                className="sticky left-0 z-10 px-6 py-3.5 text-sm text-gray-600"
-                                                style={{ backgroundColor: isEven ? 'white' : 'rgb(248 250 252)' }}
-                                            >
-                                                {featureLabel}
-                                            </td>
-                                            {plans.map((plan, planIndex) => {
-                                                const isMostPopular = isMostPopularPlan(plan);
-                                                const item = plan.items[itemIndex];
-                                                const cellBg = isMostPopular ? '#eef6fd' : isEven ? 'white' : 'rgb(248 250 252)';
-                                                return (
-                                                    <td
-                                                        key={plan.id}
-                                                        className="px-4 py-3.5 text-center"
-                                                        style={{ backgroundColor: cellBg }}
-                                                    >
-                                                        {item ? (
-                                                            item.value ? (
-                                                                <span className={cn('text-sm font-semibold', isMostPopular ? 'text-[#046ca9]' : 'text-gray-900')}>
-                                                                    {item.value === 'unlimited'
-                                                                        ? (t('pricing_page.comparison.unlimited') || '∞')
-                                                                        : displayNumber(item.value)}
-                                                                </span>
+                                    type ComparisonRow = { key: string; label_en: string; label_bn: string; itemsByPlan: Map<number, typeof plans[number]['items'][number]> };
+                                    const rows: ComparisonRow[] = [];
+                                    const rowByKey = new Map<string, ComparisonRow>();
+
+                                    plans.forEach((plan) => {
+                                        plan.items.forEach((item) => {
+                                            const key = item.slug || item.title_en;
+                                            let row = rowByKey.get(key);
+                                            if (!row) {
+                                                row = { key, label_en: item.title_en, label_bn: item.title_bn, itemsByPlan: new Map() };
+                                                rowByKey.set(key, row);
+                                                rows.push(row);
+                                            }
+                                            row.itemsByPlan.set(plan.id, item);
+                                        });
+                                    });
+
+                                    return rows.map((row, rowIndex) => {
+                                        const featureLabel = lang === 'bn' ? row.label_bn : row.label_en;
+                                        const isEven = rowIndex % 2 === 0;
+                                        return (
+                                            <tr key={row.key}>
+                                                <td
+                                                    className="sticky left-0 z-10 px-6 py-3.5 text-sm text-gray-600"
+                                                    style={{ backgroundColor: isEven ? 'white' : 'rgb(248 250 252)' }}
+                                                >
+                                                    {featureLabel}
+                                                </td>
+                                                {plans.map((plan) => {
+                                                    const isMostPopular = isMostPopularPlan(plan);
+                                                    const item = row.itemsByPlan.get(plan.id);
+                                                    const cellBg = isMostPopular ? '#eef6fd' : isEven ? 'white' : 'rgb(248 250 252)';
+                                                    return (
+                                                        <td
+                                                            key={plan.id}
+                                                            className="px-4 py-3.5 text-center"
+                                                            style={{ backgroundColor: cellBg }}
+                                                        >
+                                                            {item ? (
+                                                                item.value ? (
+                                                                    <span className={cn('text-sm font-semibold', isMostPopular ? 'text-[#046ca9]' : 'text-gray-900')}>
+                                                                        {item.value === 'unlimited'
+                                                                            ? (t('pricing_page.comparison.unlimited') || '∞')
+                                                                            : displayNumber(item.value)}
+                                                                    </span>
+                                                                ) : (
+                                                                    <Check className={cn('mx-auto h-4 w-4', isMostPopular ? 'text-[#046ca9]' : 'text-emerald-500')} />
+                                                                )
                                                             ) : (
-                                                                <Check className={cn('mx-auto h-4 w-4', isMostPopular ? 'text-[#046ca9]' : 'text-emerald-500')} />
-                                                            )
-                                                        ) : (
-                                                            <Minus className="mx-auto h-4 w-4 text-gray-200" />
-                                                        )}
-                                                    </td>
-                                                );
-                                            })}
-                                        </tr>
-                                    );
-                                });
-                            })()}
+                                                                <Minus className="mx-auto h-4 w-4 text-gray-200" />
+                                                            )}
+                                                        </td>
+                                                    );
+                                                })}
+                                            </tr>
+                                        );
+                                    });
+                                })()}
                             </tbody>
 
                             {/* ── Footer CTA row ── */}
