@@ -354,9 +354,25 @@ export default function HomePageClient() {
                                         <h2 className="truncate text-lg font-black text-gray-950">AndgatePOS</h2>
                                     </div>
                                 </div>
-                                <div className="inline-flex flex-shrink-0 items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700">
-                                    <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                                <div className="hidden flex-shrink-0 items-center gap-1.5 text-[11px] font-bold text-gray-400 sm:flex">
+                                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
+                                    {isBn ? 'লাইভ প্রিভিউ' : 'Live preview'}
+                                </div>
+                            </div>
+
+                            {/* Trust strip — the two questions a Bangladeshi shop owner asks first */}
+                            <div className="grid grid-cols-1 gap-2 border-b border-gray-100 bg-gradient-to-r from-emerald-50 to-[#eef6fd] px-4 py-3 sm:grid-cols-2 sm:px-5">
+                                <div className="flex items-center gap-2 text-xs font-bold text-emerald-800">
+                                    <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100">
+                                        <Wifi className="h-3.5 w-3.5 text-emerald-700" />
+                                    </span>
                                     {t('hero_offline_badge')}
+                                </div>
+                                <div className="flex items-center gap-2 text-xs font-bold text-[#034d79]">
+                                    <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[#046ca9]/10">
+                                        <Banknote className="h-3.5 w-3.5 text-[#046ca9]" />
+                                    </span>
+                                    {t('hero_trust_payments')}
                                 </div>
                             </div>
 
@@ -418,27 +434,31 @@ export default function HomePageClient() {
 
                                 <div className="space-y-4">
                                     <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-                                        <div className="mb-4 flex items-center justify-between">
-                                            <div>
-                                                <p className="text-sm font-black text-gray-950">{t('feature_inventory')}</p>
-                                                <p className="text-xs text-gray-500">{t('dashboard_low_stock')}: {localizeNumber('12')}</p>
-                                            </div>
-                                            <Archive className="h-5 w-5 text-red-500" />
+                                        <div className="mb-3 flex items-center justify-between">
+                                            <p className="text-sm font-black text-gray-950">
+                                                {isBn ? 'গত ৭ দিনের বিক্রয়' : 'Last 7 days sales'}
+                                            </p>
+                                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700">
+                                                <TrendingUp className="h-3 w-3" />
+                                                {localizeNumber('18')}%
+                                            </span>
                                         </div>
-                                        <div className="space-y-3">
+                                        <div className="flex h-16 items-end justify-between gap-1.5">
                                             {[
-                                                { label: t('feature_pos'), width: 'w-[92%]', value: '92' },
-                                                { label: t('feature_inventory'), width: 'w-[76%]', value: '76' },
-                                                { label: t('feature_order'), width: 'w-[64%]', value: '64' },
-                                            ].map((item) => (
-                                                <div key={item.label}>
-                                                    <div className="mb-1 flex justify-between text-xs font-semibold text-gray-500">
-                                                        <span>{item.label}</span>
-                                                        <span>{localizeNumber(item.value)}%</span>
-                                                    </div>
-                                                    <div className="h-2 rounded-full bg-gray-100">
-                                                        <div className={`h-2 rounded-full bg-gradient-to-r from-[#046ca9] to-[#e79237] ${item.width}`} />
-                                                    </div>
+                                                { day: isBn ? 'শনি' : 'Sat', h: 45 },
+                                                { day: isBn ? 'রবি' : 'Sun', h: 60 },
+                                                { day: isBn ? 'সোম' : 'Mon', h: 38 },
+                                                { day: isBn ? 'মঙ্গল' : 'Tue', h: 72 },
+                                                { day: isBn ? 'বুধ' : 'Wed', h: 55 },
+                                                { day: isBn ? 'বৃহঃ' : 'Thu', h: 80 },
+                                                { day: isBn ? 'শুক্র' : 'Fri', h: 100 },
+                                            ].map((d, i) => (
+                                                <div key={d.day} className="flex h-full flex-1 flex-col items-center justify-end gap-1.5">
+                                                    <div
+                                                        className={`w-full rounded-t-md ${i === 6 ? 'bg-[#046ca9]' : 'bg-[#046ca9]/25'}`}
+                                                        style={{ height: `${d.h}%` }}
+                                                    />
+                                                    <span className="text-[9px] font-semibold text-gray-400">{d.day}</span>
                                                 </div>
                                             ))}
                                         </div>
@@ -450,10 +470,10 @@ export default function HomePageClient() {
                                             <p className="text-xs font-bold text-emerald-800">{t('lbl_customer')}</p>
                                             <p className="text-xl font-black text-emerald-900">{localizeNumber('342')}</p>
                                         </div>
-                                        <div className="rounded-2xl border border-[#e79237]/20 bg-[#fff7ed] p-3">
-                                            <Barcode className="mb-2 h-4 w-4 text-[#c47920]" />
-                                            <p className="text-xs font-bold text-[#9a5b19]">{isBn ? 'বারকোড' : 'Barcode'}</p>
-                                            <p className="text-xl font-black text-[#7a4511]">{localizeNumber('1.2')}s</p>
+                                        <div className="rounded-2xl border border-red-100 bg-red-50 p-3">
+                                            <Archive className="mb-2 h-4 w-4 text-red-600" />
+                                            <p className="text-xs font-bold text-red-700">{t('dashboard_low_stock')}</p>
+                                            <p className="text-xl font-black text-red-900">{localizeNumber('12')}</p>
                                         </div>
                                     </div>
                                 </div>
