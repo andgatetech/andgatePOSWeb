@@ -475,7 +475,8 @@ export default function PricingPlansGrid({ showComparison = true, registerHref =
                                     title_en), not by array position. Plans list features in different orders and
                                     counts, so index-based matching previously paired unrelated features together. */}
                                 {(() => {
-                                    type ComparisonRow = { key: string; label_en: string; label_bn: string; itemsByPlan: Map<number, typeof plans[number]['items'][number]> };
+                                    type Item = typeof plans[number]['items'][number];
+                                    type ComparisonRow = { key: string; label_en: string; label_bn: string; minTier: number; itemsByPlan: Map<number, Item> };
                                     const rows: ComparisonRow[] = [];
                                     const rowByKey = new Map<string, ComparisonRow>();
 
@@ -484,9 +485,11 @@ export default function PricingPlansGrid({ showComparison = true, registerHref =
                                             const key = item.slug || item.title_en;
                                             let row = rowByKey.get(key);
                                             if (!row) {
-                                                row = { key, label_en: item.title_en, label_bn: item.title_bn, itemsByPlan: new Map() };
+                                                row = { key, label_en: item.title_en, label_bn: item.title_bn, minTier: plan.tier, itemsByPlan: new Map() };
                                                 rowByKey.set(key, row);
                                                 rows.push(row);
+                                            } else {
+                                                row.minTier = Math.min(row.minTier, plan.tier);
                                             }
                                             row.itemsByPlan.set(plan.id, item);
                                         });
@@ -506,6 +509,9 @@ export default function PricingPlansGrid({ showComparison = true, registerHref =
                                                 {plans.map((plan) => {
                                                     const isMostPopular = isMostPopularPlan(plan);
                                                     const item = row.itemsByPlan.get(plan.id);
+                                                    // A higher-tier plan that has no explicit row for this feature still
+                                                    // includes it — every plan is a superset of the tier below it.
+                                                    const inheritedFromLowerTier = !item && plan.tier > row.minTier;
                                                     const cellBg = isMostPopular ? '#eef6fd' : isEven ? 'white' : 'rgb(248 250 252)';
                                                     return (
                                                         <td
@@ -523,6 +529,8 @@ export default function PricingPlansGrid({ showComparison = true, registerHref =
                                                                 ) : (
                                                                     <Check className={cn('mx-auto h-4 w-4', isMostPopular ? 'text-[#046ca9]' : 'text-emerald-500')} />
                                                                 )
+                                                            ) : inheritedFromLowerTier ? (
+                                                                <Check className={cn('mx-auto h-4 w-4', isMostPopular ? 'text-[#046ca9]' : 'text-emerald-500')} />
                                                             ) : (
                                                                 <Minus className="mx-auto h-4 w-4 text-gray-200" />
                                                             )}
