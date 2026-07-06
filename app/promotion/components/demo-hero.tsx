@@ -5,7 +5,7 @@ import { ArrowRight, Maximize2, Minimize2, Pause, Play, Volume2, VolumeX } from 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import PromoButton from './promo-button';
 
-const DEMO_VIDEO_ID = 'gELTWs7hFtc';
+const DEMO_VIDEO_ID = 'EwQRFTYUXn0';
 
 type YTPlayer = {
     getCurrentTime: () => number;

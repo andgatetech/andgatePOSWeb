@@ -480,7 +480,7 @@ export default function HomePageClient() {
                                         <div className="relative aspect-video bg-black lg:aspect-[16/8.5]">
                                             <iframe
                                                 ref={videoRef}
-                                                src="https://www.youtube.com/embed/EwQRFTYUXn0?autoplay=1&mute=1&start=163&loop=1&playlist=EwQRFTYUXn0&controls=0&rel=0&modestbranding=1&enablejsapi=1"
+                                                src="https://www.youtube.com/embed/gELTWs7hFtc?autoplay=1&mute=1&start=163&loop=1&playlist=gELTWs7hFtc&controls=0&rel=0&modestbranding=1&enablejsapi=1"
                                                 title="AndgatePOS"
                                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                                 className="absolute inset-0 h-full w-full"
@@ -552,7 +552,7 @@ export default function HomePageClient() {
                         </div>
                         <div className="relative aspect-video overflow-hidden rounded-2xl bg-black shadow-2xl shadow-black/40">
                             <iframe
-                                src="https://www.youtube.com/embed/EwQRFTYUXn0?autoplay=1&mute=1&start=163&controls=1&rel=0&modestbranding=1"
+                                src="https://www.youtube.com/embed/gELTWs7hFtc?autoplay=1&mute=1&start=163&controls=1&rel=0&modestbranding=1"
                                 title="AndgatePOS full demo"
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
                                 allowFullScreen
