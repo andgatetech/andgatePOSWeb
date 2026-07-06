@@ -308,12 +308,12 @@ export default function PricingPlansGrid({ showComparison = true, registerHref =
                                                 : colors.button
                                             )}
                                     >
-                                        {isEnterprise ? (t('pricing_page.cta.contact_sales') || 'Contact Sales') : (t('pricing_page.get_started') || 'Get Started')}
+                                        {isEnterprise ? (t('pricing_page.cta.contact_sales') || 'Contact Sales') : (lang === 'bn' ? (plan.cta_label_bn || plan.cta_label_en || t('pricing_page.get_started')) : (plan.cta_label_en || t('pricing_page.get_started')))}
                                     </button>
                                     {/* Guarantee micro-text */}
                                     <p className="mb-5 flex items-center justify-center gap-1 text-center text-[10px] text-gray-400">
                                         <ShieldCheck className="h-3 w-3 flex-shrink-0 text-emerald-500" />
-                                        {t('pricing_page.guarantee_short') || '14-day money-back guarantee'}
+                                        {t('pricing_page.guarantee_short') || '14-day free trial — no credit card'}
                                     </p>
 
                                     {/* Feature list */}
@@ -427,7 +427,7 @@ export default function PricingPlansGrid({ showComparison = true, registerHref =
                                                                 : 'bg-[#046ca9] text-white hover:bg-[#035887]'
                                                         )}
                                                     >
-                                                        {isEnterprise ? (t('pricing_page.cta.contact_sales') || 'Contact Sales') : t('pricing_page.get_started')}
+                                                        {isEnterprise ? (t('pricing_page.cta.contact_sales') || 'Contact Sales') : (lang === 'bn' ? (plan.cta_label_bn || plan.cta_label_en || t('pricing_page.get_started')) : (plan.cta_label_en || t('pricing_page.get_started')))}
                                                     </a>
                                                 </div>
                                             </th>
@@ -461,11 +461,13 @@ export default function PricingPlansGrid({ showComparison = true, registerHref =
                                     })}
                                 </tr>
 
-                                {/* Feature rows */}
-                                {plans[0]?.items.map((_, itemIndex) => {
+                                {/* Feature rows — show all items from the plan with the most display items */}
+                                {(() => {
+                                    const maxItems = Math.max(...plans.map((p) => p.items.length), 0);
+                                    return Array.from({ length: maxItems }).map((_, itemIndex) => {
                                     const featureLabel = lang === 'bn'
-                                        ? plans[0].items[itemIndex]?.title_bn
-                                        : plans[0].items[itemIndex]?.title_en;
+                                        ? plans[0].items[itemIndex]?.title_bn || plans.find(p => p.items[itemIndex])?.items[itemIndex]?.title_bn
+                                        : plans[0].items[itemIndex]?.title_en || plans.find(p => p.items[itemIndex])?.items[itemIndex]?.title_en;
                                     const isEven = itemIndex % 2 === 0;
                                     return (
                                         <tr key={itemIndex}>
@@ -503,7 +505,8 @@ export default function PricingPlansGrid({ showComparison = true, registerHref =
                                             })}
                                         </tr>
                                     );
-                                })}
+                                });
+                            })()}
                             </tbody>
 
                             {/* ── Footer CTA row ── */}
