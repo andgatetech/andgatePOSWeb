@@ -1,7 +1,7 @@
 import ProviderComponent from '@/components/layouts/provider-component';
 import MarketingPixelTracker from '@/components/analytics/MarketingPixelTracker';
 import PixelRouteTracker from '@/components/analytics/PixelRouteTracker';
-import OrientationLock from '@/components/layouts/OrientationLock';
+// import OrientationLock from '@/components/layouts/OrientationLock'; // Temporarily disabled
 import PwaStandaloneGate from '@/components/layouts/PwaStandaloneGate';
 import PwaUpdateRecovery from '@/components/layouts/PwaUpdateRecovery';
 import { BD_KEYWORDS, getAppUrl } from '@/lib/seo-config';
@@ -244,7 +244,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                     {children}
                     {/* <WhatsAppButton /> */}
                 </ProviderComponent>
-                {process.env.NODE_ENV !== 'development' && <OrientationLock />}
+                {/* Temporarily disabled: {process.env.NODE_ENV !== 'development' && <OrientationLock />} */}
                 <ToastContainer position="top-right" autoClose={3000} />
 
                 {/* Google Tag Manager — must be inside <body> */}
