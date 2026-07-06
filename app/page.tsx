@@ -118,7 +118,7 @@ export default function HomePage() {
                 name: 'Is there a free plan?',
                 acceptedAnswer: {
                     '@type': 'Answer',
-                    text: 'Yes. The Starter plan is completely free — no credit card required, no time limit. Upgrade only when your business grows.',
+                    text: 'Yes. There is a free trial plan available — no credit card required. Upgrade only when your business grows to unlock more features.',
                 },
             },
             {

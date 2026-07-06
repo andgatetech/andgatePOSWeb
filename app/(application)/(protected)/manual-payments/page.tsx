@@ -70,7 +70,9 @@ export default function ManualPaymentsPage() {
         if (!selectedPlan) return 0;
         const price = form.billing_cycle === 'yearly' ? Number(selectedPlan.yearly_price) : Number(selectedPlan.monthly_price);
         const setupFee = setupFeeApplies ? Number(selectedPlan.setup_fee || 0) : 0;
-        return Math.max(0, price + setupFee - Number(selectedPlan.discount || 0));
+        const discountPercent = Number(selectedPlan.discount || 0);
+        const discountedPrice = discountPercent > 0 ? price * (1 - discountPercent / 100) : price;
+        return Math.max(0, Math.round(discountedPrice + setupFee));
     }, [selectedPlan, form.billing_cycle, setupFeeApplies]);
 
     const update = (key: string, value: string) => setForm((prev) => ({ ...prev, [key]: value }));

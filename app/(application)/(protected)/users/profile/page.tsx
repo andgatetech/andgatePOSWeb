@@ -99,7 +99,7 @@ const SubscriptionProgress = () => {
                     <span className="text-sm font-semibold text-red-800">{getTranslation().t('lbl_account_blocked')}</span>
                 </div>
                 <p className="mb-3 text-xs text-red-700">{getTranslation().t('msg_account_suspended')}</p>
-                <button onClick={() => router.push('/contact')} className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700">
+                <button onClick={() => router.push('/subscription')} className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700">
                     {getTranslation().t('btn_contact_support')}
                 </button>
             </div>
@@ -383,7 +383,7 @@ const Profile = () => {
                                     </h5>
                                     <p className="mt-0.5 text-xs text-gray-400">{subscriptionUser.items?.length ?? 0} {getTranslation().t('lbl_features_included')}</p>
                                 </div>
-                                <button onClick={() => router.push('/contact')} className={`flex items-center gap-1.5 text-sm ${buttonConfig.className}`}>
+                                <button onClick={() => router.push('/subscription')} className={`flex items-center gap-1.5 text-sm ${buttonConfig.className}`}>
                                     {buttonConfig.icon}
                                     {buttonConfig.text}
                                 </button>

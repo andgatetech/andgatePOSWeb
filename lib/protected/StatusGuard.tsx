@@ -94,7 +94,7 @@ export default function StatusGuard({ children }: StatusGuardProps) {
 
     // User is active, now check subscription status
     const subscriptionStatus = user.subscription_user?.status?.toLowerCase();
-    const subscriptionName = user.subscription_user?.subscription?.name;
+    const subscriptionName = user.subscription_user?.plan_name_en;
     const expireDate = user.subscription_user?.expire_date;
 
     // Check if subscription is not active

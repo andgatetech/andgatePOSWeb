@@ -21,7 +21,7 @@ const ComponentsUsersProfilePaymentHistory = () => {
     }
 
     // Get subscription history if available
-    const history = user.subscription_user?.subscription?.history || []; // make sure backend sends `history` array
+    const history = []; // Payment history fetched via separate API endpoint (manual-payments/summary)
 
     return (
         <div className="panel">
@@ -40,7 +40,7 @@ const ComponentsUsersProfilePaymentHistory = () => {
                                     </span>
                                 </h6>
                                 <div className="flex items-start justify-between ltr:ml-auto rtl:mr-auto">
-                                    <p className="font-semibold">${item.amount.toFixed(2)}</p>
+                                    <p className="font-semibold">৳ {item.amount.toFixed(2)}</p>
                                     <div className="dropdown ltr:ml-4 rtl:mr-4">
                                         <Dropdown
                                             offset={[0, 5]}

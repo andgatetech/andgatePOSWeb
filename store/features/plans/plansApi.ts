@@ -78,7 +78,7 @@ const plansApi = baseApi.injectEndpoints({
 export const { useGetPlansQuery, useGetAccessibleFeaturesQuery } = plansApi;
 
 export function filterActivePlans(plans: Plan[]): Plan[] {
-    return plans;
+    return plans.filter((plan) => plan.status === true);
 }
 
 export function formatPrice(price: string | number): string {
