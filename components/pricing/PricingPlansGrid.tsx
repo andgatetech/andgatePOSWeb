@@ -331,17 +331,31 @@ export default function PricingPlansGrid({ showComparison = true, registerHref =
                                                 {t('pricing_page.features_included') || 'Includes'}
                                             </p>
                                             <ul className="space-y-2.5">
-                                                {plan.items.map((item) => (
-                                                    <li key={item.id} className="flex items-start gap-2">
-                                                        <Check className={cn(
-                                                            'mt-0.5 h-3.5 w-3.5 flex-shrink-0',
-                                                            isMostPopular ? 'text-[#046ca9]' : 'text-emerald-500'
-                                                        )} />
-                                                        <span className="text-xs leading-snug text-gray-600">
-                                                            {lang === 'bn' ? item.title_bn : item.title_en}
-                                                        </span>
-                                                    </li>
-                                                ))}
+                                                {plan.items
+                                                    // A value of "No" means the feature is explicitly NOT included —
+                                                    // showing it with a checkmark would falsely claim inclusion.
+                                                    .filter((item) => item.value?.toLowerCase() !== 'no')
+                                                    .map((item) => {
+                                                        const title = lang === 'bn' ? item.title_bn : item.title_en;
+                                                        const displayValue = !item.value
+                                                            ? null
+                                                            : item.value === 'unlimited'
+                                                                ? (t('pricing_page.comparison.unlimited') || '∞')
+                                                                : lang === 'bn' && item.value_bn
+                                                                    ? item.value_bn
+                                                                    : displayNumber(item.value);
+                                                        return (
+                                                            <li key={item.id} className="flex items-start gap-2">
+                                                                <Check className={cn(
+                                                                    'mt-0.5 h-3.5 w-3.5 flex-shrink-0',
+                                                                    isMostPopular ? 'text-[#046ca9]' : 'text-emerald-500'
+                                                                )} />
+                                                                <span className="text-xs leading-snug text-gray-600">
+                                                                    {title}{displayValue ? `: ${displayValue}` : ''}
+                                                                </span>
+                                                            </li>
+                                                        );
+                                                    })}
                                             </ul>
                                         </div>
                                     )}
@@ -476,16 +490,37 @@ export default function PricingPlansGrid({ showComparison = true, registerHref =
                                     counts, so index-based matching previously paired unrelated features together. */}
                                 {(() => {
                                     type Item = typeof plans[number]['items'][number];
-                                    type ComparisonRow = { key: string; label_en: string; label_bn: string; minTier: number; itemsByPlan: Map<number, Item> };
+                                    type ComparisonRow = { key: string; label_en: string; label_bn: string; minTier: number; isSupportRow: boolean; itemsByPlan: Map<number, Item> };
                                     const rows: ComparisonRow[] = [];
                                     const rowByKey = new Map<string, ComparisonRow>();
 
+                                    // Each plan names its support tier differently (Email Support → Chat & Email →
+                                    // Priority → Phone → 24/7 Dedicated), so these collapse into one "Support Level"
+                                    // row showing each plan's own label as text, instead of 5 separate checkbox rows.
+                                    const SUPPORT_TITLES = new Set([
+                                        'Email Support', 'Chat & Email Support', 'Priority Support',
+                                        'Phone Support', '24/7 Dedicated Support',
+                                    ]);
+                                    const SUPPORT_ROW_KEY = '__support_level__';
+
                                     plans.forEach((plan) => {
                                         plan.items.forEach((item) => {
-                                            const key = item.slug || item.title_en;
+                                            // Catch-all bullets ("Everything in Starter/Growth/Included") are now
+                                            // redundant — every feature already inherits upward row-by-row below.
+                                            if (item.title_en.startsWith('Everything')) return;
+
+                                            const isSupportRow = SUPPORT_TITLES.has(item.title_en);
+                                            const key = isSupportRow ? SUPPORT_ROW_KEY : (item.slug || item.title_en);
                                             let row = rowByKey.get(key);
                                             if (!row) {
-                                                row = { key, label_en: item.title_en, label_bn: item.title_bn, minTier: plan.tier, itemsByPlan: new Map() };
+                                                row = {
+                                                    key,
+                                                    label_en: isSupportRow ? (t('pricing_page.comparison.support_level') || 'Support Level') : item.title_en,
+                                                    label_bn: isSupportRow ? (t('pricing_page.comparison.support_level') || 'সাপোর্ট লেভেল') : item.title_bn,
+                                                    minTier: plan.tier,
+                                                    isSupportRow,
+                                                    itemsByPlan: new Map(),
+                                                };
                                                 rowByKey.set(key, row);
                                                 rows.push(row);
                                             } else {
@@ -520,7 +555,11 @@ export default function PricingPlansGrid({ showComparison = true, registerHref =
                                                             style={{ backgroundColor: cellBg }}
                                                         >
                                                             {item ? (
-                                                                item.value ? (
+                                                                row.isSupportRow ? (
+                                                                    <span className={cn('text-sm font-semibold', isMostPopular ? 'text-[#046ca9]' : 'text-gray-900')}>
+                                                                        {lang === 'bn' ? item.title_bn : item.title_en}
+                                                                    </span>
+                                                                ) : item.value ? (
                                                                     <span className={cn('text-sm font-semibold', isMostPopular ? 'text-[#046ca9]' : 'text-gray-900')}>
                                                                         {item.value === 'unlimited'
                                                                             ? (t('pricing_page.comparison.unlimited') || '∞')

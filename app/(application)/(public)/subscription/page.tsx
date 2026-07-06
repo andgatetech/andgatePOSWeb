@@ -50,6 +50,18 @@ function classNames(...classes: (string | boolean | undefined)[]) {
     return classes.filter(Boolean).join(' ');
 }
 
+// A value of "No" means the feature is explicitly NOT included — showing it
+// with a checkmark would falsely claim inclusion (mirrors PricingPlansGrid).
+const isIncludedItem = (item: Plan['items'][number]) => item.value?.toLowerCase() !== 'no';
+
+function formatItemLine(item: Plan['items'][number], lang: 'en' | 'bn', t: (key: string) => string) {
+    const title = lang === 'bn' ? item.title_bn : item.title_en;
+    if (!item.value) return { title, value: null as string | null };
+    if (item.value === 'unlimited') return { title, value: t('pricing_page.comparison.unlimited') || 'Unlimited' };
+    const value = lang === 'bn' && item.value_bn ? item.value_bn : convertNumberByLanguage(item.value, lang);
+    return { title, value };
+}
+
 // ── Plan card ─────────────────────────────────────────────────────────────────
 function PlanCard({
     plan,
@@ -147,17 +159,25 @@ function PlanCard({
                 )}
 
                 {/* Top features (max 4) */}
-                {plan.items.length > 0 && (
-                    <ul className="mb-4 space-y-1.5">
-                        {plan.items.slice(0, 4).map((item) => (
-                            <li key={item.id} className="flex items-start gap-2">
-                                <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#046ca9]" />
-                                <span className="text-xs text-gray-600">{lang === 'bn' ? item.title_bn : item.title_en}</span>
-                            </li>
-                        ))}
-                        {plan.items.length > 4 && <li className="text-xs text-gray-400">+{displayNumber(plan.items.length - 4)} {t('lbl_more_features')}</li>}
-                    </ul>
-                )}
+                {plan.items.length > 0 && (() => {
+                    const includedItems = plan.items.filter(isIncludedItem);
+                    const shown = includedItems.slice(0, 4);
+                    const remaining = includedItems.length - shown.length;
+                    return (
+                        <ul className="mb-4 space-y-1.5">
+                            {shown.map((item) => {
+                                const { title, value } = formatItemLine(item, lang, t);
+                                return (
+                                    <li key={item.id} className="flex items-start gap-2">
+                                        <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#046ca9]" />
+                                        <span className="text-xs text-gray-600">{title}{value ? `: ${value}` : ''}</span>
+                                    </li>
+                                );
+                            })}
+                            {remaining > 0 && <li className="text-xs text-gray-400">+{displayNumber(remaining)} {t('lbl_more_features')}</li>}
+                        </ul>
+                    );
+                })()}
 
                 {/* Select button */}
                 <button
@@ -374,12 +394,15 @@ export default function SubscriptionPage() {
                                         </div>
                                     </div>
                                     <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-                                        {currentPlan.items.slice(0, 4).map((item) => (
-                                            <div key={item.id} className="flex items-start gap-2 rounded-xl bg-white/70 px-3 py-2 text-sm text-gray-700">
-                                                <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#046ca9]" />
-                                                <span>{lang === 'bn' ? item.title_bn : item.title_en}</span>
-                                            </div>
-                                        ))}
+                                        {currentPlan.items.filter(isIncludedItem).slice(0, 4).map((item) => {
+                                            const { title, value } = formatItemLine(item, lang, t);
+                                            return (
+                                                <div key={item.id} className="flex items-start gap-2 rounded-xl bg-white/70 px-3 py-2 text-sm text-gray-700">
+                                                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#046ca9]" />
+                                                    <span>{title}{value ? `: ${value}` : ''}</span>
+                                                </div>
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             )}

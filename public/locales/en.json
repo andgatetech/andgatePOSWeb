@@ -781,6 +781,7 @@
       "products": "Product Limit",
       "priority_support": "Priority Support",
       "api_access": "API Access",
+      "support_level": "Support Level",
       "unlimited": "Unlimited",
       "up_to": "Up to"
     },
@@ -850,7 +851,7 @@
     ],
     "guarantee_short": "14-day money-back guarantee",
     "table_heading": "Which Plan Is Right for Your Shop?",
-    "table_subheading": "Every plan includes all 15 modules. The difference is scale — stores, products, and support level.",
+    "table_subheading": "Every plan includes the core POS module. The difference is scale and advanced operations — stores, products, users, and support level.",
     "trust_no_setup": "No setup fee",
     "trust_cancel": "Cancel anytime",
     "trust_refund": "14-day refund",

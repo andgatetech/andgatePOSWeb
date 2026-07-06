@@ -1,9 +1,22 @@
 'use client';
-import { applyDiscount, calcYearlySavings, filterActivePlans, formatPrice, getPlanColor, isMostPopularPlan, isEnterprisePlan, useGetPlansQuery } from '@/store/features/plans/plansApi';
+import { applyDiscount, calcYearlySavings, filterActivePlans, formatPrice, getPlanColor, isMostPopularPlan, isEnterprisePlan, useGetPlansQuery, type Plan } from '@/store/features/plans/plansApi';
+import { convertNumberByLanguage } from '@/components/custom/convertNumberByLanguage';
 import { useTranslation } from '@/components/i18n/TranslationProvider';
 import { Check, Crown, Loader2, Rocket, Shield, Star, TrendingUp, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
+
+// A value of "No" means the feature is explicitly NOT included — showing it
+// with a checkmark would falsely claim inclusion (mirrors PricingPlansGrid).
+const isIncludedItem = (item: Plan['items'][number]) => item.value?.toLowerCase() !== 'no';
+
+function formatItemLine(item: Plan['items'][number], lang: 'en' | 'bn', t: (key: string) => string) {
+    const title = lang === 'bn' ? item.title_bn : item.title_en;
+    if (!item.value) return { title, value: null as string | null };
+    if (item.value === 'unlimited') return { title, value: t('pricing_page.comparison.unlimited') || 'Unlimited' };
+    const value = lang === 'bn' && item.value_bn ? item.value_bn : convertNumberByLanguage(item.value, lang);
+    return { title, value };
+}
 
 interface UpgradePlansProps {
     showHeader?: boolean;
@@ -204,12 +217,15 @@ const UpgradePlans: React.FC<UpgradePlansProps> = ({ showHeader = true, currentP
                                         <div className="flex-1">
                                             <p className="mb-4 text-xs font-medium uppercase tracking-wide text-gray-500">{t('pricing_page.features_included')}</p>
                                             <ul className="space-y-3">
-                                                {plan.items.map((item) => (
-                                                    <li key={item.id} className="flex items-start gap-3">
-                                                        <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-green-500" />
-                                                        <span className="text-sm text-gray-600">{lang === 'bn' ? (item.title_bn || item.title_en) : item.title_en}</span>
-                                                    </li>
-                                                ))}
+                                                {plan.items.filter(isIncludedItem).map((item) => {
+                                                    const { title, value } = formatItemLine(item, lang, t);
+                                                    return (
+                                                        <li key={item.id} className="flex items-start gap-3">
+                                                            <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-green-500" />
+                                                            <span className="text-sm text-gray-600">{title}{value ? `: ${value}` : ''}</span>
+                                                        </li>
+                                                    );
+                                                })}
                                             </ul>
                                         </div>
                                     )}
