@@ -9,8 +9,8 @@ import {
     filterActivePlans,
     formatPrice,
     getPlanColor,
+    isMostPopularPlan,
     isEnterprisePlan,
-    isSmePlan,
     useGetPlansQuery,
 } from '@/store/features/plans/plansApi';
 import { Check, ChevronLeft, ChevronRight, Loader2, Minus, Rocket, Shield, ShieldCheck, Star, TrendingUp, Zap } from 'lucide-react';
@@ -167,7 +167,7 @@ export default function PricingPlansGrid({ showComparison = true, registerHref =
                         const colorKey = getPlanColor(actualIndex);
                         const colors = colorClasses[colorKey];
                         const IconComponent = PLAN_ICONS[actualIndex % PLAN_ICONS.length];
-                        const isMostPopular = isSmePlan(plan);
+                        const isMostPopular = isMostPopularPlan(plan);
                         const isEnterprise = isEnterprisePlan(plan);
                         const rawPrice = billingCycle === 'monthly' ? plan.monthly_price : plan.yearly_price;
                         const suffix = billingCycle === 'monthly'
@@ -375,7 +375,7 @@ export default function PricingPlansGrid({ showComparison = true, registerHref =
                                         </span>
                                     </th>
                                     {plans.map((plan, index) => {
-                                        const isMostPopular = isSmePlan(plan);
+                                        const isMostPopular = isMostPopularPlan(plan);
                                         const isEnterprise = isEnterprisePlan(plan);
                                         const rawPrice = billingCycle === 'monthly' ? plan.monthly_price : plan.yearly_price;
                                         const { finalPrice } = applyDiscount(rawPrice, plan.discount);
@@ -445,7 +445,7 @@ export default function PricingPlansGrid({ showComparison = true, registerHref =
                                         {t('pricing_page.setup_fee')}
                                     </td>
                                     {plans.map((plan, index) => {
-                                        const isMostPopular = isSmePlan(plan);
+                                        const isMostPopular = isMostPopularPlan(plan);
                                         const hasSetupFee = parseFloat(plan.setup_fee) > 0;
                                         return (
                                             <td
@@ -476,7 +476,7 @@ export default function PricingPlansGrid({ showComparison = true, registerHref =
                                                 {featureLabel}
                                             </td>
                                             {plans.map((plan, planIndex) => {
-                                                const isMostPopular = isSmePlan(plan);
+                                                const isMostPopular = isMostPopularPlan(plan);
                                                 const item = plan.items[itemIndex];
                                                 const cellBg = isMostPopular ? '#eef6fd' : isEven ? 'white' : 'rgb(248 250 252)';
                                                 return (
@@ -511,7 +511,7 @@ export default function PricingPlansGrid({ showComparison = true, registerHref =
                                 <tr className="border-t-2 border-gray-100">
                                     <td className="sticky left-0 z-10 bg-white px-6 py-5" />
                                     {plans.map((plan, index) => {
-                                        const isMostPopular = isSmePlan(plan);
+                                        const isMostPopular = isMostPopularPlan(plan);
                                         return (
                                             <td
                                                 key={plan.id}

@@ -6,7 +6,7 @@ import { useTranslation } from '@/components/i18n/TranslationProvider';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { RootState } from '@/store';
 import { useCreateLeadMutation } from '@/store/features/auth/authApi';
-import { applyDiscount, calcYearlySavings, filterActivePlans, formatPrice, getPlanColor, isEnterprisePlan, isSmePlan, useGetPlansQuery, type Plan } from '@/store/features/plans/plansApi';
+import { applyDiscount, calcYearlySavings, filterActivePlans, formatPrice, getPlanColor, isEnterprisePlan, isGrowthPlan, useGetPlansQuery, type Plan } from '@/store/features/plans/plansApi';
 import { Building, Check, CheckCircle2, ChevronLeft, ChevronRight, Crown, Loader2, Mail, MapPin, Phone, Rocket, Send, Shield, Star, TrendingUp, User, Zap } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -71,7 +71,7 @@ function PlanCard({
     const colorKey = getPlanColor(index);
     const colors = colorClasses[colorKey];
     const IconComponent = PLAN_ICONS[index % PLAN_ICONS.length];
-    const isMostPopular = isSmePlan(plan);
+    const isMostPopular = isGrowthPlan(plan);
     const isEnterprise = isEnterprisePlan(plan);
     const isAnnually = billingCycle === 'annually';
 

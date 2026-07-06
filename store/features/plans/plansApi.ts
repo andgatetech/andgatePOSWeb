@@ -10,6 +10,7 @@ export interface PlanItem {
 
 export interface Plan {
     id: number;
+    tier: number;
     name_en: string;
     name_bn: string;
     monthly_price: string;
@@ -20,6 +21,12 @@ export interface Plan {
     is_default: boolean;
     default_billing_cycle: string;
     default_billing_days: number | null;
+    is_most_popular: boolean;
+    is_enterprise: boolean;
+    cta_label_en: string | null;
+    cta_label_bn: string | null;
+    highlight_en: string | null;
+    highlight_bn: string | null;
     created_at: string;
     updated_at: string;
     items: PlanItem[];
@@ -31,6 +38,24 @@ export interface PlansResponse {
     data: Plan[];
 }
 
+export interface AccessibleFeaturesResponse {
+    success: boolean;
+    message: string;
+    data: {
+        features: string[];
+        plan: {
+            id: number;
+            plan_name_en: string;
+            plan_name_bn: string;
+            tier: number;
+            status: string;
+            billing_cycle: string;
+            expire_date: string | null;
+            quota_remaining: Record<string, number | null>;
+        } | null;
+    };
+}
+
 const plansApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         getPlans: builder.query<PlansResponse, void>({
@@ -40,19 +65,22 @@ const plansApi = baseApi.injectEndpoints({
             }),
             providesTags: ['Plans'],
         }),
+        getAccessibleFeatures: builder.query<AccessibleFeaturesResponse, void>({
+            query: () => ({
+                url: '/packages/features',
+                method: 'GET',
+            }),
+            providesTags: ['Plans'],
+        }),
     }),
 });
 
-export const { useGetPlansQuery } = plansApi;
+export const { useGetPlansQuery, useGetAccessibleFeaturesQuery } = plansApi;
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
-/** Return all plans exactly as the API sends them — no frontend filtering. */
 export function filterActivePlans(plans: Plan[]): Plan[] {
     return plans;
 }
 
-/** Format a price string as Bengali Taka, always using English digits */
 export function formatPrice(price: string | number): string {
     const num = typeof price === 'string' ? parseFloat(price) : price;
     if (isNaN(num)) return `৳ 0`;
@@ -62,11 +90,6 @@ export function formatPrice(price: string | number): string {
     return `৳ ${formatted}`;
 }
 
-/**
- * Apply discount to a price.
- * Returns the original price (for strikethrough) and the discounted final price.
- * discount field is a percentage e.g. "10.00" = 10%
- */
 export function applyDiscount(
     price: string,
     discount: string
@@ -90,7 +113,6 @@ export function applyDiscount(
     };
 }
 
-/** Calculate yearly savings percentage compared to paying monthly x12 */
 export function calcYearlySavings(monthly: string, yearly: string): number {
     const m = parseFloat(monthly);
     const y = parseFloat(yearly);
@@ -101,7 +123,6 @@ export function calcYearlySavings(monthly: string, yearly: string): number {
     return Math.round((saved / monthlyTotal) * 100);
 }
 
-/** Cycle through the colour palette for plan cards */
 export const PLAN_COLORS = ['green', 'blue', 'purple', 'orange', 'slate'] as const;
 export type PlanColor = (typeof PLAN_COLORS)[number];
 
@@ -109,16 +130,10 @@ export function getPlanColor(index: number): PlanColor {
     return PLAN_COLORS[index % PLAN_COLORS.length];
 }
 
-export function isSmePlan(plan: Pick<Plan, 'name_en' | 'name_bn'>): boolean {
-    const englishName = plan.name_en.trim().toLowerCase();
-    const banglaName = plan.name_bn.trim();
-
-    return englishName === 'sme' || banglaName === 'এসএমই';
+export function isMostPopularPlan(plan: Pick<Plan, 'is_most_popular'>): boolean {
+    return plan.is_most_popular === true;
 }
 
-export function isEnterprisePlan(plan: Pick<Plan, 'name_en' | 'name_bn'>): boolean {
-    const englishName = plan.name_en.trim().toLowerCase();
-    const banglaName = plan.name_bn.trim();
-
-    return englishName === 'enterprise' || banglaName === 'এন্টারপ্রাইজ';
+export function isEnterprisePlan(plan: Pick<Plan, 'is_enterprise'>): boolean {
+    return plan.is_enterprise === true;
 }

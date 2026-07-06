@@ -1,5 +1,5 @@
 'use client';
-import { applyDiscount, calcYearlySavings, filterActivePlans, formatPrice, getPlanColor, isEnterprisePlan, isSmePlan, useGetPlansQuery } from '@/store/features/plans/plansApi';
+import { applyDiscount, calcYearlySavings, filterActivePlans, formatPrice, getPlanColor, isMostPopularPlan, isEnterprisePlan, useGetPlansQuery } from '@/store/features/plans/plansApi';
 import { Check, Crown, Loader2, Rocket, Shield, Star, TrendingUp, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -124,7 +124,7 @@ const UpgradePlans: React.FC<UpgradePlansProps> = ({ showHeader = true, currentP
                         const colorKey = getPlanColor(index);
                         const colors = colorClasses[colorKey];
                         const IconComponent = PLAN_ICONS[index % PLAN_ICONS.length];
-                        const isMostPopular = isSmePlan(plan);
+                        const isMostPopular = isMostPopularPlan(plan);
                         const isEnterprise = isEnterprisePlan(plan);
                         const isCurrentPlan = currentPlan?.toLowerCase() === plan.name_en.toLowerCase();
                         const rawPrice = billingCycle === 'monthly' ? plan.monthly_price : plan.yearly_price;
