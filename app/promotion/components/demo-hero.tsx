@@ -125,7 +125,7 @@ export default function DemoHero() {
                         <iframe
                             ref={iframeRef}
                             className="absolute inset-0 h-full w-full"
-                            src={`https://www.youtube.com/embed/${DEMO_VIDEO_ID}?rel=0&modestbranding=1&enablejsapi=1`}
+                            src={`https://www.youtube.com/embed/${DEMO_VIDEO_ID}?rel=0&modestbranding=1&enablejsapi=1&controls=1&playsinline=1`}
                             title="AndgatePOS Demo"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowFullScreen

@@ -1,7 +1,7 @@
 'use client';
 
 import { trackEvent } from '@/lib/analytics';
-import { ArrowRight, Maximize2, Minimize2, ShieldCheck, Star, Volume2, VolumeX } from 'lucide-react';
+import { ArrowRight, Maximize2, Minimize2, Pause, Play, ShieldCheck, Star, Volume2, VolumeX } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import PromoButton from './promo-button';
 
@@ -29,6 +29,19 @@ export default function PromoHero() {
     const iframeRef = useRef<HTMLIFrameElement>(null);
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [isMuted, setIsMuted] = useState(true);
+    const [isPlaying, setIsPlaying] = useState(true);
+
+    const handlePlayPause = useCallback(() => {
+        const iframe = iframeRef.current;
+        if (!iframe) return;
+        const fn = isPlaying ? 'pauseVideo' : 'playVideo';
+        iframe.contentWindow?.postMessage(`{"event":"command","func":"${fn}","args":""}`, '*');
+        setIsPlaying((prev) => !prev);
+        trackEvent(isPlaying ? 'video_pause_click' : 'video_play_click', isPlaying ? 'VideoPaused' : 'VideoResumed', {
+            section: 'hero',
+            video_id: HERO_VIDEO_ID,
+        });
+    }, [isPlaying]);
 
     const handleFullscreen = useCallback(() => {
         const el = videoContainerRef.current;
@@ -156,6 +169,13 @@ export default function PromoHero() {
                             </div>
                             {/* Control bar — below iframe in normal flow, never covered */}
                             <div className="mt-2 flex items-center justify-center gap-3 pb-1">
+                                <button
+                                    onClick={handlePlayPause}
+                                    className="flex items-center gap-2 rounded-full bg-gray-900 px-4 py-2 text-sm font-semibold text-white shadow transition-all hover:bg-gray-700 active:scale-95"
+                                >
+                                    {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                                    {isPlaying ? 'থামান' : 'চালু করুন'}
+                                </button>
                                 <button
                                     onClick={handleMute}
                                     className="flex items-center gap-2 rounded-full bg-gray-900 px-4 py-2 text-sm font-semibold text-white shadow transition-all hover:bg-gray-700 active:scale-95"
