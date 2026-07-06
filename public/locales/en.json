@@ -6663,7 +6663,7 @@
   "pricing_page.frequency.per_year": "/yr",
   "pricing_page.most_popular": "Most Popular",
   "pricing_page.save_percent": "Save",
-  "pricing_page.setup_fee": "Activation Fee",
+  "pricing_page.setup_fee": "One-Time Activation",
   "pricing_page.setup_fee_free": "Free",
   "pricing_page.get_started": "Get Started",
   "pricing_page.guarantee_short": "14-day free trial",
@@ -6691,5 +6691,6 @@
   "lbl_choose_plan": "Choose Your Perfect Plan",
   "lbl_select_plan_desc": "Select the plan that best fits your business needs. All plans include core features with no hidden fees.",
   "label_24_7_support": "24/7 Support",
-  "msg_failed_load_plans": "Failed to load pricing plans. Please try again later."
+  "msg_failed_load_plans": "Failed to load pricing plans. Please try again later.",
+  "pricing_page.setup_fee_negotiable": "Negotiable"
 }

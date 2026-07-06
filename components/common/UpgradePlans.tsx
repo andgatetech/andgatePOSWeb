@@ -133,7 +133,7 @@ const UpgradePlans: React.FC<UpgradePlansProps> = ({ showHeader = true, currentP
                         const rawPrice = billingCycle === 'monthly' ? plan.monthly_price : plan.yearly_price;
                         const suffix = billingCycle === 'monthly' ? t('pricing_page.frequency.per_month') : t('pricing_page.frequency.per_year');
                         const planSavings = calcYearlySavings(plan.monthly_price, plan.yearly_price);
-                        const hasSetupFee = parseFloat(plan.setup_fee) > 0;
+                        const hasSetupFee = parseFloat(plan.setup_fee) > 0 || isEnterprise;
                         const { originalPrice, finalPrice, hasDiscount, discountPct } = applyDiscount(rawPrice, plan.discount);
                         const planName = lang === 'bn' ? (plan.name_bn || plan.name_en) : plan.name_en;
                         const ctaLabel = lang === 'bn' ? (plan.cta_label_bn || plan.cta_label_en) : (plan.cta_label_en || (isEnterprise ? t('pricing_page.cta.contact_sales') : t('pricing_page.get_started')));
@@ -178,7 +178,7 @@ const UpgradePlans: React.FC<UpgradePlansProps> = ({ showHeader = true, currentP
                                         {billingCycle === 'annually' && planSavings > 0 && !isEnterprise && <p className="mt-1 text-sm font-medium text-green-600">{t('pricing_page.save_percent')} {planSavings}%</p>}
                                         {hasSetupFee && (
                                             <p className="mt-2 text-sm font-medium text-gray-700">
-                                                {t('pricing_page.setup_fee')}: <span className="font-semibold text-gray-900">{formatPrice(plan.setup_fee)}</span>
+                                                {t('pricing_page.setup_fee')}: <span className="font-semibold text-gray-900">{isEnterprise ? (t('pricing_page.setup_fee_negotiable') || 'Negotiable') : formatPrice(plan.setup_fee)}</span>
                                             </p>
                                         )}
                                     </div>

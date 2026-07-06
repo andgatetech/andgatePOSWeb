@@ -6630,7 +6630,7 @@
   "pricing_page.frequency.per_year": "/বছর",
   "pricing_page.most_popular": "সবচেয়ে জনপ্রিয়",
   "pricing_page.save_percent": "সাশ্রয়",
-  "pricing_page.setup_fee": "অ্যাক্টিভেশন ফি",
+  "pricing_page.setup_fee": "এককালীন অ্যাক্টিভেশন",
   "pricing_page.setup_fee_free": "ফ্রি",
   "pricing_page.get_started": "শুরু করুন",
   "pricing_page.guarantee_short": "১৪ দিনের ফ্রি ট্রায়াল",
@@ -6658,5 +6658,6 @@
   "lbl_choose_plan": "আপনার জন্য সঠিক প্ল্যান বেছে নিন",
   "lbl_select_plan_desc": "আপনার ব্যবসার প্রয়োজনের জন্য সঠিক প্ল্যান নির্বাচন করুন। সব প্ল্যানে কোর ফিচার অন্তর্ভুক্ত।",
   "label_24_7_support": "২৪/৭ সাপোর্ট",
-  "msg_failed_load_plans": "প্ল্যান লোড করতে ব্যর্থ। পরে আবার চেষ্টা করুন।"
+  "msg_failed_load_plans": "প্ল্যান লোড করতে ব্যর্থ। পরে আবার চেষ্টা করুন।",
+  "pricing_page.setup_fee_negotiable": "আলোচনা সাপেক্ষ"
 }

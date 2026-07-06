@@ -242,7 +242,7 @@ export default function PricingPlansGrid({ showComparison = true, registerHref =
                                             <p className="mt-1.5 text-[11px] text-white/50">
                                                 {t('pricing_page.setup_fee')}:{' '}
                                                 <span className="font-bold text-white/80">
-                                                    {hasSetupFee ? displayPrice(plan.setup_fee) : (t('pricing_page.setup_fee_free') || 'Free')}
+                                                    {isEnterprise ? (t("pricing_page.setup_fee_negotiable") || "Negotiable") : hasSetupFee ? displayPrice(plan.setup_fee) : (t("pricing_page.setup_fee_free") || "Free")}
                                                 </span>
                                             </p>
                                         </div>
@@ -288,7 +288,7 @@ export default function PricingPlansGrid({ showComparison = true, registerHref =
                                                 <p className="mt-1 text-[11px] text-gray-400">
                                                     {t('pricing_page.setup_fee')}:{' '}
                                                     <span className="font-semibold text-gray-600">
-                                                        {hasSetupFee ? displayPrice(plan.setup_fee) : (t('pricing_page.setup_fee_free') || 'Free')}
+                                                        {isEnterprise ? (t("pricing_page.setup_fee_negotiable") || "Negotiable") : hasSetupFee ? displayPrice(plan.setup_fee) : (t("pricing_page.setup_fee_free") || "Free")}
                                                     </span>
                                                 </p>
                                             </div>
@@ -310,11 +310,19 @@ export default function PricingPlansGrid({ showComparison = true, registerHref =
                                     >
                                         {isEnterprise ? (t('pricing_page.cta.contact_sales') || 'Contact Sales') : (lang === 'bn' ? (plan.cta_label_bn || plan.cta_label_en || t('pricing_page.get_started')) : (plan.cta_label_en || t('pricing_page.get_started')))}
                                     </button>
-                                    {/* Guarantee micro-text */}
-                                    <p className="mb-5 flex items-center justify-center gap-1 text-center text-[10px] text-gray-400">
-                                        <ShieldCheck className="h-3 w-3 flex-shrink-0 text-emerald-500" />
-                                        {t('pricing_page.guarantee_short') || '14-day free trial — no credit card'}
-                                    </p>
+                                    {/* Guarantee micro-text — only on Trial plan */}
+                                    {plan.tier === 0 && (
+                                        <p className="mb-5 flex items-center justify-center gap-1 text-center text-[10px] text-gray-400">
+                                            <ShieldCheck className="h-3 w-3 flex-shrink-0 text-emerald-500" />
+                                            {t('pricing_page.guarantee_short') || '14-day free trial — no credit card'}
+                                        </p>
+                                    )}
+                                    {/* Plan highlight — shown for paid plans */}
+                                    {plan.tier > 0 && plan.tier < 4 && (plan.highlight_en || plan.highlight_bn) && (
+                                        <p className="mb-5 text-center text-[10px] text-gray-400">
+                                            {lang === 'bn' ? (plan.highlight_bn || plan.highlight_en) : (plan.highlight_en || plan.highlight_bn)}
+                                        </p>
+                                    )}
 
                                     {/* Feature list */}
                                     {plan.items.length > 0 && (
@@ -452,10 +460,12 @@ export default function PricingPlansGrid({ showComparison = true, registerHref =
                                                 key={plan.id}
                                                 className={cn('px-4 py-3.5 text-center text-sm', isMostPopular ? 'bg-[#eef6fd]' : 'bg-slate-50')}
                                             >
-                                                {hasSetupFee
-                                                    ? <span className="text-gray-700">{displayPrice(plan.setup_fee)}</span>
+                                            {hasSetupFee
+                                                ? <span className="text-gray-700">{displayPrice(plan.setup_fee)}</span>
+                                                : plan.is_enterprise || isEnterprisePlan(plan)
+                                                    ? <span className="text-gray-700">{t('pricing_page.setup_fee_negotiable') || 'Negotiable'}</span>
                                                     : <span className="font-semibold text-emerald-600">{t('pricing_page.setup_fee_free')}</span>
-                                                }
+                                            }
                                             </td>
                                         );
                                     })}
