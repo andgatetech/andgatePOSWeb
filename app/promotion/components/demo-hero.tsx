@@ -1,8 +1,8 @@
 'use client';
 
 import { trackEvent } from '@/lib/analytics';
-import { ArrowRight } from 'lucide-react';
-import { useEffect, useRef } from 'react';
+import { ArrowRight, Maximize2, Minimize2, Pause, Play, Volume2, VolumeX } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import PromoButton from './promo-button';
 
 const DEMO_VIDEO_ID = 'gELTWs7hFtc';
@@ -25,7 +25,57 @@ declare global {
 }
 
 export default function DemoHero() {
+    const videoContainerRef = useRef<HTMLDivElement>(null);
     const iframeRef = useRef<HTMLIFrameElement>(null);
+    const [isFullscreen, setIsFullscreen] = useState(false);
+    const [isMuted, setIsMuted] = useState(true);
+    const [isPlaying, setIsPlaying] = useState(true);
+
+    const handlePlayPause = useCallback(() => {
+        const iframe = iframeRef.current;
+        if (!iframe) return;
+        const fn = isPlaying ? 'pauseVideo' : 'playVideo';
+        iframe.contentWindow?.postMessage(`{"event":"command","func":"${fn}","args":""}`, '*');
+        setIsPlaying((prev) => !prev);
+        trackEvent(isPlaying ? 'demo_video_pause_click' : 'demo_video_play_click', isPlaying ? 'VideoPaused' : 'VideoResumed', {
+            section: 'demo_hero',
+            video_id: DEMO_VIDEO_ID,
+        });
+    }, [isPlaying]);
+
+    const handleFullscreen = useCallback(() => {
+        const el = videoContainerRef.current;
+        if (!el) return;
+        if (!document.fullscreenElement) {
+            el.requestFullscreen();
+        } else {
+            document.exitFullscreen();
+        }
+    }, []);
+
+    const handleMute = useCallback(() => {
+        const iframe = iframeRef.current;
+        if (!iframe) return;
+        const fn = isMuted ? 'unMute' : 'mute';
+        iframe.contentWindow?.postMessage(`{"event":"command","func":"${fn}","args":""}`, '*');
+        setIsMuted((prev) => !prev);
+        trackEvent(isMuted ? 'demo_video_unmute_click' : 'demo_video_mute_click', isMuted ? 'VideoUnmuted' : 'VideoMuted', {
+            section: 'demo_hero',
+            video_id: DEMO_VIDEO_ID,
+        });
+    }, [isMuted]);
+
+    useEffect(() => {
+        const onChange = () => {
+            const fullscreen = !!document.fullscreenElement;
+            setIsFullscreen(fullscreen);
+            if (fullscreen) {
+                trackEvent('demo_video_fullscreen_click', 'VideoFullscreen', { section: 'demo_hero', video_id: DEMO_VIDEO_ID });
+            }
+        };
+        document.addEventListener('fullscreenchange', onChange);
+        return () => document.removeEventListener('fullscreenchange', onChange);
+    }, []);
 
     useEffect(() => {
         trackEvent('demo_page_view', 'ViewContent', {
@@ -120,16 +170,40 @@ export default function DemoHero() {
                     ৩ মিনিটে পুরো AndgatePOS দেখে নিন — বিলিং, স্টক, রিপোর্ট সব লাইভ। দেখা শেষে ফর্ম পূরণ করলেই নিজের অ্যাকাউন্টে ঢুকে হাতে-কলমে চালিয়ে দেখতে পারবেন।
                 </p>
 
-                <div className="mx-auto max-w-3xl overflow-hidden rounded-2xl border border-gray-100 bg-black shadow-2xl">
-                    <div className="relative" style={{ paddingBottom: '56.25%' }}>
+                <div className="mx-auto max-w-3xl overflow-hidden rounded-2xl border border-gray-100 bg-white p-2 shadow-2xl">
+                    <div ref={videoContainerRef} className="relative overflow-hidden rounded-xl bg-black" style={{ paddingBottom: '56.25%' }}>
                         <iframe
                             ref={iframeRef}
                             className="absolute inset-0 h-full w-full"
-                            src={`https://www.youtube.com/embed/${DEMO_VIDEO_ID}?rel=0&modestbranding=1&enablejsapi=1&controls=1&playsinline=1`}
+                            src={`https://www.youtube.com/embed/${DEMO_VIDEO_ID}?rel=0&modestbranding=1&enablejsapi=1&controls=0&playsinline=1&autoplay=1&mute=1`}
                             title="AndgatePOS Demo"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowFullScreen
                         />
+                    </div>
+                    {/* Control bar — below iframe in normal flow, big tap targets for mobile */}
+                    <div className="mt-2 flex items-center justify-center gap-3 pb-1">
+                        <button
+                            onClick={handlePlayPause}
+                            className="flex items-center gap-2 rounded-full bg-gray-900 px-4 py-2 text-sm font-semibold text-white shadow transition-all hover:bg-gray-700 active:scale-95"
+                        >
+                            {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                            {isPlaying ? 'থামান' : 'চালু করুন'}
+                        </button>
+                        <button
+                            onClick={handleMute}
+                            className="flex items-center gap-2 rounded-full bg-gray-900 px-4 py-2 text-sm font-semibold text-white shadow transition-all hover:bg-gray-700 active:scale-95"
+                        >
+                            {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                            {isMuted ? 'সাউন্ড চালু' : 'সাউন্ড বন্ধ'}
+                        </button>
+                        <button
+                            onClick={handleFullscreen}
+                            className="flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow transition-all hover:bg-primary/80 active:scale-95"
+                        >
+                            {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+                            {isFullscreen ? 'বন্ধ করুন' : 'বড় করে দেখুন'}
+                        </button>
                     </div>
                 </div>
 
