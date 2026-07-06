@@ -468,6 +468,12 @@ export default function HomePageClient() {
                                                     ? 'কাউন্টার বিলিং, পেমেন্ট আর স্টক আপডেট কীভাবে একসাথে চলে দেখুন।'
                                                     : 'See how counter billing, payment tracking, and stock updates work together.'}
                                             </p>
+                                            <a
+                                                href="/demo"
+                                                className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-[#046ca9] hover:text-[#034d79] transition-colors"
+                                            >
+                                                {isBn ? 'সম্পূর্ণ ডেমো পেজ দেখুন →' : 'See full demo page →'}
+                                            </a>
                                             <button
                                                 type="button"
                                                 onClick={() => setIsDemoModalOpen(true)}
