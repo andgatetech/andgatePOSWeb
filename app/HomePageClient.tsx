@@ -479,8 +479,8 @@ export default function HomePageClient() {
                                 </div>
 
                                 <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm lg:col-span-2">
-                                    <div className="grid gap-0 lg:grid-cols-[0.42fr_0.58fr]">
-                                        <div className="flex flex-col justify-center border-b border-gray-100 p-5 lg:border-b-0 lg:border-r">
+                                    <div className="flex flex-col lg:flex-row">
+                                        <div className="flex flex-col justify-center border-b border-gray-100 p-5 lg:w-[230px] lg:flex-shrink-0 lg:border-b-0 lg:border-r">
                                             <p className="text-xs font-bold uppercase tracking-wide text-[#046ca9]">
                                                 {isBn ? 'লাইভ ডেমো' : 'Live Demo'}
                                             </p>
@@ -521,7 +521,7 @@ export default function HomePageClient() {
                                                 </a>
                                             </div>
                                         </div>
-                                        <div className="relative aspect-video bg-black lg:aspect-[16/8.5]">
+                                        <div className="relative aspect-video bg-black lg:flex-1">
                                             <iframe
                                                 ref={videoRef}
                                                 src="https://www.youtube.com/embed/gELTWs7hFtc?autoplay=1&mute=1&start=163&loop=1&playlist=gELTWs7hFtc&controls=0&rel=0&modestbranding=1&enablejsapi=1"
