@@ -139,6 +139,13 @@ function PlanCard({
                 )}
                 {!isAnnually && <div className="mb-3" />}
 
+                {/* Setup Fee */}
+                {parseFloat(plan.setup_fee) > 0 && (
+                    <div className="mb-3 text-xs text-gray-500">
+                        {t('lbl_setup_fee')}: <span className="font-semibold text-gray-700">{formatPrice(plan.setup_fee)}</span>
+                    </div>
+                )}
+
                 {/* Top features (max 4) */}
                 {plan.items.length > 0 && (
                     <ul className="mb-4 space-y-1.5">

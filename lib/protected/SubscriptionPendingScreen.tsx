@@ -15,7 +15,7 @@ interface SubscriptionPendingScreenProps {
     expireDate?: string;
 }
 
-export default function SubscriptionPendingScreen({ status, subscriptionName = 'Basic', expireDate }: SubscriptionPendingScreenProps) {
+export default function SubscriptionPendingScreen({ status, subscriptionName = '', expireDate }: SubscriptionPendingScreenProps) {
     const router = useRouter();
     const [logout] = useLogoutMutation();
     const user = useSelector((state: RootState) => state.auth?.user);

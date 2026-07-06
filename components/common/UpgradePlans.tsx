@@ -1,5 +1,6 @@
 'use client';
 import { applyDiscount, calcYearlySavings, filterActivePlans, formatPrice, getPlanColor, isMostPopularPlan, isEnterprisePlan, useGetPlansQuery } from '@/store/features/plans/plansApi';
+import { useTranslation } from '@/components/i18n/TranslationProvider';
 import { Check, Crown, Loader2, Rocket, Shield, Star, TrendingUp, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -44,13 +45,15 @@ const colorClasses = {
 const PLAN_ICONS = [Rocket, Star, TrendingUp, Zap, Shield];
 
 const UpgradePlans: React.FC<UpgradePlansProps> = ({ showHeader = true, currentPlan }) => {
+    const { t, i18n } = useTranslation();
+    const lang = i18n.language as 'en' | 'bn';
     const { data, isLoading, isError } = useGetPlansQuery();
     const plans = filterActivePlans(data?.data ?? []);
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'annually'>('monthly');
 
     const frequencies = [
-        { value: 'monthly' as const, label: 'Monthly', priceSuffix: '/month' },
-        { value: 'annually' as const, label: 'Annually', priceSuffix: '/year', discount: 'Save' },
+        { value: 'monthly' as const, label: t('pricing_page.frequency.monthly'), priceSuffix: t('pricing_page.frequency.per_month') },
+        { value: 'annually' as const, label: t('pricing_page.frequency.annually'), priceSuffix: t('pricing_page.frequency.per_year'), discount: t('pricing_page.save_percent') },
     ];
 
     const topSavings = plans.length > 0 ? calcYearlySavings(plans[0].monthly_price, plans[0].yearly_price) : 0;
@@ -61,18 +64,18 @@ const UpgradePlans: React.FC<UpgradePlansProps> = ({ showHeader = true, currentP
                 <div className="mb-8 text-center">
                     <div className="mb-4 inline-flex items-center rounded-full bg-blue-100 px-4 py-2 text-sm font-medium text-blue-800">
                         <Shield className="mr-2 h-4 w-4" />
-                        Flexible Pricing Plans
+                        {t('lbl_flexible_pricing')}
                     </div>
-                    <h2 className="mb-4 text-3xl font-black text-gray-900 sm:text-4xl">Choose Your Perfect Plan</h2>
-                    <p className="mx-auto max-w-2xl text-lg text-gray-600">Select the plan that best fits your business needs. All plans include core features with no hidden fees.</p>
+                    <h2 className="mb-4 text-3xl font-black text-gray-900 sm:text-4xl">{t('lbl_choose_plan')}</h2>
+                    <p className="mx-auto max-w-2xl text-lg text-gray-600">{t('lbl_select_plan_desc')}</p>
                     <div className="mt-4 flex flex-col items-center justify-center space-y-2 text-sm text-gray-600 sm:flex-row sm:space-x-6 sm:space-y-0">
                         <div className="flex items-center">
                             <Check className="mr-2 h-4 w-4 text-blue-500" />
-                            Cancel Anytime
+                            {t('pricing_page.trust_cancel')}
                         </div>
                         <div className="flex items-center">
                             <Check className="mr-2 h-4 w-4 text-purple-500" />
-                            24/7 Support
+                            {t('label_24_7_support')}
                         </div>
                     </div>
                 </div>
@@ -105,19 +108,19 @@ const UpgradePlans: React.FC<UpgradePlansProps> = ({ showHeader = true, currentP
             {isLoading && (
                 <div className="flex items-center justify-center py-16">
                     <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-                    <span className="ml-3 text-gray-600">Loading plans...</span>
+                    <span className="ml-3 text-gray-600">{t('lbl_loading')}</span>
                 </div>
             )}
 
             {/* Error */}
-            {isError && !isLoading && <div className="py-10 text-center text-red-600">Failed to load pricing plans. Please try again later.</div>}
+            {isError && !isLoading && <div className="py-10 text-center text-red-600">{t('msg_failed_load_plans')}</div>}
 
             {/* Pricing Cards */}
             {!isLoading && !isError && (
                 <div
                     className={classNames(
                         'grid grid-cols-1 gap-6 xl:gap-8',
-                        plans.length <= 2 ? 'mx-auto max-w-3xl sm:grid-cols-2' : plans.length === 3 ? 'sm:grid-cols-3' : 'sm:grid-cols-2 lg:grid-cols-4'
+                        plans.length <= 2 ? 'mx-auto max-w-3xl sm:grid-cols-2' : plans.length === 3 ? 'sm:grid-cols-3' : 'sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5'
                     )}
                 >
                     {plans.map((plan, index) => {
@@ -128,10 +131,12 @@ const UpgradePlans: React.FC<UpgradePlansProps> = ({ showHeader = true, currentP
                         const isEnterprise = isEnterprisePlan(plan);
                         const isCurrentPlan = currentPlan?.toLowerCase() === plan.name_en.toLowerCase();
                         const rawPrice = billingCycle === 'monthly' ? plan.monthly_price : plan.yearly_price;
-                        const suffix = billingCycle === 'monthly' ? '/month' : '/year';
+                        const suffix = billingCycle === 'monthly' ? t('pricing_page.frequency.per_month') : t('pricing_page.frequency.per_year');
                         const planSavings = calcYearlySavings(plan.monthly_price, plan.yearly_price);
                         const hasSetupFee = parseFloat(plan.setup_fee) > 0;
                         const { originalPrice, finalPrice, hasDiscount, discountPct } = applyDiscount(rawPrice, plan.discount);
+                        const planName = lang === 'bn' ? (plan.name_bn || plan.name_en) : plan.name_en;
+                        const ctaLabel = lang === 'bn' ? (plan.cta_label_bn || plan.cta_label_en) : (plan.cta_label_en || (isEnterprise ? t('pricing_page.cta.contact_sales') : t('pricing_page.get_started')));
 
                         return (
                             <div
@@ -144,12 +149,12 @@ const UpgradePlans: React.FC<UpgradePlansProps> = ({ showHeader = true, currentP
                             >
                                 {isMostPopular && !isCurrentPlan && (
                                     <div className="absolute -top-4 left-1/2 -translate-x-1/2 transform">
-                                        <div className="rounded-full bg-primary px-4 py-1 text-sm font-medium text-white shadow-lg">Most Popular</div>
+                                        <div className="rounded-full bg-primary px-4 py-1 text-sm font-medium text-white shadow-lg">{t('pricing_page.most_popular')}</div>
                                     </div>
                                 )}
                                 {isCurrentPlan && (
                                     <div className="absolute -top-4 left-1/2 -translate-x-1/2 transform">
-                                        <div className="rounded-full bg-green-600 px-4 py-1 text-sm font-medium text-white shadow-lg">✓ Current Plan</div>
+                                        <div className="rounded-full bg-green-600 px-4 py-1 text-sm font-medium text-white shadow-lg">{t('lbl_current_plan')}</div>
                                     </div>
                                 )}
 
@@ -158,24 +163,22 @@ const UpgradePlans: React.FC<UpgradePlansProps> = ({ showHeader = true, currentP
                                         <div className={classNames('rounded-lg bg-gray-50 p-2', colors.icon)}>
                                             <IconComponent className="h-6 w-6" />
                                         </div>
-                                        <h3 className="text-xl font-semibold text-gray-900">{plan.name_en}</h3>
+                                        <h3 className="text-xl font-semibold text-gray-900">{planName}</h3>
                                     </div>
 
                                     <div className="mb-6">
-                                        {/* Discount badge */}
-                                        {hasDiscount && !isEnterprise && <span className="mb-2 inline-block rounded-full bg-red-100 px-3 py-0.5 text-xs font-semibold text-red-600">{discountPct}% OFF</span>}
-                                        {/* Price row */}
+                                        {hasDiscount && !isEnterprise && <span className="mb-2 inline-block rounded-full bg-red-100 px-3 py-0.5 text-xs font-semibold text-red-600">{discountPct}% {lang === 'bn' ? 'ছাড়' : 'OFF'}</span>}
                                         <div className="flex flex-wrap items-baseline gap-2">
                                             {hasDiscount && !isEnterprise && <span className="text-lg text-gray-400 line-through">{originalPrice}</span>}
                                             <span className={`${isEnterprise ? 'text-2xl' : 'text-3xl sm:text-4xl'} font-bold text-gray-900`}>
-                                                {isEnterprise ? 'Custom Pricing' : finalPrice}
+                                                {isEnterprise ? (lang === 'bn' ? 'চাহিদা অনুযায়ী' : 'Custom Pricing') : finalPrice}
                                             </span>
                                             {!isEnterprise && <span className="text-sm font-medium text-gray-500">{suffix}</span>}
                                         </div>
-                                        {billingCycle === 'annually' && planSavings > 0 && !isEnterprise && <p className="mt-1 text-sm font-medium text-green-600">Save {planSavings}% vs monthly</p>}
+                                        {billingCycle === 'annually' && planSavings > 0 && !isEnterprise && <p className="mt-1 text-sm font-medium text-green-600">{t('pricing_page.save_percent')} {planSavings}%</p>}
                                         {hasSetupFee && (
                                             <p className="mt-2 text-sm font-medium text-gray-700">
-                                                Setup Fee: <span className="font-semibold text-gray-900">{formatPrice(plan.setup_fee)}</span>
+                                                {t('pricing_page.setup_fee')}: <span className="font-semibold text-gray-900">{formatPrice(plan.setup_fee)}</span>
                                             </p>
                                         )}
                                     </div>
@@ -185,7 +188,7 @@ const UpgradePlans: React.FC<UpgradePlansProps> = ({ showHeader = true, currentP
                                             disabled
                                             className="mb-6 w-full cursor-not-allowed rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 text-center text-sm font-semibold text-gray-500"
                                         >
-                                            ✓ Your Current Plan
+                                            ✓ {t('lbl_current_plan')}
                                         </button>
                                     ) : (
                                         <Link
@@ -193,18 +196,18 @@ const UpgradePlans: React.FC<UpgradePlansProps> = ({ showHeader = true, currentP
                                             className={classNames('mb-6 block w-full rounded-lg px-4 py-3 text-center text-sm font-semibold transition-all duration-200', colors.button)}
                                         >
                                             <Crown className="mr-2 inline-block h-4 w-4" />
-                                            {isEnterprise ? 'Contact Sales' : `Upgrade to ${plan.name_en}`}
+                                            {ctaLabel}
                                         </Link>
                                     )}
 
                                     {plan.items.length > 0 && (
                                         <div className="flex-1">
-                                            <p className="mb-4 text-xs font-medium uppercase tracking-wide text-gray-500">Features Included</p>
+                                            <p className="mb-4 text-xs font-medium uppercase tracking-wide text-gray-500">{t('pricing_page.features_included')}</p>
                                             <ul className="space-y-3">
                                                 {plan.items.map((item) => (
                                                     <li key={item.id} className="flex items-start gap-3">
                                                         <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-green-500" />
-                                                        <span className="text-sm text-gray-600">{item.title_en}</span>
+                                                        <span className="text-sm text-gray-600">{lang === 'bn' ? (item.title_bn || item.title_en) : item.title_en}</span>
                                                     </li>
                                                 ))}
                                             </ul>

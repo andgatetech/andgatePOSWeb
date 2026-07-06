@@ -88,8 +88,8 @@ const PriceSection = dynamic(
     {
         loading: () => (
             <div className="bg-gray-50 py-16">
-                <div className="mx-auto grid max-w-7xl gap-4 px-4 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:px-8">
-                    {Array.from({ length: 4 }).map((_, i) => (
+                <div className="mx-auto grid max-w-7xl gap-4 px-4 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 xl:grid-cols-5 lg:px-8">
+                    {Array.from({ length: 5 }).map((_, i) => (
                         <div key={i} className="h-80 animate-pulse rounded-2xl border border-gray-100 bg-white shadow-sm" />
                     ))}
                 </div>
