@@ -460,28 +460,46 @@ export default function HomePageClient() {
 
                                 <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm lg:col-span-2">
                                     <div className="grid gap-0 lg:grid-cols-[0.42fr_0.58fr]">
-                                        <div className="flex flex-col justify-center border-b border-gray-100 p-4 lg:border-b-0 lg:border-r">
-                                            <p className="text-xs font-bold uppercase tracking-wide text-[#046ca9]">{t('hero_live_demo')}</p>
-                                            <h3 className="mt-2 text-lg font-black text-gray-950">{t('watch_demo')}</h3>
-                                            <p className="mt-2 text-sm leading-6 text-gray-500">
-                                                {isBn
-                                                    ? 'কাউন্টার বিলিং, পেমেন্ট আর স্টক আপডেট কীভাবে একসাথে চলে দেখুন।'
-                                                    : 'See how counter billing, payment tracking, and stock updates work together.'}
+                                        <div className="flex flex-col justify-center border-b border-gray-100 p-5 lg:border-b-0 lg:border-r">
+                                            <p className="text-xs font-bold uppercase tracking-wide text-[#046ca9]">
+                                                {isBn ? 'লাইভ ডেমো' : 'Live Demo'}
                                             </p>
-                                            <a
-                                                href="/demo"
-                                                className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-[#046ca9] hover:text-[#034d79] transition-colors"
-                                            >
-                                                {isBn ? 'সম্পূর্ণ ডেমো পেজ দেখুন →' : 'See full demo page →'}
-                                            </a>
-                                            <button
-                                                type="button"
-                                                onClick={() => setIsDemoModalOpen(true)}
-                                                className="mt-4 inline-flex w-fit items-center gap-2 rounded-full bg-[#046ca9] px-4 py-2 text-sm font-black text-white shadow-sm transition hover:bg-[#034d79] focus:outline-none focus:ring-2 focus:ring-[#046ca9] focus:ring-offset-2"
-                                            >
-                                                <Play className="h-4 w-4 fill-white" />
-                                                {isBn ? 'বড় স্ক্রিনে ডেমো দেখুন' : 'Watch full demo'}
-                                            </button>
+                                            <h3 className="mt-2 text-xl font-black leading-tight text-gray-950">
+                                                {isBn
+                                                    ? 'আপনার দোকান ডিজিটাল হলে কেমন হবে?'
+                                                    : 'See your shop—fully digital, in 2 minutes'}
+                                            </h3>
+                                            <p className="mt-3 text-sm leading-relaxed text-gray-500">
+                                                {isBn
+                                                    ? 'বিলিং থেকে স্টক — সব এক জায়গায়। ভুল কম, সময় বাঁচে, হিসেব মেলে। যে কেউ চালাতে পারে।'
+                                                    : 'Billing, stock, reports — all in one place. Fewer mistakes, saved time, accurate accounts. Anyone can run it.'}
+                                            </p>
+                                            <div className="mt-3 flex flex-wrap gap-2">
+                                                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
+                                                    <Check className="h-3 w-3" />
+                                                    {isBn ? '২ মিনিটের ভিডিও' : '2-min video'}
+                                                </span>
+                                                <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-semibold text-amber-700">
+                                                    <Check className="h-3 w-3" />
+                                                    {isBn ? 'সহজ বাংলায়' : 'Simple Bangla guide'}
+                                                </span>
+                                            </div>
+                                            <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setIsDemoModalOpen(true)}
+                                                    className="inline-flex w-fit items-center gap-2 rounded-full bg-[#046ca9] px-5 py-2.5 text-sm font-black text-white shadow-sm transition hover:bg-[#034d79] focus:outline-none focus:ring-2 focus:ring-[#046ca9] focus:ring-offset-2"
+                                                >
+                                                    <Play className="h-4 w-4 fill-white" />
+                                                    {isBn ? 'বড় স্ক্রিনে দেখুন' : 'Watch full screen'}
+                                                </button>
+                                                <a
+                                                    href="/demo"
+                                                    className="inline-flex w-fit items-center gap-2 rounded-full border border-[#046ca9] px-5 py-2.5 text-sm font-bold text-[#046ca9] transition hover:bg-[#046ca9]/5"
+                                                >
+                                                    {isBn ? 'সম্পূর্ণ ডেমো পেজ →' : 'Full demo page →'}
+                                                </a>
+                                            </div>
                                         </div>
                                         <div className="relative aspect-video bg-black lg:aspect-[16/8.5]">
                                             <iframe
