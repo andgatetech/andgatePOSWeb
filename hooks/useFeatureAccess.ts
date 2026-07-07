@@ -13,6 +13,8 @@ interface FeatureAccessResult {
     planTier: number;
     subscriptionStatus: string | null;
     quotaRemaining: Record<string, number | null>;
+    /** All feature slugs the account's plan includes, or undefined while loading. */
+    accessibleFeatures: string[] | undefined;
 }
 
 export function useFeatureAccess(featureSlug?: string): FeatureAccessResult {
@@ -32,6 +34,7 @@ export function useFeatureAccess(featureSlug?: string): FeatureAccessResult {
                 planTier: 0,
                 subscriptionStatus: fallbackStatus,
                 quotaRemaining: {},
+                accessibleFeatures: undefined,
             };
         }
 
@@ -48,6 +51,7 @@ export function useFeatureAccess(featureSlug?: string): FeatureAccessResult {
             planTier: plan?.tier ?? 0,
             subscriptionStatus: plan?.status ?? fallbackStatus,
             quotaRemaining: plan?.quota_remaining ?? {},
+            accessibleFeatures: features,
         };
     }, [data, isLoading, featureSlug, fallbackPlanName, fallbackStatus]);
 }
