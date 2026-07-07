@@ -504,18 +504,18 @@ export default function HomePageClient() {
                                                     {isBn ? 'সহজ বাংলায়' : 'Simple Bangla guide'}
                                                 </span>
                                             </div>
-                                            <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-stretch">
+                                            <div className="mt-4 flex flex-col gap-2">
                                                 <button
                                                     type="button"
                                                     onClick={() => setIsDemoModalOpen(true)}
-                                                    className="inline-flex w-full flex-1 items-center justify-center gap-2 rounded-full bg-[#046ca9] px-5 py-2.5 text-sm font-black text-white shadow-sm transition hover:bg-[#034d79] focus:outline-none focus:ring-2 focus:ring-[#046ca9] focus:ring-offset-2 sm:w-auto"
+                                                    className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#046ca9] px-5 py-2.5 text-sm font-black text-white shadow-sm transition hover:bg-[#034d79] focus:outline-none focus:ring-2 focus:ring-[#046ca9] focus:ring-offset-2"
                                                 >
                                                     <Play className="h-4 w-4 fill-white" />
                                                     {isBn ? 'বড় স্ক্রিনে দেখুন' : 'Watch full screen'}
                                                 </button>
                                                 <a
                                                     href="/demo"
-                                                    className="inline-flex w-full flex-1 items-center justify-center gap-2 rounded-full border border-[#046ca9] px-5 py-2.5 text-sm font-bold text-[#046ca9] transition hover:bg-[#046ca9]/5 sm:w-auto"
+                                                    className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-[#046ca9] px-5 py-2.5 text-sm font-bold text-[#046ca9] transition hover:bg-[#046ca9]/5"
                                                 >
                                                     {isBn ? 'সম্পূর্ণ ডেমো পেজ →' : 'Full demo page →'}
                                                 </a>
