@@ -67,6 +67,7 @@ const baseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> =
         && !window.location.pathname.includes('/subscription')
         && !window.location.pathname.includes('/manual-payments')
         && !window.location.pathname.includes('/dashboard')
+        && !window.location.pathname.includes('/ecommerce')
     ) {
         const params = new URLSearchParams();
         params.set('error_type', errorType);

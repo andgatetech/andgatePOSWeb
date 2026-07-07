@@ -50,21 +50,21 @@ function UpgradePrompt({ planName, planTier, featureSlug }: UpgradePromptProps) 
     const { t } = useTranslation();
 
     return (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-gray-300 bg-gray-50 p-6 text-center dark:border-gray-600 dark:bg-gray-800">
-            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900">
-                <svg className="h-6 w-6 text-amber-600" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+        <div className="flex min-h-[50vh] flex-col items-center justify-center rounded-lg border border-dashed border-gray-300 bg-gray-50 p-6 text-center dark:border-gray-600 dark:bg-gray-800">
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900">
+                <svg className="h-8 w-8 text-amber-600" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
                 </svg>
             </div>
-            <h3 className="mb-1 text-sm font-semibold text-gray-700 dark:text-gray-300">
+            <h3 className="mb-2 text-lg font-semibold text-gray-700 dark:text-gray-300">
                 {t('lbl_upgrade_required') || 'Upgrade Required'}
             </h3>
-            <p className="mb-4 text-xs text-gray-500 dark:text-gray-400">
+            <p className="mb-6 max-w-sm text-sm text-gray-500 dark:text-gray-400">
                 {t('msg_feature_not_in_plan') || `This feature is not available in your current plan (${planName}).`}
             </p>
             <Link
                 href={`/subscription?feature=${featureSlug}`}
-                className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-xs font-semibold text-white hover:bg-primary/90 transition-colors"
+                className="inline-flex items-center rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary/90 transition-colors"
             >
                 {t('btn_upgrade_plan') || 'Upgrade Plan'}
             </Link>

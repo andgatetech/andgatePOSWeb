@@ -7,7 +7,15 @@ export interface MenuItem {
     icon?: React.ReactNode;
     href?: string;
     subMenu?: MenuItem[];
-    requiredPermissions?: string[];
+    requiredPermissions?: string[]; // RBAC check (role/permission grant)
+    /**
+     * Subscription-tier check — a specific Feature-catalog slug that must be in the
+     * account's plan. Falls back to requiredPermissions if unset. Kept separate from
+     * requiredPermissions because that field also drives the RBAC check: a slug like
+     * 'ecommerce.manage' may never exist as an assignable RBAC permission, so reusing
+     * it there would hide the item from every staff member regardless of plan tier.
+     */
+    requiredFeature?: string;
     allowedRoles?: string[];
     ownerOnly?: boolean; // true = only visible to subscription owner (business_admin role)
     sectionBreak?: boolean; // true = render a visual divider above this item
@@ -503,36 +511,43 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         icon: React.createElement(ShoppingBag),
         sectionBreak: true,
         requiredPermissions: ['orders.index'],
+        requiredFeature: 'ecommerce.manage',
         subMenu: [
             {
                 label: 'Store Ecommerce Status',
                 href: '/ecommerce/stores',
                 requiredPermissions: ['orders.index'],
+                requiredFeature: 'ecommerce.manage',
             },
             {
                 label: 'Ecommerce Orders',
                 href: '/ecommerce/orders',
                 requiredPermissions: ['orders.index'],
+                requiredFeature: 'ecommerce.manage',
             },
             {
                 label: 'Ecommerce Products',
                 href: '/ecommerce/products',
                 requiredPermissions: ['orders.index'],
+                requiredFeature: 'ecommerce.manage',
             },
             {
                 label: 'Settings',
                 icon: React.createElement(Settings),
                 requiredPermissions: ['orders.index'],
+                requiredFeature: 'ecommerce.manage',
                 subMenu: [
                     {
                         label: 'Credentials',
                         href: '/ecommerce/setting/credentials',
                         requiredPermissions: ['orders.index'],
+                        requiredFeature: 'ecommerce.manage',
                     },
                     {
                         label: 'Marketing & Pixel',
                         href: '/ecommerce/setting/marketing',
                         requiredPermissions: ['orders.index'],
+                        requiredFeature: 'ecommerce.manage',
                     },
                 ],
             },
@@ -601,14 +616,17 @@ function hasAnyPermission(userPermissions: string[] | undefined, requiredPermiss
 }
 
 /**
- * Check if the account's subscription plan includes ANY of the required feature
- * slugs. Permission slugs and Feature slugs share the same naming scheme
- * (e.g. 'accounting.reports.view', 'hr.attendance.create'), so requiredPermissions
- * doubles as the feature-gate key here. Applied independently of RBAC role/permission
- * checks — a business_admin role bypasses RBAC but not what their own plan includes.
+ * Check if the account's subscription plan includes the item's gated feature.
+ * Uses requiredFeature when set; otherwise falls back to requiredPermissions,
+ * since permission slugs and Feature slugs mostly share the same naming scheme
+ * (e.g. 'accounting.reports.view', 'hr.attendance.create'). Applied independently
+ * of RBAC role/permission checks — a business_admin role bypasses RBAC but not
+ * what their own plan includes.
  */
-function hasFeatureAccess(accessibleFeatures: string[] | undefined, requiredPermissions?: string[]): boolean {
-    if (!requiredPermissions || requiredPermissions.length === 0) {
+function hasFeatureAccess(accessibleFeatures: string[] | undefined, item: MenuItem): boolean {
+    const slugsToCheck = item.requiredFeature ? [item.requiredFeature] : item.requiredPermissions;
+
+    if (!slugsToCheck || slugsToCheck.length === 0) {
         return true; // Not tied to a specific subscription feature
     }
 
@@ -616,7 +634,7 @@ function hasFeatureAccess(accessibleFeatures: string[] | undefined, requiredPerm
         return true; // Still loading — don't flash an empty menu; RBAC already gates real access
     }
 
-    return requiredPermissions.some((permission) => accessibleFeatures.includes(permission));
+    return slugsToCheck.some((slug) => accessibleFeatures.includes(slug));
 }
 
 /**
@@ -639,7 +657,7 @@ function filterMenuItem(item: MenuItem, userPermissions: string[] | undefined, u
 
     // Subscription-tier gate — applies even when RBAC role bypasses the permission
     // check above, since a role never grants access beyond the account's plan.
-    if (!item.ownerOnly && !hasFeatureAccess(accessibleFeatures, item.requiredPermissions)) {
+    if (!item.ownerOnly && !hasFeatureAccess(accessibleFeatures, item)) {
         return null;
     }
 

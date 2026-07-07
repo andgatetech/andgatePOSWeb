@@ -20,6 +20,8 @@ import {
     Heart,
     Layers,
     LayoutDashboard,
+    Maximize2,
+    Minimize2,
     Package,
     Pause,
     Play,
@@ -109,9 +111,10 @@ export default function HomePageClient() {
     const localizeNumber = useCallback((value: string | number) => convertNumberByLanguage(value, i18n.language), [i18n.language]);
 
     const videoRef = useRef<HTMLIFrameElement>(null);
+    const videoContainerRef = useRef<HTMLDivElement>(null);
     const [isPlaying, setIsPlaying] = useState(true);
     const [isMuted, setIsMuted] = useState(true);
-    const [flashIcon, setFlashIcon] = useState(false);
+    const [isFullscreen, setIsFullscreen] = useState(false);
     const [openFaq, setOpenFaq] = useState<number | null>(null);
     const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
     const { data: publicStatsData } = useGetPublicStatsQuery();
@@ -127,8 +130,6 @@ export default function HomePageClient() {
             '*'
         );
         setIsPlaying((p) => !p);
-        setFlashIcon(true);
-        setTimeout(() => setFlashIcon(false), 700);
     }, [isPlaying]);
 
     const toggleMute = useCallback(() => {
@@ -141,6 +142,22 @@ export default function HomePageClient() {
         );
         setIsMuted((m) => !m);
     }, [isMuted]);
+
+    const toggleFullscreen = useCallback(() => {
+        const el = videoContainerRef.current;
+        if (!el) return;
+        if (!document.fullscreenElement) {
+            el.requestFullscreen();
+        } else {
+            document.exitFullscreen();
+        }
+    }, []);
+
+    useEffect(() => {
+        const onChange = () => setIsFullscreen(!!document.fullscreenElement);
+        document.addEventListener('fullscreenchange', onChange);
+        return () => document.removeEventListener('fullscreenchange', onChange);
+    }, []);
 
     useEffect(() => {
         if (!isDemoModalOpen) return;
@@ -519,53 +536,56 @@ export default function HomePageClient() {
                             <Play className="h-4 w-4 fill-white" />
                             {isBn ? 'বড় স্ক্রিনে দেখুন' : 'Watch full screen'}
                         </button>
-                        <a
+                        <Link
                             href="/demo"
                             className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-[#046ca9] px-6 py-3 text-sm font-bold text-[#046ca9] transition hover:bg-[#046ca9]/5 sm:w-auto"
                         >
                             {isBn ? 'সম্পূর্ণ ডেমো পেজ →' : 'Full demo page →'}
-                        </a>
+                        </Link>
                     </div>
 
-                    <div className="relative mx-auto mt-10 aspect-video overflow-hidden rounded-2xl bg-black shadow-2xl shadow-black/10">
-                        <iframe
-                            ref={videoRef}
-                            src="https://www.youtube.com/embed/gELTWs7hFtc?autoplay=1&mute=1&start=163&loop=1&playlist=gELTWs7hFtc&controls=0&rel=0&modestbranding=1&enablejsapi=1"
-                            title="AndgatePOS"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            className="absolute inset-0 h-full w-full"
-                        />
-                        <button type="button" aria-label={t('watch_demo')} className="absolute inset-0 cursor-pointer" onClick={toggleVideo} />
-                        <div className="absolute bottom-3 left-3 rounded-full bg-black/60 px-3 py-1 text-xs font-bold text-white backdrop-blur-sm">
-                            {t('watch_demo')}
+                    <div className="mx-auto mt-10 max-w-3xl overflow-hidden rounded-2xl border border-gray-100 bg-white p-2 shadow-2xl">
+                        <div
+                            ref={videoContainerRef}
+                            className="relative overflow-hidden rounded-xl bg-black"
+                            style={{ paddingBottom: '56.25%' }}
+                        >
+                            <iframe
+                                ref={videoRef}
+                                src="https://www.youtube.com/embed/gELTWs7hFtc?autoplay=1&mute=1&start=163&loop=1&playlist=gELTWs7hFtc&controls=0&rel=0&modestbranding=1&enablejsapi=1&playsinline=1"
+                                title="AndgatePOS"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                                className="absolute inset-0 h-full w-full"
+                            />
                         </div>
-                        <button
-                            type="button"
-                            onClick={() => setIsDemoModalOpen(true)}
-                            className="absolute bottom-3 right-3 inline-flex items-center gap-2 rounded-full bg-white/90 px-3 py-2 text-xs font-black text-[#034d79] shadow-sm backdrop-blur transition hover:bg-white"
-                            aria-label={isBn ? 'বড় স্ক্রিনে ডেমো দেখুন' : 'Watch full demo'}
-                        >
-                            <Play className="h-3.5 w-3.5 fill-[#034d79]" />
-                            {isBn ? 'বড় করে দেখুন' : 'Full demo'}
-                        </button>
-                        <button
-                            type="button"
-                            onClick={toggleMute}
-                            className="absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-[#034d79] shadow-sm backdrop-blur transition hover:bg-white"
-                            aria-label={isMuted ? 'Unmute demo video' : 'Mute demo video'}
-                        >
-                            {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-                        </button>
-                        {flashIcon && (
-                            <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-black/55 backdrop-blur-sm">
-                                    {isPlaying
-                                        ? <Play className="h-5 w-5 fill-white text-white" />
-                                        : <Pause className="h-5 w-5 fill-white text-white" />
-                                    }
-                                </div>
-                            </div>
-                        )}
+                        {/* Control bar — same style as /demo */}
+                        <div className="mt-2 flex items-center justify-center gap-3 pb-1">
+                            <button
+                                type="button"
+                                onClick={toggleVideo}
+                                className="flex items-center gap-2 rounded-full bg-gray-900 px-4 py-2 text-sm font-semibold text-white shadow transition-all hover:bg-gray-700 active:scale-95"
+                            >
+                                {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                                {isPlaying ? (isBn ? 'থামান' : 'Pause') : (isBn ? 'চালু করুন' : 'Play')}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={toggleMute}
+                                className="flex items-center gap-2 rounded-full bg-gray-900 px-4 py-2 text-sm font-semibold text-white shadow transition-all hover:bg-gray-700 active:scale-95"
+                            >
+                                {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                                {isMuted ? (isBn ? 'সাউন্ড চালু' : 'Unmute') : (isBn ? 'সাউন্ড বন্ধ' : 'Mute')}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={toggleFullscreen}
+                                className="flex items-center gap-2 rounded-full bg-[#046ca9] px-4 py-2 text-sm font-semibold text-white shadow transition-all hover:bg-[#034d79] active:scale-95"
+                            >
+                                {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+                                {isFullscreen ? (isBn ? 'বন্ধ করুন' : 'Exit') : (isBn ? 'বড় করে দেখুন' : 'Fullscreen')}
+                            </button>
+                        </div>
                     </div>
                 </div>
             </section>
