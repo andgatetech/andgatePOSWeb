@@ -601,9 +601,28 @@ function hasAnyPermission(userPermissions: string[] | undefined, requiredPermiss
 }
 
 /**
- * Recursively filter menu items based on user permissions and role
+ * Check if the account's subscription plan includes ANY of the required feature
+ * slugs. Permission slugs and Feature slugs share the same naming scheme
+ * (e.g. 'accounting.reports.view', 'hr.attendance.create'), so requiredPermissions
+ * doubles as the feature-gate key here. Applied independently of RBAC role/permission
+ * checks — a business_admin role bypasses RBAC but not what their own plan includes.
  */
-function filterMenuItem(item: MenuItem, userPermissions: string[] | undefined, userRole: string | undefined): MenuItem | null {
+function hasFeatureAccess(accessibleFeatures: string[] | undefined, requiredPermissions?: string[]): boolean {
+    if (!requiredPermissions || requiredPermissions.length === 0) {
+        return true; // Not tied to a specific subscription feature
+    }
+
+    if (!accessibleFeatures) {
+        return true; // Still loading — don't flash an empty menu; RBAC already gates real access
+    }
+
+    return requiredPermissions.some((permission) => accessibleFeatures.includes(permission));
+}
+
+/**
+ * Recursively filter menu items based on user permissions, role, and subscription tier
+ */
+function filterMenuItem(item: MenuItem, userPermissions: string[] | undefined, userRole: string | undefined, accessibleFeatures: string[] | undefined): MenuItem | null {
     const isBusinessAdmin = userRole === 'business_admin';
 
     // ownerOnly items require business_admin role
@@ -618,10 +637,16 @@ function filterMenuItem(item: MenuItem, userPermissions: string[] | undefined, u
         return null;
     }
 
+    // Subscription-tier gate — applies even when RBAC role bypasses the permission
+    // check above, since a role never grants access beyond the account's plan.
+    if (!item.ownerOnly && !hasFeatureAccess(accessibleFeatures, item.requiredPermissions)) {
+        return null;
+    }
+
     // If this item has a submenu, filter it recursively
     if (item.subMenu && item.subMenu.length > 0) {
         const filteredSubMenu = item.subMenu
-            .map((subItem) => filterMenuItem(subItem, userPermissions, userRole))
+            .map((subItem) => filterMenuItem(subItem, userPermissions, userRole, accessibleFeatures))
             .filter((subItem): subItem is MenuItem => subItem !== null);
 
         // If no submenu items remain after filtering, hide the parent
@@ -639,11 +664,15 @@ function filterMenuItem(item: MenuItem, userPermissions: string[] | undefined, u
 }
 
 /**
- * Build menu items based on user permissions and role
+ * Build menu items based on user permissions, role, and subscription tier
  * @param userPermissions - Array of permission strings from backend
  * @param userRole - User role string (e.g. 'business_admin')
+ * @param accessibleFeatures - Feature slugs the account's subscription plan includes
+ *   (from GET /api/packages/features). Omit while loading to avoid flashing an
+ *   empty menu; once loaded, items outside the plan are filtered out even if RBAC
+ *   would otherwise allow them.
  * @returns Filtered menu items array
  */
-export function buildMenuFromPermissions(userPermissions: string[] | undefined, userRole?: string): MenuItem[] {
-    return ALL_MENU_ITEMS.map((item) => filterMenuItem(item, userPermissions, userRole)).filter((item): item is MenuItem => item !== null);
+export function buildMenuFromPermissions(userPermissions: string[] | undefined, userRole?: string, accessibleFeatures?: string[]): MenuItem[] {
+    return ALL_MENU_ITEMS.map((item) => filterMenuItem(item, userPermissions, userRole, accessibleFeatures)).filter((item): item is MenuItem => item !== null);
 }

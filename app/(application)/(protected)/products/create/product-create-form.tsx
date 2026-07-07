@@ -2,6 +2,7 @@
 
 import SubscriptionError from '@/components/common/SubscriptionError';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { useFeatureAccess } from '@/hooks/useFeatureAccess';
 import { useStoreType } from '@/hooks/useStoreType';
 import useSubscriptionError from '@/hooks/useSubscriptionError';
 import { getTranslation } from '@/i18n';
@@ -77,6 +78,9 @@ const ProductCreateForm = () => {
 
     // Check for subscription errors
     const { hasSubscriptionError, subscriptionError } = useSubscriptionError(createProductError as any);
+    const { quotaRemaining, isLoading: isQuotaLoading } = useFeatureAccess();
+    const productsRemaining = quotaRemaining['products.create'];
+    const quotaExhausted = !isQuotaLoading && productsRemaining !== null && productsRemaining !== undefined && productsRemaining <= 0;
 
     // Product Attributes State
     const [productAttributes, setProductAttributes] = useState<ProductAttribute[]>([]);
@@ -694,6 +698,12 @@ const ProductCreateForm = () => {
             }
         }
     };
+
+    // Proactive check — block the form before the user invests time filling it out,
+    // instead of only discovering the quota limit after submit.
+    if (quotaExhausted && !hasSubscriptionError) {
+        return <SubscriptionError errorType="quota_exhausted" message={t('msg_product_limit_reached_proactive')} />;
+    }
 
     // Show subscription error component if subscription middleware error occurs
     if (hasSubscriptionError) {

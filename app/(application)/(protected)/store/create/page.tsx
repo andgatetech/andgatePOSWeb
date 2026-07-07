@@ -2,6 +2,7 @@
 
 import SubscriptionError from '@/components/common/SubscriptionError';
 import useSubscriptionError from '@/hooks/useSubscriptionError';
+import { useFeatureAccess } from '@/hooks/useFeatureAccess';
 import { getTranslation } from '@/i18n';
 import { showMessage } from '@/lib/toast';
 import { RootState } from '@/store';
@@ -17,6 +18,9 @@ const CreateStorePage = () => {
     const user = useSelector((state: RootState) => state.auth.user);
     const [createStore, { isLoading, error: createError }] = useCreateStoreMutation();
     const { hasSubscriptionError, subscriptionError } = useSubscriptionError(createError);
+    const { quotaRemaining, isLoading: isQuotaLoading } = useFeatureAccess();
+    const storesRemaining = quotaRemaining['stores.create'];
+    const quotaExhausted = !isQuotaLoading && storesRemaining !== null && storesRemaining !== undefined && storesRemaining <= 0;
 
     const [formData, setFormData] = useState({ store_name: '', address: '', store_phone: '' });
 
@@ -47,6 +51,18 @@ const CreateStorePage = () => {
             }
         }
     };
+
+    // Proactive check — block the form before the user invests time filling it out,
+    // instead of only discovering the quota limit after submit.
+    if (quotaExhausted && !hasSubscriptionError) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-[#f4f9fc] via-white to-[#fff7ed] p-2 sm:p-4 md:p-6">
+                <div className="mx-auto max-w-2xl">
+                    <SubscriptionError errorType="quota_exhausted" message={t('msg_store_limit_reached_proactive')} />
+                </div>
+            </div>
+        );
+    }
 
     if (hasSubscriptionError) {
         return (

@@ -16,6 +16,7 @@ import { toggleSidebar } from '@/store/themeConfigSlice';
 import { useGetUnreadCountQuery } from '@/store/features/notification/notificationApi';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
 import { useGetStoreQuery } from '@/store/features/store/storeApi';
+import { useFeatureAccess } from '@/hooks/useFeatureAccess';
 
 import { AlertTriangle, Ban, ChevronDown, Crown, Search } from 'lucide-react';
 import Image from 'next/image';
@@ -90,7 +91,11 @@ const Sidebar = () => {
         });
     };
 
-    const allMenuRoutes = useMemo(() => buildMenuFromPermissions(user?.permissions || [], user?.role), [user]);
+    const { accessibleFeatures } = useFeatureAccess();
+    const allMenuRoutes = useMemo(
+        () => buildMenuFromPermissions(user?.permissions || [], user?.role, accessibleFeatures),
+        [user, accessibleFeatures]
+    );
     const menuRoutes = useMemo(() => allMenuRoutes.filter((r) => r.label !== 'Feedback'), [allMenuRoutes]);
 
     // Auto-open parent that contains the active route on navigation

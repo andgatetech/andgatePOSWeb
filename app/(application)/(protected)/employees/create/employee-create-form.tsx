@@ -1,6 +1,8 @@
 'use client';
 
+import SubscriptionError from '@/components/common/SubscriptionError';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { useFeatureAccess } from '@/hooks/useFeatureAccess';
 import { getTranslation } from '@/i18n';
 import { useAssignRoleMutation, useGetRolesQuery } from '@/store/features/roles/rolesApi';
 import { useStaffRegisterMutation } from '@/store/features/store/storeApi';
@@ -31,6 +33,9 @@ const EmployeeCreateForm = () => {
     const { currentStoreId, currentStore } = useCurrentStore();
     const [staffRegister, { isLoading: isSubmitting }] = useStaffRegisterMutation();
     const [assignRole] = useAssignRoleMutation();
+    const { quotaRemaining, isLoading: isQuotaLoading } = useFeatureAccess();
+    const staffRemaining = quotaRemaining['users.create'];
+    const quotaExhausted = !isQuotaLoading && staffRemaining !== null && staffRemaining !== undefined && staffRemaining <= 0;
 
     const { data: rolesResponse } = useGetRolesQuery({ store_id: currentStoreId }, { skip: !currentStoreId });
     const availableRoles = useMemo(() => {
@@ -143,6 +148,18 @@ const EmployeeCreateForm = () => {
             setFormErrors((prev) => ({ ...prev, [name]: '' }));
         }
     };
+
+    // Proactive check — block the form before the user invests time filling it out,
+    // instead of only discovering the staff quota limit after submit.
+    if (quotaExhausted) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-[#f4f9fc] via-white to-[#fff7ed] p-2 sm:p-4 md:p-6">
+                <div className="mx-auto max-w-2xl">
+                    <SubscriptionError errorType="quota_exhausted" message={t('msg_staff_limit_reached_proactive')} />
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-[#f4f9fc] via-white to-[#fff7ed] p-2 sm:p-4 md:p-6">

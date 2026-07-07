@@ -1,7 +1,9 @@
 'use client';
 
+import GatedWidgetFallback from '@/components/common/GatedWidgetFallback';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import useSubscriptionError from '@/hooks/useSubscriptionError';
 import { getTranslation } from '@/i18n';
 import { useGetDashboardProfitTrendQuery } from '@/store/features/dashboard/dashboad';
 import {
@@ -36,12 +38,17 @@ export default function ProfitExpenseWidget() {
     const { currentStoreId } = useCurrentStore();
     const { formatCurrency } = useCurrency();
 
-    const { data, isLoading, isError } = useGetDashboardProfitTrendQuery(
+    const { data, isLoading, isError, error } = useGetDashboardProfitTrendQuery(
         { store_id: currentStoreId },
         { skip: !currentStoreId }
     );
+    const { hasSubscriptionError } = useSubscriptionError(error as any);
 
     if (isLoading) return <Skeleton />;
+    // Dashboard queries suppress the global redirect-to-/subscription behavior
+    // (baseApi.ts), so a gated widget needs its own inline fallback instead of
+    // silently rendering nothing on a 403.
+    if (hasSubscriptionError) return <GatedWidgetFallback />;
     if (isError || !data?.data) return null;
 
     const { weekly_trend, expense_breakdown } = data.data;
