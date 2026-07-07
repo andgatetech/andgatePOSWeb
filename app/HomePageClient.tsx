@@ -43,7 +43,6 @@ import {
     VolumeX,
     Wifi,
     WifiOff,
-    X,
     Zap,
 } from 'lucide-react';
 
@@ -116,7 +115,6 @@ export default function HomePageClient() {
     const [isMuted, setIsMuted] = useState(true);
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [openFaq, setOpenFaq] = useState<number | null>(null);
-    const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
     const { data: publicStatsData } = useGetPublicStatsQuery();
     const activeStores = publicStatsData?.data?.active_stores;
     const businessCount = activeStores ? Math.max(10, Math.floor(activeStores / 10) * 10) : 100;
@@ -158,24 +156,6 @@ export default function HomePageClient() {
         document.addEventListener('fullscreenchange', onChange);
         return () => document.removeEventListener('fullscreenchange', onChange);
     }, []);
-
-    useEffect(() => {
-        if (!isDemoModalOpen) return;
-
-        const onKeyDown = (event: KeyboardEvent) => {
-            if (event.key === 'Escape') {
-                setIsDemoModalOpen(false);
-            }
-        };
-
-        document.body.style.overflow = 'hidden';
-        window.addEventListener('keydown', onKeyDown);
-
-        return () => {
-            document.body.style.overflow = '';
-            window.removeEventListener('keydown', onKeyDown);
-        };
-    }, [isDemoModalOpen]);
 
     const stats = [
         { number: `${localizeNumber(String(businessCount))}+`, label: t('stats_businesses'), icon: <Users className="h-5 w-5" /> },
@@ -528,19 +508,11 @@ export default function HomePageClient() {
                         </span>
                     </div>
                     <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
-                        <button
-                            type="button"
-                            onClick={() => setIsDemoModalOpen(true)}
-                            className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#046ca9] px-6 py-3 text-sm font-black text-white shadow-sm transition hover:bg-[#034d79] focus:outline-none focus:ring-2 focus:ring-[#046ca9] focus:ring-offset-2 sm:w-auto"
-                        >
-                            <Play className="h-4 w-4 fill-white" />
-                            {isBn ? 'বড় স্ক্রিনে দেখুন' : 'Watch full screen'}
-                        </button>
                         <Link
                             href="/demo"
                             className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-[#046ca9] px-6 py-3 text-sm font-bold text-[#046ca9] transition hover:bg-[#046ca9]/5 sm:w-auto"
                         >
-                            {isBn ? 'সম্পূর্ণ ডেমো পেজ →' : 'Full demo page →'}
+                            {isBn ? 'সম্পূর্ণ ডেমো দেখুন →' : 'Watch full demo →'}
                         </Link>
                     </div>
 
@@ -589,44 +561,6 @@ export default function HomePageClient() {
                     </div>
                 </div>
             </section>
-
-            {isDemoModalOpen && (
-                <div
-                    className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/95 px-4 py-5 backdrop-blur-sm sm:px-6"
-                    role="dialog"
-                    aria-modal="true"
-                    aria-label={isBn ? 'AndgatePOS ডেমো ভিডিও' : 'AndgatePOS demo video'}
-                    onClick={() => setIsDemoModalOpen(false)}
-                >
-                    <div className="w-full max-w-6xl" onClick={(event) => event.stopPropagation()}>
-                        <div className="mb-3 flex items-center justify-between gap-3 text-white">
-                            <div>
-                                <p className="text-xs font-bold uppercase tracking-wide text-white/60">{t('hero_live_demo')}</p>
-                                <h2 className="text-lg font-black sm:text-2xl">
-                                    {isBn ? 'AndgatePOS কীভাবে দোকানের কাজ সহজ করে' : 'See how AndgatePOS works in a real shop flow'}
-                                </h2>
-                            </div>
-                            <button
-                                type="button"
-                                onClick={() => setIsDemoModalOpen(false)}
-                                className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/70"
-                                aria-label={isBn ? 'ভিডিও বন্ধ করুন' : 'Close video'}
-                            >
-                                <X className="h-5 w-5" />
-                            </button>
-                        </div>
-                        <div className="relative aspect-video overflow-hidden rounded-2xl bg-black shadow-2xl shadow-black/40">
-                            <iframe
-                                src="https://www.youtube.com/embed/gELTWs7hFtc?autoplay=1&mute=1&start=163&controls=1&rel=0&modestbranding=1"
-                                title="AndgatePOS full demo"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-                                allowFullScreen
-                                className="absolute inset-0 h-full w-full"
-                            />
-                        </div>
-                    </div>
-                </div>
-            )}
 
             {/* ── Stats bar ── */}
             <section className="bg-gradient-to-r from-[#046ca9] to-[#034d79] py-12">
