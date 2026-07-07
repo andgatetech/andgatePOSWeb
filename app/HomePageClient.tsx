@@ -477,94 +477,95 @@ export default function HomePageClient() {
                                         </div>
                                     </div>
                                 </div>
-
-                                <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm lg:col-span-2">
-                                    <div className="flex flex-col lg:flex-row">
-                                        <div className="flex flex-col justify-center border-b border-gray-100 p-5 lg:w-[230px] lg:flex-shrink-0 lg:border-b-0 lg:border-r">
-                                            <p className="text-xs font-bold uppercase tracking-wide text-[#046ca9]">
-                                                {isBn ? 'লাইভ ডেমো' : 'Live Demo'}
-                                            </p>
-                                            <h3 className="mt-2 text-xl font-black leading-tight text-gray-950">
-                                                {isBn
-                                                    ? 'আপনার দোকান ডিজিটাল হলে কেমন হবে?'
-                                                    : 'See your shop—fully digital, in 2 minutes'}
-                                            </h3>
-                                            <p className="mt-3 text-sm leading-relaxed text-gray-500">
-                                                {isBn
-                                                    ? 'বিলিং থেকে স্টক — সব এক জায়গায়। ভুল কম, সময় বাঁচে, হিসেব মেলে। যে কেউ চালাতে পারে।'
-                                                    : 'Billing, stock, reports — all in one place. Fewer mistakes, saved time, accurate accounts. Anyone can run it.'}
-                                            </p>
-                                            <div className="mt-3 flex flex-wrap gap-2">
-                                                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
-                                                    <CheckCircle className="h-3 w-3" />
-                                                    {isBn ? '২ মিনিটের ভিডিও' : '2-min video'}
-                                                </span>
-                                                <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-semibold text-amber-700">
-                                                    <CheckCircle className="h-3 w-3" />
-                                                    {isBn ? 'সহজ বাংলায়' : 'Simple Bangla guide'}
-                                                </span>
-                                            </div>
-                                            <div className="mt-4 flex flex-col gap-2">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setIsDemoModalOpen(true)}
-                                                    className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#046ca9] px-5 py-2.5 text-sm font-black text-white shadow-sm transition hover:bg-[#034d79] focus:outline-none focus:ring-2 focus:ring-[#046ca9] focus:ring-offset-2"
-                                                >
-                                                    <Play className="h-4 w-4 fill-white" />
-                                                    {isBn ? 'বড় স্ক্রিনে দেখুন' : 'Watch full screen'}
-                                                </button>
-                                                <a
-                                                    href="/demo"
-                                                    className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-[#046ca9] px-5 py-2.5 text-sm font-bold text-[#046ca9] transition hover:bg-[#046ca9]/5"
-                                                >
-                                                    {isBn ? 'সম্পূর্ণ ডেমো পেজ →' : 'Full demo page →'}
-                                                </a>
-                                            </div>
-                                        </div>
-                                        <div className="relative aspect-video bg-black lg:flex-1">
-                                            <iframe
-                                                ref={videoRef}
-                                                src="https://www.youtube.com/embed/gELTWs7hFtc?autoplay=1&mute=1&start=163&loop=1&playlist=gELTWs7hFtc&controls=0&rel=0&modestbranding=1&enablejsapi=1"
-                                                title="AndgatePOS"
-                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                                className="absolute inset-0 h-full w-full"
-                                            />
-                                            <button type="button" aria-label={t('watch_demo')} className="absolute inset-0 cursor-pointer" onClick={toggleVideo} />
-                                            <div className="absolute bottom-3 left-3 rounded-full bg-black/60 px-3 py-1 text-xs font-bold text-white backdrop-blur-sm">
-                                                {t('watch_demo')}
-                                            </div>
-                                            <button
-                                                type="button"
-                                                onClick={() => setIsDemoModalOpen(true)}
-                                                className="absolute bottom-3 right-3 inline-flex items-center gap-2 rounded-full bg-white/90 px-3 py-2 text-xs font-black text-[#034d79] shadow-sm backdrop-blur transition hover:bg-white"
-                                                aria-label={isBn ? 'বড় স্ক্রিনে ডেমো দেখুন' : 'Watch full demo'}
-                                            >
-                                                <Play className="h-3.5 w-3.5 fill-[#034d79]" />
-                                                {isBn ? 'বড় করে দেখুন' : 'Full demo'}
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={toggleMute}
-                                                className="absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-[#034d79] shadow-sm backdrop-blur transition hover:bg-white"
-                                                aria-label={isMuted ? 'Unmute demo video' : 'Mute demo video'}
-                                            >
-                                                {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-                                            </button>
-                                            {flashIcon && (
-                                                <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                                                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-black/55 backdrop-blur-sm">
-                                                        {isPlaying
-                                                            ? <Play className="h-5 w-5 fill-white text-white" />
-                                                            : <Pause className="h-5 w-5 fill-white text-white" />
-                                                        }
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* ── Live Demo (its own section — a real promo video deserves full width,
+                   not a corner of the product-mockup card) ── */}
+            <section className="bg-white py-16 sm:py-20">
+                <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
+                    <p className="text-xs font-bold uppercase tracking-wide text-[#046ca9]">
+                        {isBn ? 'লাইভ ডেমো' : 'Live Demo'}
+                    </p>
+                    <h2 className="mt-2 text-2xl font-black leading-tight text-gray-950 sm:text-3xl">
+                        {isBn
+                            ? 'আপনার দোকান ডিজিটাল হলে কেমন হবে?'
+                            : 'See your shop—fully digital, in 2 minutes'}
+                    </h2>
+                    <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-gray-500 sm:text-base">
+                        {isBn
+                            ? 'বিলিং থেকে স্টক — সব এক জায়গায়। ভুল কম, সময় বাঁচে, হিসেব মেলে। যে কেউ চালাতে পারে।'
+                            : 'Billing, stock, reports — all in one place. Fewer mistakes, saved time, accurate accounts. Anyone can run it.'}
+                    </p>
+                    <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
+                            <CheckCircle className="h-3 w-3" />
+                            {isBn ? '২ মিনিটের ভিডিও' : '2-min video'}
+                        </span>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-semibold text-amber-700">
+                            <CheckCircle className="h-3 w-3" />
+                            {isBn ? 'সহজ বাংলায়' : 'Simple Bangla guide'}
+                        </span>
+                    </div>
+                    <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
+                        <button
+                            type="button"
+                            onClick={() => setIsDemoModalOpen(true)}
+                            className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#046ca9] px-6 py-3 text-sm font-black text-white shadow-sm transition hover:bg-[#034d79] focus:outline-none focus:ring-2 focus:ring-[#046ca9] focus:ring-offset-2 sm:w-auto"
+                        >
+                            <Play className="h-4 w-4 fill-white" />
+                            {isBn ? 'বড় স্ক্রিনে দেখুন' : 'Watch full screen'}
+                        </button>
+                        <a
+                            href="/demo"
+                            className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-[#046ca9] px-6 py-3 text-sm font-bold text-[#046ca9] transition hover:bg-[#046ca9]/5 sm:w-auto"
+                        >
+                            {isBn ? 'সম্পূর্ণ ডেমো পেজ →' : 'Full demo page →'}
+                        </a>
+                    </div>
+
+                    <div className="relative mx-auto mt-10 aspect-video overflow-hidden rounded-2xl bg-black shadow-2xl shadow-black/10">
+                        <iframe
+                            ref={videoRef}
+                            src="https://www.youtube.com/embed/gELTWs7hFtc?autoplay=1&mute=1&start=163&loop=1&playlist=gELTWs7hFtc&controls=0&rel=0&modestbranding=1&enablejsapi=1"
+                            title="AndgatePOS"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            className="absolute inset-0 h-full w-full"
+                        />
+                        <button type="button" aria-label={t('watch_demo')} className="absolute inset-0 cursor-pointer" onClick={toggleVideo} />
+                        <div className="absolute bottom-3 left-3 rounded-full bg-black/60 px-3 py-1 text-xs font-bold text-white backdrop-blur-sm">
+                            {t('watch_demo')}
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => setIsDemoModalOpen(true)}
+                            className="absolute bottom-3 right-3 inline-flex items-center gap-2 rounded-full bg-white/90 px-3 py-2 text-xs font-black text-[#034d79] shadow-sm backdrop-blur transition hover:bg-white"
+                            aria-label={isBn ? 'বড় স্ক্রিনে ডেমো দেখুন' : 'Watch full demo'}
+                        >
+                            <Play className="h-3.5 w-3.5 fill-[#034d79]" />
+                            {isBn ? 'বড় করে দেখুন' : 'Full demo'}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={toggleMute}
+                            className="absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-[#034d79] shadow-sm backdrop-blur transition hover:bg-white"
+                            aria-label={isMuted ? 'Unmute demo video' : 'Mute demo video'}
+                        >
+                            {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                        </button>
+                        {flashIcon && (
+                            <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-black/55 backdrop-blur-sm">
+                                    {isPlaying
+                                        ? <Play className="h-5 w-5 fill-white text-white" />
+                                        : <Pause className="h-5 w-5 fill-white text-white" />
+                                    }
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </section>
