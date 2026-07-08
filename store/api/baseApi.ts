@@ -168,6 +168,8 @@ export const baseApi = createApi({
         'Shift',
         'EmployeeDocument',
         'StockTransfer',
+        'BankAccounts',
+        'BankTransactions',
     ],
     endpoints: () => ({}),
 });

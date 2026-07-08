@@ -302,6 +302,11 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         ],
         subMenu: [
             {
+                label: 'Bank Accounts',
+                href: '/accounting/bank-accounts',
+                requiredPermissions: ['accounting.accounts.index'],
+            },
+            {
                 label: 'Cash Book',
                 href: '/accounting/cash-book',
                 requiredPermissions: ['accounting.cash-book.index'],

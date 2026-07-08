@@ -190,6 +190,8 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     '/account/journal-list': ['journals.index'],
 
     // ── Accounting (new module) ────────────────────────────────
+    '/accounting/bank-accounts': ['accounting.accounts.index'],
+    '/accounting/bank-accounts/[id]': ['accounting.accounts.index'],
     '/accounting/cash-book': ['accounting.cash-book.index'],
     '/accounting/journals': ['accounting.journals.index'],
     '/accounting/chart-of-accounts': ['accounting.accounts.index'],
