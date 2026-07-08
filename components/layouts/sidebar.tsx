@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import AnimateHeight from 'react-animate-height';
-import PerfectScrollbar from 'react-perfect-scrollbar';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { getTranslation } from '@/i18n';
@@ -322,7 +321,7 @@ const Sidebar = () => {
             )}
 
             {/* ── Navigation Menu ──────────────────────────────────────── */}
-            <PerfectScrollbar className="flex-1">
+            <div className="custom-scrollbar flex-1 overflow-y-auto">
                 <div className="px-2.5 py-3">
                     {menuRoutes.map((route) => {
                         const parentActive = route.subMenu ? isParentActive(route) : false;
@@ -452,7 +451,7 @@ const Sidebar = () => {
                         );
                     })}
                 </div>
-            </PerfectScrollbar>
+            </div>
 
             {/* ── Subscription Footer ───────────────────────────────────── */}
             {user?.subscription_user && (() => {
