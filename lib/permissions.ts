@@ -226,13 +226,13 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
 
     // ── Reports: Sales & Revenue ────────────────────────────────
     '/reports/sales': ['reports.sales'],
-    '/reports/order-returns': ['reports.sales'],
+    '/reports/order-returns': ['reports.order-returns'],
     '/reports/transaction': ['reports.transaction'],
-    '/reports/invoice': ['reports.sales'],
-    '/reports/sales-items': ['reports.sales'],
-    '/reports/customer': ['reports.sales'],
-    '/reports/customer-due': ['reports.sales'],
-    '/reports/ar-aging': ['reports.sales'],
+    '/reports/invoice': ['reports.invoice'],
+    '/reports/sales-items': ['reports.sales-items'],
+    '/reports/customer': ['reports.customer'],
+    '/reports/customer-due': ['reports.customer-due'],
+    '/reports/ar-aging': ['reports.ar-aging'],
 
     // ── Reports: Purchase & Supplier ────────────────────────────
     '/reports/purchase': ['reports.purchase'],
@@ -246,17 +246,17 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     '/reports/stock': ['stock.reports'],
     '/reports/stock-movement': ['stock.reports'],
     '/reports/low-stock': ['reports.low-stock'],
-    '/reports/threshold-intelligence': ['reports.low-stock'],
+    '/reports/threshold-intelligence': ['reports.threshold-intelligence'],
     '/reports/idle-product': ['reports.inventory'],
     '/reports/adjustment': ['stock.adjustments'],
     '/reports/product': ['reports.inventory'],
     '/reports/transfer-ledger': ['stock.reports'],
 
     // ── Reports: AI Insights ────────────────────────────────────
-    '/reports/reorder-suggestions': ['reports.sales'],
-    '/reports/anomalies': ['reports.sales'],
-    '/reports/demand-forecast': ['reports.sales'],
-    '/reports/smart-summary': ['reports.sales'],
+    '/reports/reorder-suggestions': ['reports.reorder-suggestions'],
+    '/reports/anomalies': ['reports.anomalies'],
+    '/reports/demand-forecast': ['reports.demand-forecast'],
+    '/reports/smart-summary': ['reports.summary'],
 
     // ── Reports: Financial ──────────────────────────────────────
     '/reports/profit-loss': ['reports.profit-loss'],
@@ -265,12 +265,12 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     '/reports/bd-vat-workspace': ['reports.tax'],
 
     // ── Reports: Operations ─────────────────────────────────────
-    '/reports/cash-closing': ['reports.sales'],
+    '/reports/cash-closing': ['reports.operations.cash-closing'],
     '/reports/payment-summary': ['reports.transaction'],
-    '/reports/employee-sales': ['reports.sales'],
-    '/reports/discount': ['reports.sales'],
-    '/reports/customer-statement': ['reports.sales'],
-    '/reports/audit-activity': ['reports.sales'],
+    '/reports/employee-sales': ['reports.operations.employee-sales'],
+    '/reports/discount': ['reports.operations.discount'],
+    '/reports/customer-statement': ['reports.operations.customer-statement'],
+    '/reports/audit-activity': ['reports.operations.audit-activity'],
 
     // ── Notifications ──────────────────────────────────────────
     '/notifications': ['notifications.index'],
