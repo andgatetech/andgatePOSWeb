@@ -19,6 +19,8 @@ interface BasicInfoTabProps {
         has_attributes: boolean;
         has_warranty: boolean;
         has_serial: boolean;
+        has_batch: boolean;
+        has_expiry: boolean;
     };
     handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void;
     setFormData?: React.Dispatch<React.SetStateAction<any>>;
@@ -561,6 +563,70 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                                 <span className="font-semibold text-gray-900">{t('lbl_has_serial')}</span>
                             </div>
                             <p className="mt-1 text-xs text-gray-500">{t('lbl_has_serial_desc')}</p>
+                        </div>
+                    </label>
+
+                    {/* Has Batch */}
+                    <label className="flex cursor-pointer items-start gap-3 rounded-lg border-2 border-gray-200 bg-white p-4 transition-all hover:border-gray-300 hover:shadow-sm">
+                        <input
+                            type="checkbox"
+                            name="has_batch"
+                            checked={formData.has_batch}
+                            onChange={(e) => {
+                                handleChange({
+                                    target: {
+                                        name: 'has_batch',
+                                        value: e.target.checked,
+                                    },
+                                } as any);
+                            }}
+                            className="mt-1 h-5 w-5 rounded border-gray-300 text-[#046ca9] focus:ring-2 focus:ring-[#046ca9]"
+                        />
+                        <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                                <svg className="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                                    />
+                                </svg>
+                                <span className="font-semibold text-gray-900">{t('lbl_has_batch')}</span>
+                            </div>
+                            <p className="mt-1 text-xs text-gray-500">{t('lbl_has_batch_desc')}</p>
+                        </div>
+                    </label>
+
+                    {/* Has Expiry */}
+                    <label className="flex cursor-pointer items-start gap-3 rounded-lg border-2 border-gray-200 bg-white p-4 transition-all hover:border-gray-300 hover:shadow-sm">
+                        <input
+                            type="checkbox"
+                            name="has_expiry"
+                            checked={formData.has_expiry}
+                            onChange={(e) => {
+                                handleChange({
+                                    target: {
+                                        name: 'has_expiry',
+                                        value: e.target.checked,
+                                    },
+                                } as any);
+                            }}
+                            className="mt-1 h-5 w-5 rounded border-gray-300 text-[#046ca9] focus:ring-2 focus:ring-[#046ca9]"
+                        />
+                        <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                                <svg className="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                    />
+                                </svg>
+                                <span className="font-semibold text-gray-900">{t('lbl_has_expiry')}</span>
+                            </div>
+                            <p className="mt-1 text-xs text-gray-500">{t('lbl_has_expiry_desc')}</p>
                         </div>
                     </label>
                 </div>

@@ -29,6 +29,8 @@ const ReceiveItemsPage = () => {
     const [taxRates, setTaxRates] = useState<Record<number, number>>({});
     const [lowStockQuantities, setLowStockQuantities] = useState<Record<number, number>>({});
     const [variantData, setVariantData] = useState<Record<number, any>>({});
+    const [batchNumbers, setBatchNumbers] = useState<Record<number, string>>({});
+    const [expiryDates, setExpiryDates] = useState<Record<number, string>>({});
     const [excludedItems, setExcludedItems] = useState<Set<number>>(new Set());
     const [paymentAmount, setPaymentAmount] = useState(0);
     const [paymentMethod, setPaymentMethod] = useState('');
@@ -93,6 +95,14 @@ const ReceiveItemsPage = () => {
 
     const handleVariantChange = (itemId: number, key: string, value: string) => {
         setVariantData((prev) => ({ ...prev, [itemId]: { ...prev[itemId], [key]: value } }));
+    };
+
+    const handleBatchChange = (itemId: number, value: string) => {
+        setBatchNumbers((prev) => ({ ...prev, [itemId]: value }));
+    };
+
+    const handleExpiryChange = (itemId: number, value: string) => {
+        setExpiryDates((prev) => ({ ...prev, [itemId]: value }));
     };
 
     const handleRemoveItem = (itemId: number) => {
@@ -180,6 +190,8 @@ const ReceiveItemsPage = () => {
                     tax_included: false,
                     low_stock_quantity: lowStockQuantities[item.id] || 5,
                     variant_data: Object.keys(variantData[item.id] || {}).length > 0 ? variantData[item.id] : undefined,
+                    batch_no: batchNumbers[item.id] || undefined,
+                    expiry_date: expiryDates[item.id] || undefined,
                 };
             }),
             payment_amount: paymentAmount,
@@ -280,6 +292,8 @@ const ReceiveItemsPage = () => {
                                 <th>{t('lbl_purchase_price')}</th>
                                 <th>{t('lbl_avg_cost')}</th>
                                 <th>{t('lbl_selling_price')}</th>
+                                <th>{t('lbl_batch_number')}</th>
+                                <th>{t('lbl_expiry_date')}</th>
                                 <th>{t('lbl_total')}</th>
                                 <th>{t('lbl_action')}</th>
                             </tr>
@@ -403,6 +417,25 @@ const ReceiveItemsPage = () => {
                                                     </div>
                                                 )}
                                             </div>
+                                        </td>
+                                        <td>
+                                            <input
+                                                type="text"
+                                                className="form-input w-28"
+                                                value={batchNumbers[item.id] || ''}
+                                                onChange={(e) => handleBatchChange(item.id, e.target.value)}
+                                                placeholder={t('placeholder_batch_number')}
+                                                disabled={isExcluded}
+                                            />
+                                        </td>
+                                        <td>
+                                            <input
+                                                type="date"
+                                                className="form-input w-36"
+                                                value={expiryDates[item.id] || ''}
+                                                onChange={(e) => handleExpiryChange(item.id, e.target.value)}
+                                                disabled={isExcluded}
+                                            />
                                         </td>
                                         <td className="font-bold">{formatCurrency(calculateItemTotal(item.id))}</td>
                                         <td>

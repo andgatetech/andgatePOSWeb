@@ -58,6 +58,35 @@ const CustomerDueApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['Orders'],
         }),
+        getCustomerDuePaymentLinks: builder.query({
+            query: (id: number | string) => ({
+                url: `/customer-dues/${id}/payment-links`,
+                method: 'GET',
+            }),
+            providesTags: ['Orders'],
+        }),
+        createCustomerDuePaymentLink: builder.mutation({
+            query: ({ id, ...data }) => ({
+                url: `/customer-dues/${id}/payment-links`,
+                method: 'POST',
+                body: data,
+            }),
+            invalidatesTags: ['Orders'],
+        }),
+        sendCustomerDuePaymentLinkReminder: builder.mutation({
+            query: ({ id, linkId }: { id: number | string; linkId: number | string }) => ({
+                url: `/customer-dues/${id}/payment-links/${linkId}/send-reminder`,
+                method: 'POST',
+            }),
+            invalidatesTags: ['Orders'],
+        }),
+        cancelCustomerDuePaymentLink: builder.mutation({
+            query: ({ id, linkId }: { id: number | string; linkId: number | string }) => ({
+                url: `/customer-dues/${id}/payment-links/${linkId}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['Orders'],
+        }),
     }),
 });
 
@@ -67,4 +96,8 @@ export const {
     useCollectCustomerDuePaymentMutation,
     useClearCustomerDueMutation,
     useUpdateCustomerDueFollowUpMutation,
+    useGetCustomerDuePaymentLinksQuery,
+    useCreateCustomerDuePaymentLinkMutation,
+    useSendCustomerDuePaymentLinkReminderMutation,
+    useCancelCustomerDuePaymentLinkMutation,
 } = CustomerDueApi;

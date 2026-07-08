@@ -37,6 +37,7 @@ import BasicInfoTab from './tabs/BasicInfoTab';
 import BrandingTab from './tabs/BrandingTab';
 import CurrencyTab, { CurrencyForm } from './tabs/CurrencyTab';
 import LoyaltyProgramTab from './tabs/LoyaltyProgramTab';
+import MfsAccountsTab from './tabs/MfsAccountsTab';
 import OperatingHoursTab from './tabs/OperatingHoursTab';
 import OrderReturnReasonsTab from './tabs/OrderReturnReasonsTab';
 import PaymentMethodsTab, { PaymentMethodForm } from './tabs/PaymentMethodsTab';
@@ -72,7 +73,7 @@ const createEmptyPaymentStatusForm = (): PaymentStatusForm => ({
     is_active: true,
 });
 
-const VALID_SETTING_TABS = ['basic', 'hours', 'units', 'attributes', 'payment', 'currency', 'paymentstatus', 'warranty', 'adjustment', 'returnreasons', 'loyalty', 'branding', 'status'] as const;
+const VALID_SETTING_TABS = ['basic', 'hours', 'units', 'attributes', 'payment', 'mfs', 'currency', 'paymentstatus', 'warranty', 'adjustment', 'returnreasons', 'loyalty', 'branding', 'status'] as const;
 
 const StoreSetting = () => {
     const { t } = getTranslation();
@@ -1556,6 +1557,8 @@ const StoreSetting = () => {
                         handleTogglePaymentMethodActive={handleTogglePaymentMethodActive}
                     />
                 );
+            case 'mfs':
+                return <MfsAccountsTab />;
             case 'currency':
                 return (
                     <CurrencyTab

@@ -22,6 +22,8 @@ interface ReceiveItem {
     tax_included?: boolean;
     low_stock_quantity?: number;
     unit?: string;
+    batch_no?: string;
+    expiry_date?: string;
 }
 
 interface ReceiveItemsModalProps {
@@ -55,6 +57,8 @@ const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, purchaseO
                 tax_included: item.tax_included || false,
                 low_stock_quantity: parseFloat(item.low_stock_quantity) || 5,
                 unit: item.unit || 'piece',
+                batch_no: item.batch_no || '',
+                expiry_date: item.expiry_date || '',
             }));
             setItems(initialItems);
         }
@@ -138,6 +142,8 @@ const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, purchaseO
                     tax_included: item.tax_included,
                     low_stock_quantity: item.low_stock_quantity,
                     variant_data: item.variant_data,
+                    batch_no: item.batch_no || undefined,
+                    expiry_date: item.expiry_date || undefined,
                 })),
             }).unwrap();
 
@@ -250,6 +256,8 @@ const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, purchaseO
                                 <th className="px-4 py-3 text-center text-xs font-semibold uppercase text-gray-700">{t('lbl_receive_qty')}</th>
                                 <th className="px-4 py-3 text-right text-xs font-semibold uppercase text-gray-700">{t('lbl_purchase_price')}</th>
                                 <th className="px-4 py-3 text-right text-xs font-semibold uppercase text-gray-700">{t('lbl_selling_price')}</th>
+                                <th className="px-4 py-3 text-center text-xs font-semibold uppercase text-gray-700">{t('lbl_batch_number')}</th>
+                                <th className="px-4 py-3 text-center text-xs font-semibold uppercase text-gray-700">{t('lbl_expiry_date')}</th>
                                 <th className="px-4 py-3 text-center text-xs font-semibold uppercase text-gray-700">{t('lbl_low_stock')}</th>
                                 <th className="px-4 py-3 text-center text-xs font-semibold uppercase text-gray-700">{t('lbl_actions')}</th>
                             </tr>
@@ -319,6 +327,25 @@ const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, purchaseO
                                                 value={item.selling_price === 0 ? '' : item.selling_price}
                                                 onChange={(e) => handleItemChange(index, 'selling_price', e.target.value === '' ? 0 : parseFloat(e.target.value))}
                                                 className="form-input w-28 text-right"
+                                                disabled={isLoading}
+                                            />
+                                        </td>
+                                        <td className="px-4 py-3">
+                                            <input
+                                                type="text"
+                                                value={item.batch_no || ''}
+                                                onChange={(e) => handleItemChange(index, 'batch_no', e.target.value)}
+                                                placeholder={t('placeholder_batch_number')}
+                                                className="form-input w-28 text-center"
+                                                disabled={isLoading}
+                                            />
+                                        </td>
+                                        <td className="px-4 py-3">
+                                            <input
+                                                type="date"
+                                                value={item.expiry_date || ''}
+                                                onChange={(e) => handleItemChange(index, 'expiry_date', e.target.value)}
+                                                className="form-input w-36 text-center"
                                                 disabled={isLoading}
                                             />
                                         </td>

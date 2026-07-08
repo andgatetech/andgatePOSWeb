@@ -8,7 +8,8 @@ import { addCrmTask, buildWhatsAppUrl, CrmTask, getCrmTasks, updateCrmTaskStatus
 import { showMessage } from '@/lib/toast';
 import { useGetCustomerDuesQuery } from '@/store/features/customerDue/customerDueApi';
 import { useGetCustomerPointTransactionsQuery, useGetSingleCustomerQuery } from '@/store/features/customer/customer';
-import { ArrowLeft, CalendarClock, CheckCircle2, Clock, FileText, Gift, MessageCircle, Phone, Plus, Receipt, StickyNote, UserRound, Wallet } from 'lucide-react';
+import PaymentLinkModal from '@/app/(application)/(protected)/customers/components/PaymentLinkModal';
+import { ArrowLeft, CalendarClock, CheckCircle2, Clock, FileText, Gift, Link2, MessageCircle, Phone, Plus, Receipt, StickyNote, UserRound, Wallet } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
@@ -31,6 +32,7 @@ export default function Customer360Page() {
     );
 
     const [tasks, setTasks] = useState<CrmTask[]>([]);
+    const [paymentLinkDue, setPaymentLinkDue] = useState<any>(null);
     const [taskTitle, setTaskTitle] = useState('');
     const [taskType, setTaskType] = useState<CrmTask['type']>('call');
     const [taskDueDate, setTaskDueDate] = useState(today());
@@ -45,6 +47,9 @@ export default function Customer360Page() {
     const pointTransactions = useMemo(() => pointsResponse?.data?.data || [], [pointsResponse]);
     const dues = useMemo(() => dueResponse?.data?.dues || [], [dueResponse]);
     const totalDue = dues.reduce((sum: number, due: any) => sum + Number(due.remaining || 0), 0);
+    const creditLimit = Number(customer?.credit_limit || 0);
+    const isOverCreditLimit = creditLimit > 0 && totalDue > creditLimit;
+    const availableCredit = creditLimit > 0 ? Math.max(0, creditLimit - totalDue) : 0;
     const storeName = currentStore?.store_name || 'AndgatePOS';
     const taskTypes = useMemo(
         () => [
@@ -279,7 +284,17 @@ export default function Customer360Page() {
                                     <p className="font-semibold text-gray-900">{due.reference || t('lbl_due')}</p>
                                     <p className="text-xs text-gray-500">{due.status || due.aging_bucket || '-'}</p>
                                 </div>
-                                <span className="font-bold text-red-600">{formatCurrency(due.remaining || 0)}</span>
+                                <div className="flex items-center gap-3">
+                                    <span className="font-bold text-red-600">{formatCurrency(due.remaining || 0)}</span>
+                                    {Number(due.remaining || 0) > 0 && (
+                                        <button
+                                            onClick={() => setPaymentLinkDue(due)}
+                                            className="inline-flex items-center gap-1 rounded-lg border border-primary/20 bg-primary/5 px-2 py-1 text-xs font-semibold text-primary hover:bg-primary/10"
+                                        >
+                                            <Link2 className="h-3 w-3" /> {t('btn_send_payment_link')}
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         ))}
                     </div>
@@ -287,6 +302,22 @@ export default function Customer360Page() {
 
                 <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
                     <h3 className="font-bold text-gray-900">{t('crm_financial_snapshot')}</h3>
+                    {creditLimit > 0 && (
+                        <div className={`mt-4 rounded-lg border px-3 py-2.5 ${isOverCreditLimit ? 'border-danger bg-danger/10' : totalDue > creditLimit * 0.8 ? 'border-warning bg-warning/10' : 'border-success bg-success/10'}`}>
+                            <div className="flex items-center gap-2 text-sm font-semibold">
+                                <svg className={`h-4 w-4 shrink-0 ${isOverCreditLimit ? 'text-danger' : totalDue > creditLimit * 0.8 ? 'text-warning' : 'text-success'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                                <span className={isOverCreditLimit ? 'text-danger' : totalDue > creditLimit * 0.8 ? 'text-warning' : 'text-success'}>
+                                    {isOverCreditLimit
+                                        ? t('customer_credit_limit_exceeded', { limit: formatCurrency(creditLimit), due: formatCurrency(totalDue), over: formatCurrency(totalDue - creditLimit) })
+                                        : totalDue > creditLimit * 0.8
+                                          ? t('customer_credit_limit_near', { limit: formatCurrency(creditLimit), available: formatCurrency(availableCredit) })
+                                          : t('customer_credit_limit_ok', { limit: formatCurrency(creditLimit), available: formatCurrency(availableCredit) })}
+                                </span>
+                            </div>
+                        </div>
+                    )}
                     <div className="mt-4 grid gap-3 sm:grid-cols-2">
                         <div className="rounded-lg bg-gray-50 p-3">
                             <div className="flex items-center gap-2 text-gray-500"><Wallet className="h-4 w-4" /> {t('lbl_balance')}</div>
@@ -308,6 +339,18 @@ export default function Customer360Page() {
                     {customer.details && <p className="mt-4 rounded-lg bg-gray-50 p-3 text-sm text-gray-600">{customer.details}</p>}
                 </div>
             </div>
+
+            {paymentLinkDue && (
+                <PaymentLinkModal
+                    open={!!paymentLinkDue}
+                    onClose={() => setPaymentLinkDue(null)}
+                    dueId={paymentLinkDue.id}
+                    customerName={customer.name}
+                    customerPhone={customer.phone}
+                    customerEmail={customer.email}
+                    remainingAmount={Number(paymentLinkDue.remaining || 0)}
+                />
+            )}
         </div>
     );
 }

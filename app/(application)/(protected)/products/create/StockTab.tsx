@@ -10,6 +10,11 @@ interface StockTabProps {
         quantity: string;
         low_stock_quantity: string;
         available: string;
+        has_batch?: boolean;
+        has_expiry?: boolean;
+        batch_no?: string;
+        purchase_date?: string;
+        expiry_date?: string;
     };
     handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void;
     units: any[];
@@ -111,6 +116,58 @@ const StockTab: React.FC<StockTabProps> = ({ formData, handleChange, units, onPr
                         <option value="no">{t('status_out_of_stock')}</option>
                     </select>
                 </div>
+
+                {/* Batch / Expiry fields */}
+                {(formData.has_batch || formData.has_expiry) && (
+                    <>
+                        {formData.has_batch && (
+                            <div>
+                                <label htmlFor="batch_no" className="mb-2 block text-sm font-medium text-gray-700">
+                                    {t('lbl_batch_number')}
+                                </label>
+                                <input
+                                    id="batch_no"
+                                    name="batch_no"
+                                    type="text"
+                                    value={formData.batch_no || ''}
+                                    onChange={handleChange}
+                                    placeholder={t('placeholder_batch_number')}
+                                    className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-gray-500"
+                                />
+                            </div>
+                        )}
+                        {formData.has_expiry && (
+                            <div>
+                                <label htmlFor="expiry_date" className="mb-2 block text-sm font-medium text-gray-700">
+                                    {t('lbl_expiry_date')}
+                                </label>
+                                <input
+                                    id="expiry_date"
+                                    name="expiry_date"
+                                    type="date"
+                                    value={formData.expiry_date || ''}
+                                    onChange={handleChange}
+                                    className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-gray-500"
+                                />
+                            </div>
+                        )}
+                        {formData.has_batch && (
+                            <div>
+                                <label htmlFor="purchase_date" className="mb-2 block text-sm font-medium text-gray-700">
+                                    {t('lbl_purchase_date')}
+                                </label>
+                                <input
+                                    id="purchase_date"
+                                    name="purchase_date"
+                                    type="date"
+                                    value={formData.purchase_date || ''}
+                                    onChange={handleChange}
+                                    className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-gray-500"
+                                />
+                            </div>
+                        )}
+                    </>
+                )}
             </div>
 
             {/* Stock Status Display */}

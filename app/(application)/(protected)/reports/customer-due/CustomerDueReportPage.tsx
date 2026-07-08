@@ -9,7 +9,8 @@ import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import { escapePrintHtml, printInWindow } from '@/lib/printUtil';
 import { useClearCustomerDueMutation, useCollectCustomerDuePaymentMutation, useGetCustomerDuesQuery, useUpdateCustomerDueFollowUpMutation } from '@/store/features/customerDue/customerDueApi';
-import { AlertCircle, Bell, CalendarClock, CheckCircle2, Clock, CreditCard, FileText, MessageCircle, Phone, Receipt, Search, Users, Wallet } from 'lucide-react';
+import PaymentLinkModal from '@/app/(application)/(protected)/customers/components/PaymentLinkModal';
+import { AlertCircle, Bell, CalendarClock, CheckCircle2, Clock, CreditCard, FileText, Link2, MessageCircle, Phone, Receipt, Search, Users, Wallet } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import Swal from 'sweetalert2';
 
@@ -43,6 +44,7 @@ const CustomerDueReportPage = () => {
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
     const [filters, setFilters] = useState({ search: '', aging: 'all', status: '', follow_up: 'all' });
     const [paymentModal, setPaymentModal] = useState<{ type: 'partial' | 'full'; due: any } | null>(null);
+    const [paymentLinkModal, setPaymentLinkModal] = useState<any | null>(null);
     const [followUpModal, setFollowUpModal] = useState<any | null>(null);
     const [followUpForm, setFollowUpForm] = useState({ action_type: 'called', promised_payment_date: '', reminder_days_before: '1', note: '' });
     const [paymentAmount, setPaymentAmount] = useState('');
@@ -379,6 +381,13 @@ const CustomerDueReportPage = () => {
                 hidden: (row: any) => Number(row.remaining || 0) <= 0,
             },
             {
+                label: t('btn_send_payment_link'),
+                icon: <Link2 className="h-4 w-4" />,
+                className: 'text-primary',
+                onClick: (row: any) => setPaymentLinkModal(row),
+                hidden: (row: any) => Number(row.remaining || 0) <= 0,
+            },
+            {
                 label: t('btn_make_partial_payment'),
                 icon: <CreditCard className="h-4 w-4" />,
                 className: 'text-gray-700',
@@ -591,6 +600,18 @@ const CustomerDueReportPage = () => {
                         </div>
                     </div>
                 </div>
+            )}
+
+            {paymentLinkModal && (
+                <PaymentLinkModal
+                    open={!!paymentLinkModal}
+                    onClose={() => setPaymentLinkModal(null)}
+                    dueId={paymentLinkModal.id}
+                    customerName={paymentLinkModal.customer}
+                    customerPhone={paymentLinkModal.phone}
+                    customerEmail={paymentLinkModal.email}
+                    remainingAmount={Number(paymentLinkModal.remaining || 0)}
+                />
             )}
         </div>
     );

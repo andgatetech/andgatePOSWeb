@@ -3,7 +3,7 @@ import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import { FALLBACK_PAYMENT_STATUSES, PAYMENT_STATUS_CONFIGS, getAllowedStatusesForMethod, getPaymentStatusConfig } from '@/lib/paymentConstants';
-import type { Customer, PosFormData } from './types';
+import { checkCreditLimit, type Customer, type PosFormData } from './types';
 
 interface PaymentSummarySectionProps {
     formData: PosFormData;
@@ -91,6 +91,16 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
     const taxLabel = currentStore?.tax_label || t('lbl_tax');
     const canUsePoints = !!selectedCustomer && Number(selectedCustomer.points) > 0;
     const canUseBalance = !!selectedCustomer && parseFloat(String(selectedCustomer.balance ?? '0')) > 0;
+
+    // Credit-limit preview for the current payment status
+    const newDueAmount = !isReturnMode && selectedCustomer
+        ? formData.paymentStatus === 'due'
+            ? totalPayable
+            : formData.paymentStatus === 'partial'
+              ? Math.max(0, totalPayable - (formData.partialPaymentAmount || 0))
+              : 0
+        : 0;
+    const creditCheck = checkCreditLimit(selectedCustomer, newDueAmount);
 
     const emit = (name: string, value: string) => onInputChange(makeEvent(name, value));
 
@@ -368,6 +378,30 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                     <div className="mt-1 flex justify-between text-sm">
                         <span className="text-red-600">{t('lbl_amount_due_later')}</span>
                         <span className="font-bold text-red-700">{formatCurrency(totalPayable - formData.partialPaymentAmount)}</span>
+                    </div>
+                </div>
+            )}
+
+            {/* ── Credit Limit Warning ── */}
+            {!isReturnMode && selectedCustomer && creditCheck.creditLimit > 0 && newDueAmount > 0 && (
+                <div className={`rounded-xl border px-4 py-3 ${creditCheck.wouldExceed ? 'border-danger bg-danger/10' : 'border-warning bg-warning/10'}`}>
+                    <div className="flex items-start gap-2">
+                        <svg className={`h-5 w-5 shrink-0 ${creditCheck.wouldExceed ? 'text-danger' : 'text-warning'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <div className="flex-1">
+                            <p className={`text-sm font-semibold ${creditCheck.wouldExceed ? 'text-danger' : 'text-warning'}`}>
+                                {creditCheck.wouldExceed ? t('pos_credit_limit_exceeded') : t('pos_credit_limit_warning')}
+                            </p>
+                            <p className="mt-0.5 text-xs text-gray-600">
+                                {t('pos_credit_limit_summary', {
+                                    limit: formatCurrency(creditCheck.creditLimit),
+                                    current: formatCurrency(creditCheck.currentDue),
+                                    new: formatCurrency(newDueAmount),
+                                    projected: formatCurrency(creditCheck.projectedDue),
+                                })}
+                            </p>
+                        </div>
                     </div>
                 </div>
             )}

@@ -43,7 +43,7 @@ import PaymentSummarySection from './pos-right-side/PaymentSummarySection';
 import PreviewModal from './pos-right-side/PreviewModal';
 import CouponInput from './pos-right-side/CouponInput';
 import SplitPaymentModal from './pos-right-side/SplitPaymentModal';
-import type { Customer, CustomerApiResponse, PosFormData, SplitPayment } from './pos-right-side/types';
+import { checkCreditLimit, type Customer, type CustomerApiResponse, type PosFormData, type SplitPayment } from './pos-right-side/types';
 import { MEMBERSHIP_DISCOUNTS } from './pos-right-side/types';
 import ReturnQuotePreviewModal from '@/components/pos/ReturnQuotePreviewModal';
 
@@ -1192,6 +1192,32 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                 dueAmount = Number(freshPayment.due_amount ?? grandTotal);
             }
 
+            // Soft credit-limit enforcement for due/partial sales
+            if (!isReturnMode && selectedCustomer && dueAmount > 0) {
+                const creditCheck = checkCreditLimit(selectedCustomer, dueAmount);
+                if (creditCheck.wouldExceed) {
+                    const message = t('pos_credit_limit_confirm_message', {
+                        name: selectedCustomer.name,
+                        limit: formatCurrency(creditCheck.creditLimit),
+                        current: formatCurrency(creditCheck.currentDue),
+                        new: formatCurrency(dueAmount),
+                        projected: formatCurrency(creditCheck.projectedDue),
+                        overBy: formatCurrency(creditCheck.overBy),
+                    });
+                    const confirmed = await showConfirmDialog(
+                        t('pos_credit_limit_confirm_title'),
+                        message,
+                        t('pos_proceed_anyway'),
+                        t('btn_cancel'),
+                        false
+                    );
+                    if (!confirmed) {
+                        isSubmittingRef.current = false;
+                        return;
+                    }
+                }
+            }
+
             const orderData: any = {
                 store_id: currentStoreId,
                 payment_status: formData.paymentStatus,
@@ -1221,6 +1247,8 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                         tax: item.tax_rate || 0,
                         tax_included: item.tax_included || false,
                         subtotal: itemSubtotal,
+                        batch_no: item.batchNo || null,
+                        expiry_date: item.expiryDate || null,
                     };
 
                     // Include serial numbers if present

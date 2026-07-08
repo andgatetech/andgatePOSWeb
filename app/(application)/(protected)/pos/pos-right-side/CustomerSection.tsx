@@ -4,7 +4,7 @@ import IconUser from '@/components/icon/icon-user';
 import IconX from '@/components/icon/icon-x';
 import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
-import type { Customer, PosFormData } from './types';
+import { getAvailableCredit, getCustomerCreditLimit, getCustomerDue, type Customer, type PosFormData } from './types';
 
 interface CustomerSectionProps {
     formData: PosFormData;
@@ -149,8 +149,8 @@ const CustomerSection: React.FC<CustomerSectionProps> = ({
                                 </button>
                             </div>
                             {/* Loyalty & balance info */}
-                            {(Number(selectedCustomer.balance) > 0 || getMembershipDiscount(selectedCustomer.membership) > 0) && (
-                                <div className="mt-2 flex gap-2 border-t border-primary/10 pt-2">
+                            {(Number(selectedCustomer.balance) > 0 || getMembershipDiscount(selectedCustomer.membership) > 0 || getCustomerCreditLimit(selectedCustomer) > 0) && (
+                                <div className="mt-2 flex flex-wrap gap-2 border-t border-primary/10 pt-2">
                                     {getMembershipDiscount(selectedCustomer.membership) > 0 && (
                                         <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
                                             {getMembershipDiscount(selectedCustomer.membership)}% off
@@ -159,6 +159,23 @@ const CustomerSection: React.FC<CustomerSectionProps> = ({
                                     {Number(selectedCustomer.balance) > 0 && (
                                         <span className="inline-flex items-center gap-1 rounded-full bg-teal-50 px-2 py-0.5 text-xs font-medium text-teal-700">
                                             {formatCurrency(Number(selectedCustomer.balance))} balance
+                                        </span>
+                                    )}
+                                    {getCustomerCreditLimit(selectedCustomer) > 0 && (
+                                        <span
+                                            className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
+                                                getCustomerDue(selectedCustomer) >= getCustomerCreditLimit(selectedCustomer)
+                                                    ? 'bg-danger/10 text-danger'
+                                                    : getAvailableCredit(selectedCustomer) < getCustomerCreditLimit(selectedCustomer) * 0.2
+                                                      ? 'bg-warning/10 text-warning'
+                                                      : 'bg-blue-50 text-blue-700'
+                                            }`}
+                                            title={`${t('pos_current_due')}: ${formatCurrency(getCustomerDue(selectedCustomer))}`}
+                                        >
+                                            {t('pos_credit_limit')}: {formatCurrency(getCustomerCreditLimit(selectedCustomer))}
+                                            {getCustomerDue(selectedCustomer) > 0 && (
+                                                <span className="opacity-75">({formatCurrency(getAvailableCredit(selectedCustomer))} {t('pos_available')})</span>
+                                            )}
                                         </span>
                                     )}
                                 </div>

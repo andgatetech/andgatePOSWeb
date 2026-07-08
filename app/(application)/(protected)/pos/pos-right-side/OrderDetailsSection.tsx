@@ -45,6 +45,10 @@ interface InvoiceItem {
     warranty?: Warranty | null;
     has_serial?: boolean;
     has_warranty?: boolean;
+    batchNo?: string;
+    expiryDate?: string;
+    has_batch?: boolean;
+    has_expiry?: boolean;
     // Return mode fields
     isReturnItem?: boolean;
     orderItemId?: number;
@@ -100,6 +104,17 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
             return formatCurrency(basePrice + taxAmount);
         }
         return formatCurrency(basePrice);
+    };
+
+    const getExpiryStatus = (expiryDate?: string): 'expired' | 'near' | 'ok' | null => {
+        if (!expiryDate) return null;
+        const expiry = new Date(expiryDate);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (expiry < today) return 'expired';
+        const daysUntilExpiry = Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+        if (daysUntilExpiry <= 30) return 'near';
+        return 'ok';
     };
 
     return (
@@ -234,6 +249,32 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                                                     ? `${item.warranty.duration_days}d`
                                                                     : t('lbl_lifetime')}
                                                             </span>
+                                                        </div>
+                                                    )}
+                                                    {/* Batch / Expiry Badge */}
+                                                    {(item.has_batch || item.has_expiry) && (
+                                                        <div className="mt-1 flex flex-wrap gap-1">
+                                                            {item.has_batch && item.batchNo && (
+                                                                <span className="inline-flex items-center gap-1 rounded bg-blue-100 px-2 py-0.5 text-xs text-blue-700" title={t('lbl_batch_number')}>
+                                                                    {t('lbl_batch_short')}: {item.batchNo}
+                                                                </span>
+                                                            )}
+                                                            {item.has_expiry && item.expiryDate && (
+                                                                <span
+                                                                    className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs ${
+                                                                        getExpiryStatus(item.expiryDate) === 'expired'
+                                                                            ? 'bg-red-100 text-red-700'
+                                                                            : getExpiryStatus(item.expiryDate) === 'near'
+                                                                              ? 'bg-amber-100 text-amber-700'
+                                                                              : 'bg-green-100 text-green-700'
+                                                                    }`}
+                                                                    title={t('lbl_expiry_date')}
+                                                                >
+                                                                    {t('lbl_expiry_short')}: {item.expiryDate}
+                                                                    {getExpiryStatus(item.expiryDate) === 'expired' && ` (${t('lbl_expired')})`}
+                                                                    {getExpiryStatus(item.expiryDate) === 'near' && ` (${t('lbl_expiring_soon')})`}
+                                                                </span>
+                                                            )}
                                                         </div>
                                                     )}
                                                 </div>

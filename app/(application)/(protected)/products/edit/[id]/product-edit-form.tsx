@@ -108,6 +108,7 @@ const ProductEditForm = () => {
         brand_id: '',
         brand_name: '',
         product_name: '',
+        generic_name: '',
         description: '',
         price: '',
         wholesale_price: '',
@@ -124,6 +125,11 @@ const ProductEditForm = () => {
         has_attributes: false,
         has_warranty: false,
         has_serial: false,
+        has_batch: false,
+        has_expiry: false,
+        batch_no: '',
+        purchase_date: '',
+        expiry_date: '',
     });
 
     // Populate form data when product is loaded
@@ -157,6 +163,7 @@ const ProductEditForm = () => {
                 brand_id: product.brand_id?.toString() || '',
                 brand_name: product.brand_name || product.brand?.name || '',
                 product_name: product.product_name || '',
+                generic_name: product.generic_name || '',
                 description: product.description || '',
                 price: firstStock?.price?.toString() || '',
                 wholesale_price: firstStock?.wholesale_price?.toString() || '',
@@ -173,6 +180,11 @@ const ProductEditForm = () => {
                 has_attributes: product.has_attributes || product.has_attribute || false,
                 has_warranty: product.has_warranty || false,
                 has_serial: product.has_serial || false,
+                has_batch: product.has_batch || false,
+                has_expiry: product.has_expiry || false,
+                batch_no: firstStock?.batch_no || '',
+                purchase_date: firstStock?.purchase_date || '',
+                expiry_date: firstStock?.expiry_date || '',
             });
 
             // Set images - Now images are in stocks, get from first stock for simple products
@@ -290,6 +302,7 @@ const ProductEditForm = () => {
                     category_id: product.category_id?.toString() || '',
                     brand_id: product.brand_id?.toString() || '',
                     product_name: product.product_name || '',
+                    generic_name: product.generic_name || '',
                     description: product.description || '',
                     price: firstStock?.price?.toString() || '',
                     wholesale_price: firstStock?.wholesale_price?.toString() || '',
@@ -306,6 +319,11 @@ const ProductEditForm = () => {
                     has_attributes: product.has_attributes || product.has_attribute || false,
                     has_warranty: product.has_warranty || false,
                     has_serial: product.has_serial || false,
+                    has_batch: product.has_batch || false,
+                    has_expiry: product.has_expiry || false,
+                    batch_no: firstStock?.batch_no || '',
+                    purchase_date: firstStock?.purchase_date || '',
+                    expiry_date: firstStock?.expiry_date || '',
                 },
                 attributes: normalizedAttributes,
                 stocks: transformedStocks,
@@ -470,6 +488,7 @@ const ProductEditForm = () => {
             available: stock.available || 'yes',
             batch_no: normalizeValue(stock.batch_no),
             purchase_date: normalizeValue(stock.purchase_date),
+            expiry_date: normalizeValue(stock.expiry_date),
             unit: normalizeValue(stock.unit),
             variant_data: Object.fromEntries(
                 Object.entries(stock.variant_data || {})
@@ -510,8 +529,9 @@ const ProductEditForm = () => {
         tax_rate: formData.tax_rate || '0',
         tax_included: formData.tax_included,
         available: formData.available,
-        batch_no: '',
-        purchase_date: '',
+        batch_no: formData.batch_no || '',
+        purchase_date: formData.purchase_date || '',
+        expiry_date: formData.expiry_date || '',
         unit: formData.units || 'pcs',
         variant_data: {},
         images: images || [],
@@ -577,6 +597,8 @@ const ProductEditForm = () => {
             appendIfChanged('has_serial', formData.has_serial ? '1' : '0', original.formData.has_serial ? '1' : '0');
             appendIfChanged('has_warranty', formData.has_warranty ? '1' : '0', original.formData.has_warranty ? '1' : '0');
             appendIfChanged('has_attributes', formData.has_attributes ? '1' : '0', original.formData.has_attributes ? '1' : '0');
+            appendIfChanged('has_batch', formData.has_batch ? '1' : '0', original.formData.has_batch ? '1' : '0');
+            appendIfChanged('has_expiry', formData.has_expiry ? '1' : '0', original.formData.has_expiry ? '1' : '0');
             appendIfChanged('available', formData.available, original.formData.available);
 
             if (normalizeValue(formData.units) !== normalizeValue(original.formData.units)) {
@@ -658,6 +680,9 @@ const ProductEditForm = () => {
                 }
                 if (normalizeValue(stock.purchase_date)) {
                     fd.append(`stocks[${index}][purchase_date]`, normalizeValue(stock.purchase_date));
+                }
+                if (normalizeValue(stock.expiry_date)) {
+                    fd.append(`stocks[${index}][expiry_date]`, normalizeValue(stock.expiry_date));
                 }
 
                 Object.entries(stock.variant_data || {}).forEach(([key, value]) => {

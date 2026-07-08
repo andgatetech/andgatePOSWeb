@@ -50,6 +50,8 @@ const ProductCreateForm = () => {
             setFormData((prev) => ({ ...prev, has_attributes: true }));
         } else if (isRestaurant) {
             setFormData((prev) => ({ ...prev, available: 'yes', quantity: '0' }));
+        } else if (isPharmacy || isGrocery) {
+            setFormData((prev) => ({ ...prev, has_batch: true, has_expiry: true }));
         }
     }, [storeType]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -116,6 +118,11 @@ const ProductCreateForm = () => {
         has_attributes: false,
         has_warranty: false,
         has_serial: false,
+        has_batch: false,
+        has_expiry: false,
+        batch_no: '',
+        purchase_date: '',
+        expiry_date: '',
     });
 
     // Tab completion validation functions
@@ -442,8 +449,9 @@ const ProductCreateForm = () => {
             tax_rate: formData.tax_rate || '0',
             tax_included: formData.tax_included || false,
             available: formData.available,
-            batch_no: '',
-            purchase_date: '',
+            batch_no: formData.batch_no || '',
+            purchase_date: formData.purchase_date || '',
+            expiry_date: formData.expiry_date || '',
             unit: formData.units || 'pcs',
             variant_data: {},
             images: images || [], // Use general product images
@@ -640,6 +648,7 @@ const ProductCreateForm = () => {
                 brand_id: '',
                 brand_name: '',
                 product_name: '',
+                generic_name: '',
                 description: '',
                 price: '',
                 wholesale_price: '',
@@ -655,6 +664,11 @@ const ProductCreateForm = () => {
                 has_attributes: false,
                 has_warranty: false,
                 has_serial: false,
+                has_batch: false,
+                has_expiry: false,
+                batch_no: '',
+                purchase_date: '',
+                expiry_date: '',
             });
             setImages([]);
             setProductAttributes([]);

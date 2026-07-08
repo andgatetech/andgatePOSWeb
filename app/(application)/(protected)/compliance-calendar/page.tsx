@@ -119,6 +119,7 @@ export default function ComplianceCalendarPage() {
                 date: company.trade_license_expiry.slice(0, 10),
                 type: 'license',
                 note: company.trade_license_no ? `${isBn ? 'লাইসেন্স নং' : 'License No'}: ${company.trade_license_no}` : undefined,
+                createdAt: Date.now(),
             });
         }
 
@@ -129,6 +130,7 @@ export default function ComplianceCalendarPage() {
                 date: '', // No expiry known; shown as info
                 type: 'registration',
                 note: `BIN: ${company.bin_no}`,
+                createdAt: Date.now(),
             });
         }
 
@@ -139,6 +141,7 @@ export default function ComplianceCalendarPage() {
                 date: '',
                 type: 'registration',
                 note: `TIN: ${company.tin_no}`,
+                createdAt: Date.now(),
             });
         }
 
@@ -149,6 +152,7 @@ export default function ComplianceCalendarPage() {
                 date: '',
                 type: 'registration',
                 note: `RJSC: ${company.rjsc_no}`,
+                createdAt: Date.now(),
             });
         }
 

@@ -21,6 +21,8 @@ interface PurchaseItem {
     sku?: string; // SKU for existing products
     supplierId?: number; // Supplier ID for this item
     status?: string; // ordered, partially_received, received
+    batchNo?: string; // Batch number for batch-tracked products
+    expiryDate?: string; // Expiry date for expiry-tracked products
 }
 
 interface Supplier {

@@ -45,6 +45,12 @@ export interface ReturnItem {
     warranty?: Warranty | null;
     has_serial?: boolean;
     has_warranty?: boolean;
+
+    // Batch & Expiry Support
+    batchNo?: string;
+    expiryDate?: string;
+    has_batch?: boolean;
+    has_expiry?: boolean;
 }
 
 // New item for exchange
@@ -71,6 +77,12 @@ export interface ExchangeItem {
     warranty?: Warranty | null;
     has_serial?: boolean;
     has_warranty?: boolean;
+
+    // Batch & Expiry Support
+    batchNo?: string;
+    expiryDate?: string;
+    has_batch?: boolean;
+    has_expiry?: boolean;
 }
 
 // Per-store return session state

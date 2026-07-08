@@ -8,6 +8,7 @@ export interface Customer {
     membership: MembershipTier | string;
     points: number | string;
     balance: string | number;
+    credit_limit?: string | number;
     is_active: boolean | number;
 }
 
@@ -51,3 +52,58 @@ export interface PosFormData {
     couponDiscount: number;
     couponId: number | null;
 }
+
+/**
+ * Credit-limit helpers for POS soft enforcement.
+ * In this system a negative `balance` means the customer owes money (due).
+ */
+export const getCustomerDue = (customer?: Customer | null): number => {
+    if (!customer) return 0;
+    const balance = Number(customer.balance || 0);
+    return balance < 0 ? Math.abs(balance) : 0;
+};
+
+export const getCustomerCreditLimit = (customer?: Customer | null): number => {
+    if (!customer) return 0;
+    const limit = Number(customer.credit_limit ?? 0);
+    return limit > 0 ? limit : 0;
+};
+
+export const getAvailableCredit = (customer?: Customer | null): number => {
+    const limit = getCustomerCreditLimit(customer);
+    if (!limit) return 0;
+    return Math.max(0, limit - getCustomerDue(customer));
+};
+
+export interface CreditLimitCheckResult {
+    wouldExceed: boolean;
+    currentDue: number;
+    creditLimit: number;
+    availableCredit: number;
+    projectedDue: number;
+    overBy: number;
+}
+
+export const checkCreditLimit = (
+    customer: Customer | null | undefined,
+    newDueAmount: number
+): CreditLimitCheckResult => {
+    const currentDue = getCustomerDue(customer);
+    const creditLimit = getCustomerCreditLimit(customer);
+    const availableCredit = getAvailableCredit(customer);
+    const projectedDue = currentDue + newDueAmount;
+
+    if (!creditLimit) {
+        return { wouldExceed: false, currentDue, creditLimit: 0, availableCredit: 0, projectedDue, overBy: 0 };
+    }
+
+    const wouldExceed = projectedDue > creditLimit;
+    return {
+        wouldExceed,
+        currentDue,
+        creditLimit,
+        availableCredit,
+        projectedDue,
+        overBy: wouldExceed ? projectedDue - creditLimit : 0,
+    };
+};

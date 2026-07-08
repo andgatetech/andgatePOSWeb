@@ -40,6 +40,10 @@ interface InvoiceItem {
     warranty?: Warranty | null;
     has_serial?: boolean;
     has_warranty?: boolean;
+    batchNo?: string;
+    expiryDate?: string;
+    has_batch?: boolean;
+    has_expiry?: boolean;
 }
 
 interface ItemPreviewModalProps {
@@ -60,6 +64,17 @@ const ItemPreviewModal: React.FC<ItemPreviewModalProps> = ({ isOpen, onClose, it
             return formatCurrency(basePrice + taxAmount);
         }
         return formatCurrency(basePrice);
+    };
+
+    const getExpiryStatus = (expiryDate?: string): 'expired' | 'near' | 'ok' | null => {
+        if (!expiryDate) return null;
+        const expiry = new Date(expiryDate);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (expiry < today) return 'expired';
+        const daysUntilExpiry = Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+        if (daysUntilExpiry <= 30) return 'near';
+        return 'ok';
     };
 
     return (
@@ -84,6 +99,24 @@ const ItemPreviewModal: React.FC<ItemPreviewModalProps> = ({ isOpen, onClose, it
                         {item.isWholesale && <span className="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700">{t('lbl_wholesale')}</span>}
                         {item.has_serial && <span className="inline-flex items-center rounded-full bg-indigo-100 px-3 py-1 text-xs font-medium text-indigo-700">{t('lbl_serialized')}</span>}
                         {item.has_warranty && <span className="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">{t('lbl_has_warranty')}</span>}
+                        {item.has_batch && item.batchNo && (
+                            <span className="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700">{t('lbl_batch_short')}: {item.batchNo}</span>
+                        )}
+                        {item.has_expiry && item.expiryDate && (
+                            <span
+                                className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${
+                                    getExpiryStatus(item.expiryDate) === 'expired'
+                                        ? 'bg-red-100 text-red-700'
+                                        : getExpiryStatus(item.expiryDate) === 'near'
+                                          ? 'bg-amber-100 text-amber-700'
+                                          : 'bg-green-100 text-green-700'
+                                }`}
+                            >
+                                {t('lbl_expiry_short')}: {item.expiryDate}
+                                {getExpiryStatus(item.expiryDate) === 'expired' && ` (${t('lbl_expired')})`}
+                                {getExpiryStatus(item.expiryDate) === 'near' && ` (${t('lbl_expiring_soon')})`}
+                            </span>
+                        )}
                     </div>
                 </div>
 

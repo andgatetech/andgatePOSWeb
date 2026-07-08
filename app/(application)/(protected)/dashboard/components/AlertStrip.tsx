@@ -4,7 +4,7 @@ import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import { useGetDashboardAlertsQuery } from '@/store/features/dashboard/dashboad';
-import { AlertTriangle, Package, ShoppingBag, Wallet } from 'lucide-react';
+import { AlertTriangle, CalendarClock, Package, ShoppingBag, Wallet } from 'lucide-react';
 import Link from 'next/link';
 
 export default function AlertStrip() {
@@ -62,6 +62,22 @@ export default function AlertStrip() {
             href: '/reports/sales',
             bg: 'bg-blue-50 border-blue-200 text-blue-700',
             dot: 'bg-blue-500',
+        },
+        {
+            show: alerts.expired_stock > 0,
+            icon: CalendarClock,
+            label: `${alerts.expired_stock} ${t('lbl_expired_stock')}`,
+            href: '/reports/stock',
+            bg: 'bg-red-50 border-red-200 text-red-700',
+            dot: 'bg-red-500',
+        },
+        {
+            show: alerts.near_expiry_stock > 0,
+            icon: CalendarClock,
+            label: `${alerts.near_expiry_stock} ${t('lbl_near_expiry_stock')}`,
+            href: '/reports/stock',
+            bg: 'bg-amber-50 border-amber-200 text-amber-700',
+            dot: 'bg-amber-500',
         },
     ].filter((c) => c.show);
 

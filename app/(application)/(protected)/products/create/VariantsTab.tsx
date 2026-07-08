@@ -2,7 +2,6 @@
 
 import { getTranslation } from '@/i18n';
 import { useCurrency } from '@/hooks/useCurrency';
-import { useStoreType } from '@/hooks/useStoreType';
 import { ChevronDown, ChevronUp, Copy, Image as ImageIcon, Package, Plus, Trash2, X } from 'lucide-react';
 import Image from 'next/image';
 import React, { useState } from 'react';
@@ -43,6 +42,8 @@ interface VariantsTabProps {
     defaultUnit: string;
     formData: {
         product_name: string;
+        has_batch?: boolean;
+        has_expiry?: boolean;
     };
     onPrevious: () => void;
     onNext: () => void;
@@ -66,7 +67,6 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
 }) => {
     const { t } = getTranslation();
     const { symbol } = useCurrency();
-    const { isPharmacy } = useStoreType();
     const [expandedVariantIndex, setExpandedVariantIndex] = useState<number | null>(null);
     const maxImagesPerVariant = 5;
 
@@ -380,19 +380,22 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                             />
                                         </div>
 
-                                        {isPharmacy && (
+                                        {(formData.has_batch || formData.has_expiry) && (
                                         <>
+                                        {formData.has_batch && (
                                         <div>
                                             <label className="mb-1.5 block text-sm font-medium text-gray-700">{t('lbl_batch_number')}</label>
                                             <input
                                                 type="text"
                                                 value={stock.batch_no}
                                                 onChange={(e) => handleVariantChange(index, 'batch_no', e.target.value)}
-                                                placeholder={t('lbl_optional')}
+                                                placeholder={t('placeholder_batch_number')}
                                                 className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
                                             />
                                         </div>
+                                        )}
 
+                                        {formData.has_batch && (
                                         <div>
                                             <label className="mb-1.5 block text-sm font-medium text-gray-700">{t('lbl_purchase_date')}</label>
                                             <input
@@ -402,7 +405,9 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                                 className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
                                             />
                                         </div>
+                                        )}
 
+                                        {formData.has_expiry && (
                                         <div>
                                             <label className="mb-1.5 block text-sm font-medium text-gray-700">{t('lbl_expiry_date')}</label>
                                             <input
@@ -412,6 +417,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                                 className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
                                             />
                                         </div>
+                                        )}
                                         </>
                                         )}
                                     </div>

@@ -14,6 +14,8 @@ export interface Product {
     has_serial?: boolean;
     has_warranty?: boolean;
     has_attribute?: boolean;
+    has_batch?: boolean;
+    has_expiry?: boolean;
     created_at?: string;
     serials?: any[];
     available_serial_count?: number;
@@ -38,6 +40,9 @@ export interface Stock {
     barcode?: string;
     low_stock_quantity?: number;
     available?: string;
+    batch_no?: string;
+    purchase_date?: string;
+    expiry_date?: string;
     images?: ProductImage[];
 }
 

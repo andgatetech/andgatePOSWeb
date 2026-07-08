@@ -494,6 +494,11 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                 has_serial: product.has_serial || false,
                 has_warranty: product.has_warranty,
                 warranty: product.has_warranty && product.warranties && product.warranties.length > 0 ? product.warranties[0] : null,
+                // Batch & Expiry support
+                has_batch: product.has_batch || false,
+                has_expiry: product.has_expiry || false,
+                batchNo: primaryStock?.batch_no || '',
+                expiryDate: primaryStock?.expiry_date || '',
             };
 
             // Dispatch to appropriate Redux slice with storeId
@@ -640,6 +645,11 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                 has_serial: variantProduct.has_serial || false,
                 has_warranty: variantProduct.has_warranty,
                 warranty: variantWarranty,
+                // Batch & Expiry support
+                has_batch: variantProduct.has_batch || false,
+                has_expiry: variantProduct.has_expiry || false,
+                batchNo: variant.batch_no || '',
+                expiryDate: variant.expiry_date || '',
             };
 
             // Dispatch to appropriate Redux slice with storeId
@@ -731,6 +741,11 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                     serials: [serial], // Single serial per item
                     has_warranty: serialProduct.has_warranty,
                     warranty: warranty,
+                    // Batch & Expiry support
+                    has_batch: serialProduct.has_batch || false,
+                    has_expiry: serialProduct.has_expiry || false,
+                    batchNo: serialStock?.batch_no || '',
+                    expiryDate: serialStock?.expiry_date || '',
                 };
 
                 // Dispatch to appropriate Redux slice with storeId

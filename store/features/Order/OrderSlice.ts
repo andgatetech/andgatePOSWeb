@@ -43,6 +43,12 @@ export interface Item {
     warranty?: Warranty | null; // Warranty info if product has warranty
     has_serial?: boolean; // Flag from backend
     has_warranty?: boolean; // Flag from backend
+
+    // Batch & Expiry Support
+    batchNo?: string; // Batch number for batch-tracked products
+    expiryDate?: string; // Expiry date for expiry-tracked products
+    has_batch?: boolean; // Flag from backend
+    has_expiry?: boolean; // Flag from backend
 }
 
 interface InvoiceState {

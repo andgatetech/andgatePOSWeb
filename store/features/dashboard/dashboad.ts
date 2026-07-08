@@ -113,6 +113,16 @@ const DashboardApi = baseApi.injectEndpoints({
             }),
             providesTags: ['Dashboard'],
         }),
+        getDashboardExpiryAlerts: builder.query({
+            query: (params) => {
+                const q = new URLSearchParams();
+                if (params?.store_id) q.append('store_id', params.store_id);
+                if (params?.limit) q.append('limit', String(params.limit));
+                const qs = q.toString();
+                return { url: `/dashboard/expiry-alerts${qs ? `?${qs}` : ''}`, method: 'GET' };
+            },
+            providesTags: ['Dashboard'],
+        }),
         getDashboardProfitTrend: builder.query({
             query: (params) => ({
                 url: `/dashboard/profit-trend${params?.store_id ? `?store_id=${params.store_id}` : ''}`,
@@ -196,6 +206,7 @@ export const {
     useGetDashboardSectionsFourQuery,
     useGetDashboardSectionsFiveQuery,
     useGetDashboardAlertsQuery,
+    useGetDashboardExpiryAlertsQuery,
     useGetDashboardProfitTrendQuery,
     useGetDashboardTopCustomersQuery,
     useGetDashboardCustomerDuesQuery,
