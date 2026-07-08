@@ -8,7 +8,7 @@ import { addCrmTask, buildWhatsAppUrl, CrmTask, getCrmTasks, updateCrmTaskStatus
 import { showMessage } from '@/lib/toast';
 import { useGetCustomerDuesQuery } from '@/store/features/customerDue/customerDueApi';
 import { useGetCustomerPointTransactionsQuery, useGetSingleCustomerQuery } from '@/store/features/customer/customer';
-import { ArrowLeft, CalendarClock, CheckCircle2, Clock, Gift, MessageCircle, Phone, Plus, Receipt, StickyNote, UserRound, Wallet } from 'lucide-react';
+import { ArrowLeft, CalendarClock, CheckCircle2, Clock, FileText, Gift, MessageCircle, Phone, Plus, Receipt, StickyNote, UserRound, Wallet } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
@@ -295,6 +295,14 @@ export default function Customer360Page() {
                         <div className="rounded-lg bg-gray-50 p-3">
                             <div className="flex items-center gap-2 text-gray-500"><Receipt className="h-4 w-4" /> {t('lbl_credit_limit')}</div>
                             <p className="mt-2 font-bold text-gray-900">{customer.credit_limit ? formatCurrency(customer.credit_limit) : '-'}</p>
+                        </div>
+                        <div className="rounded-lg bg-gray-50 p-3">
+                            <div className="flex items-center gap-2 text-gray-500"><FileText className="h-4 w-4" /> {t('lbl_bin_no')}</div>
+                            <p className="mt-2 font-bold text-gray-900">{customer.bin_no || '-'}</p>
+                        </div>
+                        <div className="rounded-lg bg-gray-50 p-3">
+                            <div className="flex items-center gap-2 text-gray-500"><FileText className="h-4 w-4" /> {t('lbl_tin_no')}</div>
+                            <p className="mt-2 font-bold text-gray-900">{customer.tin_no || '-'}</p>
                         </div>
                     </div>
                     {customer.details && <p className="mt-4 rounded-lg bg-gray-50 p-3 text-sm text-gray-600">{customer.details}</p>}

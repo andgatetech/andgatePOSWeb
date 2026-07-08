@@ -587,6 +587,11 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                 requiredPermissions: ['stores.view'],
             },
             {
+                label: 'Compliance Calendar',
+                href: '/compliance-calendar',
+                requiredPermissions: ['stores.view'],
+            },
+            {
                 label: 'Package & Payments',
                 href: '/manual-payments',
                 ownerOnly: true,

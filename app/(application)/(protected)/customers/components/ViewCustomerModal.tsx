@@ -69,6 +69,8 @@ const ViewCustomerModal: React.FC<ViewCustomerModalProps> = ({ customer, isOpen,
         { label: t('customer_address_information'), value: address },
         { label: t('customer_delivery_note'), value: customer.delivery_note },
         { label: t('lbl_credit_limit'), value: customer.credit_limit ? formatCurrency(customer.credit_limit) : null },
+        { label: t('lbl_bin_no'), value: customer.bin_no },
+        { label: t('lbl_tin_no'), value: customer.tin_no },
         { label: t('customer_nid_no'), value: customer.nid_no },
     ].filter((row) => row.value);
 

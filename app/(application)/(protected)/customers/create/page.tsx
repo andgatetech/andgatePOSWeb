@@ -487,8 +487,8 @@ const CreateCustomerPage = () => {
                                         <input id="trade_name" name="trade_name" type="text" value={formData.trade_name} onChange={handleChange} placeholder={t('customer_trade_name_placeholder')} className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-primary" />
                                     </div>
                                     <div>
-                                        <label htmlFor="bin_no" className="mb-2 block text-sm font-medium text-gray-700">BIN / VAT Reg No</label>
-                                        <input id="bin_no" name="bin_no" type="text" value={formData.bin_no} onChange={handleChange} placeholder="Customer BIN for Mushak invoice" className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-primary" />
+                                        <label htmlFor="bin_no" className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_bin_no')}</label>
+                                        <input id="bin_no" name="bin_no" type="text" value={formData.bin_no} onChange={handleChange} placeholder={t('customer_bin_no_placeholder')} className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-primary" />
                                     </div>
                                     <div>
                                         <label htmlFor="nid_no" className="mb-2 block text-sm font-medium text-gray-700">{t('customer_nid_no')}</label>

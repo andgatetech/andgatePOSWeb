@@ -25,6 +25,7 @@ interface CustomerFormData {
     credit_limit: string;
     nid_no: string;
     trade_name: string;
+    bin_no: string;
     is_active: boolean;
     address_line1: string;
     address_line2: string;
@@ -61,6 +62,7 @@ const EditCustomerPage = () => {
         credit_limit: '',
         nid_no: '',
         trade_name: '',
+        bin_no: '',
         is_active: true,
         address_line1: '',
         address_line2: '',
@@ -96,6 +98,7 @@ const EditCustomerPage = () => {
                 credit_limit: customer.credit_limit || '',
                 nid_no: customer.nid_no || '',
                 trade_name: customer.trade_name || '',
+                bin_no: customer.bin_no || '',
                 is_active: customer.is_active === true || customer.is_active === 1,
                 address_line1: customer.address_line1 || '',
                 address_line2: customer.address_line2 || '',
@@ -178,6 +181,7 @@ const EditCustomerPage = () => {
                 credit_limit: formData.credit_limit ? Number(formData.credit_limit) : null,
                 nid_no: formData.nid_no.trim() || null,
                 trade_name: formData.trade_name.trim() || null,
+                bin_no: formData.bin_no.trim() || null,
                 is_active: formData.is_active,
                 address_line1: formData.address_line1.trim() || null,
                 address_line2: formData.address_line2.trim() || null,
@@ -471,6 +475,10 @@ const EditCustomerPage = () => {
                                     <div>
                                         <label htmlFor="trade_name" className="mb-2 block text-sm font-medium text-gray-700">{t('customer_trade_name')}</label>
                                         <input id="trade_name" name="trade_name" type="text" value={formData.trade_name} onChange={handleChange} placeholder={t('customer_trade_name_placeholder')} className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500" />
+                                    </div>
+                                    <div>
+                                        <label htmlFor="bin_no" className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_bin_no')}</label>
+                                        <input id="bin_no" name="bin_no" type="text" value={formData.bin_no} onChange={handleChange} placeholder={t('customer_bin_no_placeholder')} className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500" />
                                     </div>
                                     <div>
                                         <label htmlFor="nid_no" className="mb-2 block text-sm font-medium text-gray-700">{t('customer_nid_no')}</label>

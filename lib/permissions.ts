@@ -300,6 +300,9 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     // ── Company Management ─────────────────────────────────────
     '/company': ['stores.view'],
 
+    // ── Compliance Calendar ────────────────────────────────────
+    '/compliance-calendar': ['stores.view'],
+
     // ── Data Export ────────────────────────────────────────────
     '/data-export': ['stores.view'],
 
