@@ -201,6 +201,16 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     '/accounting/trial-balance': ['accounting.reports.view'],
     '/accounting/cash-flow': ['accounting.reports.view'],
 
+    // ── Analytics & BI ──────────────────────────────────────────
+    '/analytics/custom-reports': ['analytics.custom_reports'],
+    '/analytics/custom-reports/[id]': ['analytics.custom_reports'],
+    '/analytics/scheduled-reports': ['analytics.scheduled_reports'],
+    '/analytics/dashboard-widgets': ['analytics.dashboard_widgets'],
+    '/analytics/sales-tv': ['analytics.sales_tv'],
+    '/analytics/branch-benchmarking': ['analytics.branch_benchmark'],
+    '/analytics/cash-flow-forecast': ['analytics.cashflow_forecast'],
+    '/analytics/break-even': ['analytics.breakeven'],
+
     // ── Expenses ───────────────────────────────────────────────
     '/expenses/expense-list': ['expenses.index'],
     '/expenses/create': ['expenses.index'],

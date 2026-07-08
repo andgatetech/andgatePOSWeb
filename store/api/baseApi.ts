@@ -170,6 +170,9 @@ export const baseApi = createApi({
         'StockTransfer',
         'BankAccounts',
         'BankTransactions',
+        'CustomReports',
+        'ScheduledReports',
+        'DashboardLayout',
     ],
     endpoints: () => ({}),
 });

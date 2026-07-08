@@ -1,9 +1,11 @@
 'use client';
 
+import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import { RootState } from '@/store';
+import { useGetDashboardLayoutQuery } from '@/store/features/analytics/analyticsApi';
 import ManualPaymentsPage from '../../manual-payments/page';
 import AlertStrip from './AlertStrip';
 import Analytics from './Analytics';
@@ -19,16 +21,71 @@ import SubscriptionPaymentStatus from './SubscriptionPaymentStatus';
 import Summary from './Summary';
 import TopCustomers from './TopCustomers';
 
+const DEFAULT_WIDGETS = [
+    { key: 'business_health', visible: true, order: 1, cols: 12 },
+    { key: 'quick_actions', visible: true, order: 2, cols: 12 },
+    { key: 'onboarding', visible: true, order: 3, cols: 12 },
+    { key: 'subscription', visible: true, order: 4, cols: 12 },
+    { key: 'summary', visible: true, order: 5, cols: 12 },
+    { key: 'alerts', visible: true, order: 6, cols: 12 },
+    { key: 'customer_due', visible: true, order: 7, cols: 12 },
+    { key: 'analytics', visible: true, order: 8, cols: 12 },
+    { key: 'sections', visible: true, order: 9, cols: 12 },
+    { key: 'section_four', visible: true, order: 10, cols: 12 },
+    { key: 'profit_expense', visible: true, order: 11, cols: 12 },
+    { key: 'section_five', visible: true, order: 12, cols: 9 },
+    { key: 'top_customers', visible: true, order: 13, cols: 3 },
+];
+
+const widgetComponents: Record<string, React.ReactNode> = {
+    business_health: <BusinessHealthScore />,
+    quick_actions: <QuickActions />,
+    onboarding: <OnboardingChecklist />,
+    subscription: (
+        <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+            <SubscriptionPaymentStatus />
+        </div>
+    ),
+    summary: <Summary />,
+    alerts: <AlertStrip />,
+    customer_due: <CustomerDueSnapshot />,
+    analytics: <Analytics />,
+    sections: <DashboardSections />,
+    section_four: <SectionFour />,
+    profit_expense: <ProfitExpenseWidget />,
+    section_five: <SectionsFive />,
+    top_customers: <TopCustomers />,
+};
+
 const ComponentsDashboardSales = () => {
     const { t } = getTranslation();
-    const { currentStore } = useCurrentStore();
+    const { currentStore, currentStoreId } = useCurrentStore();
     const user = useSelector((state: RootState) => state.auth.user);
     const subscription = user?.subscription_user;
     const subscriptionExpired = !subscription || ['expired', 'blocked', 'hold'].includes(String(subscription.status || '').toLowerCase());
 
+    const canCustomize = user?.permissions?.includes('analytics.dashboard_widgets') ?? false;
+
+    const { data: layoutData } = useGetDashboardLayoutQuery(
+        currentStoreId ? { store_id: currentStoreId } : {},
+        { skip: !canCustomize }
+    );
+
+    const widgets = useMemo(() => {
+        const saved = layoutData?.data?.layout?.widgets;
+        if (canCustomize && saved?.length) {
+            return saved;
+        }
+        return DEFAULT_WIDGETS;
+    }, [layoutData, canCustomize]);
+
     if (subscriptionExpired) {
         return <ManualPaymentsPage />;
     }
+
+    const visibleWidgets = widgets
+        .filter((w: any) => w.visible !== false)
+        .sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
 
     return (
         <div className="space-y-6">
@@ -44,50 +101,38 @@ const ComponentsDashboardSales = () => {
                 </div>
             </div>
 
-            {/* ── 1. BUSINESS HEALTH SCORE — At-a-glance AI summary ── */}
-            <BusinessHealthScore />
+            {/* ── CUSTOMIZABLE WIDGETS ── */}
+            {visibleWidgets.map((widget: any) => {
+                const component = widgetComponents[widget.key];
+                if (!component) return null;
 
-            {/* ── 2. QUICK ACTIONS — Daily operations at your fingertips ── */}
-            <QuickActions />
+                if (widget.key === 'section_five' || widget.key === 'top_customers') {
+                    // Keep the existing side-by-side grid for these two widgets
+                    return null;
+                }
 
-            {/* ── 2. SETUP GUIDE — First-run configuration path ── */}
-            <OnboardingChecklist />
+                return (
+                    <div key={widget.key} className={widget.cols === 6 ? 'lg:w-1/2' : 'w-full'}>
+                        {component}
+                    </div>
+                );
+            })}
 
-            {/* ── 3. SUBSCRIPTION STATUS — Plan & payment ── */}
-            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-                <SubscriptionPaymentStatus />
-            </div>
-
-            {/* ── 4. KEY METRICS — Business performance at a glance ── */}
-            <Summary />
-
-            {/* ── 5. ALERTS + CUSTOMER DUES — What needs attention ── */}
-            <div className="space-y-4">
-                <AlertStrip />
-                <CustomerDueSnapshot />
-            </div>
-
-            {/* ── 6. SALES & PURCHASE TRENDS — Visual performance ── */}
-            <Analytics />
-
-            {/* ── 7. TOP SELLING / LOW STOCK / RECENT SALES ── */}
-            <DashboardSections />
-
-            {/* ── 8. PAYMENT METHODS + RECENT TRANSACTIONS ── */}
-            <SectionFour />
-
-            {/* ── 9. PROFIT TREND + EXPENSE BREAKDOWN ── */}
-            <ProfitExpenseWidget />
-
-            {/* ── 10. CATEGORIES / BRANDS / PURCHASED + TOP CUSTOMERS ── */}
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
-                <div className="lg:col-span-3">
-                    <SectionsFive />
+            {/* ── SECTIONS FIVE + TOP CUSTOMERS GRID ── */}
+            {visibleWidgets.some((w: any) => w.key === 'section_five' || w.key === 'top_customers') && (
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
+                    {visibleWidgets.find((w: any) => w.key === 'section_five')?.visible !== false && (
+                        <div className="lg:col-span-3">
+                            <SectionsFive />
+                        </div>
+                    )}
+                    {visibleWidgets.find((w: any) => w.key === 'top_customers')?.visible !== false && (
+                        <div className="lg:col-span-1">
+                            <TopCustomers />
+                        </div>
+                    )}
                 </div>
-                <div className="lg:col-span-1">
-                    <TopCustomers />
-                </div>
-            </div>
+            )}
         </div>
     );
 };

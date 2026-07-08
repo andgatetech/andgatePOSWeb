@@ -1,5 +1,5 @@
 // lib/menu-builder.tsx
-import { BarChart, Bell, BookOpen, BrainCircuit, BriefcaseBusiness, CalendarCheck, FileText, Home, Layers, Link2, MessagesSquare, Package, Receipt, Settings, Shield, ShoppingBag, ShoppingCart, Tag, Truck, Users } from 'lucide-react';
+import { BarChart, BarChart3, Bell, BookOpen, BrainCircuit, BriefcaseBusiness, CalendarCheck, FileText, Home, Layers, Link2, MessagesSquare, Package, Receipt, Settings, Shield, ShoppingBag, ShoppingCart, Tag, Truck, Users } from 'lucide-react';
 import React from 'react';
 
 export interface MenuItem {
@@ -345,6 +345,63 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                 label: 'Chart of Accounts',
                 href: '/accounting/chart-of-accounts',
                 requiredPermissions: ['accounting.accounts.index'],
+            },
+        ],
+    },
+    {
+        label: 'Analytics & BI',
+        icon: React.createElement(BarChart3),
+        requiredPermissions: [
+            'analytics.custom_reports',
+            'analytics.scheduled_reports',
+            'analytics.dashboard_widgets',
+            'analytics.sales_tv',
+            'analytics.branch_benchmark',
+            'analytics.cashflow_forecast',
+            'analytics.breakeven',
+        ],
+        subMenu: [
+            {
+                label: 'Custom Reports',
+                href: '/analytics/custom-reports',
+                requiredPermissions: ['analytics.custom_reports'],
+                requiredFeature: 'analytics.custom_reports',
+            },
+            {
+                label: 'Scheduled Reports',
+                href: '/analytics/scheduled-reports',
+                requiredPermissions: ['analytics.scheduled_reports'],
+                requiredFeature: 'analytics.scheduled_reports',
+            },
+            {
+                label: 'Dashboard Widgets',
+                href: '/analytics/dashboard-widgets',
+                requiredPermissions: ['analytics.dashboard_widgets'],
+                requiredFeature: 'analytics.dashboard_widgets',
+            },
+            {
+                label: 'Sales TV',
+                href: '/analytics/sales-tv',
+                requiredPermissions: ['analytics.sales_tv'],
+                requiredFeature: 'analytics.sales_tv',
+            },
+            {
+                label: 'Branch Benchmarking',
+                href: '/analytics/branch-benchmarking',
+                requiredPermissions: ['analytics.branch_benchmark'],
+                requiredFeature: 'analytics.branch_benchmark',
+            },
+            {
+                label: 'Cash-flow Forecast',
+                href: '/analytics/cash-flow-forecast',
+                requiredPermissions: ['analytics.cashflow_forecast'],
+                requiredFeature: 'analytics.cashflow_forecast',
+            },
+            {
+                label: 'Break-even Analysis',
+                href: '/analytics/break-even',
+                requiredPermissions: ['analytics.breakeven'],
+                requiredFeature: 'analytics.breakeven',
             },
         ],
     },
