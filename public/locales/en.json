@@ -6299,6 +6299,7 @@
   "closing_opening": "Opening cash",
   "closing_sales": "Cash sales",
   "closing_collection": "Due collection",
+  "closing_income": "Other cash income",
   "closing_expense": "Cash expense",
   "closing_supplier": "Supplier payment",
   "closing_actual": "Actual counted cash",

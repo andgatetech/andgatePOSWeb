@@ -30,12 +30,13 @@ export default function CashClosingPage() {
     const cashExpense = Number(prefill?.cash_expense || 0);
     const dueCollection = Number(prefill?.due_collection || 0);
     const supplierPayment = Number(prefill?.supplier_payment || 0);
+    const cashIncome = Number(prefill?.cash_income || 0);
 
     const closings = (data?.data?.closings || []).reverse();
 
     const expected = useMemo(() =>
-        openingCash + cashSales + dueCollection - cashExpense - supplierPayment,
-    [openingCash, cashSales, dueCollection, cashExpense, supplierPayment]);
+        openingCash + cashSales + dueCollection + cashIncome - cashExpense - supplierPayment,
+    [openingCash, cashSales, dueCollection, cashIncome, cashExpense, supplierPayment]);
     const difference = Number(form.actualCash || 0) - expected;
 
     const todayClosings = closings.filter((c: any) => {
@@ -131,10 +132,11 @@ export default function CashClosingPage() {
                         <p className="mb-2 flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-emerald-600">
                             <Lock className="h-3 w-3" /> {t('closing_cash_in')}
                         </p>
-                        <div className="grid gap-2 sm:grid-cols-3">
+                        <div className="grid gap-2 sm:grid-cols-4">
                             <LockedField label={t('closing_opening')} value={openingCash} loading={prefillLoading} formatCurrency={formatCurrency} />
                             <LockedField label={t('closing_sales')} value={cashSales} loading={prefillLoading} formatCurrency={formatCurrency} />
                             <LockedField label={t('closing_collection')} value={dueCollection} loading={prefillLoading} formatCurrency={formatCurrency} />
+                            <LockedField label={t('closing_income')} value={cashIncome} loading={prefillLoading} formatCurrency={formatCurrency} />
                         </div>
                     </div>
 
