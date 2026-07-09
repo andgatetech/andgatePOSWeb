@@ -832,6 +832,10 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         return Math.max(0, calculateBaseTotal());
     };
 
+    const calculatePaidQuoteTotal = () => {
+        return Math.max(0, calculateBaseTotal() + calculateTax());
+    };
+
     const quotePayload = useMemo(() => {
         if (isReturnMode || !currentStoreId || invoiceItems.length === 0 || (!formData.paymentMethod && !formData.isSplitPayment) || !formData.paymentStatus) {
             return null;
@@ -844,7 +848,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         }
 
         const isCash = formData.paymentMethod.toLowerCase() === 'cash';
-        const total = calculateTotal();
+        const total = calculatePaidQuoteTotal();
         const amountPaid = formData.paymentStatus === 'paid' ? (isCash ? Math.max(formData.amountPaid || 0, total) : total) : formData.paymentStatus === 'partial' ? formData.partialPaymentAmount : 0;
 
         return {
@@ -1178,9 +1182,13 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
 
             if (formData.paymentStatus === 'paid') {
                 // For paid status, use amountPaid for cash or full amount for other methods
-                const fallbackAmountPaid = formData.paymentMethod.toLowerCase() === 'cash' ? formData.amountPaid : grandTotal;
-                actualAmountPaid = Math.max(Number(freshPayment.amount_paid ?? fallbackAmountPaid), grandTotal);
-                actualChangeAmount = Number(freshPayment.change_amount ?? Math.max(actualAmountPaid - grandTotal, 0));
+                if (formData.paymentMethod.toLowerCase() === 'cash') {
+                    actualAmountPaid = Math.max(Number(freshPayment.amount_paid ?? formData.amountPaid), grandTotal);
+                    actualChangeAmount = Number(freshPayment.change_amount ?? Math.max(actualAmountPaid - grandTotal, 0));
+                } else {
+                    actualAmountPaid = grandTotal;
+                    actualChangeAmount = 0;
+                }
                 dueAmount = 0;
             } else if (formData.paymentStatus === 'partial') {
                 // For partial, use the partial payment amount
