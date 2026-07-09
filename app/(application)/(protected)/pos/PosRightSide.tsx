@@ -844,7 +844,8 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         }
 
         const isCash = formData.paymentMethod.toLowerCase() === 'cash';
-        const amountPaid = formData.paymentStatus === 'paid' ? (isCash ? formData.amountPaid : calculateTotal()) : formData.paymentStatus === 'partial' ? formData.partialPaymentAmount : 0;
+        const total = calculateTotal();
+        const amountPaid = formData.paymentStatus === 'paid' ? (isCash ? Math.max(formData.amountPaid || 0, total) : total) : formData.paymentStatus === 'partial' ? formData.partialPaymentAmount : 0;
 
         return {
             store_id: currentStoreId,
@@ -1177,8 +1178,9 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
 
             if (formData.paymentStatus === 'paid') {
                 // For paid status, use amountPaid for cash or full amount for other methods
-                actualAmountPaid = Number(freshPayment.amount_paid ?? (formData.paymentMethod.toLowerCase() === 'cash' ? formData.amountPaid : grandTotal));
-                actualChangeAmount = Number(freshPayment.change_amount ?? (formData.paymentMethod.toLowerCase() === 'cash' ? formData.changeAmount : 0));
+                const fallbackAmountPaid = formData.paymentMethod.toLowerCase() === 'cash' ? formData.amountPaid : grandTotal;
+                actualAmountPaid = Math.max(Number(freshPayment.amount_paid ?? fallbackAmountPaid), grandTotal);
+                actualChangeAmount = Number(freshPayment.change_amount ?? Math.max(actualAmountPaid - grandTotal, 0));
                 dueAmount = 0;
             } else if (formData.paymentStatus === 'partial') {
                 // For partial, use the partial payment amount
