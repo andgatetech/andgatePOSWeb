@@ -58,13 +58,18 @@ export const DEFAULT_PAYMENT_METHOD = {
     payment_method_name: 'cash',
 } as const;
 
-// Methods where payment is collected immediately — "due" status is not valid.
-// Matched by substring so "Cash on Delivery", "bKash", "Nagad" etc. are covered.
-const IMMEDIATE_METHOD_KEYWORDS = ['cash', 'bkash', 'nagad', 'rocket', 'upay', 'card', 'tap', 'gpay', 'paytm'];
+// Digital-transfer methods where money clears instantly — "due" status is not
+// valid for these. Matched by substring so "bKash Personal", "Nagad Merchant"
+// etc. are covered. Plain cash is deliberately NOT here: the standard BD credit
+// sale (বাকি) is "customer takes goods now, pays cash later" — a registered
+// customer must be able to take a cash order as due/partial. Walk-in customers
+// are already restricted to "paid" separately (PaymentSummarySection), so due
+// on cash only ever appears when a real customer is selected.
+const IMMEDIATE_METHOD_KEYWORDS = ['bkash', 'nagad', 'rocket', 'upay', 'card', 'tap', 'gpay', 'paytm'];
 
 /**
  * Returns the payment statuses that are valid for a given payment method.
- * Cash-like (immediate) methods cannot be "due" — money is received on the spot.
+ * Instant digital transfers cannot be "due" — money is received on the spot.
  */
 export function getAllowedStatusesForMethod(method: string): readonly string[] {
     const lower = (method || '').toLowerCase();
