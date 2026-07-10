@@ -22,24 +22,12 @@ const rawBaseQuery = fetchBaseQuery({
     },
 });
 
-const subscriptionErrorTypes = new Set([
-    'no_subscription',
-    'no_active_subscription',
-    'subscription_expired',
-    'expired',
-    'quota_exhausted',
-    'feature_not_in_plan',
-    'feature_unavailable',
-    'subscription_required',
-]);
-
-const renewalErrorTypes = new Set([
-    'no_subscription',
-    'no_active_subscription',
-    'subscription_expired',
-    'expired',
-    'subscription_required',
-]);
+// "No/expired subscription" states are now handled in-place by SubscriptionGate
+// (driven by redux user.subscription_user — no network round-trip needed), which
+// keeps the sidebar mounted. Only genuine active-subscription gaps (hit a plan's
+// quota/feature ceiling) still need this hard-navigate upsell — those aren't
+// covered by SubscriptionGate since the subscription itself is active.
+const upsellErrorTypes = new Set(['quota_exhausted', 'feature_not_in_plan', 'feature_unavailable']);
 
 const baseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> = async (args, api, extraOptions) => {
     const result = await rawBaseQuery(args, api, extraOptions);
@@ -63,7 +51,7 @@ const baseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> =
         typeof window !== 'undefined'
         && (result.error?.status === 402 || result.error?.status === 403)
         && typeof errorType === 'string'
-        && subscriptionErrorTypes.has(errorType)
+        && upsellErrorTypes.has(errorType)
         && !window.location.pathname.includes('/subscription')
         && !window.location.pathname.includes('/manual-payments')
         && !window.location.pathname.includes('/dashboard')
@@ -91,8 +79,7 @@ const baseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> =
 
         // Delay redirect to allow redux-persist to flush state before page unloads
         setTimeout(() => {
-            const targetPath = renewalErrorTypes.has(errorType) ? '/manual-payments' : '/subscription';
-            window.location.assign(`${targetPath}?${params.toString()}`);
+            window.location.assign(`/subscription?${params.toString()}`);
         }, 100);
     }
 
