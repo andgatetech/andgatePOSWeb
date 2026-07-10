@@ -16,12 +16,20 @@ const withPWA = require('@ducanh2912/next-pwa').default({
     workboxOptions: {
         disableDevLogs: true,
         additionalManifestEntries: [
-            { url: '/login', revision: null },
             { url: '/dashboard', revision: null },
             { url: '/pos', revision: null },
             { url: '/offline', revision: null },
         ],
         runtimeCaching: [
+            {
+                // Auth pages must always come from the network. Serving an old
+                // HTML shell with newer/older chunks can leave login blank.
+                urlPattern: ({ request, url }) =>
+                    request.mode === 'navigate' &&
+                    url.origin === self.location.origin &&
+                    ['/login', '/forgot-password', '/reset-password', '/register'].includes(url.pathname),
+                handler: 'NetworkOnly',
+            },
             {
                 // App shell pages — lets installed PWA refresh/reopen visited pages while offline.
                 // POS data still comes from the existing IndexedDB cache; this only caches HTML navigation.

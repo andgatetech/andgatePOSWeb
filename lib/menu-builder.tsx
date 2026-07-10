@@ -1,5 +1,5 @@
 // lib/menu-builder.tsx
-import { BarChart, BarChart3, Bell, BookOpen, BrainCircuit, BriefcaseBusiness, CalendarCheck, FileText, Home, Layers, Link2, MessagesSquare, Package, Receipt, Settings, Shield, ShoppingBag, ShoppingCart, Tag, Truck, Users } from 'lucide-react';
+import { BarChart, BarChart3, Bell, BookOpen, BrainCircuit, BriefcaseBusiness, CalendarCheck, FileText, Home, Layers, MessagesSquare, Package, Receipt, Settings, Shield, ShoppingBag, ShoppingCart, Tag, Truck, Users } from 'lucide-react';
 import React from 'react';
 
 export interface MenuItem {
@@ -551,34 +551,16 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         requiredPermissions: ['notifications.index'],
     },
     {
-        label: 'Affiliate Program',
-        icon: React.createElement(Link2),
-        sectionBreak: true,
-        requiredPermissions: ['affiliate.manage'],
-        subMenu: [
-            {
-                label: 'Affiliate Dashboard',
-                href: '/affiliate/portal',
-                requiredPermissions: ['affiliate.manage'],
-            },
-            {
-                label: 'Affiliate Admin',
-                href: '/affiliate/admin',
-                requiredPermissions: ['affiliate.manage'],
-            },
-        ],
-    },
-    {
         label: 'Ecommerce Management',
         icon: React.createElement(ShoppingBag),
         sectionBreak: true,
-        requiredPermissions: ['orders.index'],
+        requiredPermissions: ['stores.view', 'orders.index', 'orders.view', 'products.index', 'stores.edit'],
         requiredFeature: 'ecommerce.manage',
         subMenu: [
             {
                 label: 'Store Ecommerce Status',
                 href: '/ecommerce/stores',
-                requiredPermissions: ['orders.index'],
+                requiredPermissions: ['stores.view'],
                 requiredFeature: 'ecommerce.manage',
             },
             {
@@ -590,25 +572,25 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
             {
                 label: 'Ecommerce Products',
                 href: '/ecommerce/products',
-                requiredPermissions: ['orders.index'],
+                requiredPermissions: ['products.index'],
                 requiredFeature: 'ecommerce.manage',
             },
             {
                 label: 'Settings',
                 icon: React.createElement(Settings),
-                requiredPermissions: ['orders.index'],
+                requiredPermissions: ['stores.edit'],
                 requiredFeature: 'ecommerce.manage',
                 subMenu: [
                     {
                         label: 'Credentials',
                         href: '/ecommerce/setting/credentials',
-                        requiredPermissions: ['orders.index'],
+                        requiredPermissions: ['stores.edit'],
                         requiredFeature: 'ecommerce.manage',
                     },
                     {
                         label: 'Marketing & Pixel',
                         href: '/ecommerce/setting/marketing',
-                        requiredPermissions: ['orders.index'],
+                        requiredPermissions: ['stores.edit'],
                         requiredFeature: 'ecommerce.manage',
                     },
                 ],

@@ -106,9 +106,17 @@ const ComponentsAuthRegisterForm = ({ defaultSource = 'website_registration', de
                 store_type: credentials.store_type,
                 source: credentials.source,
                 campaign: credentials.campaign,
+                utm_source: credentials.utm_source,
+                utm_medium: credentials.utm_medium,
+                utm_campaign: credentials.utm_campaign,
+                fbclid: credentials.fbclid,
+                landing_page: credentials.landing_page,
                 user_data: {
                     email: credentials.email,
                     phone: credentials.phone,
+                    name: credentials.name,
+                    external_id: user.id,
+                    country: 'bd',
                 },
             });
 
@@ -119,9 +127,17 @@ const ComponentsAuthRegisterForm = ({ defaultSource = 'website_registration', de
                 store_type: credentials.store_type,
                 source: credentials.source,
                 campaign: credentials.campaign,
+                utm_source: credentials.utm_source,
+                utm_medium: credentials.utm_medium,
+                utm_campaign: credentials.utm_campaign,
+                fbclid: credentials.fbclid,
+                landing_page: credentials.landing_page,
                 user_data: {
                     email: credentials.email,
                     phone: credentials.phone,
+                    name: credentials.name,
+                    external_id: user.id,
+                    country: 'bd',
                 },
             });
 
@@ -132,9 +148,17 @@ const ComponentsAuthRegisterForm = ({ defaultSource = 'website_registration', de
                 store_type: credentials.store_type,
                 source: credentials.source,
                 campaign: credentials.campaign,
+                utm_source: credentials.utm_source,
+                utm_medium: credentials.utm_medium,
+                utm_campaign: credentials.utm_campaign,
+                fbclid: credentials.fbclid,
+                landing_page: credentials.landing_page,
                 user_data: {
                     email: credentials.email,
                     phone: credentials.phone,
+                    name: credentials.name,
+                    external_id: user.id,
+                    country: 'bd',
                 },
             });
 

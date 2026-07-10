@@ -277,17 +277,13 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     '/notifications/send': ['notifications.create'],
 
     // ── Ecommerce Management ──────────────────────────────────
-    '/ecommerce/stores': ['orders.index'],
+    '/ecommerce/stores': ['stores.view'],
     '/ecommerce/orders': ['orders.index'],
-    '/ecommerce/products': ['orders.index'],
-    '/ecommerce/carts': ['orders.index'],
-    '/ecommerce/wishlists': ['orders.index'],
-    '/ecommerce/setting/credentials': ['orders.index'],
-    '/ecommerce/setting/marketing': ['orders.index'],
-
-    // ── Affiliate Program ───────────────────────────────────────
-    '/affiliate/portal': ['affiliate.manage'],
-    '/affiliate/admin': ['affiliate.manage'],
+    '/ecommerce/products': ['products.index'],
+    '/ecommerce/carts': ['orders.view'],
+    '/ecommerce/wishlists': ['orders.view'],
+    '/ecommerce/setting/credentials': ['stores.edit'],
+    '/ecommerce/setting/marketing': ['stores.edit'],
 
     // ── Feedbacks ──────────────────────────────────────────────
     '/feedbacks': ['feedbacks.index'],

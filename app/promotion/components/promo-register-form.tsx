@@ -54,6 +54,16 @@ export default function PromoRegisterForm({ defaultSource = 'promotion_pos', def
 
     const update = (key: keyof typeof form, value: string) => setForm((prev) => ({ ...prev, [key]: value }));
 
+    const attributionEventData = {
+        source: attribution.source,
+        campaign: attribution.campaign,
+        utm_source: attribution.utm_source,
+        utm_medium: attribution.utm_medium,
+        utm_campaign: attribution.utm_campaign,
+        fbclid: attribution.fbclid,
+        landing_page: attribution.landing_page,
+    };
+
     const generatedPassword = () => {
         const phoneDigits = form.phone.replace(/\D/g, '').slice(-6) || '123456';
         return `Ag${phoneDigits}!`;
@@ -70,10 +80,15 @@ export default function PromoRegisterForm({ defaultSource = 'promotion_pos', def
         try {
             trackEvent('promo_register_submit', 'Lead', {
                 content_name: 'POS Trial Registration',
-                source: defaultSource,
+                content_category: 'SaaS Signup',
+                store_type: form.store_type,
+                ...attributionEventData,
                 user_data: {
                     email: form.email,
                     phone: form.phone,
+                    name: form.name,
+                    external_id: form.email || form.phone,
+                    country: 'bd',
                 },
             });
 
@@ -111,28 +126,44 @@ export default function PromoRegisterForm({ defaultSource = 'promotion_pos', def
 
             trackEvent('promo_register_success', 'CompleteRegistration', {
                 content_name: 'POS Trial Registration',
+                content_category: 'SaaS Signup',
                 status: true,
+                store_type: form.store_type,
+                ...attributionEventData,
                 user_data: {
                     email: form.email,
                     phone: form.phone,
+                    name: form.name,
+                    external_id: user.id,
+                    country: 'bd',
                 },
             });
             trackEvent('promo_trial_started', 'StartTrial', {
                 content_name: 'POS Trial Registration',
+                content_category: 'SaaS Trial',
                 status: true,
-                source: defaultSource,
+                store_type: form.store_type,
+                ...attributionEventData,
                 user_data: {
                     email: form.email,
                     phone: form.phone,
+                    name: form.name,
+                    external_id: user.id,
+                    country: 'bd',
                 },
             });
             trackEvent('promo_trial_started_custom', 'TrialStarted', {
                 content_name: 'POS Trial Registration',
+                content_category: 'SaaS Trial',
                 status: true,
-                source: defaultSource,
+                store_type: form.store_type,
+                ...attributionEventData,
                 user_data: {
                     email: form.email,
                     phone: form.phone,
+                    name: form.name,
+                    external_id: user.id,
+                    country: 'bd',
                 },
             });
             toast.success('ফ্রি POS অ্যাকাউন্ট তৈরি হয়েছে। ড্যাশবোর্ডে নিয়ে যাওয়া হচ্ছে...');
