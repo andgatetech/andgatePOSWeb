@@ -666,24 +666,22 @@ function hasAnyPermission(userPermissions: string[] | undefined, requiredPermiss
 
 /**
  * Check if the account's subscription plan includes the item's gated feature.
- * Uses requiredFeature when set; otherwise falls back to requiredPermissions,
- * since permission slugs and Feature slugs mostly share the same naming scheme
- * (e.g. 'accounting.reports.view', 'hr.attendance.create'). Applied independently
- * of RBAC role/permission checks — a business_admin role bypasses RBAC but not
- * what their own plan includes.
+ * Only gates on requiredFeature when explicitly set — items without one are left
+ * to RBAC alone, so an expired/tier-limited subscription doesn't hide the whole
+ * menu (SubscriptionGate blocks the actual page content on click instead).
  */
 function hasFeatureAccess(accessibleFeatures: string[] | undefined, item: MenuItem): boolean {
-    const slugsToCheck = item.requiredFeature ? [item.requiredFeature] : item.requiredPermissions;
-
-    if (!slugsToCheck || slugsToCheck.length === 0) {
-        return true; // Not tied to a specific subscription feature
+    // Falling back to requiredPermissions here used to collapse the whole menu to just
+    // "Dashboard" on an expired subscription, since accessibleFeatures comes back [] then.
+    if (!item.requiredFeature) {
+        return true;
     }
 
     if (!accessibleFeatures) {
         return true; // Still loading — don't flash an empty menu; RBAC already gates real access
     }
 
-    return slugsToCheck.some((slug) => accessibleFeatures.includes(slug));
+    return accessibleFeatures.includes(item.requiredFeature);
 }
 
 /**
