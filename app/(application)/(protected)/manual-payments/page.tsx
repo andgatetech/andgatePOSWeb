@@ -3,7 +3,8 @@
 import { FormEvent, useMemo, useState } from 'react';
 import Image from 'next/image';
 import Swal from 'sweetalert2';
-import { CreditCard, FileText, PackageCheck } from 'lucide-react';
+import Link from 'next/link';
+import { Check, CreditCard, FileText, PackageCheck } from 'lucide-react';
 import { getTranslation } from '@/i18n';
 import { useGetPlansQuery } from '@/store/features/plans/plansApi';
 import { useGetManualPaymentSummaryQuery, useGetManualPaymentsQuery, useSubmitManualPaymentMutation } from '@/store/features/manualPayments/manualPaymentsApi';
@@ -152,6 +153,42 @@ export default function ManualPaymentsPage() {
                                 <input value={form.custom_duration_days} onChange={(e) => update('custom_duration_days', e.target.value)} type="number" min={1} className="form-input mt-1" />
                             </label>
                         )}
+                        <div className="rounded-md border border-white-light bg-gray-50 p-3 text-sm dark:border-[#17263c] dark:bg-gray-800/40 md:col-span-2">
+                            {selectedPlan ? (
+                                <>
+                                    <div className="flex flex-wrap items-center justify-between gap-2">
+                                        <h3 className="font-semibold text-gray-900 dark:text-white">{selectedPlan.name_en}</h3>
+                                        <div className="text-right">
+                                            <p className="font-semibold text-primary">
+                                                ৳ {Number(form.billing_cycle === 'yearly' ? selectedPlan.yearly_price : selectedPlan.monthly_price).toLocaleString('en-US')}
+                                                <span className="text-xs font-normal text-gray-500"> /{form.billing_cycle === 'yearly' ? t('manual_payments_yearly') : t('manual_payments_monthly')}</span>
+                                            </p>
+                                            {Number(selectedPlan.discount) > 0 && (
+                                                <p className="text-xs text-green-600">{t('manual_payments_discount')}: {selectedPlan.discount}%</p>
+                                            )}
+                                            {setupFeeApplies && Number(selectedPlan.setup_fee) > 0 && (
+                                                <p className="text-xs text-gray-500">{t('manual_payments_setup_fee')}: ৳ {Number(selectedPlan.setup_fee).toLocaleString('en-US')}</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                    {selectedPlan.items?.length > 0 && (
+                                        <ul className="mt-2 grid grid-cols-1 gap-x-4 gap-y-1 text-xs text-gray-600 dark:text-gray-300 sm:grid-cols-2">
+                                            {selectedPlan.items.map((item) => (
+                                                <li key={item.id} className="flex items-center gap-1.5">
+                                                    <Check className="h-3.5 w-3.5 shrink-0 text-green-600" />
+                                                    {item.title_en}{item.value ? `: ${item.value}` : ''}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </>
+                            ) : (
+                                <p className="text-gray-500">{t('manual_payments_select_package_hint')}</p>
+                            )}
+                            <Link href="/subscription" className="mt-2 inline-block text-xs font-semibold text-primary hover:underline">
+                                {t('manual_payments_view_all_plans')} &rarr;
+                            </Link>
+                        </div>
                         <label className="text-sm font-medium text-gray-700 dark:text-gray-200">
                             {t('manual_payments_payment_method')}
                             <select value={form.payment_method} onChange={(e) => update('payment_method', e.target.value)} className="form-select mt-1">
