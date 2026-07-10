@@ -4,6 +4,7 @@ import SubscriptionError from '@/components/common/SubscriptionError';
 import { convertNumberByLanguage } from '@/components/custom/convertNumberByLanguage';
 import { useTranslation } from '@/components/i18n/TranslationProvider';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import ManualPaymentPanel from '@/components/subscription/ManualPaymentPanel';
 import SubscriptionPageShell from '@/lib/protected/SubscriptionPageShell';
 import { RootState } from '@/store';
 import { useCreateLeadMutation } from '@/store/features/auth/authApi';
@@ -333,6 +334,17 @@ export default function SubscriptionPage() {
         { n: 3, title: t('subscription_step3_title'), desc: t('subscription_step3_desc') },
     ];
     const visibleAvailablePlans = availablePlans.slice(planSlideIndex, planSlideIndex + visiblePlanCount);
+
+    // An authenticated user already has an account/subscription to act on — send them
+    // straight to the same package-tabs + payment-request panel used on /manual-payments
+    // instead of the anonymous lead-capture flow below (that's for pre-signup visitors).
+    if (user) {
+        return (
+            <SubscriptionPageShell>
+                <ManualPaymentPanel />
+            </SubscriptionPageShell>
+        );
+    }
 
     return (
         <SubscriptionPageShell>
