@@ -7,7 +7,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import StoreDisabledScreen from './StoreDisabledScreen';
 import StoreInactiveScreen from './StoreInactiveScreen';
-import SubscriptionPendingScreen from './SubscriptionPendingScreen';
 import UserBlockedScreen from './UserBlockedScreen';
 import UserPendingScreen from './UserPendingScreen';
 
@@ -92,33 +91,8 @@ export default function StatusGuard({ children }: StatusGuardProps) {
         );
     }
 
-    // User is active, now check subscription status
-    const subscriptionStatus = user.subscription_user?.status?.toLowerCase();
-    const subscriptionName = user.subscription_user?.plan_name_en;
-    const expireDate = user.subscription_user?.expire_date;
-
-    // Check if subscription is not active
-    if (subscriptionStatus && subscriptionStatus !== 'active') {
-        return (
-            <div className="min-h-[calc(100vh-200px)]">
-                <SubscriptionPendingScreen status={subscriptionStatus} subscriptionName={subscriptionName} expireDate={expireDate} />
-            </div>
-        );
-    }
-
-    // Check if subscription is expired (date check)
-    if (expireDate) {
-        const expiryDate = new Date(expireDate);
-        const now = new Date();
-
-        if (expiryDate < now && subscriptionStatus !== 'active') {
-            return (
-                <div className="min-h-[calc(100vh-200px)]">
-                    <SubscriptionPendingScreen status="expired" subscriptionName={subscriptionName} expireDate={expireDate} />
-                </div>
-            );
-        }
-    }
+    // Subscription status is no longer checked here — SubscriptionGate handles it
+    // inside the content slot so Sidebar/Header/Footer stay mounted (see layout.tsx).
 
     // Check current store status (is_active and store_disabled)
     if (currentStore) {

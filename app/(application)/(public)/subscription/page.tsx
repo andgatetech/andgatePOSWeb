@@ -4,6 +4,7 @@ import SubscriptionError from '@/components/common/SubscriptionError';
 import { convertNumberByLanguage } from '@/components/custom/convertNumberByLanguage';
 import { useTranslation } from '@/components/i18n/TranslationProvider';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import SubscriptionPageShell from '@/lib/protected/SubscriptionPageShell';
 import { RootState } from '@/store';
 import { useCreateLeadMutation } from '@/store/features/auth/authApi';
 import { applyDiscount, calcYearlySavings, filterActivePlans, formatPrice, getPlanColor, isMostPopularPlan, isEnterprisePlan, useGetPlansQuery, type Plan } from '@/store/features/plans/plansApi';
@@ -334,6 +335,7 @@ export default function SubscriptionPage() {
     const visibleAvailablePlans = availablePlans.slice(planSlideIndex, planSlideIndex + visiblePlanCount);
 
     return (
+        <SubscriptionPageShell>
         <div className="min-h-screen bg-gray-50">
             <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
                 {/* ── Optional Auto-Redirected Error Banner ── */}
@@ -688,5 +690,6 @@ export default function SubscriptionPage() {
                 </div>
             )}
         </div>
+        </SubscriptionPageShell>
     );
 }

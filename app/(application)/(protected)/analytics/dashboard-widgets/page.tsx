@@ -37,7 +37,14 @@ export default function DashboardWidgetsPage() {
     useEffect(() => {
         const saved = data?.data?.layout?.widgets;
         if (saved?.length) {
-            setWidgets(saved);
+            const defaultsByKey = new Map(DEFAULT_WIDGETS.map((w) => [w.key, w]));
+            const merged = saved.map((w: (typeof DEFAULT_WIDGETS)[number]) => ({
+                ...w,
+                label: defaultsByKey.get(w.key)?.label ?? w.label ?? w.key,
+            }));
+            const savedKeys = new Set(saved.map((w: (typeof DEFAULT_WIDGETS)[number]) => w.key));
+            const missing = DEFAULT_WIDGETS.filter((w) => !savedKeys.has(w.key));
+            setWidgets([...merged, ...missing]);
         }
     }, [data]);
 

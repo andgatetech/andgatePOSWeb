@@ -2,7 +2,7 @@
 import { getTranslation } from '@/i18n';
 import { Mail, MessageCircle, Phone } from 'lucide-react';
 
-const SUPPORT_PHONE = '+880 1819-646514';
+const SUPPORT_PHONE = '+880 1577303608';
 const SUPPORT_PHONE_RAW = '+880 1577303608'; // for tel: and wa.me
 const SUPPORT_EMAIL = 'support@andgatetech.net';
 
