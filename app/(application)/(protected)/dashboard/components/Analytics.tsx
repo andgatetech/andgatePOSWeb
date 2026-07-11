@@ -1,5 +1,6 @@
 'use client';
 
+import StatPair from '@/components/dashboard/StatPair';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
@@ -7,7 +8,7 @@ import { useGetDashboardAnalyticsQuery } from '@/store/features/dashboard/dashbo
 import { ShoppingCart, UserCheck, Users } from 'lucide-react';
 import { useState } from 'react';
 import CountUp from 'react-countup';
-import { Bar, BarChart, CartesianGrid, Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 // Skeleton components for loading state
 const ChartSkeleton = () => (
@@ -170,17 +171,6 @@ export default function Analytics() {
             };
         }) ?? [];
 
-    // Prepare pie chart data
-    const rawPieData = [
-        { name: t('lbl_first_time'), value: customers_overview?.first_time?.count ?? 0, percentage: customers_overview?.first_time?.percentage ?? 0 },
-        { name: t('lbl_return'), value: customers_overview?.return?.count ?? 0, percentage: customers_overview?.return?.percentage ?? 0 },
-    ];
-
-    const hasData = rawPieData.some((item) => item.value > 0);
-
-    const pieData = hasData ? rawPieData : [{ name: t('lbl_no_data'), value: 1, percentage: 0 }];
-
-    const COLORS = hasData ? ['#d97706', '#059669'] : ['#f3f4f6'];
 
     return (
         <div className="space-y-4 sm:space-y-6">
@@ -289,65 +279,27 @@ export default function Analytics() {
                                 </select>
                             </div>
 
-                            <div className="flex flex-row items-center justify-between gap-4">
-                                {/* Donut Chart */}
-                                <div className="relative flex-shrink-0">
-                                    <PieChart width={120} height={120}>
-                                        <Pie data={pieData} cx={60} cy={60} innerRadius={38} outerRadius={55} dataKey="value" stroke="none">
-                                            {pieData.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={COLORS[index]} />
-                                            ))}
-                                        </Pie>
-                                        <Tooltip
-                                            contentStyle={{
-                                                backgroundColor: '#fff',
-                                                border: '1px solid #e5e7eb',
-                                                borderRadius: '8px',
-                                                fontSize: '12px',
-                                            }}
-                                        />
-                                    </PieChart>
-                                    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
-                                        <p className="text-lg font-bold text-gray-900">
-                                            <CountUp end={customers_overview.total_active} duration={2} formattingFn={(n) => formatNumber(Math.round(n), 0)} />
-                                        </p>
-                                        <p className="text-[10px] text-gray-600">{t('lbl_total')}</p>
-                                    </div>
-                                </div>
-
-                                {/* Metric Cards */}
-                                <div className="flex w-full flex-col gap-2">
-                                    {/* First Time Card */}
-                                    <div className="flex-1 rounded-lg border border-gray-100 bg-gray-50 p-2 text-center transition-colors hover:bg-gray-100">
-                                        <div className="flex items-center justify-between">
-                                            <div className="text-left">
-                                                <p className="text-[10px] font-medium text-[#d97706]">{t('lbl_first_time')}</p>
-                                                <p className="text-lg font-bold text-gray-900">
-                                                    <CountUp end={customers_overview.first_time.count} duration={2} formattingFn={(n) => formatNumber(Math.round(n), 0)} />
-                                                </p>
-                                            </div>
-                                            <div className="rounded-md bg-green-100 px-1.5 py-0.5">
-                                                <span className="text-[10px] font-semibold text-green-700">↑ {formatNumber(customers_overview.first_time.percentage)}%</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Return Card */}
-                                    <div className="flex-1 rounded-lg border border-gray-100 bg-gray-50 p-2 text-center transition-colors hover:bg-gray-100">
-                                        <div className="flex items-center justify-between">
-                                            <div className="text-left">
-                                                <p className="text-[10px] font-medium text-[#059669]">{t('lbl_return')}</p>
-                                                <p className="text-lg font-bold text-gray-900">
-                                                    <CountUp end={customers_overview.return.count} duration={2} formattingFn={(n) => formatNumber(Math.round(n), 0)} />
-                                                </p>
-                                            </div>
-                                            <div className="rounded-md bg-green-100 px-1.5 py-0.5">
-                                                <span className="text-[10px] font-semibold text-green-700">↑ {formatNumber(customers_overview.return.percentage)}%</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <StatPair
+                                total={customers_overview.total_active}
+                                totalLabel={t('lbl_total')}
+                                formatValue={(n) => formatNumber(n, 0)}
+                                items={[
+                                    {
+                                        label: t('lbl_first_time'),
+                                        value: customers_overview.first_time.count,
+                                        percentage: customers_overview.first_time.percentage,
+                                        color: '#d97706',
+                                        textColor: 'text-[#d97706]',
+                                    },
+                                    {
+                                        label: t('lbl_return'),
+                                        value: customers_overview.return.count,
+                                        percentage: customers_overview.return.percentage,
+                                        color: '#059669',
+                                        textColor: 'text-[#059669]',
+                                    },
+                                ]}
+                            />
                         </div>
                     </div>
                 </div>

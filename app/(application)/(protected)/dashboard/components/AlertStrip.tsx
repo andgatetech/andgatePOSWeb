@@ -4,8 +4,16 @@ import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import { useGetDashboardAlertsQuery } from '@/store/features/dashboard/dashboad';
-import { AlertTriangle, CalendarClock, Package, ShoppingBag, Wallet } from 'lucide-react';
+import { AlertTriangle, Bell, CalendarClock, Package, ShoppingBag, Wallet } from 'lucide-react';
 import Link from 'next/link';
+
+interface NotificationAlert {
+    type: string;
+    label: string;
+    severity: 'warning' | 'critical';
+    count: number;
+    action_url: string | null;
+}
 
 export default function AlertStrip() {
     const { t } = getTranslation();
@@ -81,12 +89,26 @@ export default function AlertStrip() {
         },
     ].filter((c) => c.show);
 
-    if (!chips.length) return null;
+    // Notification-derived chips — unread warning/critical notifications
+    // (subscription expiring, purchase order pending, customer due overdue,
+    // etc.) surfaced here instead of only living in the bell dropdown.
+    const notificationChips = ((alerts.notifications || []) as NotificationAlert[]).map((n) => ({
+        show: true,
+        icon: Bell,
+        label: `${n.count} ${n.label}`,
+        href: n.action_url || '/notifications',
+        bg: n.severity === 'critical' ? 'bg-red-50 border-red-200 text-red-700' : 'bg-amber-50 border-amber-200 text-amber-700',
+        dot: n.severity === 'critical' ? 'bg-red-500' : 'bg-amber-500',
+    }));
+
+    const allChips = [...chips, ...notificationChips];
+
+    if (!allChips.length) return null;
 
     return (
         <div className="flex flex-wrap items-center gap-2">
             <span className="text-xs font-medium text-gray-500">{t('lbl_alerts')}:</span>
-            {chips.map(({ icon: Icon, label, href, bg, dot }) => (
+            {allChips.map(({ icon: Icon, label, href, bg, dot }) => (
                 <Link
                     key={href + label}
                     href={href}

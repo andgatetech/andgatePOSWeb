@@ -196,6 +196,31 @@ const DashboardApi = baseApi.injectEndpoints({
             },
             providesTags: ['Dashboard'],
         }),
+        getDashboardCashPosition: builder.query({
+            query: (params) => ({
+                url: `/dashboard/cash-position${params?.store_id ? `?store_id=${params.store_id}` : ''}`,
+                method: 'GET',
+            }),
+            providesTags: ['Dashboard'],
+        }),
+        getDashboardSupplierDues: builder.query({
+            query: (params) => ({
+                url: `/dashboard/supplier-dues${params?.store_id ? `?store_id=${params.store_id}` : ''}`,
+                method: 'GET',
+            }),
+            providesTags: ['Dashboard'],
+        }),
+        getDashboardDeadStock: builder.query({
+            query: (params) => {
+                const q = new URLSearchParams();
+                if (params?.store_id) q.append('store_id', params.store_id);
+                if (params?.days) q.append('days', String(params.days));
+                if (params?.limit) q.append('limit', String(params.limit));
+                const qs = q.toString();
+                return { url: `/dashboard/dead-stock${qs ? `?${qs}` : ''}`, method: 'GET' };
+            },
+            providesTags: ['Dashboard'],
+        }),
     }),
 });
 
@@ -212,4 +237,7 @@ export const {
     useGetDashboardCustomerDuesQuery,
     useGetDashboardOnboardingQuery,
     useGetDashboardHealthScoreQuery,
+    useGetDashboardCashPositionQuery,
+    useGetDashboardSupplierDuesQuery,
+    useGetDashboardDeadStockQuery,
 } = DashboardApi;

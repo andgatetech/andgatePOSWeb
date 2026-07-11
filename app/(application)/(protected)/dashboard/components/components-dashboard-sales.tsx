@@ -10,8 +10,10 @@ import ManualPaymentsPage from '../../manual-payments/page';
 import AlertStrip from './AlertStrip';
 import Analytics from './Analytics';
 import BusinessHealthScore from './BusinessHealthScore';
+import CashPositionWidget from './CashPositionWidget';
 import CustomerDueSnapshot from './CustomerDueSnapshot';
 import DashboardSections from './DashboardSections';
+import DeadStockWidget from './DeadStockWidget';
 import OnboardingChecklist from './OnboardingChecklist';
 import ProfitExpenseWidget from './ProfitExpenseWidget';
 import QuickActions from './QuickActions';
@@ -19,6 +21,7 @@ import SectionFour from './SectionFour';
 import SectionsFive from './SectionsFive';
 import SubscriptionPaymentStatus from './SubscriptionPaymentStatus';
 import Summary from './Summary';
+import SupplierDueWidget from './SupplierDueWidget';
 import TopCustomers from './TopCustomers';
 
 // Business-owner priority sequence: urgent attention → guidance → pulse → action →
@@ -31,13 +34,16 @@ const DEFAULT_WIDGETS = [
     { key: 'summary', visible: true, order: 4, cols: 12 },
     { key: 'quick_actions', visible: true, order: 5, cols: 12 },
     { key: 'customer_due', visible: true, order: 6, cols: 12 },
-    { key: 'subscription', visible: true, order: 7, cols: 12 },
-    { key: 'analytics', visible: true, order: 8, cols: 12 },
-    { key: 'sections', visible: true, order: 9, cols: 12 },
-    { key: 'profit_expense', visible: true, order: 10, cols: 12 },
-    { key: 'section_four', visible: true, order: 11, cols: 12 },
-    { key: 'section_five', visible: true, order: 12, cols: 9 },
-    { key: 'top_customers', visible: true, order: 13, cols: 3 },
+    { key: 'supplier_due', visible: true, order: 7, cols: 12 },
+    { key: 'cash_position', visible: true, order: 8, cols: 12 },
+    { key: 'subscription', visible: true, order: 9, cols: 12 },
+    { key: 'analytics', visible: true, order: 10, cols: 12 },
+    { key: 'sections', visible: true, order: 11, cols: 12 },
+    { key: 'dead_stock', visible: true, order: 12, cols: 12 },
+    { key: 'profit_expense', visible: true, order: 13, cols: 12 },
+    { key: 'section_four', visible: true, order: 14, cols: 12 },
+    { key: 'section_five', visible: true, order: 15, cols: 9 },
+    { key: 'top_customers', visible: true, order: 16, cols: 3 },
 ];
 
 const widgetComponents: Record<string, React.ReactNode> = {
@@ -52,8 +58,11 @@ const widgetComponents: Record<string, React.ReactNode> = {
     summary: <Summary />,
     alerts: <AlertStrip />,
     customer_due: <CustomerDueSnapshot />,
+    supplier_due: <SupplierDueWidget />,
+    cash_position: <CashPositionWidget />,
     analytics: <Analytics />,
     sections: <DashboardSections />,
+    dead_stock: <DeadStockWidget />,
     section_four: <SectionFour />,
     profit_expense: <ProfitExpenseWidget />,
     section_five: <SectionsFive />,

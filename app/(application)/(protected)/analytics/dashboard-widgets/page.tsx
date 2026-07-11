@@ -16,13 +16,16 @@ const DEFAULT_WIDGETS = [
     { key: 'summary', label: 'Summary Cards', visible: true, order: 4, cols: 12 },
     { key: 'quick_actions', label: 'Quick Actions', visible: true, order: 5, cols: 12 },
     { key: 'customer_due', label: 'Customer Due Snapshot', visible: true, order: 6, cols: 12 },
-    { key: 'subscription', label: 'Subscription Status', visible: true, order: 7, cols: 12 },
-    { key: 'analytics', label: 'Sales vs Purchase Analytics', visible: true, order: 8, cols: 12 },
-    { key: 'sections', label: 'Top Selling / Low Stock / Recent Sales', visible: true, order: 9, cols: 12 },
-    { key: 'profit_expense', label: 'Profit Trend & Expense Breakdown', visible: true, order: 10, cols: 12 },
-    { key: 'section_four', label: 'Payment Methods & Recent Transactions', visible: true, order: 11, cols: 12 },
-    { key: 'section_five', label: 'Top Categories / Brands / Purchased', visible: true, order: 12, cols: 9 },
-    { key: 'top_customers', label: 'Top Customers', visible: true, order: 13, cols: 3 },
+    { key: 'supplier_due', label: 'Supplier Due Snapshot', visible: true, order: 7, cols: 12 },
+    { key: 'cash_position', label: 'Cash Position', visible: true, order: 8, cols: 12 },
+    { key: 'subscription', label: 'Subscription Status', visible: true, order: 9, cols: 12 },
+    { key: 'analytics', label: 'Sales vs Purchase Analytics', visible: true, order: 10, cols: 12 },
+    { key: 'sections', label: 'Top Selling / Low Stock / Recent Sales', visible: true, order: 11, cols: 12 },
+    { key: 'dead_stock', label: 'Dead Stock', visible: true, order: 12, cols: 12 },
+    { key: 'profit_expense', label: 'Profit Trend & Expense Breakdown', visible: true, order: 13, cols: 12 },
+    { key: 'section_four', label: 'Payment Methods & Recent Transactions', visible: true, order: 14, cols: 12 },
+    { key: 'section_five', label: 'Top Categories / Brands / Purchased', visible: true, order: 15, cols: 9 },
+    { key: 'top_customers', label: 'Top Customers', visible: true, order: 16, cols: 3 },
 ];
 
 export default function DashboardWidgetsPage() {
