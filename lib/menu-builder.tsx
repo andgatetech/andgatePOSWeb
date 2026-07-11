@@ -488,10 +488,10 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                 ],
             },
             {
-                label: 'Fiscal Compliance',
+                label: 'lbl_fiscal_compliance',
                 requiredPermissions: ['fiscal.compliance.view'],
                 subMenu: [
-                    { label: 'Compliance Center', href: '/fiscal-compliance', requiredPermissions: ['fiscal.compliance.view'] },
+                    { label: 'lbl_compliance_center', href: '/fiscal-compliance', requiredPermissions: ['fiscal.compliance.view'] },
                 ],
             },
             // Customer Reports
@@ -651,7 +651,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                 requiredPermissions: ['stores.view'],
             },
             {
-                label: 'Compliance Calendar',
+                label: 'compliance_calendar_title',
                 href: '/compliance-calendar',
                 requiredPermissions: ['stores.view'],
             },

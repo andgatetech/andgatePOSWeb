@@ -7003,6 +7003,7 @@
   "lbl_cost_of_products": "Cost of Products",
   "lbl_business_profit_you_keep": "Business Profit (You Keep)",
   "lbl_fiscal_compliance": "Fiscal Compliance",
+  "lbl_compliance_center": "Compliance Center",
   "msg_fiscal_compliance_center": "Monitor fiscal invoices, device health, VAT periods, and submission readiness.",
   "msg_fiscal_readiness_disclaimer": "Readiness notice: this center maintains fiscal evidence, hash-chain records, and submission queues. Do not market it as certified NBR integration unless official certification is enabled for your deployment.",
   "lbl_fiscal_invoices": "Fiscal Invoices",
