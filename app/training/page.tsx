@@ -12,13 +12,16 @@ import {
     ExternalLink,
     Globe,
     Lightbulb,
+    LogIn,
     Package,
     Play,
     RotateCcw,
     Settings,
+    ShieldCheck,
     ShoppingBag,
     Store,
     Truck,
+    UserPlus,
     Users,
     Wallet,
     X,
@@ -37,23 +40,70 @@ const vid = (_i: number) => PLACEHOLDER_VID;
 export default function TrainingPage() {
     const { t } = getTranslation();
     const [playing, setPlaying] = useState<string | null>(null);
-    const [activeModuleId, setActiveModuleId] = useState('getting-started');
+    const [activeModuleId, setActiveModuleId] = useState('account-access');
 
     // ── Curriculum data — full business journey ──────────────────────
     const modules = [
-        // ── 01: Getting Started ──────────────────────────────────────
+        // ── 01: Account Access ───────────────────────────────────────
         {
             num: '01',
-            id: 'getting-started',
-            title: t('training.category_getting_started'),
-            desc: t('training.category_getting_started_desc'),
-            icon: <Zap className="h-5 w-5" />,
+            id: 'account-access',
+            title: 'Account Access & First Login',
+            desc: 'Learn how to register a real store, login with your own account, and safely use the public demo account for practice.',
+            icon: <LogIn className="h-5 w-5" />,
             gradient: 'from-[#046ca9] to-[#034d79]',
             accent: '#046ca9',
             accentLight: 'bg-[#046ca9]/8',
             accentBorder: 'border-[#046ca9]/15',
             accentText: 'text-[#046ca9]',
             isStartHere: true,
+            lessons: [
+                {
+                    title: 'Create Your AndgatePOS Account',
+                    duration: '4:30',
+                    youtubeId: vid(0),
+                    difficulty: 'Beginner',
+                    desc: 'Register a new shop account with owner name, phone, email, password, store name, and store type.',
+                    points: ['Open the registration page from the website', 'Fill owner and store information correctly', 'Understand trial account creation and automatic dashboard login'],
+                },
+                {
+                    title: 'Login With Your Own Account',
+                    duration: '3:45',
+                    youtubeId: vid(1),
+                    difficulty: 'Beginner',
+                    desc: 'Use your email and password, remember login on trusted devices, and reach the dashboard after authentication.',
+                    points: ['Enter email and password from the login page', 'Use remember me only on trusted devices', 'Fix common login issues like wrong password or expired session'],
+                },
+                {
+                    title: 'Practice With Demo Account',
+                    duration: '3:30',
+                    youtubeId: vid(2),
+                    difficulty: 'Beginner',
+                    desc: 'Use the demo account to explore AndgatePOS before working on a live business account.',
+                    points: ['Open the demo login flow from the public site', 'Understand what demo data is safe to test', 'Avoid mixing demo practice with a real store setup'],
+                },
+                {
+                    title: 'First Dashboard Checklist',
+                    duration: '4:15',
+                    youtubeId: vid(0),
+                    difficulty: 'Beginner',
+                    desc: 'After login, complete the owner checklist before daily operation starts.',
+                    points: ['Confirm store profile, timezone, currency, and contact details', 'Review subscription status and available features', 'Know where to go first: store, users, products, POS, reports'],
+                },
+            ],
+        },
+        {
+            num: '02',
+            id: 'getting-started',
+            title: t('training.category_getting_started'),
+            desc: t('training.category_getting_started_desc'),
+            icon: <UserPlus className="h-5 w-5" />,
+            gradient: 'from-[#046ca9] to-[#034d79]',
+            accent: '#046ca9',
+            accentLight: 'bg-[#046ca9]/8',
+            accentBorder: 'border-[#046ca9]/15',
+            accentText: 'text-[#046ca9]',
+            isStartHere: false,
             lessons: [
                 {
                     title: t('training.video_dashboard_overview'),
@@ -83,7 +133,7 @@ export default function TrainingPage() {
         },
         // ── 02: Store Configuration ──────────────────────────────────
         {
-            num: '02',
+            num: '03',
             id: 'business-os',
             title: t('training.category_business_os'),
             desc: t('training.category_business_os_desc'),
@@ -162,7 +212,7 @@ export default function TrainingPage() {
             ],
         },
         {
-            num: '03',
+            num: '04',
             id: 'store-config',
             title: t('training.category_store_config'),
             desc: t('training.category_store_config_desc'),
@@ -210,7 +260,7 @@ export default function TrainingPage() {
         },
         // ── 03: Product Catalogue ────────────────────────────────────
         {
-            num: '04',
+            num: '05',
             id: 'inventory',
             title: t('training.category_inventory'),
             desc: t('training.category_inventory_desc'),
@@ -298,7 +348,7 @@ export default function TrainingPage() {
         },
         // ── 04: Suppliers & Purchasing ───────────────────────────────
         {
-            num: '05',
+            num: '06',
             id: 'purchases',
             title: t('training.category_purchases'),
             desc: t('training.category_purchases_desc'),
@@ -354,7 +404,7 @@ export default function TrainingPage() {
         },
         // ── 05: Daily POS Operations ─────────────────────────────────
         {
-            num: '06',
+            num: '07',
             id: 'pos-operations',
             title: t('training.category_pos_operations'),
             desc: t('training.category_pos_operations_desc'),
@@ -418,7 +468,7 @@ export default function TrainingPage() {
         },
         // ── 06: Customer Management ──────────────────────────────────
         {
-            num: '07',
+            num: '08',
             id: 'customers',
             title: t('training.category_customers'),
             desc: t('training.category_customers_desc'),
@@ -474,7 +524,7 @@ export default function TrainingPage() {
         },
         // ── 07: Expenses & Accounting ────────────────────────────────
         {
-            num: '08',
+            num: '09',
             id: 'expenses-accounting',
             title: t('training.category_expenses_accounting'),
             desc: t('training.category_expenses_accounting_desc'),
@@ -518,11 +568,27 @@ export default function TrainingPage() {
                     desc: t('training.video_ledger_desc'),
                     points: [t('training.kp_ledger_1'), t('training.kp_ledger_2'), t('training.kp_ledger_3')],
                 },
+                {
+                    title: 'Bank Accounts, Cash Book & Income',
+                    duration: '5:00',
+                    youtubeId: vid(0),
+                    difficulty: 'Intermediate',
+                    desc: 'Use the new accounting workspace for bank accounts, cash book entries, income records, and transaction review.',
+                    points: ['Create and review bank accounts', 'Track cash book movement for store operations', 'Record income outside POS sales when needed'],
+                },
+                {
+                    title: 'Balance Sheet, Trial Balance & Cash Flow',
+                    duration: '5:30',
+                    youtubeId: vid(1),
+                    difficulty: 'Advanced',
+                    desc: 'Read owner-level accounting reports to understand assets, liabilities, balances, and cash movement.',
+                    points: ['Review balance sheet and trial balance', 'Understand cash-flow report for owner decisions', 'Use accounting reports together with sales and expense reports'],
+                },
             ],
         },
         // ── 08: Reports & Analytics ──────────────────────────────────
         {
-            num: '09',
+            num: '10',
             id: 'reports',
             title: t('training.category_reports'),
             desc: t('training.category_reports_desc'),
@@ -590,11 +656,27 @@ export default function TrainingPage() {
                     desc: 'Track fiscal-readiness evidence, BD VAT reports, compliance reminders, and audit-ready operating records without overstating certification.',
                     points: ['Review tax and VAT reports', 'Keep fiscal-readiness evidence organized', 'Use compliance calendar and audit activity reports'],
                 },
+                {
+                    title: 'AI Insights, Forecasts & Smart Summary',
+                    duration: '5:15',
+                    youtubeId: vid(1),
+                    difficulty: 'Advanced',
+                    desc: 'Use reorder suggestions, anomaly detection, demand forecast, and smart summaries for better owner decisions.',
+                    points: ['Review reorder suggestions before buying stock', 'Spot unusual sales or stock behavior', 'Use demand forecast and smart summary for weekly planning'],
+                },
+                {
+                    title: 'Operations Reports',
+                    duration: '4:45',
+                    youtubeId: vid(2),
+                    difficulty: 'Intermediate',
+                    desc: 'Review payment summary, employee sales, discount report, cash closing report, and audit activity.',
+                    points: ['Compare payment modes and counter closing', 'Track employee sales and discount usage', 'Use audit activity when checking store operation history'],
+                },
             ],
         },
         // ── 09: Multi-Store Management ───────────────────────────────
         {
-            num: '10',
+            num: '11',
             id: 'multi-store',
             title: t('training.category_multi_store'),
             desc: t('training.category_multi_store_desc'),
@@ -634,7 +716,7 @@ export default function TrainingPage() {
         },
         // ── 10: Online Store ─────────────────────────────────────────
         {
-            num: '11',
+            num: '12',
             id: 'online-store',
             title: t('training.category_online_store'),
             desc: t('training.category_online_store_desc'),
@@ -686,11 +768,27 @@ export default function TrainingPage() {
                     desc: t('training.video_online_orders_desc'),
                     points: [t('training.kp_onlineorders_1'), t('training.kp_onlineorders_2'), t('training.kp_onlineorders_3')],
                 },
+                {
+                    title: 'COD Reconciliation',
+                    duration: '4:45',
+                    youtubeId: vid(1),
+                    difficulty: 'Intermediate',
+                    desc: 'Match ecommerce delivery, courier collection, COD received amount, and store accounting records.',
+                    points: ['Review delivered COD orders', 'Match courier collection with expected receivable', 'Mark reconciliation status for owner review'],
+                },
+                {
+                    title: 'Marketing Pixel, Carts & Wishlists',
+                    duration: '4:00',
+                    youtubeId: vid(2),
+                    difficulty: 'Intermediate',
+                    desc: 'Use ecommerce marketing settings, customer carts, wishlists, and pixel tracking for online sales follow-up.',
+                    points: ['Configure marketing and pixel settings', 'Review carts and wishlists for demand signals', 'Follow up ecommerce customers without disturbing POS data'],
+                },
             ],
         },
         // ── 11: Subscription & Billing ───────────────────────────────
         {
-            num: '12',
+            num: '13',
             id: 'subscription-billing',
             title: t('training.category_subscription_billing'),
             desc: t('training.category_subscription_billing_desc'),
@@ -733,6 +831,45 @@ export default function TrainingPage() {
                     difficulty: 'Beginner',
                     desc: t('training.video_payment_verification_desc'),
                     points: [t('training.kp_payverify_1'), t('training.kp_payverify_2'), t('training.kp_payverify_3')],
+                },
+            ],
+        },
+        {
+            num: '14',
+            id: 'administration',
+            title: 'Administration, Security & Data',
+            desc: 'Owner-level controls for audit logs, company branches, compliance calendar, data export, notifications, and feedback.',
+            icon: <ShieldCheck className="h-5 w-5" />,
+            gradient: 'from-slate-600 to-slate-800',
+            accent: '#475569',
+            accentLight: 'bg-slate-50',
+            accentBorder: 'border-slate-200',
+            accentText: 'text-slate-700',
+            isStartHere: false,
+            lessons: [
+                {
+                    title: 'Audit Logs & Security Review',
+                    duration: '4:30',
+                    youtubeId: vid(0),
+                    difficulty: 'Advanced',
+                    desc: 'Review important user actions, store changes, and operational history from audit logs.',
+                    points: ['Find who changed key records', 'Use audit history during owner review', 'Connect permissions with safer daily operations'],
+                },
+                {
+                    title: 'Company, Branches & Compliance Calendar',
+                    duration: '4:45',
+                    youtubeId: vid(1),
+                    difficulty: 'Intermediate',
+                    desc: 'Manage company information, branch structure, and compliance reminders for regular business follow-up.',
+                    points: ['Review company and branch records', 'Track compliance tasks by date', 'Keep owner reminders outside daily POS work'],
+                },
+                {
+                    title: 'Notifications, Feedback & Data Export',
+                    duration: '5:00',
+                    youtubeId: vid(2),
+                    difficulty: 'Intermediate',
+                    desc: 'Use notifications, feedback, and export tools when managing a live store with staff and support.',
+                    points: ['Check notification center and send messages when allowed', 'Submit and review feedback records', 'Export business data for backup or owner reporting'],
                 },
             ],
         },
@@ -787,6 +924,7 @@ export default function TrainingPage() {
     ];
 
     const modulePreviews: Record<string, string> = {
+        'account-access': '/assets/LandingImage/updated/dashboard.webp',
         'getting-started': '/assets/LandingImage/updated/dashboard.webp',
         'business-os': '/assets/LandingImage/updated/dashboard.webp',
         'store-config': '/assets/LandingImage/updated/store-list.webp',
@@ -799,6 +937,7 @@ export default function TrainingPage() {
         'multi-store': '/assets/LandingImage/updated/store-list.webp',
         'online-store': '/assets/LandingImage/updated/mobile-dashboard.webp',
         'subscription-billing': '/assets/LandingImage/updated/dashboard.webp',
+        administration: '/assets/LandingImage/updated/dashboard.webp',
     };
 
     return (
