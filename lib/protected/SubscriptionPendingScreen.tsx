@@ -1,5 +1,5 @@
 'use client';
-import UpgradePlans from '@/components/common/UpgradePlans';
+import ManualPaymentPanel from '@/components/subscription/ManualPaymentPanel';
 import ContactSupportCard from '@/lib/protected/ContactSupportCard';
 import { clearAuthCookies, clearAuthLocalStorage } from '@/lib/auth-session';
 import { getTranslation } from '@/i18n';
@@ -159,8 +159,8 @@ export default function SubscriptionPendingScreen({ status, subscriptionName = '
                     </div>
                 </div>
 
-                {/* Upgrade Plans Section */}
-                <UpgradePlans showHeader={true} currentPlan={subscriptionName} />
+                {/* Renew / choose a plan — same panel as /manual-payments, embedded in place */}
+                <ManualPaymentPanel />
             </div>
         </div>
     );
