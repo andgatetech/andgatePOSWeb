@@ -32,7 +32,7 @@ export default function CashClosingPage() {
     const supplierPayment = Number(prefill?.supplier_payment || 0);
     const cashIncome = Number(prefill?.cash_income || 0);
 
-    const closings = (data?.data?.closings || []).reverse();
+    const closings = [...(data?.data?.closings || [])].reverse();
 
     const expected = useMemo(() =>
         openingCash + cashSales + dueCollection + cashIncome - cashExpense - supplierPayment,

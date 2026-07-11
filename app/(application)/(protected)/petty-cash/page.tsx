@@ -26,7 +26,7 @@ export default function PettyCashPage() {
     const [selectedStaff, setSelectedStaff] = useState<any>(null);
     const [filterStatus, setFilterStatus] = useState('');
 
-    const requests = (data?.data?.petty_cash || []).reverse();
+    const requests = [...(data?.data?.petty_cash || [])].reverse();
     const members = membersData?.data?.data || membersData?.data || [];
 
     const filteredMembers = staffSearch.trim()

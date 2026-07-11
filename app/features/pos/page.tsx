@@ -137,17 +137,17 @@ export default function POSFeaturePage() {
 
     const screenshots = [
         {
-            src: '/assets/LandingImage/updated/pos.webp',
+            src: '/assets/product-screenshots/current/desktop/pos/pos__pos.png',
             title: isBn ? 'লাইভ POS কাউন্টার' : 'Live POS Counter',
             desc: isBn ? 'পণ্য খোঁজা, কার্ট, পেমেন্ট ও রসিদ একই স্ক্রিনে।' : 'Product search, cart, payment and receipt in one screen.',
         },
         {
-            src: '/assets/LandingImage/updated/orders.webp',
-            title: isBn ? 'অর্ডার ইতিহাস' : 'Order History',
-            desc: isBn ? 'পুরনো বিক্রি খুঁজুন, পেমেন্ট দেখুন, রিটার্ন শুরু করুন।' : 'Find old sales, check payments, start returns.',
+            src: '/assets/product-screenshots/current/desktop/dashboard/dashboard__dashboard.png',
+            title: isBn ? 'বিক্রির পর মালিকের ড্যাশবোর্ড' : 'Owner Dashboard After Sales',
+            desc: isBn ? 'বিক্রি, পেমেন্ট, কাস্টমার বাকি ও স্টক অ্যালার্ট সাথে সাথে দেখা যায়।' : 'Sales, payment mix, customer dues and stock alerts update for the owner.',
         },
         {
-            src: '/assets/LandingImage/updated/mobile-pos.webp',
+            src: '/assets/product-screenshots/current/mobile/pos/pos__pos.png',
             title: isBn ? 'মোবাইল POS' : 'Mobile POS',
             desc: isBn ? 'ফোন থেকেও দ্রুত বিক্রি নেওয়ার অভিজ্ঞতা।' : 'A fast selling experience from phone too.',
         },

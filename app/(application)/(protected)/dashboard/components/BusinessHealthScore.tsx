@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import { useGetDashboardHealthScoreQuery } from '@/store/features/dashboard/dashboad';
@@ -17,6 +18,17 @@ const COMPONENT_LABEL_KEYS: Record<string, string> = {
     inventory_health: 'lbl_health_inventory',
     receivables_health: 'lbl_health_receivables',
 };
+
+// Each sub-score drills through to the report that explains it — a raw "72" on
+// its own gives no way to act on it.
+const COMPONENT_LINKS: Record<string, string> = {
+    sales_momentum: '/reports/sales',
+    profit_margin: '/reports/profit-loss',
+    inventory_health: '/reports/stock',
+    receivables_health: '/customers/due',
+};
+
+const componentBarColor = (value: number) => (value >= 75 ? '#0f9f6e' : value >= 50 ? '#e2a03f' : '#e7515a');
 
 const Skeleton = () => (
     <div className="animate-pulse rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
@@ -82,12 +94,30 @@ export default function BusinessHealthScore() {
                     </div>
 
                     <div className="grid grid-cols-2 gap-2">
-                        {Object.entries(components).map(([key, value]) => (
-                            <div key={key} className="flex items-center justify-between gap-2 rounded-lg bg-gray-50 px-2.5 py-1.5 text-xs">
-                                <span className="truncate text-gray-600">{t(COMPONENT_LABEL_KEYS[key] ?? key)}</span>
-                                <span className="font-bold text-gray-900">{value as number}</span>
-                            </div>
-                        ))}
+                        {Object.entries(components).map(([key, value]) => {
+                            const numValue = value as number;
+                            const href = COMPONENT_LINKS[key];
+                            const content = (
+                                <>
+                                    <div className="flex items-center justify-between gap-2">
+                                        <span className="truncate text-gray-600">{t(COMPONENT_LABEL_KEYS[key] ?? key)}</span>
+                                        <span className="font-bold text-gray-900">{numValue}</span>
+                                    </div>
+                                    <div className="mt-1 h-1 w-full overflow-hidden rounded-full bg-gray-200">
+                                        <div className="h-full rounded-full" style={{ width: `${Math.max(0, Math.min(100, numValue))}%`, backgroundColor: componentBarColor(numValue) }} />
+                                    </div>
+                                </>
+                            );
+                            return href ? (
+                                <Link key={key} href={href} className="rounded-lg bg-gray-50 px-2.5 py-1.5 text-xs transition-colors hover:bg-gray-100">
+                                    {content}
+                                </Link>
+                            ) : (
+                                <div key={key} className="rounded-lg bg-gray-50 px-2.5 py-1.5 text-xs">
+                                    {content}
+                                </div>
+                            );
+                        })}
                     </div>
 
                     <p className="text-sm text-gray-600">{top_recommendation}</p>

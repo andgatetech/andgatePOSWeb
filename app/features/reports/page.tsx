@@ -28,17 +28,17 @@ export default function ReportsFeaturePage() {
 
     const hero = {
         badge: isBn ? 'রিপোর্ট ও ফিন্যান্স' : 'Reports & Finance',
-        title: isBn ? 'মাস শেষে হিসাব মেলানোর দিন শেষ' : 'No More End-of-Month Headaches',
+        title: isBn ? 'স্টোরভিত্তিক, সামগ্রিক ও BI রিপোর্ট এক জায়গায়' : 'Store-by-Store, Overall and BI Reports in One Place',
         subtitle: isBn
-            ? '২০টিরও বেশি বিল্ট-ইন রিপোর্ট — বিক্রয়, লাভ-ক্ষতি, স্টক, ট্যাক্স, সরবরাহকারী বকেয়া। যেকোনো সময়, যেকোনো ডিভাইস থেকে দেখুন ও এক্সপোর্ট করুন।'
-            : '20+ built-in reports — sales, profit & loss, stock, tax, supplier dues. View and export anytime from any device.',
+            ? 'বিক্রয়, লাভ-ক্ষতি, স্টক, ট্যাক্স, COD, ফিসকাল রেডিনেস, branch benchmarking, cash-flow forecast এবং custom report — মালিকের সিদ্ধান্তের জন্য পরিষ্কার রিপোর্ট।'
+            : 'Sales, profit & loss, stock, tax, COD, fiscal readiness, branch benchmarking, cash-flow forecasts and custom reports — clear reporting for owner decisions.',
     };
 
     const stats = [
-        { value: isBn ? '২০+' : '20+', label: isBn ? 'বিল্ট-ইন রিপোর্ট' : 'Built-in Reports' },
+        { value: isBn ? '৩০+' : '30+', label: isBn ? 'রিপোর্ট ও BI ভিউ' : 'Reports & BI Views' },
         { value: isBn ? 'Excel/PDF' : 'Excel/PDF', label: isBn ? 'এক্সপোর্ট ফরম্যাট' : 'Export Formats' },
         { value: isBn ? 'তারিখ/দোকান' : 'Date/Store', label: isBn ? 'ফিল্টার অপশন' : 'Filter Options' },
-        { value: isBn ? 'এক ক্লিক' : 'One Click', label: isBn ? 'যেকোনো রিপোর্ট' : 'Any Report' },
+        { value: isBn ? 'COD/Tax' : 'COD/Tax', label: isBn ? 'রিকনসিলিয়েশন' : 'Reconciliation' },
     ];
 
     const reportCategories = [
@@ -47,10 +47,10 @@ export default function ReportsFeaturePage() {
             color: 'bg-blue-50 text-blue-600',
             title: isBn ? 'বিক্রয় ও রাজস্ব' : 'Sales & Revenue',
             reports: [
+                isBn ? 'বিজনেস ওভারভিউ রিপোর্ট' : 'Business Overview Report',
                 isBn ? 'দৈনিক / সাপ্তাহিক / মাসিক বিক্রয়' : 'Daily / Weekly / Monthly Sales',
                 isBn ? 'পণ্যভিত্তিক বিক্রয় বিশ্লেষণ' : 'Product-wise Sales Analysis',
-                isBn ? 'ক্যাটাগরিভিত্তিক বিক্রয়' : 'Category-wise Sales',
-                isBn ? 'ক্যাশিয়ারভিত্তিক বিক্রয়' : 'Sales by Cashier',
+                isBn ? 'স্টোরভিত্তিক বিক্রয় তুলনা' : 'Store-by-store Sales Comparison',
             ],
         },
         {
@@ -60,8 +60,8 @@ export default function ReportsFeaturePage() {
             reports: [
                 isBn ? 'লাভ-ক্ষতির বিবরণী (P&L)' : 'Profit & Loss Statement (P&L)',
                 isBn ? 'ডাবল-এন্ট্রি লেজার' : 'Double-Entry Ledger',
-                isBn ? 'জার্নাল এন্ট্রি লগ' : 'Journal Entry Log',
-                isBn ? 'খরচ বিশ্লেষণ রিপোর্ট' : 'Expense Analysis Report',
+                isBn ? 'ক্যাশ বুক ও ট্রায়াল ব্যালেন্স' : 'Cash Book & Trial Balance',
+                isBn ? 'পেমেন্ট সামারি রিপোর্ট' : 'Payment Summary Report',
             ],
         },
         {
@@ -72,7 +72,7 @@ export default function ReportsFeaturePage() {
                 isBn ? 'স্টক ভ্যালুয়েশন রিপোর্ট' : 'Stock Valuation Report',
                 isBn ? 'কম স্টক পণ্যের তালিকা' : 'Low-Stock Products List',
                 isBn ? 'স্টক মুভমেন্ট লগ' : 'Stock Movement Log',
-                isBn ? 'ডেড স্টক বিশ্লেষণ' : 'Dead Stock Analysis',
+                isBn ? 'স্টক ট্রান্সফার লেজার' : 'Stock Transfer Ledger',
             ],
         },
         {
@@ -83,7 +83,7 @@ export default function ReportsFeaturePage() {
                 isBn ? 'ট্যাক্স সংগ্রহ রিপোর্ট' : 'Tax Collection Report',
                 isBn ? 'ভ্যাট সারাংশ' : 'VAT Summary',
                 isBn ? 'ইনভয়েস তালিকা ও ইতিহাস' : 'Invoice List & History',
-                isBn ? 'পেমেন্ট পদ্ধতি বিশ্লেষণ' : 'Payment Method Breakdown',
+                isBn ? 'ফিসকাল রেডিনেস এভিডেন্স' : 'Fiscal Readiness Evidence',
             ],
         },
         {
@@ -93,8 +93,8 @@ export default function ReportsFeaturePage() {
             reports: [
                 isBn ? 'ক্রয় অর্ডার ইতিহাস' : 'Purchase Order History',
                 isBn ? 'সরবরাহকারী বকেয়া রিপোর্ট' : 'Supplier Due Report',
-                isBn ? 'ক্রয়ভিত্তিক খরচ বিশ্লেষণ' : 'Purchase Cost Analysis',
-                isBn ? 'সরবরাহকারী পারফরম্যান্স' : 'Supplier Performance',
+                isBn ? 'সাপ্লায়ার স্টেটমেন্ট' : 'Supplier Statement',
+                isBn ? 'COD রিকনসিলিয়েশন' : 'COD Reconciliation',
             ],
         },
         {
@@ -104,8 +104,19 @@ export default function ReportsFeaturePage() {
             reports: [
                 isBn ? 'শীর্ষ গ্রাহক রিপোর্ট' : 'Top Customers Report',
                 isBn ? 'গ্রাহক ক্রয় ইতিহাস' : 'Customer Purchase History',
-                isBn ? 'লয়ালটি টায়ার বিশ্লেষণ' : 'Loyalty Tier Analysis',
+                isBn ? 'কাস্টমার স্টেটমেন্ট' : 'Customer Statement',
                 isBn ? 'গ্রাহক বকেয়া রিপোর্ট' : 'Customer Due Report',
+            ],
+        },
+        {
+            icon: <LineChart className="h-6 w-6" />,
+            color: 'bg-sky-50 text-sky-600',
+            title: isBn ? 'Analytics ও BI' : 'Analytics & BI',
+            reports: [
+                isBn ? 'Branch benchmarking' : 'Branch Benchmarking',
+                isBn ? 'Cash-flow forecast' : 'Cash-flow Forecast',
+                isBn ? 'Custom report builder' : 'Custom Report Builder',
+                isBn ? 'Scheduled reports' : 'Scheduled Reports',
             ],
         },
     ];
@@ -134,10 +145,10 @@ export default function ReportsFeaturePage() {
         },
         {
             icon: <FileBarChart className="h-6 w-6" />,
-            title: isBn ? 'তুলনামূলক বিশ্লেষণ' : 'Comparative Analysis',
+            title: isBn ? 'Branch benchmarking' : 'Branch Benchmarking',
             desc: isBn
-                ? 'এই মাস বনাম গত মাস, এই বছর বনাম গত বছর — পারফরম্যান্স তুলনা করুন।'
-                : 'This month vs last month, this year vs last year — compare performance periods side by side.',
+                ? 'একাধিক store থাকলে কোন branch ভালো করছে, কোথায় stock বা cash pressure আছে তা তুলনা করুন।'
+                : 'Compare branches side by side so owners can see where sales, stock and cash pressure are changing.',
         },
         {
             icon: <DollarSign className="h-6 w-6" />,
@@ -148,10 +159,10 @@ export default function ReportsFeaturePage() {
         },
         {
             icon: <FileText className="h-6 w-6" />,
-            title: isBn ? 'মাল্টি-স্টোর রিপোর্ট' : 'Multi-Store Reports',
+            title: isBn ? 'COD ও fiscal readiness' : 'COD & Fiscal Readiness',
             desc: isBn
-                ? 'সব শাখার ডেটা একসাথে দেখুন বা যেকোনো একটি শাখার রিপোর্ট আলাদাভাবে দেখুন।'
-                : 'View combined data across all branches or drill down into any single store.',
+                ? 'Courier COD settlement, VAT/tax এবং fiscal evidence আলাদা করে দেখা ও export করার workflow।'
+                : 'Review courier COD settlement, VAT/tax and fiscal evidence workflows with export-ready records.',
         },
     ];
 
@@ -180,19 +191,29 @@ export default function ReportsFeaturePage() {
 
     const screenshots = [
         {
-            src: '/assets/LandingImage/updated/sales-report.webp',
-            title: isBn ? 'বিক্রয় রিপোর্ট' : 'Sales Report',
-            desc: isBn ? 'তারিখ, দোকান ও পেমেন্ট ধরে বিক্রির অবস্থা দেখুন।' : 'Track sales by date, store and payment method.',
+            src: '/assets/product-screenshots/current/desktop/reports-business-overview/reports-business-overview__reports__business-overview.png',
+            title: isBn ? 'বিজনেস ওভারভিউ' : 'Business Overview',
+            desc: isBn ? 'স্টোরভিত্তিক বা সামগ্রিক ব্যবসার পারফরম্যান্স দেখুন।' : 'Review store-by-store or overall business performance.',
         },
         {
-            src: '/assets/LandingImage/updated/profit-loss.webp',
+            src: '/assets/product-screenshots/current/desktop/reports-profit-loss/reports-profit-loss__reports__profit-loss.png',
             title: isBn ? 'লাভ-ক্ষতি রিপোর্ট' : 'Profit & Loss',
             desc: isBn ? 'আয়, খরচ ও লাভ এক জায়গায় বুঝুন।' : 'Understand income, expenses and profit in one place.',
         },
         {
-            src: '/assets/LandingImage/updated/tax-report.webp',
-            title: isBn ? 'ট্যাক্স রিপোর্ট' : 'Tax Report',
-            desc: isBn ? 'Tax/VAT হিসাব export করার মতো করে দেখুন।' : 'Review tax/VAT data in an export-ready view.',
+            src: '/assets/product-screenshots/current/desktop/analytics/analytics-branch-benchmarking__analytics__branch-benchmarking.png',
+            title: isBn ? 'Analytics ও BI' : 'Analytics & BI',
+            desc: isBn ? 'Branch benchmarking ও forecast দিয়ে owner decision নিন।' : 'Use branch benchmarking and forecasts for owner decisions.',
+        },
+        {
+            src: '/assets/product-screenshots/current/desktop/ecommerce/ecommerce-cod-reconciliation__ecommerce__cod-reconciliation.png',
+            title: isBn ? 'COD রিকনসিলিয়েশন' : 'COD Reconciliation',
+            desc: isBn ? 'Courier COD collected, paid ও unsettled amount মিলিয়ে দেখুন।' : 'Match collected, paid and unsettled courier COD.',
+        },
+        {
+            src: '/assets/product-screenshots/current/desktop/fiscal-compliance/fiscal-compliance__fiscal-compliance.png',
+            title: isBn ? 'Fiscal readiness' : 'Fiscal Readiness',
+            desc: isBn ? 'Invoice evidence ও compliance readiness নিয়ন্ত্রিতভাবে দেখুন।' : 'Track invoice evidence and compliance readiness without overclaiming certification.',
         },
     ];
 
@@ -260,7 +281,7 @@ export default function ReportsFeaturePage() {
                             {isBn ? 'বিক্রি, লাভ-ক্ষতি ও ট্যাক্স রিপোর্টের বাস্তব স্ক্রিন দেখে বুঝুন তথ্য কতটা পরিষ্কার।' : 'Real report screens show how sales, profit and tax data become clear.'}
                         </p>
                     </div>
-                    <div className="grid gap-5 lg:grid-cols-3">
+                    <div className="grid gap-5 lg:grid-cols-5">
                         {screenshots.map((shot) => (
                             <div key={shot.src} className="overflow-hidden rounded-2xl border border-gray-100 bg-gray-50 shadow-sm">
                                 <div className="relative aspect-[16/10]">
@@ -281,7 +302,7 @@ export default function ReportsFeaturePage() {
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="mb-14 text-center">
                         <h2 className="text-3xl font-black text-gray-900 sm:text-4xl">
-                            {isBn ? '৬ ক্যাটাগরিতে ২০+ রিপোর্ট' : '20+ Reports Across 6 Categories'}
+                            {isBn ? '৭ ক্যাটাগরিতে ৩০+ রিপোর্ট ও BI ভিউ' : '30+ Reports and BI Views Across 7 Categories'}
                         </h2>
                         <p className="mx-auto mt-3 max-w-xl text-base text-gray-500">
                             {isBn

@@ -145,19 +145,19 @@ export default function InventoryFeaturePage() {
 
     const screenshots = [
         {
-            src: '/assets/LandingImage/updated/products.webp',
-            title: isBn ? 'পণ্য ও স্টক তালিকা' : 'Product & Stock List',
-            desc: isBn ? 'স্টোর অনুযায়ী পণ্য, স্টক, দাম ও স্ট্যাটাস দ্রুত দেখুন।' : 'Review products, stock, price and status by store.',
+            src: '/assets/product-screenshots/current/desktop/product/products-thresholds__products__thresholds.png',
+            title: isBn ? 'স্টক থ্রেশহোল্ড' : 'Stock Thresholds',
+            desc: isBn ? 'প্রতিটি পণ্যের reorder point ও সতর্কতার মাত্রা নির্ধারণ করুন।' : 'Set reorder points and warning levels for each product.',
         },
         {
-            src: '/assets/LandingImage/updated/stock-report.webp',
+            src: '/assets/product-screenshots/current/desktop/reports-stock/reports-stock__reports__stock.png',
             title: isBn ? 'স্টক রিপোর্ট' : 'Stock Report',
             desc: isBn ? 'কম স্টক, স্টক ভ্যালু ও মুভমেন্ট রিপোর্ট পরিষ্কারভাবে দেখুন।' : 'See low stock, stock value and movement clearly.',
         },
         {
-            src: '/assets/LandingImage/updated/bulk-upload.webp',
-            title: isBn ? 'বাল্ক আপলোড' : 'Bulk Upload',
-            desc: isBn ? 'Excel দিয়ে একসাথে অনেক পণ্য আপলোড করুন।' : 'Upload many products together from Excel.',
+            src: '/assets/product-screenshots/current/desktop/stock-transfers/stock-transfers__stock-transfers.png',
+            title: isBn ? 'স্টক ট্রান্সফার' : 'Stock Transfers',
+            desc: isBn ? 'এক store থেকে আরেক store-এ stock transfer request, ship ও receive workflow।' : 'Move stock between stores with request, ship and receive workflow.',
         },
     ];
 

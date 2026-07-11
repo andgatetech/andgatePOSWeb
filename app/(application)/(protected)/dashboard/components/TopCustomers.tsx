@@ -36,7 +36,7 @@ export default function TopCustomers() {
     const { formatCurrency } = useCurrency();
     const [period, setPeriod] = useState('monthly');
 
-    const { data, isLoading } = useGetDashboardTopCustomersQuery(
+    const { data, isLoading, isError } = useGetDashboardTopCustomersQuery(
         { store_id: currentStoreId, period },
         { skip: !currentStoreId }
     );
@@ -80,6 +80,8 @@ export default function TopCustomers() {
                         </div>
                     ))}
                 </div>
+            ) : isError ? (
+                <div className="rounded-lg bg-danger/10 p-4 text-center text-sm text-danger">{t('msg_failed_to_load_dashboard')}</div>
             ) : customers.length === 0 ? (
                 <div className="py-8 text-center">
                     <Users className="mx-auto h-10 w-10 text-gray-300" />
