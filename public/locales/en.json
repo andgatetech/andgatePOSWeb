@@ -613,6 +613,7 @@
     "vs_excel": "POS vs Excel"
   },
   "overview": {
+    "eyebrow": "AndgatePOS workflow",
     "sectionTitle": "See Features by Daily Shop Work",
     "sectionSubtitle": "Sales, stock, dues, purchases, returns, and reports — see how AndgatePOS handles everyday shop work with real product screenshots.",
     "sections": [
@@ -752,6 +753,8 @@
     ]
   },
   "pricing_page": {
+    "loading_plans": "Loading plans…",
+    "load_error": "Failed to load pricing plans. Please try again later.",
     "hero": {
       "badge_text": "Transparent Pricing • No Hidden Costs",
       "title": "Simple, Transparent Pricing Plans",
@@ -861,6 +864,11 @@
       "title": "Loved by Business Owners in Bangladesh",
       "subtitle": "See how entrepreneurs across Bangladesh are growing with andgatePOS."
     },
+    "trust": {
+      "join_prefix": "Join",
+      "join_suffix": "businesses",
+      "rating_suffix": "average rating"
+    },
     "testimonials": [
       {
         "name": "Md. Rakib Hossain",
@@ -949,6 +957,28 @@
     "video_inventory_sync_desc": "Keep stock counts accurate across all your shop locations",
     "video_store_performance": "Store Performance",
     "video_store_performance_desc": "Compare sales and profit across your different branches",
+    "category_subscription_billing": "Subscription & Billing",
+    "category_subscription_billing_desc": "Understand your plan, renew or upgrade anytime, and track every payment",
+    "video_understanding_subscription": "Understanding Your Subscription",
+    "video_understanding_subscription_desc": "See your current package, status, and expiry date right from the sidebar and dashboard",
+    "kp_substatus_1": "Check your plan name, status, and expiry date anytime",
+    "kp_substatus_2": "Sidebar menu stays visible even if your plan expires",
+    "kp_substatus_3": "Support contact info is always one click away",
+    "video_renew_plan": "Renewing Your Plan",
+    "video_renew_plan_desc": "Submit a bKash, Nagad, Rocket, bank transfer, or cash payment for admin verification",
+    "kp_renew_1": "Pick a billing cycle — monthly, yearly, or custom duration",
+    "kp_renew_2": "Transaction ID, sender number, and receipt are optional — submit what you have",
+    "kp_renew_3": "Admin verifies your payment and your plan reactivates automatically",
+    "video_upgrade_plan": "Upgrading Your Plan",
+    "video_upgrade_plan_desc": "Compare all available packages side by side and switch to a bigger plan anytime",
+    "kp_upgrade_1": "Browse the Available Packages tab to compare prices and features",
+    "kp_upgrade_2": "Selecting a plan auto-fills the expected payment amount",
+    "kp_upgrade_3": "Works the same whether your current plan is active or expired",
+    "video_payment_verification": "Payment Verification & History",
+    "video_payment_verification_desc": "Track every payment you've submitted and what the admin decided",
+    "kp_payverify_1": "Transaction history shows date, method, amount, and status",
+    "kp_payverify_2": "Statuses: Submitted, Under Review, Approved, Rejected, Correction Requested",
+    "kp_payverify_3": "Rejection reason (if any) is shown right in the history table",
     "resources_title": "Additional Learning Resources",
     "resources_subtitle": "Videos, guides, and support — everything you need to get comfortable with the system.",
     "resource_manual": "User Manual (PDF)",
@@ -1618,7 +1648,7 @@
   "ecommerce_powered_by": "Powered by",
   "ecommerce_live_badge": "Live",
   "ecommerce_heading": "Your POS. Your Online Store. Automatically.",
-  "ecommerce_subheading": "Every plan includes a free Hawkeri-powered online store.",
+  "ecommerce_subheading": "From SME Growth and above, get a free Hawkeri-powered online store.",
   "ecommerce_desc": "No extra setup. No separate inventory. Add products in your dashboard — they appear in your online store instantly, ready for customers to browse and buy.",
   "ecommerce_f1_title": "Auto Product Sync",
   "ecommerce_f1_desc": "Products added to your POS appear instantly in your online store.",

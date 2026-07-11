@@ -118,7 +118,7 @@ export default function TestimonialsSection() {
                                 </div>
                             ))}
                         </div>
-                        <span>Join <span className="font-semibold text-gray-900">100+</span> businesses</span>
+                        <span>{t('testimonials.trust.join_prefix')} <span className="font-semibold text-gray-900">100+</span> {t('testimonials.trust.join_suffix')}</span>
                     </div>
                     <div className="hidden h-4 w-px bg-gray-200 sm:block" />
                     <div className="flex items-center gap-1.5 text-sm text-gray-500">
@@ -127,7 +127,7 @@ export default function TestimonialsSection() {
                                 <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                             ))}
                         </div>
-                        <span><span className="font-semibold text-gray-900">4.9/5</span> average rating</span>
+                        <span><span className="font-semibold text-gray-900">4.9/5</span> {t('testimonials.trust.rating_suffix')}</span>
                     </div>
                 </div>
             </div>

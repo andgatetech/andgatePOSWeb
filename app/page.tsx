@@ -123,7 +123,7 @@ export default function HomePage() {
                 name: 'Is there a free plan?',
                 acceptedAnswer: {
                     '@type': 'Answer',
-                    text: 'Yes. There is a free trial plan available — no credit card required. Upgrade only when your business grows to unlock more features.',
+                    text: "Yes. Try every feature free for 14 days on our Trial plan — no credit card required. Upgrade to a paid plan only when you're ready.",
                 },
             },
             {
@@ -131,7 +131,7 @@ export default function HomePage() {
                 name: 'Do I get an online store too?',
                 acceptedAnswer: {
                     '@type': 'Answer',
-                    text: 'Yes. Every plan includes a free Hawkeri-powered online store. Products you add in your POS dashboard appear in your online store instantly.',
+                    text: 'Yes — from SME Growth and above, you get a free Hawkeri-powered online store. Products you add in your POS dashboard appear in your online store instantly.',
                 },
             },
             {

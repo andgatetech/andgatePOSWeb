@@ -287,7 +287,7 @@ export default function OverViewSection({ id }: { id: string }) {
                 <div className="mb-10 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                     <div>
                         <span className="mb-3 inline-flex rounded-full bg-[#046ca9]/10 px-3 py-1 text-xs font-bold text-[#046ca9]">
-                            AndgatePOS workflow
+                            {t('overview.eyebrow')}
                         </span>
                         <h2 className="max-w-3xl text-3xl font-black text-gray-950 sm:text-4xl lg:text-5xl">
                             {t('overview.sectionTitle')}

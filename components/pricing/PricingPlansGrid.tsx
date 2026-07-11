@@ -126,11 +126,11 @@ export default function PricingPlansGrid({ showComparison = true, registerHref =
             {isLoading && (
                 <div className="flex items-center justify-center py-20">
                     <Loader2 className="h-10 w-10 animate-spin text-[#046ca9]" />
-                    <span className="ml-3 text-lg text-gray-500">Loading plans…</span>
+                    <span className="ml-3 text-lg text-gray-500">{t('pricing_page.loading_plans')}</span>
                 </div>
             )}
             {isError && !isLoading && (
-                <p className="py-10 text-center text-red-500">Failed to load pricing plans. Please try again later.</p>
+                <p className="py-10 text-center text-red-500">{t('pricing_page.load_error')}</p>
             )}
 
             {/* ── Plan cards ── */}

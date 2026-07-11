@@ -20,6 +20,7 @@ import {
     Store,
     Truck,
     Users,
+    Wallet,
     X,
     Zap,
 } from 'lucide-react';
@@ -647,6 +648,54 @@ export default function TrainingPage() {
                 },
             ],
         },
+        // ── 11: Subscription & Billing ───────────────────────────────
+        {
+            num: '12',
+            id: 'subscription-billing',
+            title: t('training.category_subscription_billing'),
+            desc: t('training.category_subscription_billing_desc'),
+            icon: <Wallet className="h-5 w-5" />,
+            gradient: 'from-indigo-500 to-indigo-700',
+            accent: '#4f46e5',
+            accentLight: 'bg-indigo-50',
+            accentBorder: 'border-indigo-200',
+            accentText: 'text-indigo-700',
+            isStartHere: false,
+            lessons: [
+                {
+                    title: t('training.video_understanding_subscription'),
+                    duration: '3:30',
+                    youtubeId: vid(0),
+                    difficulty: 'Beginner',
+                    desc: t('training.video_understanding_subscription_desc'),
+                    points: [t('training.kp_substatus_1'), t('training.kp_substatus_2'), t('training.kp_substatus_3')],
+                },
+                {
+                    title: t('training.video_renew_plan'),
+                    duration: '4:15',
+                    youtubeId: vid(1),
+                    difficulty: 'Beginner',
+                    desc: t('training.video_renew_plan_desc'),
+                    points: [t('training.kp_renew_1'), t('training.kp_renew_2'), t('training.kp_renew_3')],
+                },
+                {
+                    title: t('training.video_upgrade_plan'),
+                    duration: '3:45',
+                    youtubeId: vid(2),
+                    difficulty: 'Beginner',
+                    desc: t('training.video_upgrade_plan_desc'),
+                    points: [t('training.kp_upgrade_1'), t('training.kp_upgrade_2'), t('training.kp_upgrade_3')],
+                },
+                {
+                    title: t('training.video_payment_verification'),
+                    duration: '3:20',
+                    youtubeId: vid(0),
+                    difficulty: 'Beginner',
+                    desc: t('training.video_payment_verification_desc'),
+                    points: [t('training.kp_payverify_1'), t('training.kp_payverify_2'), t('training.kp_payverify_3')],
+                },
+            ],
+        },
     ];
 
     const activeModule = modules.find((mod) => mod.id === activeModuleId) ?? modules[0];
@@ -709,6 +758,7 @@ export default function TrainingPage() {
         reports: '/assets/LandingImage/updated/sales-report.webp',
         'multi-store': '/assets/LandingImage/updated/store-list.webp',
         'online-store': '/assets/LandingImage/updated/mobile-dashboard.webp',
+        'subscription-billing': '/assets/LandingImage/updated/dashboard.webp',
     };
 
     return (
