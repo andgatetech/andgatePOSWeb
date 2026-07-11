@@ -6837,5 +6837,17 @@
   "lbl_batch_short": "ব্যাচ",
   "lbl_expiry_short": "মেয়াদ",
   "lbl_expired": "মেয়াদোত্তীর্ণ",
-  "lbl_expiring_soon": "শীঘ্রই মেয়াদ শেষ"
+  "lbl_expiring_soon": "শীঘ্রই মেয়াদ শেষ",
+  "lbl_average_daily_net": "গড় দৈনিক নিট",
+  "lbl_custom_report": "কাস্টম রিপোর্ট",
+  "lbl_discounts": "ছাড়সমূহ",
+  "lbl_report": "রিপোর্ট",
+  "lbl_update": "আপডেট",
+  "msg_no_data_found": "কোনো ডেটা পাওয়া যায়নি",
+  "lbl_add": "যোগ করুন",
+  "lbl_copy": "কপি",
+  "lbl_customer_email": "কাস্টমারের ইমেইল",
+  "lbl_customer_name": "কাস্টমারের নাম",
+  "lbl_customer_phone": "কাস্টমারের ফোন",
+  "lbl_remarks": "মন্তব্য"
 }

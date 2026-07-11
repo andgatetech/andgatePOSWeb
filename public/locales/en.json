@@ -6870,5 +6870,17 @@
   "lbl_batch_short": "Batch",
   "lbl_expiry_short": "Expiry",
   "lbl_expired": "Expired",
-  "lbl_expiring_soon": "Expiring soon"
+  "lbl_expiring_soon": "Expiring soon",
+  "lbl_average_daily_net": "Average Daily Net",
+  "lbl_custom_report": "Custom Report",
+  "lbl_discounts": "Discounts",
+  "lbl_report": "Report",
+  "lbl_update": "Update",
+  "msg_no_data_found": "No data found",
+  "lbl_add": "Add",
+  "lbl_copy": "Copy",
+  "lbl_customer_email": "Customer Email",
+  "lbl_customer_name": "Customer Name",
+  "lbl_customer_phone": "Customer Phone",
+  "lbl_remarks": "Remarks"
 }
