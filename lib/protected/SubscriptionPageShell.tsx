@@ -1,4 +1,5 @@
 'use client';
+import { useEffect, useState } from 'react';
 import Footer from '@/components/layouts/footer';
 import Header from '@/components/layouts/header';
 import MainContainer from '@/components/layouts/main-container';
@@ -20,8 +21,13 @@ interface SubscriptionPageShellProps {
 // header/footer instead of a bare white page.
 export default function SubscriptionPageShell({ children }: SubscriptionPageShellProps) {
     const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+    const [mounted, setMounted] = useState(false);
 
-    if (isAuthenticated) {
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    if (mounted && isAuthenticated) {
         return (
             <MainContainer>
                 <Sidebar />
