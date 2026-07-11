@@ -47,6 +47,7 @@ import {
 } from 'lucide-react';
 
 import dynamic from 'next/dynamic';
+import Image from 'next/image';
 import Link from 'next/link';
 
 import { convertNumberByLanguage } from '@/components/custom/convertNumberByLanguage';
@@ -250,6 +251,46 @@ export default function HomePageClient() {
         t('report_type_lowstock'), t('report_type_expense'), t('report_type_pl'),
         t('report_type_vat'), t('report_type_supplier'), t('report_type_customer'),
         t('report_type_invoice'), t('report_type_returns'), t('report_type_threshold'),
+        t('report_type_business_overview'), t('report_type_cod'), t('report_type_fiscal'),
+    ];
+
+    const productScreenshots = [
+        {
+            image: '/assets/product-screenshots/current/desktop/dashboard/dashboard__dashboard.png',
+            title: isBn ? 'মালিকের লাইভ ড্যাশবোর্ড' : 'Owner Live Dashboard',
+            desc: isBn ? 'বিক্রি, অর্ডার, পেমেন্ট, স্টক অ্যালার্ট ও দৈনিক অপারেশন এক স্ক্রিনে।' : 'Sales, orders, payment mix, stock alerts, and daily operating signals in one screen.',
+            href: '/demo',
+        },
+        {
+            image: '/assets/product-screenshots/current/desktop/business-os/business-os__business-os.png',
+            title: isBn ? 'Business OS কমান্ড সেন্টার' : 'Business OS Command Center',
+            desc: isBn ? 'Cash closing, petty cash, due, service jobs, stock exceptions এবং owner tasks এক জায়গায়।' : 'Cash closing, petty cash, dues, service jobs, stock exceptions, and owner tasks in one operating view.',
+            href: '/features/reports',
+        },
+        {
+            image: '/assets/product-screenshots/current/desktop/reports-business-overview/reports-business-overview__reports__business-overview.png',
+            title: isBn ? 'স্টোরভিত্তিক ও সামগ্রিক রিপোর্ট' : 'Store-by-Store and Overall Reports',
+            desc: isBn ? 'একাধিক দোকান থাকলে branch-wise এবং total business performance আলাদা করে দেখুন।' : 'For multi-store owners, review each branch and the total business performance from the same reporting surface.',
+            href: '/features/reports',
+        },
+        {
+            image: '/assets/product-screenshots/current/desktop/analytics/analytics-branch-benchmarking__analytics__branch-benchmarking.png',
+            title: isBn ? 'Analytics ও BI' : 'Analytics and BI',
+            desc: isBn ? 'Branch benchmarking, cash-flow forecast, custom reports এবং scheduled reporting দিয়ে সিদ্ধান্ত নিন।' : 'Branch benchmarking, cash-flow forecasting, custom reports, and scheduled reporting for owner decisions.',
+            href: '/features/reports',
+        },
+        {
+            image: '/assets/product-screenshots/current/desktop/ecommerce/ecommerce-cod-reconciliation__ecommerce__cod-reconciliation.png',
+            title: isBn ? 'Courier COD reconciliation' : 'Courier COD Reconciliation',
+            desc: isBn ? 'Pathao, Steadfast বা RedX order-এর COD collected, paid, fee ও unsettled amount মিলিয়ে দেখুন।' : 'Track collected, paid, fee, returned, and unsettled COD across courier-connected online orders.',
+            href: '/features/reports',
+        },
+        {
+            image: '/assets/product-screenshots/current/desktop/fiscal-compliance/fiscal-compliance__fiscal-compliance.png',
+            title: isBn ? 'Fiscal readiness ও compliance' : 'Fiscal Readiness and Compliance',
+            desc: isBn ? 'Invoice evidence, compliance calendar ও controlled claim messaging রাখুন; certified দাবি শুধু official হলে।' : 'Keep invoice evidence, compliance calendar tasks, and controlled claim messaging without overstating certification.',
+            href: '/features/reports',
+        },
     ];
 
     const faqs = [
@@ -576,6 +617,51 @@ export default function HomePageClient() {
                                     <div className="text-sm text-white/70">{stat.label}</div>
                                 </div>
                             </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* ── Fresh Product Proof ── */}
+            <section className="bg-white py-24">
+                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <div className="mb-12 grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-end">
+                        <div>
+                            <span className="mb-4 inline-block rounded-full border border-[#046ca9]/20 bg-[#046ca9]/5 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[#046ca9]">
+                                {isBn ? 'লাইভ প্রোডাক্ট স্ক্রিন' : 'Live Product Screens'}
+                            </span>
+                            <h2 className="text-3xl font-black leading-tight text-gray-900 sm:text-4xl">
+                                {isBn ? 'শুধু POS না — পুরো ব্যবসা চালানোর অপারেটিং সিস্টেম' : 'Not only POS — the operating system for the whole business'}
+                            </h2>
+                        </div>
+                        <p className="text-base leading-8 text-gray-500">
+                            {isBn
+                                ? 'আজকের live AndgatePOS থেকে নেওয়া স্ক্রিনশট: checkout, owner dashboard, multi-store reports, Analytics/BI, COD reconciliation, stock transfer এবং fiscal readiness একসাথে দেখা যাচ্ছে।'
+                                : 'Fresh screenshots from the live AndgatePOS app show checkout, owner dashboard, multi-store reports, Analytics/BI, COD reconciliation, stock transfer, and fiscal-readiness workflows working together.'}
+                        </p>
+                    </div>
+
+                    <div className="grid gap-6 lg:grid-cols-3">
+                        {productScreenshots.map((item) => (
+                            <Link
+                                key={item.title}
+                                href={item.href}
+                                className="group overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all hover:-translate-y-1 hover:border-[#046ca9]/20 hover:shadow-xl"
+                            >
+                                <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
+                                    <Image
+                                        src={item.image}
+                                        alt={item.title}
+                                        fill
+                                        sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                                        className="object-cover object-top transition duration-500 group-hover:scale-[1.03]"
+                                    />
+                                </div>
+                                <div className="p-5">
+                                    <h3 className="text-base font-black text-gray-900">{item.title}</h3>
+                                    <p className="mt-2 text-sm leading-6 text-gray-500">{item.desc}</p>
+                                </div>
+                            </Link>
                         ))}
                     </div>
                 </div>

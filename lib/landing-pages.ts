@@ -51,7 +51,7 @@ const makePage = (
     useCases: string[],
     faq: Array<{ question: string; answer: string }>,
     secondaryKeywords: string[] = [],
-    image = '/assets/LandingImage/updated/pos.webp'
+    image = '/assets/product-screenshots/current/desktop/pos/pos__pos.png'
 ): LandingPage => ({
     slug,
     title,
@@ -104,7 +104,7 @@ const seoExpansionPages: LandingPage[] = [
             { question: 'Does it support supplier purchases?', answer: 'Yes. Purchase orders, supplier dues and stock updates are part of the inventory workflow.' },
         ],
         ['mobile shop software Bangladesh', 'electronics inventory software Bangladesh', 'serial stock POS Bangladesh'],
-        '/assets/LandingImage/updated/stock-report.webp'
+        '/assets/product-screenshots/current/desktop/reports-stock/reports-stock__reports__stock.png'
     ),
     makePage(
         'cloud-pos-software-bangladesh',
@@ -121,7 +121,7 @@ const seoExpansionPages: LandingPage[] = [
             { question: 'Does AndgatePOS also support offline counter selling?', answer: 'The POS workflow is designed to continue counter sales during internet interruptions and sync when the connection returns.' },
         ],
         ['web based POS Bangladesh', 'online POS software Bangladesh', 'cloud retail software Bangladesh'],
-        '/assets/LandingImage/updated/dashboard.webp'
+        '/assets/product-screenshots/current/desktop/dashboard/dashboard__dashboard.png'
     ),
     makePage(
         'offline-pos-software-bangladesh',
@@ -138,7 +138,7 @@ const seoExpansionPages: LandingPage[] = [
             { question: 'Is offline mode a replacement for internet?', answer: 'No. Internet is still needed for sync, setup and cloud access, but offline mode reduces interruption during checkout.' },
         ],
         ['PWA POS Bangladesh', 'offline billing software Bangladesh', 'POS without internet Bangladesh'],
-        '/assets/LandingImage/updated/mobile-pos.webp'
+        '/assets/product-screenshots/current/mobile/pos/pos__pos.png'
     ),
     makePage(
         'pos-system-for-small-business',
@@ -155,7 +155,7 @@ const seoExpansionPages: LandingPage[] = [
             { question: 'Can I start free?', answer: 'Yes. AndgatePOS has a free starting option for businesses that want to try the workflow first.' },
         ],
         ['small business POS Bangladesh', 'shop management software Bangladesh', 'SME POS Bangladesh'],
-        '/assets/LandingImage/updated/dashboard.webp'
+        '/assets/product-screenshots/current/desktop/dashboard/dashboard__dashboard.png'
     ),
     makePage(
         'barcode-pos-software-bangladesh',
@@ -189,7 +189,7 @@ const seoExpansionPages: LandingPage[] = [
             { question: 'Does it support branch-wise sales?', answer: 'Yes. Multi-store businesses can review sales and stock by store when configured.' },
         ],
         ['retail sales software Bangladesh', 'shop sales report software Bangladesh', 'business reporting software Bangladesh'],
-        '/assets/LandingImage/updated/sales-report.webp'
+        '/assets/product-screenshots/current/desktop/reports-business-overview/reports-business-overview__reports__business-overview.png'
     ),
     makePage(
         'multi-branch-pos-software',
@@ -206,7 +206,7 @@ const seoExpansionPages: LandingPage[] = [
             { question: 'Is multi-branch required?', answer: 'No. A business can start with one store and add more later.' },
         ],
         ['multi store POS Bangladesh', 'branch management software Bangladesh', 'retail chain POS Bangladesh'],
-        '/assets/LandingImage/updated/dashboard.webp'
+        '/assets/product-screenshots/current/desktop/dashboard/dashboard__dashboard.png'
     ),
     makePage(
         'andgatepos-vs-traditional-pos',
@@ -223,7 +223,7 @@ const seoExpansionPages: LandingPage[] = [
             { question: 'Can I migrate gradually?', answer: 'Yes. Businesses can add products, test checkout and train staff before fully moving operations.' },
         ],
         ['cloud POS vs traditional POS Bangladesh', 'desktop POS alternative Bangladesh', 'SaaS POS Bangladesh'],
-        '/assets/LandingImage/updated/pos.webp'
+        '/assets/product-screenshots/current/desktop/pos/pos__pos.png'
     ),
     makePage(
         'andgatepos-features',
@@ -240,7 +240,7 @@ const seoExpansionPages: LandingPage[] = [
             { question: 'Does AndgatePOS connect with ecommerce?', answer: 'Yes. AndgatePOS connects with Hawkeri online store workflows, courier setup and COD reconciliation for businesses selling online.' },
         ],
         ['POS software features Bangladesh', 'AndgatePOS inventory features', 'AndgatePOS reports'],
-        '/assets/LandingImage/updated/dashboard.webp'
+        '/assets/product-screenshots/current/desktop/business-os/business-os__business-os.png'
     ),
     makePage(
         'andgatepos-pricing',
@@ -274,7 +274,7 @@ const seoExpansionPages: LandingPage[] = [
             { question: 'Can staff join the demo?', answer: 'Yes. Including counter staff or managers helps evaluate real workflow fit.' },
         ],
         ['POS software demo Bangladesh', 'AndgatePOS training', 'POS onboarding Bangladesh'],
-        '/assets/LandingImage/updated/pos.webp'
+        '/assets/product-screenshots/current/desktop/pos/pos__pos.png'
     ),
     makePage(
         'faq',
@@ -293,7 +293,7 @@ const seoExpansionPages: LandingPage[] = [
             { question: 'Does AndgatePOS support multi-branch businesses?', answer: 'Yes. Businesses can start with one store and expand into multi-store workflows with staff roles and branch-wise reporting.' },
         ],
         ['AndgatePOS questions', 'POS software FAQ Bangladesh', 'AndgatePOS support'],
-        '/assets/LandingImage/updated/dashboard.webp'
+        '/assets/product-screenshots/current/desktop/dashboard/dashboard__dashboard.png'
     ),
 ];
 
@@ -322,7 +322,7 @@ export const landingPages: LandingPage[] = [
             'দোকানের পস সফটওয়্যার',
         ],
         audience: 'Retail shops, grocery stores, pharmacies, fashion shops, restaurants, electronics stores and multi-branch businesses.',
-        image: '/assets/LandingImage/updated/pos.webp',
+        image: '/assets/product-screenshots/current/desktop/pos/pos__pos.png',
         highlights: ['Works offline at the counter', 'Business OS for daily shop operations', 'Store-by-store reporting and stock counts', 'Hawkeri online store, COD and fiscal readiness'],
         modules: commonModules,
         useCases: [
@@ -419,7 +419,7 @@ export const landingPages: LandingPage[] = [
         primaryKeyword: 'pharmacy POS software Bangladesh',
         secondaryKeywords: ['pharmacy software Bangladesh', 'medicine shop software Bangladesh', 'pharmacy billing software Bangladesh', 'medicine inventory software Bangladesh'],
         audience: 'Pharmacies, medicine shops, healthcare retail counters and multi-branch pharmacy businesses.',
-        image: '/assets/LandingImage/updated/stock-report.webp',
+        image: '/assets/product-screenshots/current/desktop/reports-stock/reports-stock__reports__stock.png',
         highlights: ['Low-stock alerts', 'Supplier purchase tracking', 'Customer history', 'Inventory reports'],
         modules: commonModules,
         useCases: ['Know which medicines need reorder', 'Track supplier bills and dues', 'See daily sales by product', 'Reduce manual billing mistakes'],
@@ -444,7 +444,7 @@ export const landingPages: LandingPage[] = [
         primaryKeyword: 'grocery POS software Bangladesh',
         secondaryKeywords: ['supermarket software Bangladesh', 'grocery billing software Bangladesh', 'barcode POS software Bangladesh', 'mini mart POS software Bangladesh', 'barcode billing software Bangladesh'],
         audience: 'Grocery stores, mini marts, super shops and neighborhood retail counters.',
-        image: '/assets/LandingImage/updated/bulk-upload.webp',
+        image: '/assets/product-screenshots/current/desktop/product/products-thresholds__products__thresholds.png',
         highlights: ['Barcode checkout', 'Bulk product import', 'Supplier dues', 'Low-stock reorder alerts'],
         modules: commonModules,
         useCases: ['Scan products quickly at checkout', 'Import product lists from Excel', 'Track stock by category', 'Manage supplier payments and purchase orders'],
@@ -494,7 +494,7 @@ export const landingPages: LandingPage[] = [
         primaryKeyword: 'billing software Bangladesh',
         secondaryKeywords: ['shop billing software Bangladesh', 'invoice software Bangladesh', 'POS billing software Bangladesh', 'retail billing software Bangladesh', 'barcode billing software Bangladesh'],
         audience: 'Retail counters, service shops, pharmacies, grocery stores, fashion stores and electronics shops.',
-        image: '/assets/LandingImage/updated/sales-report.webp',
+        image: '/assets/product-screenshots/current/desktop/reports-business-overview/reports-business-overview__reports__business-overview.png',
         highlights: ['Instant invoices', 'Receipt printing', 'Payment status tracking', 'VAT and tax reports'],
         modules: commonModules,
         useCases: ['Replace handwritten cash memos', 'Track paid, partial and due payments', 'Print invoices for customers', 'Review invoice history anytime'],
