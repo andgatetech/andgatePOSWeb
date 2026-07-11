@@ -1,0 +1,235 @@
+{
+  "baseUrl": "https://andgatepos.com",
+  "outDir": "public/assets/product-screenshots/current",
+  "startedAt": "2026-07-11T14:06:53.420Z",
+  "lang": "app-default",
+  "pages": [
+    {
+      "status": "ok",
+      "viewport": "desktop",
+      "group": "dashboard",
+      "name": "dashboard",
+      "path": "/dashboard",
+      "file": "public/assets/product-screenshots/current/desktop/dashboard/dashboard__dashboard.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "desktop",
+      "group": "business-os",
+      "name": "business-os",
+      "path": "/business-os",
+      "file": "public/assets/product-screenshots/current/desktop/business-os/business-os__business-os.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "desktop",
+      "group": "reports-business-overview",
+      "name": "reports-business-overview",
+      "path": "/reports/business-overview",
+      "file": "public/assets/product-screenshots/current/desktop/reports-business-overview/reports-business-overview__reports__business-overview.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "desktop",
+      "group": "reports-profit-loss",
+      "name": "reports-profit-loss",
+      "path": "/reports/profit-loss",
+      "file": "public/assets/product-screenshots/current/desktop/reports-profit-loss/reports-profit-loss__reports__profit-loss.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "desktop",
+      "group": "reports-stock",
+      "name": "reports-stock",
+      "path": "/reports/stock",
+      "file": "public/assets/product-screenshots/current/desktop/reports-stock/reports-stock__reports__stock.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "desktop",
+      "group": "analytics",
+      "name": "analytics-branch-benchmarking",
+      "path": "/analytics/branch-benchmarking",
+      "file": "public/assets/product-screenshots/current/desktop/analytics/analytics-branch-benchmarking__analytics__branch-benchmarking.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "desktop",
+      "group": "analytics",
+      "name": "analytics-cash-flow-forecast",
+      "path": "/analytics/cash-flow-forecast",
+      "file": "public/assets/product-screenshots/current/desktop/analytics/analytics-cash-flow-forecast__analytics__cash-flow-forecast.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "desktop",
+      "group": "analytics",
+      "name": "analytics-custom-reports",
+      "path": "/analytics/custom-reports",
+      "file": "public/assets/product-screenshots/current/desktop/analytics/analytics-custom-reports__analytics__custom-reports.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "desktop",
+      "group": "fiscal-compliance",
+      "name": "fiscal-compliance",
+      "path": "/fiscal-compliance",
+      "file": "public/assets/product-screenshots/current/desktop/fiscal-compliance/fiscal-compliance__fiscal-compliance.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "desktop",
+      "group": "compliance-calendar",
+      "name": "compliance-calendar",
+      "path": "/compliance-calendar",
+      "file": "public/assets/product-screenshots/current/desktop/compliance-calendar/compliance-calendar__compliance-calendar.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "desktop",
+      "group": "ecommerce",
+      "name": "ecommerce-cod-reconciliation",
+      "path": "/ecommerce/cod-reconciliation",
+      "file": "public/assets/product-screenshots/current/desktop/ecommerce/ecommerce-cod-reconciliation__ecommerce__cod-reconciliation.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "desktop",
+      "group": "stock-transfers",
+      "name": "stock-transfers",
+      "path": "/stock-transfers",
+      "file": "public/assets/product-screenshots/current/desktop/stock-transfers/stock-transfers__stock-transfers.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "desktop",
+      "group": "product",
+      "name": "products-thresholds",
+      "path": "/products/thresholds",
+      "file": "public/assets/product-screenshots/current/desktop/product/products-thresholds__products__thresholds.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "desktop",
+      "group": "pos",
+      "name": "pos",
+      "path": "/pos",
+      "file": "public/assets/product-screenshots/current/desktop/pos/pos__pos.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "mobile",
+      "group": "dashboard",
+      "name": "dashboard",
+      "path": "/dashboard",
+      "file": "public/assets/product-screenshots/current/mobile/dashboard/dashboard__dashboard.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "mobile",
+      "group": "business-os",
+      "name": "business-os",
+      "path": "/business-os",
+      "file": "public/assets/product-screenshots/current/mobile/business-os/business-os__business-os.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "mobile",
+      "group": "reports-business-overview",
+      "name": "reports-business-overview",
+      "path": "/reports/business-overview",
+      "file": "public/assets/product-screenshots/current/mobile/reports-business-overview/reports-business-overview__reports__business-overview.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "mobile",
+      "group": "reports-profit-loss",
+      "name": "reports-profit-loss",
+      "path": "/reports/profit-loss",
+      "file": "public/assets/product-screenshots/current/mobile/reports-profit-loss/reports-profit-loss__reports__profit-loss.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "mobile",
+      "group": "reports-stock",
+      "name": "reports-stock",
+      "path": "/reports/stock",
+      "file": "public/assets/product-screenshots/current/mobile/reports-stock/reports-stock__reports__stock.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "mobile",
+      "group": "analytics",
+      "name": "analytics-branch-benchmarking",
+      "path": "/analytics/branch-benchmarking",
+      "file": "public/assets/product-screenshots/current/mobile/analytics/analytics-branch-benchmarking__analytics__branch-benchmarking.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "mobile",
+      "group": "analytics",
+      "name": "analytics-cash-flow-forecast",
+      "path": "/analytics/cash-flow-forecast",
+      "file": "public/assets/product-screenshots/current/mobile/analytics/analytics-cash-flow-forecast__analytics__cash-flow-forecast.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "mobile",
+      "group": "analytics",
+      "name": "analytics-custom-reports",
+      "path": "/analytics/custom-reports",
+      "file": "public/assets/product-screenshots/current/mobile/analytics/analytics-custom-reports__analytics__custom-reports.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "mobile",
+      "group": "fiscal-compliance",
+      "name": "fiscal-compliance",
+      "path": "/fiscal-compliance",
+      "file": "public/assets/product-screenshots/current/mobile/fiscal-compliance/fiscal-compliance__fiscal-compliance.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "mobile",
+      "group": "compliance-calendar",
+      "name": "compliance-calendar",
+      "path": "/compliance-calendar",
+      "file": "public/assets/product-screenshots/current/mobile/compliance-calendar/compliance-calendar__compliance-calendar.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "mobile",
+      "group": "ecommerce",
+      "name": "ecommerce-cod-reconciliation",
+      "path": "/ecommerce/cod-reconciliation",
+      "file": "public/assets/product-screenshots/current/mobile/ecommerce/ecommerce-cod-reconciliation__ecommerce__cod-reconciliation.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "mobile",
+      "group": "stock-transfers",
+      "name": "stock-transfers",
+      "path": "/stock-transfers",
+      "file": "public/assets/product-screenshots/current/mobile/stock-transfers/stock-transfers__stock-transfers.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "mobile",
+      "group": "product",
+      "name": "products-thresholds",
+      "path": "/products/thresholds",
+      "file": "public/assets/product-screenshots/current/mobile/product/products-thresholds__products__thresholds.png"
+    },
+    {
+      "status": "ok",
+      "viewport": "mobile",
+      "group": "pos",
+      "name": "pos",
+      "path": "/pos",
+      "file": "public/assets/product-screenshots/current/mobile/pos/pos__pos.png"
+    }
+  ],
+  "finishedAt": "2026-07-11T14:09:07.021Z",
+  "total": 28,
+  "failed": 0
+}
