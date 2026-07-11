@@ -234,6 +234,7 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     '/reports/customer': ['reports.customer'],
     '/reports/customer-due': ['reports.customer-due'],
     '/reports/ar-aging': ['reports.ar-aging'],
+    '/fiscal-compliance': ['fiscal.compliance.view'],
 
     // ── Reports: Purchase & Supplier ────────────────────────────
     '/reports/purchase': ['reports.purchase'],

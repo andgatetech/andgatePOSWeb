@@ -463,6 +463,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
             'reports.inventory',
             'reports.low-stock',
             'stock.reports',
+            'fiscal.compliance.view',
         ],
         subMenu: [
             // Sales & Revenue Reports
@@ -479,6 +480,13 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                     { label: 'Discount Report', href: '/reports/discount', requiredPermissions: ['reports.operations.discount'] },
                     { label: 'Invoices', href: '/reports/invoice', requiredPermissions: ['reports.invoice'] },
                     { label: 'Sales Items', href: '/reports/sales-items', requiredPermissions: ['reports.sales-items'] },
+                ],
+            },
+            {
+                label: 'Fiscal Compliance',
+                requiredPermissions: ['fiscal.compliance.view'],
+                subMenu: [
+                    { label: 'Compliance Center', href: '/fiscal-compliance', requiredPermissions: ['fiscal.compliance.view'] },
                 ],
             },
             // Customer Reports
