@@ -28,15 +28,19 @@ const commonModules = [
     },
     {
         title: 'Reports and business overview',
-        description: 'See sales, profit and loss, VAT/tax, store-by-store business overview, supplier dues, customer activity, stock value, and daily expenses.',
+        description: 'See sales, profit and loss, ledgers, cash book, VAT/tax, store-by-store business overview, supplier dues, customer activity, stock value, and daily expenses.',
     },
     {
         title: 'Bangladesh-ready payments',
         description: 'Record cash, bKash, Nagad, Rocket, Upay, card, bank transfer, partial payments, and customer dues.',
     },
     {
+        title: 'Business OS, HR and cash drawer',
+        description: 'Run cash drawer sessions, cash closing, petty cash, staff attendance, payroll, leave, shifts, service jobs, owner tasks, and operational approvals.',
+    },
+    {
         title: 'Compliance and ecommerce controls',
-        description: 'Track fiscal-readiness evidence, compliance reminders, courier setup, ecommerce orders, and COD reconciliation without claiming certification.',
+        description: 'Track fiscal-readiness evidence, compliance reminders, Hawkeri products, courier setup, ecommerce orders, fraud-risk checks, and COD reconciliation without claiming certification.',
     },
 ];
 
@@ -56,11 +60,11 @@ const makePage = (
     slug,
     title,
     metaTitle: `${title} | AndgatePOS`,
-    metaDescription: `${intro} Built for Bangladeshi SMEs with billing, stock, reports, COD reconciliation, fiscal-readiness controls, local payments, training and demo support.`,
+    metaDescription: `${intro} Built for Bangladeshi SMEs with billing, stock, accounting, HR, cash drawer, COD reconciliation, fiscal-readiness controls, local payments, training and demo support.`,
     h1,
     eyebrow: 'Bangladesh SME POS',
     intro,
-    banglaIntro: 'বাংলাদেশি SME ব্যবসার জন্য AndgatePOS বিলিং, স্টক, রিপোর্ট, লোকাল পেমেন্ট, ট্রেনিং ও ডেমো সাপোর্ট এক জায়গায় দেয়।',
+    banglaIntro: 'বাংলাদেশি SME ব্যবসার জন্য AndgatePOS বিলিং, স্টক, হিসাব, কর্মী, ক্যাশ ড্রয়ার, রিপোর্ট, লোকাল পেমেন্ট, ট্রেনিং ও ডেমো সাপোর্ট এক জায়গায় দেয়।',
     primaryKeyword,
     secondaryKeywords,
     audience,
