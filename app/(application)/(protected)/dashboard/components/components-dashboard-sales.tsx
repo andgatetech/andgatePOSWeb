@@ -21,18 +21,21 @@ import SubscriptionPaymentStatus from './SubscriptionPaymentStatus';
 import Summary from './Summary';
 import TopCustomers from './TopCustomers';
 
+// Business-owner priority sequence: urgent attention → guidance → pulse → action →
+// money owed → billing → deep analytics → breakdowns. Keep in sync with
+// DashboardLayoutController::DEFAULT_WIDGETS (backend) and analytics/dashboard-widgets/page.tsx.
 const DEFAULT_WIDGETS = [
-    { key: 'business_health', visible: true, order: 1, cols: 12 },
-    { key: 'quick_actions', visible: true, order: 2, cols: 12 },
-    { key: 'onboarding', visible: true, order: 3, cols: 12 },
-    { key: 'subscription', visible: true, order: 4, cols: 12 },
-    { key: 'summary', visible: true, order: 5, cols: 12 },
-    { key: 'alerts', visible: true, order: 6, cols: 12 },
-    { key: 'customer_due', visible: true, order: 7, cols: 12 },
+    { key: 'alerts', visible: true, order: 1, cols: 12 },
+    { key: 'onboarding', visible: true, order: 2, cols: 12 },
+    { key: 'business_health', visible: true, order: 3, cols: 12 },
+    { key: 'summary', visible: true, order: 4, cols: 12 },
+    { key: 'quick_actions', visible: true, order: 5, cols: 12 },
+    { key: 'customer_due', visible: true, order: 6, cols: 12 },
+    { key: 'subscription', visible: true, order: 7, cols: 12 },
     { key: 'analytics', visible: true, order: 8, cols: 12 },
     { key: 'sections', visible: true, order: 9, cols: 12 },
-    { key: 'section_four', visible: true, order: 10, cols: 12 },
-    { key: 'profit_expense', visible: true, order: 11, cols: 12 },
+    { key: 'profit_expense', visible: true, order: 10, cols: 12 },
+    { key: 'section_four', visible: true, order: 11, cols: 12 },
     { key: 'section_five', visible: true, order: 12, cols: 9 },
     { key: 'top_customers', visible: true, order: 13, cols: 3 },
 ];
@@ -74,7 +77,12 @@ const ComponentsDashboardSales = () => {
     const widgets = useMemo(() => {
         const saved = layoutData?.data?.layout?.widgets;
         if (canCustomize && saved?.length) {
-            return saved;
+            // Backfill any widget key missing from an older saved layout (e.g. saved
+            // before a widget existed) so it doesn't silently disappear — same fix as
+            // analytics/dashboard-widgets/page.tsx.
+            const savedKeys = new Set(saved.map((w: any) => w.key));
+            const missing = DEFAULT_WIDGETS.filter((w) => !savedKeys.has(w.key));
+            return [...saved, ...missing];
         }
         return DEFAULT_WIDGETS;
     }, [layoutData, canCustomize]);
