@@ -194,6 +194,22 @@ export default function TrainingPage() {
                     points: ['Prepare salary cycles from attendance and adjustments', 'Record salary advances and deductions', 'Manage festival bonus and payment status'],
                 },
                 {
+                    title: 'Salary Advance Requests',
+                    duration: '4:15',
+                    youtubeId: vid(1),
+                    difficulty: 'Intermediate',
+                    desc: 'Record employee salary advance requests, approvals, deductions, and repayment history.',
+                    points: ['Create salary advance requests for staff', 'Approve or reject owner-controlled advances', 'Connect approved advances with salary cycle deductions'],
+                },
+                {
+                    title: 'Festival Bonus Workflow',
+                    duration: '4:00',
+                    youtubeId: vid(2),
+                    difficulty: 'Intermediate',
+                    desc: 'Prepare Eid or festival bonus records, review eligibility, and track payment status.',
+                    points: ['Create festival bonus cycles', 'Review staff eligibility and amounts', 'Track paid and pending bonus records'],
+                },
+                {
                     title: 'Leave, Shift, Holiday & Documents',
                     duration: '5:00',
                     youtubeId: vid(0),
