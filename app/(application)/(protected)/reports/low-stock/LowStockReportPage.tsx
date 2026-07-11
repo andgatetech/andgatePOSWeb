@@ -92,11 +92,11 @@ const LowStockReportPage = () => {
             const result = await createReorderDraft({ store_id: currentStoreId, product_ids: [productId] }).unwrap();
             router.push(result.data.redirect_url);
         } catch {
-            alert('Failed to create reorder draft. Please try again.');
+            alert(t('msg_failed_create_reorder_draft'));
         } finally {
             setReorderLoading(null);
         }
-    }, [currentStoreId, createReorderDraft, router]);
+    }, [currentStoreId, createReorderDraft, router, t]);
 
     const handleBatchReorder = useCallback(async () => {
         if (!currentStoreId || selectedIds.length === 0) return;
@@ -105,9 +105,9 @@ const LowStockReportPage = () => {
             setSelectedIds([]);
             router.push(result.data.redirect_url);
         } catch {
-            alert('Failed to create reorder draft. Please try again.');
+            alert(t('msg_failed_create_reorder_draft'));
         }
-    }, [currentStoreId, selectedIds, createReorderDraft, router]);
+    }, [currentStoreId, selectedIds, createReorderDraft, router, t]);
 
     const fetchAllDataForExport = useCallback(async (): Promise<any[]> => {
         const exportParams: Record<string, any> = { ...apiParams, export: true, sort_field: sortField, sort_direction: sortDirection };

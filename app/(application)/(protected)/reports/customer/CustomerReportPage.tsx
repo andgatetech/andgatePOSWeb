@@ -115,12 +115,12 @@ const CustomerReportPage = () => {
             ? userStores.find((s: any) => s.id === apiParams.store_id)?.store_name || currentStore?.store_name || t('lbl_all_stores')
             : currentStore?.store_name || t('lbl_all_stores');
         const customFilters: { label: string; value: string }[] = [];
-        if (apiParams.only_due) customFilters.push({ label: t('btn_filter'), value: 'Only Due' });
+        if (apiParams.only_due) customFilters.push({ label: t('btn_filter'), value: t('lbl_only_due') });
         let dateType = 'none';
         if (apiParams.date_range_type) dateType = apiParams.date_range_type;
         else if (apiParams.start_date || apiParams.end_date) dateType = 'custom';
         return { dateRange: { startDate: apiParams.start_date, endDate: apiParams.end_date, type: dateType }, storeName: selectedStore, customFilters };
-    }, [apiParams, currentStore, userStores]);
+    }, [apiParams, currentStore, userStores, t]);
 
     const exportSummary = useMemo(
         () => [
@@ -201,7 +201,7 @@ const CustomerReportPage = () => {
                 textColor: 'text-amber-600',
             },
         ],
-        [summary, formatCurrency]
+        [summary, formatCurrency, formatNumber, t]
     );
 
     const columns = useMemo(

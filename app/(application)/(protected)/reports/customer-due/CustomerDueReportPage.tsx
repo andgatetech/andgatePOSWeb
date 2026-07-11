@@ -452,11 +452,11 @@ const CustomerDueReportPage = () => {
                     <option value="paid">{t('status_paid')}</option>
                 </select>
                 <select value={filters.follow_up} onChange={(e) => { setFilters((prev) => ({ ...prev, follow_up: e.target.value })); setCurrentPage(1); }} className="form-select">
-                    <option value="all">All follow-ups</option>
-                    <option value="due_today">Promise due today</option>
-                    <option value="overdue">Promise overdue</option>
-                    <option value="scheduled">Promise scheduled</option>
-                    <option value="none">No promise date</option>
+                    <option value="all">{t('lbl_all_follow_ups')}</option>
+                    <option value="due_today">{t('lbl_promise_due_today')}</option>
+                    <option value="overdue">{t('lbl_promise_overdue')}</option>
+                    <option value="scheduled">{t('lbl_promise_scheduled')}</option>
+                    <option value="none">{t('lbl_no_promise_date')}</option>
                 </select>
             </div>
 
@@ -528,13 +528,13 @@ const CustomerDueReportPage = () => {
                 <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/50 p-4">
                     <div className="w-full max-w-lg rounded-lg bg-white shadow-xl">
                         <div className="border-b border-gray-200 p-5">
-                            <h2 className="text-lg font-bold text-gray-900">Customer due follow-up</h2>
+                            <h2 className="text-lg font-bold text-gray-900">{t('lbl_customer_due_follow_up')}</h2>
                             <p className="mt-1 text-sm text-gray-500">{followUpModal.customer} · {followUpModal.phone || '-'}</p>
                         </div>
                         <div className="space-y-4 p-5">
                             <div className="grid gap-3 rounded-lg bg-red-50 p-3 text-sm sm:grid-cols-2">
                                 <div>
-                                    <span className="text-gray-600">Remaining due</span>
+                                    <span className="text-gray-600">{t('lbl_remaining_due')}</span>
                                     <div className="font-bold text-red-600">{formatCurrency(followUpModal.remaining)}</div>
                                 </div>
                                 <div className="flex gap-2 sm:justify-end">
@@ -551,14 +551,14 @@ const CustomerDueReportPage = () => {
                                 </div>
                             </div>
                             <label className="block">
-                                <span className="mb-1 block text-sm font-semibold text-gray-700">Action taken</span>
+                                <span className="mb-1 block text-sm font-semibold text-gray-700">{t('lbl_action_taken')}</span>
                                 <select value={followUpForm.action_type} onChange={(e) => setFollowUpForm((prev) => ({ ...prev, action_type: e.target.value }))} className="form-select w-full">
-                                    {followUpActions.map((action) => <option key={action.value} value={action.value}>{action.label}</option>)}
+                                    {followUpActions.map((action) => <option key={action.value} value={action.value}>{t(action.label)}</option>)}
                                 </select>
                             </label>
                             <div className="grid gap-3 sm:grid-cols-2">
                                 <label className="block">
-                                    <span className="mb-1 block text-sm font-semibold text-gray-700">Customer promised pay date</span>
+                                    <span className="mb-1 block text-sm font-semibold text-gray-700">{t('lbl_customer_promised_pay_date')}</span>
                                     <input
                                         type="date"
                                         value={followUpForm.promised_payment_date}
@@ -567,7 +567,7 @@ const CustomerDueReportPage = () => {
                                     />
                                 </label>
                                 <label className="block">
-                                    <span className="mb-1 block text-sm font-semibold text-gray-700">Notify before days</span>
+                                    <span className="mb-1 block text-sm font-semibold text-gray-700">{t('lbl_notify_before_days')}</span>
                                     <input
                                         type="number"
                                         min="0"
@@ -579,18 +579,18 @@ const CustomerDueReportPage = () => {
                                 </label>
                             </div>
                             <label className="block">
-                                <span className="mb-1 block text-sm font-semibold text-gray-700">Action note</span>
+                                <span className="mb-1 block text-sm font-semibold text-gray-700">{t('lbl_action_note')}</span>
                                 <textarea
                                     value={followUpForm.note}
                                     onChange={(e) => setFollowUpForm((prev) => ({ ...prev, note: e.target.value }))}
                                     className="form-textarea w-full"
                                     rows={3}
-                                    placeholder="Example: Customer said he will pay after salary on Friday."
+                                    placeholder={t('msg_follow_up_note_placeholder')}
                                 />
                             </label>
                             {followUpModal.last_follow_up_note && (
                                 <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm text-gray-600">
-                                    <div className="font-semibold text-gray-800">Last note</div>
+                                    <div className="font-semibold text-gray-800">{t('lbl_last_note')}</div>
                                     <p className="mt-1">{followUpModal.last_follow_up_note}</p>
                                 </div>
                             )}
@@ -598,7 +598,7 @@ const CustomerDueReportPage = () => {
                         <div className="flex justify-end gap-3 border-t border-gray-200 p-5">
                             <button type="button" className="btn btn-outline-danger" onClick={closeFollowUpModal}>{t('btn_cancel')}</button>
                             <button type="button" className="btn btn-primary" onClick={submitFollowUp} disabled={isUpdatingFollowUp}>
-                                {isUpdatingFollowUp ? t('lbl_processing') : 'Save follow-up'}
+                                {isUpdatingFollowUp ? t('lbl_processing') : t('btn_save_follow_up')}
                             </button>
                         </div>
                     </div>

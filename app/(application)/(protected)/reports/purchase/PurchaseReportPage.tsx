@@ -136,7 +136,7 @@ const PurchaseReportPage = () => {
         if (apiParams.date_range_type) dateType = apiParams.date_range_type;
         else if (apiParams.start_date || apiParams.end_date) dateType = 'custom';
         return { dateRange: { startDate: apiParams.start_date, endDate: apiParams.end_date, type: dateType }, storeName: selectedStore, customFilters };
-    }, [apiParams, currentStore, userStores]);
+    }, [apiParams, currentStore, userStores, t]);
 
     // Export summary
     const exportSummary = useMemo(
@@ -192,7 +192,7 @@ const PurchaseReportPage = () => {
                 textColor: 'text-purple-600',
             },
         ],
-        [summary, formatCurrency]
+        [summary, formatCurrency, formatNumber, t]
     );
 
     const columns = useMemo(
@@ -289,8 +289,8 @@ const PurchaseReportPage = () => {
                                         <PieChart className="h-5 w-5 text-orange-600" />
                                     </div>
                                     <div>
-                                        <h3 className="font-bold text-gray-900">Orders by Status</h3>
-                                        <p className="text-xs text-gray-500">Distribution of purchase status</p>
+                                        <h3 className="font-bold text-gray-900">{t('lbl_orders_by_status')}</h3>
+                                        <p className="text-xs text-gray-500">{t('msg_purchase_status_distribution')}</p>
                                     </div>
                                 </div>
                             </div>
@@ -318,8 +318,8 @@ const PurchaseReportPage = () => {
                                         <CreditCard className="h-5 w-5 text-emerald-600" />
                                     </div>
                                     <div>
-                                        <h3 className="font-bold text-gray-900">Payment Breakdown</h3>
-                                        <p className="text-xs text-gray-500">Summary of payment statuses</p>
+                                        <h3 className="font-bold text-gray-900">{t('lbl_payment_breakdown')}</h3>
+                                        <p className="text-xs text-gray-500">{t('msg_payment_status_summary')}</p>
                                     </div>
                                 </div>
                             </div>

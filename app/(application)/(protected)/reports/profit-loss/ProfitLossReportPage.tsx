@@ -120,11 +120,11 @@ const PeriodFilter = ({
                     {period === 'custom' && (
                         <div className="mt-2 space-y-2 border-t border-gray-100 px-1 pt-3">
                             <div>
-                                <label className="mb-1 block text-xs font-medium text-gray-500">Start</label>
+                                <label className="mb-1 block text-xs font-medium text-gray-500">{t('lbl_start')}</label>
                                 <input type="date" value={customStart} onChange={(e) => onStartChange(e.target.value)} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400" />
                             </div>
                             <div>
-                                <label className="mb-1 block text-xs font-medium text-gray-500">End</label>
+                                <label className="mb-1 block text-xs font-medium text-gray-500">{t('lbl_end')}</label>
                                 <input type="date" value={customEnd} onChange={(e) => onEndChange(e.target.value)} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400" />
                             </div>
                             <button
@@ -132,7 +132,7 @@ const PeriodFilter = ({
                                 disabled={!customStart || !customEnd}
                                 className="mt-1 w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
                             >
-                                Apply Range
+                                {t('btn_apply_range')}
                             </button>
                         </div>
                     )}
@@ -295,7 +295,7 @@ const ProfitLossReportPage = () => {
 
     const getPeriodLabel = () => {
         if (period === 'custom' && appliedStart && appliedEnd) return `${appliedStart} — ${appliedEnd}`;
-        return periodOptions.find((o) => o.value === period)?.label || 'This Month';
+        return periodOptions.find((o) => o.value === period)?.label || t('lbl_this_month');
     };
 
     // Data
@@ -325,13 +325,13 @@ const ProfitLossReportPage = () => {
         const startDate = period === 'custom' && periodInfo.start_date ? periodInfo.start_date : undefined;
         const endDate = period === 'custom' && periodInfo.end_date ? periodInfo.end_date : undefined;
         return { dateRange: { startDate, endDate, type: mappedType }, storeName, customFilters: [] };
-    }, [currentStore, periodInfo, period]);
+    }, [currentStore, periodInfo, period, t]);
 
     const exportSummary = useMemo(() => [
         { label: 'lbl_you_earned', value: formatCurrency(summary.you_earned) },
         { label: 'lbl_you_keep', value: formatCurrency(summary.you_keep) },
         { label: 'lbl_margin', value: `${formatNumber(businessProfit.margin || 0)}%` },
-    ], [summary, businessProfit, formatCurrency]);
+    ], [summary, businessProfit, formatCurrency, formatNumber]);
 
     const fetchAllDataForExport = useCallback(async (): Promise<any[]> => {
         const exportParams: Record<string, any> = { ...bodyParams, export: true };
@@ -339,20 +339,20 @@ const ProfitLossReportPage = () => {
             const result = await getProfitLossReportForExport(exportParams).unwrap();
             const d = result?.data || {};
             return [
-                { item: 'Total Sales', amount: formatCurrency(d.income?.total_sales) },
-                { item: 'Sales Returns', amount: formatCurrency(d.income?.sales_returns) },
-                { item: 'Net Sales (You Earned)', amount: formatCurrency(d.income?.net_sales) },
-                { item: 'Cost of Products', amount: formatCurrency(d.cost?.cost_of_goods_sold) },
-                { item: 'Product Profit', amount: formatCurrency(d.product_profit?.amount) },
-                { item: 'Product Margin', amount: `${formatNumber(d.product_profit?.margin || 0)}%` },
-                { item: 'Expenses', amount: formatCurrency(d.expenses?.total) },
-                { item: 'Business Profit (You Keep)', amount: formatCurrency(d.business_profit?.amount) },
+                { item: t('lbl_total_sales'), amount: formatCurrency(d.income?.total_sales) },
+                { item: t('lbl_sales_returns'), amount: formatCurrency(d.income?.sales_returns) },
+                { item: t('lbl_net_sales_you_earned'), amount: formatCurrency(d.income?.net_sales) },
+                { item: t('lbl_cost_of_products'), amount: formatCurrency(d.cost?.cost_of_goods_sold) },
+                { item: t('lbl_product_profit'), amount: formatCurrency(d.product_profit?.amount) },
+                { item: t('lbl_product_margin'), amount: `${formatNumber(d.product_profit?.margin || 0)}%` },
+                { item: t('lbl_expenses'), amount: formatCurrency(d.expenses?.total) },
+                { item: t('lbl_business_profit_you_keep'), amount: formatCurrency(d.business_profit?.amount) },
             ];
         } catch (e) {
             console.error('Export failed:', e);
             return [];
         }
-    }, [bodyParams, formatCurrency, getProfitLossReportForExport]);
+    }, [bodyParams, formatCurrency, formatNumber, getProfitLossReportForExport, t]);
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -397,12 +397,12 @@ const ProfitLossReportPage = () => {
                     <div className="flex h-64 items-center justify-center">
                         <div className="text-center">
                             <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600"></div>
-                            <p className="mt-4 text-sm text-gray-600">Calculating your profit...</p>
+                            <p className="mt-4 text-sm text-gray-600">{t('msg_calculating_profit')}</p>
                         </div>
                     </div>
                 ) : isError ? (
                     <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center">
-                        <p className="text-sm text-red-600">Failed to load report. Please try again.</p>
+                        <p className="text-sm text-red-600">{t('msg_failed_load_report_try_again')}</p>
                     </div>
                 ) : (
                     <div className="space-y-5">
@@ -419,22 +419,22 @@ const ProfitLossReportPage = () => {
                                             {isProfit ? <ArrowUp className="h-7 w-7 text-emerald-600" /> : <ArrowDown className="h-7 w-7 text-red-600" />}
                                         </div>
                                         <div>
-                                            <p className="text-sm font-medium text-gray-500">After all costs, you {isProfit ? 'earned' : 'lost'}</p>
+                                            <p className="text-sm font-medium text-gray-500">{isProfit ? t('msg_after_all_costs_earned') : t('msg_after_all_costs_lost')}</p>
                                             <p className={`text-3xl font-extrabold sm:text-4xl ${isProfit ? 'text-emerald-700' : 'text-red-700'}`}>
                                                 <AnimatedCurrency value={Math.abs(businessProfit.amount || 0)} symbol={symbol} />
                                             </p>
                                             <p className={`mt-1 text-sm ${isProfit ? 'text-emerald-600' : 'text-red-600'}`}>
-                                                Business Margin: <span className="font-bold">{formatNumber(businessProfit.margin || 0)}%</span>
+                                                {t('lbl_business_margin')}: <span className="font-bold">{formatNumber(businessProfit.margin || 0)}%</span>
                                             </p>
                                         </div>
                                     </div>
                                     <div className="flex gap-4 sm:gap-6">
                                         <div className={`rounded-xl px-4 py-3 ${isProfit ? 'bg-emerald-50' : 'bg-red-50'}`}>
-                                            <p className="text-[11px] font-medium text-gray-400">Product Margin</p>
+                                            <p className="text-[11px] font-medium text-gray-400">{t('lbl_product_margin')}</p>
                                             <p className={`text-2xl font-bold ${isProfit ? 'text-emerald-700' : 'text-red-700'}`}>{formatNumber(productProfit.margin || 0)}%</p>
                                         </div>
                                         <div className="rounded-xl bg-gray-50 px-4 py-3">
-                                            <p className="text-[11px] font-medium text-gray-400">Total Orders</p>
+                                            <p className="text-[11px] font-medium text-gray-400">{t('lbl_total_orders')}</p>
                                             <p className="text-2xl font-bold text-gray-800">{income.total_orders || 0}</p>
                                         </div>
                                     </div>
@@ -448,8 +448,8 @@ const ProfitLossReportPage = () => {
                                 icon={CircleDollarSign}
                                 iconBg="bg-emerald-50"
                                 iconColor="text-emerald-600"
-                                label="Total money received from customers"
-                                sublabel="You Earned"
+                                label={t('msg_total_money_received_from_customers')}
+                                sublabel={t('lbl_you_earned')}
                                 value={summary.you_earned || 0}
                                 symbol={symbol}
                                 valueColor="text-emerald-700"
@@ -458,8 +458,8 @@ const ProfitLossReportPage = () => {
                                 icon={Package}
                                 iconBg="bg-orange-50"
                                 iconColor="text-orange-600"
-                                label="What you paid for products sold"
-                                sublabel="Products Cost"
+                                label={t('msg_what_you_paid_for_products_sold')}
+                                sublabel={t('lbl_products_cost')}
                                 value={summary.products_cost || 0}
                                 symbol={symbol}
                                 valueColor="text-orange-700"
@@ -468,8 +468,8 @@ const ProfitLossReportPage = () => {
                                 icon={Receipt}
                                 iconBg="bg-red-50"
                                 iconColor="text-red-500"
-                                label="Rent, bills, salaries & other costs"
-                                sublabel="Your Expenses"
+                                label={t('msg_running_costs_examples')}
+                                sublabel={t('lbl_your_expenses')}
                                 value={summary.your_expenses || 0}
                                 symbol={symbol}
                                 valueColor="text-red-600"
@@ -478,8 +478,8 @@ const ProfitLossReportPage = () => {
                                 icon={isProfit ? TrendingUp : ArrowDown}
                                 iconBg={isProfit ? 'bg-emerald-50' : 'bg-red-50'}
                                 iconColor={isProfit ? 'text-emerald-600' : 'text-red-500'}
-                                label="Your real profit after all costs"
-                                sublabel="You Keep"
+                                label={t('msg_real_profit_after_all_costs')}
+                                sublabel={t('lbl_you_keep')}
                                 value={summary.you_keep || 0}
                                 symbol={symbol}
                                 valueColor={isProfit ? 'text-emerald-700' : 'text-red-600'}
@@ -490,17 +490,17 @@ const ProfitLossReportPage = () => {
                         <div className="rounded-2xl border border-gray-200 bg-gray-50/50 p-5 sm:p-6">
                             <div className="mb-4 flex items-center gap-2">
                                 <Percent className="h-5 w-5 text-gray-400" />
-                                <h3 className="text-sm font-semibold text-gray-700">How your profit is calculated</h3>
+                                <h3 className="text-sm font-semibold text-gray-700">{t('lbl_how_profit_calculated')}</h3>
                             </div>
 
                             <div className="mx-auto max-w-xl space-y-0">
-                                <CalcStep step={1} icon={ShoppingCart} iconBg="bg-emerald-50" iconColor="text-emerald-600" title="Total Sales" subtitle="All your sales" value={income.total_sales || 0} symbol={symbol} valueColor="text-emerald-700" />
-                                <CalcStep step={2} icon={ArrowDown} iconBg="bg-orange-50" iconColor="text-orange-500" title="Returns & Discounts" subtitle="Returned items + discounts given" value={(income.sales_returns || 0) + (income.total_discount || 0)} symbol={symbol} valueColor="text-orange-600" operation="-" />
-                                <CalcStep step={3} icon={Banknote} iconBg="bg-blue-50" iconColor="text-blue-600" title="Net Sales" subtitle="What you actually earned" value={income.net_sales || 0} symbol={symbol} valueColor="text-blue-700" operation="=" />
-                                <CalcStep step={4} icon={Package} iconBg="bg-orange-50" iconColor="text-orange-600" title="Product Cost" subtitle={`Purchase price of ${formatNumber(cost.total_items_sold || 0)} items sold`} value={cost.cost_of_goods_sold || 0} symbol={symbol} valueColor="text-orange-700" operation="-" />
-                                <CalcStep step={5} icon={TrendingUp} iconBg="bg-violet-50" iconColor="text-violet-600" title="Product Profit" subtitle={`${formatNumber(productProfit.margin || 0)}% margin`} value={productProfit.amount || 0} symbol={symbol} valueColor="text-violet-700" operation="=" />
-                                <CalcStep step={6} icon={Receipt} iconBg="bg-red-50" iconColor="text-red-500" title="Expenses" subtitle="Rent, utilities, salaries, etc." value={expenses.total || 0} symbol={symbol} valueColor="text-red-600" operation="-" />
-                                <CalcStep step={7} icon={isProfit ? TrendingUp : ArrowDown} iconBg={isProfit ? 'bg-emerald-50' : 'bg-red-50'} iconColor={isProfit ? 'text-emerald-600' : 'text-red-500'} title="Business Profit" subtitle="This is what you keep" value={businessProfit.amount || 0} symbol={symbol} valueColor={isProfit ? 'text-emerald-700' : 'text-red-600'} operation="=" />
+                                <CalcStep step={1} icon={ShoppingCart} iconBg="bg-emerald-50" iconColor="text-emerald-600" title={t('lbl_total_sales')} subtitle={t('msg_all_your_sales')} value={income.total_sales || 0} symbol={symbol} valueColor="text-emerald-700" />
+                                <CalcStep step={2} icon={ArrowDown} iconBg="bg-orange-50" iconColor="text-orange-500" title={t('lbl_returns_discounts')} subtitle={t('msg_returned_items_discounts')} value={(income.sales_returns || 0) + (income.total_discount || 0)} symbol={symbol} valueColor="text-orange-600" operation="-" />
+                                <CalcStep step={3} icon={Banknote} iconBg="bg-blue-50" iconColor="text-blue-600" title={t('lbl_net_sales')} subtitle={t('msg_what_you_actually_earned')} value={income.net_sales || 0} symbol={symbol} valueColor="text-blue-700" operation="=" />
+                                <CalcStep step={4} icon={Package} iconBg="bg-orange-50" iconColor="text-orange-600" title={t('lbl_product_cost')} subtitle={t('msg_purchase_price_items_sold').replace('{count}', formatNumber(cost.total_items_sold || 0))} value={cost.cost_of_goods_sold || 0} symbol={symbol} valueColor="text-orange-700" operation="-" />
+                                <CalcStep step={5} icon={TrendingUp} iconBg="bg-violet-50" iconColor="text-violet-600" title={t('lbl_product_profit')} subtitle={t('msg_margin_percent').replace('{percent}', formatNumber(productProfit.margin || 0))} value={productProfit.amount || 0} symbol={symbol} valueColor="text-violet-700" operation="=" />
+                                <CalcStep step={6} icon={Receipt} iconBg="bg-red-50" iconColor="text-red-500" title={t('lbl_expenses')} subtitle={t('msg_expense_examples')} value={expenses.total || 0} symbol={symbol} valueColor="text-red-600" operation="-" />
+                                <CalcStep step={7} icon={isProfit ? TrendingUp : ArrowDown} iconBg={isProfit ? 'bg-emerald-50' : 'bg-red-50'} iconColor={isProfit ? 'text-emerald-600' : 'text-red-500'} title={t('lbl_business_profit')} subtitle={t('msg_this_is_what_you_keep')} value={businessProfit.amount || 0} symbol={symbol} valueColor={isProfit ? 'text-emerald-700' : 'text-red-600'} operation="=" />
                             </div>
                         </div>
 
@@ -511,32 +511,32 @@ const ProfitLossReportPage = () => {
                                 <div className="border-b border-gray-100 px-5 py-4">
                                     <div className="flex items-center gap-2">
                                         <CircleDollarSign className="h-5 w-5 text-emerald-600" />
-                                        <h3 className="text-sm font-semibold text-gray-800">Income Details</h3>
+                                        <h3 className="text-sm font-semibold text-gray-800">{t('lbl_income_details')}</h3>
                                     </div>
                                 </div>
                                 <div className="divide-y divide-gray-50 p-5">
                                     <div className="flex items-center justify-between py-2.5">
-                                        <span className="text-sm text-gray-600">Total Sales</span>
+                                        <span className="text-sm text-gray-600">{t('lbl_total_sales')}</span>
                                         <span className="font-semibold text-gray-900">{formatCurrency(income.total_sales)}</span>
                                     </div>
                                     <div className="flex items-center justify-between py-2.5">
-                                        <span className="text-sm text-gray-600">Total Orders</span>
+                                        <span className="text-sm text-gray-600">{t('lbl_total_orders')}</span>
                                         <span className="font-semibold text-gray-900">{income.total_orders || 0}</span>
                                     </div>
                                     <div className="flex items-center justify-between py-2.5">
-                                        <span className="text-sm text-gray-600">Sales Returns</span>
+                                        <span className="text-sm text-gray-600">{t('lbl_sales_returns')}</span>
                                         <span className="font-semibold text-orange-600">−{formatCurrency(income.sales_returns)}</span>
                                     </div>
                                     <div className="flex items-center justify-between py-2.5">
-                                        <span className="text-sm text-gray-600">Discounts Given</span>
+                                        <span className="text-sm text-gray-600">{t('lbl_discounts_given')}</span>
                                         <span className="font-semibold text-orange-600">−{formatCurrency(income.total_discount)}</span>
                                     </div>
                                     <div className="flex items-center justify-between py-2.5">
-                                        <span className="text-sm text-gray-600">Tax Collected</span>
+                                        <span className="text-sm text-gray-600">{t('lbl_tax_collected')}</span>
                                         <span className="font-semibold text-gray-900">{formatCurrency(income.total_tax)}</span>
                                     </div>
                                     <div className="mt-2 flex items-center justify-between rounded-lg bg-emerald-50 px-3 py-3">
-                                        <span className="text-sm font-semibold text-emerald-700">Net Sales (You Earned)</span>
+                                        <span className="text-sm font-semibold text-emerald-700">{t('lbl_net_sales_you_earned')}</span>
                                         <span className="text-lg font-bold text-emerald-700">{formatCurrency(income.net_sales)}</span>
                                     </div>
                                 </div>
@@ -547,21 +547,21 @@ const ProfitLossReportPage = () => {
                                 <div className="border-b border-gray-100 px-5 py-4">
                                     <div className="flex items-center gap-2">
                                         <Wallet className="h-5 w-5 text-orange-600" />
-                                        <h3 className="text-sm font-semibold text-gray-800">Costs & Expenses</h3>
+                                        <h3 className="text-sm font-semibold text-gray-800">{t('lbl_costs_expenses')}</h3>
                                     </div>
                                 </div>
                                 <div className="divide-y divide-gray-50 p-5">
                                     <div className="flex items-center justify-between py-2.5">
                                         <div>
-                                            <span className="text-sm text-gray-600">Product Cost</span>
-                                            <p className="text-[11px] text-gray-400">Purchase price of {cost.total_items_sold || 0} items</p>
+                                            <span className="text-sm text-gray-600">{t('lbl_product_cost')}</span>
+                                            <p className="text-[11px] text-gray-400">{t('msg_purchase_price_items').replace('{count}', formatNumber(cost.total_items_sold || 0))}</p>
                                         </div>
                                         <span className="font-semibold text-orange-700">{formatCurrency(cost.cost_of_goods_sold)}</span>
                                     </div>
                                     <div className="flex items-center justify-between rounded-lg bg-violet-50 px-3 py-2.5">
                                         <div>
-                                            <span className="text-sm font-semibold text-violet-700">Product Profit</span>
-                                            <p className="text-[11px] text-violet-500">Sales − Product Cost</p>
+                                            <span className="text-sm font-semibold text-violet-700">{t('lbl_product_profit')}</span>
+                                            <p className="text-[11px] text-violet-500">{t('msg_sales_minus_product_cost')}</p>
                                         </div>
                                         <div className="text-right">
                                             <span className="text-lg font-bold text-violet-700">{formatCurrency(productProfit.amount)}</span>
@@ -569,7 +569,7 @@ const ProfitLossReportPage = () => {
                                         </div>
                                     </div>
                                     <div className="pt-2.5">
-                                        <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-gray-400">Expenses</p>
+                                        <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-gray-400">{t('lbl_expenses')}</p>
                                         {expenses.breakdown && expenses.breakdown.length > 0 ? (
                                             <div className="space-y-1.5">
                                                 {expenses.breakdown.map((cat: any, idx: number) => (
@@ -580,10 +580,10 @@ const ProfitLossReportPage = () => {
                                                 ))}
                                             </div>
                                         ) : (
-                                            <div className="rounded-lg bg-gray-50 px-3 py-2 text-center text-xs text-gray-400">No expenses recorded</div>
+                                            <div className="rounded-lg bg-gray-50 px-3 py-2 text-center text-xs text-gray-400">{t('msg_no_expenses_recorded')}</div>
                                         )}
                                         <div className="mt-2 flex items-center justify-between rounded-lg bg-red-50 px-3 py-3">
-                                            <span className="text-sm font-semibold text-red-600">Total Expenses</span>
+                                            <span className="text-sm font-semibold text-red-600">{t('lbl_total_expenses')}</span>
                                             <span className="text-lg font-bold text-red-600">{formatCurrency(expenses.total)}</span>
                                         </div>
                                     </div>
@@ -603,7 +603,7 @@ const ProfitLossReportPage = () => {
                                         {isProfit ? <TrendingUp className="h-6 w-6" /> : <ArrowDown className="h-6 w-6" />}
                                     </div>
                                     <div>
-                                        <p className="text-sm font-medium text-white/80">Bottom Line — You {isProfit ? 'Earned' : 'Lost'}</p>
+                                        <p className="text-sm font-medium text-white/80">{isProfit ? t('msg_bottom_line_you_earned') : t('msg_bottom_line_you_lost')}</p>
                                         <p className="text-3xl font-extrabold">
                                             <AnimatedCurrency value={Math.abs(businessProfit.amount || 0)} symbol={symbol} />
                                         </p>
@@ -611,12 +611,12 @@ const ProfitLossReportPage = () => {
                                 </div>
                                 <div className="flex gap-6 text-center">
                                     <div>
-                                        <p className="text-xs text-white/70">Product Margin</p>
+                                        <p className="text-xs text-white/70">{t('lbl_product_margin')}</p>
                                         <p className="text-xl font-bold">{formatNumber(productProfit.margin || 0)}%</p>
                                     </div>
                                     <div className="h-10 w-px bg-white/20"></div>
                                     <div>
-                                        <p className="text-xs text-white/70">Business Margin</p>
+                                        <p className="text-xs text-white/70">{t('lbl_business_margin')}</p>
                                         <p className="text-xl font-bold">{formatNumber(businessProfit.margin || 0)}%</p>
                                     </div>
                                 </div>

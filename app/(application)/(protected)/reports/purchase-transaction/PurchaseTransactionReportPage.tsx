@@ -109,7 +109,7 @@ const PurchaseTransactionReportPage = () => {
         if (apiParams.date_range_type) dateType = apiParams.date_range_type;
         else if (apiParams.start_date || apiParams.end_date) dateType = 'custom';
         return { dateRange: { startDate: apiParams.start_date, endDate: apiParams.end_date, type: dateType }, storeName: selectedStore, customFilters: [] };
-    }, [apiParams, currentStore, userStores]);
+    }, [apiParams, currentStore, userStores, t]);
 
     const exportSummary = useMemo(
         () => [
@@ -146,7 +146,7 @@ const PurchaseTransactionReportPage = () => {
                 textColor: 'text-purple-600',
             },
         ],
-        [summary, formatCurrency]
+        [summary, formatCurrency, formatNumber, t]
     );
 
     const columns = useMemo(
@@ -219,7 +219,7 @@ const PurchaseTransactionReportPage = () => {
                         <div className="border-b border-gray-200 bg-gray-50 px-6 py-4">
                             <div className="flex items-center gap-2">
                                 <CreditCard className="h-5 w-5 text-gray-600" />
-                                <h3 className="font-semibold text-gray-900">Payments by Method</h3>
+                                <h3 className="font-semibold text-gray-900">{t('lbl_payments_by_method')}</h3>
                             </div>
                         </div>
                         <div className="grid divide-x divide-gray-200 md:grid-cols-4">

@@ -109,7 +109,7 @@ const StockReportPage = () => {
         if (apiParams.date_range_type) dateType = apiParams.date_range_type;
         else if (apiParams.start_date || apiParams.end_date) dateType = 'custom';
         return { dateRange: { startDate: apiParams.start_date, endDate: apiParams.end_date, type: dateType }, storeName: selectedStore, customFilters: [] };
-    }, [apiParams, currentStore, userStores]);
+    }, [apiParams, currentStore, userStores, t]);
 
     const exportSummary = useMemo(
         () => [
@@ -118,7 +118,7 @@ const StockReportPage = () => {
             { label: 'lbl_returned_stock', value: (formatNumber(summary.quantity_returned_to_stock || 0)) },
             { label: 'lbl_stock_value', value: formatCurrency(summary.total_stock_value) },
         ],
-        [summary, formatCurrency]
+        [summary, formatCurrency, formatNumber]
     );
 
     const summaryItems = useMemo(
@@ -143,7 +143,7 @@ const StockReportPage = () => {
                 textColor: 'text-emerald-600',
             },
         ],
-        [summary]
+        [summary, formatNumber, t]
     );
 
     const columns = useMemo(
@@ -202,11 +202,11 @@ const StockReportPage = () => {
                 label: t('lbl_status'),
                 render: (v: any, r: any) =>
                     r.is_out_of_stock ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-danger">Out of Stock</span>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-danger">{t('lbl_out_of_stock')}</span>
                     ) : r.is_low_stock ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-medium text-warning">Low Stock</span>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-medium text-warning">{t('lbl_low_stock')}</span>
                     ) : (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-success">In Stock</span>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-success">{t('lbl_in_stock')}</span>
                     ),
             },
         ],

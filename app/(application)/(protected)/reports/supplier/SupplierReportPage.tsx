@@ -108,7 +108,7 @@ const SupplierReportPage = () => {
         if (apiParams.date_range_type) dateType = apiParams.date_range_type;
         else if (apiParams.start_date || apiParams.end_date) dateType = 'custom';
         return { dateRange: { startDate: apiParams.start_date, endDate: apiParams.end_date, type: dateType }, storeName: selectedStore, customFilters: [] };
-    }, [apiParams, currentStore, userStores]);
+    }, [apiParams, currentStore, userStores, t]);
 
     const exportSummary = useMemo(
         () => [
@@ -116,7 +116,7 @@ const SupplierReportPage = () => {
             { label: 'lbl_total', value: formatCurrency(summary.total_amount) },
             { label: 'lbl_due', value: formatCurrency(summary.total_due) },
         ],
-        [summary, formatCurrency]
+        [summary, formatCurrency, formatNumber]
     );
 
     const summaryItems = useMemo(
@@ -147,7 +147,7 @@ const SupplierReportPage = () => {
                 textColor: 'text-red-600',
             },
         ],
-        [summary, formatCurrency]
+        [summary, formatCurrency, formatNumber, t]
     );
 
     const columns = useMemo(
@@ -180,7 +180,7 @@ const SupplierReportPage = () => {
                 label: t('lbl_payment_method'),
                 render: (v: any) =>
                     !v || v === 'N/A' ? (
-                        <span className="text-xs text-gray-400">Not specified</span>
+                        <span className="text-xs text-gray-400">{t('lbl_not_specified')}</span>
                     ) : (
                         <span className="text-sm capitalize text-gray-700">{v}</span>
                     ),

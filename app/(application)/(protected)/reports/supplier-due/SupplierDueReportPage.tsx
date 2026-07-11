@@ -279,7 +279,7 @@ const SupplierDueReportPage = () => {
             {
                 key: 'due_date',
                 label: t('lbl_due_date'),
-                render: (v: any) => (v ? <DateColumn date={v} /> : <span className="text-xs text-gray-400">Not set</span>),
+                render: (v: any) => (v ? <DateColumn date={v} /> : <span className="text-xs text-gray-400">{t('lbl_not_set')}</span>),
             },
         ],
         [t, formatCurrency]
