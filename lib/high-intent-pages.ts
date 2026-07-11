@@ -148,28 +148,28 @@ export const highIntentPages: HighIntentSeoPage[] = [
         title: 'Best POS Software Bangladesh',
         metaTitle: 'Best POS Software in Bangladesh | What to Look For | AndgatePOS',
         metaDescription:
-            'Looking for the best POS software in Bangladesh? Compare must-have features like billing, inventory, CRM, supplier 360, cash closing, petty cash, reports, offline mode and online store support.',
+            'Looking for the best POS software in Bangladesh? Compare must-have features like billing, inventory, CRM, supplier 360, cash closing, stock counts, COD reconciliation, reports, offline mode and online store support.',
         h1: 'Best POS Software in Bangladesh: What Your Shop Should Look For',
         eyebrow: 'Buyer Guide',
         intro:
-            'The best POS software for Bangladesh should match local shop workflows: fast billing, inventory, local payment tracking, CRM, supplier dues, cash closing, staff control, reports and simple onboarding.',
+            'The best POS software for Bangladesh should match local shop workflows: fast billing, inventory, local payment tracking, CRM, supplier dues, cash closing, stock count approvals, staff control, COD settlement checks, reports and simple onboarding.',
         banglaIntro:
             'বাংলাদেশে ভালো POS সফটওয়্যার হতে হলে দোকানের বাস্তব কাজের সাথে মিল থাকতে হবে — দ্রুত বিল, স্টক, পেমেন্ট, রিপোর্ট আর সহজ ব্যবহার।',
         primaryKeyword: 'best POS software in Bangladesh',
         secondaryKeywords: ['top POS software Bangladesh', 'best retail POS Bangladesh', 'best shop management software Bangladesh', 'POS software price in Bangladesh', 'POS software for small business Bangladesh'],
         image: '/assets/LandingImage/updated/dashboard.webp',
         verdict:
-            'AndgatePOS is built for Bangladeshi retailers that need POS, inventory, CRM, supplier 360, accounting, payments, cash closing, petty cash, reports and an online store in one system.',
+            'AndgatePOS is built for Bangladeshi retailers that need POS, inventory, CRM, supplier 360, accounting, payments, cash closing, stock counts, COD reconciliation, fiscal-readiness records, reports and an online store in one system.',
         comparison: [
             { label: 'Local payments', oldWay: 'Many generic systems do not fit bKash/Nagad/Rocket workflows.', andgate: 'Cash, bKash, Nagad, Rocket, Upay, card and bank transfer can be recorded.' },
-            { label: 'Inventory', oldWay: 'Basic billing tools often ignore stock depth.', andgate: 'Variants, serials, stock alerts, purchase orders and labels are supported.' },
+            { label: 'Inventory', oldWay: 'Basic billing tools often ignore stock depth.', andgate: 'Variants, serials, stock alerts, purchase orders, stock transfers, approved stock counts and labels are supported.' },
             { label: 'Daily operations', oldWay: 'Cash closing, petty cash and staff attendance often stay in paper notes.', andgate: 'Business OS keeps cash closing, petty cash, HR attendance and service jobs visible.' },
-            { label: 'Reporting', oldWay: 'Some tools only show sales totals.', andgate: '20+ reports cover sales, tax, stock, profit, customers, supplier dues and reorder signals.' },
+            { label: 'Reporting', oldWay: 'Some tools only show sales totals.', andgate: 'Reports cover business overview, store-by-store performance, sales, tax, stock, profit, customers, supplier dues, COD and reorder signals.' },
             { label: 'Growth', oldWay: 'Single-counter tools become limiting.', andgate: 'Multi-store, staff roles, CRM and online store support help the business grow.' },
         ],
         reasons: [
             { title: 'Built for Bangladesh', description: 'Local payment methods, Bangla-friendly content and Bangladesh business workflows are considered.' },
-            { title: 'Full shop operations', description: 'POS, inventory, CRM, supplier 360, cash closing, petty cash, accounting and reporting modules work together.' },
+            { title: 'Full shop operations', description: 'POS, inventory, CRM, supplier 360, cash closing, stock counts, COD reconciliation, petty cash, accounting and reporting modules work together.' },
             { title: 'Start small, grow later', description: 'A business can begin simply and add more modules as operations grow.' },
         ],
         guideSections: [

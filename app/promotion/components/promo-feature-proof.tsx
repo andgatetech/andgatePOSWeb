@@ -6,12 +6,12 @@ import PromoButton from './promo-button';
 
 const features = [
     { title: 'দ্রুত POS বিলিং', desc: 'মোবাইল বা ল্যাপটপ থেকে পণ্য খুঁজে বিল করুন, ডিসকাউন্ট দিন, রসিদ তৈরি করুন।', image: '/assets/LandingImage/updated/pos.webp' },
-    { title: 'স্টক ও লো-স্টক অ্যালার্ট', desc: 'কোন পণ্য কমে যাচ্ছে, কোন পণ্য বেশি বিক্রি হচ্ছে — রিপোর্টে পরিষ্কার দেখুন।', image: '/assets/LandingImage/updated/stock-report.webp' },
-    { title: 'লাভ-লস ও বিক্রির রিপোর্ট', desc: 'দিন, মাস বা বছর ধরে বিক্রি, খরচ, লাভ-লস ও ক্যাশ বুক দেখুন।', image: '/assets/LandingImage/updated/profit-loss.webp' },
-    { title: 'বাকি ও কাস্টমার হিসাব', desc: 'কোন কাস্টমারের কাছে কত টাকা বাকি আছে, কবে দিয়েছে — সব হিসাব এক জায়গায় রাখুন।', image: '/assets/LandingImage/updated/customer-due.webp' },
+    { title: 'স্টক কাউন্ট ও লো-স্টক', desc: 'সিস্টেম স্টক বনাম ফিজিক্যাল কাউন্ট মিলিয়ে দেখুন, কমে যাওয়া পণ্যের অ্যালার্ট পান।', image: '/assets/LandingImage/updated/stock-report.webp' },
+    { title: 'স্টোরভিত্তিক বিজনেস রিপোর্ট', desc: 'এক দোকান বা সব দোকান মিলিয়ে বিক্রি, খরচ, লাভ-লস ও ক্যাশ বুক দেখুন।', image: '/assets/LandingImage/updated/profit-loss.webp' },
+    { title: 'COD ও কাস্টমার বাকি', desc: 'কুরিয়ার COD সেটেলমেন্ট, কাস্টমার বাকি ও কালেকশন ফলোআপ এক জায়গায় রাখুন।', image: '/assets/LandingImage/updated/customer-due.webp' },
 ];
 
-const quickWins = ['Barcode/SKU', 'bKash/Nagad/Cash', 'Customer due', 'Supplier due', 'Employee access', 'Multi-store', 'Expense tracking', 'Barcode label'];
+const quickWins = ['Barcode/SKU', 'bKash/Nagad/Cash', 'Customer due', 'Supplier due', 'Stock count', 'COD reconcile', 'Multi-store report', 'Fiscal readiness', 'Employee access', 'Barcode label'];
 
 const shopTypes = ['মুদি দোকান', 'ফার্মেসি', 'ফ্যাশন শপ', 'হার্ডওয়্যার', 'ইলেকট্রনিক্স', 'সুপার শপ', 'কসমেটিকস', 'পাইকারি/ডিলার'];
 

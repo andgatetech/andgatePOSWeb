@@ -24,15 +24,19 @@ const commonModules = [
     },
     {
         title: 'Inventory and stock control',
-        description: 'Track stock in real time, get low-stock alerts, manage variants, serials, units, and purchase orders.',
+        description: 'Track stock in real time, get low-stock alerts, manage variants, serials, units, purchase orders, stock transfers, and approved stock counts.',
     },
     {
-        title: 'Reports and accounting',
-        description: 'See sales, profit and loss, VAT/tax, supplier dues, customer activity, stock value, and daily expenses.',
+        title: 'Reports and business overview',
+        description: 'See sales, profit and loss, VAT/tax, store-by-store business overview, supplier dues, customer activity, stock value, and daily expenses.',
     },
     {
         title: 'Bangladesh-ready payments',
         description: 'Record cash, bKash, Nagad, Rocket, Upay, card, bank transfer, partial payments, and customer dues.',
+    },
+    {
+        title: 'Compliance and ecommerce controls',
+        description: 'Track fiscal-readiness evidence, compliance reminders, courier setup, ecommerce orders, and COD reconciliation without claiming certification.',
     },
 ];
 
@@ -52,7 +56,7 @@ const makePage = (
     slug,
     title,
     metaTitle: `${title} | AndgatePOS`,
-    metaDescription: `${intro} Built for Bangladeshi SMEs with billing, stock, reports, local payments, training and demo support.`,
+    metaDescription: `${intro} Built for Bangladeshi SMEs with billing, stock, reports, COD reconciliation, fiscal-readiness controls, local payments, training and demo support.`,
     h1,
     eyebrow: 'Bangladesh SME POS',
     intro,
@@ -192,13 +196,13 @@ const seoExpansionPages: LandingPage[] = [
         'Multi-Branch POS Software',
         'multi-branch POS software',
         'Multi-Branch POS Software for Growing Bangladeshi SMEs',
-        'AndgatePOS helps owners manage multiple shops with centralized products, branch-wise inventory, staff permissions, sales reports and cloud access.',
+        'AndgatePOS helps owners manage multiple shops with centralized products, branch-wise inventory, staff permissions, store-by-store business reports, stock transfers and cloud access.',
         'Growing retailers, chain shops, pharmacies, fashion brands, grocery groups and SMEs expanding to new locations.',
-        ['Branch-wise stock', 'Centralized reporting', 'Staff roles', 'Cloud access for owners'],
-        ['Compare store performance', 'Control staff permissions by role', 'See inventory by branch', 'Open new branches without changing software'],
+        ['Branch-wise stock', 'Store-by-store business overview', 'Staff roles', 'Cloud access for owners'],
+        ['Compare store performance', 'Control staff permissions by role', 'See inventory and stock counts by branch', 'Open new branches without changing software'],
         [
-            { question: 'Can AndgatePOS manage multiple branches?', answer: 'Yes. AndgatePOS is designed for businesses that need multiple stores, staff roles and branch-wise reporting.' },
-            { question: 'Can I see each branch separately?', answer: 'Yes. Store-level workflows help separate branch sales and inventory while keeping owner visibility centralized.' },
+            { question: 'Can AndgatePOS manage multiple branches?', answer: 'Yes. AndgatePOS is designed for businesses that need multiple stores, staff roles, stock transfers, stock counts and branch-wise reporting.' },
+            { question: 'Can I see each branch separately?', answer: 'Yes. Store-level workflows help separate branch sales, inventory, stock counts and cash activity while keeping owner visibility centralized.' },
             { question: 'Is multi-branch required?', answer: 'No. A business can start with one store and add more later.' },
         ],
         ['multi store POS Bangladesh', 'branch management software Bangladesh', 'retail chain POS Bangladesh'],
@@ -209,10 +213,10 @@ const seoExpansionPages: LandingPage[] = [
         'AndgatePOS vs Traditional POS',
         'AndgatePOS vs traditional POS',
         'AndgatePOS vs Traditional POS Software in Bangladesh',
-        'Compare AndgatePOS with traditional desktop POS: cloud access, PWA offline workflows, online store connection, courier support, subscriptions and easier updates.',
+        'Compare AndgatePOS with traditional desktop POS: cloud access, PWA offline workflows, online store connection, courier/COD support, fiscal-readiness records, subscriptions and easier updates.',
         'Shop owners comparing cloud SaaS POS with desktop or license-based POS software.',
-        ['Cloud access', 'PWA offline workflow', 'Hawkeri online store connection', 'Automatic updates'],
-        ['Avoid desktop-only limitations', 'Manage online and counter sales together', 'Start with subscription pricing', 'Use branch and staff controls as you grow'],
+        ['Cloud access', 'PWA offline workflow', 'Hawkeri online store connection', 'COD and fiscal-readiness controls'],
+        ['Avoid desktop-only limitations', 'Manage online and counter sales together', 'Start with subscription pricing', 'Use branch, stock-count and staff controls as you grow'],
         [
             { question: 'How is AndgatePOS different from traditional POS?', answer: 'Traditional POS is often desktop or license based. AndgatePOS is cloud-first with POS, inventory, reports, online store connection and offline counter resilience.' },
             { question: 'Is traditional POS bad?', answer: 'No. It can work for simple offline billing. AndgatePOS is stronger when a business needs remote access, ecommerce and growth workflows.' },
@@ -226,14 +230,14 @@ const seoExpansionPages: LandingPage[] = [
         'AndgatePOS Features',
         'AndgatePOS features',
         'AndgatePOS Features for POS, Business OS, CRM, Inventory, Reports and eCommerce',
-        'Explore AndgatePOS features for billing, inventory, CRM, supplier 360, cash closing, petty cash, local payments, purchase orders, reports, multi-branch control and Hawkeri online stores.',
+        'Explore AndgatePOS features for billing, inventory, CRM, supplier 360, cash closing, petty cash, local payments, purchase orders, stock counts, COD reconciliation, fiscal-readiness controls, reports, multi-branch control and Hawkeri online stores.',
         'Bangladeshi SMEs evaluating the full AndgatePOS feature set before starting a demo or subscription.',
-        ['POS billing', 'Business OS, CRM and supplier 360', 'Inventory, cash closing and 20+ reports', 'Hawkeri ecommerce connection'],
+        ['POS billing', 'Business OS, CRM and supplier 360', 'Inventory, stock counts and owner reports', 'Hawkeri ecommerce, COD and fiscal readiness'],
         ['Understand the full product scope', 'Match features to your shop type', 'Plan staff training', 'Choose the right subscription stage'],
         [
-            { question: 'What features does AndgatePOS include?', answer: 'Core features include POS billing, inventory, CRM, supplier 360, cash closing, petty cash, staff attendance, service jobs, product labels, purchases, local payment tracking, reports and online store connection.' },
-            { question: 'Does it include reporting?', answer: 'Yes. Sales, stock, payment, tax and profit-related reports are available.' },
-            { question: 'Does AndgatePOS connect with ecommerce?', answer: 'Yes. AndgatePOS connects with Hawkeri online store workflows for businesses selling online.' },
+            { question: 'What features does AndgatePOS include?', answer: 'Core features include POS billing, inventory, CRM, supplier 360, cash closing, petty cash, staff attendance, service jobs, product labels, purchases, local payment tracking, stock counts, reports, COD reconciliation, fiscal-readiness controls and online store connection.' },
+            { question: 'Does it include reporting?', answer: 'Yes. Sales, stock, payment, tax, profit, store-by-store business overview and operational reports are available.' },
+            { question: 'Does AndgatePOS connect with ecommerce?', answer: 'Yes. AndgatePOS connects with Hawkeri online store workflows, courier setup and COD reconciliation for businesses selling online.' },
         ],
         ['POS software features Bangladesh', 'AndgatePOS inventory features', 'AndgatePOS reports'],
         '/assets/LandingImage/updated/dashboard.webp'
@@ -299,11 +303,11 @@ export const landingPages: LandingPage[] = [
         title: 'POS Software in Bangladesh',
         metaTitle: 'POS Software in Bangladesh | Retail, Inventory & Billing | AndgatePOS',
         metaDescription:
-            'AndgatePOS is POS and Business OS software in Bangladesh for retail shops, grocery stores, pharmacies, restaurants and fashion businesses. Manage billing, inventory, CRM, supplier dues, cash closing, bKash/Nagad payments, reports and online store.',
+            'AndgatePOS is POS and Business OS software in Bangladesh for retail shops, grocery stores, pharmacies, restaurants and fashion businesses. Manage billing, inventory, CRM, supplier dues, cash closing, stock counts, bKash/Nagad payments, COD reconciliation, fiscal readiness, reports and online store.',
         h1: 'POS Software in Bangladesh for Retail, Billing and Inventory',
         eyebrow: 'Bangladesh POS Solution',
         intro:
-            'AndgatePOS helps Bangladeshi shop owners run sales, stock, billing, CRM, supplier dues, cash closing, accounting and ecommerce from one simple web-based POS system.',
+            'AndgatePOS helps Bangladeshi shop owners run sales, stock, billing, CRM, supplier dues, cash closing, stock counts, accounting, ecommerce, COD reconciliation and fiscal-readiness workflows from one simple web-based POS system.',
         banglaIntro:
             'বাংলাদেশের দোকানদারদের জন্য AndgatePOS একটি সহজ POS সফটওয়্যার। বিক্রি, স্টক, হিসাব, পেমেন্ট আর রিপোর্ট এক জায়গা থেকেই চালাতে পারবেন।',
         primaryKeyword: 'POS software in Bangladesh',
@@ -319,7 +323,7 @@ export const landingPages: LandingPage[] = [
         ],
         audience: 'Retail shops, grocery stores, pharmacies, fashion shops, restaurants, electronics stores and multi-branch businesses.',
         image: '/assets/LandingImage/updated/pos.webp',
-        highlights: ['Works offline at the counter', 'Business OS for daily shop operations', 'CRM, supplier dues and cash closing', 'Hawkeri online store and 20+ reports'],
+        highlights: ['Works offline at the counter', 'Business OS for daily shop operations', 'Store-by-store reporting and stock counts', 'Hawkeri online store, COD and fiscal readiness'],
         modules: commonModules,
         useCases: [
             'Replace manual cash memo books with digital invoices',

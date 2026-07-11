@@ -7,7 +7,7 @@ const BASE_URL = 'https://andgatepos.com';
 export const metadata: Metadata = {
     title: 'POS Software in Bangladesh | AndgatePOS Retail Billing & Inventory',
     description:
-        'AndgatePOS is POS and Business OS software in Bangladesh for retail shops, grocery stores, pharmacies, restaurants and fashion stores. Manage billing, inventory, CRM, supplier dues, cash closing, petty cash, bKash/Nagad payments, reports and online store.',
+        'AndgatePOS is POS and Business OS software in Bangladesh for retail shops, grocery stores, pharmacies, restaurants and fashion stores. Manage billing, inventory, CRM, supplier dues, cash closing, stock counts, COD reconciliation, fiscal readiness, reports and online store.',
     keywords: BD_KEYWORDS,
     alternates: {
         canonical: BASE_URL,
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     openGraph: {
         title: 'POS Software in Bangladesh | AndgatePOS',
         description:
-            'Complete POS and Business OS for Bangladesh businesses. Inventory, billing, CRM, supplier dues, cash closing, petty cash, reports and Hawkeri online store. 100+ shop owners trust AndgatePOS.',
+            'Complete POS and Business OS for Bangladesh businesses. Inventory, billing, CRM, supplier dues, cash closing, stock counts, fiscal readiness, COD reconciliation, reports and Hawkeri online store.',
         url: BASE_URL,
         images: [{ url: '/images/og-image.jpg', width: 1200, height: 630, alt: 'AndgatePOS — POS Software Bangladesh' }],
     },
@@ -41,7 +41,7 @@ export default function HomePage() {
             name: 'Bangladesh',
         },
         description:
-            'AndgatePOS is cloud POS and business operating software for Bangladeshi retail shops, grocery stores, pharmacies, restaurants and fashion businesses with billing, inventory, payments, CRM, supplier 360, cash closing, petty cash, HR attendance, service jobs, reports and ecommerce.',
+            'AndgatePOS is cloud POS and business operating software for Bangladeshi retail shops, grocery stores, pharmacies, restaurants and fashion businesses with billing, inventory, payments, CRM, supplier 360, cash closing, stock count approvals, COD reconciliation, fiscal readiness, reports and ecommerce.',
         offers: {
             '@type': 'Offer',
             priceCurrency: 'BDT',
@@ -70,6 +70,11 @@ export default function HomePage() {
             'Service and repair jobs',
             'Sales reports',
             'Profit and loss reports',
+            'Business overview reports',
+            'Store-by-store reporting',
+            'Stock count approval',
+            'COD reconciliation',
+            'Fiscal readiness center',
             'Offline POS mode',
             'Hawkeri online store and courier setup',
         ],

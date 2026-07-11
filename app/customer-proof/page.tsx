@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { BarChart3, CheckCircle2, Clock3, MapPinned, ShieldCheck } from 'lucide-react';
+import { BarChart3, CheckCircle2, Clock3, MapPinned, PackageCheck, ShieldCheck } from 'lucide-react';
 
 export const metadata: Metadata = {
     title: 'Customer Proof & Operating Trust | AndgatePOS',
@@ -9,15 +9,18 @@ export const metadata: Metadata = {
 
 const proofItems = [
     { icon: CheckCircle2, title: 'First-sale readiness', body: 'Guided setup connects store profile, products, opening stock, payment methods and first receipt.' },
-    { icon: BarChart3, title: 'Owner reporting', body: 'Business overview, sales, stock, profit, payment and branch reports support store-by-store decisions.' },
-    { icon: ShieldCheck, title: 'Controls and auditability', body: 'Role permissions, stock-count variance approval, activity logs and package audits reduce uncontrolled changes.' },
-    { icon: MapPinned, title: 'Bangladesh operations', body: 'MFS payment tracking, customer due, courier/COD reconciliation and Bangla UI support local workflows.' },
+    { icon: BarChart3, title: 'Owner reporting', body: 'Business overview, sales, stock, profit, payment, COD and branch reports support store-by-store or overall decisions.' },
+    { icon: ShieldCheck, title: 'Controls and auditability', body: 'Role permissions, stock-count variance approval, activity logs, package audits and fiscal-readiness records reduce uncontrolled changes.' },
+    { icon: MapPinned, title: 'Bangladesh operations', body: 'MFS payment tracking, customer due, compliance reminders, courier/COD reconciliation and Bangla UI support local workflows.' },
+    { icon: PackageCheck, title: 'Inventory proof', body: 'Stock count sessions help owners compare system quantity with physical count before approving inventory corrections.' },
 ];
 
 const readiness = [
     'POS and order totals are calculated by backend services.',
     'Offline orders are restricted to paid cash sales with idempotency keys until advanced conflict resolution is enabled.',
     'Stock count approval posts auditable stock adjustments instead of silent inventory edits.',
+    'Business overview reporting can be reviewed store by store or across the whole business.',
+    'COD reconciliation connects ecommerce delivery status with unsettled courier collections.',
     'Fiscal tooling is presented as readiness infrastructure unless official certification is enabled.',
 ];
 
@@ -29,7 +32,7 @@ export default function CustomerProofPage() {
                     <p className="text-sm font-semibold uppercase tracking-wide text-sky-700">Operating proof</p>
                     <h1 className="mt-3 max-w-3xl text-4xl font-bold leading-tight sm:text-5xl">Trust is built from daily business controls, not only feature lists.</h1>
                     <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-600">
-                        AndgatePOS is being hardened as a Bangladesh-focused business operating system with checkout reliability, inventory audit trails, owner reports, courier/COD reconciliation and controlled compliance messaging.
+                        AndgatePOS is being hardened as a Bangladesh-focused business operating system with checkout reliability, stock-count audit trails, store-by-store owner reports, courier/COD reconciliation, compliance reminders and controlled fiscal-readiness messaging.
                     </p>
                     <div className="mt-7 flex flex-wrap gap-3">
                         <Link href="/pricing" className="rounded-lg bg-sky-700 px-5 py-3 text-sm font-semibold text-white hover:bg-sky-800">View Packages</Link>
@@ -56,7 +59,7 @@ export default function CustomerProofPage() {
             </section>
 
             <section className="border-y border-slate-200 bg-slate-50 py-12">
-                <div className="mx-auto grid max-w-6xl gap-4 px-5 md:grid-cols-2 lg:grid-cols-4">
+                <div className="mx-auto grid max-w-6xl gap-4 px-5 md:grid-cols-2 lg:grid-cols-5">
                     {proofItems.map((item) => {
                         const Icon = item.icon;
                         return (
