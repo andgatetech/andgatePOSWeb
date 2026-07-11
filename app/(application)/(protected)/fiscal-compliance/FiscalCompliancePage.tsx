@@ -97,6 +97,7 @@ const FiscalCompliancePage = () => {
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900">{t('lbl_fiscal_compliance')}</h1>
                     <p className="text-sm text-gray-500">{t('msg_fiscal_compliance_center')}</p>
+                    <p className="mt-1 max-w-3xl text-xs font-medium text-amber-700">{t('msg_fiscal_readiness_disclaimer')}</p>
                 </div>
                 <button
                     type="button"

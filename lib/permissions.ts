@@ -136,6 +136,7 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     '/products/create': ['products.create'],
     '/products/edit': ['products.edit'],
     '/products/stock/adjustments': ['stock.adjustments'],
+    '/products/stock/counts': ['stock.adjustments'],
     '/products/thresholds': ['products.index'],
     '/products/bulk': ['products.bulk-upload'],
     '/create-adjustment': ['stock.adjustments'],
@@ -281,6 +282,7 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     // ── Ecommerce Management ──────────────────────────────────
     '/ecommerce/stores': ['stores.view'],
     '/ecommerce/orders': ['orders.index'],
+    '/ecommerce/cod-reconciliation': ['orders.index'],
     '/ecommerce/products': ['products.index'],
     '/ecommerce/carts': ['orders.view'],
     '/ecommerce/wishlists': ['orders.view'],

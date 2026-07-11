@@ -126,6 +126,14 @@ const ecommerceManagementApi = baseApi.injectEndpoints({
             }),
             providesTags: [{ type: 'EcommerceManagement', id: 'COURIER-CREDENTIALS' }],
         }),
+        getCodReconciliation: builder.query({
+            query: (params = {}) => ({
+                url: '/ecommerce/management/couriers/cod-reconciliation',
+                method: 'GET',
+                params,
+            }),
+            providesTags: [{ type: 'EcommerceManagement', id: 'COD-RECONCILIATION' }],
+        }),
 
         getPathaoCities: builder.query({
             query: (params = {}) => ({
@@ -286,6 +294,7 @@ export const {
     useGetEcommerceCartsQuery,
     useGetEcommerceWishlistsQuery,
     useGetCourierCredentialsQuery,
+    useGetCodReconciliationQuery,
     useGetPathaoCitiesQuery,
     useGetPathaoZonesQuery,
     useGetPathaoAreasQuery,

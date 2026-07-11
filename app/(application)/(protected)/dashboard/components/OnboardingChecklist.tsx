@@ -170,6 +170,19 @@ export default function OnboardingChecklist() {
                 </div>
             </div>
 
+            <div className="grid gap-3 border-b border-gray-100 bg-slate-50 px-4 py-3 dark:border-slate-700 dark:bg-slate-800/50 sm:grid-cols-3 sm:px-5">
+                {[
+                    ['1', 'onboarding_path_stock_ready'],
+                    ['2', 'onboarding_path_payment_ready'],
+                    ['3', 'onboarding_path_first_receipt'],
+                ].map(([stepNo, labelKey]) => (
+                    <div key={stepNo} className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200">
+                        <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-sky-600 text-xs font-bold text-white">{stepNo}</span>
+                        <span className="font-medium">{t(labelKey)}</span>
+                    </div>
+                ))}
+            </div>
+
             <div className="grid grid-cols-1 divide-y divide-gray-100 dark:divide-slate-700 md:grid-cols-2 md:divide-x md:divide-y-0">
                 {steps.map((step) => {
                     const meta = STEP_META[step.key];

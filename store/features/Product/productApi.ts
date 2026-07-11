@@ -185,6 +185,30 @@ const ProductApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['Products', 'Orders'],
         }),
+        getStockCounts: builder.query({
+            query: (params = {}) => ({
+                url: '/stock-counts',
+                method: 'GET',
+                params,
+            }),
+            providesTags: ['Products'],
+        }),
+        createStockCount: builder.mutation({
+            query: (body) => ({
+                url: '/stock-counts',
+                method: 'POST',
+                body,
+            }),
+            invalidatesTags: ['Products', 'Orders'],
+        }),
+        approveStockCount: builder.mutation({
+            query: ({ id, ...body }) => ({
+                url: `/stock-counts/${id}/approve`,
+                method: 'POST',
+                body,
+            }),
+            invalidatesTags: ['Products', 'Orders'],
+        }),
     }),
 });
 
@@ -206,4 +230,7 @@ export const {
     useCreateStockAdjustmentMutation,
     useUpdateSerialStatusMutation,
     useCreateBatchAdjustmentMutation,
+    useGetStockCountsQuery,
+    useCreateStockCountMutation,
+    useApproveStockCountMutation,
 } = ProductApi;

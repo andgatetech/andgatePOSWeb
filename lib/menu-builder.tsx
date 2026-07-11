@@ -195,6 +195,11 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                 requiredPermissions: ['stock.adjustments'],
             },
             {
+                label: 'Stock Count',
+                href: '/products/stock/counts',
+                requiredPermissions: ['stock.adjustments'],
+            },
+            {
                 label: 'transfer_title',
                 href: '/stock-transfers',
                 requiredPermissions: ['stock-transfer.view', 'stock-transfer.manage'],
@@ -575,6 +580,12 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
             {
                 label: 'Ecommerce Orders',
                 href: '/ecommerce/orders',
+                requiredPermissions: ['orders.index'],
+                requiredFeature: 'ecommerce.manage',
+            },
+            {
+                label: 'COD Reconciliation',
+                href: '/ecommerce/cod-reconciliation',
                 requiredPermissions: ['orders.index'],
                 requiredFeature: 'ecommerce.manage',
             },

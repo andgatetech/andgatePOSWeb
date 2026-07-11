@@ -26,7 +26,7 @@ import {
     updateExchangeItem,
     updateReturnQuantity,
 } from '@/store/features/Order/OrderReturnSlice';
-import { clearItemsRedux, removeItemRedux, updateItemRedux } from '@/store/features/Order/OrderSlice';
+import { clearItemsRedux, removeItemRedux, setItemsRedux, updateItemRedux } from '@/store/features/Order/OrderSlice';
 import type { Item } from '@/store/features/Order/OrderSlice';
 import type { ExchangeItem, ReturnItem } from '@/store/features/Order/OrderReturnSlice';
 import { useCreateCustomerMutation, useGetStoreCustomersListQuery } from '@/store/features/customer/customer';
@@ -136,6 +136,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
     const [returnPreviewSnapshot, setReturnPreviewSnapshot] = useState<any>(null);
     const [quotePreview, setQuotePreview] = useState<any>(null);
     const [quoteErrorMsg, setQuoteErrorMsg] = useState<string | null>(null);
+    const [heldCartCount, setHeldCartCount] = useState(0);
 
     const [formData, setFormData] = useState<PosFormData>({
         customerId: null,
@@ -189,6 +190,87 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         // No defaults - must be configured in settings
         return [];
     }, [currentStore]);
+
+    const heldCartKey = useMemo(() => (currentStoreId ? `andgatepos_held_cart_${currentStoreId}` : null), [currentStoreId]);
+
+    const refreshHeldCartCount = () => {
+        if (!heldCartKey) {
+            setHeldCartCount(0);
+            return;
+        }
+        try {
+            const parsed = JSON.parse(localStorage.getItem(heldCartKey) || '{}');
+            setHeldCartCount(Array.isArray(parsed.items) ? parsed.items.length : 0);
+        } catch {
+            setHeldCartCount(0);
+        }
+    };
+
+    useEffect(() => {
+        refreshHeldCartCount();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [heldCartKey]);
+
+    const clearHeldCart = () => {
+        if (!heldCartKey) return;
+        localStorage.removeItem(heldCartKey);
+        setHeldCartCount(0);
+    };
+
+    const handleHoldCart = async () => {
+        if (!currentStoreId || !heldCartKey || invoiceItems.length === 0) return;
+
+        const confirmed = await showConfirmDialog(t('pos_hold_cart_title'), t('pos_hold_cart_confirm'), t('pos_hold_cart_action'), t('btn_cancel'));
+        if (!confirmed) return;
+
+        localStorage.setItem(
+            heldCartKey,
+            JSON.stringify({
+                items: invoiceItems,
+                formData,
+                heldAt: new Date().toISOString(),
+            })
+        );
+        dispatch(clearItemsRedux(currentStoreId));
+        clearCustomerSelection();
+        refreshHeldCartCount();
+        showMessage(t('pos_cart_held_success'), 'success');
+    };
+
+    const handleResumeHeldCart = async () => {
+        if (!currentStoreId || !heldCartKey) return;
+
+        try {
+            const parsed = JSON.parse(localStorage.getItem(heldCartKey) || '{}');
+            if (!Array.isArray(parsed.items) || parsed.items.length === 0) {
+                showMessage(t('pos_no_held_cart'), 'error');
+                clearHeldCart();
+                return;
+            }
+
+            if (invoiceItems.length > 0) {
+                const confirmed = await showConfirmDialog(t('pos_resume_cart_title'), t('pos_resume_cart_confirm'), t('pos_resume_cart_action'), t('btn_cancel'));
+                if (!confirmed) return;
+            }
+
+            dispatch(setItemsRedux({ storeId: currentStoreId, items: parsed.items }));
+            if (parsed.formData && typeof parsed.formData === 'object') {
+                setFormData((prev) => ({
+                    ...prev,
+                    ...parsed.formData,
+                    customerId: parsed.formData.customerId ?? prev.customerId,
+                    isSplitPayment: Boolean(parsed.formData.isSplitPayment),
+                    splitPayments: Array.isArray(parsed.formData.splitPayments) ? parsed.formData.splitPayments : [],
+                }));
+                setCustomerSearch(parsed.formData.customerName || '');
+            }
+            clearHeldCart();
+            showMessage(t('pos_cart_resumed_success'), 'success');
+        } catch {
+            showMessage(t('pos_no_held_cart'), 'error');
+            clearHeldCart();
+        }
+    };
 
     // Calculate return totals (for return mode)
     // Value of items being returned
@@ -1356,6 +1438,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                 dispatch(queueOfflineOrder(offlineOrder));
                 // Clear cart immediately — prevents duplicate queuing if app crashes before preview closes
                 dispatch(clearItemsRedux(currentStoreId!));
+                clearHeldCart();
                 setQuotePreview(null);
                 setOrderResponse({
                     data: {
@@ -1409,6 +1492,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                 setLoading(true);
                 const response = await createOrder(orderData).unwrap();
                 setQuotePreview(null);
+                clearHeldCart();
                 setOrderResponse(response);
                 setAutoPrint(postActionRef.current === 'receipt' ? 'receipt' : null);
                 setShowPreview(true);
@@ -2125,6 +2209,27 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                                 {invoiceItems.length} {invoiceItems.length === 1 ? t('lbl_item') : t('lbl_items')}
                             </span>
                             <span className="font-bold text-primary">{formatCurrency(backendGrandTotal)}</span>
+                        </div>
+                        <div className="mb-3 grid gap-2 sm:grid-cols-2">
+                            <button
+                                type="button"
+                                onClick={handleHoldCart}
+                                disabled={loading || invoiceItems.length === 0}
+                                className="inline-flex items-center justify-center gap-2 rounded-lg border border-amber-200 bg-white px-3 py-2 text-xs font-semibold text-amber-700 transition hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                <IconSave />
+                                {t('pos_hold_cart_action')}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleResumeHeldCart}
+                                disabled={loading || heldCartCount === 0}
+                                className="inline-flex items-center justify-center gap-2 rounded-lg border border-sky-200 bg-white px-3 py-2 text-xs font-semibold text-sky-700 transition hover:bg-sky-50 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                <IconEye />
+                                {t('pos_resume_cart_action')}
+                                {heldCartCount > 0 && <span className="rounded-full bg-sky-100 px-2 py-0.5 text-[11px] text-sky-800">{heldCartCount}</span>}
+                            </button>
                         </div>
                         <div className="grid gap-3 sm:grid-cols-[1fr_1fr]">
                             <button
