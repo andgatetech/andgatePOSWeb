@@ -110,7 +110,7 @@ const IdleProductReportPage = () => {
         if (apiParams.date_range_type) dateType = apiParams.date_range_type;
         else if (apiParams.start_date || apiParams.end_date) dateType = 'custom';
         return { dateRange: { startDate: apiParams.start_date, endDate: apiParams.end_date, type: dateType }, storeName: selectedStore, customFilters };
-    }, [apiParams, currentStore, userStores]);
+    }, [apiParams, currentStore, userStores, t]);
 
     const exportSummary = useMemo(
         () => [
@@ -156,7 +156,7 @@ const IdleProductReportPage = () => {
                 textColor: 'text-purple-600',
             },
         ],
-        [summary, formatCurrency]
+        [summary, formatCurrency, formatNumber, t]
     );
 
     const columns = useMemo(
@@ -249,7 +249,7 @@ const IdleProductReportPage = () => {
                 },
             },
         ],
-        [t, formatCurrency]
+        [t, formatCurrency, formatNumber]
     );
 
     return (
@@ -286,7 +286,7 @@ const IdleProductReportPage = () => {
                     sorting={{ field: sortField, direction: sortDirection, onSort: handleSort }}
                     emptyState={{
                         icon: <FileText className="mx-auto h-16 w-16 text-gray-300" />,
-                        title: 'Portfolio Currently Active',
+                        title: t('lbl_portfolio_currently_active'),
                         description: t('report_no_dormant_desc'),
                     }}
                 />

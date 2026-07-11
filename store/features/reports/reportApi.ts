@@ -36,6 +36,14 @@ const ReportApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         // ========== SALES & REVENUE REPORTS ==========
 
+        getBusinessOverviewReport: builder.mutation({
+            query: (data: ReportFilters) => ({
+                url: '/reports/business-overview',
+                method: 'POST',
+                body: data,
+            }),
+        }),
+
         // 1. Sales Report
         getSalesReport: builder.mutation({
             query: (data: ReportFilters) => ({
@@ -332,6 +340,7 @@ const ReportApi = baseApi.injectEndpoints({
 
 export const {
     // Sales & Revenue
+    useGetBusinessOverviewReportMutation,
     useGetSalesReportMutation,
     useGetTransactionReportMutation,
     useGetInvoiceReportMutation,

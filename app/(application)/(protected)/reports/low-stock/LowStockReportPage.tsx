@@ -145,7 +145,7 @@ const LowStockReportPage = () => {
         if (apiParams.date_range_type) dateType = apiParams.date_range_type;
         else if (apiParams.start_date || apiParams.end_date) dateType = 'custom';
         return { dateRange: { startDate: apiParams.start_date, endDate: apiParams.end_date, type: dateType }, storeName: selectedStore, customFilters: [] };
-    }, [apiParams, currentStore, userStores]);
+    }, [apiParams, currentStore, userStores, t]);
 
     const exportSummary = useMemo(
         () => [
@@ -191,7 +191,7 @@ const LowStockReportPage = () => {
                 textColor: 'text-blue-600',
             },
         ],
-        [summary]
+        [summary, formatNumber, t]
     );
 
     const allSelected = stocks.length > 0 && selectedIds.length === stocks.length;
@@ -366,8 +366,8 @@ const LowStockReportPage = () => {
                     sorting={{ field: sortField, direction: sortDirection, onSort: handleSort }}
                     emptyState={{
                         icon: <FileText className="mx-auto h-16 w-16 text-gray-300" />,
-                        title: 'Inventory Healthy',
-                        description: 'Excellent! All products are currently above their minimum safety levels.',
+                        title: t('lbl_inventory_healthy'),
+                        description: t('msg_inventory_healthy_desc'),
                     }}
                 />
             </div>

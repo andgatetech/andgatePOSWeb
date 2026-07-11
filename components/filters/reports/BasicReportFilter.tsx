@@ -9,13 +9,16 @@ interface BasicReportFilterProps {
     onFilterChange: (apiParams: Record<string, any>) => void;
     placeholder?: string;
     showDateFilter?: boolean;
+    defaultAllStores?: boolean;
 }
 
-const BasicReportFilter: React.FC<BasicReportFilterProps> = ({ onFilterChange, placeholder, showDateFilter = true }) => {
+const BasicReportFilter: React.FC<BasicReportFilterProps> = ({ onFilterChange, placeholder, showDateFilter = true, defaultAllStores = false }) => {
     const { t } = getTranslation();
     const resolvedPlaceholder = placeholder ?? t('lbl_search');
     const { userStores } = useCurrentStore();
-    const { filters, handleFilterChange, buildApiParams } = useUniversalFilter();
+    const { filters, handleFilterChange, buildApiParams } = useUniversalFilter({
+        initialFilters: defaultAllStores ? { storeId: 'all' } : {},
+    });
 
     // Stabilize the callback to prevent unnecessary re-renders
     const stableOnFilterChange = React.useCallback(onFilterChange, [onFilterChange]);
@@ -37,7 +40,7 @@ const BasicReportFilter: React.FC<BasicReportFilterProps> = ({ onFilterChange, p
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [filters]);
 
-    return <UniversalFilter onFilterChange={handleFilterChange} placeholder={resolvedPlaceholder} showStoreFilter={true} showDateFilter={showDateFilter} showSearch={true} />;
+    return <UniversalFilter onFilterChange={handleFilterChange} initialFilters={defaultAllStores ? { storeId: 'all' } : {}} placeholder={resolvedPlaceholder} showStoreFilter={true} showDateFilter={showDateFilter} showSearch={true} />;
 };
 
 export default BasicReportFilter;

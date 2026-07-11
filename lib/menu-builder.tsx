@@ -470,6 +470,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                 label: 'Sales & Revenue',
                 requiredPermissions: ['reports.sales', 'reports.transaction'],
                 subMenu: [
+                    { label: 'Business Overview', href: '/reports/business-overview', requiredPermissions: ['reports.sales', 'reports.profit-loss'] },
                     { label: 'Sales Report', href: '/reports/sales', requiredPermissions: ['reports.sales'] },
                     { label: 'Order Returns', href: '/reports/order-returns', requiredPermissions: ['reports.order-returns'] },
                     { label: 'Transactions', href: '/reports/transaction', requiredPermissions: ['reports.transaction'] },

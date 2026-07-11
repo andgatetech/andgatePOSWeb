@@ -16,14 +16,14 @@ import Swal from 'sweetalert2';
 
 const paymentMethods = ['cash', 'bkash', 'nagad', 'rocket', 'card', 'bank'];
 const followUpActions = [
-    { value: 'called', label: 'Called' },
-    { value: 'whatsapp_sent', label: 'WhatsApp sent' },
-    { value: 'sms_sent', label: 'SMS sent' },
-    { value: 'visited', label: 'Visited shop/home' },
-    { value: 'promised_to_pay', label: 'Promised to pay' },
-    { value: 'no_response', label: 'No response' },
-    { value: 'dispute', label: 'Dispute/issue' },
-    { value: 'other', label: 'Other' },
+    { value: 'called', label: 'lbl_called' },
+    { value: 'whatsapp_sent', label: 'lbl_whatsapp_sent' },
+    { value: 'sms_sent', label: 'lbl_sms_sent' },
+    { value: 'visited', label: 'lbl_visited_shop_home' },
+    { value: 'promised_to_pay', label: 'lbl_promised_to_pay' },
+    { value: 'no_response', label: 'lbl_no_response' },
+    { value: 'dispute', label: 'lbl_dispute_issue' },
+    { value: 'other', label: 'lbl_other' },
 ];
 
 const bdWhatsAppNumber = (phone?: string) => {
@@ -122,15 +122,18 @@ const CustomerDueReportPage = () => {
                 reminder_days_before: Number(followUpForm.reminder_days_before || 1),
                 note: followUpForm.note,
             }).unwrap();
-            Swal.fire(t('msg_success'), 'Customer due follow-up updated.', 'success');
+            Swal.fire(t('msg_success'), t('msg_customer_due_follow_up_updated'), 'success');
             closeFollowUpModal();
             refetch();
         } catch (error: any) {
-            Swal.fire(t('msg_error'), error?.data?.message || 'Failed to update follow-up.', 'error');
+            Swal.fire(t('msg_error'), error?.data?.message || t('msg_failed_to_update_follow_up'), 'error');
         }
     };
 
-    const formatActionLabel = useCallback((action?: string) => followUpActions.find((item) => item.value === action)?.label || (action ? String(action).replaceAll('_', ' ') : 'No action yet'), []);
+    const formatActionLabel = useCallback((action?: string) => {
+        const labelKey = followUpActions.find((item) => item.value === action)?.label;
+        return labelKey ? t(labelKey) : (action ? String(action).replaceAll('_', ' ') : t('lbl_no_action_yet'));
+    }, [t]);
 
     const followUpBadgeClass = (status?: string) => {
         if (status === 'promise_overdue') return 'bg-red-100 text-red-800';
@@ -232,8 +235,8 @@ const CustomerDueReportPage = () => {
             { key: 'total_due', label: t('lbl_total_due'), width: 14, format: (v) => formatCurrency(v) },
             { key: 'paid', label: t('lbl_paid'), width: 14, format: (v) => formatCurrency(v) },
             { key: 'remaining', label: t('lbl_remaining_due'), width: 14, format: (v) => formatCurrency(v) },
-            { key: 'promised_payment_date', label: 'Promise Date', width: 14 },
-            { key: 'last_follow_up_action', label: 'Last Follow-up', width: 16, format: (v) => formatActionLabel(v) },
+            { key: 'promised_payment_date', label: t('lbl_promise_date'), width: 14 },
+            { key: 'last_follow_up_action', label: t('lbl_last_follow_up'), width: 16, format: (v) => formatActionLabel(v) },
             { key: 'aging_bucket', label: t('lbl_aging'), width: 10 },
             { key: 'status', label: t('lbl_status'), width: 10 },
         ],
@@ -283,7 +286,7 @@ const CustomerDueReportPage = () => {
                 textColor: 'text-amber-600',
             },
             {
-                label: 'Promise due today',
+                label: t('lbl_promise_due_today'),
                 value: formatNumber(summary.promised_today || 0),
                 icon: <CalendarClock className="h-4 w-4 text-blue-600" />,
                 bgColor: 'bg-blue-500',
@@ -291,7 +294,7 @@ const CustomerDueReportPage = () => {
                 textColor: 'text-blue-600',
             },
             {
-                label: 'Promise overdue',
+                label: t('lbl_promise_overdue'),
                 value: formatNumber(summary.promise_overdue || 0),
                 icon: <Bell className="h-4 w-4 text-red-600" />,
                 bgColor: 'bg-red-500',
@@ -328,7 +331,7 @@ const CustomerDueReportPage = () => {
             },
             {
                 key: 'promised_payment_date',
-                label: 'Promise / follow-up',
+                label: t('lbl_promise_follow_up'),
                 render: (value: any, row: any) => (
                     <div className="space-y-1">
                         {value ? (
@@ -336,7 +339,7 @@ const CustomerDueReportPage = () => {
                                 <DateColumn date={value} />
                             </div>
                         ) : (
-                            <span className="text-xs text-gray-400">No promise date</span>
+                            <span className="text-xs text-gray-400">{t('lbl_no_promise_date')}</span>
                         )}
                         <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${followUpBadgeClass(row.follow_up_status)}`}>
                             {String(row.follow_up_status || 'not_scheduled').replaceAll('_', ' ')}
@@ -374,7 +377,7 @@ const CustomerDueReportPage = () => {
     const actions = useMemo(
         () => [
             {
-                label: 'Follow up',
+                label: t('lbl_follow_up'),
                 icon: <MessageCircle className="h-4 w-4" />,
                 className: 'text-gray-700',
                 onClick: (row: any) => openFollowUpModal(row),

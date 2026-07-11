@@ -109,7 +109,7 @@ const InvoiceReportPage = () => {
         if (apiParams.date_range_type) dateType = apiParams.date_range_type;
         else if (apiParams.start_date || apiParams.end_date) dateType = 'custom';
         return { dateRange: { startDate: apiParams.start_date, endDate: apiParams.end_date, type: dateType }, storeName: selectedStore, customFilters: [] };
-    }, [apiParams, currentStore, userStores]);
+    }, [apiParams, currentStore, userStores, t]);
 
     const exportSummary = useMemo(
         () => [
@@ -155,7 +155,7 @@ const InvoiceReportPage = () => {
                 textColor: 'text-red-600',
             },
         ],
-        [summary, formatCurrency]
+        [summary, formatCurrency, formatNumber, t]
     );
 
     const columns = useMemo(
@@ -285,7 +285,7 @@ const InvoiceReportPage = () => {
                     emptyState={{
                         icon: <FileText className="mx-auto h-16 w-16 text-gray-300" />,
                         title: t('report_no_invoices_found'),
-                        description: 'Try adjusting your date range or filters to locate specific invoices.',
+                        description: t('msg_adjust_filters_to_find_invoices'),
                     }}
                 />
             </div>
