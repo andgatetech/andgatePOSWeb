@@ -50,9 +50,22 @@ export const setAuthCookie = (name: string, value: string, maxAge: number) => {
 export const clearAuthCookies = () => {
     if (typeof document === 'undefined') return;
 
+    const hostname = window.location.hostname;
+    const domains = new Set<string | null>([null, hostname]);
+
+    if (hostname.includes('.')) {
+        domains.add(`.${hostname}`);
+        domains.add(`.${hostname.split('.').slice(-2).join('.')}`);
+    }
+
     AUTH_COOKIE_NAMES.forEach((name) => {
-        document.cookie = `${name}=; path=/; max-age=0; SameSite=Strict`;
-        document.cookie = `${name}=; path=/; max-age=0; Secure; SameSite=Strict`;
+        domains.forEach((domain) => {
+            const domainPart = domain ? `; domain=${domain}` : '';
+            document.cookie = `${name}=; path=/; max-age=0; SameSite=Strict${domainPart}`;
+            document.cookie = `${name}=; path=/; max-age=0; Secure; SameSite=Strict${domainPart}`;
+            document.cookie = `${name}=; path=/; max-age=0; SameSite=Lax${domainPart}`;
+            document.cookie = `${name}=; path=/; max-age=0; Secure; SameSite=Lax${domainPart}`;
+        });
     });
 };
 

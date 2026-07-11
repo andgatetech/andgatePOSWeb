@@ -3,8 +3,8 @@ import { clearAuthCookies, clearAuthLocalStorage, isTokenExpired } from '@/lib/a
 import Loading from '@/app/loading';
 import { RootState, persistor } from '@/store';
 import { logout as logoutAction } from '@/store/features/auth/authSlice';
-import { usePathname, useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import StoreDisabledScreen from './StoreDisabledScreen';
 import StoreInactiveScreen from './StoreInactiveScreen';
@@ -16,21 +16,27 @@ interface StatusGuardProps {
 }
 
 export default function StatusGuard({ children }: StatusGuardProps) {
-    const router = useRouter();
     const pathname = usePathname();
     const dispatch = useDispatch();
     const { user, token, tokenExpiresAt, isAuthenticated } = useSelector((state: RootState) => state.auth);
     const currentStore = useSelector((state: RootState) => state.auth.currentStore);
     const [isChecking, setIsChecking] = useState(true);
+    const redirectingRef = useRef(false);
+
+    const getLoginPath = useCallback(() => {
+        const redirect = pathname && pathname !== '/login' ? `?redirect=${encodeURIComponent(pathname)}` : '';
+        return `/login${redirect}`;
+    }, [pathname]);
 
     const clearExpiredSession = useCallback(() => {
+        if (redirectingRef.current) return;
+        redirectingRef.current = true;
         dispatch(logoutAction());
         persistor.purge().catch(() => {});
         clearAuthCookies();
         clearAuthLocalStorage();
-        const redirect = pathname && pathname !== '/login' ? `?redirect=${encodeURIComponent(pathname)}` : '';
-        router.replace(`/login${redirect}`);
-    }, [dispatch, router, pathname]);
+        window.location.replace(getLoginPath());
+    }, [dispatch, getLoginPath]);
 
     // Force logout if the saved token expiry is missing or expired while the tab is open.
     useEffect(() => {
@@ -59,14 +65,13 @@ export default function StatusGuard({ children }: StatusGuardProps) {
         }
 
         if (!isAuthenticated || !user) {
-            const redirect = pathname && pathname !== '/login' ? `?redirect=${encodeURIComponent(pathname)}` : '';
-            router.replace(`/login${redirect}`);
+            clearExpiredSession();
             return;
         }
 
         // Finished checking
         setIsChecking(false);
-    }, [isAuthenticated, user, token, tokenExpiresAt, router, pathname, clearExpiredSession]);
+    }, [isAuthenticated, user, token, tokenExpiresAt, clearExpiredSession]);
 
     // If not authenticated, don't render anything (will redirect)
     if (isChecking || !isAuthenticated || !user) {

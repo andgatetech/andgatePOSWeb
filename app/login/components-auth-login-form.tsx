@@ -11,7 +11,7 @@ import { toast } from 'react-toastify';
 
 import IconLockDots from '@/components/icon/icon-lock-dots';
 import IconMail from '@/components/icon/icon-mail';
-import { AUTH_TOKEN_EXPIRES_AT_COOKIE, AUTH_TOKEN_EXPIRES_AT_KEY, AUTH_TOKEN_STORAGE_KEY, getCookieMaxAgeFromExpiry, getLoginTokenExpiresAt, isTokenExpired, setAuthCookie } from '@/lib/auth-session';
+import { AUTH_TOKEN_EXPIRES_AT_COOKIE, AUTH_TOKEN_EXPIRES_AT_KEY, AUTH_TOKEN_STORAGE_KEY, clearAuthCookies, clearAuthLocalStorage, getCookieMaxAgeFromExpiry, getLoginTokenExpiresAt, isTokenExpired, setAuthCookie } from '@/lib/auth-session';
 import { trackEvent } from '@/lib/analytics';
 import { login } from '@/store/features/auth/authSlice';
 import { persistor } from '@/store';
@@ -108,6 +108,8 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
     const submitForm = async (e: FormEvent) => {
         e.preventDefault();
         try {
+            clearAuthCookies();
+            clearAuthLocalStorage();
             const result = await loginApi({ ...credentials, remember_me: rememberMe }).unwrap();
 
             const payload = result?.data;
