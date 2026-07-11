@@ -5896,6 +5896,8 @@
   "aff_faq_a11": "No. The calculator shows estimated potential earnings only. Actual income depends on successful payments and renewals. AndgatePOS does not guarantee any fixed income.",
   "manual_payments_title": "Package & Payments",
   "manual_payments_subtitle": "Submit mobile banking, bank transfer, cash or other payment details for AndgatePOS admin verification.",
+  "manual_payments_title_upgrade": "Upgrade Your Plan",
+  "manual_payments_subtitle_upgrade": "Your subscription is active. Pick a new plan and submit mobile banking, bank transfer, cash or other payment details for AndgatePOS admin verification.",
   "manual_payments_brand_badge": "AndgatePOS subscription control",
   "manual_payments_current_package": "Current Package",
   "manual_payments_package": "Package",

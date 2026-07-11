@@ -46,6 +46,9 @@ export default function ManualPaymentPanel() {
     const latest = summaryData?.data.latest_payment;
     const subscription = summaryData?.data.subscription;
     const payments = paymentsData?.data?.data || paymentsData?.data || [];
+    // Mirrors PaymentSubmissionService::determineIntent() on the backend — copy-only,
+    // the actual intent stored on the request is always derived server-side.
+    const isUpgradeIntent = subscription?.status === 'active' && !!subscription?.expire_date && new Date(subscription.expire_date) > new Date();
     const methodLabels: Record<string, string> = {
         bkash: 'bKash',
         nagad: 'Nagad',
@@ -115,11 +118,15 @@ export default function ManualPaymentPanel() {
                         </div>
                         <div className="min-w-0">
                             <p className="text-xs font-semibold uppercase text-primary">{t('manual_payments_brand_badge')}</p>
-                            <h1 className="text-xl font-bold text-gray-900 dark:text-white md:text-2xl">{t('manual_payments_title')}</h1>
+                            <h1 className="text-xl font-bold text-gray-900 dark:text-white md:text-2xl">
+                                {isUpgradeIntent ? t('manual_payments_title_upgrade') : t('manual_payments_title')}
+                            </h1>
                         </div>
                     </div>
                 </div>
-                <p className="mt-3 max-w-3xl text-sm text-gray-600 dark:text-gray-300">{t('manual_payments_subtitle')}</p>
+                <p className="mt-3 max-w-3xl text-sm text-gray-600 dark:text-gray-300">
+                    {isUpgradeIntent ? t('manual_payments_subtitle_upgrade') : t('manual_payments_subtitle')}
+                </p>
             </div>
 
             <section className="panel">

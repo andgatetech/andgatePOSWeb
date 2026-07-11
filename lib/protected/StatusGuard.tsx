@@ -1,5 +1,6 @@
 'use client';
 import { clearAuthCookies, clearAuthLocalStorage, isTokenExpired } from '@/lib/auth-session';
+import Loading from '@/app/loading';
 import { RootState, persistor } from '@/store';
 import { logout as logoutAction } from '@/store/features/auth/authSlice';
 import { usePathname, useRouter } from 'next/navigation';
@@ -24,7 +25,7 @@ export default function StatusGuard({ children }: StatusGuardProps) {
 
     const clearExpiredSession = useCallback(() => {
         dispatch(logoutAction());
-        persistor.purge();
+        persistor.purge().catch(() => {});
         clearAuthCookies();
         clearAuthLocalStorage();
         const redirect = pathname && pathname !== '/login' ? `?redirect=${encodeURIComponent(pathname)}` : '';
@@ -59,17 +60,17 @@ export default function StatusGuard({ children }: StatusGuardProps) {
 
         if (!isAuthenticated || !user) {
             const redirect = pathname && pathname !== '/login' ? `?redirect=${encodeURIComponent(pathname)}` : '';
-            router.push(`/login${redirect}`);
+            router.replace(`/login${redirect}`);
             return;
         }
 
         // Finished checking
         setIsChecking(false);
-    }, [isAuthenticated, user, token, tokenExpiresAt, router, clearExpiredSession]);
+    }, [isAuthenticated, user, token, tokenExpiresAt, router, pathname, clearExpiredSession]);
 
     // If not authenticated, don't render anything (will redirect)
-    if (!isAuthenticated || !user) {
-        return null;
+    if (isChecking || !isAuthenticated || !user) {
+        return <Loading />;
     }
 
     // Check user status first (highest priority)
