@@ -28,6 +28,7 @@ const GOOGLE_TTS_SPEAKING_RATE = Number(process.env.GOOGLE_TTS_SPEAKING_RATE || 
 const GOOGLE_TTS_PITCH = Number(process.env.GOOGLE_TTS_PITCH || '0');
 const OPENAI_TTS_MODEL = process.env.OPENAI_TTS_MODEL || 'gpt-4o-mini-tts';
 const OPENAI_TTS_VOICE = process.env.OPENAI_TTS_VOICE || 'nova';
+const OPENAI_TTS_SPEED = process.env.OPENAI_TTS_SPEED ? Number(process.env.OPENAI_TTS_SPEED) : null;
 const OPENAI_TTS_INSTRUCTIONS = process.env.OPENAI_TTS_INSTRUCTIONS || BANGLADESHI_TTS_PROMPT;
 const TTS_PROVIDER = process.env.VIDEO_TTS_PROVIDER || (GOOGLE_TTS_CREDENTIALS ? 'google' : process.env.OPENAI_API_KEY ? 'openai' : '');
 const VIDEO_STORAGE_STATE = process.env.VIDEO_STORAGE_STATE || '';
@@ -837,6 +838,72 @@ const waitForAppReady = async (page) => {
     await page.waitForTimeout(900);
 };
 
+const injectUrlOverlay = async (page) => {
+    await page.evaluate(() => {
+        const overlayId = 'andgate-training-url-overlay';
+        document.getElementById(overlayId)?.remove();
+
+        const wrapper = document.createElement('div');
+        wrapper.id = overlayId;
+        wrapper.style.position = 'fixed';
+        wrapper.style.left = '0';
+        wrapper.style.right = '0';
+        wrapper.style.top = '0';
+        wrapper.style.zIndex = '2147483647';
+        wrapper.style.height = '38px';
+        wrapper.style.display = 'flex';
+        wrapper.style.alignItems = 'center';
+        wrapper.style.gap = '10px';
+        wrapper.style.padding = '6px 14px';
+        wrapper.style.background = 'rgba(15, 23, 42, 0.94)';
+        wrapper.style.color = '#e5edf6';
+        wrapper.style.fontFamily = 'Inter, Arial, sans-serif';
+        wrapper.style.fontSize = '13px';
+        wrapper.style.boxShadow = '0 2px 10px rgba(0,0,0,0.18)';
+        wrapper.style.pointerEvents = 'none';
+        wrapper.style.transition = 'background 220ms ease, box-shadow 220ms ease';
+
+        const dots = document.createElement('div');
+        dots.style.display = 'flex';
+        dots.style.gap = '5px';
+        for (const color of ['#ef4444', '#f59e0b', '#22c55e']) {
+            const dot = document.createElement('span');
+            dot.style.width = '9px';
+            dot.style.height = '9px';
+            dot.style.borderRadius = '999px';
+            dot.style.background = color;
+            dots.appendChild(dot);
+        }
+
+        const bar = document.createElement('div');
+        bar.style.flex = '1';
+        bar.style.minWidth = '0';
+        bar.style.overflow = 'hidden';
+        bar.style.whiteSpace = 'nowrap';
+        bar.style.textOverflow = 'ellipsis';
+        bar.style.border = '1px solid rgba(148, 163, 184, 0.35)';
+        bar.style.borderRadius = '8px';
+        bar.style.background = 'rgba(255,255,255,0.08)';
+        bar.style.padding = '4px 10px';
+        bar.textContent = window.location.href;
+
+        wrapper.appendChild(dots);
+        wrapper.appendChild(bar);
+        document.body.appendChild(wrapper);
+        document.documentElement.style.scrollPaddingTop = '48px';
+        document.body.style.paddingTop = '38px';
+
+        requestAnimationFrame(() => {
+            wrapper.style.background = 'rgba(4, 108, 169, 0.96)';
+            wrapper.style.boxShadow = '0 3px 18px rgba(4,108,169,0.35)';
+            setTimeout(() => {
+                wrapper.style.background = 'rgba(15, 23, 42, 0.94)';
+                wrapper.style.boxShadow = '0 2px 10px rgba(0,0,0,0.18)';
+            }, 900);
+        });
+    });
+};
+
 const loginAndSaveState = async (browser, storageStatePath, outDir) => {
     if (await exists(storageStatePath)) return;
     if (VIDEO_STORAGE_STATE) {
@@ -885,7 +952,67 @@ const loginAndSaveState = async (browser, storageStatePath, outDir) => {
 const movePointer = async (page, step) => {
     const x = 190 + ((step * 211) % 850);
     const y = 130 + ((step * 97) % 430);
+    await page.evaluate(({ x, y, step }) => {
+        const cursorId = 'andgate-training-cursor';
+        let cursor = document.getElementById(cursorId);
+        if (!cursor) {
+            cursor = document.createElement('div');
+            cursor.id = cursorId;
+            cursor.style.position = 'fixed';
+            cursor.style.left = '0';
+            cursor.style.top = '0';
+            cursor.style.zIndex = '2147483646';
+            cursor.style.width = '28px';
+            cursor.style.height = '28px';
+            cursor.style.pointerEvents = 'none';
+            cursor.style.transform = 'translate(120px, 120px)';
+            cursor.style.transition = 'transform 650ms ease';
+            cursor.innerHTML = `
+                <div style="
+                    width:0;height:0;
+                    border-left:18px solid #046ca9;
+                    border-top:12px solid transparent;
+                    border-bottom:12px solid transparent;
+                    filter:drop-shadow(0 2px 3px rgba(0,0,0,.35));
+                    transform:rotate(-28deg);
+                "></div>
+                <div id="andgate-training-cursor-ring" style="
+                    position:absolute;
+                    left:13px;top:12px;
+                    width:22px;height:22px;
+                    border:3px solid rgba(231,146,55,.85);
+                    border-radius:999px;
+                    transform:scale(.7);
+                    opacity:.95;
+                    transition:transform 260ms ease, opacity 260ms ease;
+                "></div>
+                <div style="
+                    position:absolute;
+                    left:24px;top:20px;
+                    border-radius:999px;
+                    background:#0f172a;
+                    color:#fff;
+                    font:700 11px Inter,Arial,sans-serif;
+                    padding:2px 6px;
+                    box-shadow:0 2px 6px rgba(0,0,0,.25);
+                ">${step}</div>
+            `;
+            document.body.appendChild(cursor);
+        }
+
+        cursor.style.transform = `translate(${x}px, ${y}px)`;
+        const ring = document.getElementById('andgate-training-cursor-ring');
+        if (ring) {
+            ring.style.transform = 'scale(1.35)';
+            ring.style.opacity = '1';
+            setTimeout(() => {
+                ring.style.transform = 'scale(.75)';
+                ring.style.opacity = '.65';
+            }, 320);
+        }
+    }, { x, y, step });
     await page.mouse.move(x, y, { steps: 20 });
+    await page.waitForTimeout(700);
 };
 
 const recordLesson = async (browser, storageStatePath, lessonDir, lesson, scenes) => {
@@ -902,6 +1029,7 @@ const recordLesson = async (browser, storageStatePath, lessonDir, lesson, scenes
     for (const [index, scene] of scenes.entries()) {
         await page.goto(`${BASE_URL}${scene.path}`, { waitUntil: 'domcontentloaded', timeout: 45_000 });
         await waitForAppReady(page);
+        await injectUrlOverlay(page);
         await movePointer(page, index + 1);
         await page.mouse.wheel(0, 300).catch(() => undefined);
         await sleep(scene.seconds * 500);
@@ -967,19 +1095,24 @@ const generateOpenAiVoice = async (lessonDir) => {
     if (!process.env.OPENAI_API_KEY) return '';
 
     const text = await fs.readFile(path.join(lessonDir, 'narration.bn.txt'), 'utf8');
+    const body = {
+        model: OPENAI_TTS_MODEL,
+        voice: OPENAI_TTS_VOICE,
+        input: text,
+        instructions: OPENAI_TTS_INSTRUCTIONS,
+        response_format: 'mp3',
+    };
+    if (OPENAI_TTS_SPEED !== null && Number.isFinite(OPENAI_TTS_SPEED)) {
+        body.speed = OPENAI_TTS_SPEED;
+    }
+
     const response = await fetch('https://api.openai.com/v1/audio/speech', {
         method: 'POST',
         headers: {
             Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-            model: OPENAI_TTS_MODEL,
-            voice: OPENAI_TTS_VOICE,
-            input: text,
-            instructions: OPENAI_TTS_INSTRUCTIONS,
-            response_format: 'mp3',
-        }),
+        body: JSON.stringify(body),
     });
 
     if (!response.ok) {

@@ -5,6 +5,7 @@ import process from 'node:process';
 const OUT_DIR = process.env.VOICE_TEST_OUT_DIR || path.join(process.cwd(), 'videos', 'voice-tests');
 const MODEL = process.env.OPENAI_TTS_MODEL || 'gpt-4o-mini-tts';
 const VOICE = process.env.OPENAI_TTS_VOICE || 'nova';
+const SPEED = process.env.OPENAI_TTS_SPEED ? Number(process.env.OPENAI_TTS_SPEED) : null;
 const INSTRUCTIONS = process.env.OPENAI_TTS_INSTRUCTIONS
     || 'Use a natural Bangladeshi female trainer voice. Speak in warm Dhaka-neutral Bangla, like a friendly local software trainer helping Bangladeshi shop owners. Avoid robotic reading, avoid Indian/West Bengal Bengali accent, and do not over-enunciate. Keep the rhythm conversational, patient, and confident, with short natural pauses after each sentence. English product words such as POS, dashboard, report, courier, ecommerce, and barcode should sound like common Bangladeshi business English mixed into Bangla.';
 const TEXT = process.env.VOICE_TEST_TEXT
@@ -17,19 +18,24 @@ if (!process.env.OPENAI_API_KEY) {
 
 await fs.mkdir(OUT_DIR, { recursive: true });
 
+const body = {
+    model: MODEL,
+    voice: VOICE,
+    input: TEXT,
+    instructions: INSTRUCTIONS,
+    response_format: 'mp3',
+};
+if (SPEED !== null && Number.isFinite(SPEED)) {
+    body.speed = SPEED;
+}
+
 const response = await fetch('https://api.openai.com/v1/audio/speech', {
     method: 'POST',
     headers: {
         Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
         'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-        model: MODEL,
-        voice: VOICE,
-        input: TEXT,
-        instructions: INSTRUCTIONS,
-        response_format: 'mp3',
-    }),
+    body: JSON.stringify(body),
 });
 
 if (!response.ok) {

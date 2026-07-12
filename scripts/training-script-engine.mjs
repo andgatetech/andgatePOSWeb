@@ -265,6 +265,9 @@ const normalizeTerm = (text) => {
     return output
         .replace(/মিলিয়ে দেখুন করুন/g, 'মিলিয়ে দেখুন')
         .replace(/দেখুন করুন/g, 'দেখুন')
+        .replace(/রাখা করবেন না/g, 'রাখবেন না')
+        .replace(/দেওয়া করবেন না/g, 'দেবেন না')
+        .replace(/করা করবেন না/g, 'করবেন না')
         .replace(/সংরক্ষণ করুন/g, 'সংরক্ষণ করুন');
 };
 
@@ -302,6 +305,58 @@ const buildActionLine = (step) => {
     return line.replace(/করুন।$/, 'করুন।');
 };
 
+const naturalIntro = (title) => {
+    const options = [
+        `চলুন, ${title} দেখে নিই`,
+        `এখন ${title} কাজটা করি`,
+        `এই অংশে ${title} দেখাবো`,
+    ];
+    return shortLine(options[Math.abs(title.length) % options.length]);
+};
+
+const naturalPurpose = (purpose) => {
+    const cleaned = shortLine(purpose).replace(/।$/, '');
+    if (cleaned.includes('পারবেন')) {
+        return shortLine(cleaned);
+    }
+    if (cleaned.includes('ঢোকা')) {
+        return shortLine('এতে নিজের দোকানের অ্যাকাউন্ট নিরাপদে ব্যবহার করতে পারবেন');
+    }
+    if (cleaned.includes('বোঝা')) {
+        return shortLine('এতে দোকানের অবস্থা সহজে বুঝতে পারবেন');
+    }
+    if (cleaned.includes('রাখা')) {
+        return shortLine('এতে হিসাব আর কাজ গুছিয়ে রাখা সহজ হবে');
+    }
+    if (cleaned.includes('করা')) {
+        return shortLine('এতে কাজটা ধাপে ধাপে শেষ করতে পারবেন');
+    }
+    return shortLine('এতে কাজটা সহজে বুঝে নিতে পারবেন');
+};
+
+const naturalMistake = (item) => {
+    const cleaned = shortLine(item).replace(/।$/, '');
+    const warning = /না|ভুল|এড়/i.test(cleaned) ? cleaned : `${cleaned} করবেন না`;
+    const options = [
+        `এখানে একটা জিনিস খেয়াল রাখবেন, ${warning}`,
+        `অনেকে এখানে ভুল করে, ${warning}`,
+        `এই জায়গায় তাড়াহুড়া করবেন না, ${warning}`,
+    ];
+    return shortLine(options[Math.abs(cleaned.length) % options.length]);
+};
+
+const naturalTip = (item) => {
+    const cleaned = shortLine(item).replace(/।$/, '');
+    const options = [
+        `ভালো হয়, ${cleaned}`,
+        `দোকানে কাজ করলে, ${cleaned}`,
+        `মালিক বা manager হলে, ${cleaned}`,
+    ];
+    return shortLine(options[Math.abs(cleaned.length) % options.length]);
+};
+
+const naturalSummary = (title) => shortLine(`${title} কাজটা এতটুকুই`);
+
 export const buildTrainingScript = (lesson, nextLesson) => {
     const templateKey = lesson.template || inferTemplate(lesson);
     const defaults = TEMPLATE_DEFAULTS[templateKey] || TEMPLATE_DEFAULTS.dashboard;
@@ -312,14 +367,14 @@ export const buildTrainingScript = (lesson, nextLesson) => {
     const nextTitleForVoice = nextLesson ? spokenTitle(nextLesson) : '';
 
     const sections = {
-        introduction: [shortLine(`আজ আমরা ${titleForVoice} শিখবো`)],
-        purpose: [shortLine(lesson.learningGoal || defaults.purpose)],
+        introduction: [naturalIntro(titleForVoice)],
+        purpose: [naturalPurpose(lesson.learningGoal || defaults.purpose)],
         navigation: [shortLine(navigationLine || firstStep)],
         actions: steps,
-        mistakes: (lesson.commonMistakes || defaults.commonMistakes).map((item) => shortLine(`এই ভুলটি এড়ান: ${item}`)),
-        tips: (lesson.tips || defaults.tips).map((item) => shortLine(`ছোট পরামর্শ: ${item}`)),
-        summary: [shortLine(lesson.summary || `এই lesson-এ ${titleForVoice} কাজ শেষ হলো`)],
-        next: [shortLine(nextLesson ? `পরের lesson: ${nextTitleForVoice}` : 'পরের lesson-এ পরবর্তী কাজ দেখবো')],
+        mistakes: (lesson.commonMistakes || defaults.commonMistakes).slice(0, 1).map(naturalMistake),
+        tips: (lesson.tips || defaults.tips).slice(0, 1).map(naturalTip),
+        summary: [shortLine(lesson.summary || naturalSummary(titleForVoice))],
+        next: [shortLine(nextLesson ? `এরপর আমরা ${nextTitleForVoice} দেখবো` : 'এই লেসন এখানেই শেষ')],
     };
 
     const orderedLines = [
