@@ -97,7 +97,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         '@type': 'Organization',
         name: 'Andgate Technologies',
         url: BASE_URL,
-        logo: `${BASE_URL}/favicon-32x32.png`,
+        logo: `${BASE_URL}/images/andgatePOSPwa.png`,
         description: 'Andgate Technologies builds POS and ecommerce software for businesses in Bangladesh.',
         address: {
             '@type': 'PostalAddress',

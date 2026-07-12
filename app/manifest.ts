@@ -13,31 +13,31 @@ export default function manifest(): MetadataRoute.Manifest {
         theme_color: '#046ca9',
         icons: [
             {
-                src: '/assets/images/favicon_io/android-chrome-192x192.png',
+                src: '/icon-192x192.png',
                 sizes: '192x192',
                 type: 'image/png',
                 purpose: 'any',
             },
             {
-                src: '/assets/images/favicon_io/android-chrome-192x192.png',
+                src: '/icon-192x192.png',
                 sizes: '192x192',
                 type: 'image/png',
                 purpose: 'maskable',
             },
             {
-                src: '/assets/images/favicon_io/android-chrome-512x512.png',
+                src: '/icon-512x512.png',
                 sizes: '512x512',
                 type: 'image/png',
                 purpose: 'any',
             },
             {
-                src: '/assets/images/favicon_io/android-chrome-512x512.png',
+                src: '/icon-512x512.png',
                 sizes: '512x512',
                 type: 'image/png',
                 purpose: 'maskable',
             },
             {
-                src: '/assets/images/favicon_io/favicon-16x16.png',
+                src: '/favicon-16x16.png',
                 sizes: '16x16',
                 type: 'image/png',
             },
@@ -48,14 +48,14 @@ export default function manifest(): MetadataRoute.Manifest {
                 short_name: 'POS',
                 description: 'Open the sales counter',
                 url: '/pos',
-                icons: [{ src: '/assets/images/favicon_io/android-chrome-192x192.png', sizes: '192x192' }],
+                icons: [{ src: '/icon-192x192.png', sizes: '192x192' }],
             },
             {
                 name: 'Dashboard',
                 short_name: 'Dashboard',
                 description: 'Open business dashboard',
                 url: '/dashboard',
-                icons: [{ src: '/assets/images/favicon_io/android-chrome-192x192.png', sizes: '192x192' }],
+                icons: [{ src: '/icon-192x192.png', sizes: '192x192' }],
             },
         ],
     };
