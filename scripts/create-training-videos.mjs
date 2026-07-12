@@ -999,6 +999,8 @@ const muxFinalVideo = async (lessonDir, lesson, videoOnly, audioPath) => {
     if (audioPath && await exists(audioPath)) {
         const args = [
             '-y',
+            '-stream_loop',
+            '-1',
             '-i',
             videoOnly,
             '-i',
@@ -1007,6 +1009,9 @@ const muxFinalVideo = async (lessonDir, lesson, videoOnly, audioPath) => {
             '0:v:0',
             '-map',
             '1:a:0',
+        ];
+        if (BURN_SUBTITLES) args.push('-vf', vf);
+        args.push(
             '-c:v',
             'libx264',
             '-c:a',
@@ -1015,8 +1020,7 @@ const muxFinalVideo = async (lessonDir, lesson, videoOnly, audioPath) => {
             '-pix_fmt',
             'yuv420p',
             finalPath,
-        ];
-        if (BURN_SUBTITLES) args.splice(6, 0, '-vf', vf);
+        );
         await run('ffmpeg', args);
     } else {
         const args = ['-y', '-i', videoOnly, '-c:v', 'libx264', '-pix_fmt', 'yuv420p', finalPath];
