@@ -661,10 +661,23 @@ lessons.push(
     {
         id: 'label-print',
         module: '05-inventory',
-        title: 'Label Print',
+        title: 'Barcode and QR Label Print',
         path: '/label',
-        narration: spoken('Label print counter speed বাড়ায়।', 'Product barcode বা QR label generate করে print করুন, তারপর পণ্যে লাগিয়ে রাখুন।', 'এর ফলে cashier search না করে scan করে bill করতে পারবেন।'),
-        steps: ['Product select করুন', 'Barcode label generate করুন', 'Print করে product-এ লাগান'],
+        navigation: 'পণ্য মেনু থেকে লেবেল প্রিন্ট পেজ খুলুন।',
+        learningGoal: 'পণ্য নির্বাচন থেকে শুরু করে বারকোড বা QR লেবেল তৈরি, সাইজ ঠিক করা, PDF নেওয়া এবং প্রিন্ট করা শেখা।',
+        commonMistakes: ['ভুল ভ্যারিয়েন্টের লেবেল প্রিন্ট করা', 'প্রিন্টারের paper size না মিলানো', 'প্রিন্টের পরে scan test না করা'],
+        tips: ['প্রথমে একটি sample label প্রিন্ট করুন', 'Thermal printer হলে width ঠিক রাখুন', 'প্রিন্টের পরে POS-এ scan test করুন'],
+        summary: 'পণ্য নির্বাচন, label type, settings, generate, PDF বা print - এই flow follow করলে label ভুল কম হবে।',
+        steps: [
+            'বাম পাশ থেকে পণ্য খুঁজে সিলেক্ট করুন',
+            'ভ্যারিয়েন্ট থাকলে সঠিক size, color, model বা stock variant বেছে নিন',
+            'Barcode অথবা QR Code label type নির্বাচন করুন',
+            'Settings খুলে label preset, custom width-height, paper size এবং live preview মিলিয়ে নিন',
+            'Copies, barcode type অথবা QR size এবং Info option ঠিক করুন',
+            'Generate Labels চাপার আগে total labels ও selected items মিলিয়ে নিন',
+            'PDF ডাউনলোড করুন অথবা Print দিয়ে printer, paper size, margin ও scale মিলিয়ে প্রিন্ট করুন',
+            'প্রিন্টের পরে কয়েকটি label POS-এ scan test করুন',
+        ],
     },
     {
         id: 'low-stock-alerts',
@@ -1917,6 +1930,97 @@ const injectStepOverlay = async (page, scene, focusPoint = null) => {
     });
 };
 
+const moveTrainingCursor = async (page, point, label = '', step = '') => {
+    if (!point?.x || !point?.y) return;
+    await page.evaluate(({ x, y, label, step }) => {
+        const cursorId = 'andgate-training-cursor';
+        let cursor = document.getElementById(cursorId);
+        if (!cursor) {
+            cursor = document.createElement('div');
+            cursor.id = cursorId;
+            cursor.style.position = 'fixed';
+            cursor.style.left = '0';
+            cursor.style.top = '0';
+            cursor.style.zIndex = '2147483646';
+            cursor.style.width = '34px';
+            cursor.style.height = '34px';
+            cursor.style.pointerEvents = 'none';
+            cursor.style.transform = 'translate(120px, 120px)';
+            cursor.style.transition = 'transform 620ms cubic-bezier(.2,.8,.2,1)';
+            cursor.innerHTML = `
+                <div style="
+                    position:absolute;left:0;top:0;width:0;height:0;
+                    border-left:20px solid #046ca9;
+                    border-top:13px solid transparent;
+                    border-bottom:13px solid transparent;
+                    filter:drop-shadow(0 3px 4px rgba(0,0,0,.38));
+                    transform:rotate(-30deg);
+                "></div>
+                <div id="andgate-training-cursor-ring" style="
+                    position:absolute;left:12px;top:10px;width:26px;height:26px;
+                    border:3px solid rgba(231,146,55,.95);
+                    border-radius:999px;background:rgba(231,146,55,.14);
+                    transform:scale(.72);opacity:.8;
+                    transition:transform 260ms ease, opacity 260ms ease;
+                "></div>
+                <div id="andgate-training-cursor-label" style="
+                    position:absolute;left:28px;top:20px;max-width:230px;
+                    border-radius:999px;background:rgba(15,23,42,.94);color:#fff;
+                    font:800 11px Inter,Arial,sans-serif;padding:3px 8px;
+                    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+                    box-shadow:0 4px 12px rgba(0,0,0,.25);
+                "></div>
+            `;
+            document.body.appendChild(cursor);
+        }
+
+        cursor.style.transform = `translate(${Math.max(6, x)}px, ${Math.max(46, y)}px)`;
+        const labelEl = document.getElementById('andgate-training-cursor-label');
+        if (labelEl) {
+            labelEl.textContent = label || (step ? `Step ${step}` : 'এখানে দেখুন');
+        }
+        const ring = document.getElementById('andgate-training-cursor-ring');
+        if (ring) {
+            ring.style.transform = 'scale(1.45)';
+            ring.style.opacity = '1';
+            setTimeout(() => {
+                ring.style.transform = 'scale(.72)';
+                ring.style.opacity = '.72';
+            }, 360);
+        }
+    }, { x: point.x, y: point.y, label, step });
+    await page.mouse.move(point.x, point.y, { steps: 18 }).catch(() => undefined);
+};
+
+const pulseTrainingCursor = async (page, point = null) => {
+    await page.evaluate((point) => {
+        const cursor = document.getElementById('andgate-training-cursor');
+        const rect = cursor?.getBoundingClientRect?.();
+        const x = point?.x || (rect ? rect.left + 14 : window.innerWidth / 2);
+        const y = point?.y || (rect ? rect.top + 14 : window.innerHeight / 2);
+        const pulse = document.createElement('div');
+        pulse.style.position = 'fixed';
+        pulse.style.left = `${x - 18}px`;
+        pulse.style.top = `${y - 18}px`;
+        pulse.style.zIndex = '2147483644';
+        pulse.style.width = '36px';
+        pulse.style.height = '36px';
+        pulse.style.borderRadius = '999px';
+        pulse.style.border = '4px solid rgba(231,146,55,.95)';
+        pulse.style.background = 'rgba(231,146,55,.18)';
+        pulse.style.pointerEvents = 'none';
+        pulse.style.animation = 'andgateTrainingPulse 700ms ease-out forwards';
+        if (!document.getElementById('andgate-training-pulse-style')) {
+            const style = document.createElement('style');
+            style.id = 'andgate-training-pulse-style';
+            style.textContent = '@keyframes andgateTrainingPulse{0%{transform:scale(.55);opacity:1}100%{transform:scale(2.4);opacity:0}}';
+            document.head.appendChild(style);
+        }
+        document.body.appendChild(pulse);
+        setTimeout(() => pulse.remove(), 760);
+    }, point).catch(() => undefined);
+};
+
 const loginAndSaveState = async (browser, storageStatePath, outDir) => {
     if (await exists(storageStatePath)) return;
     if (VIDEO_STORAGE_STATE) {
@@ -1965,66 +2069,7 @@ const loginAndSaveState = async (browser, storageStatePath, outDir) => {
 const movePointer = async (page, step) => {
     const x = 190 + ((step * 211) % 850);
     const y = 130 + ((step * 97) % 430);
-    await page.evaluate(({ x, y, step }) => {
-        const cursorId = 'andgate-training-cursor';
-        let cursor = document.getElementById(cursorId);
-        if (!cursor) {
-            cursor = document.createElement('div');
-            cursor.id = cursorId;
-            cursor.style.position = 'fixed';
-            cursor.style.left = '0';
-            cursor.style.top = '0';
-            cursor.style.zIndex = '2147483646';
-            cursor.style.width = '28px';
-            cursor.style.height = '28px';
-            cursor.style.pointerEvents = 'none';
-            cursor.style.transform = 'translate(120px, 120px)';
-            cursor.style.transition = 'transform 650ms ease';
-            cursor.innerHTML = `
-                <div style="
-                    width:0;height:0;
-                    border-left:18px solid #046ca9;
-                    border-top:12px solid transparent;
-                    border-bottom:12px solid transparent;
-                    filter:drop-shadow(0 2px 3px rgba(0,0,0,.35));
-                    transform:rotate(-28deg);
-                "></div>
-                <div id="andgate-training-cursor-ring" style="
-                    position:absolute;
-                    left:13px;top:12px;
-                    width:22px;height:22px;
-                    border:3px solid rgba(231,146,55,.85);
-                    border-radius:999px;
-                    transform:scale(.7);
-                    opacity:.95;
-                    transition:transform 260ms ease, opacity 260ms ease;
-                "></div>
-                <div style="
-                    position:absolute;
-                    left:24px;top:20px;
-                    border-radius:999px;
-                    background:#0f172a;
-                    color:#fff;
-                    font:700 11px Inter,Arial,sans-serif;
-                    padding:2px 6px;
-                    box-shadow:0 2px 6px rgba(0,0,0,.25);
-                ">${step}</div>
-            `;
-            document.body.appendChild(cursor);
-        }
-
-        cursor.style.transform = `translate(${x}px, ${y}px)`;
-        const ring = document.getElementById('andgate-training-cursor-ring');
-        if (ring) {
-            ring.style.transform = 'scale(1.35)';
-            ring.style.opacity = '1';
-            setTimeout(() => {
-                ring.style.transform = 'scale(.75)';
-                ring.style.opacity = '.65';
-            }, 320);
-        }
-    }, { x, y, step });
-    await page.mouse.move(x, y, { steps: 20 });
+    await moveTrainingCursor(page, { x, y }, `Step ${step}`, step);
     await page.waitForTimeout(700);
 };
 
@@ -2161,6 +2206,99 @@ const LESSON_STORYBOARDS = {
         { kind: 'highlightText', text: ['stock', 'স্টক', 'barcode', 'বারকোড'], note: 'Stock and barcode' },
         { kind: 'submit', selector: 'button[type="submit"], button' },
     ],
+    'label-print': [
+        {
+            kind: 'highlightText',
+            text: ['লেবেল প্রিন্ট', 'পণ্য সিলেক্ট করুন', 'Label'],
+            note: 'Label module overview',
+            narration: 'আসসালামু আলাইকুম। আজকে আমরা AndgatePOS-এর লেবেল প্রিন্ট মডিউল দেখবো। এই জায়গা থেকে পণ্যের জন্য বারকোড বা QR কোড লেবেল তৈরি করে প্রিন্ট করা যায়। দোকানে label ঠিক থাকলে cashier স্ক্যান করে দ্রুত বিল করতে পারে, আর ভুল পণ্য বিক্রির ঝুঁকিও কমে।',
+        },
+        {
+            kind: 'labelSearchProduct',
+            note: 'Barcode scan and product search',
+            narration: 'প্রথমে বাম পাশের পণ্য তালিকা দেখুন। এখানে পণ্যের নাম, দাম, stock, category, brand দেখা যায়। উপরের barcode scan box দিয়ে scanner থেকে code পড়ে পণ্য খুঁজে নেওয়া যায়। চাইলে category বা brand ধরে product shortlist করাও যায়।',
+        },
+        {
+            kind: 'highlightText',
+            text: ['ক্যাটাগরি', 'ব্র্যান্ড', 'পৃষ্ঠা', 'পূর্ববর্তী', 'পরবর্তী'],
+            note: 'Filters and pagination',
+            narration: 'পণ্য বেশি হলে filter আর pagination ব্যবহার করবেন। ধরুন electronics দোকানে power bank, fan, mobile accessory সব একসাথে আছে। তখন category বা brand দিয়ে পণ্য খুঁজলে label বানানোর সময় ভুল কম হবে।',
+        },
+        {
+            kind: 'labelSelectFirstProduct',
+            note: 'Select a product',
+            narration: 'এখন একটি পণ্য নির্বাচন করি। পণ্যে যদি variant থাকে, যেমন size, color, RAM, ROM বা model, তাহলে সঠিক variant বেছে নিতে হবে। ভুল variant-এর label লাগালে POS-এ scan করলে ভুল product আসতে পারে।',
+        },
+        {
+            kind: 'labelChooseVariant',
+            note: 'Variant and quantity modal',
+            narration: 'ভ্যারিয়েন্ট মডালে stock, দাম, warranty আর quantity দেখে নিন। এখানে plus-minus দিয়ে কয়টি label দরকার সেটা ঠিক করা যায়। যেটা হাতে আছে, সেটার সাথেই screen-এর variant মিলিয়ে নেবেন।',
+        },
+        {
+            kind: 'labelAddSelectedVariant',
+            note: 'Add selected product to label queue',
+            narration: 'এখন selected variant যোগ করি। যোগ করার পর ডান পাশে Label Generator খুলবে। এখানে মোট কত পণ্য আছে, মোট কত label হবে, আর পরের action button কোথায় আছে সব দেখা যাবে।',
+        },
+        {
+            kind: 'labelToggleQrBarcode',
+            note: 'Barcode or QR selection',
+            narration: 'Label type হিসেবে barcode আর QR code দুইটা ভাববেন। Barcode সাধারণ counter sale-এর জন্য best, কারণ cashier scanner দিয়ে দ্রুত bill করতে পারে। QR code দরকার হয় যখন product information বা আলাদা code square format-এ রাখতে চান।',
+        },
+        {
+            kind: 'labelOpenSettings',
+            note: 'Settings and size presets',
+            narration: 'Settings খুললে label size preset পাওয়া যায়। এক দশমিক পাঁচ inch by এক inch, Tiny, Small, Medium, Large - আপনার sticker roll বা sheet-এর size অনুযায়ী preset বেছে নেবেন। মাপ না মিললে print কেটে যাবে বা ফাঁকা জায়গা বেশি থাকবে।',
+        },
+        {
+            kind: 'labelPickCustomSize',
+            note: 'Custom label size',
+            narration: 'কাস্টম label size দরকার হলে width আর height millimeter-এ দেবেন। যেমন ছোট price sticker হলে ছোট মাপ, আর বড় product label হলে একটু বড় মাপ। এখানে দোকানের real sticker-এর মাপ ruler দিয়ে মেপে দেওয়া ভালো।',
+        },
+        {
+            kind: 'labelChangePaper',
+            note: 'Paper and printer layout',
+            narration: 'Paper size অংশটা খুব গুরুত্বপূর্ণ। Thermal 40mm, 50mm, 80mm roll ছোট label printer-এর জন্য। A4 বা Letter হলে এক পেজে grid আকারে অনেক label print হবে। Custom paper দিলে নিজের printer বা sticker sheet অনুযায়ী page width-height দেওয়া যায়।',
+        },
+        {
+            kind: 'labelShowLivePreview',
+            note: 'Live preview',
+            narration: 'Live preview দেখে আগে বুঝে নিন label কত বড় দেখাবে। প্রস্থ আর উচ্চতা millimeter হিসেবে দেখায়। Generate বা print করার আগে এই preview মিলিয়ে নিলে কাগজ নষ্ট হওয়ার chance কমে।',
+        },
+        {
+            kind: 'labelAdjustContentSettings',
+            note: 'Content settings',
+            narration: 'Content settings-এ copies মানে প্রতি পণ্যের কয়টি label হবে। Barcode হলে type থেকে Code 128, Code 39, EAN-13, EAN-8, UPC-A, UPC-E বেছে নেওয়া যায়। সাধারণ দোকানের জন্য Code 128 সবচেয়ে flexible। QR code হলে Small, Medium, Large size এবং Info option দেখা যায়।',
+        },
+        {
+            kind: 'labelGenerateLabels',
+            note: 'Generate labels',
+            narration: 'সব ঠিক হলে total labels আর selected items একবার মিলিয়ে নিন। তারপর Generate Labels চাপবেন। System তখন selected product আর quantity অনুযায়ী barcode বা QR image তৈরি করবে।',
+        },
+        {
+            kind: 'highlightText',
+            text: ['PDF', 'Print', 'প্রিন্ট'],
+            note: 'PDF and print actions',
+            narration: 'Label generate হলে PDF আর Print option আসে। PDF নিলে file হিসেবে রাখা যাবে। Print দিলে browser print window খুলবে। সেখানে printer, paper size, margin, scale একশ percent, আর orientation ভালোভাবে মিলিয়ে তারপর print দেবেন।',
+        },
+        {
+            kind: 'highlightText',
+            text: ['সব মুছুন', 'Clear', 'Trash'],
+            note: 'Remove or clear labels',
+            narration: 'ভুল product যোগ হলে delete icon দিয়ে সরাবেন। অনেক product একসাথে remove করতে হলে Clear all ব্যবহার করবেন। Single label print করতে একটি product আর one copy রাখুন। Bulk print করতে একাধিক product যোগ করুন, অথবা copies বাড়ান।',
+        },
+        {
+            kind: 'highlight',
+            selector: 'main, section, body',
+            note: 'Retail and wholesale best practices',
+            narration: 'Retail দোকানে label লাগালে counter sale দ্রুত হয়। Wholesale business-এ carton, model, batch, variant, বা warehouse stock আলাদা করতে label কাজে লাগে। Best practice হলো প্রথমে sample print, তারপর scan test, তারপর bulk print। ভুল label product-এ লাগাবেন না।',
+        },
+        {
+            kind: 'highlightText',
+            text: ['লেবেল প্রিন্ট', 'পণ্য', 'বারকোড'],
+            note: 'Complete workflow recap',
+            narration: 'শেষে পুরো flow recap করি। Label page খুলবেন, product select করবেন, variant থাকলে সঠিক variant নেবেন, barcode বা QR code বেছে নেবেন, settings থেকে label size আর paper size মিলাবেন, copies আর type ঠিক করবেন, Generate Labels চাপবেন, তারপর PDF বা Print করবেন। Print করার পর কয়েকটা label POS-এ scan test করবেন।',
+        },
+    ],
     purchases: [
         { kind: 'highlight', selector: 'form, main', note: 'Purchase order page' },
         { kind: 'highlightText', text: ['supplier', 'সরবরাহকারী'], note: 'Supplier selector' },
@@ -2186,6 +2324,388 @@ const LESSON_STORYBOARDS = {
         { kind: 'highlightText', text: ['expiry', 'expire', 'মেয়াদ'], note: 'Expiry' },
         { kind: 'highlightText', text: ['feature', 'ফিচার'], note: 'Included features' },
         { kind: 'highlightText', text: ['upgrade', 'renew', 'payment', 'পেমেন্ট'], note: 'Renew or upgrade' },
+    ],
+    'first-dashboard-checklist': [
+        { kind: 'highlightText', text: ['ব্যবসার স্বাস্থ্য স্কোর'], note: 'Business health score' },
+        { kind: 'highlightText', text: ['প্যাকেজ ও ম্যানুয়াল পেমেন্ট'], note: 'Subscription package status' },
+        { kind: 'highlightText', text: ['কম স্টক সতর্কতা'], note: 'Low stock alert widget' },
+        { kind: 'highlightText', text: ['যাদের বাকি বেশি'], note: 'Top due customers and suppliers' },
+        { kind: 'highlight', selector: 'table, [role="table"]', note: 'Recent sales table' },
+        { kind: 'scroll', y: 500, note: 'More dashboard sections' },
+    ],
+    'roles-permissions': [
+        { kind: 'highlightText', text: ['পদ ও পারমিশন ব্যবস্থাপনা'], note: 'Roles and permissions page' },
+        { kind: 'highlight', selector: 'main table, [role="table"]', note: 'Existing roles table' },
+        { kind: 'highlightText', text: ['অনুমতি', 'ইউজার', 'অ্যাকশন'], note: 'Permission and user columns' },
+        { kind: 'highlight', selector: 'button:has-text("পদ তৈরি করুন")', note: 'Create role button' },
+    ],
+    'business-os': [
+        { kind: 'highlightText', text: ['বিজনেস ওএস'], note: 'Business OS command center header' },
+        { kind: 'highlightText', text: ['ক্যাশ ক্লোজিং', 'পেটি ক্যাশ'], note: 'Cash closing and petty cash cards' },
+        { kind: 'highlightText', text: ['HR হাজিরা', 'সার্ভিস জব'], note: 'Attendance and service job cards' },
+        { kind: 'highlightText', text: ['সাম্প্রতিক ক্লোজিং'], note: 'Recent closing history' },
+        { kind: 'highlightText', text: ['ওপেন টাস্ক', 'কুইক লিংক'], note: 'Open tasks and quick links' },
+    ],
+    'cash-closing': [
+        { kind: 'highlightText', text: ['বিজনেস ওএস'], note: 'Business OS command center' },
+        { kind: 'highlight', selector: 'a:has-text("ক্যাশ ক্লোজিং"), [class*="card"]:has-text("ক্যাশ ক্লোজিং")', note: 'Cash closing card' },
+        { kind: 'highlightText', text: ['ক্যাশিয়ারের জমা দেওয়া ক্যাশ ক্লোজিং অনুমোদন করুন'], note: 'Owner approval note' },
+    ],
+    'petty-cash': [
+        { kind: 'highlightText', text: ['বিজনেস ওএস'], note: 'Business OS command center' },
+        { kind: 'highlight', selector: 'a:has-text("পেটি ক্যাশ"), [class*="card"]:has-text("পেটি ক্যাশ")', note: 'Petty cash card' },
+        { kind: 'highlightText', text: ['স্টাফের ছোট ক্যাশ রিকওয়েস্ট দেখুন ও অনুমোদন করুন'], note: 'Petty cash approval note' },
+    ],
+    attendance: [
+        { kind: 'highlightText', text: ['হাজিরা'], note: 'Attendance page header' },
+        { kind: 'fill', selector: 'input[placeholder="নাম দিয়ে স্টাফ খুঁজুন..."]', value: SAMPLE_VALUES.name, note: 'Search staff by name' },
+        { kind: 'highlightText', text: ['চেক ইন', 'চেক আউট'], note: 'Check-in and check-out actions' },
+        { kind: 'highlightText', text: ['হাজিরা লগ', 'দৈনিক সারসংক্ষেপ'], note: 'Attendance log and daily summary' },
+        { kind: 'fill', selector: 'input[placeholder*="নোট যোগ করুন"]', value: SAMPLE_VALUES.note, note: 'Optional attendance note' },
+    ],
+    'variants-labels': [
+        { kind: 'highlightText', text: ['পণ্য সিলেক্ট করুন'], note: 'Product list for labeling' },
+        { kind: 'highlight', selector: 'input[placeholder*="বারকোড স্ক্যান করুন"]', note: 'Barcode scan search box' },
+        { kind: 'highlightText', text: ['ক্যাটাগরি', 'ব্র্যান্ড'], note: 'Category and brand filters' },
+        { kind: 'highlightText', text: ['লেবেলের ধরন বেছে নিন'], note: 'Choose barcode or QR label type' },
+        { kind: 'highlightText', text: ['কনফিগার ও তৈরি করুন'], note: 'Configure size and generate labels' },
+    ],
+    'stock-control': [
+        { kind: 'highlightText', text: ['স্টক রিপোর্ট'], note: 'Stock report header' },
+        { kind: 'fill', selector: 'input[placeholder*="পণ্য, SKU অনুসন্ধান করুন"]', value: SAMPLE_VALUES.search, note: 'Search product or SKU' },
+        { kind: 'highlight', selector: 'table, [role="table"]', note: 'Stock, margin and status columns' },
+        { kind: 'highlightText', text: ['স্টক শেষ', 'স্টকে ফেরত'], note: 'Out-of-stock and returned-to-stock signals' },
+        { kind: 'clickText', text: ['ফিল্টার'], note: 'Open stock filters' },
+    ],
+    'inventory-reports': [
+        { kind: 'highlightText', text: ['স্টক রিপোর্ট'], note: 'Inventory report header' },
+        { kind: 'highlight', selector: 'table, [role="table"]', note: 'SKU, category, brand and stock value columns' },
+        { kind: 'highlightText', text: ['খুচরা মূল্য', 'মার্জিন %'], note: 'Retail price and margin columns' },
+        { kind: 'clickText', text: ['পিডিএফ', 'এক্সেল'], note: 'Export the inventory report' },
+    ],
+    categories: [
+        { kind: 'highlightText', text: ['ক্যাটাগরি ব্যবস্থাপনা'], note: 'Category management header' },
+        { kind: 'fill', selector: 'input[placeholder="ক্যাটাগরি খুঁজুন..."]', value: SAMPLE_VALUES.category, note: 'Search categories' },
+        { kind: 'highlight', selector: 'table, [role="table"]', note: 'Category list with image and description' },
+        { kind: 'highlight', selector: 'button:has-text("ক্যাটাগরি যোগ করুন")', note: 'Add category button' },
+    ],
+    brands: [
+        { kind: 'highlightText', text: ['ব্র্যান্ড ব্যবস্থাপনা'], note: 'Brand management header' },
+        { kind: 'fill', selector: 'input[placeholder="ব্র্যান্ড খুঁজুন..."]', value: SAMPLE_VALUES.search, note: 'Search brands' },
+        { kind: 'highlight', selector: 'table, [role="table"]', note: 'Brand list' },
+        { kind: 'highlight', selector: 'button:has-text("ব্র্যান্ড যোগ করুন")', note: 'Add brand button' },
+    ],
+    'product-variants': [
+        { kind: 'highlightText', text: ['নতুন পণ্য তৈরি করুন'], note: 'Add product page' },
+        { kind: 'fill', selector: 'input[name="product_name"]', value: SAMPLE_VALUES.productName, note: 'Product name' },
+        { kind: 'highlightText', text: ['সাধারণ পণ্য', 'সাইজ / রং / মডেল পণ্য'], note: 'Simple vs variant product type' },
+        { kind: 'highlightText', text: ['ওয়ারেন্টি আছে', 'সিরিয়াল নম্বর'], note: 'Warranty and serial tracking toggles' },
+        { kind: 'highlightText', text: ['ব্যাচ/লট ট্র্যাক করুন', 'মেয়াদ শেষের তারিখ ট্র্যাক করুন'], note: 'Batch and expiry tracking toggles' },
+    ],
+    'stock-adjustment': [
+        { kind: 'highlightText', text: ['পণ্য সিলেক্ট করুন'], note: 'Select products to adjust' },
+        { kind: 'highlight', selector: 'input[placeholder*="বারকোড স্ক্যান করুন"]', note: 'Barcode or product search' },
+        { kind: 'highlightText', text: ['Enter Difference'], note: 'Enter quantity difference' },
+        { kind: 'highlightText', text: ['Keep Reason'], note: 'Select adjustment reason' },
+    ],
+    'stock-count': [
+        { kind: 'highlightText', text: ['স্টক কাউন্ট'], note: 'Stock count page' },
+        { kind: 'fill', selector: 'input[placeholder*="কাউন্ট টাইটল বা নোট"]', value: SAMPLE_VALUES.note, note: 'Count session title' },
+        { kind: 'highlight', selector: 'button:has-text("কাউন্ট সেশন তৈরি")', note: 'Create count session' },
+        { kind: 'highlight', selector: 'table, [role="table"]', note: 'System qty vs counted qty and variance' },
+        { kind: 'highlightText', text: ['সাম্প্রতিক কাউন্ট সেশন'], note: 'Recent count sessions' },
+    ],
+    'stock-transfer': [
+        { kind: 'highlightText', text: ['স্টক ট্রান্সফার'], note: 'Stock transfer page' },
+        { kind: 'highlightText', text: ['যে দোকান থেকে যাবে', 'যে দোকানে যাবে'], note: 'Source and destination store' },
+        { kind: 'fill', selector: 'input[placeholder*="নাম বা এসকেই দিয়ে পণ্য খুঁজুন"]', value: SAMPLE_VALUES.search, note: 'Search product to transfer' },
+        { kind: 'highlight', selector: 'button:has-text("ট্রান্সফার তৈরি করুন")', note: 'Create transfer button' },
+        { kind: 'highlightText', text: ['ইতিহাস'], note: 'Transfer history tab' },
+    ],
+    'bulk-import': [
+        { kind: 'highlightText', text: ['বাল্ক আমদানি'], note: 'Bulk import page' },
+        { kind: 'highlight', selector: 'button:has-text("সর্বশেষ টেমপ্লেট ডাউনলোড করুন")', note: 'Download latest Excel template' },
+        { kind: 'highlightText', text: ['ইমপোর্টের নিয়ম'], note: 'Import rules and column guide' },
+        { kind: 'highlightText', text: ['Excel ফাইল এখানে ছেড়ে দিন'], note: 'Upload completed Excel file' },
+    ],
+    payroll: [
+        { kind: 'highlightText', text: ['বেতন'], note: 'Payroll page header' },
+        { kind: 'highlightText', text: ['সাইকেলসমূহ'], note: 'Payroll cycles list' },
+        { kind: 'highlight', selector: 'button:has-text("নতুন সাইকেল")', note: 'Create new payroll cycle' },
+        { kind: 'highlightText', text: ['বিস্তারিত দেখতে একটি সাইকেল সিলেক্ট করুন'], note: 'Select a cycle for details' },
+    ],
+    'salary-advance': [
+        { kind: 'highlightText', text: ['বেতন অগ্রিম'], note: 'Salary advance page' },
+        { kind: 'highlight', selector: 'button:has-text("নতুন অনুরোধ")', note: 'New advance request' },
+        { kind: 'highlightText', text: ['pending', 'approved', 'settled', 'rejected'], note: 'Advance status filters' },
+    ],
+    'festival-bonus': [
+        { kind: 'highlightText', text: ['উৎসব বোনাস'], note: 'Festival bonus page' },
+        { kind: 'highlightText', text: ['রানসমূহ'], note: 'Bonus runs list' },
+        { kind: 'highlight', selector: 'button:has-text("নতুন রান")', note: 'Create new bonus run' },
+    ],
+    'leave-shifts-documents': [
+        { kind: 'highlightText', text: ['ছুটি ব্যবস্থাপনা'], note: 'Leave management page' },
+        { kind: 'highlightText', text: ['অনুরোধসমূহ', 'ছুটির তালিকা'], note: 'Leave requests and holiday list tabs' },
+        { kind: 'highlightText', text: ['pending', 'approved', 'rejected'], note: 'Leave status filters' },
+        { kind: 'highlight', selector: 'button:has-text("নতুন অনুরোধ")', note: 'New leave request' },
+    ],
+    'low-stock-alerts': [
+        { kind: 'highlightText', text: ['কম স্টক রিপোর্ট'], note: 'Low stock report header' },
+        { kind: 'fill', selector: 'input[placeholder*="Search product name, SKU"]', value: SAMPLE_VALUES.search, note: 'Search product or SKU' },
+        { kind: 'highlight', selector: 'table, [role="table"]', note: 'Stock status, urgency and estimated cost' },
+        { kind: 'highlight', selector: 'button:has-text("Reorder")', note: 'Reorder action' },
+    ],
+    'barcode-scanner': [
+        { kind: 'highlightText', text: ['পণ্য সিলেক্ট করুন'], note: 'POS product list' },
+        { kind: 'highlight', selector: 'input[placeholder*="বারকোড স্ক্যান করুন"]', note: 'Barcode scan box' },
+        { kind: 'highlightText', text: ['ক্যাটাগরি', 'ব্র্যান্ড'], note: 'Category and brand quick filters' },
+        { kind: 'highlight', selector: 'table, [role="table"]', note: 'Cart with item, quantity, rate and tax' },
+    ],
+    'payment-methods': [
+        { kind: 'highlightText', text: ['বিল প্রদানকারী'], note: 'Billing customer section' },
+        { kind: 'highlightText', text: ['ক্যাশ', 'bKash', 'Nagad', 'Rocket', 'Upay'], note: 'Cash and MFS payment options' },
+        { kind: 'highlightText', text: ['ব্যাংক ট্রান্সফার', 'Split', 'Due'], note: 'Bank transfer, split and due payment' },
+        { kind: 'highlight', selector: 'button:has-text("অর্ডার নিশ্চিত করুন"), button:has-text("অর্ডার নিশ্চিত করে রসিদ প্রিন্ট")', note: 'Confirm order and print receipt' },
+    ],
+    'discounts-coupons': [
+        { kind: 'highlightText', text: ['কুপন'], note: 'Coupon list page' },
+        { kind: 'highlight', selector: 'button:has-text("কুপন যোগ করুন")', note: 'Add coupon button' },
+        { kind: 'highlight', selector: 'table, [role="table"]', note: 'Coupon code, discount value, usage and expiry' },
+    ],
+    'end-of-day': [
+        { kind: 'highlightText', text: ['ক্যাশ ও কাউন্টার ক্লোজিং'], note: 'Cash and counter closing page' },
+        { kind: 'highlightText', text: ['শুরুর ক্যাশ', 'ক্যাশ বিক্রি', 'বাকি আদায়'], note: 'Opening cash, cash sales and due collection' },
+        { kind: 'highlightText', text: ['ক্যাশ খরচ', 'সাপ্লায়ার পেমেন্ট'], note: 'Cash expense and supplier payment' },
+        { kind: 'fill', selector: 'input[type="number"]', value: SAMPLE_VALUES.amount, note: 'Enter counted cash amount' },
+        { kind: 'highlight', selector: 'button:has-text("ক্লোজিং সাবমিট")', note: 'Submit closing button' },
+    ],
+    'customer-dues': [
+        { kind: 'highlightText', text: ['কাস্টমারের বাকি রিপোর্ট'], note: 'Customer dues report' },
+        { kind: 'fill', selector: 'input[placeholder*="কাস্টমারের নাম বা ফোন দিয়ে খুঁজুন"]', value: SAMPLE_VALUES.name, note: 'Search customer by name or phone' },
+        { kind: 'highlight', selector: 'table, [role="table"]', note: 'Total due, paid, days overdue and status' },
+        { kind: 'highlightText', text: ['প্রতিশ্রুতি / ফলোআপ'], note: 'Promise and follow-up column' },
+    ],
+    loyalty: [
+        { kind: 'highlightText', text: ['কাস্টমার'], note: 'Customer list page' },
+        { kind: 'fill', selector: 'input[placeholder*="নাম, ইমেইল, ফোন দিয়ে কাস্টমার খুঁজুন"]', value: SAMPLE_VALUES.name, note: 'Search customer' },
+        { kind: 'highlight', selector: 'table, [role="table"]', note: 'Membership, loyalty points and balance columns' },
+        { kind: 'highlight', selector: 'button:has-text("কাস্টমার যোগ করুন")', note: 'Add customer button' },
+    ],
+    returns: [
+        { kind: 'highlightText', text: ['অর্ডার রিটার্ন রিপোর্ট'], note: 'Order returns report' },
+        { kind: 'fill', selector: 'input[placeholder*="রিটার্ন নং, ইনভয়েস, কাস্টমার খুঁজুন"]', value: SAMPLE_VALUES.search, note: 'Search return by invoice or customer' },
+        { kind: 'highlight', selector: 'table, [role="table"]', note: 'Return type, quantity, refund total and status' },
+    ],
+    'supplier-360': [
+        { kind: 'highlightText', text: ['সাপ্লায়ার'], note: 'Supplier list page' },
+        { kind: 'fill', selector: 'input[placeholder*="নাম, ইমেইল, ফোন দিয়ে সাপ্লায়ার খুঁজুন"]', value: SAMPLE_VALUES.name, note: 'Search supplier' },
+        { kind: 'highlight', selector: 'table, [role="table"]', note: 'Supplier type, phone, address and status' },
+        { kind: 'highlight', selector: 'button:has-text("সাপ্লায়ার যোগ করুন")', note: 'Add supplier button' },
+    ],
+    'add-supplier': [
+        { kind: 'highlightText', text: ['নতুন সাপ্লায়ার যোগ করুন'], note: 'Add supplier page' },
+        { kind: 'fill', selector: 'input[name="name"]', value: SAMPLE_VALUES.name, note: 'Supplier name' },
+        { kind: 'fill', selector: 'input[name="phone"]', value: SAMPLE_VALUES.phone, note: 'Supplier phone' },
+        { kind: 'fill', selector: 'textarea[name="address"], input[name="address"]', value: SAMPLE_VALUES.address, note: 'Supplier address' },
+        { kind: 'highlightText', text: ['পেমেন্ট তথ্য', 'ব্যবসায়িক তথ্য'], note: 'Payment terms and business info sections' },
+    ],
+    'receive-goods': [
+        { kind: 'highlightText', text: ['ক্রয়'], note: 'Purchases page' },
+        { kind: 'highlightText', text: ['ড্রাফট', 'ক্রয় আদেশ', 'গৃহীত', 'পেমেন্ট বাকি'], note: 'Draft, ordered, received and due tabs' },
+        { kind: 'highlight', selector: 'table, [role="table"]', note: 'Supplier, product, total and payment status' },
+    ],
+    'customer-analytics': [
+        { kind: 'highlightText', text: ['সিআরএম ড্যাশবোর্ড'], note: 'CRM dashboard' },
+        { kind: 'highlightText', text: ['সব কাস্টমার', 'বাকি কাস্টমার'], note: 'All customers and due customers cards' },
+        { kind: 'highlightText', text: ['ভিআইপি / লয়্যাল', 'জন্মদিন'], note: 'VIP loyal and birthday segments' },
+        { kind: 'highlightText', text: ['ওপেন ফলো-আপ'], note: 'Open follow-up list' },
+    ],
+    expenses: [
+        { kind: 'highlightText', text: ['খরচ'], note: 'Expenses page' },
+        { kind: 'fill', selector: 'input[placeholder*="ব্যয় খুঁজুন"]', value: SAMPLE_VALUES.search, note: 'Search expenses' },
+        { kind: 'highlight', selector: 'table, [role="table"]', note: 'Title, category, amount and payment method' },
+        { kind: 'highlight', selector: 'button:has-text("খরচ যোগ করুন")', note: 'Add expense button' },
+    ],
+    'profit-loss': [
+        { kind: 'highlightText', text: ['আয়-ব্যয় বিবরণী'], note: 'Profit and loss statement' },
+        { kind: 'highlightText', text: ['আয়ের বিবরণ'], note: 'Income breakdown' },
+        { kind: 'highlightText', text: ['ব্যয়ের বিবরণ'], note: 'Expense breakdown' },
+        { kind: 'clickText', text: ['প্রয়োগ করুন'], note: 'Apply date range' },
+    ],
+    'ledger-journal': [
+        { kind: 'highlightText', text: ['জার্নাল লেজার'], note: 'Journal ledger page' },
+        { kind: 'highlight', selector: 'table, [role="table"]', note: 'Date, description, debit and credit columns' },
+        { kind: 'clickText', text: ['পিডিএফ'], note: 'Export journal' },
+    ],
+    accounting: [
+        { kind: 'highlightText', text: ['ক্যাশ বই'], note: 'Cash book page' },
+        { kind: 'highlight', selector: 'table, [role="table"]', note: 'Date, description, cash-in and cash-out columns' },
+        { kind: 'highlight', selector: 'button:has-text("রিফ্রেশ")', note: 'Refresh cash book' },
+    ],
+    'bank-cash-income': [
+        { kind: 'highlightText', text: ['ক্যাশ বই'], note: 'Cash book and bank workspace' },
+        { kind: 'highlight', selector: 'table, [role="table"]', note: 'Cash income and cash expense entries' },
+        { kind: 'clickText', text: ['প্রিন্ট', 'পিডিএফ'], note: 'Print or export cash book' },
+    ],
+    'balance-trial-cashflow': [
+        { kind: 'highlightText', text: ['ব্যালেন্স শিট'], note: 'Balance sheet page' },
+        { kind: 'highlight', selector: 'input[type="date"]', note: 'As-of date filter' },
+        { kind: 'highlight', selector: 'table, [role="table"]', note: 'Assets, liabilities and capital rows' },
+        { kind: 'clickText', text: ['প্রয়োগ করুন'], note: 'Apply date filter' },
+    ],
+    'cash-drawer-history': [
+        { kind: 'highlightText', text: ['ক্যাশ ড্রয়ার হিস্ট্রি'], note: 'Cash drawer history page' },
+        { kind: 'highlightText', text: ['ড্রয়ার ব্যালেন্স'], note: 'Drawer balance per session' },
+        { kind: 'highlightText', text: ['শুরুর নগদ', 'ড্রয়ার বন্ধ করুন'], note: 'Opening and closing timestamps' },
+        { kind: 'highlightText', text: ['গণনা করা নগদ পরিমাণ'], note: 'Counted cash amount and variance' },
+    ],
+    'sales-reports': [
+        { kind: 'highlightText', text: ['বিক্রয় রিপোর্ট'], note: 'Sales report page' },
+        { kind: 'fill', selector: 'input[placeholder*="ইনভয়েস, কাস্টমার খুঁজুন"]', value: SAMPLE_VALUES.search, note: 'Search invoice or customer' },
+        { kind: 'highlight', selector: 'table, [role="table"]', note: 'Subtotal, tax, discount, total and status' },
+        { kind: 'clickText', text: ['ফিল্টার'], note: 'Open sales report filters' },
+    ],
+    'financial-reports': [
+        { kind: 'highlightText', text: ['লাভ ও ক্ষতি'], note: 'Financial reports page' },
+        { kind: 'highlightText', text: ['আয়ের বিস্তারিত'], note: 'Income detail section' },
+        { kind: 'highlightText', text: ['খরচ ও ব্যয়'], note: 'Expense and cost section' },
+        { kind: 'clickText', text: ['এই মাস'], note: 'Change reporting period' },
+    ],
+    'custom-reports': [
+        { kind: 'highlightText', text: ['কাস্টম রিপোর্ট'], note: 'Custom reports page' },
+        { kind: 'highlight', selector: 'button:has-text("কাস্টম রিপোর্ট যোগ করুন")', note: 'Add custom report button' },
+    ],
+    'dashboard-widgets': [
+        { kind: 'highlightText', text: ['ড্যাশবোর্ড উইজেট'], note: 'Dashboard widgets page' },
+        { kind: 'highlightText', text: ['উইজেট পুনর্বিন্যাস করতে টানুন'], note: 'Drag to reorder widgets' },
+        { kind: 'highlight', selector: 'button:has-text("লেআউট সংরক্ষণ করুন")', note: 'Save layout button' },
+    ],
+    'scheduled-reports': [
+        { kind: 'highlightText', text: ['শিডিউল্ড রিপোর্ট'], note: 'Scheduled reports page' },
+        { kind: 'highlight', selector: 'button:has-text("শিডিউল্ড রিপোর্ট যোগ করুন")', note: 'Add scheduled report button' },
+    ],
+    'branch-benchmarking': [
+        { kind: 'highlightText', text: ['ব্রাঞ্চ বেঞ্চমার্কিং'], note: 'Branch benchmarking page' },
+        { kind: 'highlightText', text: ['শুরুর তারিখ', 'শেষ তারিখ'], note: 'Start and end date filters' },
+        { kind: 'highlight', selector: 'table, [role="table"]', note: 'Branch, sales, orders and rank columns' },
+        { kind: 'clickText', text: ['প্রয়োগ করুন'], note: 'Apply date range' },
+    ],
+    'ai-insights': [
+        { kind: 'highlightText', text: ['স্মার্ট সারসংক্ষেপ'], note: 'AI smart summary page' },
+        { kind: 'highlightText', text: ['দৈনিক', 'সাপ্তাহিক'], note: 'Daily and weekly toggle' },
+        { kind: 'highlightText', text: ['রাজস্ব', 'মোট অর্ডার', 'নতুন কাস্টমার'], note: 'Revenue, orders and new customers' },
+    ],
+    'operations-reports': [
+        { kind: 'highlightText', text: ['পেমেন্ট মোড সামারি রিপোর্ট'], note: 'Payment mode summary report' },
+        { kind: 'fill', selector: 'input[placeholder="অনুসন্ধান"]', value: SAMPLE_VALUES.search, note: 'Search payment records' },
+        { kind: 'highlight', selector: 'table, [role="table"]', note: 'Store, source, payment mode and amount' },
+    ],
+    'ecommerce-orders': [
+        { kind: 'highlightText', text: ['ইকমার্স অর্ডার'], note: 'Ecommerce orders page' },
+        { kind: 'fill', selector: 'input[placeholder*="অর্ডার নম্বর, আইডি, কাস্টমার"]', value: SAMPLE_VALUES.search, note: 'Search order' },
+        { kind: 'highlight', selector: 'table, [role="table"]', note: 'Order number, status, source and payment status' },
+        { kind: 'highlight', selector: 'button:has-text("অনলাইন অর্ডার তৈরি করুন")', note: 'Create online order button' },
+    ],
+    'courier-setup': [
+        { kind: 'highlightText', text: ['স্টোর ইকমার্স স্ট্যাটাস'], note: 'Store ecommerce status' },
+        { kind: 'highlight', selector: 'table, [role="table"]', note: 'Store, ecommerce order and product columns' },
+        { kind: 'highlightText', text: ['স্টোর স্ট্যাটাস'], note: 'Store status column' },
+    ],
+    'online-overview': [
+        { kind: 'highlightText', text: ['স্টোর ইকমার্স স্ট্যাটাস'], note: 'Online store overview' },
+        { kind: 'highlightText', text: ['ইকমার্স কার্ট', 'ইকমার্স উইশলিস্ট'], note: 'Ecommerce cart and wishlist records' },
+        { kind: 'highlight', selector: 'table, [role="table"]', note: 'Ecommerce product and visible product counts' },
+    ],
+    'ecommerce-products': [
+        { kind: 'highlightText', text: ['ইকমার্স পণ্য'], note: 'Ecommerce products page' },
+        { kind: 'fill', selector: 'input[placeholder*="ইকমার্স পণ্য খুঁজুন"]', value: SAMPLE_VALUES.search, note: 'Search ecommerce products' },
+        { kind: 'highlight', selector: 'table, [role="table"]', note: 'Visibility and online readiness columns' },
+        { kind: 'highlightText', text: ['দৃশ্যমান করুন', 'লুকান'], note: 'Show or hide product online' },
+    ],
+    'cod-reconciliation': [
+        { kind: 'highlightText', text: ['COD রিকনসিলিয়েশন'], note: 'COD reconciliation page' },
+        { kind: 'highlight', selector: 'table, [role="table"]', note: 'Delivered, paid, unsettled and return COD columns' },
+        { kind: 'highlight', selector: 'button:has-text("রিফ্রেশ")', note: 'Refresh COD data' },
+    ],
+    'ecommerce-marketing': [
+        { kind: 'highlightText', text: ['মার্কেটিং ও পিক্সেল'], note: 'Marketing and pixel settings' },
+        { kind: 'fill', selector: 'input[placeholder*="numeric Pixel ID"], input[name*="pixel" i]', value: '000000000000000', note: 'Meta Pixel ID' },
+        { kind: 'highlightText', text: ['স্টোর পেজ শেয়ার প্রিভিউ'], note: 'Store page share preview' },
+        { kind: 'highlight', selector: 'button:has-text("মার্কেটিং সেটিংস সেভ করুন")', note: 'Save marketing settings' },
+    ],
+    'fiscal-compliance': [
+        { kind: 'highlightText', text: ['ফিসকাল কমপ্লায়েন্স'], note: 'Fiscal compliance center' },
+        { kind: 'highlightText', text: ['হ্যাশ চেইন যাচাই'], note: 'Hash chain verification' },
+        { kind: 'highlightText', text: ['ফিসকাল ডিভাইস নিবন্ধন'], note: 'Fiscal device registration' },
+        { kind: 'highlight', selector: 'table, [role="table"]', note: 'VAT period, VAT amount and status' },
+    ],
+    'bd-vat-workspace': [
+        { kind: 'highlight', selector: 'main, section, body', note: 'BD VAT workspace (route currently returns 404 on production - verify path before recording)' },
+    ],
+    'audit-activity': [
+        { kind: 'highlightText', text: ['ভয়েড / বাতিল / মুছে ফেলা অডিট রিপোর্ট'], note: 'Void/cancel/delete audit report' },
+        { kind: 'fill', selector: 'input[placeholder="অনুসন্ধান"]', value: SAMPLE_VALUES.search, note: 'Search audit entries' },
+        { kind: 'highlight', selector: 'table, [role="table"]', note: 'User, action, entity and IP address' },
+    ],
+    'audit-logs-security': [
+        { kind: 'highlightText', text: ['অডিট লগ'], note: 'Audit logs page' },
+        { kind: 'fill', selector: 'input[placeholder*="এনটিটি ধরন দিয়ে ফিল্টার"]', value: SAMPLE_VALUES.search, note: 'Filter by entity type' },
+        { kind: 'highlight', selector: 'table, [role="table"]', note: 'Action, entity, actor, before and after values' },
+    ],
+    'company-compliance-calendar': [
+        { kind: 'highlightText', text: ['কমপ্লায়েন্স ক্যালেন্ডার'], note: 'Compliance calendar page' },
+        { kind: 'highlightText', text: ['আসন্ন কাজ'], note: 'Upcoming compliance tasks' },
+        { kind: 'highlight', selector: 'button:has-text("রিমাইন্ডার যোগ করুন")', note: 'Add reminder button' },
+    ],
+    'notifications-feedback-export': [
+        { kind: 'highlightText', text: ['বিজ্ঞপ্তি'], note: 'Notifications page' },
+        { kind: 'highlightText', text: ['ঘোষণা পাঠান'], note: 'Send announcement' },
+        { kind: 'highlightText', text: ['অপঠিত', 'পঠিত', 'Mark All Read'], note: 'Unread, read and mark-all-read filters' },
+    ],
+    'renew-plan': [
+        { kind: 'highlightText', text: ['বর্তমান প্যাকেজ'], note: 'Current package status' },
+        { kind: 'highlight', selector: 'select[name*="package" i], [name*="billing" i]', note: 'Select package and billing cycle' },
+        { kind: 'highlightText', text: ['ভেরিফিকেশনের জন্য পেমেন্ট জমা দিন'], note: 'Submit payment for verification' },
+        { kind: 'fill', selector: 'input[name*="transaction" i]', value: 'TRX-TRAINING-0001', note: 'Transaction ID' },
+    ],
+    'payment-verification': [
+        { kind: 'highlightText', text: ['ভেরিফিকেশনের জন্য পেমেন্ট জমা দিন'], note: 'Payment verification form' },
+        { kind: 'fill', selector: 'input[name*="sender" i], input[name*="account" i]', value: SAMPLE_VALUES.phone, note: 'Sender or account number' },
+        { kind: 'highlight', selector: 'table, [role="table"]', note: 'Transaction history and admin note' },
+        { kind: 'highlightText', text: ['ট্রানজেকশন ইতিহাস'], note: 'Transaction history section' },
+    ],
+    'upgrade-plan': [
+        { kind: 'highlightText', text: ['সহজ, স্বচ্ছ মূল্য নির্ধারণ'], note: 'Pricing page' },
+        { kind: 'highlightText', text: ['মাসিক', 'বার্ষিক'], note: 'Monthly vs yearly billing toggle' },
+        { kind: 'highlight', selector: 'table, [role="table"]', note: 'Plan comparison table' },
+        { kind: 'highlight', selector: 'button:has-text("প্ল্যান বেছে নিন")', note: 'Choose plan button' },
+    ],
+    'payment-settings': [
+        { kind: 'highlightText', text: ['চেকআউট সেটআপ'], note: 'Checkout setup section' },
+        { kind: 'highlightText', text: ['পেমেন্ট পদ্ধতি'], note: 'Payment method options' },
+        { kind: 'highlightText', text: ['MFS অ্যাকাউন্ট'], note: 'bKash/Nagad/Rocket/Upay numbers' },
+        { kind: 'highlightText', text: ['মুদ্রা', 'পেমেন্ট অবস্থা'], note: 'Currency and payment status settings' },
+        { kind: 'highlight', selector: 'button:has-text("সেটিংস সেভ করুন")', note: 'Save settings button' },
+    ],
+    'invoice-customize': [
+        { kind: 'highlightText', text: ['ট্যাক্স ও ইনভয়েস সেটিংস'], note: 'Tax and invoice settings section' },
+        { kind: 'fill', selector: 'input[name="receipt_header"]', value: SAMPLE_VALUES.storeName, note: 'Receipt header text' },
+        { kind: 'fill', selector: 'input[name="invoice_prefix"]', value: 'INV', note: 'Invoice prefix' },
+        { kind: 'fill', selector: 'textarea[name="invoice_footer"], input[name="invoice_footer"]', value: 'ধন্যবাদ, আবার আসবেন', note: 'Invoice footer message' },
+    ],
+    'return-policies': [
+        { kind: 'highlightText', text: ['বিক্রয়ের পর'], note: 'Post-sale settings section' },
+        { kind: 'highlightText', text: ['ওয়ারেন্টি প্রকার'], note: 'Warranty type options' },
+        { kind: 'highlightText', text: ['ফেরতের কারণ'], note: 'Return reason options' },
+        { kind: 'highlight', selector: 'button:has-text("সেটিংস সেভ করুন")', note: 'Save settings button' },
+    ],
+    'store-defaults': [
+        { kind: 'highlightText', text: ['স্টোরের তথ্য'], note: 'Store information section' },
+        { kind: 'fill', selector: 'input[name="store_name"]', value: SAMPLE_VALUES.storeName, note: 'Store name' },
+        { kind: 'fill', selector: 'input[name="store_contact"]', value: SAMPLE_VALUES.phone, note: 'Store contact number' },
+        { kind: 'fill', selector: 'textarea[name="store_address"]', value: SAMPLE_VALUES.address, note: 'Full store address' },
+        { kind: 'highlightText', text: ['যোগাযোগের বিবরণ', 'অনলাইন উপস্থিতি'], note: 'Contact details and online presence' },
     ],
 };
 
@@ -2276,13 +2796,270 @@ function getLessonStoryboard(lesson) {
 const runMappedAction = async (page, action, stepNumber) => {
     if (!action) return null;
 
+    if (String(action.kind || '').startsWith('label')) {
+        const pointForLocator = async (locator, label) => {
+            const box = await locator.boundingBox().catch(() => null);
+            if (!box) return null;
+            return {
+                x: Math.round(box.x + Math.min(box.width / 2, 220)),
+                y: Math.round(box.y + Math.min(box.height / 2, 44)),
+                label,
+            };
+        };
+
+        if (action.kind === 'labelChooseVariant') {
+            const buttons = page.locator('[role="dialog"] button');
+            const count = await buttons.count().catch(() => 0);
+            for (let i = 0; i < count; i += 1) {
+                const button = buttons.nth(i);
+                if (!(await button.isVisible().catch(() => false))) continue;
+                const text = await button.innerText().catch(() => '');
+                if (!/স্টক|stock|ram|rom|color|৳/i.test(text) || /বাতিল|cancel|যোগ|add/i.test(text)) continue;
+                const point = await pointForLocator(button, action.note || 'Select variant');
+                if (point) await moveTrainingCursor(page, point, point.label, stepNumber);
+                await button.click({ timeout: 5000 }).catch(() => null);
+                await page.waitForTimeout(650);
+                const plus = page.locator('[role="dialog"] button').filter({ hasText: /^\+$/ }).first();
+                if (await plus.isVisible().catch(() => false)) {
+                    const plusPoint = await pointForLocator(plus, 'Increase quantity');
+                    if (plusPoint) await moveTrainingCursor(page, plusPoint, plusPoint.label, stepNumber);
+                    await plus.click({ timeout: 3000 }).catch(() => null);
+                    await page.waitForTimeout(450);
+                }
+                if (point) await pulseTrainingCursor(page, point);
+                return point;
+            }
+        }
+
+        if (action.kind === 'labelAddSelectedVariant') {
+            let addButton = page.locator('[role="dialog"] button.bg-primary').last();
+            if (!(await addButton.isVisible().catch(() => false))) {
+                addButton = page.locator('[role="dialog"] button').filter({ hasText: /৳|Add|যোগ/i }).last();
+            }
+            if (await addButton.isVisible().catch(() => false)) {
+                const point = await pointForLocator(addButton, action.note || 'Add product');
+                if (point) await moveTrainingCursor(page, point, point.label, stepNumber);
+                await addButton.click({ timeout: 5000 }).catch(() => null);
+                if (point) await pulseTrainingCursor(page, point);
+                await page.waitForTimeout(1800);
+                await page.locator('[role="dialog"]').waitFor({ state: 'hidden', timeout: 5000 }).catch(() => null);
+                return point;
+            }
+        }
+
+        const point = await page.evaluate(async ({ kind, note }) => {
+            const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+            const visible = (el) => {
+                if (!el) return false;
+                const rect = el.getBoundingClientRect();
+                const style = window.getComputedStyle(el);
+                return rect.width > 1 && rect.height > 1 && style.visibility !== 'hidden' && style.display !== 'none';
+            };
+            const textOf = (el) => `${el?.innerText || el?.textContent || el?.getAttribute?.('placeholder') || el?.getAttribute?.('aria-label') || ''}`.replace(/\s+/g, ' ').trim();
+            const all = (selector) => Array.from(document.querySelectorAll(selector)).filter(visible);
+            const byText = (needles, selector = 'button,a,[role="button"],h1,h2,h3,h4,p,span,div,label,select,input') => {
+                const terms = needles.map((item) => String(item).toLowerCase());
+                return all(selector).find((el) => {
+                    const text = textOf(el).toLowerCase();
+                    return text && terms.some((term) => text.includes(term));
+                });
+            };
+            const clearMarks = () => {
+                document.querySelectorAll('[data-andgate-training-highlight]').forEach((node) => {
+                    node.style.outline = '';
+                    node.style.boxShadow = '';
+                    node.removeAttribute('data-andgate-training-highlight');
+                });
+            };
+            const mark = (el, label = note || 'Label step') => {
+                if (!el || !visible(el)) return null;
+                clearMarks();
+                el.setAttribute('data-andgate-training-highlight', 'true');
+                el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+                el.style.outline = '4px solid rgba(231,146,55,.95)';
+                el.style.outlineOffset = '4px';
+                el.style.boxShadow = '0 0 0 10px rgba(231,146,55,.18)';
+                const rect = el.getBoundingClientRect();
+                return {
+                    x: Math.round(rect.left + Math.min(rect.width / 2, 220)),
+                    y: Math.round(rect.top + Math.min(rect.height / 2, 44)),
+                    label,
+                };
+            };
+            const click = async (el, delay = 850) => {
+                const point = mark(el);
+                el?.click?.();
+                await sleep(delay);
+                return point;
+            };
+            const setValue = (el, value) => {
+                if (!el) return;
+                el.focus();
+                el.value = value;
+                el.dispatchEvent(new Event('input', { bubbles: true }));
+                el.dispatchEvent(new Event('change', { bubbles: true }));
+            };
+
+            if (kind === 'labelSearchProduct') {
+                const input = all('input').find((el) => /বারকোড|barcode|search|scan/i.test(textOf(el))) || all('input[type="text"]').at(0);
+                const point = mark(input, 'Search or scan product');
+                if (input) {
+                    setValue(input, 'smart');
+                    await sleep(1200);
+                }
+                return point;
+            }
+
+            if (kind === 'labelSelectFirstProduct') {
+                const cards = all('[data-testid="pos-product-card"]').filter((el) => {
+                    const rect = el.getBoundingClientRect();
+                    return rect.width > 80 && rect.height > 80;
+                });
+                const namedCard = cards.find((el) => /smart|power|phone|cotton|tv/i.test(textOf(el)));
+                const product = namedCard || cards[0] || byText(['smart tv', 'power bank', 'smartphone', 'premium cotton'], 'button,div,a,[role="button"]');
+                const point = mark(product, 'Select product');
+                product?.scrollIntoView?.({ block: 'center', inline: 'center' });
+                await sleep(250);
+                product?.click?.();
+                await sleep(1600);
+                return point;
+            }
+
+            if (kind === 'labelChooseVariant') {
+                const modal = all('[role="dialog"], .fixed.inset-0').find((el) => /variant|ভ্যারিয়েন্ট|ভ্যারিয়েন্ট|স্টক|stock|৳/i.test(textOf(el)));
+                const variant =
+                    (modal ? Array.from(modal.querySelectorAll('button')).find((el) => /স্টক|stock|ram|rom|color|৳/i.test(textOf(el)) && !/বাতিল|cancel|add|যোগ|×/i.test(textOf(el))) : null) ||
+                    byText(['ram:', 'rom:', 'color:', 'স্টক:', 'stock:', 'ওয়ারেন্টি', 'ওয়ারেন্টি'], 'button,div,[role="button"]');
+                if (variant) {
+                    const point = await click(variant, 750);
+                    const plus = (modal ? Array.from(modal.querySelectorAll('button')).find((el) => textOf(el).trim() === '+') : null) || byText(['+'], 'button');
+                    if (plus) {
+                        mark(plus, 'Increase label quantity');
+                        plus.click();
+                        await sleep(500);
+                    }
+                    return point;
+                }
+                return mark(byText(['ভ্যারিয়েন্ট', 'variant'], 'h1,h2,h3,p,div'), 'Variant modal');
+            }
+
+            if (kind === 'labelAddSelectedVariant') {
+                let add = null;
+                for (let attempt = 0; attempt < 8; attempt += 1) {
+                    const modal = all('[role="dialog"], .fixed.inset-0').find((el) => /variant|ভ্যারিয়েন্ট|ভ্যারিয়েন্ট|stock|স্টক|৳/i.test(textOf(el)));
+                    const scope = modal || document;
+                    const buttons = Array.from(scope.querySelectorAll('button')).filter((el) => !el.disabled && !/বাতিল|cancel|ডিলিট|delete|মুছুন|×/i.test(textOf(el)));
+                    add =
+                        buttons.find((el) => /যোগ করুন|add/i.test(textOf(el))) ||
+                        buttons.find((el) => /৳|tk|price/i.test(textOf(el))) ||
+                        null;
+                    if (add) break;
+                    await sleep(300);
+                }
+                const point = await click(add, 1800);
+                const queue = all('main h3, main [class*="truncate"], main [class*="font-bold"]').find((el) => /smart|power|phone|cotton|tv|৳|sku/i.test(textOf(el)));
+                return point || mark(queue || document.querySelector('main'), 'Label generator');
+            }
+
+            if (kind === 'labelToggleQrBarcode') {
+                const qr = byText(['QR কোড', 'qr code'], 'button');
+                if (qr) {
+                    const point = await click(qr, 700);
+                    const barcode = byText(['বারকোড', 'barcode'], 'button');
+                    if (barcode) {
+                        mark(barcode, 'Back to barcode');
+                        await sleep(350);
+                    }
+                    return point;
+                }
+                return mark(byText(['বারকোড', 'QR'], 'button,div'), 'Barcode or QR type');
+            }
+
+            if (kind === 'labelOpenSettings') {
+                const settings = byText(['সেটিংস', 'settings', 'দেখান'], 'button');
+                return click(settings, 1000);
+            }
+
+            if (kind === 'labelPickCustomSize') {
+                const custom = byText(['কাস্টম', 'custom'], 'button');
+                const point = await click(custom, 700);
+                const numericInputs = all('input[type="number"]');
+                if (numericInputs[0]) setValue(numericInputs[0], '40');
+                if (numericInputs[1]) setValue(numericInputs[1], '25');
+                await sleep(500);
+                return point || mark(numericInputs[0], 'Custom width and height');
+            }
+
+            if (kind === 'labelChangePaper') {
+                const select = all('select').find((el) => textOf(el).toLowerCase().includes('thermal') || Array.from(el.options || []).some((o) => /a4|thermal|letter/i.test(o.textContent || '')));
+                const point = mark(select, 'Paper size');
+                if (select) {
+                    select.value = Array.from(select.options).find((o) => /a4/i.test(o.textContent || ''))?.value || select.value;
+                    select.dispatchEvent(new Event('change', { bubbles: true }));
+                    await sleep(700);
+                }
+                return point;
+            }
+
+            if (kind === 'labelShowLivePreview') {
+                const preview =
+                    all('main div').find((el) => /mm/i.test(textOf(el)) && el.querySelector('[style*="width"]')) ||
+                    all('main div').find((el) => /mm/i.test(textOf(el)) && /border|shadow/.test(el.className || '')) ||
+                    byText(['mm'], 'main div, main span');
+                return mark(preview, 'Live preview');
+            }
+
+            if (kind === 'labelAdjustContentSettings') {
+                const inputs = all('input[type="number"]');
+                const copies = inputs.find((el) => {
+                    const rect = el.getBoundingClientRect();
+                    return Number(el.value || 0) >= 1 && rect.top > window.innerHeight * 0.35;
+                }) || inputs.find((el) => Number(el.value || 0) >= 1) || inputs.at(0);
+                const point = mark(copies, 'Copies per product');
+                if (copies) setValue(copies, '3');
+                const typeSelect = all('select').find((el) => Array.from(el.options || []).some((o) => /Code 128|EAN|UPC|Small|Medium|Large/i.test(o.textContent || '')));
+                if (typeSelect) {
+                    await sleep(350);
+                    mark(typeSelect, 'Barcode or QR type');
+                    const option = Array.from(typeSelect.options).find((o) => /EAN-13|Medium|Code 128/i.test(o.textContent || ''));
+                    if (option) {
+                        typeSelect.value = option.value;
+                        typeSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                }
+                const info = all('input[type="checkbox"]').at(0);
+                if (info && !info.checked) info.click();
+                await sleep(1000);
+                return point || mark(typeSelect, 'Content settings');
+            }
+
+            if (kind === 'labelGenerateLabels') {
+                const btn = byText(['লেবেল তৈরি করুন', 'generate labels'], 'button');
+                const point = mark(btn, 'Generate labels');
+                btn?.click?.();
+                await sleep(4500);
+                return point || mark(byText(['PDF', 'Print', 'প্রিন্ট'], 'button'), 'Generated labels');
+            }
+
+            return null;
+        }, { kind: action.kind, note: action.note }).catch(() => null);
+
+        if (point?.x && point?.y) {
+            await moveTrainingCursor(page, point, action.note || point.label || `Step ${stepNumber}`, stepNumber);
+            await pulseTrainingCursor(page, point);
+            await page.waitForTimeout(450);
+        }
+        return point;
+    }
+
     // Real per-keystroke typing and real dropdown selection happen on the
     // Node side via Playwright, so the recording shows an actual human-style
     // interaction instead of a value snapping into place.
     if (action.kind === 'fill') {
         const point = await highlightLocator(page, action.selector);
         if (!point) return null;
-        await page.mouse.move(point.x, point.y, { steps: 18 }).catch(() => undefined);
+        await moveTrainingCursor(page, point, action.note || 'Type here', stepNumber);
+        await pulseTrainingCursor(page, point);
         await humanType(page, action.selector, action.value || '');
         return point;
     }
@@ -2311,7 +3088,8 @@ const runMappedAction = async (page, action, stepNumber) => {
                 })
                 .catch(() => null);
             if (!box) continue;
-            await page.mouse.move(box.x, box.y, { steps: 14 }).catch(() => undefined);
+            await moveTrainingCursor(page, box, action.note || 'Password field', stepNumber);
+            await pulseTrainingCursor(page, box);
             await single.click({ timeout: 2000 }).catch(() => undefined);
             await single.pressSequentially(action.value || 'Demo12345', { delay: HUMAN_TYPE_DELAY_MS }).catch(async () => {
                 await single.fill(action.value || 'Demo12345').catch(() => undefined);
@@ -2325,7 +3103,8 @@ const runMappedAction = async (page, action, stepNumber) => {
     if (action.kind === 'selectOption') {
         const point = await highlightLocator(page, action.selector);
         if (!point) return null;
-        await page.mouse.move(point.x, point.y, { steps: 18 }).catch(() => undefined);
+        await moveTrainingCursor(page, point, action.note || 'Select option', stepNumber);
+        await pulseTrainingCursor(page, point);
         await humanSelect(page, action.selector);
         return point;
     }
@@ -2335,7 +3114,8 @@ const runMappedAction = async (page, action, stepNumber) => {
     if (action.kind === 'clickText') {
         const point = await discoverTextAndMark(page, action.text || [], action.scope);
         if (!point) return null;
-        await page.mouse.move(point.x, point.y, { steps: 16 }).catch(() => undefined);
+        await moveTrainingCursor(page, point, action.note || 'Click here', stepNumber);
+        await pulseTrainingCursor(page, point);
         await page
             .locator('[data-andgate-training-highlight="true"]')
             .first()
@@ -2351,7 +3131,8 @@ const runMappedAction = async (page, action, stepNumber) => {
     if (action.kind === 'smartFill') {
         const point = await discoverAndMark(page, action.hints || []);
         if (!point) return null;
-        await page.mouse.move(point.x, point.y, { steps: 18 }).catch(() => undefined);
+        await moveTrainingCursor(page, point, action.note || 'Fill this field', stepNumber);
+        await pulseTrainingCursor(page, point);
         const marker = '[data-andgate-training-highlight="true"]';
         if (point.tag === 'select') {
             await humanSelect(page, marker);
@@ -2361,7 +3142,7 @@ const runMappedAction = async (page, action, stepNumber) => {
         return point;
     }
 
-    return page.evaluate(async ({ action, stepNumber, allowSubmitActions }) => {
+    const result = await page.evaluate(async ({ action, stepNumber, allowSubmitActions }) => {
         const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
         const visible = (el) => {
             if (!el) return false;
@@ -2445,6 +3226,13 @@ const runMappedAction = async (page, action, stepNumber) => {
         }
         return mark(el, action.note || `Step ${stepNumber}`);
     }, { action, stepNumber, allowSubmitActions: ALLOW_SUBMIT_ACTIONS }).catch(() => null);
+    if (result?.x && result?.y) {
+        await moveTrainingCursor(page, result, action.note || result.label || `Step ${stepNumber}`, stepNumber);
+        if (['clickSafe', 'submit', 'highlightText'].includes(action.kind)) {
+            await pulseTrainingCursor(page, result);
+        }
+    }
+    return result;
 };
 
 const performSceneAction = async (page, lesson, scene, index) => {
@@ -2452,7 +3240,7 @@ const performSceneAction = async (page, lesson, scene, index) => {
     const mapped = actionIndex >= 0 ? getLessonStoryboard(lesson)[actionIndex] || CRITICAL_LESSON_ACTIONS[lesson.id]?.[actionIndex] : null;
     const mappedAction = await runMappedAction(page, mapped, index + 1);
     if (mappedAction?.x && mappedAction?.y) {
-        await page.mouse.move(mappedAction.x, mappedAction.y, { steps: 18 }).catch(() => undefined);
+        await moveTrainingCursor(page, mappedAction, mapped?.note || mappedAction.label || scene.screenAction || `Step ${index + 1}`, index + 1);
         await page.waitForTimeout(650);
         return mappedAction;
     }
@@ -2576,7 +3364,7 @@ const performSceneAction = async (page, lesson, scene, index) => {
     }, { text, index, demoEmail: DEMO_EMAIL, demoPassword: DEMO_PASSWORD }).catch(() => null);
 
     if (action?.x && action?.y) {
-        await page.mouse.move(action.x, action.y, { steps: 18 }).catch(() => undefined);
+        await moveTrainingCursor(page, action, action.label || scene.screenAction || `Step ${index + 1}`, index + 1);
         await page.waitForTimeout(650);
         return action;
     }

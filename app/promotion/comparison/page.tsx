@@ -151,7 +151,7 @@ export default function ComparisonPage() {
                                 cash closing, petty cash, HR attendance, service jobs, reports and ecommerce for Bangladesh SME operations.
                             </p>
                             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-                                <Link href="/register" className="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-[#046ca9] to-[#034d79] px-7 py-3.5 text-sm font-bold text-white shadow-lg shadow-[#046ca9]/20 transition hover:brightness-105">
+                                <Link href="/register?source=promotion_comparison&campaign=comparison_page" className="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-[#046ca9] to-[#034d79] px-7 py-3.5 text-sm font-bold text-white shadow-lg shadow-[#046ca9]/20 transition hover:brightness-105">
                                     Start Free
                                 </Link>
                                 <Link href="/promotion/pos" className="inline-flex items-center justify-center rounded-xl border border-gray-200 bg-white px-7 py-3.5 text-sm font-bold text-gray-700 shadow-sm transition hover:border-[#046ca9]/30 hover:text-[#046ca9]">
@@ -229,7 +229,7 @@ export default function ComparisonPage() {
                             Test POS billing, stock, CRM, supplier dues and daily business controls before moving your full shop workflow.
                         </p>
                         <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
-                            <Link href="/register" className="rounded-xl bg-white px-7 py-3 text-sm font-black text-[#046ca9] transition hover:bg-slate-100">
+                            <Link href="/register?source=promotion_comparison&campaign=comparison_page" className="rounded-xl bg-white px-7 py-3 text-sm font-black text-[#046ca9] transition hover:bg-slate-100">
                                 Create Free Account
                             </Link>
                             <Link href="/contact" className="rounded-xl border border-white/20 px-7 py-3 text-sm font-black text-white transition hover:bg-white/10">

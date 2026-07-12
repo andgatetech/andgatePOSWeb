@@ -20,7 +20,7 @@ export function buildAttribution(searchParams: SearchParamsReader, defaults: { s
     const campaign = searchParams.get('campaign') || utmCampaign || defaults.campaign;
 
     return {
-        source: utmSource || defaults.source,
+        source: defaults.source,
         campaign,
         utm_source: utmSource,
         utm_medium: utmMedium,
