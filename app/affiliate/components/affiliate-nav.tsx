@@ -8,7 +8,7 @@ import { getAffiliateToken } from '@/store/features/affiliate/affiliatePortalApi
 import { getTranslation } from '@/i18n';
 
 const ADMIN_WHATSAPP = 'https://wa.me/8801577303608';
-const ANDGATE_LOGO = '/images/andgatePOS.jpeg';
+const ANDGATE_LOGO = '/images/andgatePOS.png';
 
 const LINKS = [
     { href: '/affiliate',             labelKey: 'aff_nav_home',        icon: '🏠', desc: 'রেজিস্ট্রেশন, টায়ার তথ্য ও FAQ',              public: true  },
@@ -34,12 +34,12 @@ export default function AffiliateNav() {
                 {/* Top brand row */}
                 <div className="flex items-center justify-between py-3 border-b border-slate-100">
                     <Link href="/affiliate" className="flex items-center gap-2">
-                        <span className="flex h-9 w-28 items-center overflow-hidden rounded bg-white">
+                        <span className="flex h-9 w-36 items-center overflow-hidden rounded bg-white">
                             <Image
                                 src={ANDGATE_LOGO}
                                 alt="AndgatePOS"
-                                width={112}
-                                height={36}
+                                width={144}
+                                height={29}
                                 className="h-full w-full object-contain"
                                 priority
                             />

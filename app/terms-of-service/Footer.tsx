@@ -12,7 +12,7 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 
-const AndGate = '/images/andgatePOS.jpeg';
+const AndGate = '/images/andgatePOS.png';
 const FACEBOOK_URL = 'https://www.facebook.com/andgatepos';
 
 const Footer = () => {
@@ -92,8 +92,8 @@ const Footer = () => {
                                 <Image
                                     src={AndGate}
                                     alt="AndgatePOS"
-                                    width={150}
-                                    height={50}
+                                    width={170}
+                                    height={34}
                                     className="block h-8 w-auto object-contain"
                                     style={{ width: 'auto' }}
                                 />

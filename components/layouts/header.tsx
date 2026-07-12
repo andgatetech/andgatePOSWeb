@@ -148,11 +148,11 @@ const Header = () => {
                     <div className="horizontal-logo mr-2 flex shrink-0 items-center lg:hidden">
                         <Link href="/dashboard" className="main-logo flex items-center">
                             <Image
-                                src="/images/andgatePOS.jpeg"
+                                src="/images/andgatePOS.png"
                                 alt="logo icon"
-                                width={90}
-                                height={32}
-                                className="h-7 w-auto object-contain"
+                                width={120}
+                                height={24}
+                                className="h-6 w-auto object-contain"
                                 style={{ width: 'auto' }}
                                 unoptimized
                             />

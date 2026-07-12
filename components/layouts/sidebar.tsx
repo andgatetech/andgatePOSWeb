@@ -189,11 +189,11 @@ const Sidebar = () => {
                 <Link href="/dashboard" className="flex items-center justify-center">
                     <div className="overflow-hidden rounded-xl border border-white/20 bg-white shadow-sm">
                         <Image
-                            src="/images/andgatePOS.jpeg"
+                            src="/images/andgatePOS.png"
                             alt="AndgatePOS"
-                            width={140}
-                            height={40}
-                            className="h-10 w-auto object-contain px-3 py-1"
+                            width={164}
+                            height={33}
+                            className="h-8 w-auto object-contain px-2 py-1"
                             style={{ width: 'auto' }}
                             priority
                             unoptimized
