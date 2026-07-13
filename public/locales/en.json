@@ -764,13 +764,13 @@
     "loading_plans": "Loading plans…",
     "load_error": "Failed to load pricing plans. Please try again later.",
     "hero": {
-      "badge_text": "Transparent Pricing • No Hidden Costs",
-      "title": "Simple, Transparent Pricing Plans",
-      "subtitle": "Start free — no credit card needed. Pick a plan that fits your shop. If you're not happy, we'll refund you within 14 days.",
+      "badge_text": "Pricing built for Bangladeshi SMEs",
+      "title": "Choose the Business OS package your shop is ready for",
+      "subtitle": "Start with a full-access trial, then choose by business maturity: one shop, growing operations, professional management, or enterprise control.",
       "benefits": {
-        "no_setup": "No setup fee",
-        "cancel_anytime": "Cancel anytime",
-        "support": "24/7 support"
+        "no_setup": "14-day full trial",
+        "cancel_anytime": "Upgrade anytime",
+        "support": "Bangla onboarding support"
       }
     },
     "frequency": {
@@ -795,57 +795,52 @@
       "up_to": "Up to"
     },
     "faq": {
-      "title": "Frequently Asked Questions",
-      "subtitle": "Everything you need to know about trial access, packages, features, and upgrades",
+      "subtitle": "Everything you need to know about trial access, packages, business capabilities, and upgrades",
       "questions": [
         {
           "q": "Can I use every feature during the free trial?",
-          "a": "Yes. All AndgatePOS features are enabled during the 14-day free trial so you can test the full system before choosing the paid plan that fits your shop."
+          "a": "Yes. All AndgatePOS features are enabled during the 14-day free trial so you can test the full Business OS before choosing a paid package."
+        },
+        {
+          "q": "How should I choose a package?",
+          "a": "Choose by business stage, not feature count: Starter runs one shop, Growth controls purchases and dues, Professional manages teams/accounting/BI, and Enterprise supports integrations and governance."
         },
         {
           "q": "Will every feature stay enabled after the trial ends?",
-          "a": "After the trial, features stay enabled according to the paid plan you choose. That is why the Trial column shows ticks for every feature, while paid plan columns show the features included in each package."
+          "a": "After the trial, features stay enabled according to the paid package you choose. The Trial column shows full access; paid columns show what remains included."
         },
         {
-          "q": "Can I change plans anytime?",
-          "a": "Yes! You can upgrade or downgrade your plan anytime. Changes will be reflected in your next billing cycle."
+          "q": "Can I change packages anytime?",
+          "a": "Yes. You can request an upgrade or downgrade anytime. After admin/payment verification, your access updates based on the new package."
         },
         {
           "q": "What payment methods do you accept?",
-          "a": "We accept bKash, Nagad, credit/debit cards, and bank transfers for monthly or annual subscriptions."
+          "a": "We accept bKash, Nagad, Rocket, bank transfer, cash, and other manual payment methods through admin verification."
         },
         {
-          "q": "Are there any setup fees?",
-          "a": "No setup fees — ever. All plans include free onboarding and setup assistance."
-        },
-        {
-          "q": "Can I cancel my subscription?",
-          "a": "Yes, you can cancel anytime. No questions asked, no hidden fees."
-        },
-        {
-          "q": "Do you offer refunds?",
-          "a": "We offer a 14-day money-back guarantee on all paid plans if you're not satisfied."
+          "q": "Is there an activation fee?",
+          "a": "Paid packages may include a one-time activation fee for onboarding, setup support, and data preparation. Campaigns may waive this fee."
         },
         {
           "q": "Is my data secure?",
-          "a": "Absolutely! We use bank-level encryption and regular backups to keep your data safe and secure."
+          "a": "Yes. AndgatePOS is cloud-based with controlled access, backups, and role-based permissions to protect business data."
         }
       ]
     },
     "trust": {
-      "secure_title": "Secure & Reliable",
-      "secure_subtitle": "Bank-level security with 99.9% uptime guarantee",
-      "support_title": "24/7 Support",
-      "support_subtitle": "Round-the-clock assistance whenever you need help",
-      "trusted_title": "Trusted by 100+",
-      "trusted_subtitle": "Join hundreds of businesses across Bangladesh"
+      "secure_title": "Secure Business Data",
+      "secure_subtitle": "Cloud access with permissions, backups, and operational controls",
+      "support_title": "Local Support",
+      "support_subtitle": "Bangla training and support for Bangladeshi shop workflows",
+      "trusted_title": "Built for Growth",
+      "trusted_subtitle": "Start with POS, then expand into purchases, accounting, HR, ecommerce, and analytics"
     },
     "cta": {
-      "title": "Ready to Get Started?",
-      "subtitle": "Start your free trial today. No credit card required. Upgrade anytime.",
+      "title": "Ready to run your business with more control?",
+      "subtitle": "Start the full-access trial, then choose the package that matches your business stage.",
       "start_trial": "Start Free Trial",
       "contact_sales": "Contact Sales",
-      "guarantee": "✓ 14-day money-back guarantee  ✓ No setup fee  ✓ Cancel anytime"
+      "guarantee": "14-day full-access trial • Upgrade anytime • Bangla onboarding support"
     },
     "save_percent": "Save",
     "get_started": "Get Started",
@@ -5233,12 +5228,12 @@
   "contact.success_modal.back_home": "Back to Home",
   "contact.success_modal.sign_in": "Sign In to Dashboard",
   "contact.success_modal.continue": "Continue browsing",
-  "pricing_page.hero.badge_text": "Flexible Pricing Plans",
-  "pricing_page.hero.title": "Simple, Transparent Pricing",
-  "pricing_page.hero.subtitle": "Choose the package that fits your current store modules: POS, inventory, accounting, HR, cash drawer, ecommerce, courier/COD, reports, and support. No hidden fees.",
-  "pricing_page.hero.benefits.no_setup": "No Setup Fee",
-  "pricing_page.hero.benefits.cancel_anytime": "Cancel Anytime",
-  "pricing_page.hero.benefits.support": "24/7 Support",
+  "pricing_page.hero.badge_text": "Pricing built for Bangladeshi SMEs",
+  "pricing_page.hero.title": "Choose the Business OS package your shop is ready for",
+  "pricing_page.hero.subtitle": "Start with a full-access trial, then choose by business maturity: one shop, growing operations, professional management, or enterprise control.",
+  "pricing_page.hero.benefits.no_setup": "14-day full trial",
+  "pricing_page.hero.benefits.cancel_anytime": "Upgrade anytime",
+  "pricing_page.hero.benefits.support": "Bangla onboarding support",
   "pricing_page.faq.title": "Frequently Asked Questions",
   "pricing_page.faq.subtitle": "Everything you need to know about packages, included modules, trial access, and upgrades",
   "pricing_page.cta.title": "Ready to Get Started?",
@@ -6971,25 +6966,25 @@
   "pricing_page.guarantee_short": "14-day free trial",
   "pricing_page.features_included": "Includes",
   "pricing_page.comparison.title": "Compare Plans",
-  "pricing_page.table_heading": "Which Plan Is Right for Your Shop?",
-  "pricing_page.table_subheading": "Explore every feature during the 14-day trial, then choose the paid plan that matches your shop size and operating needs.",
-  "pricing_page.trial_all_features_note": "All features are enabled during the free trial. The comparison below shows which features remain included after you choose a paid plan.",
+  "pricing_page.table_heading": "Which Package Matches Your Business Stage?",
+  "pricing_page.table_subheading": "Packages are grouped by business capability, not random feature counts. Trial users can explore everything before choosing a paid package.",
+  "pricing_page.trial_all_features_note": "All features are enabled during the free trial. Paid packages keep the capabilities that match your shop size and operating maturity.",
   "pricing_page.comparison.features": "Features",
   "pricing_page.comparison.unlimited": "Unlimited",
   "pricing_page.recommended_label": "Best for:",
-  "pricing_page.trust_no_setup": "One-time activation — no monthly surprises",
-  "pricing_page.trust_cancel": "Cancel anytime",
-  "pricing_page.trust_refund": "14-day free trial",
-  "pricing_page.plan_descriptions.0": "Try all features free for 14 days. No credit card needed.",
-  "pricing_page.plan_descriptions.1": "Perfect for single-counter shops — POS, products, customers, stock.",
-  "pricing_page.plan_descriptions.2": "Most popular — adds purchases, suppliers, returns, expense tracking.",
-  "pricing_page.plan_descriptions.3": "Full power — multi-store, accounting, HR, advanced reports.",
-  "pricing_page.plan_descriptions.4": "Unlimited everything. API access, white-label, dedicated support.",
-  "pricing_page.recommended_for.0": "New shops wanting to test before buying",
-  "pricing_page.recommended_for.1": "Small shopkeepers & new business owners",
-  "pricing_page.recommended_for.2": "Growing retail shops with 2-5 staff",
-  "pricing_page.recommended_for.3": "Established businesses needing reports & accounting",
-  "pricing_page.recommended_for.4": "Large chains & enterprises needing custom solutions",
+  "pricing_page.trust_no_setup": "One-time activation with guided setup",
+  "pricing_page.trust_cancel": "Upgrade or downgrade as business changes",
+  "pricing_page.trust_refund": "14-day full-access trial",
+  "pricing_page.plan_descriptions.0": "Try every module for 14 days before choosing a paid package.",
+  "pricing_page.plan_descriptions.1": "Run one shop properly: POS, products, customers, dues, stock, labels, daily reports.",
+  "pricing_page.plan_descriptions.2": "Control purchases, suppliers, returns, ecommerce/COD, expenses, and profit.",
+  "pricing_page.plan_descriptions.3": "Manage teams, branches, accounting, HR, compliance, and business intelligence.",
+  "pricing_page.plan_descriptions.4": "Custom integrations, executive dashboards, automation, SLA, and dedicated success.",
+  "pricing_page.recommended_for.0": "Owners who want to test the full system first",
+  "pricing_page.recommended_for.1": "One-shop retailers and owner-operated businesses",
+  "pricing_page.recommended_for.2": "Growing shops with suppliers, staff, dues, and online orders",
+  "pricing_page.recommended_for.3": "Established SMEs needing team, branch, accounting, and BI control",
+  "pricing_page.recommended_for.4": "Chains, distributors, franchises, and complex multi-branch operations",
   "lbl_flexible_pricing": "Flexible Pricing Plans",
   "lbl_choose_plan": "Choose Your Perfect Plan",
   "lbl_select_plan_desc": "Select the plan that best fits your business needs. All plans include core features with no hidden fees.",
@@ -7188,7 +7183,6 @@
   "lbl_register_fiscal_device": "Register Fiscal Device",
   "ph_device_code": "Device code",
   "btn_register": "Register",
-  "btn_refresh": "Refresh",
   "btn_lock_period": "Lock Period",
   "lbl_locked": "Locked",
   "msg_lock_vat_period_confirm": "Lock this VAT period? New fiscal invoices cannot be issued into a locked period.",

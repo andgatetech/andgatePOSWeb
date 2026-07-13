@@ -1332,13 +1332,13 @@
     "loading_plans": "প্ল্যান লোড হচ্ছে…",
     "load_error": "মূল্য তালিকা লোড করা যায়নি। আবার চেষ্টা করুন।",
     "hero": {
-      "badge_text": "স্বচ্ছ মূল্য নির্ধারণ • কোনো লুকানো খরচ নেই",
-      "title": "সহজ, স্বচ্ছ মূল্য পরিকল্পনা",
-      "subtitle": "ফ্রিতে শুরু করুন — কার্ডের দরকার নেই। যে প্যাকেজ আপনার দোকানের জন্য ঠিক সেটা নিন। সন্তুষ্ট না হলে ১৪ দিনের মধ্যে টাকা ফেরত পাবেন।",
+      "badge_text": "বাংলাদেশি SME ব্যবসার জন্য প্যাকেজ",
+      "title": "আপনার দোকানের অবস্থার সাথে মিলিয়ে Business OS প্যাকেজ বেছে নিন",
+      "subtitle": "প্রথমে full-access trial ব্যবহার করুন। এরপর ব্যবসার ধাপ অনুযায়ী প্যাকেজ নিন: এক দোকান, growing operation, professional management, অথবা enterprise control।",
       "benefits": {
-        "no_setup": "কোনো সেটআপ ফি নেই",
-        "cancel_anytime": "যেকোনো সময় বাতিল করুন",
-        "support": "২৪/৭ সাপোর্ট"
+        "no_setup": "১৪ দিনের full trial",
+        "cancel_anytime": "যেকোনো সময় আপগ্রেড",
+        "support": "বাংলা onboarding support"
       }
     },
     "frequency": {
@@ -1363,57 +1363,52 @@
       "up_to": "পর্যন্ত"
     },
     "faq": {
-      "title": "সচরাচর জিজ্ঞাসিত প্রশ্নাবলী",
-      "subtitle": "ট্রায়াল, প্যাকেজ, ফিচার ও আপগ্রেড সম্পর্কে যা জানা দরকার",
+      "subtitle": "Trial access, package, business capability ও upgrade সম্পর্কে যা জানা দরকার",
       "questions": [
         {
           "q": "ফ্রি ট্রায়ালে কি সব ফিচার ব্যবহার করা যাবে?",
-          "a": "হ্যাঁ। ১৪ দিনের ফ্রি ট্রায়ালে AndgatePOS-এর সব ফিচার চালু থাকে, যেন আপনি পুরো সিস্টেম পরীক্ষা করে বুঝতে পারেন কোন পেইড প্ল্যান আপনার দোকানের জন্য ঠিক।"
+          "a": "হ্যাঁ। ১৪ দিনের ফ্রি ট্রায়ালে AndgatePOS-এর সব ফিচার চালু থাকে, যেন paid package নেওয়ার আগে পুরো Business OS পরীক্ষা করতে পারেন।"
+        },
+        {
+          "q": "কোন প্যাকেজ নেব বুঝব কীভাবে?",
+          "a": "Feature count দেখে নয়, business stage দেখে বেছে নিন: Starter এক দোকান চালায়, Growth purchase ও due control করে, Professional team/accounting/BI ম্যানেজ করে, Enterprise integration ও governance দেয়।"
         },
         {
           "q": "ট্রায়াল শেষে সব ফিচার কি চালু থাকবে?",
-          "a": "ট্রায়াল শেষে আপনার নির্বাচিত পেইড প্ল্যান অনুযায়ী ফিচার চালু থাকবে। তাই তুলনা টেবিলে ট্রায়াল কলামে সব ফিচারে টিক দেখানো হয়েছে, আর পেইড প্ল্যান কলামে সংশ্লিষ্ট প্ল্যানের ফিচার দেখানো হয়েছে।"
+          "a": "ট্রায়াল শেষে আপনার নির্বাচিত paid package অনুযায়ী ফিচার চালু থাকবে। Trial column full access দেখায়, paid column দেখায় কোন capability থাকবে।"
         },
         {
-          "q": "আমি কি যেকোনো সময় পরিকল্পনা পরিবর্তন করতে পারি?",
-          "a": "হ্যাঁ! আপনি যেকোনো সময় আপনার পরিকল্পনা আপগ্রেড বা ডাউনগ্রেড করতে পারেন। পরিবর্তনগুলি আপনার পরবর্তী বিলিং চক্রে প্রতিফলিত হবে।"
+          "q": "আমি কি যেকোনো সময় প্যাকেজ পরিবর্তন করতে পারি?",
+          "a": "হ্যাঁ। যেকোনো সময় upgrade বা downgrade request করতে পারেন। Admin/payment verification শেষ হলে নতুন package অনুযায়ী access update হবে।"
         },
         {
           "q": "আপনারা কোন পেমেন্ট পদ্ধতি গ্রহণ করেন?",
-          "a": "আমরা মাসিক বা বার্ষিক সাবস্ক্রিপশনের জন্য বিকাশ, নগদ, ক্রেডিট/ডেবিট কার্ড এবং ব্যাংক ট্রান্সফার গ্রহণ করি।"
+          "a": "আমরা admin verification-এর মাধ্যমে bKash, Nagad, Rocket, bank transfer, cash এবং অন্যান্য manual payment গ্রহণ করি।"
         },
         {
-          "q": "কোনো সেটআপ ফি আছে কি?",
-          "a": "কোনো সেটআপ ফি নেই। সব প্ল্যানে বিনামূল্যে অনবোর্ডিং ও সেটআপ সহায়তা অন্তর্ভুক্ত।"
-        },
-        {
-          "q": "আমি কি আমার সাবস্ক্রিপশন বাতিল করতে পারি?",
-          "a": "হ্যাঁ, আপনি যেকোনো সময় বাতিল করতে পারেন। কোনো প্রশ্ন নেই, কোনো লুকানো ফি নেই।"
-        },
-        {
-          "q": "আপনারা কি রিফান্ড দেন?",
-          "a": "আপনি সন্তুষ্ট না হলে সকল পেইড পরিকল্পনায় ১৪ দিনের মানি-ব্যাক গ্যারান্টি দিই।"
+          "q": "Activation fee আছে কি?",
+          "a": "Paid package-এ onboarding, setup support ও data preparation-এর জন্য এককালীন activation fee থাকতে পারে। Campaign চললে fee waive হতে পারে।"
         },
         {
           "q": "আমার ডেটা কি নিরাপদ?",
-          "a": "অবশ্যই! আমরা আপনার ডেটা নিরাপদ রাখতে ব্যাংক-স্তরের এনক্রিপশন এবং নিয়মিত ব্যাকআপ ব্যবহার করি।"
+          "a": "হ্যাঁ। AndgatePOS cloud-based, role permission, backup ও operational control দিয়ে business data সুরক্ষিত রাখে।"
         }
       ]
     },
     "trust": {
-      "secure_title": "নিরাপদ ও নির্ভরযোগ্য",
-      "secure_subtitle": "৯৯.৯% আপটাইম গ্যারান্টি সহ ব্যাংক-স্তরের নিরাপত্তা",
-      "support_title": "২৪/৭ সাপোর্ট",
-      "support_subtitle": "যখনই আপনার সাহায্য প্রয়োজন সার্বক্ষণিক সহায়তা",
-      "trusted_title": "১০০+ দ্বারা বিশ্বস্ত",
-      "trusted_subtitle": "বাংলাদেশ জুড়ে শত শত ব্যবসার সাথে যোগ দিন"
+      "secure_title": "নিরাপদ business data",
+      "secure_subtitle": "Permission, backup ও operational control সহ cloud access",
+      "support_title": "Local support",
+      "support_subtitle": "বাংলাদেশি দোকানের workflow অনুযায়ী বাংলা training ও support",
+      "trusted_title": "Growth-এর জন্য তৈরি",
+      "trusted_subtitle": "POS দিয়ে শুরু করে purchase, accounting, HR, ecommerce ও analytics পর্যন্ত বড় করুন"
     },
     "cta": {
-      "title": "শুরু করতে প্রস্তুত?",
-      "subtitle": "আজই আপনার বিনামূল্যে ট্রায়াল শুরু করুন। কোনো ক্রেডিট কার্ড প্রয়োজন নেই। যেকোনো সময় আপগ্রেড করুন।",
+      "title": "আরও control নিয়ে ব্যবসা চালাতে প্রস্তুত?",
+      "subtitle": "Full-access trial শুরু করুন, তারপর আপনার business stage অনুযায়ী package বেছে নিন।",
       "start_trial": "বিনামূল্যে ট্রায়াল শুরু করুন",
-      "contact_sales": "সেলস-এ যোগাযোগ করুন",
-      "guarantee": "✓ ১৪ দিনের মানি-ব্যাক গ্যারান্টি  ✓ কোনো সেটআপ ফি নেই  ✓ যেকোনো সময় বাতিল"
+      "contact_sales": "সেলস টিমের সাথে যোগাযোগ করুন",
+      "guarantee": "১৪ দিনের full-access trial • যেকোনো সময় upgrade • বাংলা onboarding support"
     },
     "save_percent": "সাশ্রয়",
     "get_started": "শুরু করুন",
@@ -5234,12 +5229,12 @@
   "contact.success_modal.back_home": "হোমে ফিরুন",
   "contact.success_modal.sign_in": "ড্যাশবোর্ডে সাইন ইন করুন",
   "contact.success_modal.continue": "ব্রাউজিং চালিয়ে যান",
-  "pricing_page.hero.badge_text": "নমনীয় মূল্য পরিকল্পনা",
-  "pricing_page.hero.title": "সহজ, স্বচ্ছ মূল্য নির্ধারণ",
-  "pricing_page.hero.subtitle": "আপনার দোকানের প্রয়োজন অনুযায়ী প্যাকেজ বেছে নিন — POS, inventory, accounting, HR, cash drawer, ecommerce, courier/COD, reports ও support। কোনো লুকানো চার্জ নেই।",
-  "pricing_page.hero.benefits.no_setup": "কোনো সেটআপ ফি নেই",
-  "pricing_page.hero.benefits.cancel_anytime": "যেকোনো সময় বাতিল করুন",
-  "pricing_page.hero.benefits.support": "২৪/৭ সহায়তা",
+  "pricing_page.hero.badge_text": "বাংলাদেশি SME ব্যবসার জন্য প্যাকেজ",
+  "pricing_page.hero.title": "আপনার দোকানের অবস্থার সাথে মিলিয়ে Business OS প্যাকেজ বেছে নিন",
+  "pricing_page.hero.subtitle": "প্রথমে full-access trial ব্যবহার করুন। এরপর ব্যবসার ধাপ অনুযায়ী প্যাকেজ নিন: এক দোকান, growing operation, professional management, অথবা enterprise control।",
+  "pricing_page.hero.benefits.no_setup": "১৪ দিনের full trial",
+  "pricing_page.hero.benefits.cancel_anytime": "যেকোনো সময় আপগ্রেড",
+  "pricing_page.hero.benefits.support": "বাংলা onboarding support",
   "pricing_page.faq.title": "সচরাচর জিজ্ঞাসা",
   "pricing_page.faq.subtitle": "Package, included module, trial access ও upgrade সম্পর্কে যা জানা দরকার",
   "pricing_page.cta.title": "শুরু করতে প্রস্তুত?",
@@ -6938,25 +6933,25 @@
   "pricing_page.guarantee_short": "১৪ দিনের ফ্রি ট্রায়াল",
   "pricing_page.features_included": "অন্তর্ভুক্ত",
   "pricing_page.comparison.title": "প্ল্যান তুলনা",
-  "pricing_page.table_heading": "আপনার দোকানের জন্য কোন প্ল্যান সঠিক?",
-  "pricing_page.table_subheading": "ট্রায়ালে ১৪ দিন সব ফিচার ব্যবহার করে দেখুন। এরপর আপনার দোকানের স্কেল ও দরকার অনুযায়ী পেইড প্ল্যান বেছে নিন।",
-  "pricing_page.trial_all_features_note": "ফ্রি ট্রায়ালে সব ফিচার চালু থাকে। নিচের তুলনাটি দেখাচ্ছে ট্রায়াল শেষে কোন পেইড প্ল্যানে কোন ফিচার থাকবে।",
+  "pricing_page.table_heading": "আপনার ব্যবসার ধাপের জন্য কোন প্যাকেজ সঠিক?",
+  "pricing_page.table_subheading": "প্যাকেজগুলো random feature count দিয়ে নয়, ব্যবসার capability দিয়ে সাজানো। Trial-এ সবকিছু দেখে তারপর paid package বেছে নিন।",
+  "pricing_page.trial_all_features_note": "ফ্রি ট্রায়ালে সব ফিচার চালু থাকে। Paid package-এ আপনার দোকানের size ও operating maturity অনুযায়ী capability থাকবে।",
   "pricing_page.comparison.features": "ফিচার",
   "pricing_page.comparison.unlimited": "আনলিমিটেড",
   "pricing_page.recommended_label": "উপযোগী:",
-  "pricing_page.trust_no_setup": "এককালীন অ্যাক্টিভেশন — কোনো মাসিক চমক নেই",
-  "pricing_page.trust_cancel": "যেকোনো সময় বাতিল",
-  "pricing_page.trust_refund": "১৪ দিনের ফ্রি ট্রায়াল",
-  "pricing_page.plan_descriptions.0": "১৪ দিন সব ফিচার ফ্রিতে ট্রাই করুন। ক্রেডিট কার্ড লাগবে না।",
-  "pricing_page.plan_descriptions.1": "একক কাউন্টারের দোকানের জন্য — পিওএস, প্রোডাক্ট, গ্রাহক, স্টক।",
-  "pricing_page.plan_descriptions.2": "সবচেয়ে জনপ্রিয় — সাথে পারচেজ, সাপ্লায়ার, রিটার্ন, খরচ ট্র্যাকিং।",
-  "pricing_page.plan_descriptions.3": "সম্পূর্ণ শক্তি — মাল্টি-স্টোর, অ্যাকাউন্টিং, এইচআর, উন্নত রিপোর্ট।",
-  "pricing_page.plan_descriptions.4": "সবকিছু আনলিমিটেড। এপিআই অ্যাক্সেস, হোয়াইট-লেবেল, ডেডিকেটেড সাপোর্ট।",
-  "pricing_page.recommended_for.0": "কেনার আগে পরীক্ষা করতে চান এমন নতুন দোকান",
-  "pricing_page.recommended_for.1": "ছোট দোকানদার ও নতুন ব্যবসায়ী",
-  "pricing_page.recommended_for.2": "২-৫ জন স্টাফ সহ বাড়ন্ত রিটেইল দোকান",
-  "pricing_page.recommended_for.3": "রিপোর্ট ও অ্যাকাউন্টিং প্রয়োজন এমন প্রতিষ্ঠিত ব্যবসা",
-  "pricing_page.recommended_for.4": "কাস্টম সমাধান প্রয়োজন এমন বড় চেইন ও এন্টারপ্রাইজ",
+  "pricing_page.trust_no_setup": "এককালীন activation সহ guided setup",
+  "pricing_page.trust_cancel": "ব্যবসা বদলালে upgrade/downgrade করুন",
+  "pricing_page.trust_refund": "১৪ দিনের full-access trial",
+  "pricing_page.plan_descriptions.0": "Paid package নেওয়ার আগে ১৪ দিন সব module ব্যবহার করে দেখুন।",
+  "pricing_page.plan_descriptions.1": "এক দোকান ঠিকভাবে চালান: POS, product, customer, বাকি, stock, label, daily report।",
+  "pricing_page.plan_descriptions.2": "Purchase, supplier, return, ecommerce/COD, expense ও profit control করুন।",
+  "pricing_page.plan_descriptions.3": "Team, branch, accounting, HR, compliance ও business intelligence ম্যানেজ করুন।",
+  "pricing_page.plan_descriptions.4": "Custom integration, executive dashboard, automation, SLA ও dedicated success।",
+  "pricing_page.recommended_for.0": "যারা আগে পুরো system পরীক্ষা করতে চান",
+  "pricing_page.recommended_for.1": "এক দোকানের retailer ও owner-operated business",
+  "pricing_page.recommended_for.2": "Supplier, staff, dues ও online order থাকা growing shop",
+  "pricing_page.recommended_for.3": "Team, branch, accounting ও BI control দরকার এমন established SME",
+  "pricing_page.recommended_for.4": "Chain, distributor, franchise ও complex multi-branch operation",
   "lbl_flexible_pricing": "প্ল্যান ও মূল্য",
   "lbl_choose_plan": "আপনার জন্য সঠিক প্ল্যান বেছে নিন",
   "lbl_select_plan_desc": "আপনার ব্যবসার প্রয়োজনের জন্য সঠিক প্ল্যান নির্বাচন করুন। সব প্ল্যানে কোর ফিচার অন্তর্ভুক্ত।",
@@ -7155,7 +7150,6 @@
   "lbl_register_fiscal_device": "ফিসকাল ডিভাইস নিবন্ধন",
   "ph_device_code": "ডিভাইস কোড",
   "btn_register": "নিবন্ধন",
-  "btn_refresh": "রিফ্রেশ",
   "btn_lock_period": "পিরিয়ড লক করুন",
   "lbl_locked": "লকড",
   "msg_lock_vat_period_confirm": "এই ভ্যাট পিরিয়ড লক করবেন? লকড পিরিয়ডে নতুন ফিসকাল ইনভয়েস ইস্যু করা যাবে না।",
