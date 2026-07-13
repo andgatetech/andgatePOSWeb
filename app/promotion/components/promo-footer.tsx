@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 
-const AndGate = '/images/andgatePOS.png';
+const AndGate = '/images/AndgateBOS-logo-vertical-small.png';
 const FACEBOOK_URL = 'https://www.facebook.com/andgatepos';
 
 const LINKS = {

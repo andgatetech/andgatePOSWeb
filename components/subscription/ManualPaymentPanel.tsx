@@ -114,7 +114,7 @@ export default function ManualPaymentPanel({ notice }: { notice?: ReactNode }) {
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex min-w-0 items-center gap-3">
                         <div className="flex h-11 w-40 shrink-0 items-center justify-center rounded-md border border-white-light bg-white px-2 dark:border-[#17263c]">
-                            <Image src="/images/andgatePOS.png" alt="AndgatePOS" width={150} height={30} className="h-7 w-auto object-contain" unoptimized />
+                            <Image src="/images/AndgateBOS-logo-vertical-small.png" alt="AndgateBOS" width={150} height={35} className="h-7 w-auto object-contain" unoptimized />
                         </div>
                         <div className="min-w-0">
                             <p className="text-xs font-semibold uppercase text-primary">{t('manual_payments_brand_badge')}</p>

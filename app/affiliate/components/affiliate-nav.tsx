@@ -8,7 +8,7 @@ import { getAffiliateToken } from '@/store/features/affiliate/affiliatePortalApi
 import { getTranslation } from '@/i18n';
 
 const ADMIN_WHATSAPP = 'https://wa.me/8801577303608';
-const ANDGATE_LOGO = '/images/andgatePOS.png';
+const ANDGATE_LOGO = '/images/AndgateBOS-logo-vertical-small.png';
 
 const LINKS = [
     { href: '/affiliate',             labelKey: 'aff_nav_home',        icon: '🏠', desc: 'রেজিস্ট্রেশন, টায়ার তথ্য ও FAQ',              public: true  },

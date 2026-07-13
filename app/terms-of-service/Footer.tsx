@@ -12,7 +12,7 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 
-const AndGate = '/images/andgatePOS.png';
+const AndGate = '/images/AndgateBOS-logo-vertical-small.png';
 const FACEBOOK_URL = 'https://www.facebook.com/andgatepos';
 
 const Footer = () => {

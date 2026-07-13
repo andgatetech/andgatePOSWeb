@@ -3,7 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import PromoButton from './promo-button';
 
-const AndGate = '/images/andgatePOS.png';
+const AndGate = '/images/AndgateBOS-logo-vertical-small.png';
 
 export default function Navbar() {
     return (

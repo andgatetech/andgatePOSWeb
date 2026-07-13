@@ -199,7 +199,7 @@ const Sidebar = () => {
                 <Link href="/dashboard" className="flex items-center justify-center">
                     <div className="overflow-hidden rounded-xl border border-white/20 bg-white shadow-sm">
                         <Image
-                            src="/images/andgatePOS.png"
+                            src="/images/AndgateBOS-logo-vertical-small.png"
                             alt="AndgatePOS"
                             width={164}
                             height={33}

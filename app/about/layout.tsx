@@ -39,7 +39,7 @@ const aboutPageJsonLd = {
         '@type': 'Organization',
         name: 'Andgate Technologies',
         url: BASE_URL,
-        logo: `${BASE_URL}/favicon-32x32.png`,
+        logo: `${BASE_URL}/images/AndgateBOS-logo-squre-small.png`,
         description: 'Andgate Technologies is a Product Engineering and Digital Transformation company that builds SaaS platforms, AI systems, IoT solutions, and enterprise software. Creator of AndgatePOS and Hawkeri.',
         address: {
             '@type': 'PostalAddress',

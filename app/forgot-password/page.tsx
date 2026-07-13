@@ -8,7 +8,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { FormEvent, useState } from 'react';
 
-const AndGate = '/images/andgatePOS.png';
+const AndGate = '/images/AndgateBOS-logo-vertical-small.png';
 
 const ForgotPasswordPage = () => {
     const [email, setEmail] = useState('');

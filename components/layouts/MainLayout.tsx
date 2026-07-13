@@ -8,7 +8,7 @@ import LanguageDropdown from '../language-dropdown';
 import WhatsAppFloat from '../whatsapp-float';
 import Footer from '@/app/terms-of-service/Footer';
 
-const AndGate = '/images/andgatePOS.png';
+const AndGate = '/images/AndgateBOS-logo-vertical-small.png';
 
 interface MainLayoutProps {
     children: React.ReactNode;

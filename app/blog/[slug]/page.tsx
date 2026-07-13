@@ -75,7 +75,7 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
             url: baseUrl,
             logo: {
                 '@type': 'ImageObject',
-                url: `${baseUrl}/favicon-32x32.png`,
+                url: `${baseUrl}/images/AndgateBOS-logo-squre-small.png`,
             },
         },
     };
