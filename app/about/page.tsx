@@ -45,13 +45,13 @@ const modules = (t: any) => [
     { icon: Globe, label: t('about_morepos_modules').split(',')[5], done: true },
     { icon: TrendingUp, label: t('about_morepos_modules').split(',')[6], done: true },
     { icon: Shield, label: t('about_morepos_modules').split(',')[7], done: true },
-    { icon: Briefcase, label: t('about_morepos_modules').split(',')[8], done: false },
-    { icon: HeartHandshake, label: t('about_morepos_modules').split(',')[9], done: false },
-    { icon: Users, label: t('about_morepos_modules').split(',')[10], done: false },
+    { icon: Briefcase, label: t('about_morepos_modules').split(',')[8], done: true },
+    { icon: HeartHandshake, label: t('about_morepos_modules').split(',')[9], done: true },
+    { icon: Users, label: t('about_morepos_modules').split(',')[10], done: true },
     { icon: Bot, label: t('about_morepos_modules').split(',')[11], done: false },
-    { icon: BarChart3, label: t('about_morepos_modules').split(',')[12], done: false },
-    { icon: Globe, label: t('about_morepos_modules').split(',')[13], done: false },
-    { icon: Layers, label: t('about_morepos_modules').split(',')[14], done: false },
+    { icon: BarChart3, label: t('about_morepos_modules').split(',')[12], done: true },
+    { icon: Globe, label: t('about_morepos_modules').split(',')[13], done: true },
+    { icon: Layers, label: t('about_morepos_modules').split(',')[14], done: true },
     { icon: Zap, label: t('about_morepos_modules').split(',')[15], done: false },
 ];
 
@@ -142,9 +142,9 @@ export default function AboutPage() {
                 </div>
                 <div className="mx-auto mt-12 grid max-w-5xl gap-8 sm:grid-cols-3">
                     {[
-                        { phase: t('about_future_phase1'), items: ['POS & Billing', 'Inventory', 'Purchase Orders', 'Customers', 'Multi-Store', 'Offline Mode'] },
-                        { phase: t('about_future_phase2'), items: ['Accounting', 'AI Insights', 'eCommerce', 'Courier', 'Audit Logs', 'Store Types'] },
-                        { phase: t('about_future_phase3'), items: ['CRM & Loyalty', 'HR & Payroll', 'Supplier Portal', 'AI Assistant', 'API Platform', 'Omnichannel'] },
+                        { phase: t('about_future_phase1'), items: t('about_future_phase1_items').split(',') },
+                        { phase: t('about_future_phase2'), items: t('about_future_phase2_items').split(',') },
+                        { phase: t('about_future_phase3'), items: t('about_future_phase3_items').split(',') },
                     ].map((p) => (
                         <div key={p.phase} className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
                             <h3 className="text-lg font-bold text-[#046ca9]">{p.phase}</h3>

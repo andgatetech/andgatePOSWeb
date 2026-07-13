@@ -267,32 +267,32 @@ export default function HomePageClient() {
         },
         {
             image: '/assets/product-screenshots/current/desktop/business-os/business-os__business-os.png',
-            title: isBn ? 'Business OS কমান্ড সেন্টার' : 'Business OS Command Center',
-            desc: isBn ? 'Cash closing, petty cash, due, service jobs, stock exceptions এবং owner tasks এক জায়গায়।' : 'Cash closing, petty cash, dues, service jobs, stock exceptions, and owner tasks in one operating view.',
+            title: isBn ? 'ব্যবসা পরিচালনার কমান্ড সেন্টার' : 'Business OS Command Center',
+            desc: isBn ? 'ক্যাশ ক্লোজিং, পেটি ক্যাশ, বাকি, সার্ভিস কাজ, স্টক সমস্যা ও মালিকের করণীয় এক জায়গায়।' : 'Cash closing, petty cash, dues, service jobs, stock exceptions, and owner tasks in one operating view.',
             href: '/features/reports',
         },
         {
             image: '/assets/product-screenshots/current/desktop/reports-business-overview/reports-business-overview__reports__business-overview.png',
             title: isBn ? 'স্টোরভিত্তিক ও সামগ্রিক রিপোর্ট' : 'Store-by-Store and Overall Reports',
-            desc: isBn ? 'একাধিক দোকান থাকলে branch-wise এবং total business performance আলাদা করে দেখুন।' : 'For multi-store owners, review each branch and the total business performance from the same reporting surface.',
+            desc: isBn ? 'একাধিক দোকান থাকলে প্রতিটি শাখা এবং পুরো ব্যবসার পারফরম্যান্স আলাদা করে দেখুন।' : 'For multi-store owners, review each branch and the total business performance from the same reporting surface.',
             href: '/features/reports',
         },
         {
             image: '/assets/product-screenshots/current/desktop/analytics/analytics-branch-benchmarking__analytics__branch-benchmarking.png',
-            title: isBn ? 'Analytics ও BI' : 'Analytics and BI',
-            desc: isBn ? 'Branch benchmarking, cash-flow forecast, custom reports এবং scheduled reporting দিয়ে সিদ্ধান্ত নিন।' : 'Branch benchmarking, cash-flow forecasting, custom reports, and scheduled reporting for owner decisions.',
+            title: isBn ? 'বিশ্লেষণ ও ব্যবসায়িক ইনসাইট' : 'Analytics and BI',
+            desc: isBn ? 'শাখাভিত্তিক তুলনা, নগদ প্রবাহের পূর্বাভাস, নিজস্ব রিপোর্ট ও নির্ধারিত রিপোর্ট দিয়ে সিদ্ধান্ত নিন।' : 'Branch benchmarking, cash-flow forecasting, custom reports, and scheduled reporting for owner decisions.',
             href: '/features/reports',
         },
         {
             image: '/assets/product-screenshots/current/desktop/ecommerce/ecommerce-cod-reconciliation__ecommerce__cod-reconciliation.png',
-            title: isBn ? 'Courier COD reconciliation' : 'Courier COD Reconciliation',
-            desc: isBn ? 'Pathao, Steadfast বা RedX order-এর COD collected, paid, fee ও unsettled amount মিলিয়ে দেখুন।' : 'Track collected, paid, fee, returned, and unsettled COD across courier-connected online orders.',
+            title: isBn ? 'কুরিয়ারের ক্যাশ অন ডেলিভারি মিলানো' : 'Courier COD Reconciliation',
+            desc: isBn ? 'Pathao, Steadfast বা RedX অর্ডারের ক্যাশ অন ডেলিভারি আদায়, পরিশোধ, চার্জ, রিটার্ন ও বকেয়া মিলিয়ে দেখুন।' : 'Track collected, paid, fee, returned, and unsettled COD across courier-connected online orders.',
             href: '/features/reports',
         },
         {
             image: '/assets/product-screenshots/current/desktop/fiscal-compliance/fiscal-compliance__fiscal-compliance.png',
-            title: isBn ? 'Fiscal readiness ও compliance' : 'Fiscal Readiness and Compliance',
-            desc: isBn ? 'Invoice evidence, compliance calendar ও controlled claim messaging রাখুন; certified দাবি শুধু official হলে।' : 'Keep invoice evidence, compliance calendar tasks, and controlled claim messaging without overstating certification.',
+            title: isBn ? 'কর ও কমপ্লায়েন্স প্রস্তুতি' : 'Fiscal Readiness and Compliance',
+            desc: isBn ? 'ইনভয়েস প্রমাণ, কমপ্লায়েন্স ক্যালেন্ডার ও নিয়ন্ত্রিত দাবি ব্যবস্থাপনা রাখুন; সরকারি অনুমোদন ছাড়া সার্টিফাইড দাবি নয়।' : 'Keep invoice evidence, compliance calendar tasks, and controlled claim messaging without overstating certification.',
             href: '/features/reports',
         },
     ];
@@ -632,15 +632,15 @@ export default function HomePageClient() {
                     <div className="mb-12 grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-end">
                         <div>
                             <span className="mb-4 inline-block rounded-full border border-[#046ca9]/20 bg-[#046ca9]/5 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[#046ca9]">
-                                {isBn ? 'লাইভ প্রোডাক্ট স্ক্রিন' : 'Live Product Screens'}
+                                {isBn ? 'লাইভ সফটওয়্যার স্ক্রিন' : 'Live Product Screens'}
                             </span>
                             <h2 className="text-3xl font-black leading-tight text-gray-900 sm:text-4xl">
-                                {isBn ? 'শুধু POS না — পুরো ব্যবসা চালানোর অপারেটিং সিস্টেম' : 'Not only POS — the operating system for the whole business'}
+                                {isBn ? 'শুধু পিওএস না — পুরো ব্যবসা চালানোর অপারেটিং সিস্টেম' : 'Not only POS — the operating system for the whole business'}
                             </h2>
                         </div>
                         <p className="text-base leading-8 text-gray-500">
                             {isBn
-                                ? 'আজকের live AndgateBOS থেকে নেওয়া স্ক্রিনশট: checkout, owner dashboard, multi-store reports, Analytics/BI, COD reconciliation, stock transfer এবং fiscal readiness একসাথে দেখা যাচ্ছে।'
+                                ? 'লাইভ AndgateBOS থেকে নেওয়া স্ক্রিনশটে চেকআউট, মালিকের ড্যাশবোর্ড, একাধিক দোকানের রিপোর্ট, ব্যবসায়িক বিশ্লেষণ, ক্যাশ অন ডেলিভারি মিলানো, স্টক ট্রান্সফার এবং কর/কমপ্লায়েন্স প্রস্তুতি একসাথে দেখা যাচ্ছে।'
                                 : 'Fresh screenshots from the live AndgateBOS app show checkout, owner dashboard, multi-store reports, Analytics/BI, COD reconciliation, stock transfer, and fiscal-readiness workflows working together.'}
                         </p>
                     </div>
@@ -1085,10 +1085,10 @@ export default function HomePageClient() {
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="mb-10 max-w-3xl">
                         <span className="mb-4 inline-block rounded-full border border-[#046ca9]/20 bg-[#046ca9]/5 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[#046ca9]">
-                            {isBn ? 'SME Business OS বাংলাদেশ' : 'SME Business OS Bangladesh'}
+                            {isBn ? 'বাংলাদেশের ক্ষুদ্র ও মাঝারি ব্যবসার অপারেটিং সিস্টেম' : 'SME Business OS Bangladesh'}
                         </span>
                         <h2 className="text-3xl font-black text-gray-900 sm:text-4xl">
-                            {isBn ? 'POS থেকে শুরু, পুরো ব্যবসা চালানোর সিস্টেম পর্যন্ত' : 'From POS checkout to complete business operations'}
+                            {isBn ? 'পিওএস চেকআউট থেকে পুরো ব্যবসা পরিচালনা পর্যন্ত' : 'From POS checkout to complete business operations'}
                         </h2>
                         <p className="mt-4 text-base leading-7 text-gray-500">
                             {isBn
