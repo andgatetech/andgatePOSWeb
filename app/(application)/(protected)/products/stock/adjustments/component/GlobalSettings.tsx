@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ClipboardCheck } from 'lucide-react';
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
@@ -26,9 +27,11 @@ const GlobalSettings = ({ globalReason, globalNotes, onReasonChange, onNotesChan
     const selectedReason = adjustmentReasons.find((r: any) => r.id?.toString() === globalReason);
 
     return (
-        <div className="mx-auto mt-6 max-w-4xl rounded-xl border border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-6 shadow-sm">
-            <h3 className="mb-2 flex items-center gap-2 text-lg font-semibold text-gray-900">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">i</span>
+        <div className="rounded-lg border border-[#d8e4ec] bg-white p-4 shadow-sm sm:p-5">
+            <h3 className="mb-2 flex items-center gap-2 text-base font-semibold text-gray-900">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#eef7fc] text-[#046ca9]">
+                    <ClipboardCheck className="h-4 w-4" />
+                </span>
                 {t('stock_adjustment_same_reason_title')}
             </h3>
             <p className="mb-4 text-sm text-gray-600">{t('stock_adjustment_same_reason_desc')}</p>
@@ -50,7 +53,7 @@ const GlobalSettings = ({ globalReason, globalNotes, onReasonChange, onNotesChan
                             <select
                                 value={globalReason}
                                 onChange={(e) => onReasonChange(e.target.value)}
-                                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 shadow-sm focus:border-primary focus:ring-2 focus:ring-primary"
+                                className="h-11 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-900 shadow-sm focus:border-primary focus:ring-2 focus:ring-primary"
                             >
                                 <option value="">{t('placeholder_select_reason')}</option>
                                 <option value="default">{t('lbl_default_reason')}</option>
@@ -74,7 +77,7 @@ const GlobalSettings = ({ globalReason, globalNotes, onReasonChange, onNotesChan
                         value={globalNotes}
                         onChange={(e) => onNotesChange(e.target.value)}
                         placeholder={t('stock_adjustment_common_note_placeholder')}
-                        className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 shadow-sm focus:border-primary focus:ring-2 focus:ring-primary"
+                        className="h-11 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-900 shadow-sm focus:border-primary focus:ring-2 focus:ring-primary"
                     />
                 </div>
             </div>

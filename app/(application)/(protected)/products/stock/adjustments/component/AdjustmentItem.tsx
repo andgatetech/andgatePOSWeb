@@ -1,4 +1,4 @@
-import { AlertTriangle, ArrowDown, ArrowUp, Eye, Minus, Plus, Trash2 } from 'lucide-react';
+import { AlertTriangle, ArrowDown, ArrowUp, Eye, Minus, PackageCheck, Plus, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
@@ -69,25 +69,31 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
 
     return (
         <>
-            <div className="group rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:shadow-md sm:p-6">
+            <div className="group rounded-lg border border-[#d8e4ec] bg-white p-3 shadow-sm transition-all hover:border-[#b9d3e4] sm:p-4">
                 {/* Product Info & Remove Button */}
-                <div className="mb-4 flex items-start justify-between gap-4">
-                    <div className="flex-1">
+                <div className="mb-4 flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
                             <button
                                 onClick={() => setIsPreviewOpen(true)}
-                                className="flex-shrink-0 rounded-lg bg-blue-50 p-1.5 text-blue-600 transition-colors hover:bg-blue-100 hover:text-blue-800"
+                                className="flex-shrink-0 rounded-lg bg-[#eef7fc] p-1.5 text-[#046ca9] transition-colors hover:bg-[#d7e9f5] hover:text-[#034d79]"
                                 title={t('btn_view_details')}
                             >
                                 <Eye className="h-4 w-4" />
                             </button>
-                            <h3 className="text-lg font-semibold text-gray-900">{item.title || item.name}</h3>
+                            <h3 className="min-w-0 truncate text-base font-semibold text-gray-900 sm:text-lg">{item.title || item.name}</h3>
                             {item.has_serial && <span className="rounded-md bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-700">{t('stock_adjustment_serial_tracked')}</span>}
                         </div>
                         <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-gray-600">
                             {item.sku && <span className="rounded-md bg-gray-100 px-2 py-1 font-medium">SKU: {item.sku}</span>}
-                            <span className="rounded-md bg-blue-100 px-2 py-1 font-medium text-blue-700">{t('stock_adjustment_current_stock')}: {currentStock}</span>
-                            {item.unit && <span className="rounded-md bg-gray-100 px-2 py-1 font-medium">{t('stock_adjustment_unit')}: {item.unit}</span>}
+                            <span className="rounded-md bg-[#eef7fc] px-2 py-1 font-medium text-[#034d79]">
+                                {t('stock_adjustment_current_stock')}: {currentStock}
+                            </span>
+                            {item.unit && (
+                                <span className="rounded-md bg-gray-100 px-2 py-1 font-medium">
+                                    {t('stock_adjustment_unit')}: {item.unit}
+                                </span>
+                            )}
                             {item.rate && <span className="text-gray-400">•</span>}
                             {item.rate && <span className="font-medium text-gray-700">{formatCurrency(item.rate)}</span>}
                         </div>
@@ -116,9 +122,7 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
                                         <p className="text-sm font-bold text-purple-900">{t('stock_adjustment_serial_required')}</p>
                                     </div>
                                     <p className="mt-1 text-xs text-purple-700">
-                                        {serialAdjustments.length > 0
-                                            ? t('stock_adjustment_serials_ready', { count: serialAdjustments.length })
-                                            : t('stock_adjustment_serial_manage_hint')}
+                                        {serialAdjustments.length > 0 ? t('stock_adjustment_serials_ready', { count: serialAdjustments.length }) : t('stock_adjustment_serial_manage_hint')}
                                     </p>
                                 </div>
                                 <button
@@ -177,16 +181,16 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
                     </div>
                 ) : (
                     // Normal Product - Quantity Adjustment UI
-                    <div className="grid gap-4 sm:grid-cols-4 lg:grid-cols-8">
+                    <div className="grid gap-3 lg:grid-cols-[220px_minmax(230px,1fr)_minmax(220px,1fr)]">
                         {/* Adjustment Type */}
-                        <div className="sm:col-span-4 lg:col-span-3">
+                        <div>
                             <label className="mb-2 block text-sm font-medium text-gray-700">{t('stock_adjustment_change_type')} *</label>
-                            <div className="flex gap-2">
+                            <div className="grid grid-cols-2 gap-2 rounded-lg bg-gray-100 p-1">
                                 <button
                                     type="button"
                                     onClick={() => updateAdjustmentType('increase')}
-                                    className={`flex flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border-2 px-2 py-2.5 text-sm font-medium transition-all ${
-                                        adjustmentType === 'increase' ? 'border-green-500 bg-green-50 text-green-700' : 'border-gray-200 bg-white text-gray-600 hover:border-green-300'
+                                    className={`flex h-10 items-center justify-center gap-1.5 whitespace-nowrap rounded-md px-2 text-sm font-medium transition-all ${
+                                        adjustmentType === 'increase' ? 'bg-white text-green-700 shadow-sm ring-1 ring-green-200' : 'text-gray-600 hover:bg-white'
                                     }`}
                                 >
                                     <ArrowUp className="h-4 w-4 flex-shrink-0" />
@@ -195,8 +199,8 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
                                 <button
                                     type="button"
                                     onClick={() => updateAdjustmentType('decrease')}
-                                    className={`flex flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border-2 px-2 py-2.5 text-sm font-medium transition-all ${
-                                        adjustmentType === 'decrease' ? 'border-red-500 bg-red-50 text-red-700' : 'border-gray-200 bg-white text-gray-600 hover:border-red-300'
+                                    className={`flex h-10 items-center justify-center gap-1.5 whitespace-nowrap rounded-md px-2 text-sm font-medium transition-all ${
+                                        adjustmentType === 'decrease' ? 'bg-white text-red-700 shadow-sm ring-1 ring-red-200' : 'text-gray-600 hover:bg-white'
                                     }`}
                                 >
                                     <ArrowDown className="h-4 w-4 flex-shrink-0" />
@@ -206,13 +210,13 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
                         </div>
 
                         {/* Adjustment Quantity */}
-                        <div className="sm:col-span-4 lg:col-span-2">
+                        <div>
                             <label className="mb-2 block text-sm font-medium text-gray-700">{t('stock_adjustment_qty_to_adjust')} *</label>
-                            <div className="flex items-stretch gap-1">
+                            <div className="flex items-stretch gap-2">
                                 <button
                                     type="button"
                                     onClick={() => updateAdjustmentQuantity(adjustmentQuantity - 1)}
-                                    className="flex w-9 flex-shrink-0 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-600 transition-colors hover:bg-gray-50"
+                                    className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-600 transition-colors hover:bg-gray-50"
                                 >
                                     <Minus className="h-4 w-4" />
                                 </button>
@@ -222,18 +226,26 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
                                     max={adjustmentType === 'decrease' ? currentStock : undefined}
                                     value={adjustmentQuantity === 0 ? '' : adjustmentQuantity}
                                     onChange={(e) => updateAdjustmentQuantity(e.target.value === '' ? 0 : Number(e.target.value))}
-                                    className="h-10 w-full min-w-0 rounded-lg border border-gray-300 bg-white px-2 text-center text-gray-900 focus:border-primary focus:ring-2 focus:ring-primary"
+                                    className="h-11 w-full min-w-0 rounded-lg border border-gray-300 bg-white px-2 text-center text-lg font-semibold text-gray-900 focus:border-primary focus:ring-2 focus:ring-primary"
                                 />
                                 <button
                                     type="button"
                                     onClick={() => updateAdjustmentQuantity(adjustmentQuantity + 1)}
-                                    className="flex w-9 flex-shrink-0 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-600 transition-colors hover:bg-gray-50"
+                                    className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-600 transition-colors hover:bg-gray-50"
                                 >
                                     <Plus className="h-4 w-4" />
                                 </button>
                             </div>
-                            <div className={`mt-2 rounded-md border px-2 py-1.5 text-xs font-medium ${isOverDecrease ? 'border-red-200 bg-red-50 text-red-700' : 'border-gray-200 bg-gray-50 text-gray-700'}`}>
-                                {t('stock_adjustment_after_save')}: {currentStock} {adjustmentType === 'increase' ? '+' : '-'} {adjustmentQuantity || 0} = <span className="font-bold">{Math.max(0, projectedStock)}</span>
+                            <div
+                                className={`mt-2 flex items-center gap-2 rounded-md border px-2 py-1.5 text-xs font-medium ${
+                                    isOverDecrease ? 'border-red-200 bg-red-50 text-red-700' : 'border-[#d8e4ec] bg-[#f6f8fb] text-gray-700'
+                                }`}
+                            >
+                                <PackageCheck className="h-3.5 w-3.5 flex-shrink-0" />
+                                <span>
+                                    {t('stock_adjustment_after_save')}: {currentStock} {adjustmentType === 'increase' ? '+' : '-'} {adjustmentQuantity || 0} ={' '}
+                                    <span className="font-bold">{Math.max(0, projectedStock)}</span>
+                                </span>
                             </div>
                             {isOverDecrease && (
                                 <div className="mt-2 flex items-start gap-1.5 rounded-md border border-red-200 bg-red-50 px-2 py-1.5 text-xs text-red-700">
@@ -244,48 +256,50 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
                         </div>
 
                         {/* Reason */}
-                        <div className="sm:col-span-2 lg:col-span-2">
-                            <label className="mb-2 block text-sm font-medium text-gray-700">{t('reason')} *</label>
-                            {adjustmentReasons.length === 0 ? (
-                                <div className="rounded-lg border-2 border-yellow-200 bg-yellow-50 p-3">
-                                    <p className="text-xs font-medium text-yellow-800">
-                                        {t('stock_adjustment_no_reason_found')}{' '}
-                                        <Link href="/store/setting?tab=adjustment" className="font-semibold text-yellow-900 underline hover:text-yellow-700">
-                                            {t('stock_adjustment_add_common_reasons')}
-                                        </Link>
-                                    </p>
-                                </div>
-                            ) : (
-                                <div className="space-y-1">
-                                    <select
-                                        value={reason}
-                                        onChange={(e) => onAdjustmentChange(item.id, 'reason', e.target.value)}
-                                        className="h-10 w-full rounded-lg border border-gray-300 bg-white px-2 py-2 text-sm text-gray-900 focus:border-primary focus:ring-2 focus:ring-primary"
-                                    >
-                                        <option value="">{t('placeholder_select_reason')}</option>
-                                        {adjustmentReasons
-                                            .filter((r: any) => r.is_active === 1 || r.is_active === true)
-                                            .map((r: any) => (
-                                                <option key={r.id} value={r.id}>
-                                                    {r.name}
-                                                </option>
-                                            ))}
-                                    </select>
-                                    {selectedReason?.description && <p className="text-xs italic text-gray-500">{selectedReason.description}</p>}
-                                </div>
-                            )}
-                        </div>
+                        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+                            <div>
+                                <label className="mb-2 block text-sm font-medium text-gray-700">{t('reason')} *</label>
+                                {adjustmentReasons.length === 0 ? (
+                                    <div className="rounded-lg border-2 border-yellow-200 bg-yellow-50 p-3">
+                                        <p className="text-xs font-medium text-yellow-800">
+                                            {t('stock_adjustment_no_reason_found')}{' '}
+                                            <Link href="/store/setting?tab=adjustment" className="font-semibold text-yellow-900 underline hover:text-yellow-700">
+                                                {t('stock_adjustment_add_common_reasons')}
+                                            </Link>
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-1">
+                                        <select
+                                            value={reason}
+                                            onChange={(e) => onAdjustmentChange(item.id, 'reason', e.target.value)}
+                                            className="h-10 w-full rounded-lg border border-gray-300 bg-white px-2 py-2 text-sm text-gray-900 focus:border-primary focus:ring-2 focus:ring-primary"
+                                        >
+                                            <option value="">{t('placeholder_select_reason')}</option>
+                                            {adjustmentReasons
+                                                .filter((r: any) => r.is_active === 1 || r.is_active === true)
+                                                .map((r: any) => (
+                                                    <option key={r.id} value={r.id}>
+                                                        {r.name}
+                                                    </option>
+                                                ))}
+                                        </select>
+                                        {selectedReason?.description && <p className="text-xs italic text-gray-500">{selectedReason.description}</p>}
+                                    </div>
+                                )}
+                            </div>
 
-                        {/* Notes */}
-                        <div className="sm:col-span-2 lg:col-span-1">
-                            <label className="mb-2 block text-sm font-medium text-gray-700">{t('stock_adjustment_notes')}</label>
-                            <input
-                                type="text"
-                                value={notes}
-                                onChange={(e) => onAdjustmentChange(item.id, 'notes', e.target.value)}
-                                placeholder={t('optional')}
-                                className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-primary focus:ring-2 focus:ring-primary"
-                            />
+                            {/* Notes */}
+                            <div>
+                                <label className="mb-2 block text-sm font-medium text-gray-700">{t('stock_adjustment_notes')}</label>
+                                <input
+                                    type="text"
+                                    value={notes}
+                                    onChange={(e) => onAdjustmentChange(item.id, 'notes', e.target.value)}
+                                    placeholder={t('optional')}
+                                    className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-primary focus:ring-2 focus:ring-primary"
+                                />
+                            </div>
                         </div>
                     </div>
                 )}

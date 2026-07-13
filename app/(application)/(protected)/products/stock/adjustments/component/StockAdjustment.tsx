@@ -122,9 +122,7 @@ const StockAdjustment = () => {
 
             if (item.has_serial) {
                 // Serial status updates
-                const statusSerials = (adj?.serialAdjustments || []).filter(
-                    (s: any) => s.serial_number && s.status && s.reason
-                );
+                const statusSerials = (adj?.serialAdjustments || []).filter((s: any) => s.serial_number && s.status && s.reason);
                 if (statusSerials.length > 0) {
                     batchAdjustments.push({
                         type: 'serial_status',
@@ -140,9 +138,7 @@ const StockAdjustment = () => {
                 }
 
                 // Bulk add new serials (no existing id)
-                const newSerials = (adj?.serialAdjustments || [])
-                    .filter((s: any) => s.serial_number && !s.id)
-                    .map((s: any) => s.serial_number);
+                const newSerials = (adj?.serialAdjustments || []).filter((s: any) => s.serial_number && !s.id).map((s: any) => s.serial_number);
                 if (newSerials.length > 0) {
                     batchAdjustments.push({
                         type: 'serial_bulk_add',
@@ -191,18 +187,24 @@ const StockAdjustment = () => {
 
             if (currentStoreId) dispatch(clearStockItems(currentStoreId));
 
-            printStockAdjustmentSlip(itemsSnapshot, configsSnapshot, globalSnapshot, {
-                store_name: currentStore?.store_name,
-                store_location: currentStore?.store_location,
-                store_contact: currentStore?.store_contact,
-                store_email: currentStore?.store_email,
-            }, {}, slipWindow).catch(() => { closeReservedPdfWindow(slipWindow); });
+            printStockAdjustmentSlip(
+                itemsSnapshot,
+                configsSnapshot,
+                globalSnapshot,
+                {
+                    store_name: currentStore?.store_name,
+                    store_location: currentStore?.store_location,
+                    store_contact: currentStore?.store_contact,
+                    store_email: currentStore?.store_email,
+                },
+                {},
+                slipWindow
+            ).catch(() => {
+                closeReservedPdfWindow(slipWindow);
+            });
         } catch (error: any) {
             closeReservedPdfWindow(slipWindow);
-            showErrorDialog(
-                t('msg_error'),
-                error?.data?.detail || error?.data?.message || error?.message || 'Failed to save stock adjustments'
-            );
+            showErrorDialog(t('msg_error'), error?.data?.detail || error?.data?.message || error?.message || 'Failed to save stock adjustments');
         }
     };
 
@@ -218,18 +220,18 @@ const StockAdjustment = () => {
     }, 0);
 
     if (cartItems.length === 0) {
-        return <EmptyState />;
+        return <EmptyState storeName={currentStore?.store_name} />;
     }
 
     return (
-        <div className="flex h-full flex-col bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="flex h-full flex-col bg-[#f6f8fb]">
             {/* Full Screen Loading Overlay */}
             {isSaving && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
                     <div className="text-center">
-                        <div className="mx-auto h-16 w-16 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600"></div>
-                        <p className="mt-4 text-lg font-medium text-gray-700">Saving stock changes...</p>
-                        <p className="mt-1 text-sm text-gray-500">Please wait. Do not close this page.</p>
+                        <div className="mx-auto h-16 w-16 animate-spin rounded-full border-4 border-[#d7e9f5] border-t-[#046ca9]"></div>
+                        <p className="mt-4 text-lg font-medium text-gray-700">{t('stock_adjustment_saving')}</p>
+                        <p className="mt-1 text-sm text-gray-500">{t('stock_adjustment_saving_hint')}</p>
                     </div>
                 </div>
             )}
@@ -238,31 +240,57 @@ const StockAdjustment = () => {
             <AdjustmentHeader storeName={currentStore?.store_name} itemCount={totalItems} onClearAll={handleClearAll} />
 
             {/* Items List */}
-            <div className="flex-1 overflow-auto p-4 sm:p-6">
-                <div className="mx-auto max-w-4xl space-y-4">
-                    {cartItems.map((item) => (
-                        <AdjustmentItem
-                            key={item.id}
-                            item={item}
-                            adjustment={getAdjustment(item.id)}
-                            onAdjustmentChange={handleAdjustmentChange}
-                            onRemove={handleRemoveItem}
-                            onUpdateQuantity={handleUpdateQuantity}
-                        />
-                    ))}
-                </div>
+            <div className="flex-1 overflow-auto px-3 pb-28 pt-3 sm:px-5 sm:pb-32 sm:pt-5">
+                <div className="mx-auto grid max-w-6xl gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
+                    <div className="space-y-4">
+                        <div className="rounded-lg border border-[#d8e4ec] bg-white p-3 shadow-sm sm:p-4">
+                            <div className="grid gap-3 text-sm text-gray-700 sm:grid-cols-3">
+                                <div className="flex items-start gap-2">
+                                    <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[#046ca9] text-xs font-bold text-white">1</span>
+                                    <p>{t('stock_adjustment_step_select')}</p>
+                                </div>
+                                <div className="flex items-start gap-2">
+                                    <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[#046ca9] text-xs font-bold text-white">2</span>
+                                    <p>{t('stock_adjustment_step_count')}</p>
+                                </div>
+                                <div className="flex items-start gap-2">
+                                    <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[#046ca9] text-xs font-bold text-white">3</span>
+                                    <p>{t('stock_adjustment_step_review')}</p>
+                                </div>
+                            </div>
+                        </div>
 
-                {/* Global Settings */}
-                <GlobalSettings
-                    globalReason={globalConfig.reason}
-                    globalNotes={globalConfig.notes}
-                    onReasonChange={(v) => currentStoreId && dispatch(setGlobalConfig({ storeId: currentStoreId, field: 'reason', value: v }))}
-                    onNotesChange={(v) => currentStoreId && dispatch(setGlobalConfig({ storeId: currentStoreId, field: 'notes', value: v }))}
-                />
+                        {cartItems.map((item) => (
+                            <AdjustmentItem
+                                key={item.id}
+                                item={item}
+                                adjustment={getAdjustment(item.id)}
+                                onAdjustmentChange={handleAdjustmentChange}
+                                onRemove={handleRemoveItem}
+                                onUpdateQuantity={handleUpdateQuantity}
+                            />
+                        ))}
+
+                        <GlobalSettings
+                            globalReason={globalConfig.reason}
+                            globalNotes={globalConfig.notes}
+                            onReasonChange={(v) => currentStoreId && dispatch(setGlobalConfig({ storeId: currentStoreId, field: 'reason', value: v }))}
+                            onNotesChange={(v) => currentStoreId && dispatch(setGlobalConfig({ storeId: currentStoreId, field: 'notes', value: v }))}
+                        />
+                    </div>
+
+                    <div className="hidden xl:block">
+                        <div className="sticky top-5">
+                            <AdjustmentSummary totalItems={totalItems} totalIncrease={totalIncrease} totalDecrease={totalDecrease} isSaving={isSaving} onSubmit={handleSubmit} variant="side" />
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {/* Summary Footer */}
-            <AdjustmentSummary totalItems={totalItems} totalIncrease={totalIncrease} totalDecrease={totalDecrease} isSaving={isSaving} onSubmit={handleSubmit} />
+            <div className="xl:hidden">
+                <AdjustmentSummary totalItems={totalItems} totalIncrease={totalIncrease} totalDecrease={totalDecrease} isSaving={isSaving} onSubmit={handleSubmit} />
+            </div>
         </div>
     );
 };
