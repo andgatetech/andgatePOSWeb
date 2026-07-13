@@ -69,7 +69,7 @@ const Loading = () => {
 
             {/* Brand name */}
             <p className="mb-4 text-xl font-black tracking-tight text-gray-900">
-                Andgate<span className="text-[#046ca9]">POS</span>
+                Andgate<span className="text-[#e79237]">BOS</span>
             </p>
 
             {/* Bouncing dots */}

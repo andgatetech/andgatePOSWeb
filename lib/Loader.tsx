@@ -58,7 +58,7 @@ const Loader = ({ message, fullScreen = true, className = '' }: LoaderProps) => 
                     {spinner('lg')}
                     <div className="flex flex-col items-center gap-2">
                         <p className="text-base font-black tracking-tight text-gray-900">
-                            Andgate<span className="text-[#046ca9]">POS</span>
+                            Andgate<span className="text-[#e79237]">BOS</span>
                         </p>
                         {message && <p className="text-xs text-gray-400">{message}</p>}
                         <div className="flex items-center gap-1.5">

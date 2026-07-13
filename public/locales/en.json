@@ -514,7 +514,7 @@
     },
     "success_modal": {
       "title": "Thank You!",
-      "description": "Your request has been submitted successfully. Our team will contact you within 2 hours to discuss your POS solution.",
+      "description": "Your request has been submitted successfully. Our team will contact you within 2 hours to discuss your Business OS setup.",
       "back_home": "Back to Home",
       "sign_in": "Sign In to Dashboard",
       "continue": "Continue browsing"
@@ -523,7 +523,7 @@
   "footer": {
     "brand": {
       "name": "AndgateBOS",
-      "description": "Simple POS software made for Bangladeshi shop owners. Track sales, manage stock, and know your profit — all in one place."
+      "description": "SME Business OS made for Bangladeshi shop owners. Run POS billing, stock, payments, reports, and daily operations in one place."
     },
     "social": {
       "facebook": "f",
@@ -1401,7 +1401,7 @@
       },
       "description": {
         "title": "2. Service Description",
-        "intro": "AndgateBOS provides cloud-based point-of-sale software and related services including:",
+        "intro": "AndgateBOS provides cloud-based SME Business OS software with POS billing and related services including:",
         "coreFeatures": {
           "title": "Core Features",
           "items": [
