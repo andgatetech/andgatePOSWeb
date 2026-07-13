@@ -5,7 +5,7 @@ Audience: Bangladeshi SME owners, shop managers, cashiers, inventory staff, acco
 
 ## 1. What AndgatePOS Does
 
-AndgatePOS is a POS and Business OS for Bangladeshi SMEs. It covers counter sales, stock, purchases, suppliers, customers, CRM, cash closing, petty cash, attendance, service jobs, accounting, reports, ecommerce, courier setup, staff roles, and multi-store operation.
+AndgatePOS is an SME Business OS for Bangladeshi businesses, with POS as one core module. It covers counter sales, stock, purchases, suppliers, customers, CRM, cash closing, petty cash, attendance, service jobs, accounting, reports, ecommerce, courier setup, staff roles, and multi-store operation.
 
 Use this guide as a full workflow manual. Screenshots use existing product images where available.
 

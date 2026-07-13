@@ -8,8 +8,8 @@ import Link from 'next/link';
 const BASE_URL = getAppUrl();
 
 export const metadata: Metadata = {
-    title: 'POS Software Guides Bangladesh | AndgatePOS Blog',
-    description: 'SEO guides for Bangladeshi shop owners about POS software, billing, inventory, barcode checkout, offline POS, pricing and shop management.',
+    title: 'Business OS & POS Guides Bangladesh | AndgatePOS Blog',
+    description: 'Guides for Bangladeshi SME owners about Business OS, POS software, billing, inventory, barcode checkout, offline POS, pricing and shop management.',
     alternates: {
         canonical: `${BASE_URL}/blog`,
     },
@@ -18,8 +18,8 @@ export const metadata: Metadata = {
         locale: 'en_BD',
         url: `${BASE_URL}/blog`,
         siteName: 'AndgatePOS',
-        title: 'POS Software Guides Bangladesh | AndgatePOS Blog',
-        description: 'Practical POS, billing, inventory and shop management guides for Bangladeshi SMEs.',
+        title: 'Business OS & POS Guides Bangladesh | AndgatePOS Blog',
+        description: 'Practical Business OS, POS, billing, inventory and shop management guides for Bangladeshi SMEs.',
     },
 };
 
@@ -29,7 +29,7 @@ export default function BlogIndexPage() {
         '@type': 'CollectionPage',
         name: 'AndgatePOS Blog',
         url: `${BASE_URL}/blog`,
-        about: 'POS software, inventory, billing and shop management for Bangladesh SMEs',
+        about: 'SME Business OS, POS software, inventory, billing and shop management for Bangladesh SMEs',
         hasPart: seoArticles.map((article) => ({
             '@type': 'Article',
             headline: article.h1,
@@ -44,10 +44,10 @@ export default function BlogIndexPage() {
                 <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
                     <p className="text-sm font-bold uppercase tracking-widest text-[#046ca9]">AndgatePOS Guides</p>
                     <h1 className="mt-3 max-w-3xl text-4xl font-black leading-tight text-gray-950 sm:text-5xl">
-                        POS software guides for Bangladeshi shops
+                        Business OS and POS guides for Bangladeshi SMEs
                     </h1>
                     <p className="mt-5 max-w-3xl text-lg leading-8 text-gray-600">
-                        Practical content for shop owners comparing POS software, inventory, billing, barcode checkout, offline mode, pricing and shop management workflows.
+                        Practical content for owners comparing Business OS, POS software, inventory, billing, barcode checkout, offline mode, pricing and shop management workflows.
                     </p>
                 </div>
             </section>

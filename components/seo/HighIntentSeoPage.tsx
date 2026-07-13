@@ -56,7 +56,7 @@ export default function HighIntentSeoPageView({ page, locale }: Props) {
         '@type': 'SoftwareApplication',
         name: 'AndgatePOS',
         applicationCategory: 'BusinessApplication',
-        applicationSubCategory: 'Point of Sale Software',
+        applicationSubCategory: 'SME Business Operating System',
         operatingSystem: 'Web Browser',
         url: pageUrl,
         inLanguage: isBn ? 'bn-BD' : 'en-BD',
@@ -168,7 +168,7 @@ export default function HighIntentSeoPageView({ page, locale }: Props) {
                     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                         <div className="mb-10 max-w-3xl">
                             <p className="text-xs font-bold uppercase tracking-widest text-[#e79237]">{isBn ? 'বিস্তারিত গাইড' : 'Detailed buyer guide'}</p>
-                            <h2 className="mt-3 text-3xl font-black text-gray-950">{isBn ? 'সিদ্ধান্ত নেওয়ার আগে যা যাচাই করবেন' : 'What to check before choosing POS software'}</h2>
+                            <h2 className="mt-3 text-3xl font-black text-gray-950">{isBn ? 'সিদ্ধান্ত নেওয়ার আগে যা যাচাই করবেন' : 'What to check before choosing business software'}</h2>
                         </div>
                         <div className="grid gap-5 md:grid-cols-2">
                             {content.guideSections.map((section) => (

@@ -80,7 +80,7 @@ export default async function SeoSlugPage({ params }: SeoSlugPageProps) {
             '@type': 'SoftwareApplication',
             name: 'AndgatePOS',
             applicationCategory: 'BusinessApplication',
-            applicationSubCategory: 'Point of Sale Software',
+            applicationSubCategory: 'SME Business Operating System',
             operatingSystem: 'Web Browser',
             url: pageUrl,
             inLanguage: ['en-BD', 'bn-BD'],

@@ -223,7 +223,7 @@ export default function LandingSeoPageView({ page, locale }: Props) {
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="mb-10 max-w-3xl">
                         <p className="text-xs font-bold uppercase tracking-widest text-[#046ca9]">{isBn ? 'যা যা পাবেন' : 'What You Get'}</p>
-                        <h2 className="mt-3 text-3xl font-black text-gray-950">{isBn ? 'বাংলাদেশি ব্যবসার জন্য দরকারি POS ফিচার' : 'Everything a Bangladesh business needs from POS software'}</h2>
+                        <h2 className="mt-3 text-3xl font-black text-gray-950">{isBn ? 'বাংলাদেশি ব্যবসার জন্য দরকারি Business OS ফিচার' : 'Everything a Bangladesh business needs beyond POS software'}</h2>
                         <p className="mt-4 text-base leading-7 text-gray-600">{isBn ? 'যাদের জন্য তৈরি: ' : 'Built for: '}{content.audience}</p>
                     </div>
                     <div className="grid gap-5 md:grid-cols-2">

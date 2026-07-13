@@ -5,9 +5,9 @@ import { Metadata } from 'next';
 const BASE_URL = 'https://andgatepos.com';
 
 export const metadata: Metadata = {
-    title: 'POS Software in Bangladesh | AndgatePOS Retail Billing & Inventory',
+    title: 'SME Business Operating System Bangladesh | AndgatePOS',
     description:
-        'AndgatePOS is POS and Business OS software in Bangladesh for retail shops, grocery stores, pharmacies, restaurants and fashion stores. Manage billing, inventory, CRM, supplier dues, cash closing, stock counts, COD reconciliation, fiscal readiness, reports and online store.',
+        'AndgatePOS is an SME Business Operating System for Bangladesh businesses, with POS billing, inventory, purchase, CRM, supplier dues, cash closing, HR, reports, COD reconciliation and online store workflows.',
     keywords: BD_KEYWORDS,
     alternates: {
         canonical: BASE_URL,
@@ -18,11 +18,11 @@ export const metadata: Metadata = {
         },
     },
     openGraph: {
-        title: 'POS Software in Bangladesh | AndgatePOS',
+        title: 'AndgatePOS — SME Business Operating System Bangladesh',
         description:
-            'Complete POS and Business OS for Bangladesh businesses. Inventory, billing, CRM, supplier dues, cash closing, stock counts, fiscal readiness, COD reconciliation, reports and Hawkeri online store.',
+            'More than POS: a complete Business OS for Bangladesh SMEs covering billing, inventory, purchase, CRM, supplier dues, cash closing, HR, reports, COD reconciliation and online store.',
         url: BASE_URL,
-        images: [{ url: '/images/og-image.jpg', width: 1200, height: 630, alt: 'AndgatePOS — POS Software Bangladesh' }],
+        images: [{ url: '/images/og-image.jpg', width: 1200, height: 630, alt: 'AndgatePOS — SME Business Operating System Bangladesh' }],
     },
 };
 
@@ -32,7 +32,7 @@ export default function HomePage() {
         '@type': 'SoftwareApplication',
         name: 'AndgatePOS',
         applicationCategory: 'BusinessApplication',
-        applicationSubCategory: 'Point of Sale Software',
+        applicationSubCategory: 'SME Business Operating System',
         operatingSystem: 'Web Browser',
         url: BASE_URL,
         inLanguage: ['en-BD', 'bn-BD'],
@@ -41,7 +41,7 @@ export default function HomePage() {
             name: 'Bangladesh',
         },
         description:
-            'AndgatePOS is cloud POS and business operating software for Bangladeshi retail shops, grocery stores, pharmacies, restaurants and fashion businesses with billing, inventory, payments, CRM, supplier 360, cash closing, stock count approvals, COD reconciliation, fiscal readiness, reports and ecommerce.',
+            'AndgatePOS is cloud business operating software for Bangladeshi retail shops, grocery stores, pharmacies, restaurants and fashion businesses with POS billing, inventory, payments, CRM, supplier 360, cash closing, stock count approvals, COD reconciliation, fiscal readiness, reports and ecommerce.',
         offers: {
             '@type': 'Offer',
             priceCurrency: 'BDT',
@@ -171,7 +171,7 @@ export default function HomePage() {
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }} />
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
-            <h1 className="sr-only">POS Software in Bangladesh for Retail Billing and Inventory</h1>
+            <h1 className="sr-only">SME Business Operating System in Bangladesh with POS Billing and Inventory</h1>
             <HomePageClient />
         </>
     );

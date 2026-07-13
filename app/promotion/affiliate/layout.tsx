@@ -3,12 +3,13 @@ import { Metadata } from 'next';
 const BASE_URL = 'https://andgatepos.com';
 
 export const metadata: Metadata = {
-    title: 'AndgatePOS Affiliate Program Bangladesh | POS Software Commission',
-    description: 'Join the AndgatePOS Affiliate Program in Bangladesh. Get training, show POS demos to shop owners, convert paid subscriptions, and earn verified commission.',
+    title: 'AndgatePOS Affiliate Program Bangladesh | Business Software Commission',
+    description: 'Join the AndgatePOS Affiliate Program in Bangladesh. Get training, show Business OS and POS demos to SME owners, convert paid subscriptions, and earn verified commission.',
     keywords: [
         'AndgatePOS affiliate program',
+        'business software affiliate Bangladesh',
         'POS software affiliate Bangladesh',
-        'POS software reseller Bangladesh',
+        'SME software reseller Bangladesh',
         'software commission program Bangladesh',
         'AndgatePOS affiliate',
         'POS affiliate Bangladesh',
@@ -19,14 +20,14 @@ export const metadata: Metadata = {
     },
     openGraph: {
         title: 'AndgatePOS Affiliate Program Bangladesh',
-        description: 'Register free, take training, show demos to shop owners, and earn commission from successful paid subscriptions.',
+        description: 'Register free, take training, show Business OS demos to SME owners, and earn commission from successful paid subscriptions.',
         url: `${BASE_URL}/promotion/affiliate`,
         images: [{ url: '/images/ads/andgatepos-affiliate-facebook-ad-real-logo.png', width: 1200, height: 630, alt: 'AndgatePOS Affiliate Program Bangladesh' }],
     },
     twitter: {
         card: 'summary_large_image',
         title: 'AndgatePOS Affiliate Program Bangladesh',
-        description: 'Earn commission by helping Bangladeshi shop owners adopt AndgatePOS.',
+        description: 'Earn commission by helping Bangladeshi SME owners adopt AndgatePOS.',
         images: ['/images/ads/andgatepos-affiliate-facebook-ad-real-logo.png'],
     },
 };

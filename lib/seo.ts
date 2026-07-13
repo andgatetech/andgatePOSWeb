@@ -14,7 +14,7 @@ interface SeoMetaProps {
 
 export function generateMetadata({
     title,
-    description = 'AndgatePOS - Complete point of sale system for managing products, orders, customers, and business operations efficiently.',
+    description = 'AndgatePOS - SME Business Operating System for managing POS billing, products, orders, customers, inventory, reports and business operations efficiently.',
     keywords = [],
     path,
     image = '/images/default-og-image.jpg',
@@ -25,7 +25,7 @@ export function generateMetadata({
     const fullUrl = `${baseUrl}${path}`;
     const canonical = canonicalUrl || fullUrl;
 
-    const defaultKeywords = ['AndgatePOS', 'POS system', 'point of sale', 'inventory management', 'sales tracking', 'business management', 'retail software', 'restaurant POS', 'cloud POS'];
+    const defaultKeywords = ['AndgatePOS', 'SME Business OS', 'business operating system', 'POS system', 'point of sale', 'inventory management', 'sales tracking', 'business management', 'retail software', 'cloud POS'];
 
     return {
         metadataBase: new URL(baseUrl),

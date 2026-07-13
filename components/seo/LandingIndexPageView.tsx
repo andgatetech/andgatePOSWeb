@@ -21,12 +21,12 @@ export default function LandingIndexPageView() {
                             {isBn ? 'SEO ল্যান্ডিং পেজ' : 'SEO Landing Pages'}
                         </div>
                         <h1 className="text-4xl font-black tracking-tight text-gray-950 sm:text-5xl">
-                            {isBn ? 'বাংলাদেশি ব্যবসার জন্য POS software pages' : 'POS software pages for Bangladesh businesses'}
+                            {isBn ? 'বাংলাদেশি ব্যবসার জন্য Business OS ও POS software pages' : 'Business OS and POS software pages for Bangladesh businesses'}
                         </h1>
                         <p className="mt-5 text-base leading-8 text-gray-600">
                             {isBn
-                                ? 'Retail billing, inventory, restaurant, pharmacy, grocery এবং shop management search-এর জন্য তৈরি AndgatePOS পেজগুলো এখানে পাবেন।'
-                                : 'Find the right AndgatePOS page for retail billing, inventory, restaurant, pharmacy, grocery and shop management searches in Bangladesh.'}
+                                ? 'Business OS, retail billing, inventory, restaurant, pharmacy, grocery এবং shop management search-এর জন্য তৈরি AndgatePOS পেজগুলো এখানে পাবেন।'
+                                : 'Find the right AndgatePOS page for Business OS, retail billing, inventory, restaurant, pharmacy, grocery and shop management searches in Bangladesh.'}
                         </p>
                     </div>
 

@@ -3,19 +3,19 @@ import Link from 'next/link';
 import MainLayout from '@/components/layouts/MainLayout';
 
 export const metadata: Metadata = {
-    title: 'AndgatePOS Comparison — POS & Business OS Bangladesh',
-    description: 'Compare AndgatePOS with other POS software options in Bangladesh. See POS, inventory, CRM, supplier 360, cash closing, ecommerce, reports and Bangla support.',
+    title: 'AndgatePOS Comparison — SME Business OS Bangladesh',
+    description: 'Compare AndgatePOS with POS and business software options in Bangladesh. See POS, inventory, CRM, supplier 360, cash closing, ecommerce, reports and Bangla support.',
     keywords: 'POS software Bangladesh, compare POS, best POS Bangladesh, AndgatePOS comparison, retail POS comparison Bangladesh',
     openGraph: {
-        title: 'AndgatePOS Comparison — POS & Business OS Bangladesh',
-        description: 'Compare AndgatePOS with common POS choices for Bangladesh SMEs.',
+        title: 'AndgatePOS Comparison — SME Business OS Bangladesh',
+        description: 'Compare AndgatePOS with common POS and business software choices for Bangladesh SMEs.',
     },
 };
 
 const competitors = [
     {
         name: 'AndgatePOS',
-        tag: 'POS + Business OS',
+        tag: 'SME Business OS',
         price: 'Free trial available',
         operations: 'Business OS, cash closing, petty cash, HR attendance, service jobs',
         crm: 'Customer CRM, dues, segments, loyalty, follow-ups',
@@ -141,10 +141,10 @@ export default function ComparisonPage() {
                     <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
                         <div className="mx-auto max-w-4xl text-center">
                             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#046ca9]/15 bg-white px-3 py-1.5 text-xs font-bold text-[#034d79] shadow-sm">
-                                POS comparison for Bangladesh SMEs
+                                Business software comparison for Bangladesh SMEs
                             </div>
                             <h1 className="text-4xl font-black leading-tight text-gray-950 sm:text-5xl lg:text-[3.35rem]">
-                                Compare AndgatePOS with other POS options
+                                Compare AndgatePOS with POS and business software options
                             </h1>
                             <p className="mx-auto mt-5 max-w-3xl text-base leading-8 text-gray-600 sm:text-lg">
                                 AndgatePOS is not only counter billing. It combines POS, inventory, CRM, Supplier 360,
@@ -226,7 +226,7 @@ export default function ComparisonPage() {
                     <div className="mx-auto max-w-4xl px-4 text-center sm:px-6">
                         <h2 className="text-3xl font-black">Start with AndgatePOS free</h2>
                         <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-slate-300">
-                            Test POS billing, stock, CRM, supplier dues and daily business controls before moving your full shop workflow.
+                            Test POS billing, stock, CRM, supplier dues and daily Business OS controls before moving your full shop workflow.
                         </p>
                         <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
                             <Link href="/register?source=promotion_comparison&campaign=comparison_page" className="rounded-xl bg-white px-7 py-3 text-sm font-black text-[#046ca9] transition hover:bg-slate-100">

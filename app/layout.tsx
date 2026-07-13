@@ -20,10 +20,10 @@ export const metadata: Metadata = {
     metadataBase: new URL(getAppUrl()),
     title: {
         template: '%s | AndgatePOS',
-        default: 'AndgatePOS — POS Software in Bangladesh | Business OS for SMEs',
+        default: 'AndgatePOS — SME Business Operating System Bangladesh',
     },
     description:
-        'AndgatePOS is Bangladesh-focused POS and business operating software for retail SMEs. Manage billing, inventory, CRM, supplier dues, cash closing, petty cash, staff attendance, reports, and a Hawkeri online store. Start free today!',
+        'AndgatePOS is Bangladesh-focused SME business operating software with POS billing, inventory, CRM, supplier dues, cash closing, petty cash, staff attendance, reports, and a Hawkeri online store. Start free today!',
     keywords: BD_KEYWORDS,
     authors: [{ name: 'Andgate Technologies', url: BASE_URL }],
     creator: 'Andgate Technologies',
@@ -45,23 +45,23 @@ export const metadata: Metadata = {
         alternateLocale: ['bn_BD'],
         url: BASE_URL,
         siteName: 'AndgatePOS',
-        title: 'AndgatePOS — POS Software in Bangladesh',
+        title: 'AndgatePOS — SME Business Operating System Bangladesh',
         description:
-            'Complete POS and Business OS for Bangladesh SMEs. Billing, inventory, CRM, supplier dues, cash closing, petty cash, HR attendance, reports, and a Hawkeri online store.',
+            'Complete Business OS for Bangladesh SMEs. POS billing, inventory, CRM, supplier dues, cash closing, petty cash, HR attendance, reports, and a Hawkeri online store.',
         images: [
             {
                 url: '/images/og-image.jpg',
                 width: 1200,
                 height: 630,
-                alt: 'AndgatePOS — POS Software Bangladesh',
+                alt: 'AndgatePOS — SME Business Operating System Bangladesh',
             },
         ],
     },
     twitter: {
         card: 'summary_large_image',
-        title: 'AndgatePOS — POS Software in Bangladesh',
+        title: 'AndgatePOS — SME Business Operating System Bangladesh',
         description:
-            'Complete POS and Business OS for Bangladesh businesses. Billing, stock, CRM, supplier dues, cash closing, reports, and online store. Start free today!',
+            'Complete Business OS for Bangladesh SMEs. POS billing, stock, CRM, supplier dues, cash closing, reports, and online store. Start free today!',
         images: ['/images/og-image.jpg'],
         creator: '@andgatetech',
     },
@@ -98,7 +98,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         name: 'Andgate Technologies',
         url: BASE_URL,
         logo: `${BASE_URL}/images/andgatePOSPwa.png`,
-        description: 'Andgate Technologies builds POS and ecommerce software for businesses in Bangladesh.',
+        description: 'Andgate Technologies builds SME Business OS, POS, inventory, ecommerce and operations software for businesses in Bangladesh.',
         address: {
             '@type': 'PostalAddress',
             streetAddress: 'House 34, Road 3, Block B, Aftabnagar, Badda',
@@ -153,7 +153,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             addressLocality: 'Dhaka',
             addressRegion: 'Dhaka Division',
         },
-        description: 'POS software setup, training and subscription support for Bangladeshi SMEs.',
+        description: 'SME Business OS setup, POS training and subscription support for Bangladeshi SMEs.',
     };
 
     return (

@@ -23,7 +23,7 @@ const posPromotionSchema = {
     applicationCategory: 'BusinessApplication',
     operatingSystem: 'Web, Android, iOS',
     url: 'https://andgatepos.com/promotion/pos',
-    description: 'Cloud POS software for Bangladeshi shops with billing, inventory, payment tracking, reports, and online store features.',
+    description: 'Cloud SME Business OS for Bangladeshi shops with POS billing, inventory, payment tracking, reports, and online store features.',
     brand: {
         '@type': 'Brand',
         name: 'AndgatePOS',
@@ -55,7 +55,7 @@ const posFaqSchema = {
             name: 'Can I start AndgatePOS for free?',
             acceptedAnswer: {
                 '@type': 'Answer',
-                text: 'Yes. Bangladeshi shop owners can open a free AndgatePOS account and start using POS billing and inventory features.',
+                text: 'Yes. Bangladeshi shop owners can open a free AndgatePOS account and start using POS billing, inventory and Business OS features.',
             },
         },
         {

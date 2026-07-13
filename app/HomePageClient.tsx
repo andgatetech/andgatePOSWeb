@@ -1085,15 +1085,15 @@ export default function HomePageClient() {
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="mb-10 max-w-3xl">
                         <span className="mb-4 inline-block rounded-full border border-[#046ca9]/20 bg-[#046ca9]/5 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[#046ca9]">
-                            {isBn ? 'POS সফটওয়্যার বাংলাদেশ' : 'POS Software Bangladesh'}
+                            {isBn ? 'SME Business OS বাংলাদেশ' : 'SME Business OS Bangladesh'}
                         </span>
                         <h2 className="text-3xl font-black text-gray-900 sm:text-4xl">
-                            {isBn ? 'আপনার ব্যবসার জন্য ঠিক POS সলিউশন খুঁজুন' : 'Find the right POS solution for your business'}
+                            {isBn ? 'POS থেকে শুরু, পুরো ব্যবসা চালানোর সিস্টেম পর্যন্ত' : 'From POS checkout to complete business operations'}
                         </h2>
                         <p className="mt-4 text-base leading-7 text-gray-500">
                             {isBn
-                                ? 'Retail POS, restaurant POS, pharmacy POS, grocery billing, inventory এবং shop management software খুঁজছেন এমন বাংলাদেশি ব্যবসার জন্য আলাদা পেজ।'
-                                : 'Dedicated pages for Bangladesh businesses looking for retail POS, restaurant POS, pharmacy POS, grocery billing, inventory and shop management software.'}
+                                ? 'Retail POS, restaurant POS, pharmacy POS, grocery billing, inventory, purchase, staff, reports এবং shop management খুঁজছেন এমন বাংলাদেশি ব্যবসার জন্য আলাদা পেজ।'
+                                : 'Dedicated pages for Bangladesh businesses looking for retail POS, restaurant POS, pharmacy POS, grocery billing, inventory, purchase, staff, reports and shop management software.'}
                         </p>
                     </div>
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

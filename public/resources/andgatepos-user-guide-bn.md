@@ -5,7 +5,7 @@
 
 ## ১. AndgatePOS কী করে
 
-AndgatePOS হলো বাংলাদেশি SME ব্যবসার জন্য POS এবং Business OS। এতে আছে কাউন্টার বিক্রি, স্টক, ক্রয়, সাপ্লায়ার, কাস্টমার, CRM, ক্যাশ ক্লোজিং, পেটি ক্যাশ, কর্মী হাজিরা, সার্ভিস জব, হিসাব, রিপোর্ট, ecommerce, courier setup, staff role এবং multi-store operation।
+AndgatePOS হলো বাংলাদেশি SME ব্যবসার জন্য একটি Business OS, যেখানে POS একটি গুরুত্বপূর্ণ মডিউল। এতে আছে কাউন্টার বিক্রি, স্টক, ক্রয়, সাপ্লায়ার, কাস্টমার, CRM, ক্যাশ ক্লোজিং, পেটি ক্যাশ, কর্মী হাজিরা, সার্ভিস জব, হিসাব, রিপোর্ট, ecommerce, courier setup, staff role এবং multi-store operation।
 
 ![ড্যাশবোর্ড](/assets/LandingImage/updated/dashboard.webp)
 
