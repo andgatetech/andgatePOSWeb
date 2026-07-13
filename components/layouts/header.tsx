@@ -72,7 +72,9 @@ const Header = () => {
 
         document.cookie.split(';').forEach((cookie) => {
             const name = cookie.split('=')[0].trim();
-            clearCookie(name);
+            if (name !== 'i18nextLng' && name !== 'i18nextLngSource') {
+                clearCookie(name);
+            }
         });
 
         try {
