@@ -547,6 +547,7 @@ export default function PricingPlansGrid({ showComparison = true, registerHref =
                                                 {plans.map((plan) => {
                                                     const isMostPopular = isMostPopularPlan(plan);
                                                     const item = row.itemsByPlan.get(plan.id);
+                                                    const isTrialPlan = plan.tier === 0;
                                                     // A higher-tier plan that has no explicit row for this feature still
                                                     // includes it — every plan is a superset of the tier below it.
                                                     const inheritedFromLowerTier = !item && plan.tier > row.minTier;
@@ -573,7 +574,7 @@ export default function PricingPlansGrid({ showComparison = true, registerHref =
                                                                 ) : (
                                                                     <Check className={cn('mx-auto h-4 w-4', isMostPopular ? 'text-[#046ca9]' : 'text-emerald-500')} />
                                                                 )
-                                                            ) : inheritedFromLowerTier ? (
+                                                            ) : inheritedFromLowerTier || isTrialPlan ? (
                                                                 <Check className={cn('mx-auto h-4 w-4', isMostPopular ? 'text-[#046ca9]' : 'text-emerald-500')} />
                                                             ) : (
                                                                 <Minus className="mx-auto h-4 w-4 text-gray-200" />

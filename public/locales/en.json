@@ -796,8 +796,16 @@
     },
     "faq": {
       "title": "Frequently Asked Questions",
-      "subtitle": "Everything you need to know about our pricing",
+      "subtitle": "Everything you need to know about trial access, packages, features, and upgrades",
       "questions": [
+        {
+          "q": "Can I use every feature during the free trial?",
+          "a": "Yes. All AndgatePOS features are enabled during the 14-day free trial so you can test the full system before choosing the paid plan that fits your shop."
+        },
+        {
+          "q": "Will every feature stay enabled after the trial ends?",
+          "a": "After the trial, features stay enabled according to the paid plan you choose. That is why the Trial column shows ticks for every feature, while paid plan columns show the features included in each package."
+        },
         {
           "q": "Can I change plans anytime?",
           "a": "Yes! You can upgrade or downgrade your plan anytime. Changes will be reflected in your next billing cycle."

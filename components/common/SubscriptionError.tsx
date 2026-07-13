@@ -134,6 +134,21 @@ const SubscriptionError: React.FC<SubscriptionErrorProps> = ({ errorType, messag
                             <p className="mb-4 text-sm text-gray-500">{config.subtitle}</p>
                             <p className="text-base leading-relaxed text-gray-700">{displayNumber(message)}</p>
 
+                            {['feature_not_in_plan', 'feature_unavailable', 'subscription_required'].includes(errorType) && (
+                                <div className="mt-5 rounded-xl border border-orange-200 bg-orange-50 p-4">
+                                    <p className="text-sm font-semibold text-orange-900">
+                                        {lang === 'bn'
+                                            ? 'আপনার বর্তমান প্যাকেজে এই ফিচারের অ্যাক্সেস নেই। এই ফিচার ব্যবহার করতে প্যাকেজ আপগ্রেড করুন।'
+                                            : 'Your current package does not include access to this feature. Upgrade your package to use it.'}
+                                    </p>
+                                    {details?.feature && (
+                                        <p className="mt-1 text-xs text-orange-700">
+                                            {lang === 'bn' ? 'ফিচার:' : 'Feature:'} {displayNumber(String(details.feature))}
+                                        </p>
+                                    )}
+                                </div>
+                            )}
+
                             {/* Display additional details */}
                             {details && (
                                 <div className="mt-6 space-y-3">

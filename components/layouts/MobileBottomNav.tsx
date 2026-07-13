@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
@@ -13,27 +13,41 @@ const MobileBottomNav = () => {
     const sidebarOpen = useSelector((state: RootState) => state.themeConfig.sidebar);
     const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
 
-    const [visible, setVisible] = useState(true);
-    const lastScrollY = useRef(0);
+    const touchStart = useRef<{ x: number; y: number } | null>(null);
 
-    const publicPaths = ['/login', '/register', '/forgot-password', '/reset-password', '/subscription'];
+    const publicPaths = ['/login', '/register', '/forgot-password', '/reset-password'];
     const isPublicPath = publicPaths.some((path) => pathname === path || pathname.startsWith(`${path}/`));
 
     useEffect(() => {
-        const onScroll = () => {
-            const current = window.scrollY;
-            if (current < 10) {
-                setVisible(true);
-            } else if (current > lastScrollY.current + 4) {
-                setVisible(false);
-            } else if (current < lastScrollY.current - 4) {
-                setVisible(true);
+        const onTouchStart = (event: TouchEvent) => {
+            const touch = event.touches[0];
+            if (!touch || touch.clientX > 28) {
+                touchStart.current = null;
+                return;
             }
-            lastScrollY.current = current;
+            touchStart.current = { x: touch.clientX, y: touch.clientY };
         };
-        window.addEventListener('scroll', onScroll, { passive: true });
-        return () => window.removeEventListener('scroll', onScroll);
-    }, []);
+
+        const onTouchMove = (event: TouchEvent) => {
+            const start = touchStart.current;
+            const touch = event.touches[0];
+            if (!start || !touch || sidebarOpen) return;
+
+            const dx = touch.clientX - start.x;
+            const dy = Math.abs(touch.clientY - start.y);
+            if (dx > 70 && dy < 45) {
+                dispatch(toggleSidebar());
+                touchStart.current = null;
+            }
+        };
+
+        window.addEventListener('touchstart', onTouchStart, { passive: true });
+        window.addEventListener('touchmove', onTouchMove, { passive: true });
+        return () => {
+            window.removeEventListener('touchstart', onTouchStart);
+            window.removeEventListener('touchmove', onTouchMove);
+        };
+    }, [dispatch, sidebarOpen]);
 
     const isActive = (href: string) =>
         href === '/dashboard' ? pathname === '/dashboard' : pathname.startsWith(href);
@@ -99,7 +113,7 @@ const MobileBottomNav = () => {
     ];
 
     return (
-        <nav className={`fixed bottom-0 left-0 right-0 z-50 lg:hidden transition-transform duration-300 ${visible ? 'translate-y-0' : 'translate-y-full'}`}>
+        <nav className="fixed bottom-0 left-0 right-0 z-[70] lg:hidden">
             {/* Safe area background extends under home indicator on iOS */}
             <div className="bg-[#034d79] border-t border-white/[0.1] shadow-[0_-4px_20px_rgba(0,0,0,0.3)]">
                 <div className="flex items-center h-14" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>

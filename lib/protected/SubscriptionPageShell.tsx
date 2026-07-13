@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import Footer from '@/components/layouts/footer';
 import Header from '@/components/layouts/header';
 import MainContainer from '@/components/layouts/main-container';
+import MobileBottomNav from '@/components/layouts/MobileBottomNav';
+import Overlay from '@/components/layouts/overlay';
 import Sidebar from '@/components/layouts/sidebar';
 import { RootState } from '@/store';
 import Image from 'next/image';
@@ -29,14 +31,18 @@ export default function SubscriptionPageShell({ children }: SubscriptionPageShel
 
     if (mounted && isAuthenticated) {
         return (
-            <MainContainer>
-                <Sidebar />
-                <div className="main-content flex min-h-screen flex-col">
-                    <Header />
-                    <div className="px-3 py-4 pb-20 sm:px-4 lg:px-6 lg:pb-4">{children}</div>
-                    <Footer />
-                </div>
-            </MainContainer>
+            <div className="relative">
+                <Overlay />
+                <MainContainer>
+                    <Sidebar />
+                    <div className="main-content flex min-h-screen flex-col">
+                        <Header />
+                        <div className="px-3 py-4 pb-20 sm:px-4 lg:px-6 lg:pb-4">{children}</div>
+                        <Footer />
+                    </div>
+                </MainContainer>
+                <MobileBottomNav />
+            </div>
         );
     }
 
