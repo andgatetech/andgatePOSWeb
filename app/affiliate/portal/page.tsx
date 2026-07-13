@@ -17,7 +17,7 @@ import {
     getAffiliateToken,
     removeAffiliateToken,
 } from '@/store/features/affiliate/affiliatePortalApi';
-import { TrendingUp, Users, Wallet, MousePointerClick, LogOut, Loader2, CheckCircle, AlertCircle, KeyRound } from 'lucide-react';
+import { TrendingUp, Users, Wallet, MousePointerClick, LogOut, Loader2, CheckCircle, AlertCircle, KeyRound, Eye, EyeOff } from 'lucide-react';
 import { getTranslation } from '@/i18n';
 
 type Tab = 'overview' | 'conversions' | 'ledger' | 'payouts' | 'demos' | 'referred-partners';
@@ -39,6 +39,7 @@ export default function AffiliatePortalPage() {
     const [payoutData, setPayoutData] = useState({ method: 'bkash', account_number: '' });
     const [demoData, setDemoData] = useState({ prospect_name: '', prospect_mobile: '', prospect_business: '', location: '', scheduled_at: '', notes: '' });
     const [passwordData, setPasswordData] = useState({ current_password: '', password: '', password_confirmation: '' });
+    const [visiblePasswords, setVisiblePasswords] = useState({ current_password: false, password: false, password_confirmation: false });
 
     useEffect(() => {
         if (!getAffiliateToken()) router.replace('/affiliate/login');
@@ -55,6 +56,24 @@ export default function AffiliatePortalPage() {
     const [bookDemo, { isLoading: demoLoading, isSuccess: demoSuccess, error: demoError }] = useBookPortalDemoMutation();
     const [changePassword, { isLoading: passwordLoading, isSuccess: passwordSuccess, error: passwordError, reset: resetPasswordState }] = useChangeAffiliatePasswordMutation();
     const [logoutAffiliate] = useLogoutAffiliateMutation();
+    const renderPasswordInput = (field: keyof typeof passwordData) => (
+        <div className="relative">
+            <input
+                type={visiblePasswords[field] ? 'text' : 'password'}
+                className="w-full rounded-lg border border-slate-200 px-3 py-2 pr-10 text-sm"
+                value={passwordData[field]}
+                onChange={(e) => setPasswordData({ ...passwordData, [field]: e.target.value })}
+            />
+            <button
+                type="button"
+                onClick={() => setVisiblePasswords((current) => ({ ...current, [field]: !current[field] }))}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 transition hover:text-slate-600"
+                aria-label={visiblePasswords[field] ? 'Hide password' : 'Show password'}
+            >
+                {visiblePasswords[field] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </button>
+        </div>
+    );
 
     const stats = dashData?.data;
     const referralLink = typeof window !== 'undefined'
@@ -435,18 +454,15 @@ export default function AffiliatePortalPage() {
                                 )}
                                 <div>
                                     <label className="block text-sm font-medium mb-1">{t('aff_portal_pw_current')}</label>
-                                    <input type="password" className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm" value={passwordData.current_password}
-                                        onChange={(e) => setPasswordData({ ...passwordData, current_password: e.target.value })} />
+                                    {renderPasswordInput('current_password')}
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium mb-1">{t('aff_portal_pw_new')}</label>
-                                    <input type="password" className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm" value={passwordData.password}
-                                        onChange={(e) => setPasswordData({ ...passwordData, password: e.target.value })} />
+                                    {renderPasswordInput('password')}
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium mb-1">{t('aff_portal_pw_confirm')}</label>
-                                    <input type="password" className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm" value={passwordData.password_confirmation}
-                                        onChange={(e) => setPasswordData({ ...passwordData, password_confirmation: e.target.value })} />
+                                    {renderPasswordInput('password_confirmation')}
                                 </div>
                                 <button disabled={passwordLoading || !passwordData.current_password || !passwordData.password || !passwordData.password_confirmation}
                                     onClick={submitPasswordChange}

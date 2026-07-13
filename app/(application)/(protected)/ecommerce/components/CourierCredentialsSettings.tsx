@@ -4,7 +4,7 @@ import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useDeleteCourierCredentialMutation, useGetCourierCredentialsQuery, useSaveCourierCredentialMutation, useUpdateCourierCredentialMutation } from '@/store/features/ecommerce/ecommerceManagementApi';
-import { AlertCircle, CheckCircle2, ExternalLink, KeyRound, Loader2, PackageCheck, Save, Store, Trash2, Truck } from 'lucide-react';
+import { AlertCircle, CheckCircle2, ExternalLink, Eye, EyeOff, KeyRound, Loader2, PackageCheck, Save, Store, Trash2, Truck } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -480,16 +480,27 @@ const Field = ({ label, value, onChange, placeholder = '' }: { label: string; va
 
 const SecretField = (props: { label: string; value: string; onChange: (value: string) => void; placeholder?: string }) => {
     const { t } = getTranslation();
+    const [visible, setVisible] = useState(false);
     return (
         <label className="block">
             <span className="mb-1.5 block text-sm font-medium text-gray-700">{props.label}</span>
-            <input
-                type="password"
-                value={props.value}
-                onChange={(event) => props.onChange(event.target.value)}
-                placeholder={props.placeholder || t('ecommerce_courier_secret_placeholder')}
-                className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm outline-none transition focus:border-[#046ca9] focus:ring-2 focus:ring-[#046ca9]/15"
-            />
+            <span className="relative block">
+                <input
+                    type={visible ? 'text' : 'password'}
+                    value={props.value}
+                    onChange={(event) => props.onChange(event.target.value)}
+                    placeholder={props.placeholder || t('ecommerce_courier_secret_placeholder')}
+                    className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 pr-10 text-sm outline-none transition focus:border-[#046ca9] focus:ring-2 focus:ring-[#046ca9]/15"
+                />
+                <button
+                    type="button"
+                    onClick={() => setVisible((current) => !current)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 transition hover:text-gray-600"
+                    aria-label={visible ? 'Hide secret' : 'Show secret'}
+                >
+                    {visible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+            </span>
         </label>
     );
 };

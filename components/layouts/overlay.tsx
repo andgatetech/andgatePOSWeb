@@ -10,7 +10,7 @@ const Overlay = () => {
 
     return (
         <div
-            className={`fixed inset-0 z-[55] bg-black/50 backdrop-blur-[2px] transition-opacity duration-300 lg:hidden ${
+            className={`fixed inset-0 z-[80] bg-black/50 backdrop-blur-[2px] transition-opacity duration-300 lg:hidden ${
                 isOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
             }`}
             onClick={() => dispatch(toggleSidebar())}
