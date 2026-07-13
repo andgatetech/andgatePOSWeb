@@ -4,13 +4,14 @@ import { useTranslation } from '@/components/i18n/TranslationProvider';
 import SearchableStoreType from '@/components/common/SearchableStoreType';
 import { AUTH_TOKEN_EXPIRES_AT_COOKIE, AUTH_TOKEN_EXPIRES_AT_KEY, getCookieMaxAgeFromExpiry, getLoginTokenExpiresAt, isTokenExpired, setAuthCookie } from '@/lib/auth-session';
 import { buildAttribution } from '@/lib/attribution';
-import { trackEvent } from '@/lib/analytics';
+import { createMarketingEventId, trackEvent } from '@/lib/analytics';
+import { getExperimentVariant, getSessionId, getVisitorId } from '@/lib/visitor';
 import { RootState } from '@/store';
 import { useRegisterMutation } from '@/store/features/auth/authApi';
 import { login } from '@/store/features/auth/authSlice';
 import { Building as IconBuilding, Eye as IconEye, EyeOff as IconEyeOff, Lock as IconLockDots, Mail as IconMail, Phone as IconPhone, User as IconUser } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 
@@ -30,6 +31,7 @@ const ComponentsAuthRegisterForm = ({ defaultSource = 'website_registration', de
     const { t } = useTranslation();
     const { isAuthenticated } = useSelector((state: RootState) => state.auth);
     const [registerApi, { isLoading }] = useRegisterMutation();
+    const startedRef = useRef(false);
 
     const refCode = searchParams.get('ref') ?? '';
     const attribution = useMemo(
@@ -57,6 +59,26 @@ const ComponentsAuthRegisterForm = ({ defaultSource = 'website_registration', de
         setCredentials((prev) => ({ ...prev, ref_code: refCode, ...attribution }));
     }, [refCode, attribution]);
 
+    useEffect(() => {
+        trackEvent('registration_form_viewed', 'RegistrationFormViewed', {
+            source: attribution.source,
+            campaign: attribution.campaign,
+            ...attribution,
+        });
+    }, [attribution]);
+
+    const updateCredential = (key: keyof typeof credentials, value: string) => {
+        if (!startedRef.current) {
+            startedRef.current = true;
+            trackEvent('registration_started', 'RegistrationStarted', {
+                source: credentials.source,
+                campaign: credentials.campaign,
+                first_field: key,
+            });
+        }
+        setCredentials((prev) => ({ ...prev, [key]: value }));
+    };
+
     // Start tour on component mount (optional - you can trigger this differently)
     useEffect(() => {
         // Check if user hasn't seen the tour before
@@ -69,7 +91,27 @@ const ComponentsAuthRegisterForm = ({ defaultSource = 'website_registration', de
     const submitForm = async (e: FormEvent) => {
         e.preventDefault();
         try {
-            const result = await registerApi(credentials).unwrap();
+            const registrationEventId = createMarketingEventId('CompleteRegistration');
+            const trialEventId = createMarketingEventId('StartTrial');
+            const visitorContext = {
+                visitor_id: getVisitorId(),
+                session_id: getSessionId(),
+                latest_path: window.location.pathname,
+                experiment_key: 'public_register_v1',
+                experiment_variant: getExperimentVariant('public_register_v1', ['control']),
+                registration_event_id: registrationEventId,
+                trial_event_id: trialEventId,
+            };
+
+            trackEvent('registration_submit_attempt', 'RegistrationSubmit', {
+                source: credentials.source,
+                campaign: credentials.campaign,
+                store_type: credentials.store_type,
+                visitor_id: visitorContext.visitor_id,
+                session_id: visitorContext.session_id,
+            });
+
+            const result = await registerApi({ ...credentials, ...visitorContext }).unwrap();
             const { user, token, permissions } = result.data; // user already has store & subscription_user
             const tokenExpiresAt = getLoginTokenExpiresAt(result.data);
 
@@ -100,6 +142,7 @@ const ComponentsAuthRegisterForm = ({ defaultSource = 'website_registration', de
             dispatch(login({ user, token, tokenExpiresAt: validTokenExpiresAt, permissions }));
 
             trackEvent('register_success', 'CompleteRegistration', {
+                event_id: registrationEventId,
                 content_name: 'AndgateBOS Registration',
                 content_category: 'SaaS Signup',
                 status: true,
@@ -109,8 +152,19 @@ const ComponentsAuthRegisterForm = ({ defaultSource = 'website_registration', de
                 utm_source: credentials.utm_source,
                 utm_medium: credentials.utm_medium,
                 utm_campaign: credentials.utm_campaign,
+                utm_content: credentials.utm_content,
+                utm_term: credentials.utm_term,
                 fbclid: credentials.fbclid,
+                fbp: credentials.fbp,
+                fbc: credentials.fbc,
                 landing_page: credentials.landing_page,
+                referrer: credentials.referrer,
+                initial_path: credentials.initial_path,
+                latest_path: visitorContext.latest_path,
+                visitor_id: visitorContext.visitor_id,
+                session_id: visitorContext.session_id,
+                experiment_key: visitorContext.experiment_key,
+                experiment_variant: visitorContext.experiment_variant,
                 user_data: {
                     email: credentials.email,
                     phone: credentials.phone,
@@ -121,6 +175,7 @@ const ComponentsAuthRegisterForm = ({ defaultSource = 'website_registration', de
             });
 
             trackEvent('trial_started', 'StartTrial', {
+                event_id: trialEventId,
                 content_name: 'AndgateBOS Trial',
                 content_category: 'SaaS Trial',
                 status: true,
@@ -130,8 +185,19 @@ const ComponentsAuthRegisterForm = ({ defaultSource = 'website_registration', de
                 utm_source: credentials.utm_source,
                 utm_medium: credentials.utm_medium,
                 utm_campaign: credentials.utm_campaign,
+                utm_content: credentials.utm_content,
+                utm_term: credentials.utm_term,
                 fbclid: credentials.fbclid,
+                fbp: credentials.fbp,
+                fbc: credentials.fbc,
                 landing_page: credentials.landing_page,
+                referrer: credentials.referrer,
+                initial_path: credentials.initial_path,
+                latest_path: visitorContext.latest_path,
+                visitor_id: visitorContext.visitor_id,
+                session_id: visitorContext.session_id,
+                experiment_key: visitorContext.experiment_key,
+                experiment_variant: visitorContext.experiment_variant,
                 user_data: {
                     email: credentials.email,
                     phone: credentials.phone,
@@ -142,6 +208,7 @@ const ComponentsAuthRegisterForm = ({ defaultSource = 'website_registration', de
             });
 
             trackEvent('trial_started_custom', 'TrialStarted', {
+                event_id: createMarketingEventId('TrialStarted'),
                 content_name: 'AndgateBOS Trial',
                 content_category: 'SaaS Trial',
                 status: true,
@@ -151,8 +218,19 @@ const ComponentsAuthRegisterForm = ({ defaultSource = 'website_registration', de
                 utm_source: credentials.utm_source,
                 utm_medium: credentials.utm_medium,
                 utm_campaign: credentials.utm_campaign,
+                utm_content: credentials.utm_content,
+                utm_term: credentials.utm_term,
                 fbclid: credentials.fbclid,
+                fbp: credentials.fbp,
+                fbc: credentials.fbc,
                 landing_page: credentials.landing_page,
+                referrer: credentials.referrer,
+                initial_path: credentials.initial_path,
+                latest_path: visitorContext.latest_path,
+                visitor_id: visitorContext.visitor_id,
+                session_id: visitorContext.session_id,
+                experiment_key: visitorContext.experiment_key,
+                experiment_variant: visitorContext.experiment_variant,
                 user_data: {
                     email: credentials.email,
                     phone: credentials.phone,
@@ -174,6 +252,12 @@ const ComponentsAuthRegisterForm = ({ defaultSource = 'website_registration', de
                 (error?.status === 'FETCH_ERROR' ? t('error_cannot_connect_server') : null) ||
                 t('register_failed');
             toast.error(message);
+            trackEvent('registration_failed', 'RegistrationFailed', {
+                source: credentials.source,
+                campaign: credentials.campaign,
+                store_type: credentials.store_type,
+                error_status: error?.status || 'unknown',
+            });
         }
     };
 
@@ -197,7 +281,7 @@ const ComponentsAuthRegisterForm = ({ defaultSource = 'website_registration', de
                     <input
                         id="Name"
                         required
-                        onChange={(e) => setCredentials({ ...credentials, name: e.target.value })}
+                        onChange={(e) => updateCredential('name', e.target.value)}
                         type="text"
                         placeholder={t('register-page.form.name_placeholder')}
                         className="form-input ps-10 placeholder:text-white-dark"
@@ -214,7 +298,7 @@ const ComponentsAuthRegisterForm = ({ defaultSource = 'website_registration', de
                     <input
                         id="Email"
                         required
-                        onChange={(e) => setCredentials({ ...credentials, email: e.target.value })}
+                        onChange={(e) => updateCredential('email', e.target.value)}
                         type="email"
                         placeholder={t('register-page.form.email_placeholder')}
                         className="form-input ps-10 placeholder:text-white-dark"
@@ -230,7 +314,7 @@ const ComponentsAuthRegisterForm = ({ defaultSource = 'website_registration', de
                 <div className="relative text-white-dark">
                     <input
                         id="Phone"
-                        onChange={(e) => setCredentials({ ...credentials, phone: e.target.value })}
+                        onChange={(e) => updateCredential('phone', e.target.value)}
                         type="tel"
                         placeholder={t('register-page.form.phone_placeholder')}
                         className="form-input ps-10 placeholder:text-white-dark"
@@ -247,7 +331,7 @@ const ComponentsAuthRegisterForm = ({ defaultSource = 'website_registration', de
                     <input
                         id="StoreName"
                         required
-                        onChange={(e) => setCredentials({ ...credentials, store_name: e.target.value })}
+                        onChange={(e) => updateCredential('store_name', e.target.value)}
                         type="text"
                         placeholder={t('register-page.form.store_name_placeholder')}
                         className="form-input ps-10 placeholder:text-white-dark"
@@ -260,7 +344,7 @@ const ComponentsAuthRegisterForm = ({ defaultSource = 'website_registration', de
 
             <div>
                 <label htmlFor="StoreType">{t('lbl_store_type')}</label>
-                <SearchableStoreType value={credentials.store_type} onChange={(val) => setCredentials({ ...credentials, store_type: val })} />
+                <SearchableStoreType value={credentials.store_type} onChange={(val) => updateCredential('store_type', val)} />
             </div>
 
             <div>
@@ -269,7 +353,7 @@ const ComponentsAuthRegisterForm = ({ defaultSource = 'website_registration', de
                     <input
                         id="Password"
                         required
-                        onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
+                        onChange={(e) => updateCredential('password', e.target.value)}
                         type={showPassword ? 'text' : 'password'}
                         placeholder={t('register-page.form.password_placeholder')}
                         className="form-input pe-12 ps-10 placeholder:text-white-dark"
@@ -292,7 +376,7 @@ const ComponentsAuthRegisterForm = ({ defaultSource = 'website_registration', de
                     <input
                         id="PasswordConfirm"
                         required
-                        onChange={(e) => setCredentials({ ...credentials, password_confirmation: e.target.value })}
+                        onChange={(e) => updateCredential('password_confirmation', e.target.value)}
                         type={showConfirmPassword ? 'text' : 'password'}
                         placeholder={t('register-page.form.repeat_password_placeholder')}
                         className="form-input pe-12 ps-10 placeholder:text-white-dark"

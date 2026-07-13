@@ -1,15 +1,16 @@
 'use client';
 
 import SearchableStoreType from '@/components/common/SearchableStoreType';
-import { trackEvent } from '@/lib/analytics';
+import { createMarketingEventId, trackEvent } from '@/lib/analytics';
 import { AUTH_TOKEN_EXPIRES_AT_COOKIE, AUTH_TOKEN_EXPIRES_AT_KEY, getCookieMaxAgeFromExpiry, getLoginTokenExpiresAt, isTokenExpired, setAuthCookie } from '@/lib/auth-session';
 import { buildAttribution } from '@/lib/attribution';
+import { getExperimentVariant, getSessionId, getVisitorId } from '@/lib/visitor';
 import { RootState } from '@/store';
 import { useRegisterMutation } from '@/store/features/auth/authApi';
 import { login } from '@/store/features/auth/authSlice';
 import { CheckCircle2, ClipboardCheck, Loader2, Phone, ShieldCheck, Star } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { FormEvent, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 
@@ -51,17 +52,46 @@ export default function PromoRegisterForm({ defaultSource = 'promotion_pos', def
         store_name: '',
         store_type: 'retail',
     });
-
-    const update = (key: keyof typeof form, value: string) => setForm((prev) => ({ ...prev, [key]: value }));
-
+    const startedRef = useRef(false);
     const attributionEventData = {
         source: attribution.source,
         campaign: attribution.campaign,
         utm_source: attribution.utm_source,
         utm_medium: attribution.utm_medium,
         utm_campaign: attribution.utm_campaign,
+        utm_content: attribution.utm_content,
+        utm_term: attribution.utm_term,
         fbclid: attribution.fbclid,
+        fbp: attribution.fbp,
+        fbc: attribution.fbc,
         landing_page: attribution.landing_page,
+        referrer: attribution.referrer,
+        initial_path: attribution.initial_path,
+        latest_path: typeof window === 'undefined' ? attribution.latest_path : window.location.pathname,
+        visitor_id: typeof window === 'undefined' ? '' : getVisitorId(),
+        session_id: typeof window === 'undefined' ? '' : getSessionId(),
+        experiment_key: 'promotion_pos_hero_v1',
+        experiment_variant: typeof window === 'undefined' ? 'control' : getExperimentVariant('promotion_pos_hero_v1'),
+    };
+
+    useEffect(() => {
+        trackEvent('promo_registration_form_viewed', 'RegistrationFormViewed', {
+            section: 'register_form',
+            ...attributionEventData,
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const update = (key: keyof typeof form, value: string) => {
+        if (!startedRef.current) {
+            startedRef.current = true;
+            trackEvent('promo_registration_started', 'RegistrationStarted', {
+                section: 'register_form',
+                first_field: key,
+                ...attributionEventData,
+            });
+        }
+        setForm((prev) => ({ ...prev, [key]: value }));
     };
 
     const generatedPassword = () => {
@@ -78,6 +108,15 @@ export default function PromoRegisterForm({ defaultSource = 'promotion_pos', def
         }
 
         try {
+            const registrationEventId = createMarketingEventId('CompleteRegistration');
+            const trialEventId = createMarketingEventId('StartTrial');
+
+            trackEvent('promo_registration_submit_attempt', 'RegistrationSubmit', {
+                section: 'register_form',
+                store_type: form.store_type,
+                ...attributionEventData,
+            });
+
             trackEvent('promo_register_submit', 'Lead', {
                 content_name: 'POS Trial Registration',
                 content_category: 'SaaS Signup',
@@ -96,6 +135,13 @@ export default function PromoRegisterForm({ defaultSource = 'promotion_pos', def
             const result = await registerApi({
                 ...form,
                 ...attribution,
+                visitor_id: attributionEventData.visitor_id,
+                session_id: attributionEventData.session_id,
+                experiment_key: attributionEventData.experiment_key,
+                experiment_variant: attributionEventData.experiment_variant,
+                latest_path: attributionEventData.latest_path,
+                registration_event_id: registrationEventId,
+                trial_event_id: trialEventId,
                 password,
                 password_confirmation: password,
             }).unwrap();
@@ -125,6 +171,7 @@ export default function PromoRegisterForm({ defaultSource = 'promotion_pos', def
             dispatch(login({ user, token, tokenExpiresAt: validTokenExpiresAt, permissions }));
 
             trackEvent('promo_register_success', 'CompleteRegistration', {
+                event_id: registrationEventId,
                 content_name: 'POS Trial Registration',
                 content_category: 'SaaS Signup',
                 status: true,
@@ -139,6 +186,7 @@ export default function PromoRegisterForm({ defaultSource = 'promotion_pos', def
                 },
             });
             trackEvent('promo_trial_started', 'StartTrial', {
+                event_id: trialEventId,
                 content_name: 'POS Trial Registration',
                 content_category: 'SaaS Trial',
                 status: true,
@@ -153,6 +201,7 @@ export default function PromoRegisterForm({ defaultSource = 'promotion_pos', def
                 },
             });
             trackEvent('promo_trial_started_custom', 'TrialStarted', {
+                event_id: createMarketingEventId('TrialStarted'),
                 content_name: 'POS Trial Registration',
                 content_category: 'SaaS Trial',
                 status: true,
@@ -176,6 +225,12 @@ export default function PromoRegisterForm({ defaultSource = 'promotion_pos', def
                 error?.data?.errors?.store_name?.[0] ||
                 'Registration failed. Please try again.';
             toast.error(message);
+            trackEvent('promo_registration_failed', 'RegistrationFailed', {
+                section: 'register_form',
+                store_type: form.store_type,
+                error_status: error?.status || 'unknown',
+                ...attributionEventData,
+            });
         }
     };
 

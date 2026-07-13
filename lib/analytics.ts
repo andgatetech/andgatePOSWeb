@@ -3,6 +3,7 @@
  * Usage: import { trackEvent, trackPixelEvent } from '@/lib/analytics'
  */
 import { apiBaseUrl } from './api-url';
+import { getSessionId, getVisitorId } from './visitor';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -56,10 +57,11 @@ export function trackPixelEvent(eventName: string, data: Record<string, unknown>
         'Contact',
     ]);
     const eventId = typeof data.event_id === 'string' ? data.event_id : createEventId(eventName);
-    const payload = { ...data, event_id: eventId };
+    const payload = { ...analyticsContext(), ...data, event_id: eventId };
+    const browserPayload = publicEventPayload(payload);
 
     if (typeof window.fbq === 'function') {
-        window.fbq(standardEvents.has(eventName) ? 'track' : 'trackCustom', eventName, payload, { eventID: eventId });
+        window.fbq(standardEvents.has(eventName) ? 'track' : 'trackCustom', eventName, browserPayload, { eventID: eventId });
     }
 
     sendConversionsApiEvent(eventName, payload, eventId);
@@ -80,8 +82,19 @@ export function trackEvent(
     pixelEvent: string = 'Lead',
     data: Record<string, unknown> = {}
 ) {
-    trackGTMEvent(eventName, data);
-    trackPixelEvent(pixelEvent, data);
+    const payload = { ...analyticsContext(), ...data };
+    trackGTMEvent(eventName, publicEventPayload(payload));
+    trackPixelEvent(pixelEvent, payload);
+}
+
+export function createMarketingEventId(eventName: string) {
+    return createEventId(eventName);
+}
+
+function publicEventPayload(data: Record<string, unknown>) {
+    return Object.fromEntries(
+        Object.entries(data).filter(([key]) => key !== 'user_data')
+    );
 }
 
 function createEventId(eventName: string) {
@@ -130,4 +143,14 @@ function sendConversionsApiEvent(eventName: string, data: Record<string, unknown
         }),
         keepalive: true,
     }).catch(() => {});
+}
+
+function analyticsContext() {
+    if (typeof window === 'undefined') return {};
+
+    return {
+        visitor_id: getVisitorId(),
+        session_id: getSessionId(),
+        page_path: window.location.pathname,
+    };
 }

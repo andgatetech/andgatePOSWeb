@@ -1,6 +1,7 @@
 'use client';
 
 import { trackEvent } from '@/lib/analytics';
+import { getExperimentVariant } from '@/lib/visitor';
 import { ArrowRight, Maximize2, Minimize2, Pause, Play, ShieldCheck, Star, Volume2, VolumeX } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import PromoButton from './promo-button';
@@ -30,6 +31,13 @@ export default function PromoHero() {
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [isMuted, setIsMuted] = useState(true);
     const [isPlaying, setIsPlaying] = useState(true);
+    const [heroVariant, setHeroVariant] = useState('control');
+
+    useEffect(() => {
+        setHeroVariant(getExperimentVariant('promotion_pos_hero_v1'));
+    }, []);
+
+    const isOutcomeHero = heroVariant === 'outcome_hero';
 
     const handlePlayPause = useCallback(() => {
         const iframe = iframeRef.current;
@@ -226,10 +234,22 @@ export default function PromoHero() {
 
                         {/* Headline — pain-led hook, recognizable within 3 seconds */}
                         <h1 className="mb-4 text-3xl font-extrabold leading-[1.12] tracking-tight text-gray-900 sm:text-5xl lg:text-[3.2rem]">
-                            খাতার হিসাব <span className="text-primary">রাতে মেলে না?</span>
+                            {isOutcomeHero ? (
+                                <>
+                                    বিক্রি, স্টক আর বাকি <span className="text-primary">এক জায়গায় দেখুন</span>
+                                </>
+                            ) : (
+                                <>
+                                    খাতার হিসাব <span className="text-primary">রাতে মেলে না?</span>
+                                </>
+                            )}
                         </h1>
 
-                        <p className="mb-6 text-base leading-relaxed text-gray-600 sm:text-lg">মোবাইলেই এখন ১ মিনিটে মিলবে — ফর্ম পূরণ করলেই অ্যাকাউন্ট তৈরি হবে, সরাসরি ড্যাশবোর্ডে ঢুকে সফটওয়্যার দেখে নিতে পারবেন।</p>
+                        <p className="mb-6 text-base leading-relaxed text-gray-600 sm:text-lg">
+                            {isOutcomeHero
+                                ? 'দোকানের বিলিং, পণ্যের স্টক, কাস্টমারের বাকি, ক্যাশ আর দৈনিক রিপোর্ট মোবাইল বা কম্পিউটার থেকে পরিষ্কারভাবে চালান।'
+                                : 'মোবাইলেই এখন ১ মিনিটে মিলবে — ফর্ম পূরণ করলেই অ্যাকাউন্ট তৈরি হবে, সরাসরি ড্যাশবোর্ডে ঢুকে সফটওয়্যার দেখে নিতে পারবেন।'}
+                        </p>
 
                         {/* Trust points */}
                         <div className="mb-8 flex flex-col gap-2.5 text-sm font-medium text-gray-700 sm:flex-row sm:flex-wrap sm:justify-center lg:justify-start">
@@ -245,7 +265,7 @@ export default function PromoHero() {
                             <PromoButton
                                 href="#register-section"
                                 className="w-full px-8 py-4 text-base sm:w-auto"
-                                onClick={() => trackEvent('hero_cta_click', 'Lead', { button_label: 'ফ্রিতে শুরু করুন', section: 'hero' })}
+                                onClick={() => trackEvent('hero_cta_click', 'Lead', { button_label: 'ফ্রিতে শুরু করুন', section: 'hero', experiment_key: 'promotion_pos_hero_v1', experiment_variant: heroVariant })}
                             >
                                 <span className="flex items-center gap-2">
                                     ১ মিনিটে ফ্রি ট্রায়াল শুরু করুন
@@ -255,7 +275,7 @@ export default function PromoHero() {
                             <a
                                 href="#demo-section"
                                 className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-8 py-4 text-base font-semibold text-gray-700 transition-all hover:bg-gray-50 sm:w-auto"
-                                onClick={() => trackEvent('hero_demo_click', 'ViewContent', { button_label: 'সমস্যাগুলো দেখুন', section: 'hero' })}
+                                onClick={() => trackEvent('hero_demo_click', 'ViewContent', { button_label: 'সমস্যাগুলো দেখুন', section: 'hero', experiment_key: 'promotion_pos_hero_v1', experiment_variant: heroVariant })}
                             >
                                 ডেমো ভিডিও দেখুন ↓
                             </a>
