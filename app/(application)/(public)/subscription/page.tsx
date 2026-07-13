@@ -341,14 +341,17 @@ export default function SubscriptionPage() {
     if (user) {
         return (
             <SubscriptionPageShell>
-                {urlErrorType && (
-                    <SubscriptionError
-                        errorType={urlErrorType as any}
-                        message={urlMessage || 'You do not have access to this feature in your current package. Please upgrade your package to use it.'}
-                        details={urlDetails}
-                    />
-                )}
-                <ManualPaymentPanel />
+                <ManualPaymentPanel
+                    notice={
+                        urlErrorType ? (
+                            <SubscriptionError
+                                errorType={urlErrorType as any}
+                                message={urlMessage || 'You do not have access to this feature in your current package. Please upgrade your package to use it.'}
+                                details={urlDetails}
+                            />
+                        ) : undefined
+                    }
+                />
             </SubscriptionPageShell>
         );
     }

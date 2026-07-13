@@ -1,11 +1,9 @@
 'use client';
 import { convertNumberByLanguage } from '@/components/custom/convertNumberByLanguage';
 import { getTranslation } from '@/i18n';
-import { RootState } from '@/store';
 import { AlertTriangle, Clock, Crown, Package, ShieldAlert, Sparkles, Zap } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { useSelector } from 'react-redux';
 
 interface SubscriptionErrorProps {
     errorType: 'no_active_subscription' | 'feature_unavailable' | 'feature_not_in_plan' | 'limit_reached' | 'subscription_required' | 'expired' | 'no_subscription' | 'subscription_expired' | 'quota_exhausted';
@@ -115,6 +113,14 @@ const localizeSubscriptionMessage = (message: string, errorType: string, lang: '
     return message;
 };
 
+const shouldShowMessage = (message: string, errorType: string, lang: 'en' | 'bn') => {
+    if (!message) return false;
+    if (lang === 'bn' && ['feature_not_in_plan', 'feature_unavailable', 'subscription_required'].includes(errorType)) {
+        return false;
+    }
+    return true;
+};
+
 const SubscriptionError: React.FC<SubscriptionErrorProps> = ({ errorType, message, details }) => {
     const { i18n } = getTranslation();
     const lang = i18n.language as 'en' | 'bn';
@@ -124,6 +130,7 @@ const SubscriptionError: React.FC<SubscriptionErrorProps> = ({ errorType, messag
     const displayTitle = localizeText(config.title, lang);
     const displaySubtitle = localizeText(config.subtitle, lang);
     const displayMessage = localizeSubscriptionMessage(message, errorType, lang);
+    const showMessage = shouldShowMessage(message, errorType, lang);
 
     const pathname = usePathname();
     const router = useRouter();
@@ -138,9 +145,6 @@ const SubscriptionError: React.FC<SubscriptionErrorProps> = ({ errorType, messag
         }
     }, [pathname, errorType, message, details, router]);
 
-    // Get current subscription from Redux
-    const user = useSelector((state: RootState) => state.auth.user);
-
     if (pathname && pathname !== '/subscription' && !pathname.includes('/subscription')) {
         return (
             <div className="flex w-full items-center justify-center py-6">
@@ -154,31 +158,20 @@ const SubscriptionError: React.FC<SubscriptionErrorProps> = ({ errorType, messag
 
     return (
         <div className="w-full">
-            <div className="w-full pb-8">
-                {/* Error Alert Section - Matching StoreComponent Style */}
-                <div className="mb-8 rounded-2xl bg-white p-6 shadow-sm transition-shadow duration-300 hover:shadow-md">
+            <div className="w-full">
+                <div className="rounded-2xl border border-orange-200 bg-white p-4 shadow-sm sm:p-5">
                     <div className="flex items-start gap-4">
-                        <div className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl ${config.bgColor}`}>
-                            <IconComponent className={`h-6 w-6 ${config.iconColor}`} />
+                        <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl ${config.bgColor}`}>
+                            <IconComponent className={`h-5 w-5 ${config.iconColor}`} />
                         </div>
-                        <div className="flex-1">
-                            <h2 className="mb-2 text-2xl font-bold text-gray-900">{displayTitle}</h2>
-                            <p className="mb-4 text-sm text-gray-500">{displaySubtitle}</p>
-                            <p className="text-base leading-relaxed text-gray-700">{displayNumber(displayMessage)}</p>
-
-                            {['feature_not_in_plan', 'feature_unavailable', 'subscription_required'].includes(errorType) && (
-                                <div className="mt-5 rounded-xl border border-orange-200 bg-orange-50 p-4">
-                                    <p className="text-sm font-semibold text-orange-900">
-                                        {lang === 'bn'
-                                            ? 'আপনার বর্তমান প্যাকেজে এই ফিচারের অ্যাক্সেস নেই। এই ফিচার ব্যবহার করতে প্যাকেজ আপগ্রেড করুন।'
-                                            : 'Your current package does not include access to this feature. Upgrade your package to use it.'}
-                                    </p>
-                                    {details?.feature && (
-                                        <p className="mt-1 text-xs text-orange-700">
-                                            {lang === 'bn' ? 'ফিচার:' : 'Feature:'} {displayNumber(String(details.feature))}
-                                        </p>
-                                    )}
-                                </div>
+                        <div className="min-w-0 flex-1">
+                            <h2 className="text-base font-bold text-gray-900 sm:text-lg">{displayTitle}</h2>
+                            <p className="mt-1 text-sm leading-relaxed text-gray-600">{displaySubtitle}</p>
+                            {showMessage && <p className="mt-2 text-sm leading-relaxed text-gray-700">{displayNumber(displayMessage)}</p>}
+                            {details?.feature && ['feature_not_in_plan', 'feature_unavailable', 'subscription_required'].includes(errorType) && (
+                                <p className="mt-3 inline-flex max-w-full rounded-full bg-orange-50 px-3 py-1 text-xs font-semibold text-orange-700">
+                                    <span className="truncate">{lang === 'bn' ? 'ফিচার:' : 'Feature:'} {displayNumber(String(details.feature))}</span>
+                                </p>
                             )}
 
                             {/* Display additional details */}

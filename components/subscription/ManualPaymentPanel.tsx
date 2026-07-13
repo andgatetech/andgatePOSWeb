@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useMemo, useState } from 'react';
+import { FormEvent, ReactNode, useMemo, useState } from 'react';
 import Image from 'next/image';
 import Swal from 'sweetalert2';
 import Link from 'next/link';
@@ -23,7 +23,7 @@ const methods = [
 // tabs + payment-request form + history. Only the amount/method/date fields are
 // required; sender_account/transaction_id/receipt stay optional in both places
 // so a user can submit a plan request before they've actually paid.
-export default function ManualPaymentPanel() {
+export default function ManualPaymentPanel({ notice }: { notice?: ReactNode }) {
     const { t } = getTranslation();
     const { data: plansData } = useGetPlansQuery();
     const { data: summaryData } = useGetManualPaymentSummaryQuery();
@@ -128,6 +128,8 @@ export default function ManualPaymentPanel() {
                     {isUpgradeIntent ? t('manual_payments_subtitle_upgrade') : t('manual_payments_subtitle')}
                 </p>
             </div>
+
+            {notice}
 
             <section className="panel">
                 <div className="flex items-center gap-2 border-b border-white-light pb-3 dark:border-[#17263c]">
