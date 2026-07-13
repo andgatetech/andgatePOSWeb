@@ -4584,6 +4584,8 @@
   "ecommerce_stores_desc": "Review assigned store ecommerce status, product counts, order counts, and request enable or disable review.",
   "ecommerce_products_title": "Ecommerce Products",
   "ecommerce_products_desc": "Control product visibility for ecommerce storefronts.",
+  "COD Reconciliation": "COD Reconciliation",
+  "Marketing & Pixel": "Marketing & Pixel",
   "ecommerce_catalog_readiness": "Online catalog readiness",
   "ecommerce_catalog_readiness_desc": "Fix missing price, stock, image or description before making products visible online.",
   "ecommerce_online_readiness": "Online readiness",

@@ -196,7 +196,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                 requiredPermissions: ['stock.adjustments'],
             },
             {
-                label: 'stock_count_title',
+                label: 'Stock Count',
                 href: '/products/stock/counts',
                 requiredPermissions: ['stock.adjustments'],
             },

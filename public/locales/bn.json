@@ -4584,6 +4584,8 @@
   "ecommerce_stores_desc": "নির্ধারিত স্টোরের ইকমার্স স্ট্যাটাস, পণ্য সংখ্যা, অর্ডার সংখ্যা দেখুন এবং চালু বা বন্ধের রিভিউ অনুরোধ করুন।",
   "ecommerce_products_title": "ইকমার্স পণ্য",
   "ecommerce_products_desc": "ইকমার্স স্টোরফ্রন্টের জন্য পণ্যের দৃশ্যমানতা নিয়ন্ত্রণ করুন।",
+  "COD Reconciliation": "COD রিকনসিলিয়েশন",
+  "Marketing & Pixel": "মার্কেটিং ও পিক্সেল",
   "ecommerce_catalog_readiness": "অনলাইন ক্যাটালগ প্রস্তুতি",
   "ecommerce_catalog_readiness_desc": "পণ্য অনলাইনে দেখানোর আগে দাম, স্টক, ছবি বা বিবরণ না থাকলে ঠিক করুন।",
   "ecommerce_online_readiness": "অনলাইন প্রস্তুতি",
