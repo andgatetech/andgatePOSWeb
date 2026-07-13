@@ -241,19 +241,21 @@ Legend: `✓` included, `Limited` included with scale/scope limits, `Add-on` com
 | Training | self-serve | guided | workshop | dedicated |
 | Support | chat/email | priority chat/callback | phone + priority | dedicated SLA |
 
-## 7. Pricing Recommendation
+## 7. Pricing Position
 
-Recommended public prices:
+Current public prices should stay unchanged for now. The immediate fix is packaging clarity, feature entitlement alignment, and better public copy.
+
+Current public prices:
 
 | Package | Monthly | Yearly | Activation/setup | Notes |
 |---|---:|---:|---:|---|
 | Trial | ৳0 | ৳0 | ৳0 | 14-day full access |
-| Starter | ৳699 | ৳6,990 | ৳1,999 | Current ৳499 may underprice support-heavy customers |
-| SME Growth | ৳1,299 | ৳12,990 | ৳3,999 | Best-value anchor |
-| Professional | ৳2,499 | ৳24,990 | ৳7,999 | Strong margin for support/accounting/HR |
-| Enterprise | Custom, from ৳6,999/month | Custom | custom | contract-defined |
+| Starter | ৳499 | ৳4,491 | existing catalog value | one-shop entry package |
+| SME Growth | ৳999 | ৳8,991 | existing catalog value | best-value growth package |
+| Professional | ৳1,999 | ৳19,990 | existing catalog value | team, branch, accounting, HR and BI |
+| Enterprise | Custom | Custom | custom | contract-defined |
 
-If the market resists the price lift, keep current prices for existing users and launch the new positioning first. Then increase new-customer prices after the page/training/sales process is stronger.
+Future price tests can be planned later, after the page/training/sales process is stronger. Do not change public package prices as part of this packaging cleanup.
 
 Discount strategy:
 - Yearly: 2 months free or 15-17% discount.

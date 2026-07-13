@@ -1,11 +1,11 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useDeferredValue, useMemo, useState } from 'react';
 import { getTranslation } from '@/i18n';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useApproveStockCountMutation, useCreateStockCountMutation, useGetAllProductsQuery, useGetStockCountsQuery } from '@/store/features/Product/productApi';
-import { CheckCircle2, ClipboardList, Plus, RefreshCw } from 'lucide-react';
+import { CheckCircle2, ClipboardList, Plus, RefreshCw, Search, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 type CountLine = {
@@ -21,38 +21,58 @@ const normalizeProducts = (response: any) => {
     return Array.isArray(payload) ? payload : [];
 };
 
+const normalizeSessions = (response: any) => {
+    const payload = response?.data?.data || response?.data?.items || response?.data || response?.items || response;
+    return Array.isArray(payload) ? payload : [];
+};
+
 export default function StockCountPage() {
     const { t } = getTranslation();
     const { formatNumber } = useCurrency();
     const { currentStoreId } = useCurrentStore();
     const [lines, setLines] = useState<CountLine[]>([]);
     const [title, setTitle] = useState('');
+    const [productSearch, setProductSearch] = useState('');
+    const deferredProductSearch = useDeferredValue(productSearch.trim());
     const [createStockCount, { isLoading: isCreating }] = useCreateStockCountMutation();
     const [approveStockCount, { isLoading: isApproving }] = useApproveStockCountMutation();
-    const { data: productsResponse, isLoading: productsLoading } = useGetAllProductsQuery({ store_id: currentStoreId }, { skip: !currentStoreId });
+    const { data: productsResponse, isLoading: productsLoading, isFetching: productsFetching } = useGetAllProductsQuery({
+        store_id: currentStoreId,
+        search: deferredProductSearch || undefined,
+        light: 1,
+        per_page: 25,
+        sort_field: 'product_name',
+        sort_direction: 'asc',
+        fast_pagination: 1,
+    }, { skip: !currentStoreId });
     const { data: countsResponse, refetch } = useGetStockCountsQuery({ store_id: currentStoreId, per_page: 10 }, { skip: !currentStoreId });
 
     const stockOptions = useMemo(() => {
         return normalizeProducts(productsResponse).flatMap((product: any) => {
             const stocks = Array.isArray(product.stocks) ? product.stocks : Array.isArray(product.product_stocks) ? product.product_stocks : [];
+            const productName = product.product_name || product.name || '';
             if (stocks.length === 0 && product.product_stock_id) {
                 return [{
                     id: product.product_stock_id,
-                    productName: product.name,
+                    productName,
                     sku: product.sku,
+                    barcode: product.barcode,
                     quantity: Number(product.quantity || 0),
-                    label: product.name,
+                    label: productName,
                 }];
             }
             return stocks.map((stock: any) => ({
                 id: stock.id,
-                productName: product.name,
+                productName,
                 sku: stock.sku || stock.barcode,
+                barcode: stock.barcode,
                 quantity: Number(stock.quantity || 0),
-                label: [product.name, stock.variant_name || (stock.variant_data ? Object.values(stock.variant_data).join(' - ') : '')].filter(Boolean).join(' / '),
+                label: [productName, stock.variant_name || (stock.variant_data ? Object.values(stock.variant_data).join(' - ') : '')].filter(Boolean).join(' / '),
             }));
         });
     }, [productsResponse]);
+
+    const selectedStockIds = useMemo(() => new Set(lines.map((line) => line.product_stock_id)), [lines]);
 
     const addLine = (stockId: string) => {
         const stock = stockOptions.find((item: any) => String(item.id) === stockId);
@@ -67,6 +87,10 @@ export default function StockCountPage() {
                 counted_quantity: stock.quantity,
             },
         ]);
+    };
+
+    const removeLine = (stockId: number) => {
+        setLines((prev) => prev.filter((line) => line.product_stock_id !== stockId));
     };
 
     const saveCount = async () => {
@@ -99,7 +123,7 @@ export default function StockCountPage() {
         }
     };
 
-    const sessions = countsResponse?.data?.data || countsResponse?.data?.items || countsResponse?.data || [];
+    const sessions = normalizeSessions(countsResponse);
 
     return (
         <div className="space-y-5">
@@ -115,14 +139,59 @@ export default function StockCountPage() {
             </div>
 
             <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-                <div className="grid gap-3 lg:grid-cols-[1fr_280px]">
+                <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(320px,420px)]">
                     <input value={title} onChange={(event) => setTitle(event.target.value)} placeholder={t('stock_count_title_placeholder')} className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-sky-500" />
-                    <select disabled={productsLoading} onChange={(event) => addLine(event.target.value)} value="" className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-sky-500">
-                        <option value="">{productsLoading ? t('lbl_loading') : t('stock_count_add_item')}</option>
-                        {stockOptions.map((stock: any) => (
-                            <option key={stock.id} value={stock.id}>{stock.label}</option>
-                        ))}
-                    </select>
+                    <div className="relative">
+                        <Search className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                        <input
+                            value={productSearch}
+                            onChange={(event) => setProductSearch(event.target.value)}
+                            placeholder={t('placeholder_search_products') || t('stock_count_add_item')}
+                            className="w-full rounded-lg border border-slate-200 py-2 pl-9 pr-9 text-sm outline-none focus:border-sky-500"
+                        />
+                        {productSearch && (
+                            <button type="button" onClick={() => setProductSearch('')} className="absolute right-2 top-2 rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600" aria-label={t('btn_clear')}>
+                                <X className="h-4 w-4" />
+                            </button>
+                        )}
+                    </div>
+                </div>
+
+                <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50/70 p-2">
+                    <div className="mb-2 flex items-center justify-between px-1">
+                        <p className="text-xs font-semibold uppercase text-slate-500">{t('lbl_search_results')}</p>
+                        <p className="text-xs text-slate-400">{productsFetching ? t('lbl_loading') : `${stockOptions.length}`}</p>
+                    </div>
+                    <div className="max-h-72 space-y-1 overflow-y-auto pr-1">
+                        {productsLoading || productsFetching ? (
+                            <div className="px-3 py-8 text-center text-sm text-slate-400">{t('lbl_loading')}</div>
+                        ) : stockOptions.length === 0 ? (
+                            <div className="px-3 py-8 text-center text-sm text-slate-400">{t('msg_no_products_found')}</div>
+                        ) : (
+                            stockOptions.map((stock: any) => {
+                                const selected = selectedStockIds.has(stock.id);
+                                return (
+                                    <button
+                                        key={stock.id}
+                                        type="button"
+                                        onClick={() => addLine(String(stock.id))}
+                                        disabled={selected}
+                                        className="flex w-full items-center justify-between gap-3 rounded-md border border-transparent bg-white px-3 py-2 text-left text-sm shadow-sm hover:border-sky-200 hover:bg-sky-50 disabled:cursor-not-allowed disabled:bg-emerald-50 disabled:text-emerald-700"
+                                    >
+                                        <span className="min-w-0">
+                                            <span className="block truncate font-semibold text-slate-800">{stock.label}</span>
+                                            <span className="block truncate text-xs text-slate-500">
+                                                {t('lbl_sku')}: {stock.sku || '-'} {stock.barcode ? `| ${stock.barcode}` : ''} | {t('stock_count_system_qty')}: {formatNumber(stock.quantity)}
+                                            </span>
+                                        </span>
+                                        <span className={`shrink-0 rounded-md px-2.5 py-1 text-xs font-semibold text-white ${selected ? 'bg-emerald-600' : 'bg-sky-600'}`}>
+                                            {selected ? t('stock_count_selected') : t('btn_add')}
+                                        </span>
+                                    </button>
+                                );
+                            })
+                        )}
+                    </div>
                 </div>
 
                 <div className="mt-4 overflow-x-auto">
@@ -134,6 +203,7 @@ export default function StockCountPage() {
                                 <th className="px-3 py-2 text-right">{t('stock_count_system_qty')}</th>
                                 <th className="px-3 py-2 text-right">{t('stock_count_counted_qty')}</th>
                                 <th className="px-3 py-2 text-right">{t('stock_count_variance')}</th>
+                                <th className="px-3 py-2 text-right">{t('lbl_action')}</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
@@ -146,10 +216,15 @@ export default function StockCountPage() {
                                         <input type="number" min="0" value={line.counted_quantity} onChange={(event) => setLines((prev) => prev.map((item, itemIndex) => itemIndex === index ? { ...item, counted_quantity: Number(event.target.value) || 0 } : item))} className="w-28 rounded-md border border-slate-200 px-2 py-1 text-right" />
                                     </td>
                                     <td className="px-3 py-2 text-right font-semibold">{formatNumber(line.counted_quantity - line.system_quantity)}</td>
+                                    <td className="px-3 py-2 text-right">
+                                        <button type="button" onClick={() => removeLine(line.product_stock_id)} className="inline-flex items-center justify-center rounded-md p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600" title={t('btn_remove')}>
+                                            <X className="h-4 w-4" />
+                                        </button>
+                                    </td>
                                 </tr>
                             ))}
                             {lines.length === 0 && (
-                                <tr><td colSpan={5} className="px-3 py-8 text-center text-slate-400">{t('stock_count_empty')}</td></tr>
+                                <tr><td colSpan={6} className="px-3 py-8 text-center text-slate-400">{t('stock_count_empty')}</td></tr>
                             )}
                         </tbody>
                     </table>
