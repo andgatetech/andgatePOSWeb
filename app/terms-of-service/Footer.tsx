@@ -96,6 +96,7 @@ const Footer = () => {
                                     height={34}
                                     className="block h-8 w-auto object-contain"
                                     style={{ width: 'auto' }}
+                                    unoptimized
                                 />
                             </div>
                         </Link>

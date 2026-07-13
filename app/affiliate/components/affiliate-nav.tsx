@@ -42,6 +42,7 @@ export default function AffiliateNav() {
                                 height={29}
                                 className="h-full w-full object-contain"
                                 priority
+                                unoptimized
                             />
                         </span>
                         <span className="rounded-full bg-[#e79237]/15 px-2 py-0.5 text-xs font-semibold text-[#c47920]">

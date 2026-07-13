@@ -9,7 +9,7 @@ export default function Navbar() {
     return (
         <nav className="fixed top-0 z-50 flex h-16 w-full items-center justify-between border-b bg-white/95 px-4 shadow-sm backdrop-blur-md sm:px-6">
             <Link href="/" className="flex items-center">
-                <Image src={AndGate} alt="AndgateBOS Logo" width={180} height={36} className="h-9 w-auto object-contain" priority />
+                <Image src={AndGate} alt="AndgateBOS Logo" width={180} height={36} className="h-9 w-auto object-contain" priority unoptimized />
             </Link>
             <div className="flex items-center gap-3">
                 <a

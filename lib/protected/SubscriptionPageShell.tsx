@@ -50,7 +50,7 @@ export default function SubscriptionPageShell({ children }: SubscriptionPageShel
         <div className="flex min-h-screen flex-col bg-gray-50">
             <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b bg-white/95 px-4 shadow-sm backdrop-blur-md sm:px-6">
                 <Link href="/" className="flex items-center">
-                    <Image src={AndGateLogo} alt="AndgateBOS Logo" width={180} height={36} className="h-9 w-auto object-contain" priority />
+                    <Image src={AndGateLogo} alt="AndgateBOS Logo" width={180} height={36} className="h-9 w-auto object-contain" priority unoptimized />
                 </Link>
                 <Link href="/login" className="rounded-lg bg-[#046ca9] px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90">
                     Login
