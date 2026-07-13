@@ -155,8 +155,6 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                         sort_field: 'product_name',
                         sort_direction: 'asc',
                         available: 'yes',
-                        fast_pagination: true,
-                        light: true,
                     });
                     const data = result.data;
                     let pageProducts: any[] = [];
@@ -200,8 +198,6 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
             per_page: searchTerm.trim() ? Math.min(itemsPerPage, 10) : itemsPerPage,
             sort_field: 'product_name',
             sort_direction: 'asc',
-            fast_pagination: true,
-            light: true,
         };
 
         // Transfer should only show stock that can actually be moved.
@@ -298,6 +294,10 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
             if (dataObj.pagination) {
                 return dataObj.pagination;
             }
+        }
+        // NEW: Handle legacy meta format
+        if (productsData?.meta && typeof productsData.meta === 'object') {
+            return productsData.meta;
         }
         return null;
     }, [productsData]);
