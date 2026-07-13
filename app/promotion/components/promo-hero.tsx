@@ -30,7 +30,8 @@ export default function PromoHero() {
     const iframeRef = useRef<HTMLIFrameElement>(null);
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [isMuted, setIsMuted] = useState(true);
-    const [isPlaying, setIsPlaying] = useState(true);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [videoLoaded, setVideoLoaded] = useState(false);
     const [heroVariant, setHeroVariant] = useState('control');
 
     useEffect(() => {
@@ -39,7 +40,23 @@ export default function PromoHero() {
 
     const isOutcomeHero = heroVariant === 'outcome_hero';
 
+    const loadVideo = useCallback(() => {
+        if (videoLoaded) return;
+        setVideoLoaded(true);
+        setIsPlaying(true);
+        trackEvent('hero_video_preview_click', 'VideoStart', {
+            section: 'hero',
+            video_id: HERO_VIDEO_ID,
+            experiment_key: 'promotion_pos_hero_v1',
+            experiment_variant: heroVariant,
+        });
+    }, [heroVariant, videoLoaded]);
+
     const handlePlayPause = useCallback(() => {
+        if (!videoLoaded) {
+            loadVideo();
+            return;
+        }
         const iframe = iframeRef.current;
         if (!iframe) return;
         const fn = isPlaying ? 'pauseVideo' : 'playVideo';
@@ -49,7 +66,7 @@ export default function PromoHero() {
             section: 'hero',
             video_id: HERO_VIDEO_ID,
         });
-    }, [isPlaying]);
+    }, [isPlaying, loadVideo, videoLoaded]);
 
     const handleFullscreen = useCallback(() => {
         const el = videoContainerRef.current;
@@ -87,6 +104,8 @@ export default function PromoHero() {
 
     // YouTube IFrame API — video start/progress/complete milestones as full Pixel + CAPI events.
     useEffect(() => {
+        if (!videoLoaded) return;
+
         const firedMilestones = new Set<string>();
         const fireOnce = (key: string, gtmName: string, pixelEvent: string) => {
             if (firedMilestones.has(key)) return;
@@ -153,7 +172,7 @@ export default function PromoHero() {
         return () => {
             stopProgressPolling();
         };
-    }, []);
+    }, [videoLoaded]);
 
     return (
         <section className="relative overflow-hidden bg-white pb-12 pt-24 sm:pb-16 sm:pt-28">
@@ -165,18 +184,40 @@ export default function PromoHero() {
                     {/* Video */}
                     <div id="demo-section" className="relative order-last mx-auto w-full max-w-sm scroll-mt-20 lg:max-w-[500px]">
                         <div className="relative rounded-2xl border border-gray-100 bg-white p-2 shadow-2xl">
-                            <div ref={videoContainerRef} className="overflow-hidden rounded-xl bg-black">
-                                <iframe
-                                    ref={iframeRef}
-                                    className="block h-[360px] w-full rounded-xl sm:h-[640px]"
-                                    src={`https://www.youtube.com/embed/${HERO_VIDEO_ID}?autoplay=1&mute=1&loop=1&playlist=${HERO_VIDEO_ID}&controls=0&modestbranding=1&enablejsapi=1`}
-                                    title="AndgateBOS Demo"
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                    allowFullScreen
-                                />
+                            <div ref={videoContainerRef} className="relative overflow-hidden rounded-xl bg-slate-950">
+                                {videoLoaded ? (
+                                    <iframe
+                                        ref={iframeRef}
+                                        className="block h-[320px] w-full rounded-xl sm:h-[640px]"
+                                        src={`https://www.youtube.com/embed/${HERO_VIDEO_ID}?autoplay=1&mute=1&loop=1&playlist=${HERO_VIDEO_ID}&controls=0&modestbranding=1&enablejsapi=1`}
+                                        title="AndgateBOS Demo"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allowFullScreen
+                                    />
+                                ) : (
+                                    <button
+                                        type="button"
+                                        onClick={loadVideo}
+                                        className="group relative block h-[320px] w-full overflow-hidden rounded-xl text-left sm:h-[640px]"
+                                        aria-label="Play AndgateBOS demo video"
+                                    >
+                                        <span
+                                            className="absolute inset-0 bg-cover bg-center opacity-80 transition duration-300 group-hover:scale-105 group-hover:opacity-95"
+                                            style={{ backgroundImage: `url(https://i.ytimg.com/vi/${HERO_VIDEO_ID}/hqdefault.jpg)` }}
+                                        />
+                                        <span className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
+                                        <span className="absolute left-4 right-4 bottom-4 rounded-xl bg-white/95 p-4 shadow-xl">
+                                            <span className="mb-2 inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white shadow-lg">
+                                                <Play className="h-5 w-5 fill-current" />
+                                            </span>
+                                            <span className="block text-base font-black text-slate-900">ডেমো ভিডিও দেখুন</span>
+                                            <span className="mt-1 block text-sm leading-5 text-slate-600">ভিডিও না দেখলেও নিচে ফর্ম পূরণ করে সরাসরি ড্যাশবোর্ড দেখতে পারবেন।</span>
+                                        </span>
+                                    </button>
+                                )}
                             </div>
                             {/* Control bar — below iframe in normal flow, never covered */}
-                            <div className="mt-2 flex items-center justify-center gap-3 pb-1">
+                            <div className="mt-2 flex flex-wrap items-center justify-center gap-2 pb-1">
                                 <button
                                     onClick={handlePlayPause}
                                     className="flex items-center gap-2 rounded-full bg-gray-900 px-4 py-2 text-sm font-semibold text-white shadow transition-all hover:bg-gray-700 active:scale-95"

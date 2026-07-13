@@ -97,19 +97,19 @@ export default function PromotionPage() {
                     <PromoFeatureProof />
                 </div>
 
-                {/* 4. Loss-aversion warning + consolidated problem/solution pairs */}
+                {/* 4. Registration form — primary conversion, moved earlier for mobile ad traffic */}
+                <div data-section-track="register_form">
+                    <PromoRegisterForm />
+                </div>
+
+                {/* 5. Loss-aversion warning + consolidated problem/solution pairs */}
                 <div data-section-track="loss_hook">
                     <PromoLossHook />
                 </div>
 
-                {/* 5. Pricing plans — answers the cost objection before the form asks for info */}
+                {/* 6. Pricing plans — answers the cost objection after the quick-start CTA */}
                 <div data-section-track="pricing">
                     <PromoPricing />
-                </div>
-
-                {/* 6. Registration form — primary conversion for store-owner ad traffic */}
-                <div data-section-track="register_form">
-                    <PromoRegisterForm />
                 </div>
 
                 {/* 7. Testimonials marquee */}
@@ -124,7 +124,11 @@ export default function PromotionPage() {
             </main>
 
             <div className="fixed inset-x-0 bottom-0 z-[60] grid grid-cols-2 gap-2 border-t border-slate-200 bg-white/95 p-3 shadow-2xl backdrop-blur sm:hidden">
-                <a href="#register-section" className="flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-black text-white">
+                <a
+                    href="#register-section"
+                    onClick={() => trackEvent('mobile_sticky_trial_click', 'Lead', { section: 'mobile_sticky' })}
+                    className="flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-black text-white"
+                >
                     ফ্রি ট্রায়াল
                     <ArrowRight className="h-4 w-4" />
                 </a>

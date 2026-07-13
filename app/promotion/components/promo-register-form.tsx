@@ -8,7 +8,8 @@ import { getExperimentVariant, getSessionId, getVisitorId } from '@/lib/visitor'
 import { RootState } from '@/store';
 import { useRegisterMutation } from '@/store/features/auth/authApi';
 import { login } from '@/store/features/auth/authSlice';
-import { CheckCircle2, ClipboardCheck, Loader2, Phone, ShieldCheck, Star } from 'lucide-react';
+import { CheckCircle2, ClipboardCheck, Loader2, LogIn, Phone, ShieldCheck, Star } from 'lucide-react';
+import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -235,9 +236,9 @@ export default function PromoRegisterForm({ defaultSource = 'promotion_pos', def
     };
 
     return (
-        <section id="register" className="scroll-mt-16 bg-gradient-to-br from-primary/5 via-white to-blue-50/40 py-20">
+        <section id="register" className="scroll-mt-16 bg-gradient-to-br from-primary/5 via-white to-blue-50/40 py-14 sm:py-20">
             <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-                <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-2 lg:items-center">
+                <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-2 lg:items-center lg:gap-12">
                     {/* Left — sales pitch */}
                     <div className="flex flex-col justify-center text-center lg:text-left">
                         {/* Urgency badge */}
@@ -246,13 +247,13 @@ export default function PromoRegisterForm({ defaultSource = 'promotion_pos', def
                             <span className="text-sm font-bold text-orange-600">এখন সেটআপ ফি লাগবে না</span>
                         </div>
 
-                        <h2 className="mb-4 text-3xl font-extrabold leading-tight text-gray-900 sm:text-4xl">
+                        <h2 className="mb-4 text-2xl font-extrabold leading-tight text-gray-900 sm:text-4xl">
                             খাতা ছেড়ে ডিজিটাল হিসাব শুরু করুন —
                             <br />
                             <span className="text-primary">দোকানের হিসাব পরিষ্কার করুন</span>
                         </h2>
 
-                        <p className="mb-8 text-base leading-relaxed text-gray-600">নিচে তথ্য দিন। ফ্রি অ্যাকাউন্ট খুলে সঙ্গে সঙ্গে ড্যাশবোর্ডে ঢুকে বিলিং, স্টক আর রিপোর্ট দেখে নিন।</p>
+                        <p className="mb-6 text-base leading-relaxed text-gray-600 sm:mb-8">নিচে তথ্য দিন। ফ্রি অ্যাকাউন্ট খুলে সঙ্গে সঙ্গে ড্যাশবোর্ডে ঢুকে বিলিং, স্টক আর রিপোর্ট দেখে নিন।</p>
 
                         <ul className="mx-auto space-y-3 lg:mx-0">
                             {benefits.map((b, i) => (
@@ -300,7 +301,7 @@ export default function PromoRegisterForm({ defaultSource = 'promotion_pos', def
                     {/* Right — form */}
                     <div id="register-section" className="relative mx-auto w-full max-w-md scroll-mt-24">
                         <div className="absolute -inset-2 rounded-[2rem] bg-gradient-to-r from-primary to-blue-400 opacity-25 blur-2xl" />
-                        <div className="relative rounded-2xl border border-gray-100 bg-white p-7 shadow-2xl">
+                        <div className="relative rounded-2xl border border-gray-100 bg-white p-5 shadow-2xl sm:p-7">
                             <div className="mb-6 text-center">
                                 <h3 className="mb-1 text-xl font-extrabold text-gray-900">ফ্রি POS অ্যাকাউন্ট খুলুন</h3>
                                 <p className="text-sm text-gray-500">নিচের তথ্যগুলো দিয়ে এখনই শুরু করুন</p>
@@ -346,6 +347,14 @@ export default function PromoRegisterForm({ defaultSource = 'promotion_pos', def
                                     <Phone className="h-4 w-4" />
                                     WhatsApp-এ সেটআপ সহায়তা নিন
                                 </a>
+                                <Link
+                                    href="/login"
+                                    onClick={() => trackEvent('promo_existing_user_login_click', 'ViewContent', { section: 'register_form' })}
+                                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white py-3 text-sm font-bold text-slate-700"
+                                >
+                                    <LogIn className="h-4 w-4" />
+                                    আগে অ্যাকাউন্ট খুলেছেন? লগইন করুন
+                                </Link>
                             </form>
 
                             {/* Trust strip */}
