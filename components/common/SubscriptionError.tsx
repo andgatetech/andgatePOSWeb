@@ -23,67 +23,96 @@ interface SubscriptionErrorProps {
 const errorConfigs: Record<string, any> = {
     no_active_subscription: {
         icon: ShieldAlert,
-        title: 'No Active Subscription',
-        subtitle: 'Subscribe to unlock powerful features',
+        title: { en: 'No Active Subscription', bn: 'সক্রিয় সাবস্ক্রিপশন নেই' },
+        subtitle: { en: 'Subscribe to unlock powerful features', bn: 'ফিচার ব্যবহার করতে সাবস্ক্রিপশন নিন' },
         iconColor: 'text-red-600',
         bgColor: 'bg-red-50',
     },
     no_subscription: {
         icon: ShieldAlert,
-        title: 'No Active Subscription',
-        subtitle: 'Subscribe to unlock powerful features',
+        title: { en: 'No Active Subscription', bn: 'সক্রিয় সাবস্ক্রিপশন নেই' },
+        subtitle: { en: 'Subscribe to unlock powerful features', bn: 'ফিচার ব্যবহার করতে সাবস্ক্রিপশন নিন' },
         iconColor: 'text-red-600',
         bgColor: 'bg-red-50',
     },
     feature_unavailable: {
         icon: Zap,
-        title: 'Feature Not Available',
-        subtitle: 'Upgrade your plan to access this feature',
+        title: { en: 'Feature Not Available', bn: 'ফিচারটি পাওয়া যাচ্ছে না' },
+        subtitle: { en: 'Upgrade your plan to access this feature', bn: 'এই ফিচার ব্যবহার করতে প্যাকেজ আপগ্রেড করুন' },
         iconColor: 'text-orange-600',
         bgColor: 'bg-orange-50',
     },
     feature_not_in_plan: {
         icon: Zap,
-        title: 'Feature Not Available',
-        subtitle: 'Upgrade your plan to access this feature',
+        title: { en: 'Feature Not Available', bn: 'ফিচারটি আপনার প্যাকেজে নেই' },
+        subtitle: { en: 'Upgrade your plan to access this feature', bn: 'এই ফিচার ব্যবহার করতে প্যাকেজ আপগ্রেড করুন' },
         iconColor: 'text-orange-600',
         bgColor: 'bg-orange-50',
     },
     limit_reached: {
         icon: AlertTriangle,
-        title: 'Limit Reached',
-        subtitle: 'Upgrade to continue growing your business',
+        title: { en: 'Limit Reached', bn: 'লিমিট শেষ হয়েছে' },
+        subtitle: { en: 'Upgrade to continue growing your business', bn: 'ব্যবসা চালিয়ে যেতে প্যাকেজ আপগ্রেড করুন' },
         iconColor: 'text-amber-600',
         bgColor: 'bg-amber-50',
     },
     quota_exhausted: {
         icon: AlertTriangle,
-        title: 'Limit Reached',
-        subtitle: 'Upgrade to continue growing your business',
+        title: { en: 'Limit Reached', bn: 'লিমিট শেষ হয়েছে' },
+        subtitle: { en: 'Upgrade to continue growing your business', bn: 'ব্যবসা চালিয়ে যেতে প্যাকেজ আপগ্রেড করুন' },
         iconColor: 'text-amber-600',
         bgColor: 'bg-amber-50',
     },
     subscription_required: {
         icon: Crown,
-        title: 'Premium Feature',
-        subtitle: 'This feature requires an active subscription',
+        title: { en: 'Premium Feature', bn: 'প্রিমিয়াম ফিচার' },
+        subtitle: { en: 'This feature requires an active subscription', bn: 'এই ফিচারের জন্য সক্রিয় সাবস্ক্রিপশন দরকার' },
         iconColor: 'text-purple-600',
         bgColor: 'bg-purple-50',
     },
     expired: {
         icon: Clock,
-        title: 'Subscription Expired',
-        subtitle: 'Renew your subscription to continue',
+        title: { en: 'Subscription Expired', bn: 'সাবস্ক্রিপশন মেয়াদ শেষ' },
+        subtitle: { en: 'Renew your subscription to continue', bn: 'চালিয়ে যেতে সাবস্ক্রিপশন রিনিউ করুন' },
         iconColor: 'text-red-600',
         bgColor: 'bg-red-50',
     },
     subscription_expired: {
         icon: Clock,
-        title: 'Subscription Expired',
-        subtitle: 'Renew your subscription to continue',
+        title: { en: 'Subscription Expired', bn: 'সাবস্ক্রিপশন মেয়াদ শেষ' },
+        subtitle: { en: 'Renew your subscription to continue', bn: 'চালিয়ে যেতে সাবস্ক্রিপশন রিনিউ করুন' },
         iconColor: 'text-red-600',
         bgColor: 'bg-red-50',
     },
+};
+
+const localizeText = (value: string | Record<string, string>, lang: 'en' | 'bn') => (typeof value === 'string' ? value : value[lang] || value.en);
+
+const localizeSubscriptionMessage = (message: string, errorType: string, lang: 'en' | 'bn') => {
+    const normalized = String(message || '').trim().toLowerCase();
+    if (lang !== 'bn') return message;
+
+    if (
+        errorType === 'feature_not_in_plan' ||
+        normalized.includes('not included in your subscription plan') ||
+        normalized.includes('current package does not include')
+    ) {
+        return 'এই ফিচারটি আপনার বর্তমান প্যাকেজে নেই। ব্যবহার করতে প্যাকেজ আপগ্রেড করুন।';
+    }
+
+    if (errorType === 'feature_unavailable') {
+        return 'এই ফিচারটি আপনার বর্তমান প্যাকেজে উপলভ্য নয়। ব্যবহার করতে প্যাকেজ আপগ্রেড করুন।';
+    }
+
+    if (errorType === 'quota_exhausted' || errorType === 'limit_reached') {
+        return 'আপনার বর্তমান প্যাকেজের ব্যবহার সীমা শেষ হয়েছে। চালিয়ে যেতে প্যাকেজ আপগ্রেড করুন।';
+    }
+
+    if (errorType === 'subscription_expired' || errorType === 'expired') {
+        return 'আপনার সাবস্ক্রিপশনের মেয়াদ শেষ হয়েছে। চালিয়ে যেতে রিনিউ করুন।';
+    }
+
+    return message;
 };
 
 const SubscriptionError: React.FC<SubscriptionErrorProps> = ({ errorType, message, details }) => {
@@ -92,6 +121,9 @@ const SubscriptionError: React.FC<SubscriptionErrorProps> = ({ errorType, messag
     const displayNumber = (value: string | number) => convertNumberByLanguage(value, lang);
     const config = errorConfigs[errorType] || errorConfigs.subscription_required;
     const IconComponent = config.icon || Zap;
+    const displayTitle = localizeText(config.title, lang);
+    const displaySubtitle = localizeText(config.subtitle, lang);
+    const displayMessage = localizeSubscriptionMessage(message, errorType, lang);
 
     const pathname = usePathname();
     const router = useRouter();
@@ -130,9 +162,9 @@ const SubscriptionError: React.FC<SubscriptionErrorProps> = ({ errorType, messag
                             <IconComponent className={`h-6 w-6 ${config.iconColor}`} />
                         </div>
                         <div className="flex-1">
-                            <h2 className="mb-2 text-2xl font-bold text-gray-900">{config.title}</h2>
-                            <p className="mb-4 text-sm text-gray-500">{config.subtitle}</p>
-                            <p className="text-base leading-relaxed text-gray-700">{displayNumber(message)}</p>
+                            <h2 className="mb-2 text-2xl font-bold text-gray-900">{displayTitle}</h2>
+                            <p className="mb-4 text-sm text-gray-500">{displaySubtitle}</p>
+                            <p className="text-base leading-relaxed text-gray-700">{displayNumber(displayMessage)}</p>
 
                             {['feature_not_in_plan', 'feature_unavailable', 'subscription_required'].includes(errorType) && (
                                 <div className="mt-5 rounded-xl border border-orange-200 bg-orange-50 p-4">

@@ -16,6 +16,7 @@ export interface MenuItem {
      * it there would hide the item from every staff member regardless of plan tier.
      */
     requiredFeature?: string;
+    lockedByFeature?: string;
     allowedRoles?: string[];
     ownerOnly?: boolean; // true = only visible to subscription owner (business_admin role)
     sectionBreak?: boolean; // true = render a visual divider above this item
@@ -722,11 +723,9 @@ function filterMenuItem(item: MenuItem, userPermissions: string[] | undefined, u
         return null;
     }
 
-    // Subscription-tier gate — applies even when RBAC role bypasses the permission
-    // check above, since a role never grants access beyond the account's plan.
-    if (!item.ownerOnly && !hasFeatureAccess(accessibleFeatures, item)) {
-        return null;
-    }
+    const lockedByFeature = !item.ownerOnly && !hasFeatureAccess(accessibleFeatures, item)
+        ? item.requiredFeature
+        : undefined;
 
     // If this item has a submenu, filter it recursively
     if (item.subMenu && item.subMenu.length > 0) {
@@ -742,10 +741,11 @@ function filterMenuItem(item: MenuItem, userPermissions: string[] | undefined, u
         return {
             ...item,
             subMenu: filteredSubMenu,
+            lockedByFeature,
         };
     }
 
-    return item;
+    return lockedByFeature ? { ...item, lockedByFeature } : item;
 }
 
 /**

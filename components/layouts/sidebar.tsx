@@ -115,6 +115,16 @@ const Sidebar = () => {
 
     const toggleMenu = (label: string) => setCurrentMenu((prev) => (prev === label ? '' : label));
 
+    const packageUpgradeHref = (featureSlug?: string) => {
+        const params = new URLSearchParams();
+        params.set('error_type', 'feature_not_in_plan');
+        params.set('message', 'This feature is not included in your subscription plan.');
+        if (featureSlug) {
+            params.set('details', JSON.stringify({ feature: featureSlug }));
+        }
+        return `/subscription?${params.toString()}`;
+    };
+
     // Refreshes the cached permissions array for the current store. Permissions are
     // otherwise only fetched once at login and persisted, so a role change made
     // elsewhere wouldn't show up until next login — this keeps it reasonably fresh
@@ -327,6 +337,7 @@ const Sidebar = () => {
                         const parentActive = route.subMenu ? isParentActive(route) : false;
                         const isOpen = currentMenu === route.label;
                         const directActive = !route.subMenu && !!route.href && isActiveRoute(route.href);
+                        const hasLockedChildren = !!route.subMenu?.some((sub) => sub.lockedByFeature || sub.subMenu?.some((nested) => nested.lockedByFeature));
 
                         return (
                             <div key={route.label} className="mb-0.5">
@@ -353,9 +364,12 @@ const Sidebar = () => {
                                                 </span>
                                                 <span>{t(route.label)}</span>
                                             </div>
-                                            <ChevronDown className={`h-3.5 w-3.5 flex-shrink-0 transition-transform duration-200 ${
-                                                isOpen ? 'rotate-180' : ''
-                                            } text-white`} />
+                                            <div className="flex items-center gap-2">
+                                                {hasLockedChildren && <Ban className="h-3.5 w-3.5 flex-shrink-0 text-orange-300" />}
+                                                <ChevronDown className={`h-3.5 w-3.5 flex-shrink-0 transition-transform duration-200 ${
+                                                    isOpen ? 'rotate-180' : ''
+                                                } text-white`} />
+                                            </div>
                                         </button>
 
                                         {/* Submenu */}
@@ -364,18 +378,23 @@ const Sidebar = () => {
                                                 {route.subMenu.map((sub) => {
                                                     if (sub.href) {
                                                         const active = isActiveRoute(sub.href);
+                                                        const locked = !!sub.lockedByFeature;
                                                         return (
                                                             <Link
                                                                 key={sub.label}
-                                                                href={sub.href}
+                                                                href={locked ? packageUpgradeHref(sub.lockedByFeature) : sub.href}
+                                                                title={locked ? t('msg_feature_not_in_plan') : undefined}
                                                                 className={`flex items-center gap-2 rounded-lg px-2.5 py-2 text-[13.5px] font-medium transition-all duration-150 ${
-                                                                    active
+                                                                    locked
+                                                                        ? 'text-white/45 hover:bg-white/[0.05] hover:text-white/70'
+                                                                        : active
                                                                         ? 'bg-primary/[0.13] font-semibold text-white'
                                                                         : 'text-white hover:bg-white/[0.07]'
                                                                 }`}
                                                             >
-                                                                {active && <span className="h-1 w-1 flex-shrink-0 rounded-full bg-white" />}
-                                                                {t(sub.label)}
+                                                                {active && !locked && <span className="h-1 w-1 flex-shrink-0 rounded-full bg-white" />}
+                                                                <span className="min-w-0 flex-1 truncate">{t(sub.label)}</span>
+                                                                {locked && <Ban className="h-3.5 w-3.5 flex-shrink-0 text-orange-300" />}
                                                             </Link>
                                                         );
                                                     }
@@ -393,18 +412,23 @@ const Sidebar = () => {
                                                                 {sub.subMenu.map((nested) => {
                                                                     if (!nested.href) return null;
                                                                     const active = isActiveRoute(nested.href);
+                                                                    const locked = !!nested.lockedByFeature;
                                                                     return (
                                                                         <Link
                                                                             key={nested.label}
-                                                                            href={nested.href}
+                                                                            href={locked ? packageUpgradeHref(nested.lockedByFeature) : nested.href}
+                                                                            title={locked ? t('msg_feature_not_in_plan') : undefined}
                                                                             className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-[13px] font-medium transition-all duration-150 ${
-                                                                                active
+                                                                                locked
+                                                                                    ? 'text-white/45 hover:bg-white/[0.05] hover:text-white/70'
+                                                                                    : active
                                                                                     ? 'bg-primary/[0.13] font-semibold text-white'
                                                                                     : 'text-white hover:bg-white/[0.07]'
                                                                             }`}
                                                                         >
-                                                                            {active && <span className="h-1 w-1 flex-shrink-0 rounded-full bg-white" />}
-                                                                            {t(nested.label)}
+                                                                            {active && !locked && <span className="h-1 w-1 flex-shrink-0 rounded-full bg-white" />}
+                                                                            <span className="min-w-0 flex-1 truncate">{t(nested.label)}</span>
+                                                                            {locked && <Ban className="h-3.5 w-3.5 flex-shrink-0 text-orange-300" />}
                                                                         </Link>
                                                                     );
                                                                 })}
@@ -419,10 +443,16 @@ const Sidebar = () => {
                                     </>
                                 ) : (
                                     /* Direct link */
+                                    (() => {
+                                        const locked = !!route.lockedByFeature;
+                                        return (
                                     <Link
-                                        href={route.href!}
+                                        href={locked ? packageUpgradeHref(route.lockedByFeature) : route.href!}
+                                        title={locked ? t('msg_feature_not_in_plan') : undefined}
                                         className={`group flex items-center justify-between rounded-lg px-3 py-2.5 text-sm font-semibold transition-all duration-150 ${
-                                            directActive
+                                            locked
+                                                ? 'text-white/45 hover:bg-white/[0.05] hover:text-white/70'
+                                                : directActive
                                                 ? 'bg-primary/[0.15] text-white'
                                                 : 'text-white hover:bg-white/[0.07]'
                                         }`}
@@ -437,7 +467,9 @@ const Sidebar = () => {
                                         </div>
 
                                         {/* Notification badge */}
-                                        {route.label === 'Notifications' && unreadCount > 0 && (
+                                        {locked ? (
+                                            <Ban className="h-3.5 w-3.5 flex-shrink-0 text-orange-300" />
+                                        ) : route.label === 'Notifications' && unreadCount > 0 && (
                                             <span className="relative flex items-center">
                                                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400/40" />
                                                 <span className="relative flex min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-bold leading-none text-white">
@@ -446,6 +478,8 @@ const Sidebar = () => {
                                             </span>
                                         )}
                                     </Link>
+                                        );
+                                    })()
                                 )}
                             </div>
                         );
