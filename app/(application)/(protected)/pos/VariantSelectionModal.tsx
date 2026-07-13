@@ -4,7 +4,7 @@ import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
 import { getPrimaryProductImageUrl, resolveProductImageUrl } from '@/lib/image-url';
 import { Dialog, Transition } from '@headlessui/react';
-import { Check, Package, ShoppingCart, X } from 'lucide-react';
+import { Check, Package, Plus, ShoppingCart, X } from 'lucide-react';
 import Image from 'next/image';
 import { showMessage } from '@/lib/toast';
 import { Fragment, useState } from 'react';
@@ -245,10 +245,15 @@ export default function VariantSelectionModal({ isOpen, onClose, product, onSele
                                                         <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                                                         {t('msg_adding')}
                                                     </>
-                                                ) : (
+                                                ) : mode === 'pos' ? (
                                                     <>
                                                         <ShoppingCart className="h-4 w-4" />
                                                         {selectedVariantIndex !== null && totalPrice > 0 ? formatCurrency(totalPrice) : t('btn_add')}
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Plus className="h-4 w-4" />
+                                                        {t('btn_add')}
                                                     </>
                                                 )}
                                             </button>
