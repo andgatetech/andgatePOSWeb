@@ -382,6 +382,9 @@ export default function PricingPlansGrid({ showComparison = true, registerHref =
                         <p className="mx-auto mt-2 max-w-2xl text-sm text-gray-500">
                             {t('pricing_page.table_subheading') || 'Every plan includes all 15 modules. The difference is scale — stores, products, and support level.'}
                         </p>
+                        <p className="mx-auto mt-3 max-w-2xl rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
+                            {t('pricing_page.trial_all_features_note') || 'Trial accounts can explore all features for 14 days. The comparison below shows what remains included after choosing a paid plan.'}
+                        </p>
                     </div>
 
                     {/* Table */}
