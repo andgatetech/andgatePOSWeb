@@ -72,10 +72,10 @@ const nextConfig = {
     images: {
         // Serve modern formats (WebP/AVIF) automatically
         formats: ['image/avif', 'image/webp'],
-        // Disable image optimization for local dev — backend runs on 127.0.0.1 which
-        // Next.js blocks server-side (private IP restriction). In production, images
-        // come from a real public domain so optimization works fine there.
-        unoptimized: process.env.NODE_ENV === 'development',
+        // Disable image optimization globally to prevent hitting Vercel's Image Optimization limits.
+        // With 7000+ products, Vercel will quickly return OPTIMIZED_IMAGE_REQUEST_PAYMENT_REQUIRED
+        // if this is enabled in production.
+        unoptimized: true,
         remotePatterns: [
             {
                 protocol: 'http',
