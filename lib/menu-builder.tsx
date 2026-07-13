@@ -1,5 +1,26 @@
 // lib/menu-builder.tsx
-import { BarChart, BarChart3, Bell, BookOpen, BrainCircuit, BriefcaseBusiness, CalendarCheck, FileText, Home, Layers, MessagesSquare, Package, Receipt, Settings, Shield, ShoppingBag, ShoppingCart, Tag, Truck, Users } from 'lucide-react';
+import {
+    BarChart,
+    BarChart3,
+    Bell,
+    BookOpen,
+    BrainCircuit,
+    BriefcaseBusiness,
+    CalendarCheck,
+    FileText,
+    Home,
+    Layers,
+    MessagesSquare,
+    Package,
+    Receipt,
+    Settings,
+    Shield,
+    ShoppingBag,
+    ShoppingCart,
+    Tag,
+    Truck,
+    Users,
+} from 'lucide-react';
 import React from 'react';
 
 export interface MenuItem {
@@ -31,7 +52,6 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         label: 'Dashboard',
         icon: React.createElement(Home),
         href: '/dashboard',
-       
     },
     {
         label: 'business_os_title',
@@ -40,137 +60,42 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         requiredPermissions: ['business-os.view', 'orders.index', 'reports.sales', 'expenses.index'],
     },
     {
-        label: 'operations_title',
-        icon: React.createElement(Receipt),
-        requiredPermissions: ['cash-closing.create', 'cash-closing.view', 'orders.index', 'orders.create', 'petty-cash.create', 'petty-cash.view', 'expenses.index', 'service-jobs.view', 'service-jobs.create', 'products.index'],
+        label: 'Notifications',
+        icon: React.createElement(Bell),
+        href: '/notifications',
+        requiredPermissions: ['notifications.index'],
+    },
+    {
+        label: 'POS',
+        icon: React.createElement(ShoppingCart),
+        requiredPermissions: ['orders.create'],
         subMenu: [
             {
-                label: 'cash_closing_title',
-                href: '/cash-closing',
-                requiredPermissions: ['cash-closing.create', 'cash-closing.view', 'orders.index', 'orders.create'],
-            },
-            {
-                label: 'cash_drawer_history_title',
-                href: '/cash-drawer/history',
-                requiredPermissions: ['cash-drawer.view', 'reports.sales'],
-            },
-            {
-                label: 'petty_cash_title',
-                href: '/petty-cash',
-                requiredPermissions: ['petty-cash.create', 'petty-cash.view', 'expenses.index', 'expenses.create'],
-            },
-            {
-                label: 'service_jobs_title',
-                href: '/service-jobs',
-                requiredPermissions: ['service-jobs.view', 'service-jobs.create', 'orders.index', 'products.index'],
+                label: 'Terminal',
+                href: '/pos',
+                requiredPermissions: ['orders.create'],
             },
         ],
     },
     {
-        label: 'hr_title',
-        icon: React.createElement(CalendarCheck),
-        requiredPermissions: ['hr.attendance.create', 'hr.attendance.view', 'users.view'],
+        label: 'Orders',
+        icon: React.createElement(FileText),
+        requiredPermissions: ['orders.index'],
         subMenu: [
             {
-                label: 'hr_attendance_title',
-                href: '/hr/attendance',
-                requiredPermissions: ['hr.attendance.create', 'hr.attendance.view', 'users.view'],
+                label: 'Order List',
+                href: '/orders',
+                requiredPermissions: ['orders.index'],
             },
             {
-                label: 'payroll_title',
-                href: '/hr/payroll',
-                requiredPermissions: ['hr.payroll.view', 'hr.payroll.manage'],
+                label: 'Order Returns List',
+                href: '/orders/return/list',
+                requiredPermissions: ['orders.index'],
             },
             {
-                label: 'advance_title',
-                href: '/hr/salary-advance',
-                requiredPermissions: ['hr.advance.view', 'hr.advance.create', 'hr.advance.approve'],
-            },
-            {
-                label: 'bonus_title',
-                href: '/hr/festival-bonus',
-                requiredPermissions: ['hr.bonus.view', 'hr.bonus.manage'],
-            },
-            {
-                label: 'leave_title',
-                href: '/hr/leave',
-                requiredPermissions: ['hr.leave.view', 'hr.leave.create', 'hr.leave.approve', 'hr.holiday.view', 'hr.holiday.manage'],
-            },
-            {
-                label: 'shift_title',
-                href: '/hr/shifts',
-                requiredPermissions: ['hr.shift.view', 'hr.shift.manage'],
-            },
-            {
-                label: 'document_title',
-                href: '/hr/documents',
-                requiredPermissions: ['hr.documents.view', 'hr.documents.manage'],
-            },
-            {
-                label: 'Employees Management',
-                href: '/employees',
-                ownerOnly: true,
-            },
-            {
-                label: 'Roles',
-                href: '/roles',
-                requiredPermissions: ['users.view'],
-            },
-        ],
-    },
-    {
-        label: 'Store',
-        icon: React.createElement(ShoppingBag),
-        requiredPermissions: ['stores.view'],
-        subMenu: [
-            {
-                label: 'Add Store',
-                href: '/store/create',
-                requiredPermissions: ['stores.create'],
-            },
-            {
-                label: 'Store',
-                href: '/store',
-                requiredPermissions: ['stores.view'],
-            },
-            {
-                label: 'Settings',
-                href: '/store/setting',
-                requiredPermissions: ['stores.edit'],
-            },
-        ],
-    },
-    {
-        label: 'Category',
-        icon: React.createElement(Layers),
-        requiredPermissions: ['categories.index'],
-        subMenu: [
-            {
-                label: 'Add Category',
-                href: '/category/create',
-                requiredPermissions: ['categories.create'],
-            },
-            {
-                label: 'Category List',
-                href: '/category',
-                requiredPermissions: ['categories.index'],
-            },
-        ],
-    },
-    {
-        label: 'Brand',
-        icon: React.createElement(Tag),
-        requiredPermissions: ['brands.index'],
-        subMenu: [
-            {
-                label: 'Add Brand',
-                href: '/brand/create',
-                requiredPermissions: ['brands.create'],
-            },
-            {
-                label: 'Brand List',
-                href: '/brand',
-                requiredPermissions: ['brands.index'],
+                label: 'Coupons',
+                href: '/coupons',
+                requiredPermissions: ['orders.view'],
             },
         ],
     },
@@ -224,36 +149,36 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         ],
     },
     {
-        label: 'POS',
-        icon: React.createElement(ShoppingCart),
-        requiredPermissions: ['orders.create'],
+        label: 'Category',
+        icon: React.createElement(Layers),
+        requiredPermissions: ['categories.index'],
         subMenu: [
             {
-                label: 'Terminal',
-                href: '/pos',
-                requiredPermissions: ['orders.create'],
+                label: 'Add Category',
+                href: '/category/create',
+                requiredPermissions: ['categories.create'],
+            },
+            {
+                label: 'Category List',
+                href: '/category',
+                requiredPermissions: ['categories.index'],
             },
         ],
     },
     {
-        label: 'Orders',
-        icon: React.createElement(FileText),
-        requiredPermissions: ['orders.index'],
+        label: 'Brand',
+        icon: React.createElement(Tag),
+        requiredPermissions: ['brands.index'],
         subMenu: [
             {
-                label: 'Order List',
-                href: '/orders',
-                requiredPermissions: ['orders.index'],
+                label: 'Add Brand',
+                href: '/brand/create',
+                requiredPermissions: ['brands.create'],
             },
             {
-                label: 'Order Returns List',
-                href: '/orders/return/list',
-                requiredPermissions: ['orders.index'],
-            },
-            {
-                label: 'Coupons',
-                href: '/coupons',
-                requiredPermissions: ['orders.view'],
+                label: 'Brand List',
+                href: '/brand',
+                requiredPermissions: ['brands.index'],
             },
         ],
     },
@@ -297,15 +222,91 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         ],
     },
     {
+        label: 'Customer',
+        icon: React.createElement(Users),
+        requiredPermissions: ['customers.index'],
+        subMenu: [
+            {
+                label: 'crm_dashboard_title',
+                href: '/customers/crm',
+                requiredPermissions: ['customers.index'],
+            },
+            {
+                label: 'Add Customer',
+                href: '/customers/create',
+                requiredPermissions: ['customers.create'],
+            },
+            {
+                label: 'Customer List',
+                href: '/customers/list',
+                requiredPermissions: ['customers.index'],
+            },
+            {
+                label: 'Customer Due',
+                href: '/customers/due',
+                requiredPermissions: ['reports.sales'],
+            },
+        ],
+    },
+    {
+        label: 'Expenses',
+        icon: React.createElement(Receipt),
+        requiredPermissions: ['expenses.index'],
+        subMenu: [
+            {
+                label: 'Add Expense',
+                href: '/expenses/create',
+                requiredPermissions: ['expenses.create'],
+            },
+            {
+                label: 'Expense List',
+                href: '/expenses/expense-list',
+                requiredPermissions: ['expenses.index'],
+            },
+        ],
+    },
+    {
+        label: 'operations_title',
+        icon: React.createElement(Receipt),
+        requiredPermissions: [
+            'cash-closing.create',
+            'cash-closing.view',
+            'orders.index',
+            'orders.create',
+            'petty-cash.create',
+            'petty-cash.view',
+            'expenses.index',
+            'service-jobs.view',
+            'service-jobs.create',
+            'products.index',
+        ],
+        subMenu: [
+            {
+                label: 'cash_closing_title',
+                href: '/cash-closing',
+                requiredPermissions: ['cash-closing.create', 'cash-closing.view', 'orders.index', 'orders.create'],
+            },
+            {
+                label: 'cash_drawer_history_title',
+                href: '/cash-drawer/history',
+                requiredPermissions: ['cash-drawer.view', 'reports.sales'],
+            },
+            {
+                label: 'petty_cash_title',
+                href: '/petty-cash',
+                requiredPermissions: ['petty-cash.create', 'petty-cash.view', 'expenses.index', 'expenses.create'],
+            },
+            {
+                label: 'service_jobs_title',
+                href: '/service-jobs',
+                requiredPermissions: ['service-jobs.view', 'service-jobs.create', 'orders.index', 'products.index'],
+            },
+        ],
+    },
+    {
         label: 'Accounting',
         icon: React.createElement(BookOpen),
-        requiredPermissions: [
-            'accounting.accounts.index',
-            'accounting.journals.index',
-            'accounting.cash-book.index',
-            'accounting.income.index',
-            'accounting.reports.view',
-        ],
+        requiredPermissions: ['accounting.accounts.index', 'accounting.journals.index', 'accounting.cash-book.index', 'accounting.income.index', 'accounting.reports.view'],
         subMenu: [
             {
                 label: 'Bank Accounts',
@@ -355,50 +356,6 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         ],
     },
     {
-        label: 'Expenses',
-        icon: React.createElement(Receipt),
-        requiredPermissions: ['expenses.index'],
-        subMenu: [
-            {
-                label: 'Add Expense',
-                href: '/expenses/create',
-                requiredPermissions: ['expenses.create'],
-            },
-            {
-                label: 'Expense List',
-                href: '/expenses/expense-list',
-                requiredPermissions: ['expenses.index'],
-            },
-        ],
-    },
-    {
-        label: 'Customer',
-        icon: React.createElement(Users),
-        requiredPermissions: ['customers.index'],
-        subMenu: [
-            {
-                label: 'crm_dashboard_title',
-                href: '/customers/crm',
-                requiredPermissions: ['customers.index'],
-            },
-            {
-                label: 'Add Customer',
-                href: '/customers/create',
-                requiredPermissions: ['customers.create'],
-            },
-            {
-                label: 'Customer List',
-                href: '/customers/list',
-                requiredPermissions: ['customers.index'],
-            },
-            {
-                label: 'Customer Due',
-                href: '/customers/due',
-                requiredPermissions: ['reports.sales'],
-            },
-        ],
-    },
-    {
         label: 'Report',
         icon: React.createElement(BarChart),
         requiredPermissions: [
@@ -434,9 +391,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
             {
                 label: 'lbl_fiscal_compliance',
                 requiredPermissions: ['fiscal.compliance.view'],
-                subMenu: [
-                    { label: 'lbl_compliance_center', href: '/fiscal-compliance', requiredPermissions: ['fiscal.compliance.view'] },
-                ],
+                subMenu: [{ label: 'lbl_compliance_center', href: '/fiscal-compliance', requiredPermissions: ['fiscal.compliance.view'] }],
             },
             // Customer Reports
             {
@@ -445,7 +400,12 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                 subMenu: [
                     { label: 'Customer Report', href: '/reports/customer', requiredPermissions: ['reports.customer'], requiredFeature: 'reports.customer' },
                     { label: 'Customer Due', href: '/reports/customer-due', requiredPermissions: ['reports.customer-due'], requiredFeature: 'reports.customer-due' },
-                    { label: 'Customer Statement', href: '/reports/customer-statement', requiredPermissions: ['reports.operations.customer-statement'], requiredFeature: 'reports.operations.customer-statement' },
+                    {
+                        label: 'Customer Statement',
+                        href: '/reports/customer-statement',
+                        requiredPermissions: ['reports.operations.customer-statement'],
+                        requiredFeature: 'reports.operations.customer-statement',
+                    },
                 ],
             },
             // Purchase & Supplier Reports
@@ -468,7 +428,12 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                 subMenu: [
                     { label: 'Stock Report', href: '/reports/stock', requiredPermissions: ['stock.reports'], requiredFeature: 'stock.reports' },
                     { label: 'Low Stock', href: '/reports/low-stock', requiredPermissions: ['reports.low-stock'], requiredFeature: 'reports.low-stock' },
-                    { label: 'Threshold Intelligence', href: '/reports/threshold-intelligence', requiredPermissions: ['reports.threshold-intelligence'], requiredFeature: 'reports.threshold-intelligence' },
+                    {
+                        label: 'Threshold Intelligence',
+                        href: '/reports/threshold-intelligence',
+                        requiredPermissions: ['reports.threshold-intelligence'],
+                        requiredFeature: 'reports.threshold-intelligence',
+                    },
                     { label: 'Stock Movement Ledger', href: '/reports/stock-movement', requiredPermissions: ['stock.reports'], requiredFeature: 'stock.reports' },
                     { label: 'Transfer Ledger', href: '/reports/transfer-ledger', requiredPermissions: ['stock.reports'], requiredFeature: 'stock.reports' },
                     { label: 'Idle Products', href: '/reports/idle-product', requiredPermissions: ['reports.inventory'], requiredFeature: 'reports.inventory' },
@@ -560,10 +525,78 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         ],
     },
     {
-        label: 'Notifications',
-        icon: React.createElement(Bell),
-        href: '/notifications',
-        requiredPermissions: ['notifications.index'],
+        label: 'hr_title',
+        icon: React.createElement(CalendarCheck),
+        requiredPermissions: ['hr.attendance.create', 'hr.attendance.view', 'users.view'],
+        subMenu: [
+            {
+                label: 'hr_attendance_title',
+                href: '/hr/attendance',
+                requiredPermissions: ['hr.attendance.create', 'hr.attendance.view', 'users.view'],
+            },
+            {
+                label: 'payroll_title',
+                href: '/hr/payroll',
+                requiredPermissions: ['hr.payroll.view', 'hr.payroll.manage'],
+            },
+            {
+                label: 'advance_title',
+                href: '/hr/salary-advance',
+                requiredPermissions: ['hr.advance.view', 'hr.advance.create', 'hr.advance.approve'],
+            },
+            {
+                label: 'bonus_title',
+                href: '/hr/festival-bonus',
+                requiredPermissions: ['hr.bonus.view', 'hr.bonus.manage'],
+            },
+            {
+                label: 'leave_title',
+                href: '/hr/leave',
+                requiredPermissions: ['hr.leave.view', 'hr.leave.create', 'hr.leave.approve', 'hr.holiday.view', 'hr.holiday.manage'],
+            },
+            {
+                label: 'shift_title',
+                href: '/hr/shifts',
+                requiredPermissions: ['hr.shift.view', 'hr.shift.manage'],
+            },
+            {
+                label: 'document_title',
+                href: '/hr/documents',
+                requiredPermissions: ['hr.documents.view', 'hr.documents.manage'],
+            },
+            {
+                label: 'Employees Management',
+                href: '/employees',
+                ownerOnly: true,
+            },
+            {
+                label: 'Roles',
+                href: '/roles',
+                requiredPermissions: ['users.view'],
+            },
+        ],
+    },
+    {
+        label: 'Store',
+        icon: React.createElement(ShoppingBag),
+        requiredPermissions: ['stores.view'],
+        subMenu: [
+            {
+                label: 'Add Store',
+                href: '/store/create',
+                requiredPermissions: ['stores.create'],
+            },
+            {
+                label: 'Store',
+                href: '/store',
+                requiredPermissions: ['stores.view'],
+            },
+            {
+                label: 'Settings',
+                href: '/store/setting',
+                requiredPermissions: ['stores.edit'],
+            },
+        ],
     },
     {
         label: 'Ecommerce Management',
@@ -723,15 +756,11 @@ function filterMenuItem(item: MenuItem, userPermissions: string[] | undefined, u
         return null;
     }
 
-    const lockedByFeature = !item.ownerOnly && !hasFeatureAccess(accessibleFeatures, item)
-        ? item.requiredFeature
-        : undefined;
+    const lockedByFeature = !item.ownerOnly && !hasFeatureAccess(accessibleFeatures, item) ? item.requiredFeature : undefined;
 
     // If this item has a submenu, filter it recursively
     if (item.subMenu && item.subMenu.length > 0) {
-        const filteredSubMenu = item.subMenu
-            .map((subItem) => filterMenuItem(subItem, userPermissions, userRole, accessibleFeatures))
-            .filter((subItem): subItem is MenuItem => subItem !== null);
+        const filteredSubMenu = item.subMenu.map((subItem) => filterMenuItem(subItem, userPermissions, userRole, accessibleFeatures)).filter((subItem): subItem is MenuItem => subItem !== null);
 
         // If no submenu items remain after filtering, hide the parent
         if (filteredSubMenu.length === 0) {
