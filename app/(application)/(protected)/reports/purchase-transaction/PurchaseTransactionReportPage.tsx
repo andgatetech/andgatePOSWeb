@@ -199,13 +199,13 @@ const PurchaseTransactionReportPage = () => {
     );
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="min-h-screen bg-[#f6f8fb]">
             <div className="mx-auto">
                 <ReportExportToolbar
                     reportTitle={t('report_purchase_transaction_title')}
                     reportDescription={t('report_purchase_transaction_desc')}
                     reportIcon={<ArrowLeftRight className="h-6 w-6 text-white" />}
-                    iconBgClass="bg-gradient-to-r from-cyan-600 to-cyan-700"
+                    iconBgClass="bg-[#046ca9]"
                     data={transactions}
                     columns={exportColumns}
                     summary={exportSummary}
@@ -215,7 +215,7 @@ const PurchaseTransactionReportPage = () => {
                 />
                 <ReportSummaryCard items={summaryItems} />
                 {byPaymentMethod.length > 0 && (
-                    <div className="mb-6 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+                    <div className="mb-6 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
                         <div className="border-b border-gray-200 bg-gray-50 px-6 py-4">
                             <div className="flex items-center gap-2">
                                 <CreditCard className="h-5 w-5 text-gray-600" />

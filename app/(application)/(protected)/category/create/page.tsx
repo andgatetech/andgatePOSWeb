@@ -61,13 +61,13 @@ const CreateCategoryPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[#f4f9fc] via-white to-[#fff7ed] p-2 sm:p-4 md:p-6">
+        <div className="min-h-screen bg-[#f6f8fb] p-2 sm:p-4 md:p-6">
             <div className="mx-auto">
                 {/* Header */}
-                <div className="mb-4 rounded-xl bg-white p-4 shadow-sm transition-shadow duration-300 hover:shadow-sm sm:mb-6 sm:rounded-2xl sm:p-6 md:mb-8">
+                <div className="mb-4 rounded-lg bg-white p-4 shadow-sm transition-shadow duration-300  sm:mb-6 sm:rounded-lg sm:p-6 md:mb-8">
                     <div className="mb-4 flex flex-col items-start justify-between gap-4 sm:mb-6 sm:flex-row sm:items-center">
                         <div className="flex items-center space-x-3 sm:space-x-4">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-[#046ca9] to-[#034d79] shadow-md sm:h-12 sm:w-12 sm:rounded-xl">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#046ca9] shadow-md sm:h-12 sm:w-12 sm:rounded-lg">
                                 <FolderOpen className="h-5 w-5 text-white sm:h-6 sm:w-6" />
                             </div>
                             <div>
@@ -78,7 +78,7 @@ const CreateCategoryPage = () => {
                         <button
                             type="button"
                             onClick={() => router.push('/category')}
-                            className="flex w-full items-center justify-center space-x-2 rounded-lg bg-gray-100 px-3 py-2 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-200 sm:w-auto sm:justify-start sm:rounded-xl sm:px-4 sm:text-sm"
+                            className="flex w-full items-center justify-center space-x-2 rounded-lg bg-gray-100 px-3 py-2 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-200 sm:w-auto sm:justify-start sm:rounded-lg sm:px-4 sm:text-sm"
                         >
                             <ArrowLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                             <span>{t('btn_back')}</span>
@@ -90,7 +90,9 @@ const CreateCategoryPage = () => {
                                 <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#046ca9]/10 sm:h-8 sm:w-8">
                                     <Store className="h-3.5 w-3.5 text-[#046ca9] sm:h-4 sm:w-4" />
                                 </div>
-                                <p className="text-xs font-medium text-[#034d79] sm:text-sm">{t('lbl_current_store')}: {currentStore.store_name}</p>
+                                <p className="text-xs font-medium text-[#034d79] sm:text-sm">
+                                    {t('lbl_current_store')}: {currentStore.store_name}
+                                </p>
                             </div>
                         </div>
                     )}
@@ -98,7 +100,7 @@ const CreateCategoryPage = () => {
 
                 {/* Form Card */}
                 <form onSubmit={handleSubmit}>
-                    <div className="overflow-hidden rounded-xl bg-white shadow-xl sm:rounded-2xl">
+                    <div className="overflow-hidden rounded-lg bg-white shadow-sm sm:rounded-lg">
                         <div className="p-4 sm:p-6 md:p-8">
                             <h2 className="mb-4 text-lg font-semibold text-gray-900 sm:mb-6 sm:text-xl">{t('lbl_category_information')}</h2>
 
@@ -107,7 +109,7 @@ const CreateCategoryPage = () => {
                                 <div className="lg:col-span-2">
                                     <label className="mb-2 block text-sm font-medium text-gray-700">{t('category_image_label')}</label>
                                     <div className="flex items-center gap-4">
-                                        <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-xl border-2 border-dashed border-gray-300 bg-gray-50">
+                                        <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg border-2 border-dashed border-gray-300 bg-gray-50">
                                             {imagePreview ? (
                                                 <>
                                                     <Image src={imagePreview} alt="Preview" fill className="object-cover" unoptimized />
@@ -153,9 +155,14 @@ const CreateCategoryPage = () => {
                                     <input
                                         type="text"
                                         value={formData.name}
-                                        onChange={(e) => { setFormData({ ...formData, name: e.target.value }); if (errors.name) setErrors({ ...errors, name: '' }); }}
+                                        onChange={(e) => {
+                                            setFormData({ ...formData, name: e.target.value });
+                                            if (errors.name) setErrors({ ...errors, name: '' });
+                                        }}
                                         placeholder={t('category_name_placeholder')}
-                                        className={`w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${errors.name ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-[#046ca9] focus:ring-[#046ca9]'}`}
+                                        className={`w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${
+                                            errors.name ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-[#046ca9] focus:ring-[#046ca9]'
+                                        }`}
                                     />
                                     {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name}</p>}
                                 </div>
@@ -168,7 +175,13 @@ const CreateCategoryPage = () => {
                                         onChange={(value) => setFormData({ ...formData, description: value })}
                                         placeholder={t('placeholder_description')}
                                         className="category-description-editor"
-                                        modules={{ toolbar: [['bold', 'italic', 'underline'], [{ list: 'ordered' }, { list: 'bullet' }], ['link', 'clean']] }}
+                                        modules={{
+                                            toolbar: [
+                                                ['bold', 'italic', 'underline'],
+                                                [{ list: 'ordered' }, { list: 'bullet' }],
+                                                ['link', 'clean'],
+                                            ],
+                                        }}
                                         formats={['bold', 'italic', 'underline', 'list', 'link']}
                                     />
                                 </div>
@@ -182,14 +195,14 @@ const CreateCategoryPage = () => {
                                     type="button"
                                     onClick={() => router.push('/category')}
                                     disabled={isLoading}
-                                    className="w-full rounded-xl border border-gray-300 bg-white px-6 py-3 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+                                    className="w-full rounded-lg border border-gray-300 bg-white px-6 py-3 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                                 >
                                     {t('btn_cancel')}
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={isLoading}
-                                    className="group relative inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-[#046ca9] to-[#034d79] px-6 py-3 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-[#046ca9] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+                                    className="group relative inline-flex w-full items-center justify-center rounded-lg bg-[#046ca9] px-6 py-3 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:bg-[#034d79]  focus:outline-none focus:ring-2 focus:ring-[#046ca9] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                                 >
                                     {isLoading ? (
                                         <>

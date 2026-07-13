@@ -33,7 +33,7 @@ export default function BusinessOsPage() {
         <div className="space-y-5 p-4 sm:p-6">
             {/* Header */}
             <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 text-white shadow-sm">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary/80 text-white shadow-sm">
                     <BriefcaseBusiness className="h-5 w-5" />
                 </div>
                 <div>
@@ -45,13 +45,9 @@ export default function BusinessOsPage() {
             {/* Module Cards — Primary navigation grid */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {modules.map((mod) => (
-                    <Link
-                        key={mod.label}
-                        href={mod.href}
-                        className="group rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md"
-                    >
+                    <Link key={mod.label} href={mod.href} className="group rounded-lg border border-gray-100 bg-white p-5 shadow-sm transition-all hover:border-primary/30 hover:shadow-md">
                         <div className="flex items-start justify-between">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
                                 <mod.icon className="h-5 w-5 text-primary" />
                             </div>
                             {mod.badge > 0 && (
@@ -60,7 +56,7 @@ export default function BusinessOsPage() {
                                 </span>
                             )}
                         </div>
-                        <h3 className="mt-3 text-base font-bold text-gray-900 group-hover:text-primary transition-colors">{mod.label}</h3>
+                        <h3 className="mt-3 text-base font-bold text-gray-900 transition-colors group-hover:text-primary">{mod.label}</h3>
                         <p className="mt-1 text-sm text-gray-500">{mod.desc}</p>
                     </Link>
                 ))}
@@ -69,13 +65,15 @@ export default function BusinessOsPage() {
             {/* Two-column detail */}
             <div className="grid gap-5 lg:grid-cols-2">
                 {/* Recent Closings */}
-                <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+                <div className="rounded-lg border border-gray-100 bg-white p-5 shadow-sm">
                     <div className="mb-4 flex items-center justify-between">
-                        <h3 className="text-sm font-bold text-gray-700 flex items-center gap-2">
+                        <h3 className="flex items-center gap-2 text-sm font-bold text-gray-700">
                             <Receipt className="h-4 w-4 text-primary" />
                             {t('bos_recent_closings')}
                         </h3>
-                        <Link href="/cash-closing" className="text-xs font-medium text-primary hover:underline">{t('lbl_view_all')} →</Link>
+                        <Link href="/cash-closing" className="text-xs font-medium text-primary hover:underline">
+                            {t('lbl_view_all')} →
+                        </Link>
                     </div>
                     {lastClosings.length === 0 ? (
                         <p className="py-8 text-center text-sm text-gray-400">{t('bos_no_closings')}</p>
@@ -86,13 +84,15 @@ export default function BusinessOsPage() {
                                     <div>
                                         <span className="font-semibold text-gray-900">{formatCurrency(c.actual_cash || 0)}</span>
                                         <span className={`ml-2 text-xs font-medium ${parseFloat(c.difference || 0) < 0 ? 'text-red-500' : 'text-emerald-600'}`}>
-                                            {parseFloat(c.difference || 0) > 0 ? '+' : ''}{formatCurrency(c.difference || 0)}
+                                            {parseFloat(c.difference || 0) > 0 ? '+' : ''}
+                                            {formatCurrency(c.difference || 0)}
                                         </span>
                                     </div>
-                                    <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                                        c.status === 'approved' ? 'bg-emerald-100 text-emerald-700' :
-                                        c.status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'
-                                    }`}>
+                                    <span
+                                        className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                                            c.status === 'approved' ? 'bg-emerald-100 text-emerald-700' : c.status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'
+                                        }`}
+                                    >
                                         {c.status === 'approved' ? t('bos_approved') : c.status === 'rejected' ? t('bos_rejected') : t('bos_submitted')}
                                     </span>
                                 </div>
@@ -104,8 +104,8 @@ export default function BusinessOsPage() {
                 {/* Tasks + Quick Links */}
                 <div className="space-y-4">
                     {/* Open Tasks */}
-                    <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-                        <h3 className="mb-3 text-sm font-bold text-gray-700 flex items-center gap-2">
+                    <div className="rounded-lg border border-gray-100 bg-white p-5 shadow-sm">
+                        <h3 className="mb-3 flex items-center gap-2 text-sm font-bold text-gray-700">
                             <ClipboardList className="h-4 w-4 text-primary" />
                             {t('bos_open_tasks_title')}
                             {openTasks > 0 && <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">{openTasks}</span>}
@@ -117,7 +117,7 @@ export default function BusinessOsPage() {
                                 {recentTasks.map((task: any) => (
                                     <div key={task.id} className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-gray-50">
                                         <Clock className="h-3.5 w-3.5 flex-shrink-0 text-amber-500" />
-                                        <span className="text-gray-700 truncate">{task.title}</span>
+                                        <span className="truncate text-gray-700">{task.title}</span>
                                     </div>
                                 ))}
                             </div>
@@ -125,7 +125,7 @@ export default function BusinessOsPage() {
                     </div>
 
                     {/* Quick Links */}
-                    <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+                    <div className="rounded-lg border border-gray-100 bg-white p-5 shadow-sm">
                         <h3 className="mb-3 text-sm font-bold text-gray-700">{t('bos_quick_links')}</h3>
                         <div className="grid grid-cols-2 gap-1.5">
                             {[

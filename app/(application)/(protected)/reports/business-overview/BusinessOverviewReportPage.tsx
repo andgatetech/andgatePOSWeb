@@ -163,7 +163,7 @@ const BusinessOverviewReportPage = () => {
                 reportTitle={t('report_business_overview_title')}
                 reportDescription={t('report_business_overview_desc')}
                 reportIcon={<Building2 className="h-6 w-6 text-white" />}
-                iconBgClass="bg-gradient-to-r from-blue-600 to-emerald-600"
+                iconBgClass="bg-[#046ca9]"
                 data={stores}
                 columns={exportColumns}
                 summary={[

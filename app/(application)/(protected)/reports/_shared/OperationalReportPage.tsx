@@ -9,19 +9,7 @@ import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import Loader from '@/lib/Loader';
-import {
-    AlertTriangle,
-    ArrowLeftRight,
-    Banknote,
-    ClipboardList,
-    FileText,
-    Package,
-    Percent,
-    Receipt,
-    ShieldCheck,
-    User,
-    Wallet,
-} from 'lucide-react';
+import { AlertTriangle, ArrowLeftRight, Banknote, ClipboardList, FileText, Package, Percent, Receipt, ShieldCheck, User, Wallet } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 type FieldType = 'text' | 'money' | 'number' | 'date';
@@ -56,16 +44,7 @@ const iconMap = {
     audit: ShieldCheck,
 };
 
-const OperationalReportPage: React.FC<OperationalReportPageProps> = ({
-    title,
-    description,
-    fileName,
-    icon,
-    useReportMutation,
-    fields,
-    summaryFields,
-    defaultSort = 'created_at',
-}) => {
+const OperationalReportPage: React.FC<OperationalReportPageProps> = ({ title, description, fileName, icon, useReportMutation, fields, summaryFields, defaultSort = 'created_at' }) => {
     const { t } = getTranslation();
     const { formatCurrency, formatNumber } = useCurrency();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
@@ -84,7 +63,9 @@ const OperationalReportPage: React.FC<OperationalReportPageProps> = ({
         return params;
     }, [apiParams, currentStoreId, currentPage, itemsPerPage, sortField, sortDirection]);
 
-    useEffect(() => { lastQueryParams.current = ''; }, [currentStoreId]);
+    useEffect(() => {
+        lastQueryParams.current = '';
+    }, [currentStoreId]);
 
     useEffect(() => {
         const queryString = JSON.stringify(queryParams);
@@ -121,9 +102,7 @@ const OperationalReportPage: React.FC<OperationalReportPageProps> = ({
                     field.type === 'date' ? (
                         <DateColumn date={value} />
                     ) : (
-                        <span className={field.type === 'money' || field.type === 'number' ? 'font-semibold text-gray-900' : 'text-gray-700'}>
-                            {formatValue(value, field.type)}
-                        </span>
+                        <span className={field.type === 'money' || field.type === 'number' ? 'font-semibold text-gray-900' : 'text-gray-700'}>{formatValue(value, field.type)}</span>
                     ),
             })),
         [fields, formatValue, t]
@@ -145,7 +124,14 @@ const OperationalReportPage: React.FC<OperationalReportPageProps> = ({
             summaryFields.map((field, index) => ({
                 label: t(field.label),
                 value: formatValue(summary[field.key], field.type),
-                icon: index % 3 === 0 ? <Icon className="h-4 w-4 text-blue-600" /> : index % 3 === 1 ? <ClipboardList className="h-4 w-4 text-emerald-600" /> : <Banknote className="h-4 w-4 text-purple-600" />,
+                icon:
+                    index % 3 === 0 ? (
+                        <Icon className="h-4 w-4 text-blue-600" />
+                    ) : index % 3 === 1 ? (
+                        <ClipboardList className="h-4 w-4 text-emerald-600" />
+                    ) : (
+                        <Banknote className="h-4 w-4 text-purple-600" />
+                    ),
                 bgColor: index % 3 === 0 ? 'bg-blue-500' : index % 3 === 1 ? 'bg-emerald-500' : 'bg-purple-500',
                 lightBg: index % 3 === 0 ? 'bg-blue-50' : index % 3 === 1 ? 'bg-emerald-50' : 'bg-purple-50',
                 textColor: index % 3 === 0 ? 'text-blue-600' : index % 3 === 1 ? 'text-emerald-600' : 'text-purple-600',
@@ -153,10 +139,7 @@ const OperationalReportPage: React.FC<OperationalReportPageProps> = ({
         [Icon, formatValue, summary, summaryFields, t]
     );
 
-    const exportSummary = useMemo(
-        () => summaryFields.map((field) => ({ label: t(field.label), value: formatValue(summary[field.key], field.type) })),
-        [formatValue, summary, summaryFields, t]
-    );
+    const exportSummary = useMemo(() => summaryFields.map((field) => ({ label: t(field.label), value: formatValue(summary[field.key], field.type) })), [formatValue, summary, summaryFields, t]);
 
     const filterSummary = useMemo(() => {
         const selectedStore = apiParams.store_ids
@@ -210,7 +193,13 @@ const OperationalReportPage: React.FC<OperationalReportPageProps> = ({
                 getExportData={fetchAllDataForExport}
             />
 
-            <BasicReportFilter onFilterChange={(params) => { setApiParams(params); setCurrentPage(1); }} placeholder={t('lbl_search')} />
+            <BasicReportFilter
+                onFilterChange={(params) => {
+                    setApiParams(params);
+                    setCurrentPage(1);
+                }}
+                placeholder={t('lbl_search')}
+            />
             <ReportSummaryCard items={summaryItems} />
             <ReusableTable
                 data={rows}

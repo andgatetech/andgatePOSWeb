@@ -245,7 +245,7 @@ export default function ComplianceCalendarPage() {
             {/* Header */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#046ca9] to-[#034d79] text-white shadow-sm">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#046ca9] text-white shadow-sm">
                         <CalendarDays className="h-5 w-5" />
                     </div>
                     <div>
@@ -265,26 +265,26 @@ export default function ComplianceCalendarPage() {
 
             {/* Stats */}
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                <div className="rounded-xl border border-red-100 bg-red-50 p-4">
+                <div className="rounded-lg border border-red-100 bg-red-50 p-4">
                     <p className="text-2xl font-black text-red-700">{stats.overdue}</p>
                     <p className="text-xs font-medium text-red-600">{t('compliance_overdue')}</p>
                 </div>
-                <div className="rounded-xl border border-amber-100 bg-amber-50 p-4">
+                <div className="rounded-lg border border-amber-100 bg-amber-50 p-4">
                     <p className="text-2xl font-black text-amber-700">{stats.dueSoon}</p>
                     <p className="text-xs font-medium text-amber-600">{t('compliance_due_soon')}</p>
                 </div>
-                <div className="rounded-xl border border-green-100 bg-green-50 p-4">
+                <div className="rounded-lg border border-green-100 bg-green-50 p-4">
                     <p className="text-2xl font-black text-green-700">{stats.ok}</p>
                     <p className="text-xs font-medium text-green-600">{t('compliance_up_to_date')}</p>
                 </div>
-                <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
+                <div className="rounded-lg border border-gray-100 bg-gray-50 p-4">
                     <p className="text-2xl font-black text-gray-700">{stats.info}</p>
                     <p className="text-xs font-medium text-gray-600">{t('compliance_info_items')}</p>
                 </div>
             </div>
 
             {/* Events list */}
-            <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+            <div className="overflow-hidden rounded-lg border border-gray-100 bg-white shadow-sm">
                 <div className="border-b border-gray-100 px-6 py-4">
                     <h2 className="font-bold text-gray-900">{t('compliance_upcoming_items')}</h2>
                 </div>
@@ -304,9 +304,7 @@ export default function ComplianceCalendarPage() {
                             return (
                                 <div key={event.id} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
                                     <div className="flex items-start gap-3">
-                                        <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border ${style.border} ${style.bg} ${style.text}`}>
-                                            {style.icon}
-                                        </div>
+                                        <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border ${style.border} ${style.bg} ${style.text}`}>{style.icon}</div>
                                         <div>
                                             <p className="font-semibold text-gray-900">{event.title}</p>
                                             {event.date && <p className="text-xs text-gray-500">{formatDate(event.date, i18n.language)}</p>}
@@ -335,20 +333,11 @@ export default function ComplianceCalendarPage() {
 
             {/* Add event modal */}
             {showAddModal && (
-                <div
-                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-5"
-                    role="dialog"
-                    aria-modal="true"
-                    onClick={() => setShowAddModal(false)}
-                >
-                    <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-5" role="dialog" aria-modal="true" onClick={() => setShowAddModal(false)}>
+                    <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-sm" onClick={(e) => e.stopPropagation()}>
                         <div className="mb-4 flex items-center justify-between">
                             <h3 className="text-lg font-bold text-gray-900">{t('compliance_add_event')}</h3>
-                            <button
-                                type="button"
-                                onClick={() => setShowAddModal(false)}
-                                className="rounded p-1 text-gray-400 hover:bg-gray-100"
-                            >
+                            <button type="button" onClick={() => setShowAddModal(false)} className="rounded p-1 text-gray-400 hover:bg-gray-100">
                                 <X className="h-5 w-5" />
                             </button>
                         </div>
@@ -396,11 +385,7 @@ export default function ComplianceCalendarPage() {
                                 />
                             </div>
                             <div className="flex justify-end gap-2 pt-2">
-                                <button
-                                    type="button"
-                                    onClick={() => setShowAddModal(false)}
-                                    className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                                >
+                                <button type="button" onClick={() => setShowAddModal(false)} className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
                                     {t('btn_cancel')}
                                 </button>
                                 <button

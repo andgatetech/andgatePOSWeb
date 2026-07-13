@@ -6,36 +6,20 @@ import Loader from '@/lib/Loader';
 import { closeReservedPdfWindow, isMobilePdfDownloadRisk, reservePdfWindow } from '@/lib/pdf-mobile-download';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import enLocale from '@/public/locales/en.json';
-import {
-    useCreateAccountMutation,
-    useGetAccountsQuery,
-    useSeedDefaultAccountsMutation,
-    useUpdateAccountMutation,
-} from '@/store/features/accounting/accountingApi';
+import { useCreateAccountMutation, useGetAccountsQuery, useSeedDefaultAccountsMutation, useUpdateAccountMutation } from '@/store/features/accounting/accountingApi';
 import { Edit2, FileText, Loader2, Plus, Printer, RefreshCw, Shield } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-    buildHeaderRow,
-    buildPdfFooter,
-    buildPdfHeader,
-    buildTableLayout,
-    clampPdfText,
-    computeColumnWidths,
-    ensureAccountingPdf,
-    outputPdf,
-    PdfColumnDef,
-    sanText,
-} from '../_shared/AccountingPdf';
+import { buildHeaderRow, buildPdfFooter, buildPdfHeader, buildTableLayout, clampPdfText, computeColumnWidths, ensureAccountingPdf, outputPdf, PdfColumnDef, sanText } from '../_shared/AccountingPdf';
 
 const ACCOUNT_TYPES = ['asset', 'liability', 'equity', 'revenue', 'cogs', 'expense'] as const;
 
 const typeColors: Record<string, string> = {
-    asset:     'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
+    asset: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
     liability: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
-    equity:    'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
-    revenue:   'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
-    cogs:      'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300',
-    expense:   'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300',
+    equity: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
+    revenue: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
+    cogs: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300',
+    expense: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300',
 };
 
 const emptyForm = {
@@ -60,12 +44,11 @@ const ChartOfAccountsPage = () => {
 
     const isBn = i18n.language === 'bn';
 
-    useEffect(() => { ensureAccountingPdf(); }, []);
+    useEffect(() => {
+        ensureAccountingPdf();
+    }, []);
 
-    const { data, isLoading, refetch } = useGetAccountsQuery(
-        { store_id: currentStoreId, type: filterType || undefined },
-        { skip: !currentStoreId }
-    );
+    const { data, isLoading, refetch } = useGetAccountsQuery({ store_id: currentStoreId, type: filterType || undefined }, { skip: !currentStoreId });
 
     const [createAccount, { isLoading: creating }] = useCreateAccountMutation();
     const [updateAccount, { isLoading: updating }] = useUpdateAccountMutation();
@@ -139,8 +122,7 @@ const ChartOfAccountsPage = () => {
             await ensureAccountingPdf();
 
             const useBnFont = isBn;
-            const tDoc = (key: string): string =>
-                useBnFont ? t(key) : ((enLocale as unknown as Record<string, string>)[key] || key);
+            const tDoc = (key: string): string => (useBnFont ? t(key) : (enLocale as unknown as Record<string, string>)[key] || key);
             const san = (text: string): string => sanText(text, useBnFont);
 
             const marginPts = 28;
@@ -160,7 +142,10 @@ const ChartOfAccountsPage = () => {
             const headerRow = buildHeaderRow(columns);
 
             const now = new Date();
-            const generatedText = `${tDoc('lbl_generated')}: ${now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}, ${now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`;
+            const generatedText = `${tDoc('lbl_generated')}: ${now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}, ${now.toLocaleTimeString('en-GB', {
+                hour: '2-digit',
+                minute: '2-digit',
+            })}`;
             const periodText = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 
             const headerBlocks = buildPdfHeader({
@@ -236,13 +221,18 @@ const ChartOfAccountsPage = () => {
     const handlePdfExport = useCallback(async () => {
         const mobilePdfWindow = reservePdfWindow(`chart_of_accounts.pdf`);
         setActiveExport('pdf');
-        try { await generatePdf('download', mobilePdfWindow); } catch (error) { closeReservedPdfWindow(mobilePdfWindow); console.error('[PDF] chart of accounts export failed:', error); } finally { setActiveExport(null); }
+        try {
+            await generatePdf('download', mobilePdfWindow);
+        } catch (error) {
+            closeReservedPdfWindow(mobilePdfWindow);
+            console.error('[PDF] chart of accounts export failed:', error);
+        } finally {
+            setActiveExport(null);
+        }
     }, [generatePdf]);
 
     const handlePrint = useCallback(async () => {
-        const mobilePdfWindow = isMobilePdfDownloadRisk()
-            ? reservePdfWindow(`chart_of_accounts.pdf`)
-            : null;
+        const mobilePdfWindow = isMobilePdfDownloadRisk() ? reservePdfWindow(`chart_of_accounts.pdf`) : null;
         setActiveExport('print');
         try {
             await generatePdf('print', mobilePdfWindow);
@@ -258,35 +248,41 @@ const ChartOfAccountsPage = () => {
     const visibleTypes = filterType ? [filterType] : ACCOUNT_TYPES;
 
     return (
-        <div className="p-4 md:p-6 space-y-6">
+        <div className="space-y-6 p-4 md:p-6">
             {/* Header */}
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-800 dark:text-white">{t('lbl_chart_of_accounts')}</h1>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{t('msg_chart_of_accounts_desc')}</p>
+                    <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">{t('msg_chart_of_accounts_desc')}</p>
                 </div>
-                <div className="flex gap-2 flex-wrap">
-                    <button onClick={handleSeedDefaults} disabled={seeding}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300">
+                <div className="flex flex-wrap gap-2">
+                    <button
+                        onClick={handleSeedDefaults}
+                        disabled={seeding}
+                        className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+                    >
                         <RefreshCw className={`h-4 w-4 ${seeding ? 'animate-spin' : ''}`} />
                         {t('lbl_seed_defaults')}
                     </button>
-                    <button onClick={openCreate}
-                        className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm bg-primary text-white hover:opacity-90">
+                    <button onClick={openCreate} className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-1.5 text-sm text-white hover:opacity-90">
                         <Plus className="h-4 w-4" />
                         {t('lbl_add_account')}
                     </button>
                     {accounts.length > 0 && (
                         <>
-                            <button onClick={handlePrint}
+                            <button
+                                onClick={handlePrint}
                                 disabled={isExporting}
-                                className="flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-all hover:bg-gray-50 disabled:opacity-50">
+                                className="flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-all hover:bg-gray-50 disabled:opacity-50"
+                            >
                                 {activeExport === 'print' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Printer className="h-4 w-4" />}
                                 <span>{t('btn_print')}</span>
                             </button>
-                            <button onClick={handlePdfExport}
+                            <button
+                                onClick={handlePdfExport}
                                 disabled={isExporting}
-                                className="flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700 transition-all hover:bg-red-100 disabled:opacity-50">
+                                className="flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700 transition-all hover:bg-red-100 disabled:opacity-50"
+                            >
                                 {activeExport === 'pdf' ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
                                 <span>{t('btn_pdf')}</span>
                             </button>
@@ -299,12 +295,20 @@ const ChartOfAccountsPage = () => {
             <div className="flex flex-wrap gap-2">
                 <button
                     onClick={() => setFilterType('')}
-                    className={`px-3 py-1 rounded-full text-xs font-medium border ${!filterType ? 'bg-primary text-white border-primary' : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300'}`}>
+                    className={`rounded-full border px-3 py-1 text-xs font-medium ${
+                        !filterType ? 'border-primary bg-primary text-white' : 'border-gray-200 text-gray-600 dark:border-gray-700 dark:text-gray-300'
+                    }`}
+                >
                     {t('lbl_all')}
                 </button>
                 {ACCOUNT_TYPES.map((type) => (
-                    <button key={type} onClick={() => setFilterType(type)}
-                        className={`px-3 py-1 rounded-full text-xs font-medium border capitalize ${filterType === type ? 'bg-primary text-white border-primary' : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300'}`}>
+                    <button
+                        key={type}
+                        onClick={() => setFilterType(type)}
+                        className={`rounded-full border px-3 py-1 text-xs font-medium capitalize ${
+                            filterType === type ? 'border-primary bg-primary text-white' : 'border-gray-200 text-gray-600 dark:border-gray-700 dark:text-gray-300'
+                        }`}
+                    >
                         {t(`lbl_type_${type}`)}
                     </button>
                 ))}
@@ -318,13 +322,13 @@ const ChartOfAccountsPage = () => {
                         const rows = grouped[type] ?? [];
                         if (!rows.length) return null;
                         return (
-                            <div key={type} className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 overflow-hidden">
+                            <div key={type} className="overflow-hidden rounded-lg border border-gray-100 bg-white dark:border-gray-800 dark:bg-gray-900">
                                 <div className={`px-4 py-2.5 text-xs font-semibold uppercase tracking-widest ${typeColors[type]}`}>
                                     {t(`lbl_type_${type}`)} ({rows.length})
                                 </div>
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-sm">
-                                        <thead className="bg-gray-50 dark:bg-gray-800 text-xs text-gray-400 uppercase">
+                                        <thead className="bg-gray-50 text-xs uppercase text-gray-400 dark:bg-gray-800">
                                             <tr>
                                                 <th className="px-4 py-2.5 text-left">{t('lbl_code')}</th>
                                                 <th className="px-4 py-2.5 text-left">{t('lbl_account_name')}</th>
@@ -336,25 +340,22 @@ const ChartOfAccountsPage = () => {
                                         </thead>
                                         <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                                             {rows.map((a: any) => (
-                                                <tr key={a.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                                                <tr key={a.id} className="transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50">
                                                     <td className="px-4 py-3 font-mono text-gray-600 dark:text-gray-300">{a.account_code}</td>
                                                     <td className="px-4 py-3 text-gray-800 dark:text-gray-100">
                                                         {a.name}
                                                         {a.name_bn && <span className="ml-2 text-xs text-gray-400">{a.name_bn}</span>}
                                                     </td>
-                                                    <td className="px-4 py-3 text-gray-500 dark:text-gray-400 text-xs">{a.subtype ?? '—'}</td>
+                                                    <td className="px-4 py-3 text-xs text-gray-500 dark:text-gray-400">{a.subtype ?? '—'}</td>
                                                     <td className="px-4 py-3">
                                                         <span className={`text-xs font-medium ${a.normal_balance === 'debit' ? 'text-success' : 'text-danger'}`}>
                                                             {a.normal_balance === 'debit' ? t('lbl_debit') : t('lbl_credit')}
                                                         </span>
                                                     </td>
-                                                    <td className="px-4 py-3 text-center">
-                                                        {a.is_system && <Shield className="h-3.5 w-3.5 text-gray-400 mx-auto" />}
-                                                    </td>
+                                                    <td className="px-4 py-3 text-center">{a.is_system && <Shield className="mx-auto h-3.5 w-3.5 text-gray-400" />}</td>
                                                     <td className="px-4 py-3 text-center">
                                                         {!a.is_system && (
-                                                            <button onClick={() => openEdit(a)}
-                                                                className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500">
+                                                            <button onClick={() => openEdit(a)} className="rounded-lg p-1.5 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700">
                                                                 <Edit2 className="h-3.5 w-3.5" />
                                                             </button>
                                                         )}
@@ -373,51 +374,77 @@ const ChartOfAccountsPage = () => {
             {/* Create/Edit Modal */}
             {showForm && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                    <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-lg">
-                        <div className="flex items-center justify-between p-5 border-b border-gray-100 dark:border-gray-800">
-                            <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
-                                {editingId ? t('lbl_edit_account') : t('lbl_add_account')}
-                            </h2>
-                            <button onClick={() => setShowForm(false)} className="text-gray-400 hover:text-gray-600">✕</button>
+                    <div className="w-full max-w-lg rounded-lg bg-white shadow-lg dark:bg-gray-900">
+                        <div className="flex items-center justify-between border-b border-gray-100 p-5 dark:border-gray-800">
+                            <h2 className="text-lg font-semibold text-gray-800 dark:text-white">{editingId ? t('lbl_edit_account') : t('lbl_add_account')}</h2>
+                            <button onClick={() => setShowForm(false)} className="text-gray-400 hover:text-gray-600">
+                                ✕
+                            </button>
                         </div>
-                        <form onSubmit={handleSubmit} className="p-5 space-y-4">
+                        <form onSubmit={handleSubmit} className="space-y-4 p-5">
                             {!editingId && (
                                 <div className="grid grid-cols-2 gap-3">
                                     <div>
-                                        <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">{t('lbl_account_code')} *</label>
-                                        <input required value={form.account_code} onChange={(e) => setForm({ ...form, account_code: e.target.value })}
-                                            className="w-full border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-transparent" />
+                                        <label className="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">{t('lbl_account_code')} *</label>
+                                        <input
+                                            required
+                                            value={form.account_code}
+                                            onChange={(e) => setForm({ ...form, account_code: e.target.value })}
+                                            className="w-full rounded-lg border border-gray-200 bg-transparent px-3 py-2 text-sm dark:border-gray-700"
+                                        />
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">{t('lbl_type')} *</label>
-                                        <select required value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}
-                                            className="w-full border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-900">
-                                            {ACCOUNT_TYPES.map((t2) => <option key={t2} value={t2}>{t2}</option>)}
+                                        <label className="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">{t('lbl_type')} *</label>
+                                        <select
+                                            required
+                                            value={form.type}
+                                            onChange={(e) => setForm({ ...form, type: e.target.value })}
+                                            className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900"
+                                        >
+                                            {ACCOUNT_TYPES.map((t2) => (
+                                                <option key={t2} value={t2}>
+                                                    {t2}
+                                                </option>
+                                            ))}
                                         </select>
                                     </div>
                                 </div>
                             )}
                             <div>
-                                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">{t('lbl_account_name')} *</label>
-                                <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
-                                    className="w-full border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-transparent" />
+                                <label className="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">{t('lbl_account_name')} *</label>
+                                <input
+                                    required
+                                    value={form.name}
+                                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                                    className="w-full rounded-lg border border-gray-200 bg-transparent px-3 py-2 text-sm dark:border-gray-700"
+                                />
                             </div>
                             <div>
-                                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">{t('lbl_name_bn')}</label>
-                                <input value={form.name_bn} onChange={(e) => setForm({ ...form, name_bn: e.target.value })}
-                                    className="w-full border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-transparent" />
+                                <label className="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">{t('lbl_name_bn')}</label>
+                                <input
+                                    value={form.name_bn}
+                                    onChange={(e) => setForm({ ...form, name_bn: e.target.value })}
+                                    className="w-full rounded-lg border border-gray-200 bg-transparent px-3 py-2 text-sm dark:border-gray-700"
+                                />
                             </div>
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">{t('lbl_subtype')}</label>
-                                    <input value={form.subtype} onChange={(e) => setForm({ ...form, subtype: e.target.value })}
-                                        className="w-full border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-transparent" />
+                                    <label className="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">{t('lbl_subtype')}</label>
+                                    <input
+                                        value={form.subtype}
+                                        onChange={(e) => setForm({ ...form, subtype: e.target.value })}
+                                        className="w-full rounded-lg border border-gray-200 bg-transparent px-3 py-2 text-sm dark:border-gray-700"
+                                    />
                                 </div>
                                 {!editingId && (
                                     <div>
-                                        <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">{t('lbl_normal_balance')} *</label>
-                                        <select required value={form.normal_balance} onChange={(e) => setForm({ ...form, normal_balance: e.target.value })}
-                                            className="w-full border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-900">
+                                        <label className="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">{t('lbl_normal_balance')} *</label>
+                                        <select
+                                            required
+                                            value={form.normal_balance}
+                                            onChange={(e) => setForm({ ...form, normal_balance: e.target.value })}
+                                            className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900"
+                                        >
                                             <option value="debit">{t('lbl_debit')}</option>
                                             <option value="credit">{t('lbl_credit')}</option>
                                         </select>
@@ -425,17 +452,23 @@ const ChartOfAccountsPage = () => {
                                 )}
                             </div>
                             <div>
-                                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">{t('lbl_description')}</label>
-                                <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
-                                    rows={2} className="w-full border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-transparent resize-none" />
+                                <label className="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">{t('lbl_description')}</label>
+                                <textarea
+                                    value={form.description}
+                                    onChange={(e) => setForm({ ...form, description: e.target.value })}
+                                    rows={2}
+                                    className="w-full resize-none rounded-lg border border-gray-200 bg-transparent px-3 py-2 text-sm dark:border-gray-700"
+                                />
                             </div>
                             <div className="flex gap-3 pt-2">
-                                <button type="button" onClick={() => setShowForm(false)}
-                                    className="flex-1 py-2 rounded-lg border border-gray-200 dark:border-gray-700 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowForm(false)}
+                                    className="flex-1 rounded-lg border border-gray-200 py-2 text-sm text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+                                >
                                     {t('lbl_cancel')}
                                 </button>
-                                <button type="submit" disabled={creating || updating}
-                                    className="flex-1 py-2 rounded-lg bg-primary text-white text-sm hover:opacity-90 disabled:opacity-60">
+                                <button type="submit" disabled={creating || updating} className="flex-1 rounded-lg bg-primary py-2 text-sm text-white hover:opacity-90 disabled:opacity-60">
                                     {creating || updating ? t('lbl_saving') : t('lbl_save')}
                                 </button>
                             </div>

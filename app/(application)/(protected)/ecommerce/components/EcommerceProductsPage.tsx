@@ -127,7 +127,13 @@ const EcommerceProductsPage = () => {
             return;
         }
 
-        const confirmed = await showConfirmDialog(t('ecommerce_update_visibility_confirm_title'), t(visible ? 'ecommerce_make_visible_confirm' : 'ecommerce_make_hidden_confirm'), t('btn_update'), t('btn_cancel'), false);
+        const confirmed = await showConfirmDialog(
+            t('ecommerce_update_visibility_confirm_title'),
+            t(visible ? 'ecommerce_make_visible_confirm' : 'ecommerce_make_hidden_confirm'),
+            t('btn_update'),
+            t('btn_cancel'),
+            false
+        );
         if (!confirmed) return;
 
         const filterPayload = { ...apiParams };
@@ -167,7 +173,7 @@ const EcommerceProductsPage = () => {
                             setSelectedIds((prev) => (event.target.checked ? Array.from(new Set([...prev, row.id])) : prev.filter((id) => id !== row.id)));
                             setSelectAllMatching(false);
                         }}
-                        className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                        className="h-4 w-4 rounded border-gray-300 text-[#046ca9] focus:ring-[#046ca9]"
                     />
                 ),
             },
@@ -263,7 +269,7 @@ const EcommerceProductsPage = () => {
         <div className="space-y-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#046ca9] to-[#034d79] text-white shadow-sm">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#046ca9] text-white shadow-sm">
                         <Globe2 className="h-5 w-5" />
                     </div>
                     <div>
@@ -273,7 +279,7 @@ const EcommerceProductsPage = () => {
                 </div>
             </div>
 
-            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+            <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
                 <EcommerceProductsFilter onFilterChange={handleFilterChange} />
             </div>
 
@@ -282,7 +288,7 @@ const EcommerceProductsPage = () => {
             ) : (
                 <>
                     <div className="grid gap-3 md:grid-cols-4">
-                        <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+                        <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4">
                             <div className="flex items-center gap-3">
                                 <CheckCircle2 className="h-5 w-5 text-emerald-700" />
                                 <div>
@@ -291,7 +297,7 @@ const EcommerceProductsPage = () => {
                                 </div>
                             </div>
                         </div>
-                        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
+                        <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
                             <div className="flex items-center gap-3">
                                 <Clock3 className="h-5 w-5 text-amber-700" />
                                 <div>
@@ -300,7 +306,7 @@ const EcommerceProductsPage = () => {
                                 </div>
                             </div>
                         </div>
-                        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                        <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
                             <div className="flex items-center gap-3">
                                 <EyeOff className="h-5 w-5 text-slate-600" />
                                 <div>
@@ -309,7 +315,7 @@ const EcommerceProductsPage = () => {
                                 </div>
                             </div>
                         </div>
-                        <div className="rounded-xl border border-red-200 bg-red-50 p-4">
+                        <div className="rounded-lg border border-red-200 bg-red-50 p-4">
                             <div className="flex items-center gap-3">
                                 <ShieldAlert className="h-5 w-5 text-red-700" />
                                 <div>
@@ -320,7 +326,7 @@ const EcommerceProductsPage = () => {
                         </div>
                     </div>
 
-                    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
                         <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                             <div>
                                 <h2 className="text-sm font-semibold text-slate-900">{t('ecommerce_catalog_readiness')}</h2>
@@ -338,7 +344,7 @@ const EcommerceProductsPage = () => {
                         </div>
                     </div>
 
-                    <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm lg:flex-row lg:items-center lg:justify-between">
+                    <div className="flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-4 shadow-sm lg:flex-row lg:items-center lg:justify-between">
                         <div>
                             <div className="flex flex-wrap items-center gap-3">
                                 <label className="inline-flex items-center gap-2 text-sm font-medium text-gray-700">
@@ -346,12 +352,10 @@ const EcommerceProductsPage = () => {
                                         type="checkbox"
                                         checked={allPageSelected}
                                         onChange={(event) => {
-                                            setSelectedIds((prev) =>
-                                                event.target.checked ? Array.from(new Set([...prev, ...visiblePageIds])) : prev.filter((id) => !visiblePageIds.includes(id))
-                                            );
+                                            setSelectedIds((prev) => (event.target.checked ? Array.from(new Set([...prev, ...visiblePageIds])) : prev.filter((id) => !visiblePageIds.includes(id))));
                                             setSelectAllMatching(false);
                                         }}
-                                        className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                                        className="h-4 w-4 rounded border-gray-300 text-[#046ca9] focus:ring-[#046ca9]"
                                     />
                                     {t('ecommerce_select_current_page')}
                                 </label>
@@ -363,12 +367,14 @@ const EcommerceProductsPage = () => {
                                             setSelectAllMatching(event.target.checked);
                                             setSelectedIds([]);
                                         }}
-                                        className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                                        className="h-4 w-4 rounded border-gray-300 text-[#046ca9] focus:ring-[#046ca9]"
                                     />
                                     {t('ecommerce_select_all_matching')}
                                 </label>
                                 <span className="text-sm font-medium text-gray-700">
-                                    {selectAllMatching ? t('ecommerce_matching_products_selected').replace('{count}', String(totalItems)) : t('ecommerce_products_selected').replace('{count}', String(selectedIds.length))}
+                                    {selectAllMatching
+                                        ? t('ecommerce_matching_products_selected').replace('{count}', String(totalItems))
+                                        : t('ecommerce_products_selected').replace('{count}', String(selectedIds.length))}
                                 </span>
                             </div>
                             {selectAllMatching && (
@@ -379,18 +385,28 @@ const EcommerceProductsPage = () => {
                             )}
                         </div>
                         <div className="flex flex-wrap gap-2">
-                            <button type="button" onClick={() => handleBulkUpdate(true)} disabled={isBulkUpdating || !hasBulkSelection} className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60">
+                            <button
+                                type="button"
+                                onClick={() => handleBulkUpdate(true)}
+                                disabled={isBulkUpdating || !hasBulkSelection}
+                                className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
                                 <Eye className="h-4 w-4" />
                                 {t('ecommerce_make_visible')}
                             </button>
-                            <button type="button" onClick={() => handleBulkUpdate(false)} disabled={isBulkUpdating || !hasBulkSelection} className="inline-flex items-center gap-2 rounded-lg bg-gray-700 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60">
+                            <button
+                                type="button"
+                                onClick={() => handleBulkUpdate(false)}
+                                disabled={isBulkUpdating || !hasBulkSelection}
+                                className="inline-flex items-center gap-2 rounded-lg bg-gray-700 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
                                 <EyeOff className="h-4 w-4" />
                                 {t('ecommerce_make_hidden')}
                             </button>
                         </div>
                     </div>
 
-                    {error && <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{formatApiError(error)}</div>}
+                    {error && <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">{formatApiError(error)}</div>}
                     <ReusableTable
                         data={products}
                         columns={columns}

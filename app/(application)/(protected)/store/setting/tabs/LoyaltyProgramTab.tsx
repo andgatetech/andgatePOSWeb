@@ -20,12 +20,12 @@ const LoyaltyProgramTab: React.FC<LoyaltyProgramTabProps> = ({ formData, handleI
     const { symbol } = useCurrency();
     return (
         <div className="space-y-6">
-            <div className="rounded-2xl bg-white p-6 shadow-sm">
+            <div className="rounded-lg bg-white p-6 shadow-sm">
                 <h3 className="mb-6 text-lg font-semibold text-gray-900">{t('store_loyalty_title')}</h3>
 
                 <div className="space-y-6">
                     {/* Enable/Disable Toggle */}
-                    <div className="rounded-xl bg-gradient-to-r from-[#046ca9]/10 to-[#e79237]/15 p-6">
+                    <div className="rounded-lg bg-gradient-to-r from-[#046ca9]/10 to-[#e79237]/15 p-6">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
                                 <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#e79237]/20 text-[#c47920]">
@@ -54,7 +54,7 @@ const LoyaltyProgramTab: React.FC<LoyaltyProgramTabProps> = ({ formData, handleI
                         <div className="space-y-4 border-t border-gray-100 pt-6">
                             <div className="grid gap-4 md:grid-cols-2">
                                 {/* Earning Rate */}
-                                <div className="rounded-xl border border-[#046ca9]/20 bg-[#046ca9]/5 p-5">
+                                <div className="rounded-lg border border-[#046ca9]/20 bg-[#046ca9]/5 p-5">
                                     <label className="mb-1 flex items-center text-sm font-semibold text-gray-900">
                                         <Star className="mr-2 h-4 w-4 text-[#046ca9]" />
                                         {t('lbl_earning_rate_title')}
@@ -83,7 +83,7 @@ const LoyaltyProgramTab: React.FC<LoyaltyProgramTabProps> = ({ formData, handleI
                                 </div>
 
                                 {/* Redemption Ratio */}
-                                <div className="rounded-xl border border-[#e79237]/25 bg-[#e79237]/10 p-5">
+                                <div className="rounded-lg border border-[#e79237]/25 bg-[#e79237]/10 p-5">
                                     <label className="mb-1 flex items-center text-sm font-semibold text-gray-900">
                                         <Gift className="mr-2 h-4 w-4 text-[#c47920]" />
                                         {t('lbl_loyalty_redemption_ratio')}
@@ -113,7 +113,11 @@ const LoyaltyProgramTab: React.FC<LoyaltyProgramTabProps> = ({ formData, handleI
                                     </div>
                                     {formData.loyalty_redemption_points && formData.loyalty_redemption_value && (
                                         <p className="mt-3 text-xs text-[#9a5a14]">
-                                            <strong>{formData.loyalty_redemption_points}</strong> {t('lbl_points')} = <strong>{symbol}{formData.loyalty_redemption_value}</strong>
+                                            <strong>{formData.loyalty_redemption_points}</strong> {t('lbl_points')} ={' '}
+                                            <strong>
+                                                {symbol}
+                                                {formData.loyalty_redemption_value}
+                                            </strong>
                                         </p>
                                     )}
                                 </div>
@@ -121,7 +125,7 @@ const LoyaltyProgramTab: React.FC<LoyaltyProgramTabProps> = ({ formData, handleI
 
                             {/* Combined plain-language summary */}
                             {formData.loyalty_points_rate && formData.loyalty_redemption_points && formData.loyalty_redemption_value && (
-                                <div className="rounded-xl bg-gray-50 p-4">
+                                <div className="rounded-lg bg-gray-50 p-4">
                                     <p className="text-xs text-gray-600">
                                         <strong>{t('lbl_how_it_works')}:</strong>{' '}
                                         {t('msg_loyalty_combined_summary', {

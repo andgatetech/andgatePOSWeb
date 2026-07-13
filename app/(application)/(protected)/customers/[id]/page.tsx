@@ -26,10 +26,7 @@ export default function Customer360Page() {
     const { data: customerResponse, isLoading } = useGetSingleCustomerQuery(customerId, { skip: !customerId });
     const { data: pointsResponse } = useGetCustomerPointTransactionsQuery({ customerId, per_page: 8 }, { skip: !customerId });
     const customer = customerResponse?.data?.customer || customerResponse?.data || customerResponse;
-    const { data: dueResponse } = useGetCustomerDuesQuery(
-        { store_id: currentStoreId, search: customer?.phone || customer?.name || '', per_page: 5 },
-        { skip: !currentStoreId || !customer?.id }
-    );
+    const { data: dueResponse } = useGetCustomerDuesQuery({ store_id: currentStoreId, search: customer?.phone || customer?.name || '', per_page: 5 }, { skip: !currentStoreId || !customer?.id });
 
     const [tasks, setTasks] = useState<CrmTask[]>([]);
     const [paymentLinkDue, setPaymentLinkDue] = useState<any>(null);
@@ -126,14 +123,14 @@ export default function Customer360Page() {
     const reorderMessageUrl = buildWhatsAppUrl(customer?.phone, whatsappTemplates.reorder(customer?.name || t('lbl_customer'), storeName));
 
     if (isLoading) {
-        return <div className="rounded-xl bg-white p-6 text-sm text-gray-500">{t('crm_loading_customer')}</div>;
+        return <div className="rounded-lg bg-white p-6 text-sm text-gray-500">{t('crm_loading_customer')}</div>;
     }
 
     if (!customer?.id) {
         return (
-            <div className="rounded-xl bg-white p-6 text-center">
+            <div className="rounded-lg bg-white p-6 text-center">
                 <p className="text-sm text-gray-500">{t('crm_customer_not_found')}</p>
-                <button onClick={() => router.push('/customers/list')} className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white">
+                <button onClick={() => router.push('/customers/list')} className="mt-4 rounded-lg bg-[#046ca9] px-4 py-2 text-sm font-semibold text-white">
                     {t('crm_back_to_customers')}
                 </button>
             </div>
@@ -152,17 +149,15 @@ export default function Customer360Page() {
                         <p className="text-sm text-gray-500">{customer.name}</p>
                     </div>
                 </div>
-                <Link href={`/customers/edit/${customer.id}`} className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white">
+                <Link href={`/customers/edit/${customer.id}`} className="rounded-lg bg-[#046ca9] px-4 py-2 text-sm font-semibold text-white">
                     {t('crm_edit_profile')}
                 </Link>
             </div>
 
             <div className="grid gap-4 lg:grid-cols-4">
-                <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm lg:col-span-2">
+                <div className="rounded-lg border border-gray-100 bg-white p-4 shadow-sm lg:col-span-2">
                     <div className="flex items-start gap-4">
-                        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-xl font-bold text-white">
-                            {customer.name?.charAt(0)?.toUpperCase() || '?'}
-                        </div>
+                        <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-[#046ca9] text-xl font-bold text-white">{customer.name?.charAt(0)?.toUpperCase() || '?'}</div>
                         <div className="min-w-0 flex-1">
                             <h2 className="text-lg font-bold text-gray-900">{customer.name}</h2>
                             <p className="text-sm text-gray-500">{customer.trade_name || customer.customer_type || t('crm_regular_customer')}</p>
@@ -176,35 +171,53 @@ export default function Customer360Page() {
                     </div>
                     <div className="mt-4 flex flex-wrap gap-2">
                         {customer.phone && (
-                            <a href={`tel:${customer.phone}`} className="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50">
+                            <a
+                                href={`tel:${customer.phone}`}
+                                className="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+                            >
                                 <Phone className="h-4 w-4" /> {t('crm_call')}
                             </a>
                         )}
                         {dueMessageUrl && (
-                            <a href={dueMessageUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm font-semibold text-green-700">
+                            <a
+                                href={dueMessageUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm font-semibold text-green-700"
+                            >
                                 <MessageCircle className="h-4 w-4" /> {t('crm_due_reminder')}
                             </a>
                         )}
                         {birthdayMessageUrl && (
-                            <a href={birthdayMessageUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-lg border border-pink-200 bg-pink-50 px-3 py-2 text-sm font-semibold text-pink-700">
+                            <a
+                                href={birthdayMessageUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-flex items-center gap-2 rounded-lg border border-pink-200 bg-pink-50 px-3 py-2 text-sm font-semibold text-pink-700"
+                            >
                                 <Gift className="h-4 w-4" /> {t('crm_birthday')}
                             </a>
                         )}
                         {reorderMessageUrl && (
-                            <a href={reorderMessageUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-semibold text-blue-700">
+                            <a
+                                href={reorderMessageUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-semibold text-blue-700"
+                            >
                                 <Receipt className="h-4 w-4" /> {t('crm_reorder')}
                             </a>
                         )}
                     </div>
                 </div>
 
-                <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+                <div className="rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
                     <p className="text-sm text-gray-500">{t('crm_current_due')}</p>
                     <p className={`mt-2 text-2xl font-black ${totalDue > 0 ? 'text-red-600' : 'text-gray-900'}`}>{formatCurrency(totalDue)}</p>
                     <p className="mt-1 text-xs text-gray-400">{t('crm_due_records_found', { count: dues.length })}</p>
                 </div>
 
-                <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+                <div className="rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
                     <p className="text-sm text-gray-500">{t('crm_loyalty')}</p>
                     <p className="mt-2 text-2xl font-black text-gray-900">{t('crm_points_label', { count: customer.points || 0 })}</p>
                     <p className="mt-1 text-xs uppercase text-gray-400">{t('crm_tier_label', { tier: customer.membership || t('status_normal') })}</p>
@@ -212,45 +225,53 @@ export default function Customer360Page() {
             </div>
 
             <div className="grid gap-4 lg:grid-cols-3">
-                <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+                <div className="rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
                     <h3 className="font-bold text-gray-900">{t('crm_add_followup')}</h3>
                     <div className="mt-4 space-y-3">
                         <input value={taskTitle} onChange={(e) => setTaskTitle(e.target.value)} className="form-input" placeholder={t('crm_followup_placeholder')} />
                         <div className="grid grid-cols-2 gap-2">
                             <select value={taskType} onChange={(e) => setTaskType(e.target.value as CrmTask['type'])} className="form-select">
-                                {taskTypes.map((type) => <option key={type.value} value={type.value}>{type.label}</option>)}
+                                {taskTypes.map((type) => (
+                                    <option key={type.value} value={type.value}>
+                                        {type.label}
+                                    </option>
+                                ))}
                             </select>
                             <input type="date" value={taskDueDate} onChange={(e) => setTaskDueDate(e.target.value)} className="form-input" />
                         </div>
                         <textarea value={taskNote} onChange={(e) => setTaskNote(e.target.value)} className="form-textarea" rows={3} placeholder={t('crm_note')} />
-                        <button onClick={addTask} className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white">
+                        <button onClick={addTask} className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#046ca9] px-4 py-2 text-sm font-semibold text-white">
                             <Plus className="h-4 w-4" /> {t('crm_add_task')}
                         </button>
                     </div>
                 </div>
 
-                <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+                <div className="rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
                     <h3 className="font-bold text-gray-900">{t('crm_open_followups')}</h3>
                     <div className="mt-4 space-y-2">
                         {tasks.filter((task) => task.status === 'open').length === 0 && <p className="text-sm text-gray-500">{t('crm_no_open_followups')}</p>}
-                        {tasks.filter((task) => task.status === 'open').map((task) => (
-                            <div key={task.id} className="rounded-lg border border-gray-100 p-3">
-                                <div className="flex items-start justify-between gap-3">
-                                    <div>
-                                        <p className="font-semibold text-gray-900">{task.title}</p>
-                                        <p className="text-xs text-gray-500">{taskTypeLabels[task.type] || task.type} · {task.dueDate}</p>
+                        {tasks
+                            .filter((task) => task.status === 'open')
+                            .map((task) => (
+                                <div key={task.id} className="rounded-lg border border-gray-100 p-3">
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div>
+                                            <p className="font-semibold text-gray-900">{task.title}</p>
+                                            <p className="text-xs text-gray-500">
+                                                {taskTypeLabels[task.type] || task.type} · {task.dueDate}
+                                            </p>
+                                        </div>
+                                        <button onClick={() => markTaskDone(task.id)} className="rounded-full p-1 text-green-600 hover:bg-green-50">
+                                            <CheckCircle2 className="h-5 w-5" />
+                                        </button>
                                     </div>
-                                    <button onClick={() => markTaskDone(task.id)} className="rounded-full p-1 text-green-600 hover:bg-green-50">
-                                        <CheckCircle2 className="h-5 w-5" />
-                                    </button>
+                                    {task.note && <p className="mt-2 text-xs text-gray-500">{task.note}</p>}
                                 </div>
-                                {task.note && <p className="mt-2 text-xs text-gray-500">{task.note}</p>}
-                            </div>
-                        ))}
+                            ))}
                     </div>
                 </div>
 
-                <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+                <div className="rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
                     <h3 className="font-bold text-gray-900">{t('crm_activity_timeline')}</h3>
                     <div className="mt-4 max-h-[420px] space-y-3 overflow-y-auto">
                         {timeline.length === 0 && <p className="text-sm text-gray-500">{t('crm_no_activity')}</p>}
@@ -264,7 +285,9 @@ export default function Customer360Page() {
                                     <div className="min-w-0 border-b border-gray-100 pb-3">
                                         <p className="font-semibold text-gray-900">{item.title}</p>
                                         <p className="text-xs text-gray-500">{item.detail}</p>
-                                        <div className="mt-1 text-xs text-gray-400"><DateColumn date={item.date} /></div>
+                                        <div className="mt-1 text-xs text-gray-400">
+                                            <DateColumn date={item.date} />
+                                        </div>
                                     </div>
                                 </div>
                             );
@@ -274,7 +297,7 @@ export default function Customer360Page() {
             </div>
 
             <div className="grid gap-4 lg:grid-cols-2">
-                <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+                <div className="rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
                     <h3 className="font-bold text-gray-900">{t('crm_due_records')}</h3>
                     <div className="mt-4 space-y-2">
                         {dues.length === 0 && <p className="text-sm text-gray-500">{t('crm_no_due_records')}</p>}
@@ -289,7 +312,7 @@ export default function Customer360Page() {
                                     {Number(due.remaining || 0) > 0 && (
                                         <button
                                             onClick={() => setPaymentLinkDue(due)}
-                                            className="inline-flex items-center gap-1 rounded-lg border border-primary/20 bg-primary/5 px-2 py-1 text-xs font-semibold text-primary hover:bg-primary/10"
+                                            className="inline-flex items-center gap-1 rounded-lg border border-primary/20 bg-[#046ca9]/5 px-2 py-1 text-xs font-semibold text-primary hover:bg-[#046ca9]/10"
                                         >
                                             <Link2 className="h-3 w-3" /> {t('btn_send_payment_link')}
                                         </button>
@@ -300,39 +323,61 @@ export default function Customer360Page() {
                     </div>
                 </div>
 
-                <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+                <div className="rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
                     <h3 className="font-bold text-gray-900">{t('crm_financial_snapshot')}</h3>
                     {creditLimit > 0 && (
-                        <div className={`mt-4 rounded-lg border px-3 py-2.5 ${isOverCreditLimit ? 'border-danger bg-danger/10' : totalDue > creditLimit * 0.8 ? 'border-warning bg-warning/10' : 'border-success bg-success/10'}`}>
+                        <div
+                            className={`mt-4 rounded-lg border px-3 py-2.5 ${
+                                isOverCreditLimit ? 'border-danger bg-danger/10' : totalDue > creditLimit * 0.8 ? 'border-warning bg-warning/10' : 'border-success bg-success/10'
+                            }`}
+                        >
                             <div className="flex items-center gap-2 text-sm font-semibold">
-                                <svg className={`h-4 w-4 shrink-0 ${isOverCreditLimit ? 'text-danger' : totalDue > creditLimit * 0.8 ? 'text-warning' : 'text-success'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                <svg
+                                    className={`h-4 w-4 shrink-0 ${isOverCreditLimit ? 'text-danger' : totalDue > creditLimit * 0.8 ? 'text-warning' : 'text-success'}`}
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                    strokeWidth={2}
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                                    />
                                 </svg>
                                 <span className={isOverCreditLimit ? 'text-danger' : totalDue > creditLimit * 0.8 ? 'text-warning' : 'text-success'}>
                                     {isOverCreditLimit
                                         ? t('customer_credit_limit_exceeded', { limit: formatCurrency(creditLimit), due: formatCurrency(totalDue), over: formatCurrency(totalDue - creditLimit) })
                                         : totalDue > creditLimit * 0.8
-                                          ? t('customer_credit_limit_near', { limit: formatCurrency(creditLimit), available: formatCurrency(availableCredit) })
-                                          : t('customer_credit_limit_ok', { limit: formatCurrency(creditLimit), available: formatCurrency(availableCredit) })}
+                                        ? t('customer_credit_limit_near', { limit: formatCurrency(creditLimit), available: formatCurrency(availableCredit) })
+                                        : t('customer_credit_limit_ok', { limit: formatCurrency(creditLimit), available: formatCurrency(availableCredit) })}
                                 </span>
                             </div>
                         </div>
                     )}
                     <div className="mt-4 grid gap-3 sm:grid-cols-2">
                         <div className="rounded-lg bg-gray-50 p-3">
-                            <div className="flex items-center gap-2 text-gray-500"><Wallet className="h-4 w-4" /> {t('lbl_balance')}</div>
+                            <div className="flex items-center gap-2 text-gray-500">
+                                <Wallet className="h-4 w-4" /> {t('lbl_balance')}
+                            </div>
                             <p className="mt-2 font-bold text-gray-900">{formatCurrency(Math.abs(Number(customer.balance || 0)))}</p>
                         </div>
                         <div className="rounded-lg bg-gray-50 p-3">
-                            <div className="flex items-center gap-2 text-gray-500"><Receipt className="h-4 w-4" /> {t('lbl_credit_limit')}</div>
+                            <div className="flex items-center gap-2 text-gray-500">
+                                <Receipt className="h-4 w-4" /> {t('lbl_credit_limit')}
+                            </div>
                             <p className="mt-2 font-bold text-gray-900">{customer.credit_limit ? formatCurrency(customer.credit_limit) : '-'}</p>
                         </div>
                         <div className="rounded-lg bg-gray-50 p-3">
-                            <div className="flex items-center gap-2 text-gray-500"><FileText className="h-4 w-4" /> {t('lbl_bin_no')}</div>
+                            <div className="flex items-center gap-2 text-gray-500">
+                                <FileText className="h-4 w-4" /> {t('lbl_bin_no')}
+                            </div>
                             <p className="mt-2 font-bold text-gray-900">{customer.bin_no || '-'}</p>
                         </div>
                         <div className="rounded-lg bg-gray-50 p-3">
-                            <div className="flex items-center gap-2 text-gray-500"><FileText className="h-4 w-4" /> {t('lbl_tin_no')}</div>
+                            <div className="flex items-center gap-2 text-gray-500">
+                                <FileText className="h-4 w-4" /> {t('lbl_tin_no')}
+                            </div>
                             <p className="mt-2 font-bold text-gray-900">{customer.tin_no || '-'}</p>
                         </div>
                     </div>

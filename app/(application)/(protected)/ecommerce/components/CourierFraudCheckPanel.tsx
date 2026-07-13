@@ -78,10 +78,10 @@ const CourierFraudCheckPanel = ({ storeId, storeOrderId, defaultPhone = '', titl
     };
 
     return (
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div className="flex gap-3">
-                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-[#046ca9]/10 text-[#046ca9]">
                         <ShieldCheck className="h-5 w-5" />
                     </div>
                     <div>
@@ -103,19 +103,19 @@ const CourierFraudCheckPanel = ({ storeId, storeOrderId, defaultPhone = '', titl
                     value={phone}
                     onChange={(event) => setPhone(event.target.value)}
                     placeholder="017XXXXXXXX"
-                    className="h-10 rounded-lg border border-slate-300 px-3 text-sm outline-none transition focus:border-primary"
+                    className="h-10 rounded-lg border border-slate-300 px-3 text-sm outline-none transition focus:border-[#046ca9]"
                 />
 
                 <div className="flex flex-wrap items-center gap-2">
                     <label className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-200 px-3 text-xs font-medium text-slate-700">
-                        <input type="checkbox" checked={forceRefresh} onChange={(event) => setForceRefresh(event.target.checked)} className="h-4 w-4 rounded border-slate-300 text-primary" />
+                        <input type="checkbox" checked={forceRefresh} onChange={(event) => setForceRefresh(event.target.checked)} className="h-4 w-4 rounded border-slate-300 text-[#046ca9]" />
                         {t('ecommerce_fraud_refresh')}
                     </label>
                     <button
                         type="button"
                         onClick={handleRunCheck}
                         disabled={isRunning || !canRun}
-                        className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-[#046ca9] px-4 text-sm font-semibold text-white transition hover:bg-[#034d79] disabled:cursor-not-allowed disabled:opacity-60"
                     >
                         {isRunning ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
                         {t('ecommerce_fraud_run_check')}

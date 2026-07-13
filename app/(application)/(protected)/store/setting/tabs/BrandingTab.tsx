@@ -17,7 +17,7 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ storeData, logoFile, logoPrev
     const { t } = getTranslation();
     return (
         <div className="space-y-6">
-            <div className="rounded-2xl bg-white p-6 shadow-sm">
+            <div className="rounded-lg bg-white p-6 shadow-sm">
                 <h3 className="mb-6 text-lg font-semibold text-gray-900">{t('store_branding_title')}</h3>
 
                 <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
@@ -31,7 +31,7 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ storeData, logoFile, logoPrev
                             <input type="file" id="logo-upload" accept="image/*" onChange={handleLogoChange} className="hidden" />
                             <label
                                 htmlFor="logo-upload"
-                                className="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-8 transition-all hover:border-[#046ca9] hover:bg-[#046ca9]/5"
+                                className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-8 transition-all hover:border-[#046ca9] hover:bg-[#046ca9]/5"
                             >
                                 <Upload className="mb-3 h-12 w-12 text-gray-400" />
                                 <p className="mb-2 text-sm font-medium text-gray-700">{t('msg_click_to_upload_logo')}</p>
@@ -40,7 +40,7 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ storeData, logoFile, logoPrev
                         </div>
 
                         {logoFile && (
-                            <div className="rounded-xl bg-[#046ca9]/10 p-4">
+                            <div className="rounded-lg bg-[#046ca9]/10 p-4">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center space-x-3">
                                         <ImageIcon className="h-5 w-5 text-[#046ca9]" />
@@ -64,7 +64,7 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ storeData, logoFile, logoPrev
                             {t('lbl_logo_preview')}
                         </label>
 
-                        <div className="rounded-xl border-2 border-gray-200 bg-gray-50 p-8">
+                        <div className="rounded-lg border-2 border-gray-200 bg-gray-50 p-8">
                             {logoPreview || storeData?.data?.store?.logo_path ? (
                                 <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-white">
                                     <Image src={logoPreview || storeData.data.store.logo_path} alt="Store Logo" fill className="object-contain p-4" />
@@ -80,7 +80,7 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ storeData, logoFile, logoPrev
                 </div>
 
                 {/* Guidelines */}
-                <div className="mt-6 rounded-xl border border-[#046ca9]/20 bg-[#046ca9]/5 p-4">
+                <div className="mt-6 rounded-lg border border-[#046ca9]/20 bg-[#046ca9]/5 p-4">
                     <h4 className="mb-2 text-sm font-semibold text-[#034d79]">{t('lbl_logo_guidelines')}</h4>
                     <ul className="space-y-1 text-xs text-[#046ca9]">
                         <li>• {t('msg_logo_guideline_1')}</li>

@@ -93,7 +93,7 @@ const SubscriptionProgress = () => {
 
     if (isBlocked) {
         return (
-            <div className="rounded-xl border border-red-200 bg-red-50 p-4">
+            <div className="rounded-lg border border-red-200 bg-red-50 p-4">
                 <div className="mb-2 flex items-center gap-2">
                     <AlertTriangle className="h-4 w-4 text-red-600" />
                     <span className="text-sm font-semibold text-red-800">{getTranslation().t('lbl_account_blocked')}</span>
@@ -184,7 +184,7 @@ const AdminProfile = () => {
 
     if (!user)
         return (
-            <div className="rounded-xl border border-gray-100 bg-white p-6 text-center shadow-sm">
+            <div className="rounded-lg border border-gray-100 bg-white p-6 text-center shadow-sm">
                 <p className="text-sm text-red-500">{getTranslation().t('msg_profile_not_found')}</p>
             </div>
         );
@@ -204,13 +204,13 @@ const AdminProfile = () => {
     const userStatus = getUserStatus();
 
     return (
-        <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-lg">
+        <div className="overflow-hidden rounded-lg border border-gray-100 bg-white shadow-lg">
             {/* Header band */}
-            <div className="h-16 bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600" />
+            <div className="h-16 bg-gradient-to-r from-[#046ca9] via-[#046ca9] to-[#034d79]" />
 
             {/* Avatar */}
             <div className="-mt-8 flex flex-col items-center px-6 pb-6">
-                <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-full border-4 border-white bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg">
+                <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-full border-4 border-white bg-gradient-to-br from-[#046ca9] to-[#034d79] shadow-lg">
                     <User className="h-8 w-8 text-white" />
                 </div>
                 <h4 className="text-lg font-bold text-gray-900">{user.name}</h4>
@@ -373,7 +373,7 @@ const Profile = () => {
                 {/* Right — Plan + History */}
                 <div className="col-span-2 space-y-5">
                     {subscriptionUser && (
-                        <div className="rounded-xl border bg-white shadow-lg">
+                        <div className="rounded-lg border bg-white shadow-lg">
                             {/* Plan header */}
                             <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
                                 <div>
@@ -381,7 +381,9 @@ const Profile = () => {
                                         {subscriptionUser.plan_name_en} Plan
                                         <span className="ml-2 rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-semibold capitalize text-indigo-700">{subscriptionUser.billing_cycle}</span>
                                     </h5>
-                                    <p className="mt-0.5 text-xs text-gray-400">{subscriptionUser.items?.length ?? 0} {getTranslation().t('lbl_features_included')}</p>
+                                    <p className="mt-0.5 text-xs text-gray-400">
+                                        {subscriptionUser.items?.length ?? 0} {getTranslation().t('lbl_features_included')}
+                                    </p>
                                 </div>
                                 <button onClick={() => router.push('/subscription')} className={`flex items-center gap-1.5 text-sm ${buttonConfig.className}`}>
                                     {buttonConfig.icon}

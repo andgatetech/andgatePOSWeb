@@ -16,10 +16,7 @@ export default function BranchBenchmarkingPage() {
     const [startDate, setStartDate] = useState(thirtyDaysAgo);
     const [endDate, setEndDate] = useState(today);
 
-    const { data, isLoading, refetch } = useGetBranchBenchmarkQuery(
-        { start_date: startDate, end_date: endDate },
-        { skip: !startDate || !endDate }
-    );
+    const { data, isLoading, refetch } = useGetBranchBenchmarkQuery({ start_date: startDate, end_date: endDate }, { skip: !startDate || !endDate });
 
     const branches = data?.data?.branches || [];
 
@@ -32,7 +29,7 @@ export default function BranchBenchmarkingPage() {
                 </div>
             </div>
 
-            <div className="flex flex-wrap items-end gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+            <div className="flex flex-wrap items-end gap-3 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
                 <div>
                     <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_start_date')}</label>
                     <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="form-input" />
@@ -41,7 +38,9 @@ export default function BranchBenchmarkingPage() {
                     <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_end_date')}</label>
                     <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="form-input" />
                 </div>
-                <button onClick={() => refetch()} className="btn btn-primary">{t('lbl_apply')}</button>
+                <button onClick={() => refetch()} className="btn btn-primary">
+                    {t('lbl_apply')}
+                </button>
             </div>
 
             {isLoading ? (
@@ -50,7 +49,7 @@ export default function BranchBenchmarkingPage() {
                 <p className="text-sm text-gray-500">{t('msg_no_data_found')}</p>
             ) : (
                 <>
-                    <div className="h-80 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                    <div className="h-80 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={branches}>
                                 <CartesianGrid strokeDasharray="3 3" />
@@ -64,7 +63,7 @@ export default function BranchBenchmarkingPage() {
                         </ResponsiveContainer>
                     </div>
 
-                    <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
+                    <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
                         <table className="w-full text-left text-sm">
                             <thead className="bg-gray-50 text-gray-600">
                                 <tr>

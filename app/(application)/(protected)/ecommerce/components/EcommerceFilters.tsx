@@ -28,7 +28,7 @@ const SelectWrapper = ({ icon, children }: { icon: React.ReactNode; children: Re
     </div>
 );
 
-const baseSelectClass = 'appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary';
+const baseSelectClass = 'appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]';
 
 export const EcommerceOrdersFilter = ({ onFilterChange }: FilterProps) => {
     const { t } = getTranslation();

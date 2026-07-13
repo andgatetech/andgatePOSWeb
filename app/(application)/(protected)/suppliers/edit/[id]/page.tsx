@@ -217,7 +217,7 @@ const EditSupplierPage = () => {
 
     if (!isClient || fetchLoading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+            <div className="min-h-screen bg-[#f6f8fb] p-4">
                 <div className="mx-auto">
                     <div className="flex items-center justify-center py-12">
                         <div className="flex items-center gap-2 text-gray-600">
@@ -238,7 +238,7 @@ const EditSupplierPage = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+        <div className="min-h-screen bg-[#f6f8fb] p-4">
             <div className="mx-auto">
                 {/* Header */}
                 <div className="mb-6 space-y-4">
@@ -250,7 +250,7 @@ const EditSupplierPage = () => {
                         >
                             <ArrowLeft className="h-4 w-4" />
                         </button>
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#046ca9] to-[#034d79] text-white shadow-sm">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-[#046ca9] to-[#034d79] text-white shadow-sm">
                             <User className="h-5 w-5" />
                         </div>
                         <div>
@@ -259,13 +259,15 @@ const EditSupplierPage = () => {
                         </div>
                     </div>
                     {supplier?.store_name && (
-                        <div className="rounded-xl border border-[#046ca9]/15 bg-[#046ca9]/5 p-3">
+                        <div className="rounded-lg border border-[#046ca9]/15 bg-[#046ca9]/5 p-3">
                             <div className="flex items-center space-x-3">
                                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#046ca9]/10">
                                     <Store className="h-4 w-4 text-[#034d79]" />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-medium text-[#034d79]">{t('lbl_store')}: {supplier.store_name}</p>
+                                    <p className="text-sm font-medium text-[#034d79]">
+                                        {t('lbl_store')}: {supplier.store_name}
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -273,7 +275,7 @@ const EditSupplierPage = () => {
                 </div>
 
                 {/* Main Form Card */}
-                <div className="overflow-hidden rounded-2xl bg-white shadow-xl">
+                <div className="overflow-hidden rounded-lg bg-white shadow-sm">
                     <div className="p-8">
                         <form className="space-y-8" onSubmit={handleSubmit}>
                             {/* Basic Information Section */}
@@ -300,7 +302,9 @@ const EditSupplierPage = () => {
                                     </div>
 
                                     <div>
-                                        <label htmlFor="company_name" className="mb-2 block text-sm font-medium text-gray-700">{t('supplier_company_name')}</label>
+                                        <label htmlFor="company_name" className="mb-2 block text-sm font-medium text-gray-700">
+                                            {t('supplier_company_name')}
+                                        </label>
                                         <input
                                             id="company_name"
                                             name="company_name"
@@ -313,7 +317,9 @@ const EditSupplierPage = () => {
                                     </div>
 
                                     <div>
-                                        <label htmlFor="supplier_type" className="mb-2 block text-sm font-medium text-gray-700">{t('supplier_type')}</label>
+                                        <label htmlFor="supplier_type" className="mb-2 block text-sm font-medium text-gray-700">
+                                            {t('supplier_type')}
+                                        </label>
                                         <select
                                             id="supplier_type"
                                             name="supplier_type"
@@ -322,7 +328,9 @@ const EditSupplierPage = () => {
                                             className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500"
                                         >
                                             {supplierTypeOptions.map((option) => (
-                                                <option key={option.value} value={option.value}>{option.label}</option>
+                                                <option key={option.value} value={option.value}>
+                                                    {option.label}
+                                                </option>
                                             ))}
                                         </select>
                                     </div>
@@ -382,7 +390,9 @@ const EditSupplierPage = () => {
                                     </div>
 
                                     <div>
-                                        <label htmlFor="mobile_banking_number" className="mb-2 block text-sm font-medium text-gray-700">{t('supplier_mobile_banking_number')}</label>
+                                        <label htmlFor="mobile_banking_number" className="mb-2 block text-sm font-medium text-gray-700">
+                                            {t('supplier_mobile_banking_number')}
+                                        </label>
                                         <input
                                             id="mobile_banking_number"
                                             name="mobile_banking_number"
@@ -400,7 +410,9 @@ const EditSupplierPage = () => {
                                 <h3 className="mb-4 text-lg font-semibold text-gray-900">{t('supplier_payment_information')}</h3>
                                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                                     <div>
-                                        <label htmlFor="opening_balance" className="mb-2 block text-sm font-medium text-gray-700">{t('supplier_opening_balance')}</label>
+                                        <label htmlFor="opening_balance" className="mb-2 block text-sm font-medium text-gray-700">
+                                            {t('supplier_opening_balance')}
+                                        </label>
                                         <input
                                             id="opening_balance"
                                             name="opening_balance"
@@ -415,7 +427,9 @@ const EditSupplierPage = () => {
                                     </div>
 
                                     <div>
-                                        <label htmlFor="payment_terms" className="mb-2 block text-sm font-medium text-gray-700">{t('supplier_payment_terms')}</label>
+                                        <label htmlFor="payment_terms" className="mb-2 block text-sm font-medium text-gray-700">
+                                            {t('supplier_payment_terms')}
+                                        </label>
                                         <select
                                             id="payment_terms"
                                             name="payment_terms"
@@ -424,13 +438,17 @@ const EditSupplierPage = () => {
                                             className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500"
                                         >
                                             {paymentTermOptions.map((option) => (
-                                                <option key={option.value} value={option.value}>{option.label}</option>
+                                                <option key={option.value} value={option.value}>
+                                                    {option.label}
+                                                </option>
                                             ))}
                                         </select>
                                     </div>
 
                                     <div>
-                                        <label htmlFor="credit_limit" className="mb-2 block text-sm font-medium text-gray-700">{t('supplier_credit_limit')}</label>
+                                        <label htmlFor="credit_limit" className="mb-2 block text-sm font-medium text-gray-700">
+                                            {t('supplier_credit_limit')}
+                                        </label>
                                         <input
                                             id="credit_limit"
                                             name="credit_limit"
@@ -445,7 +463,9 @@ const EditSupplierPage = () => {
                                     </div>
 
                                     <div>
-                                        <label htmlFor="preferred_payment_method" className="mb-2 block text-sm font-medium text-gray-700">{t('supplier_preferred_payment_method')}</label>
+                                        <label htmlFor="preferred_payment_method" className="mb-2 block text-sm font-medium text-gray-700">
+                                            {t('supplier_preferred_payment_method')}
+                                        </label>
                                         <select
                                             id="preferred_payment_method"
                                             name="preferred_payment_method"
@@ -454,13 +474,17 @@ const EditSupplierPage = () => {
                                             className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500"
                                         >
                                             {paymentMethodOptions.map((option) => (
-                                                <option key={option.value} value={option.value}>{option.label}</option>
+                                                <option key={option.value} value={option.value}>
+                                                    {option.label}
+                                                </option>
                                             ))}
                                         </select>
                                     </div>
 
                                     <div>
-                                        <label htmlFor="bank_name" className="mb-2 block text-sm font-medium text-gray-700">{t('supplier_bank_name')}</label>
+                                        <label htmlFor="bank_name" className="mb-2 block text-sm font-medium text-gray-700">
+                                            {t('supplier_bank_name')}
+                                        </label>
                                         <input
                                             id="bank_name"
                                             name="bank_name"
@@ -473,7 +497,9 @@ const EditSupplierPage = () => {
                                     </div>
 
                                     <div>
-                                        <label htmlFor="bank_account_name" className="mb-2 block text-sm font-medium text-gray-700">{t('supplier_bank_account_name')}</label>
+                                        <label htmlFor="bank_account_name" className="mb-2 block text-sm font-medium text-gray-700">
+                                            {t('supplier_bank_account_name')}
+                                        </label>
                                         <input
                                             id="bank_account_name"
                                             name="bank_account_name"
@@ -486,7 +512,9 @@ const EditSupplierPage = () => {
                                     </div>
 
                                     <div className="md:col-span-2">
-                                        <label htmlFor="bank_account_number" className="mb-2 block text-sm font-medium text-gray-700">{t('supplier_bank_account_number')}</label>
+                                        <label htmlFor="bank_account_number" className="mb-2 block text-sm font-medium text-gray-700">
+                                            {t('supplier_bank_account_number')}
+                                        </label>
                                         <input
                                             id="bank_account_number"
                                             name="bank_account_number"
@@ -504,7 +532,9 @@ const EditSupplierPage = () => {
                                 <h3 className="mb-4 text-lg font-semibold text-gray-900">{t('supplier_business_information')}</h3>
                                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                                     <div>
-                                        <label htmlFor="trade_license_no" className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_trade_license_no')}</label>
+                                        <label htmlFor="trade_license_no" className="mb-2 block text-sm font-medium text-gray-700">
+                                            {t('lbl_trade_license_no')}
+                                        </label>
                                         <input
                                             id="trade_license_no"
                                             name="trade_license_no"
@@ -517,7 +547,9 @@ const EditSupplierPage = () => {
                                     </div>
 
                                     <div>
-                                        <label htmlFor="tin_no" className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_tin_no')}</label>
+                                        <label htmlFor="tin_no" className="mb-2 block text-sm font-medium text-gray-700">
+                                            {t('lbl_tin_no')}
+                                        </label>
                                         <input
                                             id="tin_no"
                                             name="tin_no"
@@ -530,7 +562,9 @@ const EditSupplierPage = () => {
                                     </div>
 
                                     <div className="md:col-span-2">
-                                        <label htmlFor="bin_no" className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_bin_no')}</label>
+                                        <label htmlFor="bin_no" className="mb-2 block text-sm font-medium text-gray-700">
+                                            {t('lbl_bin_no')}
+                                        </label>
                                         <input
                                             id="bin_no"
                                             name="bin_no"
@@ -570,7 +604,9 @@ const EditSupplierPage = () => {
                                     </div>
 
                                     <div className="md:col-span-2">
-                                        <label htmlFor="notes" className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_notes')}</label>
+                                        <label htmlFor="notes" className="mb-2 block text-sm font-medium text-gray-700">
+                                            {t('lbl_notes')}
+                                        </label>
                                         <textarea
                                             id="notes"
                                             name="notes"
@@ -658,7 +694,7 @@ const EditSupplierPage = () => {
                 </div>
 
                 {/* Info Card */}
-                <div className="mt-6 rounded-xl border border-orange-200 bg-orange-50 p-4">
+                <div className="mt-6 rounded-lg border border-orange-200 bg-orange-50 p-4">
                     <div className="flex items-start gap-3">
                         <svg className="mt-0.5 h-5 w-5 flex-shrink-0 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />

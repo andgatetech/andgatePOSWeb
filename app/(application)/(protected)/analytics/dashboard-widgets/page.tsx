@@ -31,10 +31,7 @@ const DEFAULT_WIDGETS = [
 export default function DashboardWidgetsPage() {
     const { t } = getTranslation();
     const { currentStoreId } = useCurrentStore();
-    const { data, isLoading } = useGetDashboardLayoutQuery(
-        currentStoreId ? { store_id: currentStoreId } : {},
-        { skip: false }
-    );
+    const { data, isLoading } = useGetDashboardLayoutQuery(currentStoreId ? { store_id: currentStoreId } : {}, { skip: false });
     const [saveLayout, { isLoading: saving }] = useSaveDashboardLayoutMutation();
 
     const [widgets, setWidgets] = useState(DEFAULT_WIDGETS);
@@ -94,7 +91,7 @@ export default function DashboardWidgetsPage() {
                 </button>
             </div>
 
-            <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+            <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
                 <div className="mb-4 flex items-center gap-2 text-sm text-gray-500">
                     <LayoutDashboard className="h-4 w-4" />
                     <span>{t('lbl_drag_to_reorder')}</span>

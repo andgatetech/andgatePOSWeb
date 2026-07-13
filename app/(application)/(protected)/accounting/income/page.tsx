@@ -6,25 +6,10 @@ import Loader from '@/lib/Loader';
 import { closeReservedPdfWindow, isMobilePdfDownloadRisk, reservePdfWindow } from '@/lib/pdf-mobile-download';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import enLocale from '@/public/locales/en.json';
-import {
-    useCreateIncomeMutation,
-    useDeleteIncomeMutation,
-    useGetIncomeQuery,
-} from '@/store/features/accounting/accountingApi';
+import { useCreateIncomeMutation, useDeleteIncomeMutation, useGetIncomeQuery } from '@/store/features/accounting/accountingApi';
 import { FileText, Loader2, Plus, Printer, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-    buildHeaderRow,
-    buildPdfFooter,
-    buildPdfHeader,
-    buildTableLayout,
-    clampPdfText,
-    computeColumnWidths,
-    ensureAccountingPdf,
-    outputPdf,
-    PdfColumnDef,
-    sanText,
-} from '../_shared/AccountingPdf';
+import { buildHeaderRow, buildPdfFooter, buildPdfHeader, buildTableLayout, clampPdfText, computeColumnWidths, ensureAccountingPdf, outputPdf, PdfColumnDef, sanText } from '../_shared/AccountingPdf';
 
 const paymentMethods = ['cash', 'bank', 'bkash', 'nagad', 'rocket'];
 
@@ -54,12 +39,11 @@ const IncomePage = () => {
 
     const isBn = i18n.language === 'bn';
 
-    useEffect(() => { ensureAccountingPdf(); }, []);
+    useEffect(() => {
+        ensureAccountingPdf();
+    }, []);
 
-    const { data, isLoading } = useGetIncomeQuery(
-        { store_id: currentStoreId, from, to, page, per_page: 15 },
-        { skip: !currentStoreId }
-    );
+    const { data, isLoading } = useGetIncomeQuery({ store_id: currentStoreId, from, to, page, per_page: 15 }, { skip: !currentStoreId });
 
     const [createIncome, { isLoading: creating }] = useCreateIncomeMutation();
     const [deleteIncome] = useDeleteIncomeMutation();
@@ -129,8 +113,7 @@ const IncomePage = () => {
             await ensureAccountingPdf();
 
             const useBnFont = isBn;
-            const tDoc = (key: string): string =>
-                useBnFont ? t(key) : ((enLocale as unknown as Record<string, string>)[key] || key);
+            const tDoc = (key: string): string => (useBnFont ? t(key) : (enLocale as unknown as Record<string, string>)[key] || key);
             const san = (text: string): string => sanText(text, useBnFont);
 
             const marginPts = 28;
@@ -187,9 +170,15 @@ const IncomePage = () => {
                 }) as any
             );
 
-            const summaryText = `${tDoc('lbl_total_entries')}: ${currentItems.length}   |   ${tDoc('lbl_total_amount')}: ${totalAmountPdf.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            const summaryText = `${tDoc('lbl_total_entries')}: ${currentItems.length}   |   ${tDoc('lbl_total_amount')}: ${totalAmountPdf.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+            })}`;
 
-            const generatedText = `${tDoc('lbl_generated')}: ${new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}, ${new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`;
+            const generatedText = `${tDoc('lbl_generated')}: ${new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}, ${new Date().toLocaleTimeString('en-GB', {
+                hour: '2-digit',
+                minute: '2-digit',
+            })}`;
 
             const headerBlocks = buildPdfHeader({
                 storeName: storeDetails.name,
@@ -235,13 +224,18 @@ const IncomePage = () => {
     const handlePdfExport = useCallback(async () => {
         const mobilePdfWindow = reservePdfWindow(`income_${from}_${to}.pdf`);
         setActiveExport('pdf');
-        try { await generatePdf('download', mobilePdfWindow); } catch (error) { closeReservedPdfWindow(mobilePdfWindow); console.error('[PDF] income export failed:', error); } finally { setActiveExport(null); }
+        try {
+            await generatePdf('download', mobilePdfWindow);
+        } catch (error) {
+            closeReservedPdfWindow(mobilePdfWindow);
+            console.error('[PDF] income export failed:', error);
+        } finally {
+            setActiveExport(null);
+        }
     }, [generatePdf, from, to]);
 
     const handlePrint = useCallback(async () => {
-        const mobilePdfWindow = isMobilePdfDownloadRisk()
-            ? reservePdfWindow(`income_${from}_${to}.pdf`)
-            : null;
+        const mobilePdfWindow = isMobilePdfDownloadRisk() ? reservePdfWindow(`income_${from}_${to}.pdf`) : null;
         setActiveExport('print');
         try {
             await generatePdf('print', mobilePdfWindow);
@@ -256,16 +250,15 @@ const IncomePage = () => {
     const isExporting = activeExport !== null;
 
     return (
-        <div className="p-4 md:p-6 space-y-6">
+        <div className="space-y-6 p-4 md:p-6">
             {/* Header */}
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-800 dark:text-white">{t('lbl_income_manager')}</h1>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{t('msg_income_manager_desc')}</p>
+                    <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">{t('msg_income_manager_desc')}</p>
                 </div>
-                <div className="flex gap-2 flex-wrap items-center">
-                    <button onClick={() => setShowForm(true)}
-                        className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-white text-sm hover:opacity-90">
+                <div className="flex flex-wrap items-center gap-2">
+                    <button onClick={() => setShowForm(true)} className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm text-white hover:opacity-90">
                         <Plus className="h-4 w-4" />
                         {t('lbl_add_income')}
                     </button>
@@ -289,23 +282,39 @@ const IncomePage = () => {
             </div>
 
             {/* Summary + Filters */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-5">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="rounded-lg border border-gray-100 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
                     <p className="text-xs text-gray-500 dark:text-gray-400">{t('lbl_period_total')}</p>
-                    <p className="text-2xl font-bold text-success mt-1">৳{totalAmount.toLocaleString()}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">{total} {t('lbl_entries')}</p>
+                    <p className="mt-1 text-2xl font-bold text-success">৳{totalAmount.toLocaleString()}</p>
+                    <p className="mt-0.5 text-xs text-gray-400">
+                        {total} {t('lbl_entries')}
+                    </p>
                 </div>
-                <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-5 flex items-center gap-3 flex-wrap">
-                    <input type="date" value={from} onChange={(e) => { setFrom(e.target.value); setPage(1); }}
-                        className="border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5 text-sm bg-transparent text-gray-800 dark:text-gray-100" />
+                <div className="flex flex-wrap items-center gap-3 rounded-lg border border-gray-100 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
+                    <input
+                        type="date"
+                        value={from}
+                        onChange={(e) => {
+                            setFrom(e.target.value);
+                            setPage(1);
+                        }}
+                        className="rounded-lg border border-gray-200 bg-transparent px-3 py-1.5 text-sm text-gray-800 dark:border-gray-700 dark:text-gray-100"
+                    />
                     <span className="text-gray-400">—</span>
-                    <input type="date" value={to} onChange={(e) => { setTo(e.target.value); setPage(1); }}
-                        className="border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5 text-sm bg-transparent text-gray-800 dark:text-gray-100" />
+                    <input
+                        type="date"
+                        value={to}
+                        onChange={(e) => {
+                            setTo(e.target.value);
+                            setPage(1);
+                        }}
+                        className="rounded-lg border border-gray-200 bg-transparent px-3 py-1.5 text-sm text-gray-800 dark:border-gray-700 dark:text-gray-100"
+                    />
                 </div>
             </div>
 
             {/* Table */}
-            <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 overflow-hidden">
+            <div className="overflow-hidden rounded-lg border border-gray-100 bg-white dark:border-gray-800 dark:bg-gray-900">
                 {isLoading ? (
                     <Loader fullScreen={false} className="py-20" />
                 ) : items.length === 0 ? (
@@ -313,7 +322,7 @@ const IncomePage = () => {
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm">
-                            <thead className="bg-gray-50 dark:bg-gray-800 text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            <thead className="bg-gray-50 text-xs uppercase tracking-wider text-gray-500 dark:bg-gray-800 dark:text-gray-400">
                                 <tr>
                                     <th className="px-4 py-3 text-left">{t('lbl_date')}</th>
                                     <th className="px-4 py-3 text-left">{t('lbl_description')}</th>
@@ -325,22 +334,19 @@ const IncomePage = () => {
                             </thead>
                             <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                                 {items.map((entry: any) => (
-                                    <tr key={entry.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                                        <td className="px-4 py-3 text-gray-500 dark:text-gray-400 whitespace-nowrap">{entry.income_date}</td>
+                                    <tr key={entry.id} className="transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                                        <td className="whitespace-nowrap px-4 py-3 text-gray-500 dark:text-gray-400">{entry.income_date}</td>
                                         <td className="px-4 py-3 text-gray-800 dark:text-gray-100">
                                             <p>{entry.description}</p>
-                                            {entry.notes && <p className="text-xs text-gray-400 mt-0.5">{entry.notes}</p>}
+                                            {entry.notes && <p className="mt-0.5 text-xs text-gray-400">{entry.notes}</p>}
                                         </td>
                                         <td className="px-4 py-3">
-                                            <span className="px-2 py-0.5 rounded-full text-xs bg-primary/10 text-primary">
-                                                {pmLabel[entry.payment_method] ?? entry.payment_method}
-                                            </span>
+                                            <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{pmLabel[entry.payment_method] ?? entry.payment_method}</span>
                                         </td>
-                                        <td className="px-4 py-3 text-gray-500 dark:text-gray-400 text-xs">{entry.user_name}</td>
+                                        <td className="px-4 py-3 text-xs text-gray-500 dark:text-gray-400">{entry.user_name}</td>
                                         <td className="px-4 py-3 text-right font-semibold text-success">৳{Number(entry.amount).toLocaleString()}</td>
                                         <td className="px-4 py-3 text-center">
-                                            <button onClick={() => handleDelete(entry.id)}
-                                                className="p-1.5 rounded-lg hover:bg-danger/10 text-danger">
+                                            <button onClick={() => handleDelete(entry.id)} className="rounded-lg p-1.5 text-danger hover:bg-danger/10">
                                                 <Trash2 className="h-3.5 w-3.5" />
                                             </button>
                                         </td>
@@ -355,13 +361,21 @@ const IncomePage = () => {
             {/* Pagination */}
             {lastPage > 1 && (
                 <div className="flex justify-center gap-2">
-                    <button disabled={page === 1} onClick={() => setPage((p) => p - 1)}
-                        className="px-4 py-1.5 rounded-lg text-sm border border-gray-200 dark:border-gray-700 disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-gray-800">
+                    <button
+                        disabled={page === 1}
+                        onClick={() => setPage((p) => p - 1)}
+                        className="rounded-lg border border-gray-200 px-4 py-1.5 text-sm hover:bg-gray-50 disabled:opacity-40 dark:border-gray-700 dark:hover:bg-gray-800"
+                    >
                         {t('lbl_prev')}
                     </button>
-                    <span className="self-center text-sm text-gray-500">{page} / {lastPage}</span>
-                    <button disabled={page === lastPage} onClick={() => setPage((p) => p + 1)}
-                        className="px-4 py-1.5 rounded-lg text-sm border border-gray-200 dark:border-gray-700 disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-gray-800">
+                    <span className="self-center text-sm text-gray-500">
+                        {page} / {lastPage}
+                    </span>
+                    <button
+                        disabled={page === lastPage}
+                        onClick={() => setPage((p) => p + 1)}
+                        className="rounded-lg border border-gray-200 px-4 py-1.5 text-sm hover:bg-gray-50 disabled:opacity-40 dark:border-gray-700 dark:hover:bg-gray-800"
+                    >
                         {t('lbl_next')}
                     </button>
                 </div>
@@ -370,51 +384,80 @@ const IncomePage = () => {
             {/* Create Modal */}
             {showForm && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                    <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md">
-                        <div className="flex items-center justify-between p-5 border-b border-gray-100 dark:border-gray-800">
+                    <div className="w-full max-w-md rounded-lg bg-white shadow-lg dark:bg-gray-900">
+                        <div className="flex items-center justify-between border-b border-gray-100 p-5 dark:border-gray-800">
                             <h2 className="text-lg font-semibold text-gray-800 dark:text-white">{t('lbl_add_income')}</h2>
-                            <button onClick={() => setShowForm(false)} className="text-gray-400 hover:text-gray-600">✕</button>
+                            <button onClick={() => setShowForm(false)} className="text-gray-400 hover:text-gray-600">
+                                ✕
+                            </button>
                         </div>
-                        <form onSubmit={handleSubmit} className="p-5 space-y-4">
+                        <form onSubmit={handleSubmit} className="space-y-4 p-5">
                             <div>
-                                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">{t('lbl_description')} *</label>
-                                <input required value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
+                                <label className="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">{t('lbl_description')} *</label>
+                                <input
+                                    required
+                                    value={form.description}
+                                    onChange={(e) => setForm({ ...form, description: e.target.value })}
                                     placeholder={t('ph_income_description')}
-                                    className="w-full border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-transparent" />
+                                    className="w-full rounded-lg border border-gray-200 bg-transparent px-3 py-2 text-sm dark:border-gray-700"
+                                />
                             </div>
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">{t('lbl_amount')} *</label>
-                                    <input required type="number" min="0.01" step="0.01" value={form.amount}
+                                    <label className="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">{t('lbl_amount')} *</label>
+                                    <input
+                                        required
+                                        type="number"
+                                        min="0.01"
+                                        step="0.01"
+                                        value={form.amount}
                                         onChange={(e) => setForm({ ...form, amount: e.target.value })}
-                                        className="w-full border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-transparent" />
+                                        className="w-full rounded-lg border border-gray-200 bg-transparent px-3 py-2 text-sm dark:border-gray-700"
+                                    />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">{t('lbl_date')} *</label>
-                                    <input required type="date" value={form.income_date}
+                                    <label className="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">{t('lbl_date')} *</label>
+                                    <input
+                                        required
+                                        type="date"
+                                        value={form.income_date}
                                         onChange={(e) => setForm({ ...form, income_date: e.target.value })}
-                                        className="w-full border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-transparent" />
+                                        className="w-full rounded-lg border border-gray-200 bg-transparent px-3 py-2 text-sm dark:border-gray-700"
+                                    />
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">{t('lbl_payment_method')}</label>
-                                <select value={form.payment_method} onChange={(e) => setForm({ ...form, payment_method: e.target.value })}
-                                    className="w-full border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-900">
-                                    {paymentMethods.map((pm) => <option key={pm} value={pm}>{pmLabel[pm] ?? pm}</option>)}
+                                <label className="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">{t('lbl_payment_method')}</label>
+                                <select
+                                    value={form.payment_method}
+                                    onChange={(e) => setForm({ ...form, payment_method: e.target.value })}
+                                    className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900"
+                                >
+                                    {paymentMethods.map((pm) => (
+                                        <option key={pm} value={pm}>
+                                            {pmLabel[pm] ?? pm}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">{t('lbl_notes')}</label>
-                                <textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                                    rows={2} className="w-full border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-transparent resize-none" />
+                                <label className="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">{t('lbl_notes')}</label>
+                                <textarea
+                                    value={form.notes}
+                                    onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                                    rows={2}
+                                    className="w-full resize-none rounded-lg border border-gray-200 bg-transparent px-3 py-2 text-sm dark:border-gray-700"
+                                />
                             </div>
                             <div className="flex gap-3 pt-2">
-                                <button type="button" onClick={() => setShowForm(false)}
-                                    className="flex-1 py-2 rounded-lg border border-gray-200 dark:border-gray-700 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowForm(false)}
+                                    className="flex-1 rounded-lg border border-gray-200 py-2 text-sm text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+                                >
                                     {t('lbl_cancel')}
                                 </button>
-                                <button type="submit" disabled={creating}
-                                    className="flex-1 py-2 rounded-lg bg-primary text-white text-sm hover:opacity-90 disabled:opacity-60">
+                                <button type="submit" disabled={creating} className="flex-1 rounded-lg bg-primary py-2 text-sm text-white hover:opacity-90 disabled:opacity-60">
                                     {creating ? t('lbl_saving') : t('lbl_save')}
                                 </button>
                             </div>

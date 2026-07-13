@@ -98,7 +98,7 @@ const PaymentStatusTab: React.FC<PaymentStatusTabProps> = ({
                 </div>
 
                 {/* Add New Payment Status */}
-                <div className="mb-6 space-y-3 rounded-xl border border-gray-200 bg-gray-50 p-4">
+                <div className="mb-6 space-y-3 rounded-lg border border-gray-200 bg-gray-50 p-4">
                     <h4 className="text-sm font-semibold text-gray-800">{t('store_add_payment_status')}</h4>
                     <div className="grid gap-3 md:grid-cols-2">
                         <div className="flex flex-col gap-2">
@@ -277,7 +277,12 @@ const PaymentStatusTab: React.FC<PaymentStatusTabProps> = ({
                                                         >
                                                             <Check className="h-4 w-4" />
                                                         </button>
-                                                        <button type="button" onClick={cancelEditingPaymentStatus} className="rounded bg-gray-400 p-1.5 text-white hover:bg-gray-500" title={t('btn_cancel')}>
+                                                        <button
+                                                            type="button"
+                                                            onClick={cancelEditingPaymentStatus}
+                                                            className="rounded bg-gray-400 p-1.5 text-white hover:bg-gray-500"
+                                                            title={t('btn_cancel')}
+                                                        >
                                                             <X className="h-4 w-4" />
                                                         </button>
                                                     </div>
@@ -331,8 +336,8 @@ const PaymentStatusTab: React.FC<PaymentStatusTabProps> = ({
                 {totalPages > 1 && (
                     <div className="mt-4 flex items-center justify-between border-t pt-4">
                         <div className="text-sm text-gray-600">
-                            {t('lbl_showing')} <span className="font-semibold">{displayNumber(startIndex + 1)}</span> {t('lbl_to')} <span className="font-semibold">{displayNumber(Math.min(endIndex, totalItems))}</span>{' '}
-                            <span className="font-semibold">{displayNumber(totalItems)}</span>
+                            {t('lbl_showing')} <span className="font-semibold">{displayNumber(startIndex + 1)}</span> {t('lbl_to')}{' '}
+                            <span className="font-semibold">{displayNumber(Math.min(endIndex, totalItems))}</span> <span className="font-semibold">{displayNumber(totalItems)}</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <button

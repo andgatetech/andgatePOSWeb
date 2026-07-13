@@ -40,10 +40,7 @@ const _ensureRptPdf = (): Promise<void> => {
             pm.addVirtualFileSystem(vfsFonts.default ?? vfsFonts);
 
             try {
-                const [rr, br] = await Promise.all([
-                    fetch('/fonts/NotoSansBengali-Regular.ttf'),
-                    fetch('/fonts/NotoSansBengali-Bold.ttf'),
-                ]);
+                const [rr, br] = await Promise.all([fetch('/fonts/NotoSansBengali-Regular.ttf'), fetch('/fonts/NotoSansBengali-Bold.ttf')]);
                 if (rr.ok && br.ok) {
                     const [rb64, bb64] = await Promise.all([rr.blob().then(blobToBase64), br.blob().then(blobToBase64)]);
                     // pdfMake 0.3 public API — writes to the internal singleton VirtualFileSystem
@@ -102,14 +99,21 @@ const _fixPdfNode = (n: any): any => {
         const hasLatin = o.text.replace(/[ঀ-৿]/g, '').length > 0;
         if (hasBn && hasLatin) {
             const segs: any[] = [];
-            let run = '', runBn = /[ঀ-৿]/.test(o.text[0]);
+            let run = '',
+                runBn = /[ঀ-৿]/.test(o.text[0]);
             for (const ch of o.text) {
                 const isBn = /[ঀ-৿]/.test(ch);
-                if (isBn === runBn) { run += ch; }
-                else { if (run) segs.push({ text: run, font: runBn ? 'NotoSansBengali' : 'Roboto' }); run = ch; runBn = isBn; }
+                if (isBn === runBn) {
+                    run += ch;
+                } else {
+                    if (run) segs.push({ text: run, font: runBn ? 'NotoSansBengali' : 'Roboto' });
+                    run = ch;
+                    runBn = isBn;
+                }
             }
             if (run) segs.push({ text: run, font: runBn ? 'NotoSansBengali' : 'Roboto' });
-            o.text = segs; delete o.font;
+            o.text = segs;
+            delete o.font;
         } else if (hasBn) {
             o.font = 'NotoSansBengali';
         }
@@ -174,17 +178,7 @@ const reportExportErrorMessage = (action: ExportAction, t: (key: string) => stri
     return t('msg_export_failed');
 };
 
-const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
-    reportTitle,
-    reportDescription,
-    reportIcon,
-    data,
-    columns,
-    summary = [],
-    filterSummary,
-    fileName,
-    fetchAllData,
-}) => {
+const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({ reportTitle, reportDescription, reportIcon, data, columns, summary = [], filterSummary, fileName, fetchAllData }) => {
     const { t, i18n } = getTranslation();
     const { currentStore } = useCurrentStore();
     const { code, symbol } = useCurrency();
@@ -193,7 +187,9 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
     const isExporting = activeExport !== null;
 
     // Preload on mount so fonts are ready before user clicks
-    useEffect(() => { _ensureRptPdf(); }, []);
+    useEffect(() => {
+        _ensureRptPdf();
+    }, []);
 
     const isBn = i18n.language === 'bn';
 
@@ -308,8 +304,7 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
             const fontName = useBnFont ? 'NotoSansBengali' : 'Roboto';
 
             // Translation helper — Bengali when font ready, English fallback
-            const tDoc = (key: string): string =>
-                useBnFont ? t(key) : ((enLocale as unknown as Record<string, string>)[key] || key);
+            const tDoc = (key: string): string => (useBnFont ? t(key) : (enLocale as unknown as Record<string, string>)[key] || key);
 
             // Text sanitizer — strip non-ASCII only in English mode (Roboto has no Bengali glyphs)
             const san = (text: string): string => {
@@ -323,7 +318,10 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
                 return s.replace(/[^\x00-\x7F]/g, '');
             };
 
-            const totalWeight = Math.max(columns.reduce((s, c) => s + (c.width || 10), 0), 1);
+            const totalWeight = Math.max(
+                columns.reduce((s, c) => s + (c.width || 10), 0),
+                1
+            );
             const isLandscape = columns.length > 5 || totalWeight > 70;
             const pageW = isLandscape ? 841.89 : 595.28;
             const marginPts = isLandscape ? 18 : 28;
@@ -347,10 +345,7 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
                 return tDoc('lbl_custom_range');
             })();
 
-            const isNumeric = (col: ExportColumn) =>
-                ['amount', 'price', 'total', 'tax', 'discount', 'subtotal', 'due', 'paid'].some(
-                    (k) => col.key.includes(k) || col.label.toLowerCase().includes(k)
-                );
+            const isNumeric = (col: ExportColumn) => ['amount', 'price', 'total', 'tax', 'discount', 'subtotal', 'due', 'paid'].some((k) => col.key.includes(k) || col.label.toLowerCase().includes(k));
 
             const fontSize = columns.length > 14 ? 4.6 : columns.length > 12 ? 5 : columns.length > 10 ? 5.5 : columns.length > 8 ? 6.25 : 7.25;
             const cellPadding = columns.length > 10 ? 1.4 : columns.length > 8 ? 2 : 2.5;
@@ -361,8 +356,7 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
             const widthDiff = usableW - colWidths.reduce((sum, width) => sum + width, 0);
             colWidths[colWidths.length - 1] = Math.max(12, colWidths[colWidths.length - 1] + widthDiff);
 
-            const tableText = (value: string, maxLength: number): string =>
-                breakLongPdfWords(san(clampPdfText(value, maxLength)), columns.length > 10 ? 10 : 14);
+            const tableText = (value: string, maxLength: number): string => breakLongPdfWords(san(clampPdfText(value, maxLength)), columns.length > 10 ? 10 : 14);
 
             // Header row
             const headerRow = columns.map((col) => ({
@@ -395,13 +389,16 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
             if (hasTotals) {
                 bodyRows.push(
                     columns.map((col, idx) => ({
-                        text: tableText(idx === 0
-                            ? tDoc('lbl_total').toUpperCase()
-                            : col.key === 'serial' || col.label === '#'
+                        text: tableText(
+                            idx === 0
+                                ? tDoc('lbl_total').toUpperCase()
+                                : col.key === 'serial' || col.label === '#'
                                 ? ''
                                 : totals[col.label] !== undefined
-                                    ? totals[col.label].toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-                                    : '', 28),
+                                ? totals[col.label].toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                                : '',
+                            28
+                        ),
                         bold: true,
                         alignment: isNumeric(col) ? 'right' : 'left',
                         fontSize: fontSize + 1,
@@ -411,9 +408,7 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
             }
 
             const summaryText = summary.map((s) => `${san(String(s.label))}: ${san(String(s.value))}`).join('   |   ');
-            const filtersText = filterSummary?.customFilters?.length
-                ? filterSummary.customFilters.map((f) => `${san(f.label)}: ${san(f.value)}`).join(' | ')
-                : '';
+            const filtersText = filterSummary?.customFilters?.length ? filterSummary.customFilters.map((f) => `${san(f.label)}: ${san(f.value)}`).join(' | ') : '';
 
             const docDefinition: any = {
                 pageOrientation: isLandscape ? 'landscape' : 'portrait',
@@ -427,7 +422,9 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
                                 stack: [
                                     { text: san(storeDetails.name), fontSize: 14, bold: true, color: '#1e1e1e', margin: [0, 0, 0, 3] },
                                     ...(storeDetails.contact.trim() ? [{ text: `${tDoc('lbl_phone')}: ${san(storeDetails.contact)}`, fontSize: 8, color: '#666666' }] : []),
-                                    ...(storeDetails.location.replace(/[\s,;.|/-]/g, '').length > 0 ? [{ text: `${tDoc('lbl_address')}: ${san(storeDetails.location)}`, fontSize: 8, color: '#666666' }] : []),
+                                    ...(storeDetails.location.replace(/[\s,;.|/-]/g, '').length > 0
+                                        ? [{ text: `${tDoc('lbl_address')}: ${san(storeDetails.location)}`, fontSize: 8, color: '#666666' }]
+                                        : []),
                                 ],
                                 width: '*',
                             },
@@ -522,9 +519,7 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
     }, [generatePdf, baseFileName, t]);
 
     const handlePrint = useCallback(async () => {
-        const mobilePdfWindow = isMobilePdfDownloadRisk()
-            ? reservePdfWindow(`${baseFileName}_${format(new Date(), 'yyyy-MM-dd')}.pdf`)
-            : null;
+        const mobilePdfWindow = isMobilePdfDownloadRisk() ? reservePdfWindow(`${baseFileName}_${format(new Date(), 'yyyy-MM-dd')}.pdf`) : null;
         setActiveExport('print');
         try {
             await generatePdf('print', mobilePdfWindow);
@@ -543,7 +538,9 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({
                 <div className="flex flex-wrap items-center justify-between gap-4">
                     {/* Left: Report Icon + Title + Description */}
                     <div className="flex items-center gap-3">
-                        {reportIcon && <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#046ca9] to-[#034d79] text-white shadow-sm">{reportIcon}</div>}
+                        {reportIcon && (
+                            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[#046ca9] to-[#034d79] text-white shadow-sm">{reportIcon}</div>
+                        )}
                         <div>
                             <h1 className="text-xl font-bold text-gray-900">{displayTitle}</h1>
                             {reportDescription && <p className="text-sm text-gray-500">{reportDescription}</p>}

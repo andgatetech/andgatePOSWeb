@@ -31,11 +31,7 @@ const JsonViewer = ({ data, label }: { data: any; label: string }) => {
             <button type="button" onClick={() => setOpen((v) => !v)} className="flex items-center gap-1 text-xs text-blue-600 hover:underline">
                 {label} <ChevronDown className={`h-3 w-3 transition-transform ${open ? 'rotate-180' : ''}`} />
             </button>
-            {open && (
-                <pre className="mt-1 max-h-40 overflow-auto rounded bg-gray-50 p-2 text-xs text-gray-700 whitespace-pre-wrap">
-                    {JSON.stringify(data, null, 2)}
-                </pre>
-            )}
+            {open && <pre className="mt-1 max-h-40 overflow-auto whitespace-pre-wrap rounded bg-gray-50 p-2 text-xs text-gray-700">{JSON.stringify(data, null, 2)}</pre>}
         </div>
     );
 };
@@ -149,7 +145,7 @@ const AuditLogsPage = () => {
         <div className="space-y-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#046ca9] to-[#034d79] text-white shadow-sm">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#046ca9] text-white shadow-sm">
                         <Activity className="h-5 w-5" />
                     </div>
                     <div>
@@ -159,37 +155,49 @@ const AuditLogsPage = () => {
                 </div>
             </div>
 
-            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+            <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     <input
                         type="text"
                         value={filterEntityType}
-                        onChange={(e) => { setFilterEntityType(e.target.value); setCurrentPage(1); }}
+                        onChange={(e) => {
+                            setFilterEntityType(e.target.value);
+                            setCurrentPage(1);
+                        }}
                         placeholder={t('audit_filter_entity_type')}
                         className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                     <input
                         type="text"
                         value={filterAction}
-                        onChange={(e) => { setFilterAction(e.target.value); setCurrentPage(1); }}
+                        onChange={(e) => {
+                            setFilterAction(e.target.value);
+                            setCurrentPage(1);
+                        }}
                         placeholder={t('audit_filter_action')}
                         className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                     <input
                         type="date"
                         value={filterFrom}
-                        onChange={(e) => { setFilterFrom(e.target.value); setCurrentPage(1); }}
+                        onChange={(e) => {
+                            setFilterFrom(e.target.value);
+                            setCurrentPage(1);
+                        }}
                         className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                     <input
                         type="date"
                         value={filterTo}
-                        onChange={(e) => { setFilterTo(e.target.value); setCurrentPage(1); }}
+                        onChange={(e) => {
+                            setFilterTo(e.target.value);
+                            setCurrentPage(1);
+                        }}
                         className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                 </div>
                 {(filterEntityType || filterAction || filterFrom || filterTo) && (
-                    <button onClick={resetFilters} className="mt-2 text-xs text-gray-500 hover:text-red-600 flex items-center gap-1">
+                    <button onClick={resetFilters} className="mt-2 flex items-center gap-1 text-xs text-gray-500 hover:text-red-600">
                         <X className="h-3 w-3" /> {t('btn_clear_filters')}
                     </button>
                 )}
@@ -204,7 +212,10 @@ const AuditLogsPage = () => {
                     itemsPerPage,
                     totalItems,
                     onPageChange: setCurrentPage,
-                    onItemsPerPageChange: (items) => { setItemsPerPage(items); setCurrentPage(1); },
+                    onItemsPerPageChange: (items) => {
+                        setItemsPerPage(items);
+                        setCurrentPage(1);
+                    },
                 }}
                 emptyState={{
                     icon: <Activity className="mx-auto h-16 w-16" />,
@@ -214,30 +225,40 @@ const AuditLogsPage = () => {
             />
 
             {detailLog && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-                    <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+                    <div className="w-full max-w-lg rounded-lg bg-white shadow-lg">
                         <div className="flex items-center justify-between border-b px-6 py-4">
                             <h2 className="font-bold text-gray-900">{t('audit_detail_title')}</h2>
                             <button onClick={() => setDetailLog(null)} className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100">
                                 <X className="h-5 w-5" />
                             </button>
                         </div>
-                        <div className="max-h-[60vh] overflow-y-auto p-6 space-y-3 text-sm">
-                            <div><strong>{t('audit_action')}:</strong> {detailLog.action}</div>
-                            <div><strong>{t('audit_entity_type')}:</strong> {detailLog.entity_type}</div>
-                            <div><strong>{t('audit_entity_label')}:</strong> {detailLog.entity_label}</div>
-                            <div><strong>{t('audit_actor')}:</strong> {detailLog.actor_name || t('lbl_system')}</div>
-                            <div><strong>{t('audit_ip')}:</strong> {detailLog.ip_address || '-'}</div>
+                        <div className="max-h-[60vh] space-y-3 overflow-y-auto p-6 text-sm">
+                            <div>
+                                <strong>{t('audit_action')}:</strong> {detailLog.action}
+                            </div>
+                            <div>
+                                <strong>{t('audit_entity_type')}:</strong> {detailLog.entity_type}
+                            </div>
+                            <div>
+                                <strong>{t('audit_entity_label')}:</strong> {detailLog.entity_label}
+                            </div>
+                            <div>
+                                <strong>{t('audit_actor')}:</strong> {detailLog.actor_name || t('lbl_system')}
+                            </div>
+                            <div>
+                                <strong>{t('audit_ip')}:</strong> {detailLog.ip_address || '-'}
+                            </div>
                             {detailLog.old_values && Object.keys(detailLog.old_values).length > 0 && (
                                 <div>
                                     <strong>{t('audit_old_values')}:</strong>
-                                    <pre className="mt-1 rounded bg-gray-50 p-2 text-xs whitespace-pre-wrap">{JSON.stringify(detailLog.old_values, null, 2)}</pre>
+                                    <pre className="mt-1 whitespace-pre-wrap rounded bg-gray-50 p-2 text-xs">{JSON.stringify(detailLog.old_values, null, 2)}</pre>
                                 </div>
                             )}
                             {detailLog.new_values && Object.keys(detailLog.new_values).length > 0 && (
                                 <div>
                                     <strong>{t('audit_new_values')}:</strong>
-                                    <pre className="mt-1 rounded bg-gray-50 p-2 text-xs whitespace-pre-wrap">{JSON.stringify(detailLog.new_values, null, 2)}</pre>
+                                    <pre className="mt-1 whitespace-pre-wrap rounded bg-gray-50 p-2 text-xs">{JSON.stringify(detailLog.new_values, null, 2)}</pre>
                                 </div>
                             )}
                         </div>

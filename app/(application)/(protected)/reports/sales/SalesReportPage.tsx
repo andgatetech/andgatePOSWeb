@@ -380,7 +380,7 @@ const SalesReportPage = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="min-h-screen bg-[#f6f8fb]">
             <div className="mx-auto">
                 {/* Unified Export Toolbar with Report Header */}
                 <ReportExportToolbar

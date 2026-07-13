@@ -206,8 +206,8 @@ const UnitsTab: React.FC<UnitsTabProps> = ({ storeId, unitsData, unitsLoading, u
                 {totalPages > 1 && (
                     <div className="mt-4 flex items-center justify-between border-t pt-4">
                         <div className="text-sm text-gray-600">
-                            {t('lbl_showing')} <span className="font-semibold">{displayNumber(startIndex + 1)}</span> {t('lbl_to')} <span className="font-semibold">{displayNumber(Math.min(endIndex, totalItems))}</span>{' '}
-                            <span className="font-semibold">{displayNumber(totalItems)}</span> {t('lbl_units')}
+                            {t('lbl_showing')} <span className="font-semibold">{displayNumber(startIndex + 1)}</span> {t('lbl_to')}{' '}
+                            <span className="font-semibold">{displayNumber(Math.min(endIndex, totalItems))}</span> <span className="font-semibold">{displayNumber(totalItems)}</span> {t('lbl_units')}
                         </div>
                         <div className="flex items-center gap-2">
                             <button

@@ -313,7 +313,7 @@ const CategoryComponent = () => {
             {/* Header */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white shadow-sm">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-white shadow-sm">
                         <Layers className="h-5 w-5" />
                     </div>
                     <div>
@@ -323,7 +323,7 @@ const CategoryComponent = () => {
                 </div>
                 <button
                     onClick={() => router.push('/category/create')}
-                    className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary/90"
+                    className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary/90"
                 >
                     <Plus className="h-4 w-4" />
                     {t('category_add')}
@@ -331,49 +331,49 @@ const CategoryComponent = () => {
             </div>
 
             {/* Filter Bar */}
-            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+            <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
                 <CategoryFilter key={`category-filter-${currentStoreId}`} onFilterChange={handleFilterChange} currentStoreId={currentStoreId} />
             </div>
 
             {/* Categories Table */}
             <ReusableTable
-                    data={categoriesWithActions}
-                    columns={columnsWithActions}
-                    isLoading={isLoading}
-                    pagination={{
-                        currentPage,
-                        totalPages: paginationMeta?.last_page || 1,
-                        itemsPerPage,
-                        totalItems: paginationMeta?.total || 0,
-                        onPageChange: handlePageChange,
-                        onItemsPerPageChange: handleItemsPerPageChange,
-                    }}
-                    sorting={{
-                        field: sortField,
-                        direction: sortDirection,
-                        onSort: handleSort,
-                    }}
-                    emptyState={{
-                        icon: (
-                            <div className="flex justify-center">
-                                <ImageIcon className="h-16 w-16 text-gray-400" />
-                            </div>
-                        ),
-                        title: t('category_no_data'),
-                        description: t('category_no_data_desc'),
-                        action: (
-                            <button onClick={() => router.push('/category/create')} className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-white hover:bg-primary/90">
-                                <Plus className="h-4 w-4" />
-                                {t('category_create_first')}
-                            </button>
-                        ),
-                    }}
-                />
+                data={categoriesWithActions}
+                columns={columnsWithActions}
+                isLoading={isLoading}
+                pagination={{
+                    currentPage,
+                    totalPages: paginationMeta?.last_page || 1,
+                    itemsPerPage,
+                    totalItems: paginationMeta?.total || 0,
+                    onPageChange: handlePageChange,
+                    onItemsPerPageChange: handleItemsPerPageChange,
+                }}
+                sorting={{
+                    field: sortField,
+                    direction: sortDirection,
+                    onSort: handleSort,
+                }}
+                emptyState={{
+                    icon: (
+                        <div className="flex justify-center">
+                            <ImageIcon className="h-16 w-16 text-gray-400" />
+                        </div>
+                    ),
+                    title: t('category_no_data'),
+                    description: t('category_no_data_desc'),
+                    action: (
+                        <button onClick={() => router.push('/category/create')} className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-white hover:bg-primary/90">
+                            <Plus className="h-4 w-4" />
+                            {t('category_create_first')}
+                        </button>
+                    ),
+                }}
+            />
 
             {/* Modal */}
             {showModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-3 sm:p-4">
-                    <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl bg-white shadow-xl">
+                    <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-lg bg-white shadow-sm">
                         {/* Modal Header */}
                         <div className="flex items-center justify-between border-b border-gray-200 p-6">
                             <h2 className="text-xl font-semibold text-gray-900">
@@ -407,9 +407,7 @@ const CategoryComponent = () => {
                                     </div>
                                     <div>
                                         <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_description')}</label>
-                                        {selectedCategory?.description ? (
-                                            <div className="quill-content text-gray-900" dangerouslySetInnerHTML={{ __html: selectedCategory.description }} />
-                                        ) : null}
+                                        {selectedCategory?.description ? <div className="quill-content text-gray-900" dangerouslySetInnerHTML={{ __html: selectedCategory.description }} /> : null}
                                     </div>
                                     <div className="grid grid-cols-2 gap-4 text-sm">
                                         <div>
@@ -480,7 +478,13 @@ const CategoryComponent = () => {
                                             onChange={(value) => setFormData({ ...formData, description: value })}
                                             placeholder={t('category_desc_placeholder')}
                                             className="category-description-editor"
-                                            modules={{ toolbar: [['bold', 'italic', 'underline'], [{ list: 'ordered' }, { list: 'bullet' }], ['link', 'clean']] }}
+                                            modules={{
+                                                toolbar: [
+                                                    ['bold', 'italic', 'underline'],
+                                                    [{ list: 'ordered' }, { list: 'bullet' }],
+                                                    ['link', 'clean'],
+                                                ],
+                                            }}
                                             formats={['bold', 'italic', 'underline', 'list', 'link']}
                                         />
                                     </div>

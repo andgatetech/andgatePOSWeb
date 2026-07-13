@@ -50,10 +50,7 @@ export default function BankAccountDetailPage() {
 
     const { data: accountData } = useGetBankAccountByIdQuery(accountId, { skip: !accountId });
     const { data: accountsData } = useGetBankAccountsQuery({ store_id: currentStoreId }, { skip: !currentStoreId });
-    const { data: txData, isLoading: txLoading, refetch: refetchTx } = useGetBankTransactionsQuery(
-        { store_id: currentStoreId, bank_account_id: accountId },
-        { skip: !currentStoreId || !accountId }
-    );
+    const { data: txData, isLoading: txLoading, refetch: refetchTx } = useGetBankTransactionsQuery({ store_id: currentStoreId, bank_account_id: accountId }, { skip: !currentStoreId || !accountId });
 
     const [createTx, { isLoading: creating }] = useCreateBankTransactionMutation();
     const [updateTx, { isLoading: updating }] = useUpdateBankTransactionMutation();
@@ -159,7 +156,9 @@ export default function BankAccountDetailPage() {
                     </button>
                     <div>
                         <h1 className="text-xl font-bold text-gray-900">{account.bank_name}</h1>
-                        <p className="text-sm text-gray-500">{account.account_name} · {account.account_number}</p>
+                        <p className="text-sm text-gray-500">
+                            {account.account_name} · {account.account_number}
+                        </p>
                     </div>
                 </div>
                 <button onClick={openCreate} className="btn btn-primary inline-flex items-center gap-2">
@@ -168,25 +167,25 @@ export default function BankAccountDetailPage() {
             </div>
 
             <div className="grid gap-4 md:grid-cols-4">
-                <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+                <div className="rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
                     <p className="text-sm text-gray-500">{t('lbl_current_balance')}</p>
                     <p className="mt-2 text-2xl font-black text-gray-900">{formatCurrency(account.current_balance)}</p>
                 </div>
-                <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+                <div className="rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
                     <p className="text-sm text-gray-500">{t('lbl_opening_balance')}</p>
                     <p className="mt-2 text-2xl font-black text-gray-900">{formatCurrency(account.opening_balance)}</p>
                 </div>
-                <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+                <div className="rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
                     <p className="text-sm text-gray-500">{t('lbl_total_deposits')}</p>
                     <p className="mt-2 text-2xl font-black text-success">{formatCurrency(summary.total_deposits || 0)}</p>
                 </div>
-                <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+                <div className="rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
                     <p className="text-sm text-gray-500">{t('lbl_total_withdrawals')}</p>
                     <p className="mt-2 text-2xl font-black text-danger">{formatCurrency(summary.total_withdrawals || 0)}</p>
                 </div>
             </div>
 
-            <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+            <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
                 <div className="border-b border-gray-200 px-5 py-4">
                     <h3 className="font-bold text-gray-900">{t('lbl_bank_transactions')}</h3>
                 </div>
@@ -219,9 +218,7 @@ export default function BankAccountDetailPage() {
                                             {formatCurrency(tx.amount)}
                                         </td>
                                         <td className="px-4 py-3">
-                                            <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_BADGES[tx.status] || 'bg-gray-100'}`}>
-                                                {tx.status}
-                                            </span>
+                                            <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_BADGES[tx.status] || 'bg-gray-100'}`}>{tx.status}</span>
                                         </td>
                                         <td className="px-4 py-3 text-right">
                                             <div className="flex items-center justify-end gap-1">
@@ -252,10 +249,8 @@ export default function BankAccountDetailPage() {
 
             {modalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                    <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl">
-                        <h3 className="mb-4 text-lg font-bold text-gray-900">
-                            {editingId ? t('lbl_edit_transaction') : t('lbl_add_transaction')}
-                        </h3>
+                    <div className="w-full max-w-lg rounded-lg bg-white p-6 shadow-sm">
+                        <h3 className="mb-4 text-lg font-bold text-gray-900">{editingId ? t('lbl_edit_transaction') : t('lbl_add_transaction')}</h3>
                         <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2">
                             <div>
                                 <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_date')}</label>
@@ -264,15 +259,28 @@ export default function BankAccountDetailPage() {
                             <div>
                                 <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_type')}</label>
                                 <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className="form-select w-full">
-                                    {TRANSACTION_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+                                    {TRANSACTION_TYPES.map((t) => (
+                                        <option key={t.value} value={t.value}>
+                                            {t.label}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
                             {form.type === 'transfer_out' && (
                                 <div className="sm:col-span-2">
                                     <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_to_account')}</label>
-                                    <select value={form.related_bank_account_id} onChange={(e) => setForm({ ...form, related_bank_account_id: e.target.value })} required className="form-select w-full">
+                                    <select
+                                        value={form.related_bank_account_id}
+                                        onChange={(e) => setForm({ ...form, related_bank_account_id: e.target.value })}
+                                        required
+                                        className="form-select w-full"
+                                    >
                                         <option value="">{t('lbl_select_account')}</option>
-                                        {accounts.map((a: any) => <option key={a.id} value={a.id}>{a.bank_name} - {a.account_number}</option>)}
+                                        {accounts.map((a: any) => (
+                                            <option key={a.id} value={a.id}>
+                                                {a.bank_name} - {a.account_number}
+                                            </option>
+                                        ))}
                                     </select>
                                 </div>
                             )}
@@ -301,8 +309,12 @@ export default function BankAccountDetailPage() {
                                 <input value={form.remarks} onChange={(e) => setForm({ ...form, remarks: e.target.value })} className="form-input w-full" />
                             </div>
                             <div className="flex justify-end gap-2 sm:col-span-2">
-                                <button type="button" onClick={() => setModalOpen(false)} className="btn btn-outline-secondary">{t('lbl_cancel')}</button>
-                                <button type="submit" disabled={creating || updating} className="btn btn-primary">{editingId ? t('lbl_update') : t('lbl_add')}</button>
+                                <button type="button" onClick={() => setModalOpen(false)} className="btn btn-outline-secondary">
+                                    {t('lbl_cancel')}
+                                </button>
+                                <button type="submit" disabled={creating || updating} className="btn btn-primary">
+                                    {editingId ? t('lbl_update') : t('lbl_add')}
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -311,24 +323,43 @@ export default function BankAccountDetailPage() {
 
             {reconcileModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                    <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+                    <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-sm">
                         <h3 className="mb-4 text-lg font-bold text-gray-900">{t('lbl_reconcile_transaction')}</h3>
                         <form onSubmit={handleReconcile} className="space-y-4">
                             <div>
                                 <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_reconciled_date')}</label>
-                                <input type="date" value={reconcileModal.reconciled_date} onChange={(e) => setReconcileModal({ ...reconcileModal, reconciled_date: e.target.value })} required className="form-input w-full" />
+                                <input
+                                    type="date"
+                                    value={reconcileModal.reconciled_date}
+                                    onChange={(e) => setReconcileModal({ ...reconcileModal, reconciled_date: e.target.value })}
+                                    required
+                                    className="form-input w-full"
+                                />
                             </div>
                             <div>
                                 <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_statement_reference')}</label>
-                                <input value={reconcileModal.statement_reference} onChange={(e) => setReconcileModal({ ...reconcileModal, statement_reference: e.target.value })} className="form-input w-full" />
+                                <input
+                                    value={reconcileModal.statement_reference}
+                                    onChange={(e) => setReconcileModal({ ...reconcileModal, statement_reference: e.target.value })}
+                                    className="form-input w-full"
+                                />
                             </div>
                             <div>
                                 <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_remarks')}</label>
-                                <textarea value={reconcileModal.remarks} onChange={(e) => setReconcileModal({ ...reconcileModal, remarks: e.target.value })} rows={2} className="form-textarea w-full" />
+                                <textarea
+                                    value={reconcileModal.remarks}
+                                    onChange={(e) => setReconcileModal({ ...reconcileModal, remarks: e.target.value })}
+                                    rows={2}
+                                    className="form-textarea w-full"
+                                />
                             </div>
                             <div className="flex justify-end gap-2">
-                                <button type="button" onClick={() => setReconcileModal(null)} className="btn btn-outline-secondary">{t('lbl_cancel')}</button>
-                                <button type="submit" disabled={reconciling} className="btn btn-primary">{t('lbl_reconcile')}</button>
+                                <button type="button" onClick={() => setReconcileModal(null)} className="btn btn-outline-secondary">
+                                    {t('lbl_cancel')}
+                                </button>
+                                <button type="submit" disabled={reconciling} className="btn btn-primary">
+                                    {t('lbl_reconcile')}
+                                </button>
                             </div>
                         </form>
                     </div>

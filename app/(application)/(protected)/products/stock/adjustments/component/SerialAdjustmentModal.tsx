@@ -96,7 +96,7 @@ const SerialAdjustmentModal = ({ isOpen, onClose, productName, productId, stockI
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div className="max-h-[90vh] w-full max-w-4xl overflow-auto rounded-2xl bg-white shadow-2xl">
+            <div className="max-h-[90vh] w-full max-w-4xl overflow-auto rounded-lg bg-white shadow-lg">
                 {/* Header */}
                 <div className="sticky top-0 z-10 border-b border-gray-200 bg-white px-6 py-4">
                     <div className="flex items-start justify-between">
@@ -154,7 +154,9 @@ const SerialAdjustmentModal = ({ isOpen, onClose, productName, productId, stockI
                                     {serials.map((serial, index) => (
                                         <div key={serial.id} className="rounded-lg border border-gray-200 bg-gray-50 p-4">
                                             <div className="mb-3 flex items-center justify-between">
-                                                <span className="text-sm font-semibold text-gray-700">{t('stock_adjustment_serial')} #{index + 1}</span>
+                                                <span className="text-sm font-semibold text-gray-700">
+                                                    {t('stock_adjustment_serial')} #{index + 1}
+                                                </span>
                                                 <button onClick={() => removeSerialRow(serial.id)} className="text-red-600 hover:text-red-700">
                                                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path

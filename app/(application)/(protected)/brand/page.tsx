@@ -61,7 +61,7 @@ const BrandModal = ({ showModal, modalType, selectedBrand, onClose, onSubmit, lo
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-3 sm:p-4">
-            <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl bg-white shadow-xl">
+            <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-lg bg-white shadow-sm">
                 {/* Modal Header */}
                 <div className="border-b border-gray-200 p-4 sm:p-6">
                     <div className="flex items-center justify-between">
@@ -184,7 +184,13 @@ const BrandModal = ({ showModal, modalType, selectedBrand, onClose, onSubmit, lo
                                     onChange={(value) => setFormData({ ...formData, description: value })}
                                     placeholder={t('brand_desc_placeholder')}
                                     className="brand-description-editor"
-                                    modules={{ toolbar: [['bold', 'italic', 'underline'], [{ list: 'ordered' }, { list: 'bullet' }], ['link', 'clean']] }}
+                                    modules={{
+                                        toolbar: [
+                                            ['bold', 'italic', 'underline'],
+                                            [{ list: 'ordered' }, { list: 'bullet' }],
+                                            ['link', 'clean'],
+                                        ],
+                                    }}
                                     formats={['bold', 'italic', 'underline', 'list', 'link']}
                                 />
                             </div>
@@ -201,7 +207,7 @@ const BrandModal = ({ showModal, modalType, selectedBrand, onClose, onSubmit, lo
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 sm:flex-1"
+                                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-[#046ca9] to-[#034d79] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#034d79] disabled:opacity-50 sm:flex-1"
                                 >
                                     {loading ? (
                                         <>
@@ -461,7 +467,7 @@ const BrandManagement = () => {
 
     if (error) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-3 sm:p-4">
+            <div className="min-h-screen bg-[#f6f8fb] p-3 sm:p-4">
                 <div className="mx-auto">
                     <div className="rounded-lg border border-red-200 bg-red-50 p-4">
                         <p className="text-sm text-red-800 sm:text-base">{t('brand_error_load')}</p>
@@ -476,7 +482,7 @@ const BrandManagement = () => {
             {/* Header */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white shadow-sm">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-white shadow-sm">
                         <ImageIcon className="h-5 w-5" />
                     </div>
                     <div>
@@ -486,7 +492,7 @@ const BrandManagement = () => {
                 </div>
                 <button
                     onClick={() => router.push('/brand/create')}
-                    className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary/90"
+                    className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary/90"
                 >
                     <Plus className="h-4 w-4" />
                     {t('brand_add')}
@@ -494,7 +500,7 @@ const BrandManagement = () => {
             </div>
 
             {/* Filter Bar */}
-            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+            <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
                 <BrandFilter key={`brand-filter-${currentStoreId}`} onFilterChange={handleFilterChange} currentStoreId={currentStoreId} />
             </div>
 
@@ -526,7 +532,10 @@ const BrandManagement = () => {
                     title: t('brand_no_data'),
                     description: t('brand_no_data_desc'),
                     action: (
-                        <button onClick={() => router.push('/brand/create')} className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90">
+                        <button
+                            onClick={() => router.push('/brand/create')}
+                            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90"
+                        >
                             <Plus className="h-4 w-4" />
                             {t('brand_create_first')}
                         </button>

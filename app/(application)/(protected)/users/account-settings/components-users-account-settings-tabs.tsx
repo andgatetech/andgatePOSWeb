@@ -176,7 +176,7 @@ const ComponentsUsersAccountSettingsTabs = () => {
                                         className="mx-auto h-20 w-20 rounded-full object-cover md:h-32 md:w-32"
                                     />
                                 ) : (
-                                    <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg md:h-32 md:w-32">
+                                    <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-r from-[#046ca9] to-[#034d79] text-white shadow-lg md:h-32 md:w-32">
                                         <IconUser className="h-8 w-8 md:h-16 md:w-16" fill={true} />
                                     </div>
                                 )}
@@ -209,7 +209,15 @@ const ComponentsUsersAccountSettingsTabs = () => {
 
                                 <div>
                                     <label htmlFor="address">{t('lbl_address')}</label>
-                                    <input id="address" name="address" type="text" placeholder={t('placeholder_address')} className="form-input" value={formData.address} onChange={handleInputChange} />
+                                    <input
+                                        id="address"
+                                        name="address"
+                                        type="text"
+                                        placeholder={t('placeholder_address')}
+                                        className="form-input"
+                                        value={formData.address}
+                                        onChange={handleInputChange}
+                                    />
                                 </div>
 
                                 <div className="mt-3 sm:col-span-2">

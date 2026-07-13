@@ -67,14 +67,18 @@ const OrderReturnList = () => {
     const stats = useMemo(() => {
         const summary = returnsData?.data?.summary;
         const totalReturns = summary?.total_returns ?? paginationMeta?.total ?? 0;
-        const totalRefundAmount = summary?.total_refund_amount ?? returns.reduce((sum: number, ret: any) => {
-            const netAmount = Number(ret.net_amount || 0);
-            return netAmount < 0 ? sum + Math.abs(netAmount) : sum;
-        }, 0);
-        const totalExchangeAmount = summary?.total_exchange_amount ?? returns.reduce((sum: number, ret: any) => {
-            const netAmount = Number(ret.net_amount || 0);
-            return netAmount > 0 ? sum + netAmount : sum;
-        }, 0);
+        const totalRefundAmount =
+            summary?.total_refund_amount ??
+            returns.reduce((sum: number, ret: any) => {
+                const netAmount = Number(ret.net_amount || 0);
+                return netAmount < 0 ? sum + Math.abs(netAmount) : sum;
+            }, 0);
+        const totalExchangeAmount =
+            summary?.total_exchange_amount ??
+            returns.reduce((sum: number, ret: any) => {
+                const netAmount = Number(ret.net_amount || 0);
+                return netAmount > 0 ? sum + netAmount : sum;
+            }, 0);
         const pureReturns = summary?.pure_returns ?? returns.filter((ret: any) => ret.return_type === 'return').length;
         const exchanges = summary?.exchanges ?? returns.filter((ret: any) => ret.return_type === 'exchange' || ret.return_type === 'return_and_buy').length;
 
@@ -131,12 +135,12 @@ const OrderReturnList = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="min-h-screen bg-[#f6f8fb]">
             <div className="mx-auto">
                 {/* Header */}
                 <div className="mb-6">
                     <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#046ca9] to-[#034d79] text-white shadow-sm">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#046ca9] text-white shadow-sm">
                             <RotateCcw className="h-5 w-5" />
                         </div>
                         <div>

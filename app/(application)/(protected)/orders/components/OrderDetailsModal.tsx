@@ -66,12 +66,14 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                             leaveFrom="opacity-100 scale-100"
                             leaveTo="opacity-0 scale-95"
                         >
-                            <Dialog.Panel className="w-full max-w-4xl transform overflow-hidden rounded-t-2xl bg-white shadow-2xl transition-all sm:rounded-2xl">
+                            <Dialog.Panel className="w-full max-w-4xl transform overflow-hidden rounded-t-2xl bg-white shadow-lg transition-all sm:rounded-lg">
                                 {/* Header */}
-                                <div className="flex items-center justify-between border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3 sm:px-6 sm:py-4">
+                                <div className="flex items-center justify-between border-b border-gray-200 bg-gradient-to-r from-[#eef7fc] to-[#eef7fc] px-4 py-3 sm:px-6 sm:py-4">
                                     <div>
                                         <Dialog.Title className="text-lg font-bold text-gray-900 sm:text-2xl">{t('order_view_title')}</Dialog.Title>
-                                        <p className="mt-0.5 text-xs text-gray-600 sm:mt-1 sm:text-sm">{t('order_invoice')}: {order.invoice}</p>
+                                        <p className="mt-0.5 text-xs text-gray-600 sm:mt-1 sm:text-sm">
+                                            {t('order_invoice')}: {order.invoice}
+                                        </p>
                                     </div>
                                     <button onClick={onClose} className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-white hover:text-gray-600">
                                         <X className="h-5 w-5 sm:h-6 sm:w-6" />
@@ -113,8 +115,16 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                             ) : (
                                                 <div className="space-y-2 text-sm">
                                                     <p className="font-medium text-gray-900">{order.customer?.name || t('lbl_na')}</p>
-                                                    {order.customer?.phone && <p className="text-gray-600">{t('lbl_phone')}: {order.customer.phone}</p>}
-                                                    {order.customer?.email && <p className="text-gray-600">{t('lbl_email')}: {order.customer.email}</p>}
+                                                    {order.customer?.phone && (
+                                                        <p className="text-gray-600">
+                                                            {t('lbl_phone')}: {order.customer.phone}
+                                                        </p>
+                                                    )}
+                                                    {order.customer?.email && (
+                                                        <p className="text-gray-600">
+                                                            {t('lbl_email')}: {order.customer.email}
+                                                        </p>
+                                                    )}
                                                 </div>
                                             )}
                                         </div>
@@ -190,7 +200,9 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                     <div className="mb-6">
                                         <div className="mb-4 flex items-center gap-2">
                                             <Package className="h-5 w-5 text-indigo-600" />
-                                            <h3 className="text-lg font-semibold text-gray-900">{t('order_items')} ({formatNumber(order.items_count ?? order.items?.length ?? 0)})</h3>
+                                            <h3 className="text-lg font-semibold text-gray-900">
+                                                {t('order_items')} ({formatNumber(order.items_count ?? order.items?.length ?? 0)})
+                                            </h3>
                                         </div>
                                         <div className="space-y-4">
                                             {order.items?.map((item: any, index: number) => (
@@ -201,7 +213,9 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                                             <h4 className="text-lg font-semibold text-gray-900">{item.snapshot?.product_name ?? item.product?.name ?? na}</h4>
                                                             <div className="mt-1 flex flex-wrap gap-2 text-xs">
                                                                 {(item.snapshot?.sku ?? item.product?.sku) && (
-                                                                    <span className="rounded bg-gray-100 px-2 py-1 text-gray-600">{t('lbl_sku')}: {item.snapshot?.sku ?? item.product?.sku}</span>
+                                                                    <span className="rounded bg-gray-100 px-2 py-1 text-gray-600">
+                                                                        {t('lbl_sku')}: {item.snapshot?.sku ?? item.product?.sku}
+                                                                    </span>
                                                                 )}
                                                                 {item.product?.category && <span className="rounded bg-blue-100 px-2 py-1 text-blue-700">{item.product.category}</span>}
                                                                 {item.product?.brand && <span className="rounded bg-purple-100 px-2 py-1 text-purple-700">{item.product.brand}</span>}
@@ -236,7 +250,11 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                                             <p className="font-semibold text-gray-900">
                                                                 {formatNumber(item.quantity ?? 0)} {item.unit ?? t('lbl_piece')}
                                                             </p>
-                                                            {item.quantity_returned > 0 && <p className="text-xs text-red-600">{t('status_returned')}: {formatNumber(item.quantity_returned)}</p>}
+                                                            {item.quantity_returned > 0 && (
+                                                                <p className="text-xs text-red-600">
+                                                                    {t('status_returned')}: {formatNumber(item.quantity_returned)}
+                                                                </p>
+                                                            )}
                                                         </div>
                                                         <div>
                                                             <p className="mb-1 text-xs text-gray-500">{t('lbl_selling_price')}</p>
@@ -415,9 +433,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                                                         <span className="font-bold text-red-600">{formatCurrency(returnItem.return_amount ?? 0)}</span>
                                                                     </div>
                                                                     <div className="mt-1 flex justify-between text-xs text-gray-600">
-                                                                        <span>
-                                                                            {t('msg_item_count', { count: returnItem.items_count })}
-                                                                        </span>
+                                                                        <span>{t('msg_item_count', { count: returnItem.items_count })}</span>
                                                                         <span>
                                                                             <DateColumn date={returnItem.return_date} />
                                                                         </span>
@@ -445,7 +461,9 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                                             <div className="flex-1">
                                                                 <div className="flex flex-wrap items-center gap-1.5">
                                                                     <Hash className="h-4 w-4 shrink-0 text-gray-400" />
-                                                                    <span className="font-semibold text-gray-900">{t('lbl_transaction')} #{formatNumber(transaction.id, { useGrouping: false })}</span>
+                                                                    <span className="font-semibold text-gray-900">
+                                                                        {t('lbl_transaction')} #{formatNumber(transaction.id, { useGrouping: false })}
+                                                                    </span>
                                                                     <span
                                                                         className={`rounded-full px-2 py-0.5 text-xs font-medium ${
                                                                             transaction.type === 'sale' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
@@ -520,7 +538,11 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                                     {isSending ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" /> : <Send className="h-4 w-4" />}
                                                     {t('btn_send')}
                                                 </button>
-                                                <button type="button" onClick={() => setSendEmailOpen(false)} className="rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-600 hover:bg-gray-100">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setSendEmailOpen(false)}
+                                                    className="rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-600 hover:bg-gray-100"
+                                                >
                                                     <X className="h-4 w-4" />
                                                 </button>
                                             </div>
@@ -529,7 +551,10 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                     <div className="flex flex-col-reverse gap-2 sm:flex-row">
                                         <button
                                             type="button"
-                                            onClick={() => { setSendEmail(''); setSendEmailOpen((v) => !v); }}
+                                            onClick={() => {
+                                                setSendEmail('');
+                                                setSendEmailOpen((v) => !v);
+                                            }}
                                             className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 sm:justify-start"
                                         >
                                             <Mail className="h-4 w-4" />

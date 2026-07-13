@@ -115,7 +115,7 @@ const EmployeeCreateForm = () => {
                 background: '#ffffff',
                 color: '#374151',
                 customClass: {
-                    popup: 'rounded-xl shadow-2xl',
+                    popup: 'rounded-lg shadow-lg',
                     title: 'text-xl font-semibold',
                     confirmButton: 'rounded-lg px-4 py-2 font-medium',
                 },
@@ -133,7 +133,7 @@ const EmployeeCreateForm = () => {
                 background: '#ffffff',
                 color: '#374151',
                 customClass: {
-                    popup: 'rounded-xl shadow-2xl',
+                    popup: 'rounded-lg shadow-lg',
                     title: 'text-xl font-semibold',
                     confirmButton: 'rounded-lg px-4 py-2 font-medium',
                 },
@@ -153,7 +153,7 @@ const EmployeeCreateForm = () => {
     // instead of only discovering the staff quota limit after submit.
     if (quotaExhausted) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-[#f4f9fc] via-white to-[#fff7ed] p-2 sm:p-4 md:p-6">
+            <div className="min-h-screen bg-[#f6f8fb] p-2 sm:p-4 md:p-6">
                 <div className="mx-auto max-w-2xl">
                     <SubscriptionError errorType="quota_exhausted" message={t('msg_staff_limit_reached_proactive')} />
                 </div>
@@ -162,26 +162,24 @@ const EmployeeCreateForm = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[#f4f9fc] via-white to-[#fff7ed] p-2 sm:p-4 md:p-6">
+        <div className="min-h-screen bg-[#f6f8fb] p-2 sm:p-4 md:p-6">
             <div className="mx-auto">
                 {/* Header */}
-                <div className="mb-4 rounded-xl bg-white p-4 shadow-sm transition-shadow duration-300 hover:shadow-sm sm:mb-6 sm:rounded-2xl sm:p-6 md:mb-8">
+                <div className="mb-4 rounded-lg bg-white p-4 shadow-sm transition-shadow duration-300  sm:mb-6 sm:rounded-lg sm:p-6 md:mb-8">
                     <div className="mb-4 flex flex-col items-start justify-between gap-4 sm:mb-6 sm:flex-row sm:items-center">
                         <div className="flex items-center space-x-3 sm:space-x-4">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-[#046ca9] to-[#034d79] shadow-md sm:h-12 sm:w-12 sm:rounded-xl">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#046ca9] shadow-md sm:h-12 sm:w-12 sm:rounded-lg">
                                 <Users className="h-5 w-5 text-white sm:h-6 sm:w-6" />
                             </div>
                             <div>
                                 <h1 className="text-lg font-bold text-gray-900 sm:text-xl md:text-2xl">{t('lbl_create_new_employee')}</h1>
-                                <p className="mt-0.5 text-xs text-gray-500 sm:text-sm">
-                                    {currentStore ? `${t('employee_add_to_store')} ${currentStore.store_name}` : t('employee_add_to_team')}
-                                </p>
+                                <p className="mt-0.5 text-xs text-gray-500 sm:text-sm">{currentStore ? `${t('employee_add_to_store')} ${currentStore.store_name}` : t('employee_add_to_team')}</p>
                             </div>
                         </div>
                         <button
                             type="button"
                             onClick={() => router.push('/employees')}
-                            className="flex w-full items-center justify-center space-x-2 rounded-lg bg-gray-100 px-3 py-2 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-200 sm:w-auto sm:justify-start sm:rounded-xl sm:px-4 sm:text-sm"
+                            className="flex w-full items-center justify-center space-x-2 rounded-lg bg-gray-100 px-3 py-2 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-200 sm:w-auto sm:justify-start sm:rounded-lg sm:px-4 sm:text-sm"
                         >
                             <ArrowLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                             <span>{t('btn_back')}</span>
@@ -203,7 +201,7 @@ const EmployeeCreateForm = () => {
 
                 {/* Main Form Card */}
                 <form onSubmit={handleSubmit}>
-                    <div className="overflow-hidden rounded-xl bg-white shadow-xl sm:rounded-2xl">
+                    <div className="overflow-hidden rounded-lg bg-white shadow-sm sm:rounded-lg">
                         <div className="p-4 sm:p-6 md:p-8">
                             <h2 className="mb-4 text-lg font-semibold text-gray-900 sm:mb-6 sm:text-xl">{t('lbl_employee_information')}</h2>
 
@@ -262,7 +260,11 @@ const EmployeeCreateForm = () => {
                                                 }`}
                                                 placeholder={t('placeholder_password')}
                                             />
-                                            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700">
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                                            >
                                                 {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                                             </button>
                                         </div>
@@ -287,7 +289,11 @@ const EmployeeCreateForm = () => {
                                                 }`}
                                                 placeholder={t('placeholder_confirm_password')}
                                             />
-                                            <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700">
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                                            >
                                                 {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                                             </button>
                                         </div>
@@ -351,14 +357,14 @@ const EmployeeCreateForm = () => {
                                     type="button"
                                     onClick={() => router.push('/employees')}
                                     disabled={isSubmitting}
-                                    className="w-full rounded-xl border border-gray-300 bg-white px-6 py-3 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+                                    className="w-full rounded-lg border border-gray-300 bg-white px-6 py-3 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                                 >
                                     {t('btn_cancel')}
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={isSubmitting}
-                                    className="group relative inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-[#046ca9] to-[#034d79] px-6 py-3 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-[#046ca9] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+                                    className="group relative inline-flex w-full items-center justify-center rounded-lg bg-[#046ca9] px-6 py-3 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:bg-[#034d79]  focus:outline-none focus:ring-2 focus:ring-[#046ca9] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                                 >
                                     {isSubmitting ? (
                                         <>

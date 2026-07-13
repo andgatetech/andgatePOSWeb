@@ -13,11 +13,11 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || '';
 
 const BUSINESS_TYPES = [
     { value: 'sole_proprietorship', labelKey: 'biz_type_sole' },
-    { value: 'partnership',         labelKey: 'biz_type_partnership' },
-    { value: 'private_limited',     labelKey: 'biz_type_private_limited' },
-    { value: 'public_limited',      labelKey: 'biz_type_public_limited' },
-    { value: 'ngo',                 labelKey: 'biz_type_ngo' },
-    { value: 'cooperative',         labelKey: 'biz_type_cooperative' },
+    { value: 'partnership', labelKey: 'biz_type_partnership' },
+    { value: 'private_limited', labelKey: 'biz_type_private_limited' },
+    { value: 'public_limited', labelKey: 'biz_type_public_limited' },
+    { value: 'ngo', labelKey: 'biz_type_ngo' },
+    { value: 'cooperative', labelKey: 'biz_type_cooperative' },
 ];
 
 function resolveLogoUrl(logoPath?: string | null): string | null {
@@ -36,21 +36,21 @@ export default function CompanyEditPage() {
     const [updateCompany, { isLoading: isUpdating }] = useUpdateCompanyMutation();
 
     // Basic info
-    const [formName, setFormName]       = useState('');
-    const [formEmail, setFormEmail]     = useState('');
-    const [formPhone, setFormPhone]     = useState('');
+    const [formName, setFormName] = useState('');
+    const [formEmail, setFormEmail] = useState('');
+    const [formPhone, setFormPhone] = useState('');
     const [formAddress, setFormAddress] = useState('');
     const [formCountry, setFormCountry] = useState('');
     const [formIsActive, setFormIsActive] = useState(true);
-    const [formLogo, setFormLogo]       = useState<File | null>(null);
+    const [formLogo, setFormLogo] = useState<File | null>(null);
 
     // BD compliance
-    const [formBizType, setFormBizType]               = useState('');
+    const [formBizType, setFormBizType] = useState('');
     const [formTradeLicenseNo, setFormTradeLicenseNo] = useState('');
     const [formTradeLicenseExpiry, setFormTradeLicenseExpiry] = useState('');
-    const [formTin, setFormTin]         = useState('');
-    const [formBin, setFormBin]         = useState('');
-    const [formRjsc, setFormRjsc]       = useState('');
+    const [formTin, setFormTin] = useState('');
+    const [formBin, setFormBin] = useState('');
+    const [formRjsc, setFormRjsc] = useState('');
 
     useEffect(() => {
         const company = unwrapApiData(data, ['company']);
@@ -83,20 +83,20 @@ export default function CompanyEditPage() {
 
         const formData = new FormData();
         formData.append('name', formName.trim());
-        if (formEmail)   formData.append('billing_email', formEmail);
-        if (formPhone)   formData.append('billing_phone', formPhone);
+        if (formEmail) formData.append('billing_email', formEmail);
+        if (formPhone) formData.append('billing_phone', formPhone);
         if (formAddress) formData.append('billing_address', formAddress);
         if (formCountry) formData.append('country_code', formCountry);
-        if (formLogo)    formData.append('logo', formLogo);
+        if (formLogo) formData.append('logo', formLogo);
         formData.append('is_active', formIsActive ? '1' : '0');
 
         // BD compliance (always send; empty string clears the field)
-        formData.append('business_type',        formBizType);
-        formData.append('trade_license_no',     formTradeLicenseNo);
+        formData.append('business_type', formBizType);
+        formData.append('trade_license_no', formTradeLicenseNo);
         formData.append('trade_license_expiry', formTradeLicenseExpiry);
-        formData.append('tin_no',               formTin);
-        formData.append('bin_no',               formBin);
-        formData.append('rjsc_no',              formRjsc);
+        formData.append('tin_no', formTin);
+        formData.append('bin_no', formBin);
+        formData.append('rjsc_no', formRjsc);
 
         try {
             await updateCompany({ id: companyId, data: formData }).unwrap();
@@ -125,14 +125,10 @@ export default function CompanyEditPage() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                    <button
-                        type="button"
-                        onClick={() => router.push('/company')}
-                        className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50"
-                    >
+                    <button type="button" onClick={() => router.push('/company')} className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50">
                         <ArrowLeft className="h-4 w-4" />
                     </button>
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#046ca9] to-[#034d79] text-white shadow-sm">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#046ca9] text-white shadow-sm">
                         <Building2 className="h-5 w-5" />
                     </div>
                     <div>
@@ -143,10 +139,9 @@ export default function CompanyEditPage() {
             </div>
 
             {/* Form Card */}
-            <div className="overflow-hidden rounded-2xl bg-white shadow-xl">
+            <div className="overflow-hidden rounded-lg bg-white shadow-sm">
                 <form onSubmit={handleSubmit}>
-                    <div className="p-8 space-y-8">
-
+                    <div className="space-y-8 p-8">
                         {/* ── Basic Information ── */}
                         <div>
                             <h3 className="mb-4 text-lg font-semibold text-gray-900">{t('company_info_section')}</h3>
@@ -155,13 +150,7 @@ export default function CompanyEditPage() {
                                     <label className="mb-2 block text-sm font-medium text-gray-700">
                                         {t('lbl_company_name')} <span className="text-red-500">*</span>
                                     </label>
-                                    <input
-                                        type="text"
-                                        value={formName}
-                                        onChange={(e) => setFormName(e.target.value)}
-                                        placeholder={t('company_name_placeholder')}
-                                        className={inputCls}
-                                    />
+                                    <input type="text" value={formName} onChange={(e) => setFormName(e.target.value)} placeholder={t('company_name_placeholder')} className={inputCls} />
                                 </div>
                                 <div>
                                     <label className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_email')}</label>
@@ -173,22 +162,11 @@ export default function CompanyEditPage() {
                                 </div>
                                 <div className="md:col-span-2">
                                     <label className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_address')}</label>
-                                    <textarea
-                                        value={formAddress}
-                                        onChange={(e) => setFormAddress(e.target.value)}
-                                        rows={2}
-                                        className={inputCls}
-                                    />
+                                    <textarea value={formAddress} onChange={(e) => setFormAddress(e.target.value)} rows={2} className={inputCls} />
                                 </div>
                                 <div>
                                     <label className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_country')}</label>
-                                    <input
-                                        type="text"
-                                        value={formCountry}
-                                        onChange={(e) => setFormCountry(e.target.value)}
-                                        placeholder="BD"
-                                        className={inputCls}
-                                    />
+                                    <input type="text" value={formCountry} onChange={(e) => setFormCountry(e.target.value)} placeholder="BD" className={inputCls} />
                                 </div>
                             </div>
                         </div>
@@ -203,18 +181,15 @@ export default function CompanyEditPage() {
                             </div>
                             <p className="mb-5 text-sm text-gray-500">{t('company_legal_section_desc')}</p>
                             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-
                                 {/* Business Type */}
                                 <div className="md:col-span-2">
                                     <label className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_business_type')}</label>
-                                    <select
-                                        value={formBizType}
-                                        onChange={(e) => setFormBizType(e.target.value)}
-                                        className={inputCls}
-                                    >
+                                    <select value={formBizType} onChange={(e) => setFormBizType(e.target.value)} className={inputCls}>
                                         <option value="">{t('lbl_select_business_type')}</option>
                                         {BUSINESS_TYPES.map((bt) => (
-                                            <option key={bt.value} value={bt.value}>{t(bt.labelKey)}</option>
+                                            <option key={bt.value} value={bt.value}>
+                                                {t(bt.labelKey)}
+                                            </option>
                                         ))}
                                     </select>
                                 </div>
@@ -222,58 +197,29 @@ export default function CompanyEditPage() {
                                 {/* Trade License */}
                                 <div>
                                     <label className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_trade_license_no')}</label>
-                                    <input
-                                        type="text"
-                                        value={formTradeLicenseNo}
-                                        onChange={(e) => setFormTradeLicenseNo(e.target.value)}
-                                        placeholder={t('ph_trade_license_no')}
-                                        className={inputCls}
-                                    />
+                                    <input type="text" value={formTradeLicenseNo} onChange={(e) => setFormTradeLicenseNo(e.target.value)} placeholder={t('ph_trade_license_no')} className={inputCls} />
                                 </div>
                                 <div>
                                     <label className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_trade_license_expiry')}</label>
-                                    <input
-                                        type="date"
-                                        value={formTradeLicenseExpiry}
-                                        onChange={(e) => setFormTradeLicenseExpiry(e.target.value)}
-                                        className={inputCls}
-                                    />
+                                    <input type="date" value={formTradeLicenseExpiry} onChange={(e) => setFormTradeLicenseExpiry(e.target.value)} className={inputCls} />
                                 </div>
 
                                 {/* TIN */}
                                 <div>
                                     <label className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_tin_no')}</label>
-                                    <input
-                                        type="text"
-                                        value={formTin}
-                                        onChange={(e) => setFormTin(e.target.value)}
-                                        placeholder={t('ph_tin_no')}
-                                        className={inputCls}
-                                    />
+                                    <input type="text" value={formTin} onChange={(e) => setFormTin(e.target.value)} placeholder={t('ph_tin_no')} className={inputCls} />
                                 </div>
 
                                 {/* BIN / VAT */}
                                 <div>
                                     <label className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_bin_no')}</label>
-                                    <input
-                                        type="text"
-                                        value={formBin}
-                                        onChange={(e) => setFormBin(e.target.value)}
-                                        placeholder={t('ph_bin_no')}
-                                        className={inputCls}
-                                    />
+                                    <input type="text" value={formBin} onChange={(e) => setFormBin(e.target.value)} placeholder={t('ph_bin_no')} className={inputCls} />
                                 </div>
 
                                 {/* RJSC */}
                                 <div className="md:col-span-2">
                                     <label className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_rjsc_no')}</label>
-                                    <input
-                                        type="text"
-                                        value={formRjsc}
-                                        onChange={(e) => setFormRjsc(e.target.value)}
-                                        placeholder={t('ph_rjsc_no')}
-                                        className={inputCls}
-                                    />
+                                    <input type="text" value={formRjsc} onChange={(e) => setFormRjsc(e.target.value)} placeholder={t('ph_rjsc_no')} className={inputCls} />
                                     <p className="mt-1 text-xs text-gray-400">{t('lbl_rjsc_hint')}</p>
                                 </div>
                             </div>
@@ -289,7 +235,7 @@ export default function CompanyEditPage() {
                                         alt={t('company_current_logo')}
                                         width={56}
                                         height={56}
-                                        className="h-14 w-14 rounded-xl object-cover border border-gray-200 shadow-sm"
+                                        className="h-14 w-14 rounded-lg border border-gray-200 object-cover shadow-sm"
                                         unoptimized
                                     />
                                     <span className="text-sm text-gray-500">{t('company_current_logo')}</span>
@@ -305,10 +251,10 @@ export default function CompanyEditPage() {
 
                         {/* ── Active Status ── */}
                         <div className="border-t border-gray-200 pt-6">
-                            <div className="flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-5 py-4">
+                            <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-5 py-4">
                                 <div>
                                     <p className="text-sm font-medium text-gray-700">{t('company_is_active')}</p>
-                                    <p className="text-xs text-gray-500 mt-0.5">{formIsActive ? t('lbl_active') : t('lbl_inactive')}</p>
+                                    <p className="mt-0.5 text-xs text-gray-500">{formIsActive ? t('lbl_active') : t('lbl_inactive')}</p>
                                 </div>
                                 <button
                                     type="button"
@@ -334,7 +280,7 @@ export default function CompanyEditPage() {
                             <button
                                 type="submit"
                                 disabled={isUpdating}
-                                className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-[#046ca9] to-[#034d79] px-8 py-3 font-medium text-white transition-all hover:brightness-105 focus:ring-4 focus:ring-[#046ca9]/30 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:min-w-[160px]"
+                                className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#046ca9] px-8 py-3 font-medium text-white transition-all hover:bg-[#034d79] focus:ring-4 focus:ring-[#046ca9]/30 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:min-w-[160px]"
                             >
                                 {isUpdating ? (
                                     <>

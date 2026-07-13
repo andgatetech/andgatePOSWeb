@@ -140,7 +140,9 @@ const OrderReturnPageContent = ({ routeOrderId }: { routeOrderId?: number }) => 
                     </div>
                     <h1 className="mb-2 text-2xl font-bold text-gray-900">{t('order_no_data')}</h1>
                     <p className="mb-2 text-gray-600">{t('order_no_data_desc')}</p>
-                    <p className="mb-6 text-sm text-gray-500">{t('lbl_invoice')}: {order.invoice}</p>
+                    <p className="mb-6 text-sm text-gray-500">
+                        {t('lbl_invoice')}: {order.invoice}
+                    </p>
                     <Link href="/orders" className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 font-medium text-white hover:bg-primary/90">
                         <ArrowLeft className="h-4 w-4" />
                         {t('btn_back')}
@@ -151,7 +153,7 @@ const OrderReturnPageContent = ({ routeOrderId }: { routeOrderId?: number }) => 
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="min-h-screen bg-[#f6f8fb]">
             {/* Header */}
             <div className="bg-transparent">
                 <div className="mx-auto px-4 py-4 sm:px-6 lg:px-8">
@@ -160,7 +162,7 @@ const OrderReturnPageContent = ({ routeOrderId }: { routeOrderId?: number }) => 
                             <Link href="/orders" className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-600 transition-colors hover:bg-gray-50">
                                 <ArrowLeft className="h-5 w-5" />
                             </Link>
-                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#046ca9] to-[#034d79] text-white shadow-sm">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#046ca9] text-white shadow-sm">
                                 <RotateCcw className="h-5 w-5" />
                             </div>
                             <div>

@@ -39,7 +39,8 @@ const copy = {
         setupTitle: 'How store owner sets up Meta Pixel',
         setupNote: 'They need to do this one time from their own Meta Business account.',
         seoHelpTitle: 'How title and description help',
-        seoHelp: 'These values control how the store link looks when shared on Facebook, Messenger, WhatsApp, and search previews. Product and order tracking still uses the Pixel events automatically.',
+        seoHelp:
+            'These values control how the store link looks when shared on Facebook, Messenger, WhatsApp, and search previews. Product and order tracking still uses the Pixel events automatically.',
         noStore: 'No store selected',
         selectStore: 'Please select a store to manage e-commerce marketing.',
         loading: 'Loading store marketing settings...',
@@ -172,7 +173,7 @@ const EcommerceMarketingSettings = () => {
     if (!storeId) {
         return (
             <div className="flex min-h-[60vh] items-center justify-center">
-                <div className="rounded-xl border border-[#e79237]/30 bg-[#e79237]/10 p-6 text-center">
+                <div className="rounded-lg border border-[#e79237]/30 bg-[#e79237]/10 p-6 text-center">
                     <Store className="mx-auto h-12 w-12 text-[#c47920]" />
                     <h3 className="mt-4 text-lg font-semibold text-[#9a5a14]">{content.noStore}</h3>
                     <p className="mt-2 text-[#c47920]">{content.selectStore}</p>
@@ -185,7 +186,7 @@ const EcommerceMarketingSettings = () => {
         <div className="space-y-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#046ca9] to-[#034d79] text-white shadow-sm">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#046ca9] text-white shadow-sm">
                         <Megaphone className="h-5 w-5" />
                     </div>
                     <div>
@@ -203,7 +204,7 @@ const EcommerceMarketingSettings = () => {
             ) : (
                 <div className="grid gap-5 xl:grid-cols-[minmax(0,1.15fr)_minmax(360px,0.85fr)]">
                     <div className="space-y-5">
-                        <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+                        <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
                             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                                 <div>
                                     <p className="flex items-center gap-2 text-sm font-semibold text-[#034d79]">
@@ -224,7 +225,7 @@ const EcommerceMarketingSettings = () => {
                             </div>
                         </div>
 
-                        <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+                        <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
                             <h2 className="text-base font-semibold text-gray-900">{content.trackingTitle}</h2>
                             <div className="mt-5 space-y-5">
                                 <label className="flex cursor-pointer items-center justify-between gap-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
@@ -235,7 +236,12 @@ const EcommerceMarketingSettings = () => {
                                         </span>
                                         <span className="mt-1 block text-xs text-gray-500">{content.enablePixelHelp}</span>
                                     </span>
-                                    <input type="checkbox" checked={form.meta_pixel_enabled} onChange={(event) => setField('meta_pixel_enabled', event.target.checked)} className="h-5 w-5 rounded border-gray-300 text-[#046ca9] focus:ring-[#046ca9]" />
+                                    <input
+                                        type="checkbox"
+                                        checked={form.meta_pixel_enabled}
+                                        onChange={(event) => setField('meta_pixel_enabled', event.target.checked)}
+                                        className="h-5 w-5 rounded border-gray-300 text-[#046ca9] focus:ring-[#046ca9]"
+                                    />
                                 </label>
 
                                 <label className="block">
@@ -243,13 +249,21 @@ const EcommerceMarketingSettings = () => {
                                         <BarChart3 className="mr-2 h-4 w-4 text-[#046ca9]" />
                                         {content.pixelId}
                                     </span>
-                                    <input type="text" inputMode="numeric" pattern="[0-9]*" value={form.meta_pixel_id} onChange={(event) => setField('meta_pixel_id', event.target.value)} className={inputCls} placeholder={content.pixelPlaceholder} />
+                                    <input
+                                        type="text"
+                                        inputMode="numeric"
+                                        pattern="[0-9]*"
+                                        value={form.meta_pixel_id}
+                                        onChange={(event) => setField('meta_pixel_id', event.target.value)}
+                                        className={inputCls}
+                                        placeholder={content.pixelPlaceholder}
+                                    />
                                     <span className="mt-1.5 block text-xs text-gray-400">{content.pixelHelp}</span>
                                 </label>
                             </div>
                         </div>
 
-                        <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+                        <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
                             <h2 className="text-base font-semibold text-gray-900">{content.previewTitle}</h2>
                             <div className="mt-5 grid gap-4">
                                 <label className="block">
@@ -257,7 +271,14 @@ const EcommerceMarketingSettings = () => {
                                         <FileText className="mr-2 h-4 w-4 text-[#046ca9]" />
                                         {content.seoTitle}
                                     </span>
-                                    <input type="text" value={form.seo_title} onChange={(event) => setField('seo_title', event.target.value)} maxLength={70} className={inputCls} placeholder={content.seoTitlePlaceholder} />
+                                    <input
+                                        type="text"
+                                        value={form.seo_title}
+                                        onChange={(event) => setField('seo_title', event.target.value)}
+                                        maxLength={70}
+                                        className={inputCls}
+                                        placeholder={content.seoTitlePlaceholder}
+                                    />
                                     <span className="mt-1.5 block text-xs text-gray-400">{form.seo_title.length}/70</span>
                                 </label>
 
@@ -266,7 +287,14 @@ const EcommerceMarketingSettings = () => {
                                         <FileText className="mr-2 h-4 w-4 text-[#c47920]" />
                                         {content.seoDescription}
                                     </span>
-                                    <textarea value={form.seo_description} onChange={(event) => setField('seo_description', event.target.value)} maxLength={160} rows={3} className={`${inputCls} h-auto py-3`} placeholder={content.seoDescriptionPlaceholder} />
+                                    <textarea
+                                        value={form.seo_description}
+                                        onChange={(event) => setField('seo_description', event.target.value)}
+                                        maxLength={160}
+                                        rows={3}
+                                        className={`${inputCls} h-auto py-3`}
+                                        placeholder={content.seoDescriptionPlaceholder}
+                                    />
                                     <span className="mt-1.5 block text-xs text-gray-400">{form.seo_description.length}/160</span>
                                 </label>
                             </div>
@@ -286,7 +314,7 @@ const EcommerceMarketingSettings = () => {
                     </div>
 
                     <aside className="space-y-5">
-                        <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+                        <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
                             <h2 className="text-base font-semibold text-gray-900">{content.setupTitle}</h2>
                             <p className="mt-1 text-sm text-gray-500">{content.setupNote}</p>
                             <ol className="mt-5 space-y-3 text-sm text-gray-700">
@@ -304,7 +332,7 @@ const EcommerceMarketingSettings = () => {
                             </div>
                         </div>
 
-                        <div className="rounded-xl border border-emerald-100 bg-emerald-50/70 p-5">
+                        <div className="rounded-lg border border-emerald-100 bg-emerald-50/70 p-5">
                             <h2 className="flex items-center gap-2 text-base font-semibold text-emerald-900">
                                 <CheckCircle2 className="h-5 w-5" />
                                 {content.seoHelpTitle}
@@ -319,7 +347,12 @@ const EcommerceMarketingSettings = () => {
 };
 
 const SetupLink = ({ href, label }: { href: string; label: string }) => (
-    <a href={href} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-2 text-xs font-semibold text-[#046ca9] transition hover:border-[#046ca9] hover:bg-[#046ca9]/5">
+    <a
+        href={href}
+        target="_blank"
+        rel="noreferrer"
+        className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-2 text-xs font-semibold text-[#046ca9] transition hover:border-[#046ca9] hover:bg-[#046ca9]/5"
+    >
         {label}
         <ExternalLink className="h-3.5 w-3.5" />
     </a>

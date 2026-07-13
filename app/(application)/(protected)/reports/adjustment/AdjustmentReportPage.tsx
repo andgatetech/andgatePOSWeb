@@ -298,13 +298,13 @@ const AdjustmentReportPage = () => {
     );
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="min-h-screen bg-[#f6f8fb]">
             <div className="mx-auto">
                 <ReportExportToolbar
                     reportTitle={t('report_adjustment_title')}
                     reportDescription={t('report_adjustment_title')}
                     reportIcon={<ArrowDownUp className="h-6 w-6 text-white" />}
-                    iconBgClass="bg-gradient-to-r from-slate-600 to-zinc-700"
+                    iconBgClass="bg-[#046ca9]"
                     data={adjustments}
                     columns={exportColumns}
                     summary={exportSummary}

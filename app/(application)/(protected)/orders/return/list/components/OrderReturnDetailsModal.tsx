@@ -41,12 +41,14 @@ const OrderReturnDetailsModal: React.FC<OrderReturnDetailsModalProps> = ({ isOpe
         <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-300 ${isOpen ? 'opacity-100' : 'pointer-events-none opacity-0'}`}>
             <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
 
-            <div className={`relative z-10 w-full max-w-4xl transform overflow-hidden rounded-2xl bg-white shadow-2xl transition-all duration-300 ${isOpen ? 'scale-100' : 'scale-95'}`}>
+            <div className={`relative z-10 w-full max-w-4xl transform overflow-hidden rounded-lg bg-white shadow-lg transition-all duration-300 ${isOpen ? 'scale-100' : 'scale-95'}`}>
                 {/* Header */}
                 <div className="flex items-center justify-between border-b border-gray-200 p-6">
                     <div>
                         <h2 className="text-2xl font-bold text-gray-900">{t('lbl_return_details')}</h2>
-                        <p className="text-sm text-gray-600">{t('lbl_return')} #{orderReturn.return_number || orderReturn.id}</p>
+                        <p className="text-sm text-gray-600">
+                            {t('lbl_return')} #{orderReturn.return_number || orderReturn.id}
+                        </p>
                     </div>
                     <button onClick={onClose} className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600">
                         <X className="h-6 w-6" />
@@ -176,7 +178,9 @@ const OrderReturnDetailsModal: React.FC<OrderReturnDetailsModalProps> = ({ isOpe
                                 <svg className="h-5 w-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                 </svg>
-                                <span className="font-medium text-emerald-800">{t('lbl_customer_refunded')}: {formatCurrency(Math.abs(netAmount))}</span>
+                                <span className="font-medium text-emerald-800">
+                                    {t('lbl_customer_refunded')}: {formatCurrency(Math.abs(netAmount))}
+                                </span>
                             </div>
                         )}
 
@@ -190,7 +194,9 @@ const OrderReturnDetailsModal: React.FC<OrderReturnDetailsModalProps> = ({ isOpe
                                         d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                                     />
                                 </svg>
-                                <span className="font-medium text-amber-800">{t('lbl_customer_paid_extra')}: {formatCurrency(netAmount)}</span>
+                                <span className="font-medium text-amber-800">
+                                    {t('lbl_customer_paid_extra')}: {formatCurrency(netAmount)}
+                                </span>
                             </div>
                         )}
 

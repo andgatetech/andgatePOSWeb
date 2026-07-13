@@ -12,10 +12,7 @@ export default function SalesTvPage() {
     const { t } = getTranslation();
     const { currentStoreId } = useCurrentStore();
     const { formatCurrency } = useCurrency();
-    const { data, isLoading, refetch } = useGetSalesTvQuery(
-        currentStoreId ? { store_id: currentStoreId } : {},
-        { skip: false, pollingInterval: 30000 }
-    );
+    const { data, isLoading, refetch } = useGetSalesTvQuery(currentStoreId ? { store_id: currentStoreId } : {}, { skip: false, pollingInterval: 30000 });
 
     const tv = data?.data;
 
@@ -31,7 +28,9 @@ export default function SalesTvPage() {
                     <Tv className="h-8 w-8 text-primary" />
                     <h1 className="text-3xl font-black">{t('lbl_sales_tv')}</h1>
                 </div>
-                <p className="text-sm text-gray-400">{t('lbl_refreshed')}: {tv?.refreshed_at ? new Date(tv.refreshed_at).toLocaleTimeString() : '-'}</p>
+                <p className="text-sm text-gray-400">
+                    {t('lbl_refreshed')}: {tv?.refreshed_at ? new Date(tv.refreshed_at).toLocaleTimeString() : '-'}
+                </p>
             </div>
 
             {isLoading ? (
@@ -39,26 +38,26 @@ export default function SalesTvPage() {
             ) : (
                 <>
                     <div className="grid gap-4 md:grid-cols-4">
-                        <div className="rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 p-6">
+                        <div className="rounded-lg bg-[#eef7fc] p-6">
                             <p className="text-sm text-gray-300">{t('lbl_sales_today')}</p>
                             <p className="mt-2 text-4xl font-black">{formatCurrency(tv?.sales_today || 0)}</p>
                         </div>
-                        <div className="rounded-2xl bg-gradient-to-br from-success/20 to-success/5 p-6">
+                        <div className="rounded-lg bg-emerald-50 p-6">
                             <p className="text-sm text-gray-300">{t('lbl_orders_today')}</p>
                             <p className="mt-2 text-4xl font-black">{tv?.orders_today || 0}</p>
                         </div>
-                        <div className="rounded-2xl bg-gradient-to-br from-warning/20 to-warning/5 p-6">
+                        <div className="rounded-lg bg-[#fff4e6] p-6">
                             <p className="text-sm text-gray-300">{t('lbl_average_order_value')}</p>
                             <p className="mt-2 text-4xl font-black">{formatCurrency(tv?.average_order_value || 0)}</p>
                         </div>
-                        <div className="rounded-2xl bg-gradient-to-br from-danger/20 to-danger/5 p-6">
+                        <div className="rounded-lg bg-red-50 p-6">
                             <p className="text-sm text-gray-300">{t('lbl_yesterday_sales')}</p>
                             <p className="mt-2 text-4xl font-black">{formatCurrency(tv?.yesterday_sales || 0)}</p>
                         </div>
                     </div>
 
                     <div className="grid gap-4 lg:grid-cols-2">
-                        <div className="rounded-2xl bg-gray-900 p-5">
+                        <div className="rounded-lg bg-gray-900 p-5">
                             <h3 className="mb-4 text-lg font-bold">{t('lbl_hourly_sales')}</h3>
                             <div className="h-80">
                                 <ResponsiveContainer width="100%" height="100%">
@@ -73,13 +72,15 @@ export default function SalesTvPage() {
                             </div>
                         </div>
 
-                        <div className="rounded-2xl bg-gray-900 p-5">
+                        <div className="rounded-lg bg-gray-900 p-5">
                             <h3 className="mb-4 text-lg font-bold">{t('lbl_top_products')}</h3>
                             <div className="space-y-2">
                                 {(tv?.top_products || []).map((p: any, idx: number) => (
                                     <div key={idx} className="flex items-center justify-between rounded-lg bg-gray-800 p-3">
                                         <span className="text-sm">{p.product_name}</span>
-                                        <span className="font-bold text-success">{p.quantity} sold · {formatCurrency(p.revenue)}</span>
+                                        <span className="font-bold text-success">
+                                            {p.quantity} sold · {formatCurrency(p.revenue)}
+                                        </span>
                                     </div>
                                 ))}
                             </div>

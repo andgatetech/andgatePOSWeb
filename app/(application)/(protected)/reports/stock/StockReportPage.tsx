@@ -114,8 +114,8 @@ const StockReportPage = () => {
     const exportSummary = useMemo(
         () => [
             { label: 'order_items', value: summary.total_items || 0 },
-            { label: 'lbl_qty', value: (formatNumber(summary.total_quantity || 0)) },
-            { label: 'lbl_returned_stock', value: (formatNumber(summary.quantity_returned_to_stock || 0)) },
+            { label: 'lbl_qty', value: formatNumber(summary.total_quantity || 0) },
+            { label: 'lbl_returned_stock', value: formatNumber(summary.quantity_returned_to_stock || 0) },
             { label: 'lbl_stock_value', value: formatCurrency(summary.total_stock_value) },
         ],
         [summary, formatCurrency, formatNumber]
@@ -123,20 +123,41 @@ const StockReportPage = () => {
 
     const summaryItems = useMemo(
         () => [
-            { label: t('order_items'), value: summary.total_items || 0, icon: <Package className="h-4 w-4 text-blue-600" />, bgColor: 'bg-blue-500', lightBg: 'bg-blue-50', textColor: 'text-blue-600' },
+            {
+                label: t('order_items'),
+                value: summary.total_items || 0,
+                icon: <Package className="h-4 w-4 text-blue-600" />,
+                bgColor: 'bg-blue-500',
+                lightBg: 'bg-blue-50',
+                textColor: 'text-blue-600',
+            },
             {
                 label: t('lbl_qty'),
-                value: (formatNumber(summary.total_quantity || 0)),
+                value: formatNumber(summary.total_quantity || 0),
                 icon: <Layers className="h-4 w-4 text-purple-600" />,
                 bgColor: 'bg-purple-500',
                 lightBg: 'bg-purple-50',
                 textColor: 'text-purple-600',
             },
-            { label: t('status_in_stock'), value: summary.in_stock || 0, icon: <CheckCircle className="h-4 w-4 text-green-600" />, bgColor: 'bg-green-500', lightBg: 'bg-green-50', textColor: 'text-green-600' },
-            { label: t('status_out_of_stock'), value: summary.out_of_stock || 0, icon: <XCircle className="h-4 w-4 text-red-600" />, bgColor: 'bg-red-500', lightBg: 'bg-red-50', textColor: 'text-red-600' },
+            {
+                label: t('status_in_stock'),
+                value: summary.in_stock || 0,
+                icon: <CheckCircle className="h-4 w-4 text-green-600" />,
+                bgColor: 'bg-green-500',
+                lightBg: 'bg-green-50',
+                textColor: 'text-green-600',
+            },
+            {
+                label: t('status_out_of_stock'),
+                value: summary.out_of_stock || 0,
+                icon: <XCircle className="h-4 w-4 text-red-600" />,
+                bgColor: 'bg-red-500',
+                lightBg: 'bg-red-50',
+                textColor: 'text-red-600',
+            },
             {
                 label: t('lbl_returned_stock'),
-                value: (formatNumber(summary.quantity_returned_to_stock || 0)),
+                value: formatNumber(summary.quantity_returned_to_stock || 0),
                 icon: <Package className="h-4 w-4 text-emerald-600" />,
                 bgColor: 'bg-emerald-500',
                 lightBg: 'bg-emerald-50',
@@ -218,13 +239,13 @@ const StockReportPage = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="min-h-screen bg-[#f6f8fb]">
             <div className="mx-auto">
                 <ReportExportToolbar
                     reportTitle={t('report_stock_title')}
                     reportDescription={t('report_stock_desc')}
                     reportIcon={<Layers className="h-6 w-6 text-white" />}
-                    iconBgClass="bg-gradient-to-r from-indigo-600 to-indigo-700"
+                    iconBgClass="bg-[#046ca9]"
                     data={stocks}
                     columns={exportColumns}
                     summary={exportSummary}

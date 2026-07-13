@@ -89,7 +89,7 @@ const EcommerceStoresPage = () => {
         <div className="space-y-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#046ca9] to-[#034d79] text-white shadow-sm">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#046ca9] text-white shadow-sm">
                         <Globe2 className="h-5 w-5" />
                     </div>
                     <div>
@@ -102,10 +102,10 @@ const EcommerceStoresPage = () => {
             <div className="grid gap-4 md:grid-cols-2">
                 <Link
                     href="/ecommerce/carts"
-                    className="group flex items-center justify-between rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all hover:border-primary hover:shadow-md"
+                    className="group flex items-center justify-between rounded-lg border border-gray-200 bg-white p-5 shadow-sm transition-all hover:border-[#046ca9] hover:shadow-md"
                 >
                     <div className="flex items-center gap-4">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#046ca9]/10 text-[#046ca9]">
                             <ShoppingCart className="h-5 w-5" />
                         </div>
                         <div>
@@ -113,15 +113,15 @@ const EcommerceStoresPage = () => {
                             <p className="mt-1 text-sm text-gray-500">{t('ecommerce_carts_desc')}</p>
                         </div>
                     </div>
-                    <ArrowRight className="h-5 w-5 text-gray-400 transition-transform group-hover:translate-x-1 group-hover:text-primary" />
+                    <ArrowRight className="h-5 w-5 text-gray-400 transition-transform group-hover:translate-x-1 group-hover:text-[#046ca9]" />
                 </Link>
 
                 <Link
                     href="/ecommerce/wishlists"
-                    className="group flex items-center justify-between rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all hover:border-amber-500 hover:shadow-md"
+                    className="group flex items-center justify-between rounded-lg border border-gray-200 bg-white p-5 shadow-sm transition-all hover:border-amber-500 hover:shadow-md"
                 >
                     <div className="flex items-center gap-4">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-100 text-amber-700">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-amber-100 text-amber-700">
                             <Heart className="h-5 w-5" />
                         </div>
                         <div>
@@ -141,7 +141,7 @@ const EcommerceStoresPage = () => {
                 />
             )}
 
-            {error && <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{formatApiError(error)}</div>}
+            {error && <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">{formatApiError(error)}</div>}
 
             <ReusableTable
                 data={stores}

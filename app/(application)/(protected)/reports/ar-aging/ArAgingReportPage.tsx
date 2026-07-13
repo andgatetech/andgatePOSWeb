@@ -35,16 +35,12 @@ const BucketBadge = ({ value, variant }: { value: number; variant: 'green' | 'ye
     const { formatCurrency } = useCurrency();
     if (!value) return <span className="text-gray-300">—</span>;
     const colors = {
-        green:  'bg-green-50 text-green-700',
+        green: 'bg-green-50 text-green-700',
         yellow: 'bg-yellow-50 text-yellow-700',
         orange: 'bg-orange-50 text-orange-700',
-        red:    'bg-red-50 text-red-700',
+        red: 'bg-red-50 text-red-700',
     };
-    return (
-        <span className={`rounded-md px-2 py-0.5 text-xs font-semibold ${colors[variant]}`}>
-            {formatCurrency(value)}
-        </span>
-    );
+    return <span className={`rounded-md px-2 py-0.5 text-xs font-semibold ${colors[variant]}`}>{formatCurrency(value)}</span>;
 };
 
 const ArAgingReportPage = () => {
@@ -99,32 +95,30 @@ const ArAgingReportPage = () => {
     }, [currentStoreId]);
 
     const buckets = [
-        { key: 'bucket_0_30',    label: '0–30 days',  variant: 'green'  as const },
-        { key: 'bucket_31_60',   label: '31–60 days', variant: 'yellow' as const },
-        { key: 'bucket_61_90',   label: '61–90 days', variant: 'orange' as const },
-        { key: 'bucket_91_plus', label: '91+ days',   variant: 'red'    as const },
+        { key: 'bucket_0_30', label: '0–30 days', variant: 'green' as const },
+        { key: 'bucket_31_60', label: '31–60 days', variant: 'yellow' as const },
+        { key: 'bucket_61_90', label: '61–90 days', variant: 'orange' as const },
+        { key: 'bucket_91_plus', label: '91+ days', variant: 'red' as const },
     ];
 
     const exportSummary = useMemo(
-        () => summary
-            ? [
-                { label: '0-30 Days', value: formatCurrency(summary.bucket_0_30) },
-                { label: '31-60 Days', value: formatCurrency(summary.bucket_31_60) },
-                { label: '61-90 Days', value: formatCurrency(summary.bucket_61_90) },
-                { label: '91+ Days', value: formatCurrency(summary.bucket_91_plus) },
-                { label: t('ar_aging_total_outstanding'), value: formatCurrency(summary.total_remaining) },
-                { label: t('lbl_customers'), value: summary.total_customers },
-            ]
-            : [],
+        () =>
+            summary
+                ? [
+                      { label: '0-30 Days', value: formatCurrency(summary.bucket_0_30) },
+                      { label: '31-60 Days', value: formatCurrency(summary.bucket_31_60) },
+                      { label: '61-90 Days', value: formatCurrency(summary.bucket_61_90) },
+                      { label: '91+ Days', value: formatCurrency(summary.bucket_91_plus) },
+                      { label: t('ar_aging_total_outstanding'), value: formatCurrency(summary.total_remaining) },
+                      { label: t('lbl_customers'), value: summary.total_customers },
+                  ]
+                : [],
         [formatCurrency, summary, t]
     );
 
     const exportFilters = useMemo(
         () => ({
-            customFilters: [
-                { label: t('ar_aging_as_of'), value: reportAsOf || t('lbl_today') },
-                ...(search.trim() ? [{ label: t('lbl_search'), value: search.trim() }] : []),
-            ],
+            customFilters: [{ label: t('ar_aging_as_of'), value: reportAsOf || t('lbl_today') }, ...(search.trim() ? [{ label: t('lbl_search'), value: search.trim() }] : [])],
         }),
         [reportAsOf, search, t]
     );
@@ -135,9 +129,7 @@ const ArAgingReportPage = () => {
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                     <h1 className="text-xl font-bold text-gray-800">{t('ar_aging_title')}</h1>
-                    {reportAsOf && (
-                        <p className="text-xs text-gray-400 mt-0.5">{t('ar_aging_as_of_date_value', { date: reportAsOf })}</p>
-                    )}
+                    {reportAsOf && <p className="mt-0.5 text-xs text-gray-400">{t('ar_aging_as_of_date_value', { date: reportAsOf })}</p>}
                 </div>
                 <ReportExportToolbar
                     reportTitle={t('ar_aging_title')}
@@ -159,17 +151,12 @@ const ArAgingReportPage = () => {
             </div>
 
             {/* Filters */}
-            <div className="flex flex-wrap items-end gap-3 rounded-xl border border-gray-100 bg-gray-50 p-4">
-                <div className="flex-1 min-w-[180px]">
+            <div className="flex flex-wrap items-end gap-3 rounded-lg border border-gray-100 bg-gray-50 p-4">
+                <div className="min-w-[180px] flex-1">
                     <label className="mb-1 block text-xs font-semibold text-gray-500">{t('ar_aging_as_of_date')}</label>
-                    <input
-                        type="date"
-                        value={asOfDate}
-                        onChange={(e) => setAsOfDate(e.target.value)}
-                        className="form-input w-full rounded-lg border-gray-200 py-2 text-sm"
-                    />
+                    <input type="date" value={asOfDate} onChange={(e) => setAsOfDate(e.target.value)} className="form-input w-full rounded-lg border-gray-200 py-2 text-sm" />
                 </div>
-                <div className="flex-1 min-w-[200px]">
+                <div className="min-w-[200px] flex-1">
                     <label className="mb-1 block text-xs font-semibold text-gray-500">{t('ar_aging_search_customer')}</label>
                     <input
                         type="text"
@@ -180,12 +167,7 @@ const ArAgingReportPage = () => {
                         className="form-input w-full rounded-lg border-gray-200 py-2 text-sm"
                     />
                 </div>
-                <button
-                    type="button"
-                    onClick={fetchReport}
-                    disabled={isLoading}
-                    className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50 hover:bg-primary/90"
-                >
+                <button type="button" onClick={fetchReport} disabled={isLoading} className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary/90 disabled:opacity-50">
                     {isLoading ? t('btn_loading') : t('ar_aging_run_report')}
                 </button>
             </div>
@@ -196,19 +178,19 @@ const ArAgingReportPage = () => {
                     {buckets.map((b) => {
                         const val = summary[b.key as keyof AgingSummary] as number;
                         const colors = {
-                            green:  'border-green-200 bg-green-50 text-green-700',
+                            green: 'border-green-200 bg-green-50 text-green-700',
                             yellow: 'border-yellow-200 bg-yellow-50 text-yellow-700',
                             orange: 'border-orange-200 bg-orange-50 text-orange-700',
-                            red:    'border-red-200 bg-red-50 text-red-700',
+                            red: 'border-red-200 bg-red-50 text-red-700',
                         };
                         return (
-                            <div key={b.key} className={`rounded-xl border p-3 ${colors[b.variant]}`}>
+                            <div key={b.key} className={`rounded-lg border p-3 ${colors[b.variant]}`}>
                                 <p className="text-xs font-semibold opacity-70">{b.label}</p>
                                 <p className="mt-1 text-lg font-black">{formatCurrency(val)}</p>
                             </div>
                         );
                     })}
-                    <div className="rounded-xl border border-primary/30 bg-primary/5 p-3 text-primary">
+                    <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 text-primary">
                         <p className="text-xs font-semibold opacity-70">{t('ar_aging_total_outstanding')}</p>
                         <p className="mt-1 text-lg font-black">{formatCurrency(summary.total_remaining)}</p>
                         <p className="text-xs opacity-60">{t('ar_aging_customers_count', { count: summary.total_customers })}</p>
@@ -217,7 +199,7 @@ const ArAgingReportPage = () => {
             )}
 
             {/* Table */}
-            <div className="overflow-x-auto rounded-xl border border-gray-100">
+            <div className="overflow-x-auto rounded-lg border border-gray-100">
                 <table className="w-full text-sm">
                     <thead>
                         <tr className="border-b border-gray-100 bg-gray-50 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
@@ -234,7 +216,9 @@ const ArAgingReportPage = () => {
                     <tbody className="divide-y divide-gray-50">
                         {isLoading && (
                             <tr>
-                                <td colSpan={8} className="py-12 text-center text-sm text-gray-400">{t('btn_loading')}</td>
+                                <td colSpan={8} className="py-12 text-center text-sm text-gray-400">
+                                    {t('btn_loading')}
+                                </td>
                             </tr>
                         )}
                         {!isLoading && rows.length === 0 && (
@@ -263,15 +247,9 @@ const ArAgingReportPage = () => {
                                 <td className="px-4 py-3 text-right">
                                     <BucketBadge value={Number(row.bucket_91_plus)} variant="red" />
                                 </td>
-                                <td className="px-4 py-3 text-right text-gray-600">
-                                    {formatCurrency(row.total_due)}
-                                </td>
-                                <td className="px-4 py-3 text-right text-green-600">
-                                    {formatCurrency(row.total_paid)}
-                                </td>
-                                <td className="px-4 py-3 text-right font-bold text-red-600">
-                                    {formatCurrency(row.total_remaining)}
-                                </td>
+                                <td className="px-4 py-3 text-right text-gray-600">{formatCurrency(row.total_due)}</td>
+                                <td className="px-4 py-3 text-right text-green-600">{formatCurrency(row.total_paid)}</td>
+                                <td className="px-4 py-3 text-right font-bold text-red-600">{formatCurrency(row.total_remaining)}</td>
                             </tr>
                         ))}
                     </tbody>

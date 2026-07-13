@@ -262,13 +262,13 @@ const TransactionReportPage = () => {
     );
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="min-h-screen bg-[#f6f8fb]">
             <div className="mx-auto">
                 <ReportExportToolbar
                     reportTitle={t('report_transaction_title')}
                     reportDescription={t('report_transaction_desc')}
                     reportIcon={<ArrowLeftRight className="h-6 w-6 text-white" />}
-                    iconBgClass="bg-gradient-to-r from-blue-600 to-indigo-700"
+                    iconBgClass="bg-[#046ca9]"
                     data={transactions}
                     columns={exportColumns}
                     summary={exportSummary}

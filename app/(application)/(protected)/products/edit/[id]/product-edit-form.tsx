@@ -627,11 +627,7 @@ const ProductEditForm = () => {
             }
 
             const currentStocks: ProductStock[] = formData.has_attributes && productStocks.length > 0 ? productStocks : [simpleStockFromForm()];
-            const originalStocksById = new Map<number, ProductStock>(
-                (original.stocks || [])
-                    .filter((stock: ProductStock) => !!stock.id)
-                    .map((stock: ProductStock) => [Number(stock.id), stock])
-            );
+            const originalStocksById = new Map<number, ProductStock>((original.stocks || []).filter((stock: ProductStock) => !!stock.id).map((stock: ProductStock) => [Number(stock.id), stock]));
             const currentStockIds = new Set(currentStocks.map((stock) => Number(stock.id)).filter(Boolean));
             const deletedStockIds = (original.stocks || [])
                 .map((stock: ProductStock) => Number(stock.id))
@@ -744,9 +740,7 @@ const ProductEditForm = () => {
 
             const normalizedOriginalSerials = (original.serials || []).map(normalizeSerialForCompare);
             const originalSerialsById = new Map<number, ProductSerialState>(
-                (original.serials || [])
-                    .filter((serial: ProductSerialState) => !!serial.id)
-                    .map((serial: ProductSerialState) => [Number(serial.id), serial])
+                (original.serials || []).filter((serial: ProductSerialState) => !!serial.id).map((serial: ProductSerialState) => [Number(serial.id), serial])
             );
 
             if (!formData.has_serial) {
@@ -788,9 +782,7 @@ const ProductEditForm = () => {
 
             const normalizedOriginalWarranties = (original.warranties || []).map(normalizeWarrantyForCompare);
             const originalWarrantiesById = new Map<number, ProductWarrantyState>(
-                (original.warranties || [])
-                    .filter((warranty: ProductWarrantyState) => !!warranty.id)
-                    .map((warranty: ProductWarrantyState) => [Number(warranty.id), warranty])
+                (original.warranties || []).filter((warranty: ProductWarrantyState) => !!warranty.id).map((warranty: ProductWarrantyState) => [Number(warranty.id), warranty])
             );
 
             if (!formData.has_warranty) {
@@ -857,7 +849,8 @@ const ProductEditForm = () => {
                 // Look for SKU-related validation keys like 'stocks.0.sku', 'stocks.1.sku', 'sku', etc.
                 const skuErrorKey = Object.keys(errorData).find((key) => key.toLowerCase().includes('sku'));
                 if (skuErrorKey) {
-                    const skuMsg = typeof errorData[skuErrorKey] === 'string' ? errorData[skuErrorKey] : Array.isArray(errorData[skuErrorKey]) ? errorData[skuErrorKey][0] : t('msg_sku_validation_failed');
+                    const skuMsg =
+                        typeof errorData[skuErrorKey] === 'string' ? errorData[skuErrorKey] : Array.isArray(errorData[skuErrorKey]) ? errorData[skuErrorKey][0] : t('msg_sku_validation_failed');
                     showErrorDialog(t('msg_sku_error'), skuMsg);
                     setSkuError(skuMsg);
                     setActiveTab('sku');
@@ -895,7 +888,7 @@ const ProductEditForm = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="min-h-screen bg-[#f6f8fb]">
             <div className="mx-auto">
                 {/* Header */}
                 <div className="mb-8 rounded-xl bg-white p-6 shadow-sm">

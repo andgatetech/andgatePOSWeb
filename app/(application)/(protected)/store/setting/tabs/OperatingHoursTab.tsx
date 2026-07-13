@@ -28,7 +28,7 @@ const OperatingHoursTab: React.FC<OperatingHoursTabProps> = ({ formData, handleI
 
     return (
         <div className="space-y-6">
-            <div className="rounded-2xl bg-white p-6 shadow-sm">
+            <div className="rounded-lg bg-white p-6 shadow-sm">
                 <h3 className="mb-6 text-lg font-semibold text-gray-900">{t('store_business_hours_title')}</h3>
 
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -65,7 +65,7 @@ const OperatingHoursTab: React.FC<OperatingHoursTabProps> = ({ formData, handleI
 
                 {/* Total Hours Display */}
                 {calculateTotalHours() && (
-                    <div className="mt-6 rounded-xl bg-gradient-to-r from-[#046ca9]/10 to-[#e79237]/15 p-4">
+                    <div className="mt-6 rounded-lg bg-gradient-to-r from-[#046ca9]/10 to-[#e79237]/15 p-4">
                         <div className="flex items-center justify-center space-x-3">
                             <Clock className="h-5 w-5 text-[#046ca9]" />
                             <span className="text-sm font-medium text-gray-700">{t('lbl_total_operating_hours')}</span>

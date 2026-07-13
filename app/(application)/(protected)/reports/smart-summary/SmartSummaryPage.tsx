@@ -88,14 +88,12 @@ const SmartSummaryPage = () => {
                 />
             </div>
 
-            <div className="flex gap-1 rounded-xl border border-gray-200 bg-gray-50 p-1 w-fit">
+            <div className="flex w-fit gap-1 rounded-lg border border-gray-200 bg-gray-50 p-1">
                 {(['daily', 'weekly'] as Tab[]).map((tab) => (
                     <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
-                        className={`rounded-lg px-5 py-2 text-sm font-medium transition-all ${
-                            activeTab === tab ? 'bg-white text-primary shadow-sm' : 'text-gray-500 hover:text-gray-700'
-                        }`}
+                        className={`rounded-lg px-5 py-2 text-sm font-medium transition-all ${activeTab === tab ? 'bg-white text-primary shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
                     >
                         {tab === 'daily' ? t('lbl_daily') : t('lbl_weekly')}
                     </button>
@@ -108,10 +106,8 @@ const SmartSummaryPage = () => {
                 <>
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                         {stats.map((stat) => (
-                            <div key={stat.label} className="flex items-center gap-4 rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50">
-                                    {stat.icon}
-                                </div>
+                            <div key={stat.label} className="flex items-center gap-4 rounded-lg border border-gray-100 bg-white p-5 shadow-sm">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-50">{stat.icon}</div>
                                 <div>
                                     <p className="text-xs font-medium text-gray-500">{stat.label}</p>
                                     <p className="text-lg font-bold text-gray-800">{String(stat.value)}</p>
@@ -121,20 +117,22 @@ const SmartSummaryPage = () => {
                     </div>
 
                     {narrative && (
-                        <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
+                        <div className="rounded-lg border border-gray-100 bg-white p-5 shadow-sm">
                             <h3 className="mb-2 font-semibold text-gray-700">{t('lbl_summary')}</h3>
                             <p className="text-sm leading-relaxed text-gray-600">{narrative}</p>
                         </div>
                     )}
 
                     {topProducts.length > 0 && (
-                        <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
+                        <div className="rounded-lg border border-gray-100 bg-white p-5 shadow-sm">
                             <h3 className="mb-3 font-semibold text-gray-700">{t('lbl_top_products')}</h3>
                             <ul className="divide-y divide-gray-100">
                                 {topProducts.map((p: any, i: number) => (
                                     <li key={i} className="flex items-center justify-between py-2 text-sm">
                                         <span className="text-gray-700">{p.product_name}</span>
-                                        <span className="font-medium text-primary">{p.qty_sold} {t('lbl_units')}</span>
+                                        <span className="font-medium text-primary">
+                                            {p.qty_sold} {t('lbl_units')}
+                                        </span>
                                     </li>
                                 ))}
                             </ul>

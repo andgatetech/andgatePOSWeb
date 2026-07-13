@@ -3,7 +3,12 @@
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
-import { useDeleteCourierCredentialMutation, useGetCourierCredentialsQuery, useSaveCourierCredentialMutation, useUpdateCourierCredentialMutation } from '@/store/features/ecommerce/ecommerceManagementApi';
+import {
+    useDeleteCourierCredentialMutation,
+    useGetCourierCredentialsQuery,
+    useSaveCourierCredentialMutation,
+    useUpdateCourierCredentialMutation,
+} from '@/store/features/ecommerce/ecommerceManagementApi';
 import { AlertCircle, CheckCircle2, ExternalLink, Eye, EyeOff, KeyRound, Loader2, PackageCheck, Save, Store, Trash2, Truck } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useMemo, useState } from 'react';
@@ -103,7 +108,14 @@ const credentialHasField = (credential: any, field: CredentialField) => {
 
     if (field.field === 'provider_store_id' && hasUsableValue(credential.provider_store_id)) return true;
 
-    const flagContainers = [credential?.filled_fields, credential?.configured_fields, credential?.credential_fields, credential?.credential_keys, credential?.credentials_keys, credential?.metadata?.filled_fields].filter(Boolean);
+    const flagContainers = [
+        credential?.filled_fields,
+        credential?.configured_fields,
+        credential?.credential_fields,
+        credential?.credential_keys,
+        credential?.credentials_keys,
+        credential?.metadata?.filled_fields,
+    ].filter(Boolean);
 
     if (
         flagContainers.some((container: any) => {
@@ -264,7 +276,12 @@ const CourierCredentialsSettings = () => {
         if (activeProvider === 'pathao') {
             return (
                 <>
-                    <Field label={t('ecommerce_courier_pathao_store_id')} value={form.provider_store_id} onChange={(value) => setField('provider_store_id', value)} placeholder={t('ecommerce_courier_pathao_store_placeholder')} />
+                    <Field
+                        label={t('ecommerce_courier_pathao_store_id')}
+                        value={form.provider_store_id}
+                        onChange={(value) => setField('provider_store_id', value)}
+                        placeholder={t('ecommerce_courier_pathao_store_placeholder')}
+                    />
                     <Field label={t('ecommerce_courier_client_id')} value={form.client_id} onChange={(value) => setField('client_id', value)} />
                     <SecretField label={t('ecommerce_courier_client_secret')} value={form.client_secret} onChange={(value) => setField('client_secret', value)} />
                     <Field label={t('ecommerce_courier_username')} value={form.username} onChange={(value) => setField('username', value)} placeholder="merchant@example.com" />
@@ -284,8 +301,18 @@ const CourierCredentialsSettings = () => {
 
         return (
             <>
-                <Field label={t('ecommerce_courier_pickup_store_id')} value={form.provider_store_id} onChange={(value) => setField('provider_store_id', value)} placeholder={t('ecommerce_courier_redx_store_placeholder')} />
-                <Field label={t('ecommerce_courier_pickup_area_id')} value={form.pickup_area_id} onChange={(value) => setField('pickup_area_id', value)} placeholder={t('ecommerce_courier_pickup_area_placeholder')} />
+                <Field
+                    label={t('ecommerce_courier_pickup_store_id')}
+                    value={form.provider_store_id}
+                    onChange={(value) => setField('provider_store_id', value)}
+                    placeholder={t('ecommerce_courier_redx_store_placeholder')}
+                />
+                <Field
+                    label={t('ecommerce_courier_pickup_area_id')}
+                    value={form.pickup_area_id}
+                    onChange={(value) => setField('pickup_area_id', value)}
+                    placeholder={t('ecommerce_courier_pickup_area_placeholder')}
+                />
                 <SecretField label={t('ecommerce_courier_openapi_token')} value={form.token} onChange={(value) => setField('token', value)} />
             </>
         );
@@ -294,7 +321,7 @@ const CourierCredentialsSettings = () => {
     if (!storeId) {
         return (
             <div className="flex min-h-[60vh] items-center justify-center">
-                <div className="rounded-xl border border-[#e79237]/30 bg-[#e79237]/10 p-6 text-center">
+                <div className="rounded-lg border border-[#e79237]/30 bg-[#e79237]/10 p-6 text-center">
                     <Store className="mx-auto h-12 w-12 text-[#c47920]" />
                     <h3 className="mt-4 text-lg font-semibold text-[#9a5a14]">{t('msg_no_store_selected')}</h3>
                     <p className="mt-2 text-[#c47920]">{t('msg_select_store_to_manage')}</p>
@@ -307,7 +334,7 @@ const CourierCredentialsSettings = () => {
         <div className="space-y-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#046ca9] to-[#034d79] text-white shadow-sm">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#046ca9] text-white shadow-sm">
                         <Truck className="h-5 w-5" />
                     </div>
                     <div>
@@ -318,7 +345,7 @@ const CourierCredentialsSettings = () => {
             </div>
 
             <div className="space-y-5">
-                <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+                <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
                     <div className="mb-5 flex flex-col gap-1">
                         <h2 className="text-base font-semibold text-gray-900">{t('ecommerce_courier_select_provider')}</h2>
                         <p className="text-sm text-gray-500">{t('ecommerce_courier_select_provider_desc')}</p>
@@ -334,7 +361,9 @@ const CourierCredentialsSettings = () => {
                                     key={provider}
                                     type="button"
                                     onClick={() => setActiveProvider(provider)}
-                                    className={`rounded-lg border p-4 text-left transition ${active ? 'border-[#046ca9] bg-[#046ca9]/5 shadow-sm' : 'border-gray-200 bg-white hover:border-[#046ca9]/40'}`}
+                                    className={`rounded-lg border p-4 text-left transition ${
+                                        active ? 'border-[#046ca9] bg-[#046ca9]/5 shadow-sm' : 'border-gray-200 bg-white hover:border-[#046ca9]/40'
+                                    }`}
                                 >
                                     <div className="flex items-center justify-between gap-3">
                                         <span className="font-semibold text-gray-900">{providerLabel(provider)}</span>
@@ -342,7 +371,13 @@ const CourierCredentialsSettings = () => {
                                     </div>
                                     <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
                                         <span className={credential?.is_active ? 'font-medium text-emerald-700' : 'text-gray-500'}>{providerStatus(credential)}</span>
-                                        <span className={completion.complete ? 'rounded-full bg-emerald-50 px-2 py-0.5 font-medium text-emerald-700' : 'rounded-full bg-amber-50 px-2 py-0.5 font-medium text-amber-700'}>
+                                        <span
+                                            className={
+                                                completion.complete
+                                                    ? 'rounded-full bg-emerald-50 px-2 py-0.5 font-medium text-emerald-700'
+                                                    : 'rounded-full bg-amber-50 px-2 py-0.5 font-medium text-amber-700'
+                                            }
+                                        >
                                             {t('ecommerce_courier_required_count', { filled: completion.filled, total: completion.total })}
                                         </span>
                                     </div>
@@ -352,19 +387,30 @@ const CourierCredentialsSettings = () => {
                     </div>
                 </div>
 
-                <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+                <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
                     <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                         <div>
                             <h2 className="text-base font-semibold text-gray-900">{t('ecommerce_courier_setup_title', { provider: providerLabel(activeProvider) })}</h2>
                             <p className="mt-1 text-sm text-gray-500">{t(`ecommerce_courier_${activeProvider}_helper`)}</p>
                         </div>
                         <div className="flex flex-wrap items-center gap-3">
-                            <span className={activeCompletion.complete ? 'inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700' : 'inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700'}>
+                            <span
+                                className={
+                                    activeCompletion.complete
+                                        ? 'inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700'
+                                        : 'inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700'
+                                }
+                            >
                                 {activeCompletion.complete ? <CheckCircle2 className="h-3.5 w-3.5" /> : <AlertCircle className="h-3.5 w-3.5" />}
                                 {activeCompletion.complete ? t('ecommerce_courier_status_complete') : t('ecommerce_courier_status_missing')}
                             </span>
                             <label className="inline-flex items-center gap-2 text-sm font-medium text-gray-700">
-                                <input type="checkbox" checked={form.is_active} onChange={(event) => setField('is_active', event.target.checked)} className="h-4 w-4 rounded border-gray-300 text-[#046ca9]" />
+                                <input
+                                    type="checkbox"
+                                    checked={form.is_active}
+                                    onChange={(event) => setField('is_active', event.target.checked)}
+                                    className="h-4 w-4 rounded border-gray-300 text-[#046ca9]"
+                                />
                                 {t('lbl_active')}
                             </label>
                         </div>
@@ -382,7 +428,12 @@ const CourierCredentialsSettings = () => {
                                 {providerFields[activeProvider].map((field) => {
                                     const filled = isFieldFilled(activeCredential, field, form);
                                     return (
-                                        <div key={field.field} className={`flex min-h-11 items-center justify-between gap-3 rounded-lg border px-3 py-2 text-sm ${filled ? 'border-emerald-100 bg-emerald-50/60' : 'border-amber-100 bg-amber-50/70'}`}>
+                                        <div
+                                            key={field.field}
+                                            className={`flex min-h-11 items-center justify-between gap-3 rounded-lg border px-3 py-2 text-sm ${
+                                                filled ? 'border-emerald-100 bg-emerald-50/60' : 'border-amber-100 bg-amber-50/70'
+                                            }`}
+                                        >
                                             <span className="min-w-0 truncate font-medium text-gray-700">{t(field.labelKey)}</span>
                                             <span className={`inline-flex shrink-0 items-center gap-1 text-xs font-semibold ${filled ? 'text-emerald-700' : 'text-amber-700'}`}>
                                                 {filled ? <CheckCircle2 className="h-3.5 w-3.5" /> : <AlertCircle className="h-3.5 w-3.5" />}
@@ -425,7 +476,7 @@ const CourierCredentialsSettings = () => {
                     </div>
                 </div>
 
-                <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+                <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
                     <h2 className="text-base font-semibold text-gray-900">{t('ecommerce_courier_instruction_title', { provider: providerLabel(activeProvider) })}</h2>
                     <ol className="mt-4 grid gap-3 text-sm text-gray-700 lg:grid-cols-2">
                         {[1, 2, 3, 4].map((step) => (
@@ -453,7 +504,7 @@ const CourierCredentialsSettings = () => {
 
                 <div className="grid gap-4 lg:grid-cols-2">
                     {instructionImages[activeProvider].map((image) => (
-                        <figure key={image.src} className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+                        <figure key={image.src} className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
                             <div className="relative aspect-[16/10] bg-gray-100">
                                 <Image src={image.src} alt={t(image.key)} fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-contain" />
                             </div>

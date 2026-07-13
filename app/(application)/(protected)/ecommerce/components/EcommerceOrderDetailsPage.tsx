@@ -130,7 +130,7 @@ const Badge = ({ className, variant = 'secondary', ...props }: BadgeProps) => (
 
 const Button = ({ className, children, variant = 'default', type = 'button', ...props }: ButtonProps) => {
     const variants: Record<NonNullable<ButtonProps['variant']>, string> = {
-        default: 'bg-primary text-white hover:bg-primary/90',
+        default: 'bg-[#046ca9] text-white hover:bg-[#034d79]',
         outline: 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-100',
         secondary: 'bg-slate-100 text-slate-800 hover:bg-slate-200',
     };
@@ -163,7 +163,7 @@ function InfoLine({ label, value }: { label: string; value: ReactNode }) {
 function SectionTitle({ icon: Icon, title, description }: { icon: ElementType; title: string; description?: string }) {
     return (
         <div className="flex min-w-0 items-start gap-3">
-            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-md bg-[#046ca9]/10 text-[#046ca9]">
                 <Icon className="h-4 w-4" />
             </div>
             <div className="min-w-0">
@@ -183,12 +183,12 @@ function InputLabel({ label, children, className }: { label: string; children: R
     );
 }
 
-const controlClass = 'h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15';
+const controlClass = 'h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-[#046ca9] focus:ring-2 focus:ring-[#046ca9]/15';
 
 function SummaryMetric({ label, value, icon: Icon, tone = 'neutral' }: { label: string; value: ReactNode; icon: ElementType; tone?: 'neutral' | 'primary' | 'success' | 'warning' }) {
     const toneClass = {
         neutral: 'bg-slate-50 text-slate-600',
-        primary: 'bg-primary/10 text-primary',
+        primary: 'bg-[#046ca9]/10 text-[#046ca9]',
         success: 'bg-emerald-50 text-emerald-700',
         warning: 'bg-amber-50 text-amber-700',
     }[tone];
@@ -254,7 +254,7 @@ function WorkflowGuide({ status, paymentStatus, hasCourier }: { status: OrderSta
     return (
         <Card>
             <CardHeader className="flex-row items-center gap-3 p-5">
-                <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+                <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-md bg-[#046ca9]/10 text-[#046ca9]">
                     <ListChecks className="h-4 w-4" />
                 </div>
                 <div>
@@ -266,7 +266,7 @@ function WorkflowGuide({ status, paymentStatus, hasCourier }: { status: OrderSta
                 {steps.map((step) => (
                     <div key={step.number} className="flex min-h-[112px] flex-col justify-between rounded-lg border border-slate-200 bg-slate-50 p-4">
                         <div className="flex items-start gap-3">
-                            <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">{step.number}</span>
+                            <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-[#046ca9] text-xs font-bold text-white">{step.number}</span>
                             <div className="min-w-0">
                                 <h3 className="text-sm font-semibold text-slate-950">{step.title}</h3>
                                 <p className="mt-1 text-xs leading-5 text-slate-500">{step.description}</p>
@@ -302,12 +302,13 @@ const getItemAvailableQty = (item: any): number | null => {
 function StockReadinessPanel({ items }: { items: any[] }) {
     const { t } = getTranslation();
     const rows = useMemo(
-        () => items.map((item) => {
-            const requested = Number(item?.quantity || 0);
-            const available = getItemAvailableQty(item);
-            const status = available === null ? 'unknown' : available >= requested ? 'ready' : 'short';
-            return { item, requested, available, status };
-        }),
+        () =>
+            items.map((item) => {
+                const requested = Number(item?.quantity || 0);
+                const available = getItemAvailableQty(item);
+                const status = available === null ? 'unknown' : available >= requested ? 'ready' : 'short';
+                return { item, requested, available, status };
+            }),
         [items]
     );
     const shortCount = rows.filter((row) => row.status === 'short').length;
@@ -324,15 +325,9 @@ function StockReadinessPanel({ items }: { items: any[] }) {
             <CardContent className="border-t border-slate-100 p-5">
                 <div className={cn('mb-4 rounded-md border px-4 py-3 text-sm', tone)}>
                     <p className="font-semibold">
-                        {shortCount > 0
-                            ? t('ecommerce_detail_stock_short_title')
-                            : unknownCount > 0
-                            ? t('ecommerce_detail_stock_unknown_title')
-                            : t('ecommerce_detail_stock_ready_title')}
+                        {shortCount > 0 ? t('ecommerce_detail_stock_short_title') : unknownCount > 0 ? t('ecommerce_detail_stock_unknown_title') : t('ecommerce_detail_stock_ready_title')}
                     </p>
-                    <p className="mt-1 leading-5">
-                        {t('ecommerce_detail_stock_summary', { ready: readyCount, short: shortCount, unknown: unknownCount })}
-                    </p>
+                    <p className="mt-1 leading-5">{t('ecommerce_detail_stock_summary', { ready: readyCount, short: shortCount, unknown: unknownCount })}</p>
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full min-w-[620px] text-sm">
@@ -347,9 +342,7 @@ function StockReadinessPanel({ items }: { items: any[] }) {
                         <tbody className="divide-y divide-slate-100">
                             {rows.map(({ item, requested, available, status }) => (
                                 <tr key={item.id || item.stock_id || item.product_id}>
-                                    <td className="px-4 py-3 font-semibold text-slate-900">
-                                        {item.product_name || item?.product?.product_name || item?.product?.name || getEcommerceFallbackText()}
-                                    </td>
+                                    <td className="px-4 py-3 font-semibold text-slate-900">{item.product_name || item?.product?.product_name || item?.product?.name || getEcommerceFallbackText()}</td>
                                     <td className="px-4 py-3 text-right">{requested}</td>
                                     <td className="px-4 py-3 text-right">{available === null ? t('lbl_unknown') : available}</td>
                                     <td className="px-4 py-3 text-right">
@@ -476,7 +469,7 @@ function OrderStatusStepper({ status }: { status: OrderStatus }) {
             <div className="relative min-w-[620px]">
                 <div className="absolute left-5 right-5 top-5 h-0.5 bg-slate-200" aria-hidden="true" />
                 <div
-                    className="absolute left-5 top-5 h-0.5 bg-primary transition-all"
+                    className="absolute left-5 top-5 h-0.5 bg-[#046ca9] transition-all"
                     style={{ width: currentIdx <= 0 ? '0%' : `${(currentIdx / (STEPPER_FLOW.length - 1)) * 100}%` }}
                     aria-hidden="true"
                 />
@@ -490,8 +483,8 @@ function OrderStatusStepper({ status }: { status: OrderStatus }) {
                                 <div
                                     className={cn(
                                         'flex h-10 w-10 items-center justify-center rounded-full border-2 bg-white transition-colors',
-                                        completed && 'border-primary bg-primary/10 text-primary shadow-sm',
-                                        active && 'border-primary bg-white text-primary shadow-sm ring-4 ring-primary/25',
+                                        completed && 'border-[#046ca9] bg-[#046ca9]/10 text-[#046ca9] shadow-sm',
+                                        active && 'border-[#046ca9] bg-white text-[#046ca9] shadow-sm ring-4 ring-primary/25',
                                         !completed && !active && 'border-slate-200 text-slate-400'
                                     )}
                                 >
@@ -611,20 +604,17 @@ const EcommerceOrderDetailsPage = () => {
     const latestCourierStatus = latestCourierResponseData?.order_status_slug || latestCourierResponseData?.order_status || latestCourier?.courier_status;
     const courierFulfillmentSignal = getCourierFulfillmentSignal(latestCourierStatus);
     const totalQty = useMemo(() => items.reduce((sum: number, item: any) => sum + Number(item?.quantity || 0), 0), [items]);
-    const stockReadiness = useMemo(
-        () => {
-            const rows = items.map((item: any) => {
-                const requested = Number(item?.quantity || 0);
-                const available = getItemAvailableQty(item);
-                return { requested, available };
-            });
-            return {
-                short: rows.filter((row) => row.available !== null && row.available < row.requested).length,
-                unknown: rows.filter((row) => row.available === null).length,
-            };
-        },
-        [items]
-    );
+    const stockReadiness = useMemo(() => {
+        const rows = items.map((item: any) => {
+            const requested = Number(item?.quantity || 0);
+            const available = getItemAvailableQty(item);
+            return { requested, available };
+        });
+        return {
+            short: rows.filter((row) => row.available !== null && row.available < row.requested).length,
+            unknown: rows.filter((row) => row.available === null).length,
+        };
+    }, [items]);
     const paymentMethod = order?.payment_method || order?.latest_payment_method || primaryTransaction?.payment_method;
     const paymentStatus = order?.payment_status || order?.latest_payment_status || primaryTransaction?.payment_status;
     const matchedStore = useMemo(() => {
@@ -864,7 +854,10 @@ const EcommerceOrderDetailsPage = () => {
             const response = await calculateCourierPrice({ id: order.id, ...courierPricePayload() }).unwrap();
             const payload = response?.data || response;
             const price = payload?.data?.final_price ?? payload?.deliveryCharge ?? payload?.final_price ?? payload?.price;
-            showSuccessDialog(t('ecommerce_detail_courier_charge'), price !== undefined ? t('ecommerce_detail_estimated_charge', { amount: formatCurrency(Number(price)) }) : t('ecommerce_detail_courier_charge_returned'));
+            showSuccessDialog(
+                t('ecommerce_detail_courier_charge'),
+                price !== undefined ? t('ecommerce_detail_estimated_charge', { amount: formatCurrency(Number(price)) }) : t('ecommerce_detail_courier_charge_returned')
+            );
         } catch (priceError) {
             showErrorDialog(t('ecommerce_detail_price_failed'), formatApiError(priceError));
         }
@@ -876,17 +869,11 @@ const EcommerceOrderDetailsPage = () => {
         // Validate required fields before API call
         if (courierProvider === 'redx') {
             if (!courierForm.delivery_area?.trim() || !courierForm.delivery_area_id?.trim()) {
-                showErrorDialog(
-                    t('ecommerce_detail_validation_error'),
-                    t('ecommerce_detail_redx_area_required')
-                );
+                showErrorDialog(t('ecommerce_detail_validation_error'), t('ecommerce_detail_redx_area_required'));
                 return;
             }
             if (!courierForm.pickup_store_id?.trim()) {
-                showErrorDialog(
-                    t('ecommerce_detail_validation_error'),
-                    t('ecommerce_detail_redx_pickup_required')
-                );
+                showErrorDialog(t('ecommerce_detail_validation_error'), t('ecommerce_detail_redx_pickup_required'));
                 return;
             }
         }
@@ -907,7 +894,10 @@ const EcommerceOrderDetailsPage = () => {
             const response = await refreshCourierStatus({ id: order.id, provider: latestCourier.provider }).unwrap();
             const providerResponse = response?.data?.provider_response || response?.provider_response;
             const refreshedStatus = providerResponse?.data?.order_status_slug || providerResponse?.data?.order_status || response?.data?.shipment?.courier_status;
-            showSuccessDialog(t('ecommerce_detail_status_refreshed'), refreshedStatus ? t('ecommerce_detail_courier_status_now', { status: refreshedStatus }) : t('ecommerce_detail_courier_status_updated'));
+            showSuccessDialog(
+                t('ecommerce_detail_status_refreshed'),
+                refreshedStatus ? t('ecommerce_detail_courier_status_now', { status: refreshedStatus }) : t('ecommerce_detail_courier_status_updated')
+            );
         } catch (statusError) {
             showErrorDialog(t('ecommerce_detail_status_failed'), formatApiError(statusError));
         }
@@ -1034,7 +1024,10 @@ const EcommerceOrderDetailsPage = () => {
         { label: t('lbl_phone'), value: courierCreatePreview.recipient_phone },
         { label: t('ecommerce_detail_address'), value: courierCreatePreview.recipient_address },
         { label: t('ecommerce_detail_cod_amount'), value: formatCurrency(Number(courierCreatePreview.cod_amount || 0)) },
-        { label: t('ecommerce_detail_item_weight'), value: courierCreatePreview.item_weight ? `${courierCreatePreview.item_weight} KG` : courierCreatePreview.parcel_weight ? `${courierCreatePreview.parcel_weight} g` : '' },
+        {
+            label: t('ecommerce_detail_item_weight'),
+            value: courierCreatePreview.item_weight ? `${courierCreatePreview.item_weight} KG` : courierCreatePreview.parcel_weight ? `${courierCreatePreview.parcel_weight} g` : '',
+        },
         { label: t('ecommerce_detail_item_quantity'), value: courierCreatePreview.item_quantity },
         { label: t('lbl_description'), value: courierCreatePreview.item_description || courierCreatePreview.delivery_area },
         ...(previewProvider === 'redx'
@@ -1057,122 +1050,144 @@ const EcommerceOrderDetailsPage = () => {
               { label: t('ecommerce_detail_address'), value: latestRedxParcel.customer_address },
               { label: t('ecommerce_detail_delivery_area'), value: latestRedxParcel.delivery_area },
               { label: t('ecommerce_detail_delivery_area_id'), value: latestRedxParcel.delivery_area_id },
-              { label: t('ecommerce_detail_cod_amount'), value: latestRedxParcel.cash_collection_amount !== undefined && latestRedxParcel.cash_collection_amount !== null ? formatCurrency(Number(latestRedxParcel.cash_collection_amount)) : '' },
+              {
+                  label: t('ecommerce_detail_cod_amount'),
+                  value:
+                      latestRedxParcel.cash_collection_amount !== undefined && latestRedxParcel.cash_collection_amount !== null ? formatCurrency(Number(latestRedxParcel.cash_collection_amount)) : '',
+              },
               { label: t('ecommerce_detail_weight_gram'), value: latestRedxParcel.parcel_weight ? `${latestRedxParcel.parcel_weight} g` : '' },
               { label: t('ecommerce_detail_merchant_order_id'), value: latestRedxParcel.merchant_invoice_id },
               { label: t('ecommerce_detail_delivery_type'), value: latestRedxParcel.delivery_type },
               { label: t('ecommerce_detail_courier_note'), value: latestRedxParcel.instruction },
               { label: t('ecommerce_detail_redx_created_at'), value: latestRedxParcel.created_at },
-              { label: t('ecommerce_detail_pickup_location'), value: redxPickupLocation ? [redxPickupLocation.name, redxPickupLocation.address, redxPickupLocation.area_name, redxPickupLocation.area_id ? `#${redxPickupLocation.area_id}` : null].filter(Boolean).join(' - ') : '' },
+              {
+                  label: t('ecommerce_detail_pickup_location'),
+                  value: redxPickupLocation
+                      ? [redxPickupLocation.name, redxPickupLocation.address, redxPickupLocation.area_name, redxPickupLocation.area_id ? `#${redxPickupLocation.area_id}` : null]
+                            .filter(Boolean)
+                            .join(' - ')
+                      : '',
+              },
           ].filter((row) => row.value !== undefined && row.value !== null && row.value !== '')
         : [];
     const hasTimeline = ECOMMERCE_ORDER_TIMESTAMPS.some(({ key }) => order?.[key]);
 
     return (
         <div className="space-y-5">
-                <section className="animate-fade-in overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-                    <div className="flex flex-col gap-5 border-b border-slate-100 px-5 py-5 lg:flex-row lg:items-center lg:justify-between">
-                        <div className="flex min-w-0 gap-4">
-                            <button
-                                type="button"
-                                aria-label={t('ecommerce_detail_back_to_orders')}
-                                className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 transition hover:border-primary/30 hover:bg-primary/5 hover:text-primary"
-                                onClick={() => router.push('/ecommerce/orders')}
-                            >
-                                <ArrowLeft className="h-4 w-4" />
-                            </button>
-                            <div className="min-w-0">
-                                <div className="flex flex-wrap items-center gap-2">
-                                    <span className="inline-flex items-center gap-1.5 rounded-md border border-primary/20 bg-primary/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-primary">
-                                        <Globe2 className="h-3.5 w-3.5" />
-                                        {t('ecommerce_detail_badge')}
-                                    </span>
-                                    <StatusBadge status={order.status} label={`${t('ecommerce_detail_fulfillment')}: ${getEcommerceStatusLabel(order.status)}`} />
-                                    <StatusBadge status={paymentStatus} label={`${t('ecommerce_detail_payment')}: ${getEcommerceStatusLabel(paymentStatus)}`} />
-                                    {latestCourier && (
-                                        <Badge variant="outline" className="capitalize">
-                                            {t('ecommerce_detail_courier')}: {latestCourier.provider} {t('ecommerce_detail_parcel')}
-                                        </Badge>
-                                    )}
-                                </div>
-                                <h1 className="mt-2 break-words text-2xl font-semibold tracking-tight text-slate-950 lg:text-3xl">{orderNumber}</h1>
-                                <p className="mt-1 text-sm text-slate-500">
-                                    {getStoreLabel(stores)} | {order.created_at || getEcommerceFallbackText()}
-                                </p>
+            <section className="animate-fade-in overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+                <div className="flex flex-col gap-5 border-b border-slate-100 px-5 py-5 lg:flex-row lg:items-center lg:justify-between">
+                    <div className="flex min-w-0 gap-4">
+                        <button
+                            type="button"
+                            aria-label={t('ecommerce_detail_back_to_orders')}
+                            className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 transition hover:border-[#046ca9]/30 hover:bg-[#046ca9]/5 hover:text-[#046ca9]"
+                            onClick={() => router.push('/ecommerce/orders')}
+                        >
+                            <ArrowLeft className="h-4 w-4" />
+                        </button>
+                        <div className="min-w-0">
+                            <div className="flex flex-wrap items-center gap-2">
+                                <span className="inline-flex items-center gap-1.5 rounded-md border border-[#046ca9]/20 bg-[#046ca9]/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#046ca9]">
+                                    <Globe2 className="h-3.5 w-3.5" />
+                                    {t('ecommerce_detail_badge')}
+                                </span>
+                                <StatusBadge status={order.status} label={`${t('ecommerce_detail_fulfillment')}: ${getEcommerceStatusLabel(order.status)}`} />
+                                <StatusBadge status={paymentStatus} label={`${t('ecommerce_detail_payment')}: ${getEcommerceStatusLabel(paymentStatus)}`} />
+                                {latestCourier && (
+                                    <Badge variant="outline" className="capitalize">
+                                        {t('ecommerce_detail_courier')}: {latestCourier.provider} {t('ecommerce_detail_parcel')}
+                                    </Badge>
+                                )}
                             </div>
-                        </div>
-
-                        <div className="flex flex-col gap-2 sm:flex-row">
-                            <Button variant="outline" onClick={handlePrintInvoice} disabled={isDownloading}>
-                                <Printer className="h-4 w-4" />
-                                {t('btn_print')}
-                            </Button>
-                            <Button onClick={handleDownloadInvoice} disabled={isDownloading}>
-                                {isDownloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-                                {isDownloading ? t('ecommerce_detail_generating') : t('ecommerce_detail_invoice_pdf')}
-                            </Button>
+                            <h1 className="mt-2 break-words text-2xl font-semibold tracking-tight text-slate-950 lg:text-3xl">{orderNumber}</h1>
+                            <p className="mt-1 text-sm text-slate-500">
+                                {getStoreLabel(stores)} | {order.created_at || getEcommerceFallbackText()}
+                            </p>
                         </div>
                     </div>
 
-                    <div className="grid sm:grid-cols-2 xl:grid-cols-4">
-                        <SummaryMetric label={t('ecommerce_detail_store_order_amount')} value={formatCurrency(storeOrderAmount)} icon={Banknote} tone="primary" />
-                        <SummaryMetric label={t('ecommerce_detail_items')} value={t('ecommerce_detail_items_metric', { lines: items.length, units: totalQty })} icon={Package} />
-                        <SummaryMetric label={t('ecommerce_detail_payment')} value={getEcommercePaymentMethodLabel(paymentMethod)} icon={CreditCard} tone={normalizePaymentStatus(paymentStatus) === 'paid' ? 'success' : 'warning'} />
-                        <SummaryMetric label={t('ecommerce_detail_source')} value={getEcommerceSourceLabel(order?.source || parentOrder?.source)} icon={Store} />
+                    <div className="flex flex-col gap-2 sm:flex-row">
+                        <Button variant="outline" onClick={handlePrintInvoice} disabled={isDownloading}>
+                            <Printer className="h-4 w-4" />
+                            {t('btn_print')}
+                        </Button>
+                        <Button onClick={handleDownloadInvoice} disabled={isDownloading}>
+                            {isDownloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                            {isDownloading ? t('ecommerce_detail_generating') : t('ecommerce_detail_invoice_pdf')}
+                        </Button>
                     </div>
-                </section>
+                </div>
 
-                <WorkflowGuide status={status} paymentStatus={paymentStatus} hasCourier={Boolean(latestCourier)} />
+                <div className="grid sm:grid-cols-2 xl:grid-cols-4">
+                    <SummaryMetric label={t('ecommerce_detail_store_order_amount')} value={formatCurrency(storeOrderAmount)} icon={Banknote} tone="primary" />
+                    <SummaryMetric label={t('ecommerce_detail_items')} value={t('ecommerce_detail_items_metric', { lines: items.length, units: totalQty })} icon={Package} />
+                    <SummaryMetric
+                        label={t('ecommerce_detail_payment')}
+                        value={getEcommercePaymentMethodLabel(paymentMethod)}
+                        icon={CreditCard}
+                        tone={normalizePaymentStatus(paymentStatus) === 'paid' ? 'success' : 'warning'}
+                    />
+                    <SummaryMetric label={t('ecommerce_detail_source')} value={getEcommerceSourceLabel(order?.source || parentOrder?.source)} icon={Store} />
+                </div>
+            </section>
 
-                <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_390px]">
-                    <main className="flex flex-col gap-5">
-                        <Card className="order-5">
-                            <CardHeader className="flex-row items-center justify-between p-5">
-                                <SectionTitle icon={ShoppingBag} title={`5. ${t('ecommerce_detail_items_count', { count: items.length })}`} description={t('ecommerce_detail_items_desc', { count: totalQty })} />
-                                <span className="text-sm font-semibold text-slate-900">{formatCurrency(storeItemsSubtotal)}</span>
-                            </CardHeader>
-                            <CardContent className="p-0">
-                                <div className="overflow-x-auto">
-                                    <table className="w-full min-w-[760px] text-sm">
-                                        <thead className="bg-slate-50">
-                                            <tr className="border-y border-slate-200 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                                                <th className="px-5 py-3">{t('ecommerce_detail_product')}</th>
-                                                <th className="px-5 py-3">{t('ecommerce_detail_sku')}</th>
-                                                <th className="px-5 py-3 text-center">{t('lbl_qty')}</th>
-                                                <th className="px-5 py-3 text-right">{t('lbl_unit_price')}</th>
-                                                <th className="px-5 py-3 text-right">{t('lbl_subtotal')}</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-slate-100">
-                                            {items.map((item: any) => (
-                                                <tr key={item.id} className="transition hover:bg-primary/5">
-                                                    <td className="px-5 py-4">
-                                                        <div className="font-semibold text-slate-950">{item.product_name || item?.product?.product_name || item?.product?.name || getEcommerceFallbackText()}</div>
-                                                        {formatVariantText(item.variant_data) && <div className="mt-1 text-xs text-slate-500">{formatVariantText(item.variant_data)}</div>}
-                                                    </td>
-                                                    <td className="px-5 py-4">
-                                                        <span className="font-mono text-xs text-slate-600">{item.sku || item?.product?.sku || getEcommerceFallbackText()}</span>
-                                                    </td>
-                                                    <td className="px-5 py-4 text-center font-semibold text-slate-900">{item.quantity}</td>
-                                                    <td className="px-5 py-4 text-right text-slate-700">{formatCurrency(item.unit_price)}</td>
-                                                    <td className="px-5 py-4 text-right font-semibold text-slate-950">{formatCurrency(item.subtotal)}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                        <tfoot className="bg-slate-50">
-                                            <tr>
-                                                <td colSpan={4} className="px-5 py-3 text-right text-sm font-semibold text-slate-600">
-                                                    {t('ecommerce_store_items_subtotal')}
+            <WorkflowGuide status={status} paymentStatus={paymentStatus} hasCourier={Boolean(latestCourier)} />
+
+            <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_390px]">
+                <main className="flex flex-col gap-5">
+                    <Card className="order-5">
+                        <CardHeader className="flex-row items-center justify-between p-5">
+                            <SectionTitle
+                                icon={ShoppingBag}
+                                title={`5. ${t('ecommerce_detail_items_count', { count: items.length })}`}
+                                description={t('ecommerce_detail_items_desc', { count: totalQty })}
+                            />
+                            <span className="text-sm font-semibold text-slate-900">{formatCurrency(storeItemsSubtotal)}</span>
+                        </CardHeader>
+                        <CardContent className="p-0">
+                            <div className="overflow-x-auto">
+                                <table className="w-full min-w-[760px] text-sm">
+                                    <thead className="bg-slate-50">
+                                        <tr className="border-y border-slate-200 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                                            <th className="px-5 py-3">{t('ecommerce_detail_product')}</th>
+                                            <th className="px-5 py-3">{t('ecommerce_detail_sku')}</th>
+                                            <th className="px-5 py-3 text-center">{t('lbl_qty')}</th>
+                                            <th className="px-5 py-3 text-right">{t('lbl_unit_price')}</th>
+                                            <th className="px-5 py-3 text-right">{t('lbl_subtotal')}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-100">
+                                        {items.map((item: any) => (
+                                            <tr key={item.id} className="transition hover:bg-[#046ca9]/5">
+                                                <td className="px-5 py-4">
+                                                    <div className="font-semibold text-slate-950">
+                                                        {item.product_name || item?.product?.product_name || item?.product?.name || getEcommerceFallbackText()}
+                                                    </div>
+                                                    {formatVariantText(item.variant_data) && <div className="mt-1 text-xs text-slate-500">{formatVariantText(item.variant_data)}</div>}
                                                 </td>
-                                                <td className="px-5 py-3 text-right text-sm font-bold text-slate-950">{formatCurrency(storeItemsSubtotal)}</td>
+                                                <td className="px-5 py-4">
+                                                    <span className="font-mono text-xs text-slate-600">{item.sku || item?.product?.sku || getEcommerceFallbackText()}</span>
+                                                </td>
+                                                <td className="px-5 py-4 text-center font-semibold text-slate-900">{item.quantity}</td>
+                                                <td className="px-5 py-4 text-right text-slate-700">{formatCurrency(item.unit_price)}</td>
+                                                <td className="px-5 py-4 text-right font-semibold text-slate-950">{formatCurrency(item.subtotal)}</td>
                                             </tr>
-                                        </tfoot>
-                                    </table>
-                                </div>
-                            </CardContent>
-                        </Card>
+                                        ))}
+                                    </tbody>
+                                    <tfoot className="bg-slate-50">
+                                        <tr>
+                                            <td colSpan={4} className="px-5 py-3 text-right text-sm font-semibold text-slate-600">
+                                                {t('ecommerce_store_items_subtotal')}
+                                            </td>
+                                            <td className="px-5 py-3 text-right text-sm font-bold text-slate-950">{formatCurrency(storeItemsSubtotal)}</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </CardContent>
+                    </Card>
 
-                        <div className="order-1">
+                    <div className="order-1">
                         <CourierFraudCheckPanel
                             storeId={courierStoreId || null}
                             storeOrderId={order?.id || orderId}
@@ -1180,477 +1195,537 @@ const EcommerceOrderDetailsPage = () => {
                             title={`1. ${t('ecommerce_detail_order_fraud_check')}`}
                             description={t('ecommerce_detail_order_fraud_check_desc')}
                         />
-                        </div>
+                    </div>
 
-                        <StockReadinessPanel items={items} />
+                    <StockReadinessPanel items={items} />
 
-                        <Card className="order-2 animate-slide-up">
-                            <CardHeader className="flex-row items-start justify-between gap-4 p-5">
-                                <SectionTitle icon={Truck} title={`3. ${t('ecommerce_detail_fulfillment')}`} description={t('ecommerce_detail_fulfillment_desc')} />
-                                <div className="flex flex-col gap-2 sm:flex-row">
-                                    <select value={status} onChange={(event) => setStatus(event.target.value as OrderStatus)} className={cn(controlClass, 'sm:w-[180px]')}>
-                                        {ECOMMERCE_ORDER_STATUSES.map((item) => (
-                                            <option key={item} value={item}>
-                                                {getEcommerceStatusLabel(item)}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    <Button onClick={handleStatusUpdate} disabled={isUpdating}>
-                                        {isUpdating && <Loader2 className="h-4 w-4 animate-spin" />}
-                                        {t('ecommerce_detail_update_status')}
-                                    </Button>
+                    <Card className="order-2 animate-slide-up">
+                        <CardHeader className="flex-row items-start justify-between gap-4 p-5">
+                            <SectionTitle icon={Truck} title={`3. ${t('ecommerce_detail_fulfillment')}`} description={t('ecommerce_detail_fulfillment_desc')} />
+                            <div className="flex flex-col gap-2 sm:flex-row">
+                                <select value={status} onChange={(event) => setStatus(event.target.value as OrderStatus)} className={cn(controlClass, 'sm:w-[180px]')}>
+                                    {ECOMMERCE_ORDER_STATUSES.map((item) => (
+                                        <option key={item} value={item}>
+                                            {getEcommerceStatusLabel(item)}
+                                        </option>
+                                    ))}
+                                </select>
+                                <Button onClick={handleStatusUpdate} disabled={isUpdating}>
+                                    {isUpdating && <Loader2 className="h-4 w-4 animate-spin" />}
+                                    {t('ecommerce_detail_update_status')}
+                                </Button>
+                            </div>
+                        </CardHeader>
+                        <CardContent className="border-t border-slate-100 p-5">
+                            <OrderStatusStepper status={status} />
+                            {latestCourier && (
+                                <div className="mt-4 rounded-md border border-sky-100 bg-sky-50 px-4 py-3 text-sm text-sky-900">
+                                    <span className="font-semibold">{t('ecommerce_detail_courier_tracking')}:</span> <span className="capitalize">{latestCourier.provider}</span>{' '}
+                                    {latestCourierStatus || t('ecommerce_detail_waiting_for_courier_status')}
+                                    {latestCourier.consignment_id ? ` (${latestCourier.consignment_id})` : ''}
+                                    <span className="ml-1 text-sky-700">{t('ecommerce_detail_courier_tracking_note')}</span>
                                 </div>
-                            </CardHeader>
-                            <CardContent className="border-t border-slate-100 p-5">
-                                <OrderStatusStepper status={status} />
-                                {latestCourier && (
-                                    <div className="mt-4 rounded-md border border-sky-100 bg-sky-50 px-4 py-3 text-sm text-sky-900">
-                                        <span className="font-semibold">{t('ecommerce_detail_courier_tracking')}:</span>{' '}
-                                        <span className="capitalize">{latestCourier.provider}</span> {latestCourierStatus || t('ecommerce_detail_waiting_for_courier_status')}
-                                        {latestCourier.consignment_id ? ` (${latestCourier.consignment_id})` : ''}
-                                        <span className="ml-1 text-sky-700">{t('ecommerce_detail_courier_tracking_note')}</span>
+                            )}
+                            {courierFulfillmentSignal && (
+                                <div
+                                    className={cn(
+                                        'mt-3 flex flex-col gap-3 rounded-md border px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between',
+                                        courierFulfillmentSignal.tone === 'success' && 'border-emerald-100 bg-emerald-50 text-emerald-900',
+                                        courierFulfillmentSignal.tone === 'warning' && 'border-amber-100 bg-amber-50 text-amber-900',
+                                        courierFulfillmentSignal.tone === 'info' && 'border-sky-100 bg-sky-50 text-sky-900'
+                                    )}
+                                >
+                                    <div>
+                                        <p className="font-semibold">{t('ecommerce_detail_courier_fulfillment_check')}</p>
+                                        <p className="mt-1 leading-5">{t(courierFulfillmentSignal.messageKey)}</p>
                                     </div>
-                                )}
-                                {courierFulfillmentSignal && (
-                                    <div
-                                        className={cn(
-                                            'mt-3 flex flex-col gap-3 rounded-md border px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between',
-                                            courierFulfillmentSignal.tone === 'success' && 'border-emerald-100 bg-emerald-50 text-emerald-900',
-                                            courierFulfillmentSignal.tone === 'warning' && 'border-amber-100 bg-amber-50 text-amber-900',
-                                            courierFulfillmentSignal.tone === 'info' && 'border-sky-100 bg-sky-50 text-sky-900'
-                                        )}
-                                    >
-                                        <div>
-                                            <p className="font-semibold">{t('ecommerce_detail_courier_fulfillment_check')}</p>
-                                            <p className="mt-1 leading-5">{t(courierFulfillmentSignal.messageKey)}</p>
-                                        </div>
-                                        {courierFulfillmentSignal.suggestedStatus && status !== courierFulfillmentSignal.suggestedStatus && (
-                                            <Button variant="outline" onClick={() => setStatus(courierFulfillmentSignal.suggestedStatus as OrderStatus)} className="shrink-0">
-                                                {t('ecommerce_detail_set_fulfillment_to', { status: getEcommerceStatusLabel(courierFulfillmentSignal.suggestedStatus) })}
-                                            </Button>
-                                        )}
-                                    </div>
-                                )}
-                            </CardContent>
-                        </Card>
-
-                        <Card className="order-3">
-                            <CardHeader className="p-5">
-                                <SectionTitle icon={CreditCard} title={`3. ${t('ecommerce_detail_payment')}`} description={t('ecommerce_detail_payment_desc')} />
-                            </CardHeader>
-                            <CardContent className="grid grid-cols-1 gap-4 border-t border-slate-100 p-5 md:grid-cols-4">
-                                <InputLabel label={t('lbl_status')}>
-                                    <select value={paymentStatusForm} onChange={(event) => setPaymentStatusForm(event.target.value as PaymentStatus)} className={controlClass}>
-                                        {ECOMMERCE_PAYMENT_STATUSES.map((item) => (
-                                            <option key={item} value={item}>
-                                                {getEcommerceStatusLabel(item)}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </InputLabel>
-                                <InputLabel label={t('ecommerce_detail_method')}>
-                                    <select value={paymentMethodForm} onChange={(event) => setPaymentMethodForm(event.target.value)} className={controlClass}>
-                                        {ECOMMERCE_PAYMENT_METHODS.map((item) => (
-                                            <option key={item} value={item}>
-                                                {getEcommercePaymentMethodLabel(item)}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </InputLabel>
-                                <InputLabel label={t('lbl_amount')}>
-                                    <input type="number" min="0" step="0.01" value={paymentAmount} onChange={(event) => setPaymentAmount(event.target.value)} className={controlClass} />
-                                </InputLabel>
-                                <div className="flex flex-col gap-1.5">
-                                    <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{t('ecommerce_detail_current')}</span>
-                                    <div className="flex h-10 min-w-0 items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-3">
-                                        <span className="truncate text-sm font-medium text-slate-700">{getEcommercePaymentMethodLabel(paymentMethod)}</span>
-                                        <StatusBadge status={paymentStatus} />
-                                    </div>
+                                    {courierFulfillmentSignal.suggestedStatus && status !== courierFulfillmentSignal.suggestedStatus && (
+                                        <Button variant="outline" onClick={() => setStatus(courierFulfillmentSignal.suggestedStatus as OrderStatus)} className="shrink-0">
+                                            {t('ecommerce_detail_set_fulfillment_to', { status: getEcommerceStatusLabel(courierFulfillmentSignal.suggestedStatus) })}
+                                        </Button>
+                                    )}
                                 </div>
-                                <InputLabel label={t('ecommerce_detail_payment_note')} className="md:col-span-3">
-                                    <input type="text" value={paymentNote} onChange={(event) => setPaymentNote(event.target.value)} placeholder={t('ecommerce_detail_payment_note_placeholder')} className={cn(controlClass, 'placeholder:text-slate-400')} />
-                                </InputLabel>
-                                <div className="flex items-end">
-                                    <Button onClick={handlePaymentUpdate} disabled={isUpdatingPayment} className="w-full">
-                                        {isUpdatingPayment && <Loader2 className="h-4 w-4 animate-spin" />}
-                                        {t('ecommerce_detail_update_payment')}
-                                    </Button>
+                            )}
+                        </CardContent>
+                    </Card>
+
+                    <Card className="order-3">
+                        <CardHeader className="p-5">
+                            <SectionTitle icon={CreditCard} title={`3. ${t('ecommerce_detail_payment')}`} description={t('ecommerce_detail_payment_desc')} />
+                        </CardHeader>
+                        <CardContent className="grid grid-cols-1 gap-4 border-t border-slate-100 p-5 md:grid-cols-4">
+                            <InputLabel label={t('lbl_status')}>
+                                <select value={paymentStatusForm} onChange={(event) => setPaymentStatusForm(event.target.value as PaymentStatus)} className={controlClass}>
+                                    {ECOMMERCE_PAYMENT_STATUSES.map((item) => (
+                                        <option key={item} value={item}>
+                                            {getEcommerceStatusLabel(item)}
+                                        </option>
+                                    ))}
+                                </select>
+                            </InputLabel>
+                            <InputLabel label={t('ecommerce_detail_method')}>
+                                <select value={paymentMethodForm} onChange={(event) => setPaymentMethodForm(event.target.value)} className={controlClass}>
+                                    {ECOMMERCE_PAYMENT_METHODS.map((item) => (
+                                        <option key={item} value={item}>
+                                            {getEcommercePaymentMethodLabel(item)}
+                                        </option>
+                                    ))}
+                                </select>
+                            </InputLabel>
+                            <InputLabel label={t('lbl_amount')}>
+                                <input type="number" min="0" step="0.01" value={paymentAmount} onChange={(event) => setPaymentAmount(event.target.value)} className={controlClass} />
+                            </InputLabel>
+                            <div className="flex flex-col gap-1.5">
+                                <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{t('ecommerce_detail_current')}</span>
+                                <div className="flex h-10 min-w-0 items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-3">
+                                    <span className="truncate text-sm font-medium text-slate-700">{getEcommercePaymentMethodLabel(paymentMethod)}</span>
+                                    <StatusBadge status={paymentStatus} />
                                 </div>
-                            </CardContent>
-                        </Card>
+                            </div>
+                            <InputLabel label={t('ecommerce_detail_payment_note')} className="md:col-span-3">
+                                <input
+                                    type="text"
+                                    value={paymentNote}
+                                    onChange={(event) => setPaymentNote(event.target.value)}
+                                    placeholder={t('ecommerce_detail_payment_note_placeholder')}
+                                    className={cn(controlClass, 'placeholder:text-slate-400')}
+                                />
+                            </InputLabel>
+                            <div className="flex items-end">
+                                <Button onClick={handlePaymentUpdate} disabled={isUpdatingPayment} className="w-full">
+                                    {isUpdatingPayment && <Loader2 className="h-4 w-4 animate-spin" />}
+                                    {t('ecommerce_detail_update_payment')}
+                                </Button>
+                            </div>
+                        </CardContent>
+                    </Card>
 
-                        <Card className="order-4">
-                            <CardHeader className="flex-row items-start justify-between gap-4 p-5">
-                                <SectionTitle icon={Package} title={`4. ${t('ecommerce_detail_courier_parcel')}`} description={t('ecommerce_detail_courier_parcel_desc')} />
-                                {latestCourier && (
-                                    <Badge variant="secondary" className="capitalize">
-                                        {latestCourier.provider} {latestCourier.courier_status || latestCourier.tracking_code || latestCourier.consignment_id}
-                                    </Badge>
-                                )}
-                            </CardHeader>
-                            <CardContent className="border-t border-slate-100 p-5">
-                                {availableCouriers.length === 0 ? (
-                                    <div className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-                                        {t('ecommerce_detail_no_courier_credentials')}
-                                    </div>
-                                ) : (
-                                    <div className="space-y-4">
-                                        {!latestCourier && (
-                                            <>
-                                                <div className="grid gap-4 md:grid-cols-4">
-                                                    <InputLabel label={t('ecommerce_detail_provider')}>
-                                                        <select value={courierProvider} onChange={(event) => setCourierProvider(event.target.value)} className={controlClass}>
-                                                            {availableCouriers.map((credential: any) => (
-                                                                <option key={credential.provider} value={credential.provider}>
-                                                                    {String(credential.provider).toUpperCase()}
-                                                                </option>
-                                                            ))}
-                                                        </select>
-                                                    </InputLabel>
-                                                    <InputLabel label={t('ecommerce_detail_cod_amount')}>
-                                                        <input value={courierForm.cod_amount} onChange={(event) => setCourierField('cod_amount', event.target.value)} className={controlClass} />
-                                                    </InputLabel>
-                                                    <InputLabel label={t('ecommerce_detail_merchant_order_id')}>
-                                                        <input value={courierForm.merchant_order_id} onChange={(event) => setCourierField('merchant_order_id', event.target.value)} className={controlClass} />
-                                                    </InputLabel>
-                                                    <InputLabel label={t('ecommerce_detail_recipient')}>
-                                                        <input value={courierForm.recipient_name} onChange={(event) => setCourierField('recipient_name', event.target.value)} className={controlClass} />
-                                                    </InputLabel>
-                                                    <InputLabel label={t('lbl_phone')}>
-                                                        <input value={courierForm.recipient_phone} onChange={(event) => setCourierField('recipient_phone', event.target.value)} className={controlClass} />
-                                                    </InputLabel>
-                                                    <InputLabel label={t('ecommerce_detail_item_quantity')}>
-                                                        <input type="number" min="1" step="1" value={courierForm.item_quantity} onChange={(event) => setCourierField('item_quantity', event.target.value)} className={controlClass} />
-                                                    </InputLabel>
-                                                    <InputLabel label={t('ecommerce_detail_address')} className="md:col-span-2">
-                                                        <input value={courierForm.recipient_address} onChange={(event) => setCourierField('recipient_address', event.target.value)} className={controlClass} />
-                                                    </InputLabel>
-                                                    <InputLabel label={t('lbl_description')} className="md:col-span-2">
-                                                        <input value={courierForm.item_description} onChange={(event) => setCourierField('item_description', event.target.value)} className={controlClass} />
-                                                    </InputLabel>
-
-                                                    {courierProvider === 'redx' && (
-                                                        <>
-                                                            <div className="md:col-span-4">
-                                                                <InputLabel label={t('ecommerce_detail_redx_area_lookup')}>
-                                                                    <div className="grid gap-2 md:grid-cols-[1fr_auto]">
-                                                                        <input
-                                                                            value={redxAreaSearch}
-                                                                            onChange={(event) => setRedxAreaSearch(event.target.value)}
-                                                                            placeholder={t('ecommerce_detail_redx_area_lookup_placeholder')}
-                                                                            className={cn(controlClass, 'placeholder:text-slate-400')}
-                                                                        />
-                                                                        <Button type="button" variant="outline" onClick={handleRedxAreaSearch} disabled={isLoadingRedxAreas}>
-                                                                            {isLoadingRedxAreas && <Loader2 className="h-4 w-4 animate-spin" />}
-                                                                            {t('search')}
-                                                                        </Button>
-                                                                    </div>
-                                                                </InputLabel>
-                                                                {redxAreas.length > 0 && (
-                                                                    <select onChange={(event) => handleRedxAreaSelect(event.target.value)} className={cn(controlClass, 'mt-2')}>
-                                                                        <option value="">{t('ecommerce_detail_select_redx_area')}</option>
-                                                                        {redxAreas.map((area: any, index: number) => (
-                                                                            <option key={`${redxAreaId(area) || index}-${redxAreaName(area)}`} value={index}>
-                                                                                {redxAreaLabel(area)}
-                                                                            </option>
-                                                                        ))}
-                                                                    </select>
-                                                                )}
-                                                            </div>
-                                                            <InputLabel label={t('ecommerce_detail_delivery_area')}>
-                                                                <input value={courierForm.delivery_area} onChange={(event) => setCourierField('delivery_area', event.target.value)} placeholder={t('ecommerce_detail_delivery_area_placeholder')} className={cn(controlClass, 'placeholder:text-slate-400')} />
-                                                            </InputLabel>
-                                                            <InputLabel label={t('ecommerce_detail_delivery_area_id')}>
-                                                                <input value={courierForm.delivery_area_id} onChange={(event) => setCourierField('delivery_area_id', event.target.value)} className={controlClass} />
-                                                            </InputLabel>
-                                                            {redxPickupStores.length > 0 && (
-                                                                <InputLabel label={t('ecommerce_detail_pickup_store_id')} className="md:col-span-2">
-                                                                    <select value={courierForm.pickup_store_id} onChange={(event) => setCourierField('pickup_store_id', event.target.value)} className={controlClass}>
-                                                                        <option value="">{isLoadingRedxPickupStores ? t('lbl_loading') : t('ecommerce_detail_select_redx_pickup_store')}</option>
-                                                                        {redxPickupStores.map((pickupStore: any) => (
-                                                                            <option key={pickupStore.id} value={pickupStore.id}>
-                                                                                {redxPickupStoreLabel(pickupStore)}
-                                                                            </option>
-                                                                        ))}
-                                                                    </select>
-                                                                </InputLabel>
-                                                            )}
-                                                            <InputLabel label={t('ecommerce_detail_pickup_store_id')}>
-                                                                <input value={courierForm.pickup_store_id} onChange={(event) => setCourierField('pickup_store_id', event.target.value)} placeholder={t('ecommerce_detail_optional_if_saved')} className={cn(controlClass, 'placeholder:text-slate-400')} />
-                                                            </InputLabel>
-                                                            <InputLabel label={t('ecommerce_detail_weight_gram')}>
-                                                                <input value={courierForm.parcel_weight} onChange={(event) => setCourierField('parcel_weight', event.target.value)} className={controlClass} />
-                                                            </InputLabel>
-                                                        </>
-                                                    )}
-                                                </div>
-
-                                                <InputLabel label={t('ecommerce_detail_courier_note')}>
-                                                    <input value={courierForm.note} onChange={(event) => setCourierField('note', event.target.value)} className={controlClass} />
+                    <Card className="order-4">
+                        <CardHeader className="flex-row items-start justify-between gap-4 p-5">
+                            <SectionTitle icon={Package} title={`4. ${t('ecommerce_detail_courier_parcel')}`} description={t('ecommerce_detail_courier_parcel_desc')} />
+                            {latestCourier && (
+                                <Badge variant="secondary" className="capitalize">
+                                    {latestCourier.provider} {latestCourier.courier_status || latestCourier.tracking_code || latestCourier.consignment_id}
+                                </Badge>
+                            )}
+                        </CardHeader>
+                        <CardContent className="border-t border-slate-100 p-5">
+                            {availableCouriers.length === 0 ? (
+                                <div className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">{t('ecommerce_detail_no_courier_credentials')}</div>
+                            ) : (
+                                <div className="space-y-4">
+                                    {!latestCourier && (
+                                        <>
+                                            <div className="grid gap-4 md:grid-cols-4">
+                                                <InputLabel label={t('ecommerce_detail_provider')}>
+                                                    <select value={courierProvider} onChange={(event) => setCourierProvider(event.target.value)} className={controlClass}>
+                                                        {availableCouriers.map((credential: any) => (
+                                                            <option key={credential.provider} value={credential.provider}>
+                                                                {String(credential.provider).toUpperCase()}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                </InputLabel>
+                                                <InputLabel label={t('ecommerce_detail_cod_amount')}>
+                                                    <input value={courierForm.cod_amount} onChange={(event) => setCourierField('cod_amount', event.target.value)} className={controlClass} />
+                                                </InputLabel>
+                                                <InputLabel label={t('ecommerce_detail_merchant_order_id')}>
+                                                    <input
+                                                        value={courierForm.merchant_order_id}
+                                                        onChange={(event) => setCourierField('merchant_order_id', event.target.value)}
+                                                        className={controlClass}
+                                                    />
+                                                </InputLabel>
+                                                <InputLabel label={t('ecommerce_detail_recipient')}>
+                                                    <input value={courierForm.recipient_name} onChange={(event) => setCourierField('recipient_name', event.target.value)} className={controlClass} />
+                                                </InputLabel>
+                                                <InputLabel label={t('lbl_phone')}>
+                                                    <input value={courierForm.recipient_phone} onChange={(event) => setCourierField('recipient_phone', event.target.value)} className={controlClass} />
+                                                </InputLabel>
+                                                <InputLabel label={t('ecommerce_detail_item_quantity')}>
+                                                    <input
+                                                        type="number"
+                                                        min="1"
+                                                        step="1"
+                                                        value={courierForm.item_quantity}
+                                                        onChange={(event) => setCourierField('item_quantity', event.target.value)}
+                                                        className={controlClass}
+                                                    />
+                                                </InputLabel>
+                                                <InputLabel label={t('ecommerce_detail_address')} className="md:col-span-2">
+                                                    <input
+                                                        value={courierForm.recipient_address}
+                                                        onChange={(event) => setCourierField('recipient_address', event.target.value)}
+                                                        className={controlClass}
+                                                    />
+                                                </InputLabel>
+                                                <InputLabel label={t('lbl_description')} className="md:col-span-2">
+                                                    <input
+                                                        value={courierForm.item_description}
+                                                        onChange={(event) => setCourierField('item_description', event.target.value)}
+                                                        className={controlClass}
+                                                    />
                                                 </InputLabel>
 
-                                                <div className="space-y-3 rounded-md border border-slate-100 bg-slate-50 p-4">
-                                                    <div>
-                                                        <h3 className="text-sm font-semibold text-slate-950">{t('ecommerce_detail_create_parcel_details')}</h3>
-                                                        <p className="mt-1 text-xs leading-5 text-slate-500">{t('ecommerce_detail_create_parcel_details_desc')}</p>
-                                                    </div>
+                                                {courierProvider === 'redx' && (
+                                                    <>
+                                                        <div className="md:col-span-4">
+                                                            <InputLabel label={t('ecommerce_detail_redx_area_lookup')}>
+                                                                <div className="grid gap-2 md:grid-cols-[1fr_auto]">
+                                                                    <input
+                                                                        value={redxAreaSearch}
+                                                                        onChange={(event) => setRedxAreaSearch(event.target.value)}
+                                                                        placeholder={t('ecommerce_detail_redx_area_lookup_placeholder')}
+                                                                        className={cn(controlClass, 'placeholder:text-slate-400')}
+                                                                    />
+                                                                    <Button type="button" variant="outline" onClick={handleRedxAreaSearch} disabled={isLoadingRedxAreas}>
+                                                                        {isLoadingRedxAreas && <Loader2 className="h-4 w-4 animate-spin" />}
+                                                                        {t('search')}
+                                                                    </Button>
+                                                                </div>
+                                                            </InputLabel>
+                                                            {redxAreas.length > 0 && (
+                                                                <select onChange={(event) => handleRedxAreaSelect(event.target.value)} className={cn(controlClass, 'mt-2')}>
+                                                                    <option value="">{t('ecommerce_detail_select_redx_area')}</option>
+                                                                    {redxAreas.map((area: any, index: number) => (
+                                                                        <option key={`${redxAreaId(area) || index}-${redxAreaName(area)}`} value={index}>
+                                                                            {redxAreaLabel(area)}
+                                                                        </option>
+                                                                    ))}
+                                                                </select>
+                                                            )}
+                                                        </div>
+                                                        <InputLabel label={t('ecommerce_detail_delivery_area')}>
+                                                            <input
+                                                                value={courierForm.delivery_area}
+                                                                onChange={(event) => setCourierField('delivery_area', event.target.value)}
+                                                                placeholder={t('ecommerce_detail_delivery_area_placeholder')}
+                                                                className={cn(controlClass, 'placeholder:text-slate-400')}
+                                                            />
+                                                        </InputLabel>
+                                                        <InputLabel label={t('ecommerce_detail_delivery_area_id')}>
+                                                            <input
+                                                                value={courierForm.delivery_area_id}
+                                                                onChange={(event) => setCourierField('delivery_area_id', event.target.value)}
+                                                                className={controlClass}
+                                                            />
+                                                        </InputLabel>
+                                                        {redxPickupStores.length > 0 && (
+                                                            <InputLabel label={t('ecommerce_detail_pickup_store_id')} className="md:col-span-2">
+                                                                <select
+                                                                    value={courierForm.pickup_store_id}
+                                                                    onChange={(event) => setCourierField('pickup_store_id', event.target.value)}
+                                                                    className={controlClass}
+                                                                >
+                                                                    <option value="">{isLoadingRedxPickupStores ? t('lbl_loading') : t('ecommerce_detail_select_redx_pickup_store')}</option>
+                                                                    {redxPickupStores.map((pickupStore: any) => (
+                                                                        <option key={pickupStore.id} value={pickupStore.id}>
+                                                                            {redxPickupStoreLabel(pickupStore)}
+                                                                        </option>
+                                                                    ))}
+                                                                </select>
+                                                            </InputLabel>
+                                                        )}
+                                                        <InputLabel label={t('ecommerce_detail_pickup_store_id')}>
+                                                            <input
+                                                                value={courierForm.pickup_store_id}
+                                                                onChange={(event) => setCourierField('pickup_store_id', event.target.value)}
+                                                                placeholder={t('ecommerce_detail_optional_if_saved')}
+                                                                className={cn(controlClass, 'placeholder:text-slate-400')}
+                                                            />
+                                                        </InputLabel>
+                                                        <InputLabel label={t('ecommerce_detail_weight_gram')}>
+                                                            <input
+                                                                value={courierForm.parcel_weight}
+                                                                onChange={(event) => setCourierField('parcel_weight', event.target.value)}
+                                                                className={controlClass}
+                                                            />
+                                                        </InputLabel>
+                                                    </>
+                                                )}
+                                            </div>
+
+                                            <InputLabel label={t('ecommerce_detail_courier_note')}>
+                                                <input value={courierForm.note} onChange={(event) => setCourierField('note', event.target.value)} className={controlClass} />
+                                            </InputLabel>
+
+                                            <div className="space-y-3 rounded-md border border-slate-100 bg-slate-50 p-4">
+                                                <div>
+                                                    <h3 className="text-sm font-semibold text-slate-950">{t('ecommerce_detail_create_parcel_details')}</h3>
+                                                    <p className="mt-1 text-xs leading-5 text-slate-500">{t('ecommerce_detail_create_parcel_details_desc')}</p>
+                                                </div>
+                                                <div className="grid gap-4 md:grid-cols-3">
+                                                    {courierPreviewRows.map((row) => (
+                                                        <InfoLine key={row.label} label={row.label} value={row.value} />
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </>
+                                    )}
+
+                                    {latestCourier && (
+                                        <div className="space-y-3 rounded-md border border-emerald-100 bg-emerald-50 p-4">
+                                            <div>
+                                                <h3 className="text-sm font-semibold text-emerald-950">{t('ecommerce_detail_existing_parcel')}</h3>
+                                                <p className="mt-1 text-xs leading-5 text-emerald-700">{t('ecommerce_detail_existing_parcel_desc')}</p>
+                                            </div>
+                                            <div className="grid gap-4 md:grid-cols-3">
+                                                <InfoLine label={t('ecommerce_detail_consignment_id')} value={latestCourier.consignment_id} />
+                                                <InfoLine label={t('ecommerce_detail_merchant_order_id')} value={latestCourier.merchant_order_id} />
+                                                <InfoLine label={t('ecommerce_detail_courier_status')} value={latestCourierStatus} />
+                                                <InfoLine
+                                                    label={t('ecommerce_detail_delivery_fee')}
+                                                    value={latestCourier.delivery_fee !== null && latestCourier.delivery_fee !== undefined ? formatCurrency(Number(latestCourier.delivery_fee)) : ''}
+                                                />
+                                                <InfoLine
+                                                    label={t('ecommerce_detail_courier_updated_at')}
+                                                    value={latestCourier.courier_status_updated_at || latestCourierResponseData?.updated_at || latestCourier.updated_at}
+                                                />
+                                                <InfoLine label={t('ecommerce_detail_invoice_id')} value={latestCourier.invoice_id || latestCourierResponseData?.invoice_id} />
+                                            </div>
+                                            {redxParcelRows.length > 0 && (
+                                                <div className="space-y-3 rounded-md border border-emerald-100 bg-white/80 p-4">
+                                                    <h3 className="text-sm font-semibold text-emerald-950">{t('ecommerce_detail_redx_parcel_details')}</h3>
                                                     <div className="grid gap-4 md:grid-cols-3">
-                                                        {courierPreviewRows.map((row) => (
+                                                        {redxParcelRows.map((row) => (
                                                             <InfoLine key={row.label} label={row.label} value={row.value} />
                                                         ))}
                                                     </div>
                                                 </div>
-                                            </>
-                                        )}
-
-                                        {latestCourier && (
-                                            <div className="space-y-3 rounded-md border border-emerald-100 bg-emerald-50 p-4">
-                                                <div>
-                                                    <h3 className="text-sm font-semibold text-emerald-950">{t('ecommerce_detail_existing_parcel')}</h3>
-                                                    <p className="mt-1 text-xs leading-5 text-emerald-700">{t('ecommerce_detail_existing_parcel_desc')}</p>
-                                                </div>
-                                                <div className="grid gap-4 md:grid-cols-3">
-                                                    <InfoLine label={t('ecommerce_detail_consignment_id')} value={latestCourier.consignment_id} />
-                                                    <InfoLine label={t('ecommerce_detail_merchant_order_id')} value={latestCourier.merchant_order_id} />
-                                                    <InfoLine label={t('ecommerce_detail_courier_status')} value={latestCourierStatus} />
-                                                    <InfoLine label={t('ecommerce_detail_delivery_fee')} value={latestCourier.delivery_fee !== null && latestCourier.delivery_fee !== undefined ? formatCurrency(Number(latestCourier.delivery_fee)) : ''} />
-                                                    <InfoLine label={t('ecommerce_detail_courier_updated_at')} value={latestCourier.courier_status_updated_at || latestCourierResponseData?.updated_at || latestCourier.updated_at} />
-                                                    <InfoLine label={t('ecommerce_detail_invoice_id')} value={latestCourier.invoice_id || latestCourierResponseData?.invoice_id} />
-                                                </div>
-                                                {redxParcelRows.length > 0 && (
-                                                    <div className="space-y-3 rounded-md border border-emerald-100 bg-white/80 p-4">
-                                                        <h3 className="text-sm font-semibold text-emerald-950">{t('ecommerce_detail_redx_parcel_details')}</h3>
-                                                        <div className="grid gap-4 md:grid-cols-3">
-                                                            {redxParcelRows.map((row) => (
-                                                                <InfoLine key={row.label} label={row.label} value={row.value} />
-                                                            ))}
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        )}
-
-                                        <div className="flex flex-wrap gap-2 border-t border-slate-100 pt-4">
-                                            {!latestCourier ? (
-                                                <Button onClick={() => setIsCourierConfirmOpen(true)} disabled={isCreatingCourier}>
-                                                    {isCreatingCourier && <Loader2 className="h-4 w-4 animate-spin" />}
-                                                    {t('ecommerce_detail_create_parcel')}
-                                                </Button>
-                                            ) : (
-                                                <Button variant="secondary" onClick={handleCourierStatus} disabled={isRefreshingCourier}>
-                                                    {isRefreshingCourier && <Loader2 className="h-4 w-4 animate-spin" />}
-                                                    {t('ecommerce_detail_refresh_status')}
-                                                </Button>
                                             )}
                                         </div>
+                                    )}
+
+                                    <div className="flex flex-wrap gap-2 border-t border-slate-100 pt-4">
+                                        {!latestCourier ? (
+                                            <Button onClick={() => setIsCourierConfirmOpen(true)} disabled={isCreatingCourier}>
+                                                {isCreatingCourier && <Loader2 className="h-4 w-4 animate-spin" />}
+                                                {t('ecommerce_detail_create_parcel')}
+                                            </Button>
+                                        ) : (
+                                            <Button variant="secondary" onClick={handleCourierStatus} disabled={isRefreshingCourier}>
+                                                {isRefreshingCourier && <Loader2 className="h-4 w-4 animate-spin" />}
+                                                {t('ecommerce_detail_refresh_status')}
+                                            </Button>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+
+                    {availableCouriers.length > 0 && courierProvider !== 'steadfast' && (
+                        <Card className="order-6">
+                            <CardHeader className="p-5">
+                                <SectionTitle icon={Truck} title={t('ecommerce_detail_delivery_charge_check')} description={t('ecommerce_detail_delivery_charge_check_desc')} />
+                            </CardHeader>
+                            <CardContent className="space-y-4 border-t border-slate-100 p-5">
+                                {courierProvider === 'pathao' && (
+                                    <div className="grid gap-4 md:grid-cols-3">
+                                        <InputLabel label={t('ecommerce_detail_city')}>
+                                            <select
+                                                value={courierChargeForm.recipient_city}
+                                                onChange={(event) => setCourierChargeField('recipient_city', event.target.value)}
+                                                className={controlClass}
+                                                disabled={isLoadingPathaoCities}
+                                            >
+                                                <option value="">{isLoadingPathaoCities ? t('lbl_loading') : t('ecommerce_detail_select_city')}</option>
+                                                {pathaoCities.map((city: any) => (
+                                                    <option key={city.city_id} value={city.city_id}>
+                                                        {city.city_name} ({city.city_id})
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </InputLabel>
+                                        <InputLabel label={t('ecommerce_detail_zone')}>
+                                            <select
+                                                value={courierChargeForm.recipient_zone}
+                                                onChange={(event) => setCourierChargeField('recipient_zone', event.target.value)}
+                                                className={controlClass}
+                                                disabled={!courierChargeForm.recipient_city || isLoadingPathaoZones}
+                                            >
+                                                <option value="">{isLoadingPathaoZones ? t('lbl_loading') : t('ecommerce_detail_select_zone')}</option>
+                                                {pathaoZones.map((zone: any) => (
+                                                    <option key={zone.zone_id} value={zone.zone_id}>
+                                                        {zone.zone_name} ({zone.zone_id})
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </InputLabel>
+                                        <InputLabel label={t('ecommerce_detail_weight_kg')}>
+                                            <input value={courierChargeForm.item_weight} onChange={(event) => setCourierChargeField('item_weight', event.target.value)} className={controlClass} />
+                                        </InputLabel>
                                     </div>
                                 )}
+
+                                {courierProvider === 'redx' && (
+                                    <div className="grid gap-4 md:grid-cols-3">
+                                        <InputLabel label={t('ecommerce_detail_delivery_area_id')}>
+                                            <input
+                                                value={courierChargeForm.delivery_area_id}
+                                                onChange={(event) => setCourierChargeField('delivery_area_id', event.target.value)}
+                                                className={controlClass}
+                                            />
+                                        </InputLabel>
+                                        <InputLabel label={t('ecommerce_detail_pickup_area_id')}>
+                                            <input
+                                                value={courierChargeForm.pickup_area_id}
+                                                onChange={(event) => setCourierChargeField('pickup_area_id', event.target.value)}
+                                                placeholder={t('ecommerce_detail_optional_if_saved')}
+                                                className={cn(controlClass, 'placeholder:text-slate-400')}
+                                            />
+                                        </InputLabel>
+                                        <InputLabel label={t('ecommerce_detail_weight_gram')}>
+                                            <input value={courierChargeForm.parcel_weight} onChange={(event) => setCourierChargeField('parcel_weight', event.target.value)} className={controlClass} />
+                                        </InputLabel>
+                                    </div>
+                                )}
+
+                                <Button variant="outline" onClick={handleCourierPrice} disabled={isCalculatingCourier}>
+                                    {isCalculatingCourier && <Loader2 className="h-4 w-4 animate-spin" />}
+                                    {t('ecommerce_detail_calculate_charge')}
+                                </Button>
                             </CardContent>
                         </Card>
+                    )}
 
-                        {availableCouriers.length > 0 && courierProvider !== 'steadfast' && (
-                            <Card className="order-6">
-                                <CardHeader className="p-5">
-                                    <SectionTitle icon={Truck} title={t('ecommerce_detail_delivery_charge_check')} description={t('ecommerce_detail_delivery_charge_check_desc')} />
-                                </CardHeader>
-                                <CardContent className="space-y-4 border-t border-slate-100 p-5">
-                                    {courierProvider === 'pathao' && (
-                                        <div className="grid gap-4 md:grid-cols-3">
-                                            <InputLabel label={t('ecommerce_detail_city')}>
-                                                <select
-                                                    value={courierChargeForm.recipient_city}
-                                                    onChange={(event) => setCourierChargeField('recipient_city', event.target.value)}
-                                                    className={controlClass}
-                                                    disabled={isLoadingPathaoCities}
-                                                >
-                                                    <option value="">{isLoadingPathaoCities ? t('lbl_loading') : t('ecommerce_detail_select_city')}</option>
-                                                    {pathaoCities.map((city: any) => (
-                                                        <option key={city.city_id} value={city.city_id}>
-                                                            {city.city_name} ({city.city_id})
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </InputLabel>
-                                            <InputLabel label={t('ecommerce_detail_zone')}>
-                                                <select
-                                                    value={courierChargeForm.recipient_zone}
-                                                    onChange={(event) => setCourierChargeField('recipient_zone', event.target.value)}
-                                                    className={controlClass}
-                                                    disabled={!courierChargeForm.recipient_city || isLoadingPathaoZones}
-                                                >
-                                                    <option value="">{isLoadingPathaoZones ? t('lbl_loading') : t('ecommerce_detail_select_zone')}</option>
-                                                    {pathaoZones.map((zone: any) => (
-                                                        <option key={zone.zone_id} value={zone.zone_id}>
-                                                            {zone.zone_name} ({zone.zone_id})
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </InputLabel>
-                                            <InputLabel label={t('ecommerce_detail_weight_kg')}>
-                                                <input value={courierChargeForm.item_weight} onChange={(event) => setCourierChargeField('item_weight', event.target.value)} className={controlClass} />
-                                            </InputLabel>
-                                        </div>
-                                    )}
-
-                                    {courierProvider === 'redx' && (
-                                        <div className="grid gap-4 md:grid-cols-3">
-                                            <InputLabel label={t('ecommerce_detail_delivery_area_id')}>
-                                                <input value={courierChargeForm.delivery_area_id} onChange={(event) => setCourierChargeField('delivery_area_id', event.target.value)} className={controlClass} />
-                                            </InputLabel>
-                                            <InputLabel label={t('ecommerce_detail_pickup_area_id')}>
-                                                <input value={courierChargeForm.pickup_area_id} onChange={(event) => setCourierChargeField('pickup_area_id', event.target.value)} placeholder={t('ecommerce_detail_optional_if_saved')} className={cn(controlClass, 'placeholder:text-slate-400')} />
-                                            </InputLabel>
-                                            <InputLabel label={t('ecommerce_detail_weight_gram')}>
-                                                <input value={courierChargeForm.parcel_weight} onChange={(event) => setCourierChargeField('parcel_weight', event.target.value)} className={controlClass} />
-                                            </InputLabel>
-                                        </div>
-                                    )}
-
-                                    <Button variant="outline" onClick={handleCourierPrice} disabled={isCalculatingCourier}>
-                                        {isCalculatingCourier && <Loader2 className="h-4 w-4 animate-spin" />}
-                                        {t('ecommerce_detail_calculate_charge')}
-                                    </Button>
-                                </CardContent>
-                            </Card>
-                        )}
-
-                        <Card className="order-7">
-                            <CardHeader className="p-5">
-                                <SectionTitle icon={ReceiptText} title={t('ecommerce_detail_transactions')} description={t('ecommerce_detail_transactions_desc')} />
-                            </CardHeader>
-                            <CardContent className="p-0">
-                                <div className="overflow-x-auto">
-                                    <table className="w-full min-w-[680px] text-sm">
-                                        <thead className="bg-slate-50">
-                                            <tr className="border-y border-slate-200 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                                                <th className="px-5 py-3">{t('ecommerce_detail_method')}</th>
-                                                <th className="px-5 py-3">{t('lbl_status')}</th>
-                                                <th className="px-5 py-3">{t('lbl_notes')}</th>
-                                                <th className="px-5 py-3">{t('lbl_date')}</th>
+                    <Card className="order-7">
+                        <CardHeader className="p-5">
+                            <SectionTitle icon={ReceiptText} title={t('ecommerce_detail_transactions')} description={t('ecommerce_detail_transactions_desc')} />
+                        </CardHeader>
+                        <CardContent className="p-0">
+                            <div className="overflow-x-auto">
+                                <table className="w-full min-w-[680px] text-sm">
+                                    <thead className="bg-slate-50">
+                                        <tr className="border-y border-slate-200 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                                            <th className="px-5 py-3">{t('ecommerce_detail_method')}</th>
+                                            <th className="px-5 py-3">{t('lbl_status')}</th>
+                                            <th className="px-5 py-3">{t('lbl_notes')}</th>
+                                            <th className="px-5 py-3">{t('lbl_date')}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-100">
+                                        {transactions.length === 0 ? (
+                                            <tr>
+                                                <td colSpan={4} className="px-5 py-10 text-center text-sm text-slate-500">
+                                                    {t('ecommerce_detail_no_transactions')}
+                                                </td>
                                             </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-slate-100">
-                                            {transactions.length === 0 ? (
-                                                <tr>
-                                                    <td colSpan={4} className="px-5 py-10 text-center text-sm text-slate-500">
-                                                        {t('ecommerce_detail_no_transactions')}
+                                        ) : (
+                                            transactions.map((tx: any) => (
+                                                <tr key={tx.id} className="transition hover:bg-[#046ca9]/5">
+                                                    <td className="px-5 py-4 font-semibold text-slate-950">{getEcommercePaymentMethodLabel(tx.payment_method)}</td>
+                                                    <td className="px-5 py-4">
+                                                        <StatusBadge status={tx.payment_status} />
                                                     </td>
+                                                    <td className="px-5 py-4 text-slate-600">{tx.notes || '--'}</td>
+                                                    <td className="whitespace-nowrap px-5 py-4 text-slate-600">{tx.created_at || '--'}</td>
                                                 </tr>
-                                            ) : (
-                                                transactions.map((tx: any) => (
-                                                    <tr key={tx.id} className="transition hover:bg-primary/5">
-                                                        <td className="px-5 py-4 font-semibold text-slate-950">{getEcommercePaymentMethodLabel(tx.payment_method)}</td>
-                                                        <td className="px-5 py-4">
-                                                            <StatusBadge status={tx.payment_status} />
-                                                        </td>
-                                                        <td className="px-5 py-4 text-slate-600">{tx.notes || '--'}</td>
-                                                        <td className="whitespace-nowrap px-5 py-4 text-slate-600">{tx.created_at || '--'}</td>
-                                                    </tr>
-                                                ))
-                                            )}
-                                        </tbody>
-                                    </table>
+                                            ))
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </main>
+
+                <aside className="space-y-5 xl:sticky xl:top-5 xl:self-start">
+                    <Card className="overflow-hidden">
+                        <div className="bg-slate-950 px-5 py-4 text-white">
+                            <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-300">{t('ecommerce_detail_store_order_amount')}</p>
+                            <p className="mt-1 text-3xl font-semibold tracking-tight">{formatCurrency(storeOrderAmount)}</p>
+                            <p className="mt-2 text-xs leading-5 text-slate-300">{t('ecommerce_detail_store_order_amount_desc')}</p>
+                        </div>
+                        <div className="divide-y divide-slate-100">
+                            <CompactInfoRow label={t('ecommerce_detail_store_shop')} value={getStoreLabel(stores)} />
+                            <CompactInfoRow label={t('ecommerce_detail_source')} value={getEcommerceSourceLabel(order?.source || parentOrder?.source)} />
+                            <CompactInfoRow label={t('ecommerce_store_items_subtotal')} value={formatCurrency(storeItemsSubtotal)} />
+                            <CompactInfoRow label={t('ecommerce_detail_shipping')} value={formatCurrency(storeShippingFee)} />
+                            <CompactInfoRow label={t('ecommerce_detail_payment')} value={getEcommercePaymentMethodLabel(paymentMethod)} />
+                            <CompactInfoRow label={t('lbl_created')} value={order.created_at} />
+                        </div>
+                    </Card>
+
+                    <Card>
+                        <CardHeader className="p-5">
+                            <SectionTitle icon={User} title={t('lbl_customer')} />
+                        </CardHeader>
+                        <div className="divide-y divide-slate-100 border-t border-slate-100">
+                            <CompactInfoRow label={t('lbl_name')} value={customer?.name} />
+                            <CompactInfoRow
+                                label={t('lbl_phone')}
+                                value={
+                                    customerPhone ? (
+                                        <span className="inline-flex items-center justify-end gap-1.5">
+                                            <Phone className="h-3.5 w-3.5 text-slate-400" />
+                                            {customerPhone}
+                                        </span>
+                                    ) : (
+                                        ''
+                                    )
+                                }
+                            />
+                            <CompactInfoRow
+                                label={t('lbl_email')}
+                                value={
+                                    customer?.email ? (
+                                        <span className="inline-flex items-center justify-end gap-1.5">
+                                            <Mail className="h-3.5 w-3.5 text-slate-400" />
+                                            {customer.email}
+                                        </span>
+                                    ) : (
+                                        ''
+                                    )
+                                }
+                            />
+                        </div>
+                    </Card>
+
+                    <Card>
+                        <CardHeader className="p-5">
+                            <SectionTitle icon={MapPin} title={t('ecommerce_detail_shipping')} />
+                        </CardHeader>
+                        <div className="divide-y divide-slate-100 border-t border-slate-100">
+                            <CompactInfoRow label={t('ecommerce_detail_recipient')} value={shipping?.name || customer?.name} />
+                            <CompactInfoRow label={t('ecommerce_detail_address')} value={shippingAddress} />
+                            {(shipping?.label || shipping?.type) && (
+                                <div className="flex items-center justify-between gap-4 px-5 py-3">
+                                    <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{t('lbl_type')}</span>
+                                    <div className="flex flex-wrap justify-end gap-2">
+                                        {shipping?.label && <Badge variant="secondary">{shipping.label}</Badge>}
+                                        {shipping?.type && <Badge variant="outline">{shipping.type}</Badge>}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </Card>
+
+                    {hasTimeline && (
+                        <Card>
+                            <CardHeader className="p-5">
+                                <SectionTitle icon={CalendarClock} title={t('ecommerce_detail_stock_timeline')} />
+                            </CardHeader>
+                            <CardContent className="space-y-4 border-t border-slate-100 p-5">
+                                {ECOMMERCE_ORDER_TIMESTAMPS.map(({ key }) => (
+                                    <InfoLine key={key} label={t(`ecommerce_detail_timeline_${key}`)} value={order?.[key]} />
+                                ))}
+                            </CardContent>
+                        </Card>
+                    )}
+
+                    {order.notes && (
+                        <Card className="border-amber-200 bg-amber-50">
+                            <CardContent className="flex gap-3 p-5">
+                                <FileText className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-700" />
+                                <div>
+                                    <p className="text-[11px] font-semibold uppercase tracking-wider text-amber-800">{t('ecommerce_detail_customer_note')}</p>
+                                    <p className="mt-1 text-sm leading-6 text-amber-950">{order.notes}</p>
                                 </div>
                             </CardContent>
                         </Card>
-                    </main>
-
-                    <aside className="space-y-5 xl:sticky xl:top-5 xl:self-start">
-                        <Card className="overflow-hidden">
-                            <div className="bg-slate-950 px-5 py-4 text-white">
-                                <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-300">{t('ecommerce_detail_store_order_amount')}</p>
-                                <p className="mt-1 text-3xl font-semibold tracking-tight">{formatCurrency(storeOrderAmount)}</p>
-                                <p className="mt-2 text-xs leading-5 text-slate-300">{t('ecommerce_detail_store_order_amount_desc')}</p>
-                            </div>
-                            <div className="divide-y divide-slate-100">
-                                <CompactInfoRow label={t('ecommerce_detail_store_shop')} value={getStoreLabel(stores)} />
-                                <CompactInfoRow label={t('ecommerce_detail_source')} value={getEcommerceSourceLabel(order?.source || parentOrder?.source)} />
-                                <CompactInfoRow label={t('ecommerce_store_items_subtotal')} value={formatCurrency(storeItemsSubtotal)} />
-                                <CompactInfoRow label={t('ecommerce_detail_shipping')} value={formatCurrency(storeShippingFee)} />
-                                <CompactInfoRow label={t('ecommerce_detail_payment')} value={getEcommercePaymentMethodLabel(paymentMethod)} />
-                                <CompactInfoRow label={t('lbl_created')} value={order.created_at} />
-                            </div>
-                        </Card>
-
-                        <Card>
-                            <CardHeader className="p-5">
-                                <SectionTitle icon={User} title={t('lbl_customer')} />
-                            </CardHeader>
-                            <div className="divide-y divide-slate-100 border-t border-slate-100">
-                                <CompactInfoRow label={t('lbl_name')} value={customer?.name} />
-                                <CompactInfoRow
-                                    label={t('lbl_phone')}
-                                    value={
-                                        customerPhone ? (
-                                            <span className="inline-flex items-center justify-end gap-1.5">
-                                                <Phone className="h-3.5 w-3.5 text-slate-400" />
-                                                {customerPhone}
-                                            </span>
-                                        ) : (
-                                            ''
-                                        )
-                                    }
-                                />
-                                <CompactInfoRow
-                                    label={t('lbl_email')}
-                                    value={
-                                        customer?.email ? (
-                                            <span className="inline-flex items-center justify-end gap-1.5">
-                                                <Mail className="h-3.5 w-3.5 text-slate-400" />
-                                                {customer.email}
-                                            </span>
-                                        ) : (
-                                            ''
-                                        )
-                                    }
-                                />
-                            </div>
-                        </Card>
-
-                        <Card>
-                            <CardHeader className="p-5">
-                                <SectionTitle icon={MapPin} title={t('ecommerce_detail_shipping')} />
-                            </CardHeader>
-                            <div className="divide-y divide-slate-100 border-t border-slate-100">
-                                <CompactInfoRow label={t('ecommerce_detail_recipient')} value={shipping?.name || customer?.name} />
-                                <CompactInfoRow label={t('ecommerce_detail_address')} value={shippingAddress} />
-                                {(shipping?.label || shipping?.type) && (
-                                    <div className="flex items-center justify-between gap-4 px-5 py-3">
-                                        <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{t('lbl_type')}</span>
-                                        <div className="flex flex-wrap justify-end gap-2">
-                                            {shipping?.label && <Badge variant="secondary">{shipping.label}</Badge>}
-                                            {shipping?.type && <Badge variant="outline">{shipping.type}</Badge>}
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </Card>
-
-                        {hasTimeline && (
-                            <Card>
-                                <CardHeader className="p-5">
-                                    <SectionTitle icon={CalendarClock} title={t('ecommerce_detail_stock_timeline')} />
-                                </CardHeader>
-                                <CardContent className="space-y-4 border-t border-slate-100 p-5">
-                                    {ECOMMERCE_ORDER_TIMESTAMPS.map(({ key }) => (
-                                        <InfoLine key={key} label={t(`ecommerce_detail_timeline_${key}`)} value={order?.[key]} />
-                                    ))}
-                                </CardContent>
-                            </Card>
-                        )}
-
-                        {order.notes && (
-                            <Card className="border-amber-200 bg-amber-50">
-                                <CardContent className="flex gap-3 p-5">
-                                    <FileText className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-700" />
-                                    <div>
-                                        <p className="text-[11px] font-semibold uppercase tracking-wider text-amber-800">{t('ecommerce_detail_customer_note')}</p>
-                                        <p className="mt-1 text-sm leading-6 text-amber-950">{order.notes}</p>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        )}
-                    </aside>
+                    )}
+                </aside>
             </div>
 
             {isCourierConfirmOpen && (

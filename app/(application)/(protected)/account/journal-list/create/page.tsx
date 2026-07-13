@@ -15,10 +15,7 @@ const CreateJournalPage = () => {
     const { currentStore, currentStoreId } = useCurrentStore();
     const [createJournal, { isLoading }] = useCreateJournalMutation();
 
-    const { data: ledgersResponse } = useGetLedgersQuery(
-        { store_id: currentStoreId, per_page: 100 },
-        { skip: !currentStoreId }
-    );
+    const { data: ledgersResponse } = useGetLedgersQuery({ store_id: currentStoreId, per_page: 100 }, { skip: !currentStoreId });
     const ledgers = ledgersResponse?.data?.items || [];
 
     const [formData, setFormData] = useState({ ledger_id: '', debit: '', credit: '', notes: '' });
@@ -38,7 +35,10 @@ const CreateJournalPage = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!validateForm()) return;
-        if (!currentStoreId) { showErrorDialog(t('msg_error'), t('msg_select_store_first')); return; }
+        if (!currentStoreId) {
+            showErrorDialog(t('msg_error'), t('msg_select_store_first'));
+            return;
+        }
 
         try {
             await createJournal({
@@ -56,13 +56,13 @@ const CreateJournalPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[#f4f9fc] via-white to-[#fff7ed] p-2 sm:p-4 md:p-6">
+        <div className="min-h-screen bg-[#f6f8fb] p-2 sm:p-4 md:p-6">
             <div className="mx-auto">
                 {/* Header */}
-                <div className="mb-4 rounded-xl bg-white p-4 shadow-sm transition-shadow duration-300 hover:shadow-sm sm:mb-6 sm:rounded-2xl sm:p-6 md:mb-8">
+                <div className="mb-4 rounded-lg bg-white p-4 shadow-sm transition-shadow duration-300  sm:mb-6 sm:rounded-lg sm:p-6 md:mb-8">
                     <div className="mb-4 flex flex-col items-start justify-between gap-4 sm:mb-6 sm:flex-row sm:items-center">
                         <div className="flex items-center space-x-3 sm:space-x-4">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-[#046ca9] to-[#034d79] shadow-md sm:h-12 sm:w-12 sm:rounded-xl">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#046ca9] shadow-md sm:h-12 sm:w-12 sm:rounded-lg">
                                 <BookOpen className="h-5 w-5 text-white sm:h-6 sm:w-6" />
                             </div>
                             <div>
@@ -73,7 +73,7 @@ const CreateJournalPage = () => {
                         <button
                             type="button"
                             onClick={() => router.push('/account/journal-list')}
-                            className="flex w-full items-center justify-center space-x-2 rounded-lg bg-gray-100 px-3 py-2 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-200 sm:w-auto sm:justify-start sm:rounded-xl sm:px-4 sm:text-sm"
+                            className="flex w-full items-center justify-center space-x-2 rounded-lg bg-gray-100 px-3 py-2 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-200 sm:w-auto sm:justify-start sm:rounded-lg sm:px-4 sm:text-sm"
                         >
                             <ArrowLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                             <span>{t('btn_back')}</span>
@@ -85,7 +85,9 @@ const CreateJournalPage = () => {
                                 <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#046ca9]/10 sm:h-8 sm:w-8">
                                     <Store className="h-3.5 w-3.5 text-[#046ca9] sm:h-4 sm:w-4" />
                                 </div>
-                                <p className="text-xs font-medium text-[#034d79] sm:text-sm">{t('lbl_current_store')}: {currentStore.store_name}</p>
+                                <p className="text-xs font-medium text-[#034d79] sm:text-sm">
+                                    {t('lbl_current_store')}: {currentStore.store_name}
+                                </p>
                             </div>
                         </div>
                     )}
@@ -93,7 +95,7 @@ const CreateJournalPage = () => {
 
                 {/* Form Card */}
                 <form onSubmit={handleSubmit}>
-                    <div className="overflow-hidden rounded-xl bg-white shadow-xl sm:rounded-2xl">
+                    <div className="overflow-hidden rounded-lg bg-white shadow-sm sm:rounded-lg">
                         <div className="p-4 sm:p-6 md:p-8">
                             <h2 className="mb-4 text-lg font-semibold text-gray-900 sm:mb-6 sm:text-xl">{t('lbl_journal_information')}</h2>
 
@@ -105,12 +107,19 @@ const CreateJournalPage = () => {
                                     </label>
                                     <select
                                         value={formData.ledger_id}
-                                        onChange={(e) => { setFormData({ ...formData, ledger_id: e.target.value }); if (errors.ledger_id) setErrors({ ...errors, ledger_id: '' }); }}
-                                        className={`w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${errors.ledger_id ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-[#046ca9] focus:ring-[#046ca9]'}`}
+                                        onChange={(e) => {
+                                            setFormData({ ...formData, ledger_id: e.target.value });
+                                            if (errors.ledger_id) setErrors({ ...errors, ledger_id: '' });
+                                        }}
+                                        className={`w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${
+                                            errors.ledger_id ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-[#046ca9] focus:ring-[#046ca9]'
+                                        }`}
                                     >
                                         <option value="">{t('placeholder_select_ledger')}</option>
                                         {ledgers.map((ledger: any) => (
-                                            <option key={ledger.id} value={ledger.id}>{ledger.title}</option>
+                                            <option key={ledger.id} value={ledger.id}>
+                                                {ledger.title}
+                                            </option>
                                         ))}
                                     </select>
                                     {errors.ledger_id && <p className="mt-1 text-xs text-red-500">{errors.ledger_id}</p>}
@@ -122,7 +131,10 @@ const CreateJournalPage = () => {
                                     <input
                                         type="number"
                                         value={formData.debit}
-                                        onChange={(e) => { setFormData({ ...formData, debit: e.target.value }); if (errors.amount) setErrors({ ...errors, amount: '' }); }}
+                                        onChange={(e) => {
+                                            setFormData({ ...formData, debit: e.target.value });
+                                            if (errors.amount) setErrors({ ...errors, amount: '' });
+                                        }}
                                         placeholder="0.00"
                                         min="0"
                                         step="0.01"
@@ -136,7 +148,10 @@ const CreateJournalPage = () => {
                                     <input
                                         type="number"
                                         value={formData.credit}
-                                        onChange={(e) => { setFormData({ ...formData, credit: e.target.value }); if (errors.amount) setErrors({ ...errors, amount: '' }); }}
+                                        onChange={(e) => {
+                                            setFormData({ ...formData, credit: e.target.value });
+                                            if (errors.amount) setErrors({ ...errors, amount: '' });
+                                        }}
                                         placeholder="0.00"
                                         min="0"
                                         step="0.01"
@@ -166,14 +181,14 @@ const CreateJournalPage = () => {
                                     type="button"
                                     onClick={() => router.push('/account/journal-list')}
                                     disabled={isLoading}
-                                    className="w-full rounded-xl border border-gray-300 bg-white px-6 py-3 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+                                    className="w-full rounded-lg border border-gray-300 bg-white px-6 py-3 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                                 >
                                     {t('btn_cancel')}
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={isLoading}
-                                    className="group relative inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-[#046ca9] to-[#034d79] px-6 py-3 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-[#046ca9] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+                                    className="group relative inline-flex w-full items-center justify-center rounded-lg bg-[#046ca9] px-6 py-3 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:bg-[#034d79]  focus:outline-none focus:ring-2 focus:ring-[#046ca9] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                                 >
                                     {isLoading ? (
                                         <>

@@ -44,14 +44,8 @@ const emptyForm = {
 export default function ScheduledReportsPage() {
     const { t } = getTranslation();
     const { currentStoreId } = useCurrentStore();
-    const { data, isLoading, refetch } = useGetScheduledReportsQuery(
-        { store_id: currentStoreId },
-        { skip: !currentStoreId }
-    );
-    const { data: reportsData } = useGetCustomReportsQuery(
-        { store_id: currentStoreId },
-        { skip: !currentStoreId }
-    );
+    const { data, isLoading, refetch } = useGetScheduledReportsQuery({ store_id: currentStoreId }, { skip: !currentStoreId });
+    const { data: reportsData } = useGetCustomReportsQuery({ store_id: currentStoreId }, { skip: !currentStoreId });
     const [createItem] = useCreateScheduledReportMutation();
     const [updateItem] = useUpdateScheduledReportMutation();
     const [deleteItem] = useDeleteScheduledReportMutation();
@@ -143,31 +137,49 @@ export default function ScheduledReportsPage() {
             {isLoading ? (
                 <p className="text-sm text-gray-500">{t('lbl_loading')}</p>
             ) : items.length === 0 ? (
-                <div className="rounded-xl border border-gray-200 bg-white p-8 text-center">
+                <div className="rounded-lg border border-gray-200 bg-white p-8 text-center">
                     <CalendarClock className="mx-auto h-12 w-12 text-gray-300" />
                     <p className="mt-3 text-sm text-gray-500">{t('msg_no_scheduled_reports')}</p>
-                    <button onClick={openCreate} className="btn btn-outline-primary mt-4">{t('lbl_add_scheduled_report')}</button>
+                    <button onClick={openCreate} className="btn btn-outline-primary mt-4">
+                        {t('lbl_add_scheduled_report')}
+                    </button>
                 </div>
             ) : (
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                     {items.map((item: any) => (
-                        <div key={item.id} className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+                        <div key={item.id} className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
                             <div className="flex items-start justify-between">
                                 <div>
                                     <p className="font-bold text-gray-900">{item.name}</p>
-                                    <p className="text-xs capitalize text-gray-500">{item.frequency} · {item.time}</p>
+                                    <p className="text-xs capitalize text-gray-500">
+                                        {item.frequency} · {item.time}
+                                    </p>
                                 </div>
                                 <div className="flex gap-1">
-                                    <button onClick={() => openEdit(item)} className="rounded p-1.5 text-gray-500 hover:bg-gray-100"><Pencil className="h-4 w-4" /></button>
-                                    <button onClick={() => runNow(item.id).then(() => alert(t('msg_queued')))} className="rounded p-1.5 text-success hover:bg-green-50"><Play className="h-4 w-4" /></button>
-                                    <button onClick={() => handleDelete(item.id)} className="rounded p-1.5 text-danger hover:bg-red-50"><Trash2 className="h-4 w-4" /></button>
+                                    <button onClick={() => openEdit(item)} className="rounded p-1.5 text-gray-500 hover:bg-gray-100">
+                                        <Pencil className="h-4 w-4" />
+                                    </button>
+                                    <button onClick={() => runNow(item.id).then(() => alert(t('msg_queued')))} className="rounded p-1.5 text-success hover:bg-green-50">
+                                        <Play className="h-4 w-4" />
+                                    </button>
+                                    <button onClick={() => handleDelete(item.id)} className="rounded p-1.5 text-danger hover:bg-red-50">
+                                        <Trash2 className="h-4 w-4" />
+                                    </button>
                                 </div>
                             </div>
                             <div className="mt-3 space-y-1 text-sm text-gray-600">
-                                <p>{t('lbl_report')}: {item.custom_report?.name || '-'}</p>
-                                <p className="flex items-center gap-1"><Mail className="h-3 w-3" /> {(item.recipients || []).join(', ')}</p>
-                                <p>{t('lbl_format')}: {item.format}</p>
-                                <p>{t('lbl_next_run')}: {item.next_run_at ? new Date(item.next_run_at).toLocaleString() : '-'}</p>
+                                <p>
+                                    {t('lbl_report')}: {item.custom_report?.name || '-'}
+                                </p>
+                                <p className="flex items-center gap-1">
+                                    <Mail className="h-3 w-3" /> {(item.recipients || []).join(', ')}
+                                </p>
+                                <p>
+                                    {t('lbl_format')}: {item.format}
+                                </p>
+                                <p>
+                                    {t('lbl_next_run')}: {item.next_run_at ? new Date(item.next_run_at).toLocaleString() : '-'}
+                                </p>
                             </div>
                         </div>
                     ))}
@@ -176,7 +188,7 @@ export default function ScheduledReportsPage() {
 
             {modalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                    <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl bg-white p-6 shadow-xl">
+                    <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg bg-white p-6 shadow-sm">
                         <h3 className="mb-4 text-lg font-bold text-gray-900">{editingId ? t('lbl_edit_scheduled_report') : t('lbl_add_scheduled_report')}</h3>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
@@ -187,14 +199,22 @@ export default function ScheduledReportsPage() {
                                 <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_custom_report')}</label>
                                 <select value={form.custom_report_id} onChange={(e) => setForm({ ...form, custom_report_id: e.target.value })} className="form-select w-full">
                                     <option value="">{t('lbl_select_report')}</option>
-                                    {customReports.map((r: any) => <option key={r.id} value={r.id}>{r.name}</option>)}
+                                    {customReports.map((r: any) => (
+                                        <option key={r.id} value={r.id}>
+                                            {r.name}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
                             <div className="grid gap-4 sm:grid-cols-2">
                                 <div>
                                     <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_frequency')}</label>
                                     <select value={form.frequency} onChange={(e) => setForm({ ...form, frequency: e.target.value })} className="form-select w-full">
-                                        {FREQUENCIES.map((f) => <option key={f.value} value={f.value}>{f.label}</option>)}
+                                        {FREQUENCIES.map((f) => (
+                                            <option key={f.value} value={f.value}>
+                                                {f.label}
+                                            </option>
+                                        ))}
                                     </select>
                                 </div>
                                 <div>
@@ -206,14 +226,25 @@ export default function ScheduledReportsPage() {
                                 <div>
                                     <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_day_of_week')}</label>
                                     <select value={form.day_of_week} onChange={(e) => setForm({ ...form, day_of_week: Number(e.target.value) })} className="form-select w-full">
-                                        {WEEKDAYS.map((d) => <option key={d.value} value={d.value}>{d.label}</option>)}
+                                        {WEEKDAYS.map((d) => (
+                                            <option key={d.value} value={d.value}>
+                                                {d.label}
+                                            </option>
+                                        ))}
                                     </select>
                                 </div>
                             )}
                             {form.frequency === 'monthly' && (
                                 <div>
                                     <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_day_of_month')}</label>
-                                    <input type="number" min={1} max={31} value={form.day_of_month} onChange={(e) => setForm({ ...form, day_of_month: Number(e.target.value) })} className="form-input w-full" />
+                                    <input
+                                        type="number"
+                                        min={1}
+                                        max={31}
+                                        value={form.day_of_month}
+                                        onChange={(e) => setForm({ ...form, day_of_month: Number(e.target.value) })}
+                                        className="form-input w-full"
+                                    />
                                 </div>
                             )}
                             <div>
@@ -222,11 +253,17 @@ export default function ScheduledReportsPage() {
                                     {form.recipients.map((email: string, idx: number) => (
                                         <div key={idx} className="flex gap-2">
                                             <input type="email" value={email} onChange={(e) => updateRecipient(idx, e.target.value)} className="form-input flex-1" />
-                                            {form.recipients.length > 1 && <button type="button" onClick={() => removeRecipient(idx)} className="btn btn-outline-danger text-sm">{t('lbl_remove')}</button>}
+                                            {form.recipients.length > 1 && (
+                                                <button type="button" onClick={() => removeRecipient(idx)} className="btn btn-outline-danger text-sm">
+                                                    {t('lbl_remove')}
+                                                </button>
+                                            )}
                                         </div>
                                     ))}
                                 </div>
-                                <button type="button" onClick={addRecipient} className="btn btn-outline-secondary mt-2 text-sm">{t('lbl_add_recipient')}</button>
+                                <button type="button" onClick={addRecipient} className="btn btn-outline-secondary mt-2 text-sm">
+                                    {t('lbl_add_recipient')}
+                                </button>
                             </div>
                             <div>
                                 <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_format')}</label>
@@ -240,8 +277,12 @@ export default function ScheduledReportsPage() {
                                 <label className="text-sm">{t('lbl_active')}</label>
                             </div>
                             <div className="flex justify-end gap-2">
-                                <button type="button" onClick={() => setModalOpen(false)} className="btn btn-outline-secondary">{t('lbl_cancel')}</button>
-                                <button type="submit" className="btn btn-primary">{editingId ? t('lbl_update') : t('lbl_save')}</button>
+                                <button type="button" onClick={() => setModalOpen(false)} className="btn btn-outline-secondary">
+                                    {t('lbl_cancel')}
+                                </button>
+                                <button type="submit" className="btn btn-primary">
+                                    {editingId ? t('lbl_update') : t('lbl_save')}
+                                </button>
                             </div>
                         </form>
                     </div>

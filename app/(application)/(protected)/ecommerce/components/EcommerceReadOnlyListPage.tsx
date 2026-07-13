@@ -140,7 +140,7 @@ const EcommerceReadOnlyListPage = ({ kind }: { kind: ReadOnlyKind }) => {
         <div className="space-y-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#046ca9] to-[#034d79] text-white shadow-sm">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#046ca9] text-white shadow-sm">
                         {isCarts ? <ShoppingCart className="h-5 w-5" /> : <Heart className="h-5 w-5" />}
                     </div>
                     <div>
@@ -150,7 +150,7 @@ const EcommerceReadOnlyListPage = ({ kind }: { kind: ReadOnlyKind }) => {
                 </div>
             </div>
 
-            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+            <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
                 <EcommerceSimpleFilter onFilterChange={handleFilterChange} placeholder={t(isCarts ? 'ecommerce_carts_search_placeholder' : 'ecommerce_wishlists_search_placeholder')} />
             </div>
 
@@ -158,7 +158,7 @@ const EcommerceReadOnlyListPage = ({ kind }: { kind: ReadOnlyKind }) => {
                 <EcommerceServiceRequest store={gate.store} requestedStatus="enable" />
             ) : (
                 <>
-                    {activeQuery.error && <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{formatApiError(activeQuery.error)}</div>}
+                    {activeQuery.error && <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">{formatApiError(activeQuery.error)}</div>}
                     <ReusableTable
                         data={records}
                         columns={columns}

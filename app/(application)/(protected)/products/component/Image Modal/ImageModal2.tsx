@@ -69,9 +69,9 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                             leaveFrom="opacity-100 scale-100"
                             leaveTo="opacity-0 scale-95"
                         >
-                            <Dialog.Panel className="relative w-full max-w-5xl overflow-hidden rounded-xl bg-white shadow-2xl sm:rounded-2xl">
+                            <Dialog.Panel className="relative w-full max-w-5xl overflow-hidden rounded-lg bg-white shadow-lg sm:rounded-lg">
                                 {/* Header */}
-                                <div className="flex items-center justify-between border-b border-primary/15 bg-gradient-to-br from-primary/10 via-primary/5 to-white px-4 py-3 sm:px-6 sm:py-4">
+                                <div className="flex items-center justify-between border-b border-primary/15 bg-[#eef7fc] px-4 py-3 sm:px-6 sm:py-4">
                                     <div className="flex min-w-0 flex-1 items-center gap-2">
                                         <Package className="h-4 w-4 flex-shrink-0 text-primary sm:h-5 sm:w-5" />
                                         <span className="truncate text-sm font-bold text-gray-900 sm:text-base">{product.product_name}</span>
@@ -129,13 +129,7 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                                                         return (
                                                             <SwiperSlide key={index} className="flex h-full items-center justify-center">
                                                                 <div className="relative h-full w-full">
-                                                                    <Image
-                                                                        src={imageSrc}
-                                                                        alt={product.product_name}
-                                                                        fill
-                                                                        unoptimized
-                                                                        className="object-contain p-4"
-                                                                    />
+                                                                    <Image src={imageSrc} alt={product.product_name} fill unoptimized className="object-contain p-4" />
                                                                 </div>
                                                             </SwiperSlide>
                                                         );
@@ -172,7 +166,7 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                                         </div>
 
                                         {/* Pricing Section */}
-                                        <div className="rounded-xl border border-primary/15 bg-gradient-to-br from-primary/8 to-primary/3 p-4">
+                                        <div className="rounded-lg border border-primary/15 bg-[#eef7fc] p-4">
                                             {hasVariants ? (
                                                 <div className="space-y-3">
                                                     <p className="text-[11px] font-semibold uppercase tracking-wider text-primary/70">{product.stocks.length} Variants Available</p>
@@ -261,9 +255,7 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                                                               <div key={name} className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-3 py-1.5">
                                                                   <Tag className="h-3.5 w-3.5 text-gray-500" />
                                                                   <span className="text-xs font-medium capitalize text-gray-600">{name}:</span>
-                                                                  <span className="text-xs font-semibold capitalize text-gray-900">
-                                                                      {Array.isArray(values) ? values.join(', ') : values}
-                                                                  </span>
+                                                                  <span className="text-xs font-semibold capitalize text-gray-900">{Array.isArray(values) ? values.join(', ') : values}</span>
                                                               </div>
                                                           ))}
                                                 </div>
@@ -338,8 +330,8 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                                             </div>
                                             {product.has_serial && product.available_serial_count !== undefined && (
                                                 <div className="flex items-center gap-2">
-                                                    <Tag className="h-4 w-4 text-indigo-500" />
-                                                    <span className="text-xs font-medium text-indigo-600">{product.available_serial_count} serial(s) available</span>
+                                                    <Tag className="h-4 w-4 text-[#046ca9]" />
+                                                    <span className="text-xs font-medium text-[#046ca9]">{product.available_serial_count} serial(s) available</span>
                                                 </div>
                                             )}
                                         </div>

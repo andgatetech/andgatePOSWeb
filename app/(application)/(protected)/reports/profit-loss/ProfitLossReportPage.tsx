@@ -5,21 +5,7 @@ import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetProfitLossReportMutation } from '@/store/features/reports/reportApi';
-import {
-    ArrowDown,
-    ArrowUp,
-    Banknote,
-    CalendarDays,
-    ChevronDown,
-    CircleDollarSign,
-    Minus,
-    Package,
-    Percent,
-    Receipt,
-    ShoppingCart,
-    TrendingUp,
-    Wallet,
-} from 'lucide-react';
+import { ArrowDown, ArrowUp, Banknote, CalendarDays, ChevronDown, CircleDollarSign, Minus, Package, Percent, Receipt, ShoppingCart, TrendingUp, Wallet } from 'lucide-react';
 import UniversalCookie from 'universal-cookie';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import CountUp from 'react-countup';
@@ -99,7 +85,7 @@ const PeriodFilter = ({
                 <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${open ? 'rotate-180' : ''}`} />
             </button>
             {open && (
-                <div className="absolute right-0 z-50 mt-2 w-72 rounded-xl border border-gray-200 bg-white p-2 shadow-xl">
+                <div className="absolute right-0 z-50 mt-2 w-72 rounded-lg border border-gray-200 bg-white p-2 shadow-sm">
                     <div className="space-y-0.5">
                         {periodOptions.map((opt) => (
                             <button
@@ -121,14 +107,27 @@ const PeriodFilter = ({
                         <div className="mt-2 space-y-2 border-t border-gray-100 px-1 pt-3">
                             <div>
                                 <label className="mb-1 block text-xs font-medium text-gray-500">{t('lbl_start')}</label>
-                                <input type="date" value={customStart} onChange={(e) => onStartChange(e.target.value)} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400" />
+                                <input
+                                    type="date"
+                                    value={customStart}
+                                    onChange={(e) => onStartChange(e.target.value)}
+                                    className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                                />
                             </div>
                             <div>
                                 <label className="mb-1 block text-xs font-medium text-gray-500">{t('lbl_end')}</label>
-                                <input type="date" value={customEnd} onChange={(e) => onEndChange(e.target.value)} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400" />
+                                <input
+                                    type="date"
+                                    value={customEnd}
+                                    onChange={(e) => onEndChange(e.target.value)}
+                                    className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                                />
                             </div>
                             <button
-                                onClick={() => { onApply(); setOpen(false); }}
+                                onClick={() => {
+                                    onApply();
+                                    setOpen(false);
+                                }}
                                 disabled={!customStart || !customEnd}
                                 className="mt-1 w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
                             >
@@ -163,7 +162,7 @@ const SummaryCard = ({
     symbol: string;
     valueColor: string;
 }) => (
-    <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md">
+    <div className="rounded-lg border border-gray-100 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md">
         <div className="flex items-center gap-3">
             <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg ${iconBg}`}>
                 <Icon className={`h-5 w-5 ${iconColor}`} />
@@ -207,16 +206,12 @@ const CalcStep = ({
     <>
         {operation && (
             <div className="flex justify-center py-1">
-                <div
-                    className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${
-                        operation === '-' ? 'bg-red-100 text-red-500' : 'bg-emerald-100 text-emerald-600'
-                    }`}
-                >
+                <div className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${operation === '-' ? 'bg-red-100 text-red-500' : 'bg-emerald-100 text-emerald-600'}`}>
                     {operation === '-' ? <Minus className="h-3 w-3" /> : '='}
                 </div>
             </div>
         )}
-        <div className="flex items-center gap-3 rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+        <div className="flex items-center gap-3 rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
             <div className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg ${iconBg}`}>
                 <Icon className={`h-4 w-4 ${iconColor}`} />
             </div>
@@ -311,10 +306,13 @@ const ProfitLossReportPage = () => {
     const isProfit = Number(businessProfit.amount) >= 0;
 
     // Export helpers
-    const exportColumns: ExportColumn[] = useMemo(() => [
-        { key: 'item', label: t('lbl_item'), width: 30 },
-        { key: 'amount', label: t('lbl_amount'), width: 20 },
-    ], [t]);
+    const exportColumns: ExportColumn[] = useMemo(
+        () => [
+            { key: 'item', label: t('lbl_item'), width: 30 },
+            { key: 'amount', label: t('lbl_amount'), width: 20 },
+        ],
+        [t]
+    );
 
     const filterSummary = useMemo(() => {
         const storeName = currentStore?.store_name || t('lbl_all_stores');
@@ -327,11 +325,14 @@ const ProfitLossReportPage = () => {
         return { dateRange: { startDate, endDate, type: mappedType }, storeName, customFilters: [] };
     }, [currentStore, periodInfo, period, t]);
 
-    const exportSummary = useMemo(() => [
-        { label: 'lbl_you_earned', value: formatCurrency(summary.you_earned) },
-        { label: 'lbl_you_keep', value: formatCurrency(summary.you_keep) },
-        { label: 'lbl_margin', value: `${formatNumber(businessProfit.margin || 0)}%` },
-    ], [summary, businessProfit, formatCurrency, formatNumber]);
+    const exportSummary = useMemo(
+        () => [
+            { label: 'lbl_you_earned', value: formatCurrency(summary.you_earned) },
+            { label: 'lbl_you_keep', value: formatCurrency(summary.you_keep) },
+            { label: 'lbl_margin', value: `${formatNumber(businessProfit.margin || 0)}%` },
+        ],
+        [summary, businessProfit, formatCurrency, formatNumber]
+    );
 
     const fetchAllDataForExport = useCallback(async (): Promise<any[]> => {
         const exportParams: Record<string, any> = { ...bodyParams, export: true };
@@ -355,7 +356,7 @@ const ProfitLossReportPage = () => {
     }, [bodyParams, formatCurrency, formatNumber, getProfitLossReportForExport, t]);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="min-h-screen bg-[#f6f8fb]">
             <div className="mx-auto">
                 <ReportExportToolbar
                     reportTitle={t('report_profit_loss_title')}
@@ -401,21 +402,21 @@ const ProfitLossReportPage = () => {
                         </div>
                     </div>
                 ) : isError ? (
-                    <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center">
+                    <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center">
                         <p className="text-sm text-red-600">{t('msg_failed_load_report_try_again')}</p>
                     </div>
                 ) : (
                     <div className="space-y-5">
                         {/* ━━━ HERO: Bottom Line ━━━ */}
                         <div
-                            className={`overflow-hidden rounded-2xl border-2 shadow-lg ${
+                            className={`overflow-hidden rounded-lg border-2 shadow-lg ${
                                 isProfit ? 'border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-green-50' : 'border-red-200 bg-gradient-to-br from-red-50 via-white to-rose-50'
                             }`}
                         >
                             <div className="p-6 sm:p-8">
                                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                                     <div className="flex items-center gap-4">
-                                        <div className={`rounded-2xl p-3 ${isProfit ? 'bg-emerald-100' : 'bg-red-100'}`}>
+                                        <div className={`rounded-lg p-3 ${isProfit ? 'bg-emerald-100' : 'bg-red-100'}`}>
                                             {isProfit ? <ArrowUp className="h-7 w-7 text-emerald-600" /> : <ArrowDown className="h-7 w-7 text-red-600" />}
                                         </div>
                                         <div>
@@ -429,11 +430,11 @@ const ProfitLossReportPage = () => {
                                         </div>
                                     </div>
                                     <div className="flex gap-4 sm:gap-6">
-                                        <div className={`rounded-xl px-4 py-3 ${isProfit ? 'bg-emerald-50' : 'bg-red-50'}`}>
+                                        <div className={`rounded-lg px-4 py-3 ${isProfit ? 'bg-emerald-50' : 'bg-red-50'}`}>
                                             <p className="text-[11px] font-medium text-gray-400">{t('lbl_product_margin')}</p>
                                             <p className={`text-2xl font-bold ${isProfit ? 'text-emerald-700' : 'text-red-700'}`}>{formatNumber(productProfit.margin || 0)}%</p>
                                         </div>
-                                        <div className="rounded-xl bg-gray-50 px-4 py-3">
+                                        <div className="rounded-lg bg-gray-50 px-4 py-3">
                                             <p className="text-[11px] font-medium text-gray-400">{t('lbl_total_orders')}</p>
                                             <p className="text-2xl font-bold text-gray-800">{income.total_orders || 0}</p>
                                         </div>
@@ -487,27 +488,103 @@ const ProfitLossReportPage = () => {
                         </div>
 
                         {/* ━━━ How Profit Is Calculated ━━━ */}
-                        <div className="rounded-2xl border border-gray-200 bg-gray-50/50 p-5 sm:p-6">
+                        <div className="rounded-lg border border-gray-200 bg-gray-50/50 p-5 sm:p-6">
                             <div className="mb-4 flex items-center gap-2">
                                 <Percent className="h-5 w-5 text-gray-400" />
                                 <h3 className="text-sm font-semibold text-gray-700">{t('lbl_how_profit_calculated')}</h3>
                             </div>
 
                             <div className="mx-auto max-w-xl space-y-0">
-                                <CalcStep step={1} icon={ShoppingCart} iconBg="bg-emerald-50" iconColor="text-emerald-600" title={t('lbl_total_sales')} subtitle={t('msg_all_your_sales')} value={income.total_sales || 0} symbol={symbol} valueColor="text-emerald-700" />
-                                <CalcStep step={2} icon={ArrowDown} iconBg="bg-orange-50" iconColor="text-orange-500" title={t('lbl_returns_discounts')} subtitle={t('msg_returned_items_discounts')} value={(income.sales_returns || 0) + (income.total_discount || 0)} symbol={symbol} valueColor="text-orange-600" operation="-" />
-                                <CalcStep step={3} icon={Banknote} iconBg="bg-blue-50" iconColor="text-blue-600" title={t('lbl_net_sales')} subtitle={t('msg_what_you_actually_earned')} value={income.net_sales || 0} symbol={symbol} valueColor="text-blue-700" operation="=" />
-                                <CalcStep step={4} icon={Package} iconBg="bg-orange-50" iconColor="text-orange-600" title={t('lbl_product_cost')} subtitle={t('msg_purchase_price_items_sold').replace('{count}', formatNumber(cost.total_items_sold || 0))} value={cost.cost_of_goods_sold || 0} symbol={symbol} valueColor="text-orange-700" operation="-" />
-                                <CalcStep step={5} icon={TrendingUp} iconBg="bg-violet-50" iconColor="text-violet-600" title={t('lbl_product_profit')} subtitle={t('msg_margin_percent').replace('{percent}', formatNumber(productProfit.margin || 0))} value={productProfit.amount || 0} symbol={symbol} valueColor="text-violet-700" operation="=" />
-                                <CalcStep step={6} icon={Receipt} iconBg="bg-red-50" iconColor="text-red-500" title={t('lbl_expenses')} subtitle={t('msg_expense_examples')} value={expenses.total || 0} symbol={symbol} valueColor="text-red-600" operation="-" />
-                                <CalcStep step={7} icon={isProfit ? TrendingUp : ArrowDown} iconBg={isProfit ? 'bg-emerald-50' : 'bg-red-50'} iconColor={isProfit ? 'text-emerald-600' : 'text-red-500'} title={t('lbl_business_profit')} subtitle={t('msg_this_is_what_you_keep')} value={businessProfit.amount || 0} symbol={symbol} valueColor={isProfit ? 'text-emerald-700' : 'text-red-600'} operation="=" />
+                                <CalcStep
+                                    step={1}
+                                    icon={ShoppingCart}
+                                    iconBg="bg-emerald-50"
+                                    iconColor="text-emerald-600"
+                                    title={t('lbl_total_sales')}
+                                    subtitle={t('msg_all_your_sales')}
+                                    value={income.total_sales || 0}
+                                    symbol={symbol}
+                                    valueColor="text-emerald-700"
+                                />
+                                <CalcStep
+                                    step={2}
+                                    icon={ArrowDown}
+                                    iconBg="bg-orange-50"
+                                    iconColor="text-orange-500"
+                                    title={t('lbl_returns_discounts')}
+                                    subtitle={t('msg_returned_items_discounts')}
+                                    value={(income.sales_returns || 0) + (income.total_discount || 0)}
+                                    symbol={symbol}
+                                    valueColor="text-orange-600"
+                                    operation="-"
+                                />
+                                <CalcStep
+                                    step={3}
+                                    icon={Banknote}
+                                    iconBg="bg-blue-50"
+                                    iconColor="text-blue-600"
+                                    title={t('lbl_net_sales')}
+                                    subtitle={t('msg_what_you_actually_earned')}
+                                    value={income.net_sales || 0}
+                                    symbol={symbol}
+                                    valueColor="text-blue-700"
+                                    operation="="
+                                />
+                                <CalcStep
+                                    step={4}
+                                    icon={Package}
+                                    iconBg="bg-orange-50"
+                                    iconColor="text-orange-600"
+                                    title={t('lbl_product_cost')}
+                                    subtitle={t('msg_purchase_price_items_sold').replace('{count}', formatNumber(cost.total_items_sold || 0))}
+                                    value={cost.cost_of_goods_sold || 0}
+                                    symbol={symbol}
+                                    valueColor="text-orange-700"
+                                    operation="-"
+                                />
+                                <CalcStep
+                                    step={5}
+                                    icon={TrendingUp}
+                                    iconBg="bg-violet-50"
+                                    iconColor="text-violet-600"
+                                    title={t('lbl_product_profit')}
+                                    subtitle={t('msg_margin_percent').replace('{percent}', formatNumber(productProfit.margin || 0))}
+                                    value={productProfit.amount || 0}
+                                    symbol={symbol}
+                                    valueColor="text-violet-700"
+                                    operation="="
+                                />
+                                <CalcStep
+                                    step={6}
+                                    icon={Receipt}
+                                    iconBg="bg-red-50"
+                                    iconColor="text-red-500"
+                                    title={t('lbl_expenses')}
+                                    subtitle={t('msg_expense_examples')}
+                                    value={expenses.total || 0}
+                                    symbol={symbol}
+                                    valueColor="text-red-600"
+                                    operation="-"
+                                />
+                                <CalcStep
+                                    step={7}
+                                    icon={isProfit ? TrendingUp : ArrowDown}
+                                    iconBg={isProfit ? 'bg-emerald-50' : 'bg-red-50'}
+                                    iconColor={isProfit ? 'text-emerald-600' : 'text-red-500'}
+                                    title={t('lbl_business_profit')}
+                                    subtitle={t('msg_this_is_what_you_keep')}
+                                    value={businessProfit.amount || 0}
+                                    symbol={symbol}
+                                    valueColor={isProfit ? 'text-emerald-700' : 'text-red-600'}
+                                    operation="="
+                                />
                             </div>
                         </div>
 
                         {/* ━━━ Detailed Breakdown ━━━ */}
                         <div className="grid gap-4 lg:grid-cols-2">
                             {/* Income Details */}
-                            <div className="rounded-2xl border border-gray-200 bg-white shadow-sm">
+                            <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
                                 <div className="border-b border-gray-100 px-5 py-4">
                                     <div className="flex items-center gap-2">
                                         <CircleDollarSign className="h-5 w-5 text-emerald-600" />
@@ -543,7 +620,7 @@ const ProfitLossReportPage = () => {
                             </div>
 
                             {/* Cost & Expenses */}
-                            <div className="rounded-2xl border border-gray-200 bg-white shadow-sm">
+                            <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
                                 <div className="border-b border-gray-100 px-5 py-4">
                                     <div className="flex items-center gap-2">
                                         <Wallet className="h-5 w-5 text-orange-600" />
@@ -593,15 +670,13 @@ const ProfitLossReportPage = () => {
 
                         {/* ━━━ Final Banner ━━━ */}
                         <div
-                            className={`overflow-hidden rounded-2xl border-2 ${
+                            className={`overflow-hidden rounded-lg border-2 ${
                                 isProfit ? 'border-emerald-200 bg-gradient-to-r from-emerald-600 to-green-600' : 'border-red-200 bg-gradient-to-r from-red-600 to-rose-600'
                             } p-6 text-white shadow-lg`}
                         >
                             <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
                                 <div className="flex items-center gap-3">
-                                    <div className="rounded-xl bg-white/20 p-3">
-                                        {isProfit ? <TrendingUp className="h-6 w-6" /> : <ArrowDown className="h-6 w-6" />}
-                                    </div>
+                                    <div className="rounded-lg bg-white/20 p-3">{isProfit ? <TrendingUp className="h-6 w-6" /> : <ArrowDown className="h-6 w-6" />}</div>
                                     <div>
                                         <p className="text-sm font-medium text-white/80">{isProfit ? t('msg_bottom_line_you_earned') : t('msg_bottom_line_you_lost')}</p>
                                         <p className="text-3xl font-extrabold">

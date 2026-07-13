@@ -77,26 +77,29 @@ const LowStockReportPage = () => {
     }, []);
 
     const toggleSelect = useCallback((id: number) => {
-        setSelectedIds((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
+        setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
     }, []);
 
     const toggleSelectAll = useCallback(() => {
         const allIds = stocks.map((s: any) => s.product_id);
-        setSelectedIds((prev) => prev.length === allIds.length ? [] : allIds);
+        setSelectedIds((prev) => (prev.length === allIds.length ? [] : allIds));
     }, [stocks]);
 
-    const handleQuickReorder = useCallback(async (productId: number) => {
-        if (!currentStoreId) return;
-        setReorderLoading(productId);
-        try {
-            const result = await createReorderDraft({ store_id: currentStoreId, product_ids: [productId] }).unwrap();
-            router.push(result.data.redirect_url);
-        } catch {
-            alert(t('msg_failed_create_reorder_draft'));
-        } finally {
-            setReorderLoading(null);
-        }
-    }, [currentStoreId, createReorderDraft, router, t]);
+    const handleQuickReorder = useCallback(
+        async (productId: number) => {
+            if (!currentStoreId) return;
+            setReorderLoading(productId);
+            try {
+                const result = await createReorderDraft({ store_id: currentStoreId, product_ids: [productId] }).unwrap();
+                router.push(result.data.redirect_url);
+            } catch {
+                alert(t('msg_failed_create_reorder_draft'));
+            } finally {
+                setReorderLoading(null);
+            }
+        },
+        [currentStoreId, createReorderDraft, router, t]
+    );
 
     const handleBatchReorder = useCallback(async () => {
         if (!currentStoreId || selectedIds.length === 0) return;
@@ -200,15 +203,7 @@ const LowStockReportPage = () => {
         () => [
             {
                 key: '_select',
-                label: (
-                    <input
-                        type="checkbox"
-                        checked={allSelected}
-                        onChange={toggleSelectAll}
-                        className="h-4 w-4 cursor-pointer rounded border-gray-300 accent-primary"
-                        title="Select all"
-                    />
-                ),
+                label: <input type="checkbox" checked={allSelected} onChange={toggleSelectAll} className="h-4 w-4 cursor-pointer rounded border-gray-300 accent-primary" title="Select all" />,
                 render: (_: any, r: any) => (
                     <input
                         type="checkbox"
@@ -242,7 +237,10 @@ const LowStockReportPage = () => {
                         {r.supplier?.name && (
                             <div className="mt-1 flex items-center gap-1 text-[10px] text-blue-600">
                                 <Phone className="h-2.5 w-2.5" />
-                                <span>{r.supplier.name}{r.supplier.phone ? ` · ${r.supplier.phone}` : ''}</span>
+                                <span>
+                                    {r.supplier.name}
+                                    {r.supplier.phone ? ` · ${r.supplier.phone}` : ''}
+                                </span>
                             </div>
                         )}
                     </div>
@@ -321,7 +319,7 @@ const LowStockReportPage = () => {
     );
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="min-h-screen bg-[#f6f8fb]">
             <div className="mx-auto">
                 <ReportExportToolbar
                     reportTitle={t('report_low_stock_title')}

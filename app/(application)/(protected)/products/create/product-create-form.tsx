@@ -195,40 +195,28 @@ const ProductCreateForm = () => {
     };
 
     const flowSteps = formData.has_attributes
-        ? [
-              t('flow_step_basic'),
-              t('flow_step_attributes'),
-              t('flow_step_variants'),
-              t('flow_step_optional'),
-              t('flow_step_sku'),
-          ]
-        : [
-              t('flow_step_basic'),
-              t('flow_step_price'),
-              t('flow_step_stock'),
-              t('flow_step_optional'),
-              t('flow_step_sku'),
-          ];
+        ? [t('flow_step_basic'), t('flow_step_attributes'), t('flow_step_variants'), t('flow_step_optional'), t('flow_step_sku')]
+        : [t('flow_step_basic'), t('flow_step_price'), t('flow_step_stock'), t('flow_step_optional'), t('flow_step_sku')];
 
     const activeFlowIndex = formData.has_attributes
         ? activeTab === 'basic'
             ? 0
             : activeTab === 'attributes'
-              ? 1
-              : activeTab === 'variants'
-                ? 2
-                : activeTab === 'sku'
-                  ? 4
-                  : 3
-        : activeTab === 'basic'
-          ? 0
-          : activeTab === 'pricing'
             ? 1
-            : activeTab === 'stock'
-              ? 2
-              : activeTab === 'sku'
-                ? 4
-                : 3;
+            : activeTab === 'variants'
+            ? 2
+            : activeTab === 'sku'
+            ? 4
+            : 3
+        : activeTab === 'basic'
+        ? 0
+        : activeTab === 'pricing'
+        ? 1
+        : activeTab === 'stock'
+        ? 2
+        : activeTab === 'sku'
+        ? 4
+        : 3;
 
     // Show all categories and brands, with search filtering
     // Filter categories based on search term
@@ -297,13 +285,7 @@ const ProductCreateForm = () => {
         }
     };
 
-    const escapeHtml = (value: string) =>
-        value
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
+    const escapeHtml = (value: string) => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
 
     const formatValidationErrors = (errors: any) => {
         if (!errors) {
@@ -693,7 +675,8 @@ const ProductCreateForm = () => {
                 // Look for SKU-related validation keys like 'stocks.0.sku', 'stocks.1.sku', 'sku', etc.
                 const skuErrorKey = Object.keys(errorData).find((key) => key.toLowerCase().includes('sku'));
                 if (skuErrorKey) {
-                    const skuMsg = typeof errorData[skuErrorKey] === 'string' ? errorData[skuErrorKey] : Array.isArray(errorData[skuErrorKey]) ? errorData[skuErrorKey][0] : t('msg_sku_validation_failed');
+                    const skuMsg =
+                        typeof errorData[skuErrorKey] === 'string' ? errorData[skuErrorKey] : Array.isArray(errorData[skuErrorKey]) ? errorData[skuErrorKey][0] : t('msg_sku_validation_failed');
                     showErrorDialog(t('msg_sku_error'), skuMsg);
                     setSkuError(skuMsg);
                     setActiveTab('sku');
@@ -725,10 +708,10 @@ const ProductCreateForm = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[#f4f9fc] via-white to-[#fff7ed] p-2 sm:p-4 md:p-6">
+        <div className="min-h-screen bg-[#f6f8fb] p-2 sm:p-4 md:p-6">
             <div className="mx-auto">
                 {/* Header */}
-                <div className="mb-4 rounded-xl bg-white p-4 shadow-sm transition-shadow duration-300 hover:shadow-sm sm:mb-6 sm:rounded-2xl sm:p-6 md:mb-8">
+                <div className="mb-4 rounded-xl bg-white p-4 shadow-sm transition-shadow duration-300 hover:shadow-sm sm:mb-6 sm:rounded-lg sm:p-6 md:mb-8">
                     <div className="mb-4 flex flex-col items-start justify-between gap-4 sm:mb-6 sm:flex-row sm:items-center">
                         <div className="flex items-center space-x-3 sm:space-x-4">
                             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-[#046ca9] to-[#034d79] shadow-md sm:h-12 sm:w-12 sm:rounded-xl">
@@ -754,7 +737,9 @@ const ProductCreateForm = () => {
                                 <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#046ca9]/10 sm:h-8 sm:w-8">
                                     <Store className="h-3.5 w-3.5 text-[#046ca9] sm:h-4 sm:w-4" />
                                 </div>
-                                <p className="text-xs font-medium text-[#034d79] sm:text-sm">{t('lbl_current_store')}: {currentStore.store_name}</p>
+                                <p className="text-xs font-medium text-[#034d79] sm:text-sm">
+                                    {t('lbl_current_store')}: {currentStore.store_name}
+                                </p>
                             </div>
                         </div>
                     )}
@@ -779,8 +764,8 @@ const ProductCreateForm = () => {
                                             isActive
                                                 ? 'border-[#046ca9] bg-[#046ca9]/10 text-[#034d79]'
                                                 : isDone
-                                                  ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-                                                  : 'border-slate-200 bg-slate-50 text-slate-500'
+                                                ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                                                : 'border-slate-200 bg-slate-50 text-slate-500'
                                         }`}
                                     >
                                         {isDone ? <CheckCircle2 className="h-4 w-4" /> : <Circle className="h-4 w-4" />}
@@ -799,7 +784,7 @@ const ProductCreateForm = () => {
                 <MobileTabFAB activeTab={activeTab} onTabChange={setActiveTab} visibleTabs={getVisibleTabs()} />
 
                 {/* Main Form Card */}
-                <div className="mb-8 overflow-hidden rounded-2xl bg-white shadow-xl">
+                <div className="mb-8 overflow-hidden rounded-lg bg-white shadow-sm">
                     <div className="p-6 md:p-8">
                         {/* Tab Content */}
                         {activeTab === 'basic' && (

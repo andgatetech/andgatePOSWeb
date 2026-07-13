@@ -3,12 +3,7 @@
 import { useState } from 'react';
 import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
-import {
-    useGetStoreMfsAccountsQuery,
-    useCreateStoreMfsAccountMutation,
-    useUpdateStoreMfsAccountMutation,
-    useDeleteStoreMfsAccountMutation,
-} from '@/store/features/storeMfsAccount/storeMfsAccountApi';
+import { useGetStoreMfsAccountsQuery, useCreateStoreMfsAccountMutation, useUpdateStoreMfsAccountMutation, useDeleteStoreMfsAccountMutation } from '@/store/features/storeMfsAccount/storeMfsAccountApi';
 import { Pencil, Smartphone, Star, Trash2 } from 'lucide-react';
 
 const PROVIDERS = [
@@ -88,7 +83,7 @@ export default function MfsAccountsTab() {
 
     return (
         <div className="space-y-6">
-            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+            <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
                 <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-gray-900">
                     <Smartphone className="h-5 w-5 text-primary" />
                     {editingId ? t('lbl_edit_mfs_account') : t('lbl_add_mfs_account')}
@@ -96,69 +91,49 @@ export default function MfsAccountsTab() {
                 <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2">
                     <div>
                         <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_provider')}</label>
-                        <select
-                            value={form.provider}
-                            onChange={(e) => setForm({ ...form, provider: e.target.value })}
-                            className="form-select w-full"
-                        >
+                        <select value={form.provider} onChange={(e) => setForm({ ...form, provider: e.target.value })} className="form-select w-full">
                             {PROVIDERS.map((p) => (
-                                <option key={p.value} value={p.value}>{p.label}</option>
+                                <option key={p.value} value={p.value}>
+                                    {p.label}
+                                </option>
                             ))}
                         </select>
                     </div>
                     <div>
                         <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_account_number')}</label>
-                        <input
-                            value={form.account_number}
-                            onChange={(e) => setForm({ ...form, account_number: e.target.value })}
-                            placeholder="01XXXXXXXXX"
-                            required
-                            className="form-input w-full"
-                        />
+                        <input value={form.account_number} onChange={(e) => setForm({ ...form, account_number: e.target.value })} placeholder="01XXXXXXXXX" required className="form-input w-full" />
                     </div>
                     <div>
                         <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_account_type')}</label>
-                        <select
-                            value={form.account_type}
-                            onChange={(e) => setForm({ ...form, account_type: e.target.value as any })}
-                            className="form-select w-full"
-                        >
+                        <select value={form.account_type} onChange={(e) => setForm({ ...form, account_type: e.target.value as any })} className="form-select w-full">
                             <option value="personal">{t('lbl_personal')}</option>
                             <option value="merchant">{t('lbl_merchant')}</option>
                         </select>
                     </div>
                     <div>
                         <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_account_name')}</label>
-                        <input
-                            value={form.account_name}
-                            onChange={(e) => setForm({ ...form, account_name: e.target.value })}
-                            placeholder={t('lbl_optional')}
-                            className="form-input w-full"
-                        />
+                        <input value={form.account_name} onChange={(e) => setForm({ ...form, account_name: e.target.value })} placeholder={t('lbl_optional')} className="form-input w-full" />
                     </div>
                     <div className="flex items-center gap-6">
                         <label className="flex items-center gap-2 text-sm">
-                            <input
-                                type="checkbox"
-                                checked={form.is_default}
-                                onChange={(e) => setForm({ ...form, is_default: e.target.checked })}
-                                className="form-checkbox"
-                            />
+                            <input type="checkbox" checked={form.is_default} onChange={(e) => setForm({ ...form, is_default: e.target.checked })} className="form-checkbox" />
                             {t('lbl_default')}
                         </label>
                         <label className="flex items-center gap-2 text-sm">
-                            <input
-                                type="checkbox"
-                                checked={form.is_active}
-                                onChange={(e) => setForm({ ...form, is_active: e.target.checked })}
-                                className="form-checkbox"
-                            />
+                            <input type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} className="form-checkbox" />
                             {t('lbl_active')}
                         </label>
                     </div>
                     <div className="flex items-end justify-end gap-2">
                         {editingId && (
-                            <button type="button" className="btn btn-outline-secondary" onClick={() => { setForm(emptyForm); setEditingId(null); }}>
+                            <button
+                                type="button"
+                                className="btn btn-outline-secondary"
+                                onClick={() => {
+                                    setForm(emptyForm);
+                                    setEditingId(null);
+                                }}
+                            >
                                 {t('lbl_cancel')}
                             </button>
                         )}
@@ -169,7 +144,7 @@ export default function MfsAccountsTab() {
                 </form>
             </div>
 
-            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+            <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
                 <h3 className="mb-4 text-lg font-bold text-gray-900">{t('lbl_mfs_accounts')}</h3>
                 {isLoading ? (
                     <p className="text-sm text-gray-500">{t('lbl_loading')}</p>
@@ -180,10 +155,7 @@ export default function MfsAccountsTab() {
                         {accounts.map((account: MfsAccount) => {
                             const provider = PROVIDERS.find((p) => p.value === account.provider);
                             return (
-                                <div
-                                    key={account.id}
-                                    className="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50 p-3"
-                                >
+                                <div key={account.id} className="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50 p-3">
                                     <div className="flex items-center gap-3">
                                         <span className={`inline-flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white ${provider?.color || 'bg-gray-500'}`}>
                                             {provider?.label?.[0] || account.provider[0]?.toUpperCase()}

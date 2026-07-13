@@ -180,12 +180,12 @@ const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, purchaseO
 
     return (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50 p-4">
-            <div className="relative max-h-[95vh] w-full max-w-7xl overflow-auto rounded-2xl bg-white shadow-2xl">
+            <div className="relative max-h-[95vh] w-full max-w-7xl overflow-auto rounded-lg bg-white shadow-lg">
                 {/* Header */}
                 <div className="sticky top-0 z-10 border-b border-gray-200 bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-5 text-white">
                     <div className="flex items-start justify-between">
                         <div className="flex items-center gap-4">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm">
                                 <Package className="h-6 w-6" />
                             </div>
                             <div>
@@ -203,7 +203,9 @@ const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, purchaseO
                     {/* Progress Bar */}
                     <div className="mt-4">
                         <div className="mb-2 flex justify-between text-sm">
-                            <span>{t('lbl_progress')}: {receivedPercentage}%</span>
+                            <span>
+                                {t('lbl_progress')}: {receivedPercentage}%
+                            </span>
                             <span>
                                 {totalReceived} / {totalOrdered} {t('lbl_items')}
                             </span>
@@ -236,7 +238,7 @@ const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, purchaseO
                 <div className="border-b border-gray-200 bg-white px-6 py-3">
                     <button
                         onClick={handleReceiveAll}
-                        className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90"
+                        className="inline-flex items-center gap-2 rounded-lg bg-[#046ca9] px-4 py-2 text-sm font-medium text-white hover:bg-[#046ca9]/90"
                         disabled={isLoading}
                     >
                         <Check className="h-4 w-4" />
@@ -274,14 +276,20 @@ const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, purchaseO
                                         <td className="px-4 py-3">
                                             <div>
                                                 <p className="font-medium text-gray-900">{item.product_name}</p>
-                                                {item.is_variant && item.variant_name && <p className="text-xs font-medium text-blue-600">{t('lbl_variant')}: {item.variant_name}</p>}
+                                                {item.is_variant && item.variant_name && (
+                                                    <p className="text-xs font-medium text-blue-600">
+                                                        {t('lbl_variant')}: {item.variant_name}
+                                                    </p>
+                                                )}
                                                 {item.is_new_product && (
                                                     <span className="mt-1 inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800">
                                                         <Plus className="mr-1 h-3 w-3" />
                                                         {t('lbl_new_product')}
                                                     </span>
                                                 )}
-                                                <p className="text-xs text-gray-500">{t('lbl_unit')}: {item.unit || t('lbl_piece')}</p>
+                                                <p className="text-xs text-gray-500">
+                                                    {t('lbl_unit')}: {item.unit || t('lbl_piece')}
+                                                </p>
                                             </div>
                                         </td>
                                         <td className="px-4 py-3 text-center">

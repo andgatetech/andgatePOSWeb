@@ -130,10 +130,13 @@ const CustomerDueReportPage = () => {
         }
     };
 
-    const formatActionLabel = useCallback((action?: string) => {
-        const labelKey = followUpActions.find((item) => item.value === action)?.label;
-        return labelKey ? t(labelKey) : (action ? String(action).replaceAll('_', ' ') : t('lbl_no_action_yet'));
-    }, [t]);
+    const formatActionLabel = useCallback(
+        (action?: string) => {
+            const labelKey = followUpActions.find((item) => item.value === action)?.label;
+            return labelKey ? t(labelKey) : action ? String(action).replaceAll('_', ' ') : t('lbl_no_action_yet');
+        },
+        [t]
+    );
 
     const followUpBadgeClass = (status?: string) => {
         if (status === 'promise_overdue') return 'bg-red-100 text-red-800';
@@ -175,7 +178,9 @@ const CustomerDueReportPage = () => {
                             <div class="row"><span class="label">${esc(t('lbl_contact_no'))}</span><span class="value">${esc(due.phone || '-')}</span></div>
                             <div class="row"><span class="label">${esc(t('lbl_payment_method'))}</span><span class="value">${esc(payment.payment_method || paymentMethod)}</span></div>
                             <div class="row"><span class="label">${esc(t('lbl_payment_for'))}</span><span class="value">${esc(t('lbl_customer_due'))}</span></div>
-                            <div class="row"><span class="label">${esc(t('lbl_remaining_due'))}</span><span class="value">${esc(formatCurrency(payment.remaining ?? Math.max(0, Number(due.remaining || 0) - Number(payment.paid_amount || payment.amount || 0))))}</span></div>
+                            <div class="row"><span class="label">${esc(t('lbl_remaining_due'))}</span><span class="value">${esc(
+                formatCurrency(payment.remaining ?? Math.max(0, Number(due.remaining || 0) - Number(payment.paid_amount || payment.amount || 0)))
+            )}</span></div>
                             <div class="footer"><span>${esc(new Date().toLocaleString())}</span><span>${esc(t('lbl_signature'))}</span></div>
                         </div>
                     </body>
@@ -314,7 +319,9 @@ const CustomerDueReportPage = () => {
                 render: (value: any, row: any) => (
                     <div className="space-y-1">
                         <span className="font-mono text-sm font-semibold text-gray-900">{value}</span>
-                        <div className="text-xs text-gray-500">{row.open_invoice_count} {t('lbl_invoice')}</div>
+                        <div className="text-xs text-gray-500">
+                            {row.open_invoice_count} {t('lbl_invoice')}
+                        </div>
                     </div>
                 ),
             },
@@ -355,7 +362,11 @@ const CustomerDueReportPage = () => {
                 key: 'aging_bucket',
                 label: t('lbl_aging'),
                 render: (value: any, row: any) => (
-                    <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${row.age_days > 30 ? 'bg-red-100 text-red-800' : row.age_days > 15 ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'}`}>
+                    <span
+                        className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                            row.age_days > 30 ? 'bg-red-100 text-red-800' : row.age_days > 15 ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'
+                        }`}
+                    >
                         {value} {t('lbl_days')}
                     </span>
                 ),
@@ -365,7 +376,11 @@ const CustomerDueReportPage = () => {
                 key: 'status',
                 label: t('lbl_status'),
                 render: (value: any) => (
-                    <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${value === 'paid' ? 'bg-emerald-100 text-emerald-800' : value === 'partial' ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'}`}>
+                    <span
+                        className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                            value === 'paid' ? 'bg-emerald-100 text-emerald-800' : value === 'partial' ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'
+                        }`}
+                    >
                         {value}
                     </span>
                 ),
@@ -432,26 +447,50 @@ const CustomerDueReportPage = () => {
                     <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                     <input
                         value={filters.search}
-                        onChange={(e) => { setFilters((prev) => ({ ...prev, search: e.target.value })); setCurrentPage(1); }}
+                        onChange={(e) => {
+                            setFilters((prev) => ({ ...prev, search: e.target.value }));
+                            setCurrentPage(1);
+                        }}
                         className="form-input w-full pl-9"
                         placeholder={t('lbl_search_customer_phone')}
                     />
                 </label>
-                <select value={filters.aging} onChange={(e) => { setFilters((prev) => ({ ...prev, aging: e.target.value })); setCurrentPage(1); }} className="form-select">
+                <select
+                    value={filters.aging}
+                    onChange={(e) => {
+                        setFilters((prev) => ({ ...prev, aging: e.target.value }));
+                        setCurrentPage(1);
+                    }}
+                    className="form-select"
+                >
                     <option value="all">{t('lbl_all_aging')}</option>
                     <option value="0_7">0-7 {t('lbl_days')}</option>
                     <option value="8_15">8-15 {t('lbl_days')}</option>
                     <option value="16_30">16-30 {t('lbl_days')}</option>
                     <option value="30_plus">30+ {t('lbl_days')}</option>
                 </select>
-                <select value={filters.status} onChange={(e) => { setFilters((prev) => ({ ...prev, status: e.target.value })); setCurrentPage(1); }} className="form-select">
+                <select
+                    value={filters.status}
+                    onChange={(e) => {
+                        setFilters((prev) => ({ ...prev, status: e.target.value }));
+                        setCurrentPage(1);
+                    }}
+                    className="form-select"
+                >
                     <option value="">{t('lbl_open_due')}</option>
                     <option value="all">{t('lbl_all_status')}</option>
                     <option value="active">{t('lbl_active')}</option>
                     <option value="partial">{t('status_partial')}</option>
                     <option value="paid">{t('status_paid')}</option>
                 </select>
-                <select value={filters.follow_up} onChange={(e) => { setFilters((prev) => ({ ...prev, follow_up: e.target.value })); setCurrentPage(1); }} className="form-select">
+                <select
+                    value={filters.follow_up}
+                    onChange={(e) => {
+                        setFilters((prev) => ({ ...prev, follow_up: e.target.value }));
+                        setCurrentPage(1);
+                    }}
+                    className="form-select"
+                >
                     <option value="all">{t('lbl_all_follow_ups')}</option>
                     <option value="due_today">{t('lbl_promise_due_today')}</option>
                     <option value="overdue">{t('lbl_promise_overdue')}</option>
@@ -471,7 +510,10 @@ const CustomerDueReportPage = () => {
                     itemsPerPage,
                     totalItems: pagination.total || 0,
                     onPageChange: setCurrentPage,
-                    onItemsPerPageChange: (items) => { setItemsPerPage(items); setCurrentPage(1); },
+                    onItemsPerPageChange: (items) => {
+                        setItemsPerPage(items);
+                        setCurrentPage(1);
+                    },
                 }}
                 sorting={{ field: sortField, direction: sortDirection, onSort: handleSort }}
                 emptyState={{ icon: <FileText className="mx-auto h-16 w-16" />, title: t('report_no_dues_found'), description: t('report_dues_up_to_date') }}
@@ -479,10 +521,12 @@ const CustomerDueReportPage = () => {
 
             {paymentModal && (
                 <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/50 p-4">
-                    <div className="w-full max-w-md rounded-lg bg-white shadow-xl">
+                    <div className="w-full max-w-md rounded-lg bg-white shadow-sm">
                         <div className="border-b border-gray-200 p-5">
                             <h2 className="text-lg font-bold text-gray-900">{paymentModal.type === 'full' ? t('btn_clear_full_due') : t('btn_make_partial_payment')}</h2>
-                            <p className="mt-1 text-sm text-gray-500">{paymentModal.due.customer} · {paymentModal.due.phone || '-'}</p>
+                            <p className="mt-1 text-sm text-gray-500">
+                                {paymentModal.due.customer} · {paymentModal.due.phone || '-'}
+                            </p>
                         </div>
                         <div className="space-y-4 p-5">
                             <div className="rounded-lg bg-red-50 p-3">
@@ -506,7 +550,11 @@ const CustomerDueReportPage = () => {
                             <label className="block">
                                 <span className="mb-1 block text-sm font-semibold text-gray-700">{t('lbl_payment_method')}</span>
                                 <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} className="form-select w-full">
-                                    {paymentMethods.map((method) => <option key={method} value={method}>{method}</option>)}
+                                    {paymentMethods.map((method) => (
+                                        <option key={method} value={method}>
+                                            {method}
+                                        </option>
+                                    ))}
                                 </select>
                             </label>
                             <label className="block">
@@ -515,7 +563,9 @@ const CustomerDueReportPage = () => {
                             </label>
                         </div>
                         <div className="flex justify-end gap-3 border-t border-gray-200 p-5">
-                            <button type="button" className="btn btn-outline-danger" onClick={closePaymentModal}>{t('btn_cancel')}</button>
+                            <button type="button" className="btn btn-outline-danger" onClick={closePaymentModal}>
+                                {t('btn_cancel')}
+                            </button>
                             <button type="button" className="btn btn-primary" onClick={submitPayment} disabled={isCollecting || isClearing}>
                                 {isCollecting || isClearing ? t('lbl_processing') : t('btn_make_payment')}
                             </button>
@@ -526,10 +576,12 @@ const CustomerDueReportPage = () => {
 
             {followUpModal && (
                 <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/50 p-4">
-                    <div className="w-full max-w-lg rounded-lg bg-white shadow-xl">
+                    <div className="w-full max-w-lg rounded-lg bg-white shadow-sm">
                         <div className="border-b border-gray-200 p-5">
                             <h2 className="text-lg font-bold text-gray-900">{t('lbl_customer_due_follow_up')}</h2>
-                            <p className="mt-1 text-sm text-gray-500">{followUpModal.customer} · {followUpModal.phone || '-'}</p>
+                            <p className="mt-1 text-sm text-gray-500">
+                                {followUpModal.customer} · {followUpModal.phone || '-'}
+                            </p>
                         </div>
                         <div className="space-y-4 p-5">
                             <div className="grid gap-3 rounded-lg bg-red-50 p-3 text-sm sm:grid-cols-2">
@@ -553,7 +605,11 @@ const CustomerDueReportPage = () => {
                             <label className="block">
                                 <span className="mb-1 block text-sm font-semibold text-gray-700">{t('lbl_action_taken')}</span>
                                 <select value={followUpForm.action_type} onChange={(e) => setFollowUpForm((prev) => ({ ...prev, action_type: e.target.value }))} className="form-select w-full">
-                                    {followUpActions.map((action) => <option key={action.value} value={action.value}>{t(action.label)}</option>)}
+                                    {followUpActions.map((action) => (
+                                        <option key={action.value} value={action.value}>
+                                            {t(action.label)}
+                                        </option>
+                                    ))}
                                 </select>
                             </label>
                             <div className="grid gap-3 sm:grid-cols-2">
@@ -596,7 +652,9 @@ const CustomerDueReportPage = () => {
                             )}
                         </div>
                         <div className="flex justify-end gap-3 border-t border-gray-200 p-5">
-                            <button type="button" className="btn btn-outline-danger" onClick={closeFollowUpModal}>{t('btn_cancel')}</button>
+                            <button type="button" className="btn btn-outline-danger" onClick={closeFollowUpModal}>
+                                {t('btn_cancel')}
+                            </button>
                             <button type="button" className="btn btn-primary" onClick={submitFollowUp} disabled={isUpdatingFollowUp}>
                                 {isUpdatingFollowUp ? t('lbl_processing') : t('btn_save_follow_up')}
                             </button>

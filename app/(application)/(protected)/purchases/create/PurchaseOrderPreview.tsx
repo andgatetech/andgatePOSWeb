@@ -83,7 +83,7 @@ const PurchaseOrderPreview: React.FC<PurchaseOrderPreviewProps> = ({ isOpen, onC
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4" onClick={onClose}>
-            <div className="max-h-[90vh] w-full max-w-5xl overflow-y-auto rounded-2xl bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="max-h-[90vh] w-full max-w-5xl overflow-y-auto rounded-lg bg-white shadow-lg" onClick={(e) => e.stopPropagation()}>
                 {/* Header */}
                 <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4">
                     <h2 className="text-2xl font-bold text-gray-900">{t('lbl_purchase_order_preview')}</h2>

@@ -36,11 +36,12 @@ const AnomaliesPage = () => {
 
     const anomalies = useMemo(() => data?.data?.flags || data?.data || [], [data]);
     const severityCounts = useMemo(
-        () => anomalies.reduce((acc: Record<string, number>, item: any) => {
-            const key = item.severity || 'low';
-            acc[key] = (acc[key] || 0) + 1;
-            return acc;
-        }, {}),
+        () =>
+            anomalies.reduce((acc: Record<string, number>, item: any) => {
+                const key = item.severity || 'low';
+                acc[key] = (acc[key] || 0) + 1;
+                return acc;
+            }, {}),
         [anomalies]
     );
 
@@ -50,7 +51,7 @@ const AnomaliesPage = () => {
         () => [
             { key: 'type', label: t('lbl_type'), width: 18 },
             { key: 'message', label: t('lbl_description'), width: 42 },
-            { key: 'severity', label: t('lbl_severity'), width: 12, format: (value) => value ? t(`lbl_urgency_${value}`) : '' },
+            { key: 'severity', label: t('lbl_severity'), width: 12, format: (value) => (value ? t(`lbl_urgency_${value}`) : '') },
             { key: 'meta', label: t('lbl_detected_at'), width: 18, format: (_value, row) => getDetectedAt(row) },
         ],
         [t]
@@ -165,12 +166,7 @@ const AnomaliesPage = () => {
             </div>
 
             <div className="overflow-hidden rounded-lg border border-slate-200 bg-white">
-                <ReusableTable
-                    columns={columns}
-                    data={anomalies}
-                    isLoading={isLoading}
-                    emptyMessage={t('lbl_no_anomalies')}
-                />
+                <ReusableTable columns={columns} data={anomalies} isLoading={isLoading} emptyMessage={t('lbl_no_anomalies')} />
             </div>
         </div>
     );

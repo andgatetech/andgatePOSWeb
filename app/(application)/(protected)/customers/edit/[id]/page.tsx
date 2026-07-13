@@ -221,7 +221,7 @@ const EditCustomerPage = () => {
 
     if (!isClient || fetchLoading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+            <div className="min-h-screen bg-[#f6f8fb] p-4">
                 <div className="mx-auto">
                     <div className="flex items-center justify-center py-12">
                         <div className="flex items-center gap-2 text-gray-600">
@@ -242,7 +242,7 @@ const EditCustomerPage = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+        <div className="min-h-screen bg-[#f6f8fb] p-4">
             <div className="mx-auto">
                 {/* Header */}
                 <div className="mb-6 space-y-4">
@@ -254,7 +254,7 @@ const EditCustomerPage = () => {
                         >
                             <ArrowLeft className="h-4 w-4" />
                         </button>
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#046ca9] to-[#034d79] text-white shadow-sm">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-[#046ca9] to-[#034d79] text-white shadow-sm">
                             <User className="h-5 w-5" />
                         </div>
                         <div>
@@ -263,13 +263,15 @@ const EditCustomerPage = () => {
                         </div>
                     </div>
                     {customer?.store_name && (
-                        <div className="rounded-xl border border-[#046ca9]/15 bg-[#046ca9]/5 p-3">
+                        <div className="rounded-lg border border-[#046ca9]/15 bg-[#046ca9]/5 p-3">
                             <div className="flex items-center space-x-3">
                                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#046ca9]/10">
                                     <Store className="h-4 w-4 text-[#034d79]" />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-medium text-[#034d79]">{t('lbl_store')}: {customer.store_name}</p>
+                                    <p className="text-sm font-medium text-[#034d79]">
+                                        {t('lbl_store')}: {customer.store_name}
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -277,7 +279,7 @@ const EditCustomerPage = () => {
                 </div>
 
                 {/* Main Form Card */}
-                <div className="overflow-hidden rounded-2xl bg-white shadow-xl">
+                <div className="overflow-hidden rounded-lg bg-white shadow-sm">
                     <div className="p-8">
                         <form className="space-y-8" onSubmit={handleSubmit}>
                             {/* Basic Information Section */}
@@ -304,9 +306,21 @@ const EditCustomerPage = () => {
                                     </div>
 
                                     <div>
-                                        <label htmlFor="customer_type" className="mb-2 block text-sm font-medium text-gray-700">{t('customer_type')}</label>
-                                        <select id="customer_type" name="customer_type" value={formData.customer_type} onChange={handleChange} className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500">
-                                            {customerTypeOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+                                        <label htmlFor="customer_type" className="mb-2 block text-sm font-medium text-gray-700">
+                                            {t('customer_type')}
+                                        </label>
+                                        <select
+                                            id="customer_type"
+                                            name="customer_type"
+                                            value={formData.customer_type}
+                                            onChange={handleChange}
+                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500"
+                                        >
+                                            {customerTypeOptions.map((option) => (
+                                                <option key={option.value} value={option.value}>
+                                                    {option.label}
+                                                </option>
+                                            ))}
                                         </select>
                                     </div>
 
@@ -349,25 +363,64 @@ const EditCustomerPage = () => {
                                     </div>
 
                                     <div>
-                                        <label htmlFor="alternative_phone" className="mb-2 block text-sm font-medium text-gray-700">{t('customer_alternative_phone')}</label>
-                                        <input id="alternative_phone" name="alternative_phone" type="tel" value={formData.alternative_phone} onChange={handleChange} placeholder={t('customer_alternative_phone_placeholder')} className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500" />
+                                        <label htmlFor="alternative_phone" className="mb-2 block text-sm font-medium text-gray-700">
+                                            {t('customer_alternative_phone')}
+                                        </label>
+                                        <input
+                                            id="alternative_phone"
+                                            name="alternative_phone"
+                                            type="tel"
+                                            value={formData.alternative_phone}
+                                            onChange={handleChange}
+                                            placeholder={t('customer_alternative_phone_placeholder')}
+                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500"
+                                        />
                                     </div>
 
                                     <div>
-                                        <label htmlFor="preferred_contact_method" className="mb-2 block text-sm font-medium text-gray-700">{t('customer_preferred_contact_method')}</label>
-                                        <select id="preferred_contact_method" name="preferred_contact_method" value={formData.preferred_contact_method} onChange={handleChange} className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500">
-                                            {contactMethodOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+                                        <label htmlFor="preferred_contact_method" className="mb-2 block text-sm font-medium text-gray-700">
+                                            {t('customer_preferred_contact_method')}
+                                        </label>
+                                        <select
+                                            id="preferred_contact_method"
+                                            name="preferred_contact_method"
+                                            value={formData.preferred_contact_method}
+                                            onChange={handleChange}
+                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500"
+                                        >
+                                            {contactMethodOptions.map((option) => (
+                                                <option key={option.value} value={option.value}>
+                                                    {option.label}
+                                                </option>
+                                            ))}
                                         </select>
                                     </div>
 
                                     <div>
-                                        <label htmlFor="date_of_birth" className="mb-2 block text-sm font-medium text-gray-700">{t('customer_date_of_birth')}</label>
-                                        <input id="date_of_birth" name="date_of_birth" type="date" value={formData.date_of_birth} onChange={handleChange} className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500" />
+                                        <label htmlFor="date_of_birth" className="mb-2 block text-sm font-medium text-gray-700">
+                                            {t('customer_date_of_birth')}
+                                        </label>
+                                        <input
+                                            id="date_of_birth"
+                                            name="date_of_birth"
+                                            type="date"
+                                            value={formData.date_of_birth}
+                                            onChange={handleChange}
+                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500"
+                                        />
                                     </div>
 
                                     <div>
-                                        <label htmlFor="gender" className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_gender')}</label>
-                                        <select id="gender" name="gender" value={formData.gender} onChange={handleChange} className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500">
+                                        <label htmlFor="gender" className="mb-2 block text-sm font-medium text-gray-700">
+                                            {t('lbl_gender')}
+                                        </label>
+                                        <select
+                                            id="gender"
+                                            name="gender"
+                                            value={formData.gender}
+                                            onChange={handleChange}
+                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500"
+                                        >
                                             <option value="">{t('customer_gender_select')}</option>
                                             <option value="male">{t('lbl_male')}</option>
                                             <option value="female">{t('lbl_female')}</option>
@@ -381,24 +434,75 @@ const EditCustomerPage = () => {
                                 <h3 className="mb-4 text-lg font-semibold text-gray-900">{t('customer_address_information')}</h3>
                                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                                     <div>
-                                        <label htmlFor="address_line1" className="mb-2 block text-sm font-medium text-gray-700">{t('customer_address_line1')}</label>
-                                        <input id="address_line1" name="address_line1" type="text" value={formData.address_line1} onChange={handleChange} placeholder={t('customer_address_line1_placeholder')} className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500" />
+                                        <label htmlFor="address_line1" className="mb-2 block text-sm font-medium text-gray-700">
+                                            {t('customer_address_line1')}
+                                        </label>
+                                        <input
+                                            id="address_line1"
+                                            name="address_line1"
+                                            type="text"
+                                            value={formData.address_line1}
+                                            onChange={handleChange}
+                                            placeholder={t('customer_address_line1_placeholder')}
+                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500"
+                                        />
                                     </div>
                                     <div>
-                                        <label htmlFor="address_line2" className="mb-2 block text-sm font-medium text-gray-700">{t('customer_address_line2')}</label>
-                                        <input id="address_line2" name="address_line2" type="text" value={formData.address_line2} onChange={handleChange} placeholder={t('customer_address_line2_placeholder')} className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500" />
+                                        <label htmlFor="address_line2" className="mb-2 block text-sm font-medium text-gray-700">
+                                            {t('customer_address_line2')}
+                                        </label>
+                                        <input
+                                            id="address_line2"
+                                            name="address_line2"
+                                            type="text"
+                                            value={formData.address_line2}
+                                            onChange={handleChange}
+                                            placeholder={t('customer_address_line2_placeholder')}
+                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500"
+                                        />
                                     </div>
                                     <div>
-                                        <label htmlFor="city" className="mb-2 block text-sm font-medium text-gray-700">{t('customer_city_area')}</label>
-                                        <input id="city" name="city" type="text" value={formData.city} onChange={handleChange} placeholder={t('customer_city_area_placeholder')} className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500" />
+                                        <label htmlFor="city" className="mb-2 block text-sm font-medium text-gray-700">
+                                            {t('customer_city_area')}
+                                        </label>
+                                        <input
+                                            id="city"
+                                            name="city"
+                                            type="text"
+                                            value={formData.city}
+                                            onChange={handleChange}
+                                            placeholder={t('customer_city_area_placeholder')}
+                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500"
+                                        />
                                     </div>
                                     <div>
-                                        <label htmlFor="state" className="mb-2 block text-sm font-medium text-gray-700">{t('customer_district')}</label>
-                                        <input id="state" name="state" type="text" value={formData.state} onChange={handleChange} placeholder={t('customer_district_placeholder')} className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500" />
+                                        <label htmlFor="state" className="mb-2 block text-sm font-medium text-gray-700">
+                                            {t('customer_district')}
+                                        </label>
+                                        <input
+                                            id="state"
+                                            name="state"
+                                            type="text"
+                                            value={formData.state}
+                                            onChange={handleChange}
+                                            placeholder={t('customer_district_placeholder')}
+                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500"
+                                        />
                                     </div>
                                     <div className="md:col-span-2">
-                                        <label htmlFor="delivery_note" className="mb-2 block text-sm font-medium text-gray-700">{t('customer_delivery_note')}</label>
-                                        <textarea id="delivery_note" name="delivery_note" value={formData.delivery_note} onChange={handleChange} placeholder={t('customer_delivery_note_placeholder')} rows={2} maxLength={1000} className="w-full resize-none rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500" />
+                                        <label htmlFor="delivery_note" className="mb-2 block text-sm font-medium text-gray-700">
+                                            {t('customer_delivery_note')}
+                                        </label>
+                                        <textarea
+                                            id="delivery_note"
+                                            name="delivery_note"
+                                            value={formData.delivery_note}
+                                            onChange={handleChange}
+                                            placeholder={t('customer_delivery_note_placeholder')}
+                                            rows={2}
+                                            maxLength={1000}
+                                            className="w-full resize-none rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500"
+                                        />
                                     </div>
                                 </div>
                             </div>
@@ -462,8 +566,20 @@ const EditCustomerPage = () => {
                                     </div>
 
                                     <div>
-                                        <label htmlFor="credit_limit" className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_credit_limit')} ({symbol})</label>
-                                        <input id="credit_limit" name="credit_limit" type="number" min="0" step="0.01" value={formData.credit_limit} onChange={handleChange} placeholder="0.00" className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500" />
+                                        <label htmlFor="credit_limit" className="mb-2 block text-sm font-medium text-gray-700">
+                                            {t('lbl_credit_limit')} ({symbol})
+                                        </label>
+                                        <input
+                                            id="credit_limit"
+                                            name="credit_limit"
+                                            type="number"
+                                            min="0"
+                                            step="0.01"
+                                            value={formData.credit_limit}
+                                            onChange={handleChange}
+                                            placeholder="0.00"
+                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500"
+                                        />
                                     </div>
                                 </div>
                             </div>
@@ -473,16 +589,46 @@ const EditCustomerPage = () => {
                                 <h3 className="mb-4 text-lg font-semibold text-gray-900">{t('lbl_additional_information')}</h3>
                                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                                     <div>
-                                        <label htmlFor="trade_name" className="mb-2 block text-sm font-medium text-gray-700">{t('customer_trade_name')}</label>
-                                        <input id="trade_name" name="trade_name" type="text" value={formData.trade_name} onChange={handleChange} placeholder={t('customer_trade_name_placeholder')} className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500" />
+                                        <label htmlFor="trade_name" className="mb-2 block text-sm font-medium text-gray-700">
+                                            {t('customer_trade_name')}
+                                        </label>
+                                        <input
+                                            id="trade_name"
+                                            name="trade_name"
+                                            type="text"
+                                            value={formData.trade_name}
+                                            onChange={handleChange}
+                                            placeholder={t('customer_trade_name_placeholder')}
+                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500"
+                                        />
                                     </div>
                                     <div>
-                                        <label htmlFor="bin_no" className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_bin_no')}</label>
-                                        <input id="bin_no" name="bin_no" type="text" value={formData.bin_no} onChange={handleChange} placeholder={t('customer_bin_no_placeholder')} className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500" />
+                                        <label htmlFor="bin_no" className="mb-2 block text-sm font-medium text-gray-700">
+                                            {t('lbl_bin_no')}
+                                        </label>
+                                        <input
+                                            id="bin_no"
+                                            name="bin_no"
+                                            type="text"
+                                            value={formData.bin_no}
+                                            onChange={handleChange}
+                                            placeholder={t('customer_bin_no_placeholder')}
+                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500"
+                                        />
                                     </div>
                                     <div>
-                                        <label htmlFor="nid_no" className="mb-2 block text-sm font-medium text-gray-700">{t('customer_nid_no')}</label>
-                                        <input id="nid_no" name="nid_no" type="text" value={formData.nid_no} onChange={handleChange} placeholder={t('customer_nid_no_placeholder')} className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500" />
+                                        <label htmlFor="nid_no" className="mb-2 block text-sm font-medium text-gray-700">
+                                            {t('customer_nid_no')}
+                                        </label>
+                                        <input
+                                            id="nid_no"
+                                            name="nid_no"
+                                            type="text"
+                                            value={formData.nid_no}
+                                            onChange={handleChange}
+                                            placeholder={t('customer_nid_no_placeholder')}
+                                            className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-orange-500"
+                                        />
                                     </div>
                                     {/* Details */}
                                     <div className="md:col-span-2">
@@ -577,7 +723,7 @@ const EditCustomerPage = () => {
                 </div>
 
                 {/* Info Card */}
-                <div className="mt-6 rounded-xl border border-orange-200 bg-orange-50 p-4">
+                <div className="mt-6 rounded-lg border border-orange-200 bg-orange-50 p-4">
                     <div className="flex items-start gap-3">
                         <svg className="mt-0.5 h-5 w-5 flex-shrink-0 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />

@@ -106,11 +106,19 @@ const ReceiveItemsPage = () => {
     };
 
     const handleRemoveItem = (itemId: number) => {
-        setExcludedItems((prev) => { const s = new Set(prev); s.add(itemId); return s; });
+        setExcludedItems((prev) => {
+            const s = new Set(prev);
+            s.add(itemId);
+            return s;
+        });
     };
 
     const handleRestoreItem = (itemId: number) => {
-        setExcludedItems((prev) => { const s = new Set(prev); s.delete(itemId); return s; });
+        setExcludedItems((prev) => {
+            const s = new Set(prev);
+            s.delete(itemId);
+            return s;
+        });
     };
 
     const calculateItemTotal = (itemId: number) => {
@@ -140,7 +148,9 @@ const ReceiveItemsPage = () => {
     const wacValues = useMemo(() => {
         if (!purchaseOrder?.items) return {};
         const values: Record<number, number | null> = {};
-        purchaseOrder.items.forEach((item: any) => { values[item.id] = calculateWAC(item); });
+        purchaseOrder.items.forEach((item: any) => {
+            values[item.id] = calculateWAC(item);
+        });
         return values;
     }, [purchaseOrder?.items, calculateWAC]);
 
@@ -158,17 +168,13 @@ const ReceiveItemsPage = () => {
             return;
         }
 
-        const newProductsWithoutPrice = activeItems.filter(
-            (item: any) => item.product_id === null && (purchasePrices[item.id] || 0) === 0 && (receivedQuantities[item.id] || 0) > 0
-        );
+        const newProductsWithoutPrice = activeItems.filter((item: any) => item.product_id === null && (purchasePrices[item.id] || 0) === 0 && (receivedQuantities[item.id] || 0) > 0);
         if (newProductsWithoutPrice.length > 0) {
             showErrorDialog(t('msg_set_purchase_prices'));
             return;
         }
 
-        const itemsWithoutSellingPrice = activeItems.filter(
-            (item: any) => (sellingPrices[item.id] || 0) === 0 && (receivedQuantities[item.id] || 0) > 0
-        );
+        const itemsWithoutSellingPrice = activeItems.filter((item: any) => (sellingPrices[item.id] || 0) === 0 && (receivedQuantities[item.id] || 0) > 0);
         if (itemsWithoutSellingPrice.length > 0) {
             showErrorDialog(t('msg_set_selling_prices'));
             return;
@@ -221,13 +227,7 @@ const ReceiveItemsPage = () => {
     const grandTotal = calculateGrandTotal();
     const supplierName = purchaseOrder.supplier?.name || t('lbl_na');
 
-    const receiveBullets = [
-        t('msg_receive_bullet_1'),
-        t('msg_receive_bullet_2'),
-        t('msg_receive_bullet_3'),
-        t('msg_receive_bullet_4'),
-        t('msg_receive_bullet_5'),
-    ];
+    const receiveBullets = [t('msg_receive_bullet_1'), t('msg_receive_bullet_2'), t('msg_receive_bullet_3'), t('msg_receive_bullet_4'), t('msg_receive_bullet_5')];
 
     return (
         <div className="space-y-6">
@@ -235,7 +235,7 @@ const ReceiveItemsPage = () => {
                 <div>
                     <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
                         <div className="flex items-center space-x-4">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#046ca9] to-[#034d79] text-white shadow-sm">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-[#046ca9] to-[#034d79] text-white shadow-sm">
                                 <CheckCircle className="h-5 w-5" />
                             </div>
                             <div>
@@ -262,9 +262,9 @@ const ReceiveItemsPage = () => {
                             <p className="text-xs text-gray-600">{t('lbl_order_status')}</p>
                             <p className="mt-1 text-sm font-semibold text-blue-600">{purchaseOrder.status.replace('_', ' ').toUpperCase()}</p>
                         </div>
-                        <div className="rounded-lg border border-gray-200 bg-gradient-to-br from-purple-50 to-white p-3">
+                        <div className="rounded-lg border border-gray-200 bg-[#eef7fc] p-3">
                             <p className="text-xs text-gray-600">{t('lbl_payment_status')}</p>
-                            <p className="mt-1 text-sm font-semibold text-purple-600">{purchaseOrder.payment_status?.toUpperCase()}</p>
+                            <p className="mt-1 text-sm font-semibold text-[#046ca9]">{purchaseOrder.payment_status?.toUpperCase()}</p>
                         </div>
                         <div className="rounded-lg border border-gray-200 bg-gradient-to-br from-green-50 to-white p-3">
                             <p className="text-xs text-gray-600">{t('lbl_amount_paid')}</p>
@@ -285,7 +285,9 @@ const ReceiveItemsPage = () => {
                         <thead>
                             <tr>
                                 <th>{t('lbl_product')}</th>
-                                <th>{t('lbl_type')} / {t('lbl_variant')}</th>
+                                <th>
+                                    {t('lbl_type')} / {t('lbl_variant')}
+                                </th>
                                 <th>{t('status_ordered')}</th>
                                 <th>{t('lbl_already_received')}</th>
                                 <th>{t('lbl_receive_now')}</th>
@@ -315,8 +317,14 @@ const ReceiveItemsPage = () => {
                                         <td>
                                             <div>
                                                 <p className="font-semibold">{item.product_name || item.product_name_at_purchase || t('lbl_unknown_product')}</p>
-                                                <p className="text-xs text-gray-400">{t('lbl_unit')}: {item.unit || t('lbl_piece')}</p>
-                                                {!isNewProduct && <p className="text-xs text-gray-400">{t('lbl_current_stock')}: {parseFloat(item.current_stock_quantity) || 0}</p>}
+                                                <p className="text-xs text-gray-400">
+                                                    {t('lbl_unit')}: {item.unit || t('lbl_piece')}
+                                                </p>
+                                                {!isNewProduct && (
+                                                    <p className="text-xs text-gray-400">
+                                                        {t('lbl_current_stock')}: {parseFloat(item.current_stock_quantity) || 0}
+                                                    </p>
+                                                )}
                                             </div>
                                         </td>
                                         <td>
@@ -328,7 +336,9 @@ const ReceiveItemsPage = () => {
                                                 )}
                                                 {hasVariant && (
                                                     <div className="mt-2 space-y-1">
-                                                        <p className="text-xs font-semibold text-purple-600">{t('lbl_variant')}: {item.variant_name}</p>
+                                                        <p className="text-xs font-semibold text-[#046ca9]">
+                                                            {t('lbl_variant')}: {item.variant_name}
+                                                        </p>
                                                         {Object.entries(variantData[item.id] || item.variant_data || {}).map(([key, value]: [string, any]) => (
                                                             <div key={key} className="flex items-center gap-1">
                                                                 <span className="text-xs text-gray-500">{key}:</span>
@@ -369,7 +379,9 @@ const ReceiveItemsPage = () => {
                                                     placeholder={String(item.current_stock_purchase_price || t('lbl_purchase_price'))}
                                                 />
                                                 {!isNewProduct && item.current_stock_purchase_price && (
-                                                    <span className="mt-0.5 block text-xs text-blue-600">{t('lbl_current')}: {formatCurrency(item.current_stock_purchase_price)}</span>
+                                                    <span className="mt-0.5 block text-xs text-blue-600">
+                                                        {t('lbl_current')}: {formatCurrency(item.current_stock_purchase_price)}
+                                                    </span>
                                                 )}
                                             </div>
                                         </td>
@@ -406,7 +418,9 @@ const ReceiveItemsPage = () => {
                                                     placeholder={String(item.current_stock_selling_price || t('lbl_selling_price'))}
                                                 />
                                                 {!isNewProduct && item.current_stock_selling_price && (
-                                                    <span className="mt-0.5 block text-xs text-green-600">{t('lbl_current')}: {formatCurrency(item.current_stock_selling_price)}</span>
+                                                    <span className="mt-0.5 block text-xs text-green-600">
+                                                        {t('lbl_current')}: {formatCurrency(item.current_stock_selling_price)}
+                                                    </span>
                                                 )}
                                                 {itemWac !== null && currentSellingPrice > 0 && (
                                                     <div className={`mt-1 rounded px-1.5 py-0.5 ${isBelowWac ? 'bg-red-50' : 'bg-green-50'}`}>
@@ -488,7 +502,9 @@ const ReceiveItemsPage = () => {
                                 onChange={(e) => setPaymentAmount(e.target.value === '' ? 0 : parseFloat(e.target.value))}
                                 placeholder={t('placeholder_payment_amount')}
                             />
-                            <p className="mt-1 text-xs text-gray-500">{t('lbl_maximum')}: {formatCurrency(grandTotal)}</p>
+                            <p className="mt-1 text-xs text-gray-500">
+                                {t('lbl_maximum')}: {formatCurrency(grandTotal)}
+                            </p>
                         </div>
                         <div>
                             <label className="mb-2 block text-sm font-semibold">{t('lbl_payment_method')}</label>

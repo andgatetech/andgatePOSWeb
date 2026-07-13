@@ -239,13 +239,13 @@ const TaxReportPage = () => {
     }, [formatCurrency, t, viewMode]);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="min-h-screen bg-[#f6f8fb]">
             <div className="mx-auto">
                 <ReportExportToolbar
                     reportTitle={t('report_tax_title')}
                     reportDescription={t('report_tax_desc')}
                     reportIcon={<Calculator className="h-6 w-6 text-white" />}
-                    iconBgClass="bg-gradient-to-r from-sky-600 to-sky-700"
+                    iconBgClass="bg-[#046ca9]"
                     data={items}
                     columns={exportColumns}
                     summary={exportSummary}
@@ -264,19 +264,38 @@ const TaxReportPage = () => {
                             {isVatWorkspaceLoading && <span className="text-xs text-gray-400">{t('btn_loading')}</span>}
                         </div>
                         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-                            <div className="rounded-md bg-blue-50 p-3"><p className="text-xs text-blue-700">{t('tax_output_vat')}</p><p className="text-lg font-bold text-blue-900">{formatCurrency(vatWorkspace.summary?.output_vat || bdVat.output_vat || 0)}</p></div>
-                            <div className="rounded-md bg-green-50 p-3"><p className="text-xs text-green-700">{t('tax_input_vat')}</p><p className="text-lg font-bold text-green-900">{formatCurrency(vatWorkspace.summary?.input_vat || bdVat.input_vat || 0)}</p></div>
-                            <div className="rounded-md bg-amber-50 p-3"><p className="text-xs text-amber-700">{t('tax_reversals')}</p><p className="text-lg font-bold text-amber-900">{formatCurrency((vatWorkspace.summary?.output_vat_reversal || 0) + (vatWorkspace.summary?.input_vat_reversal || 0))}</p></div>
-                            <div className="rounded-md bg-slate-900 p-3"><p className="text-xs text-slate-200">{t('tax_net_payable')}</p><p className="text-lg font-bold text-white">{formatCurrency(vatWorkspace.summary?.net_payable ?? bdVat.net_payable ?? 0)}</p></div>
+                            <div className="rounded-md bg-blue-50 p-3">
+                                <p className="text-xs text-blue-700">{t('tax_output_vat')}</p>
+                                <p className="text-lg font-bold text-blue-900">{formatCurrency(vatWorkspace.summary?.output_vat || bdVat.output_vat || 0)}</p>
+                            </div>
+                            <div className="rounded-md bg-green-50 p-3">
+                                <p className="text-xs text-green-700">{t('tax_input_vat')}</p>
+                                <p className="text-lg font-bold text-green-900">{formatCurrency(vatWorkspace.summary?.input_vat || bdVat.input_vat || 0)}</p>
+                            </div>
+                            <div className="rounded-md bg-amber-50 p-3">
+                                <p className="text-xs text-amber-700">{t('tax_reversals')}</p>
+                                <p className="text-lg font-bold text-amber-900">{formatCurrency((vatWorkspace.summary?.output_vat_reversal || 0) + (vatWorkspace.summary?.input_vat_reversal || 0))}</p>
+                            </div>
+                            <div className="rounded-md bg-slate-900 p-3">
+                                <p className="text-xs text-slate-200">{t('tax_net_payable')}</p>
+                                <p className="text-lg font-bold text-white">{formatCurrency(vatWorkspace.summary?.net_payable ?? bdVat.net_payable ?? 0)}</p>
+                            </div>
                         </div>
                     </div>
                     <div className="rounded-lg border border-amber-100 bg-white p-4 shadow-sm">
-                        <div className="mb-2 flex items-center gap-2 text-amber-700"><AlertTriangle className="h-4 w-4" /><h3 className="text-sm font-semibold">{t('tax_compliance_warnings')}</h3></div>
+                        <div className="mb-2 flex items-center gap-2 text-amber-700">
+                            <AlertTriangle className="h-4 w-4" />
+                            <h3 className="text-sm font-semibold">{t('tax_compliance_warnings')}</h3>
+                        </div>
                         {(vatWorkspace.warnings || []).length === 0 ? (
                             <p className="text-sm text-gray-500">{t('tax_no_warnings')}</p>
                         ) : (
                             <div className="space-y-2">
-                                {vatWorkspace.warnings.map((warning: any) => <div key={warning.code} className="rounded-md bg-amber-50 p-2 text-xs text-amber-800">{warning.message} ({warning.count})</div>)}
+                                {vatWorkspace.warnings.map((warning: any) => (
+                                    <div key={warning.code} className="rounded-md bg-amber-50 p-2 text-xs text-amber-800">
+                                        {warning.message} ({warning.count})
+                                    </div>
+                                ))}
                             </div>
                         )}
                     </div>

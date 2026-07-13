@@ -73,7 +73,7 @@ const CreateStoreModal: React.FC<CreateStoreModalProps> = ({ isOpen, onClose }) 
     if (hasSubscriptionError) {
         return (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-75 p-4">
-                <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
+                <div className="w-full max-w-lg rounded-lg bg-white p-6 shadow-sm">
                     <div className="flex justify-end p-2 pb-0">
                         <button onClick={onClose} className="rounded-lg p-2 text-gray-400 hover:bg-gray-100">
                             <X className="h-5 w-5" />
@@ -90,11 +90,11 @@ const CreateStoreModal: React.FC<CreateStoreModalProps> = ({ isOpen, onClose }) 
             <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
                 <div className="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" onClick={onClose} />
 
-                <div className="relative transform overflow-hidden rounded-2xl bg-white px-4 pb-4 pt-5 text-left shadow-sm transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
+                <div className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-sm transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
                     {/* Header */}
                     <div className="flex items-center justify-between border-b border-gray-200 pb-4">
                         <div className="flex items-center space-x-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-r from-[#046ca9] to-[#034d79]">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#046ca9]">
                                 <Store className="h-6 w-6 text-white" />
                             </div>
                             <div>
@@ -124,7 +124,7 @@ const CreateStoreModal: React.FC<CreateStoreModalProps> = ({ isOpen, onClose }) 
                                     onChange={handleInputChange}
                                     placeholder={t('placeholder_store_name_example')}
                                     required
-                                    className="block w-full rounded-xl border border-gray-300 bg-white py-3 pl-11 pr-4 text-gray-900 placeholder-gray-500 focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9] sm:text-sm"
+                                    className="block w-full rounded-lg border border-gray-300 bg-white py-3 pl-11 pr-4 text-gray-900 placeholder-gray-500 focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9] sm:text-sm"
                                 />
                             </div>
                         </div>
@@ -144,7 +144,7 @@ const CreateStoreModal: React.FC<CreateStoreModalProps> = ({ isOpen, onClose }) 
                                     placeholder={t('placeholder_store_address_example')}
                                     required
                                     rows={3}
-                                    className="block w-full resize-none rounded-xl border border-gray-300 bg-white py-3 pl-11 pr-4 text-gray-900 placeholder-gray-500 focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9] sm:text-sm"
+                                    className="block w-full resize-none rounded-lg border border-gray-300 bg-white py-3 pl-11 pr-4 text-gray-900 placeholder-gray-500 focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9] sm:text-sm"
                                 />
                             </div>
                         </div>
@@ -170,7 +170,7 @@ const CreateStoreModal: React.FC<CreateStoreModalProps> = ({ isOpen, onClose }) 
                                     value={formData.store_phone}
                                     onChange={handleInputChange}
                                     placeholder={t('placeholder_store_phone_example')}
-                                    className="block w-full rounded-xl border border-gray-300 bg-white py-3 pl-11 pr-4 text-gray-900 placeholder-gray-500 focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9] sm:text-sm"
+                                    className="block w-full rounded-lg border border-gray-300 bg-white py-3 pl-11 pr-4 text-gray-900 placeholder-gray-500 focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9] sm:text-sm"
                                 />
                             </div>
                         </div>
@@ -181,14 +181,14 @@ const CreateStoreModal: React.FC<CreateStoreModalProps> = ({ isOpen, onClose }) 
                                 type="button"
                                 onClick={onClose}
                                 disabled={isSubmitting}
-                                className="inline-flex items-center rounded-xl border border-gray-300 bg-white px-6 py-3 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#046ca9] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                className="inline-flex items-center rounded-lg border border-gray-300 bg-white px-6 py-3 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#046ca9] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                             >
                                 {t('btn_cancel')}
                             </button>
                             <button
                                 type="submit"
                                 disabled={isSubmitting || !formData.store_name.trim() || !formData.address.trim()}
-                                className="inline-flex items-center rounded-xl bg-gradient-to-r from-[#046ca9] to-[#034d79] px-6 py-3 text-sm font-medium text-white shadow-sm hover:brightness-105 focus:outline-none focus:ring-2 focus:ring-[#046ca9] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                className="inline-flex items-center rounded-lg bg-[#046ca9] px-6 py-3 text-sm font-medium text-white shadow-sm hover:bg-[#034d79] focus:outline-none focus:ring-2 focus:ring-[#046ca9] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                             >
                                 {isSubmitting ? (
                                     <>

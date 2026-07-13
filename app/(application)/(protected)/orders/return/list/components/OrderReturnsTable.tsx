@@ -47,7 +47,11 @@ const OrderReturnsTable: React.FC<OrderReturnsTableProps> = ({ returns, isLoadin
                 render: (value, row) => (
                     <div className="flex flex-col">
                         <span className="font-semibold text-gray-900">{value || `#${row.id}`}</span>
-                        {row.order_invoice && <span className="text-xs text-gray-500">{t('lbl_order')}: {row.order_invoice}</span>}
+                        {row.order_invoice && (
+                            <span className="text-xs text-gray-500">
+                                {t('lbl_order')}: {row.order_invoice}
+                            </span>
+                        )}
                     </div>
                 ),
             },
@@ -71,11 +75,7 @@ const OrderReturnsTable: React.FC<OrderReturnsTableProps> = ({ returns, isLoadin
                         return_and_buy: { className: 'bg-purple-100 text-purple-800', label: t('lbl_return_and_buy') },
                     };
                     const config = typeConfig[value] || typeConfig.return;
-                    return (
-                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${config.className}`}>
-                            {config.label}
-                        </span>
-                    );
+                    return <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${config.className}`}>{config.label}</span>;
                 },
             },
             {
@@ -90,7 +90,11 @@ const OrderReturnsTable: React.FC<OrderReturnsTableProps> = ({ returns, isLoadin
                     return (
                         <div className="flex flex-col gap-1">
                             <span className="text-sm text-gray-700">{items[0].product_name}</span>
-                            {items.length > 1 && <span className="text-xs text-gray-500">+{items.length - 1} {t('lbl_more')}</span>}
+                            {items.length > 1 && (
+                                <span className="text-xs text-gray-500">
+                                    +{items.length - 1} {t('lbl_more')}
+                                </span>
+                            )}
                         </div>
                     );
                 },

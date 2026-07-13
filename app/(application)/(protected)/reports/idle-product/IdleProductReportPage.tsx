@@ -204,8 +204,12 @@ const IdleProductReportPage = () => {
                 sortable: true,
                 render: (v: any, r: any) => (
                     <div className="flex flex-col">
-                        <span className="font-bold text-gray-900">{formatNumber(v)} {t('lbl_units')}</span>
-                        <span className="mt-1 text-[10px] font-semibold uppercase tracking-wider text-rose-600">{t('lbl_value')}: {formatCurrency(r.stock_value)}</span>
+                        <span className="font-bold text-gray-900">
+                            {formatNumber(v)} {t('lbl_units')}
+                        </span>
+                        <span className="mt-1 text-[10px] font-semibold uppercase tracking-wider text-rose-600">
+                            {t('lbl_value')}: {formatCurrency(r.stock_value)}
+                        </span>
                     </div>
                 ),
             },
@@ -253,7 +257,7 @@ const IdleProductReportPage = () => {
     );
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="min-h-screen bg-[#f6f8fb]">
             <div className="mx-auto">
                 <ReportExportToolbar
                     reportTitle={t('report_idle_product_title')}

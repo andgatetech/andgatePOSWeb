@@ -560,19 +560,19 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
             <div
                 key={entryIndex}
                 className={`flex flex-col gap-2 rounded-lg border p-2 transition-all sm:flex-row sm:items-center sm:gap-2 sm:p-3 ${
-                    isActiveRow ? 'border-purple-500 bg-purple-50 shadow-lg' : 'border-gray-300 bg-white'
+                    isActiveRow ? 'border-[#cde2ef] bg-purple-50 shadow-lg' : 'border-gray-300 bg-white'
                 }`}
             >
                 {/* Serial Label & Status */}
                 <div className="flex items-center justify-between gap-2 sm:justify-start">
                     <div className="flex items-center gap-2">
                         <div className="flex flex-col">
-                            <span className={`text-xs font-medium sm:text-sm ${isActiveRow ? 'text-purple-700' : 'text-gray-700'}`}>{info.label}</span>
+                            <span className={`text-xs font-medium sm:text-sm ${isActiveRow ? 'text-[#046ca9]' : 'text-gray-700'}`}>{info.label}</span>
                             {info.subtitle && <span className="text-[11px] text-gray-500 sm:text-xs">{info.subtitle}</span>}
                         </div>
                         {serialValue && <span className="text-xs font-medium text-gray-600">✓</span>}
                     </div>
-                    {isActiveRow && <span className="text-xs font-semibold text-purple-600">{t('lbl_scanning')}</span>}
+                    {isActiveRow && <span className="text-xs font-semibold text-[#046ca9]">{t('lbl_scanning')}</span>}
                 </div>
 
                 {/* Product Name */}
@@ -588,12 +588,12 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
                         value={serialValue}
                         onChange={(e) => handleSerialChange(entryIndex, 'serial_number', e.target.value)}
                         placeholder={`Enter Serial/IMEI for ${info.label}`}
-                        className="w-full rounded-lg border border-gray-300 px-2 py-2 text-xs focus:border-purple-500 focus:ring-2 focus:ring-purple-500 sm:px-3 sm:text-sm"
+                        className="w-full rounded-lg border border-gray-300 px-2 py-2 text-xs focus:border-[#cde2ef] focus:ring-2 focus:ring-purple-500 sm:px-3 sm:text-sm"
                     />
                     <button
                         type="button"
                         onClick={() => openScanner(entryIndex)}
-                        className="flex h-9 w-9 items-center justify-center rounded-lg border border-purple-200 bg-purple-50 text-purple-600 transition-colors hover:border-purple-300 hover:bg-purple-100"
+                        className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#cde2ef] bg-purple-50 text-[#046ca9] transition-colors hover:border-[#cde2ef] hover:bg-[#eef7fc]"
                         title="Scan this Serial/IMEI"
                     >
                         <Camera className="h-4 w-4" />
@@ -606,7 +606,7 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
                     value={notesValue}
                     onChange={(e) => handleSerialChange(entryIndex, 'notes', e.target.value)}
                     placeholder={t('placeholder_notes')}
-                    className="w-full rounded-lg border border-gray-300 px-2 py-2 text-xs focus:border-purple-500 focus:ring-2 focus:ring-purple-500 sm:w-40 sm:px-3 sm:text-sm"
+                    className="w-full rounded-lg border border-gray-300 px-2 py-2 text-xs focus:border-[#cde2ef] focus:ring-2 focus:ring-purple-500 sm:w-40 sm:px-3 sm:text-sm"
                 />
             </div>
         );
@@ -643,8 +643,8 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
             <div className="space-y-6">
                 {/* Header */}
                 <div className="flex items-center gap-3 border-b border-gray-200 pb-4">
-                    <div className="rounded-lg bg-purple-100 p-2">
-                        <Hash className="h-5 w-5 text-purple-600" />
+                    <div className="rounded-lg bg-[#eef7fc] p-2">
+                        <Hash className="h-5 w-5 text-[#046ca9]" />
                     </div>
                     <div>
                         <h3 className="text-lg font-semibold text-gray-900">{t('lbl_serial_imei_numbers')}</h3>
@@ -655,13 +655,13 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
                 </div>
 
                 {/* Same Serial Checkbox */}
-                <div className="rounded-lg border border-purple-200 bg-purple-50 p-3 sm:p-4">
+                <div className="rounded-lg border border-[#cde2ef] bg-purple-50 p-3 sm:p-4">
                     <label className="flex cursor-pointer items-start gap-2 sm:items-center sm:gap-3">
                         <input
                             type="checkbox"
                             checked={sameSerialForAll}
                             onChange={handleSameSerialChange}
-                            className="mt-0.5 h-4 w-4 flex-shrink-0 rounded border-gray-300 text-purple-600 focus:ring-purple-500 sm:mt-0 sm:h-5 sm:w-5"
+                            className="mt-0.5 h-4 w-4 flex-shrink-0 rounded border-gray-300 text-[#046ca9] focus:ring-purple-500 sm:mt-0 sm:h-5 sm:w-5"
                         />
                         <div>
                             <span className="block text-sm font-medium text-gray-900 sm:text-base">{t('lbl_same_serial_for_all')}</span>
@@ -669,11 +669,11 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
                                 {t('serial_one_applied_to_all')} {displayUnitCount} {hasVariants ? t('lbl_units_across_variants') : t('lbl_units').toLowerCase()}
                             </p>
                             {hasVariants && (
-                                <p className="text-[11px] text-purple-700 sm:text-xs">
+                                <p className="text-[11px] text-[#046ca9] sm:text-xs">
                                     Includes {variantCount} {variantCount === 1 ? 'variant' : 'variants'}
                                 </p>
                             )}
-                            {displayUnitCount === 0 && <p className="text-[11px] text-purple-600 sm:text-xs">{t('serial_add_stock_to_enable')}</p>}
+                            {displayUnitCount === 0 && <p className="text-[11px] text-[#046ca9] sm:text-xs">{t('serial_add_stock_to_enable')}</p>}
                         </div>
                     </label>
                 </div>
@@ -684,7 +684,7 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
                         type="button"
                         onClick={() => openScanner()}
                         disabled={entryCount <= 0}
-                        className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-purple-600 to-purple-700 px-4 py-2.5 text-sm font-semibold text-white shadow-lg transition-all hover:from-purple-700 hover:to-purple-800 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:px-6 sm:py-3 sm:text-base"
+                        className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#046ca9] px-4 py-2.5 text-sm font-semibold text-white shadow-lg transition-all hover:bg-[#034d79] hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:px-6 sm:py-3 sm:text-base"
                     >
                         <Camera className="h-4 w-4 sm:h-5 sm:w-5" />
                         <span className="truncate">{entryCount <= 0 ? t('serial_set_qty_to_enable_scanner') : t('serial_scan_imei')}</span>
@@ -699,7 +699,9 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
                         // Single Serial Input
                         <div className="rounded-lg border border-gray-300 bg-white p-3 sm:p-4">
                             <div className="mb-2">
-                                <label className="text-xs font-medium text-gray-700 sm:text-sm">{t('serial_for_all_units_label')} {displayUnitCount} {t('lbl_units').toLowerCase()})</label>
+                                <label className="text-xs font-medium text-gray-700 sm:text-sm">
+                                    {t('serial_for_all_units_label')} {displayUnitCount} {t('lbl_units').toLowerCase()})
+                                </label>
                             </div>
                             <div className="flex flex-col gap-2 sm:flex-row">
                                 <div className="flex items-center rounded-lg border border-gray-200 bg-gray-50 px-2 py-2 sm:px-3">
@@ -712,13 +714,13 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
                                         value={productSerials[0]?.serial_number || ''}
                                         onChange={(e) => handleSingleSerialChange('serial_number', e.target.value)}
                                         placeholder={t('placeholder_serial')}
-                                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
+                                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#cde2ef] focus:ring-2 focus:ring-purple-500"
                                     />
                                     <button
                                         type="button"
                                         onClick={() => openScanner(0)}
                                         disabled={entryCount <= 0}
-                                        className="flex h-10 w-10 items-center justify-center rounded-lg border border-purple-200 bg-purple-50 text-purple-600 transition-colors hover:border-purple-300 hover:bg-purple-100 disabled:cursor-not-allowed disabled:opacity-50"
+                                        className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#cde2ef] bg-purple-50 text-[#046ca9] transition-colors hover:border-[#cde2ef] hover:bg-[#eef7fc] disabled:cursor-not-allowed disabled:opacity-50"
                                         title="Scan Serial/IMEI"
                                     >
                                         <Camera className="h-4 w-4" />
@@ -729,15 +731,13 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
                                     value={productSerials[0]?.notes || ''}
                                     onChange={(e) => handleSingleSerialChange('notes', e.target.value)}
                                     placeholder={t('placeholder_notes')}
-                                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-500 sm:w-48"
+                                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#cde2ef] focus:ring-2 focus:ring-purple-500 sm:w-48"
                                 />
                             </div>
                         </div>
                     ) : // Multiple Serial Inputs
                     entryCount === 0 ? (
-                        <div className="rounded-lg border border-dashed border-gray-300 bg-white p-4 text-center text-xs text-gray-500">
-                            {t('serial_set_qty_or_stock')}
-                        </div>
+                        <div className="rounded-lg border border-dashed border-gray-300 bg-white p-4 text-center text-xs text-gray-500">{t('serial_set_qty_or_stock')}</div>
                     ) : hasVariants ? (
                         <div className="space-y-4">
                             {productStocks.map((_, variantIndex) => {
@@ -760,7 +760,7 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
                                                     return { ...prev, [variantIndex]: nextValue };
                                                 })
                                             }
-                                            className="flex w-full items-center justify-between gap-3 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-indigo-50 px-4 py-3 text-left"
+                                            className="flex w-full items-center justify-between gap-3 border-b border-gray-200 bg-[#eef7fc] px-4 py-3 text-left"
                                         >
                                             <div className="flex flex-col">
                                                 <h4 className="text-sm font-semibold text-gray-900 sm:text-base">{variantName}</h4>
@@ -769,10 +769,10 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
                                                 </p>
                                             </div>
                                             <div className="flex items-center gap-3">
-                                                <span className="text-xs font-medium text-purple-600 sm:text-sm">
+                                                <span className="text-xs font-medium text-[#046ca9] sm:text-sm">
                                                     Variant {variantIndex + 1} of {variantCount}
                                                 </span>
-                                                {isExpanded ? <ChevronUp className="h-4 w-4 text-purple-600" /> : <ChevronDown className="h-4 w-4 text-purple-600" />}
+                                                {isExpanded ? <ChevronUp className="h-4 w-4 text-[#046ca9]" /> : <ChevronDown className="h-4 w-4 text-[#046ca9]" />}
                                             </div>
                                         </button>
                                         {isExpanded && (
@@ -817,7 +817,7 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
                 {/* Camera Scanner Modal */}
                 {showCameraScanner && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-                        <div className="relative w-full max-w-lg rounded-2xl bg-white p-4 shadow-2xl sm:p-6">
+                        <div className="relative w-full max-w-lg rounded-lg bg-white p-4 shadow-lg sm:p-6">
                             <button
                                 onClick={closeScanner}
                                 className="absolute right-2 top-2 z-10 rounded-full bg-red-500 p-1.5 text-white transition-colors hover:bg-red-600 sm:right-4 sm:top-4 sm:p-2"
@@ -843,11 +843,11 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
                                                         <span>
                                                             Progress: {filledCount} / {entryCount}
                                                         </span>
-                                                        <span className="font-medium text-purple-600">{progressPercent}%</span>
+                                                        <span className="font-medium text-[#046ca9]">{progressPercent}%</span>
                                                     </div>
                                                     <div className="mt-1 h-2 w-full rounded-full bg-gray-200">
                                                         <div
-                                                            className="h-2 rounded-full bg-gradient-to-r from-purple-500 to-purple-600 transition-all duration-300"
+                                                            className="h-2 rounded-full bg-gradient-to-r from-[#046ca9] to-[#034d79] transition-all duration-300"
                                                             style={{ width: `${progressPercent}%` }}
                                                         ></div>
                                                     </div>
@@ -916,5 +916,3 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
 };
 
 export default SerialTab;
-
-

@@ -44,8 +44,6 @@ const EmployeeEditPage = () => {
         joining_date: '',
     });
 
-
-
     const storeId = currentStoreId;
 
     const [showPassword, setShowPassword] = useState(false);
@@ -213,13 +211,13 @@ const EmployeeEditPage = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[#f4f9fc] via-white to-[#fff7ed] p-2 sm:p-4 md:p-6">
+        <div className="min-h-screen bg-[#f6f8fb] p-2 sm:p-4 md:p-6">
             <div className="mx-auto">
                 {/* Header */}
-                <div className="mb-4 rounded-xl bg-white p-4 shadow-sm sm:mb-6 sm:rounded-2xl sm:p-6 md:mb-8">
+                <div className="mb-4 rounded-lg bg-white p-4 shadow-sm sm:mb-6 sm:rounded-lg sm:p-6 md:mb-8">
                     <div className="mb-4 flex flex-col items-start justify-between gap-4 sm:mb-6 sm:flex-row sm:items-center">
                         <div className="flex items-center space-x-3 sm:space-x-4">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-[#046ca9] to-[#034d79] shadow-md sm:h-12 sm:w-12 sm:rounded-xl">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#046ca9] shadow-md sm:h-12 sm:w-12 sm:rounded-lg">
                                 <Users className="h-5 w-5 text-white sm:h-6 sm:w-6" />
                             </div>
                             <div>
@@ -230,7 +228,7 @@ const EmployeeEditPage = () => {
                         <button
                             type="button"
                             onClick={() => router.push('/employees')}
-                            className="flex w-full items-center justify-center space-x-2 rounded-lg bg-gray-100 px-3 py-2 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-200 sm:w-auto sm:rounded-xl sm:px-4 sm:text-sm"
+                            className="flex w-full items-center justify-center space-x-2 rounded-lg bg-gray-100 px-3 py-2 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-200 sm:w-auto sm:rounded-lg sm:px-4 sm:text-sm"
                         >
                             <ArrowLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                             <span>{t('btn_back')}</span>
@@ -255,7 +253,9 @@ const EmployeeEditPage = () => {
                             <button
                                 type="button"
                                 onClick={() => setActiveTab('profile')}
-                                className={`flex items-center gap-2 border-b-2 px-3 py-2 text-sm font-medium transition-colors ${activeTab === 'profile' ? 'border-[#046ca9] text-[#046ca9]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+                                className={`flex items-center gap-2 border-b-2 px-3 py-2 text-sm font-medium transition-colors ${
+                                    activeTab === 'profile' ? 'border-[#046ca9] text-[#046ca9]' : 'border-transparent text-gray-500 hover:text-gray-700'
+                                }`}
                             >
                                 <Users className="h-4 w-4" />
                                 {t('tab_profile')}
@@ -263,7 +263,9 @@ const EmployeeEditPage = () => {
                             <button
                                 type="button"
                                 onClick={() => setActiveTab('compensation')}
-                                className={`flex items-center gap-2 border-b-2 px-3 py-2 text-sm font-medium transition-colors ${activeTab === 'compensation' ? 'border-[#046ca9] text-[#046ca9]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+                                className={`flex items-center gap-2 border-b-2 px-3 py-2 text-sm font-medium transition-colors ${
+                                    activeTab === 'compensation' ? 'border-[#046ca9] text-[#046ca9]' : 'border-transparent text-gray-500 hover:text-gray-700'
+                                }`}
                             >
                                 <Wallet className="h-4 w-4" />
                                 {t('tab_compensation')}
@@ -274,7 +276,7 @@ const EmployeeEditPage = () => {
 
                 {/* Form Card */}
                 <form onSubmit={handleSubmit}>
-                    <div className="overflow-hidden rounded-xl bg-white shadow-xl sm:rounded-2xl">
+                    <div className="overflow-hidden rounded-lg bg-white shadow-sm sm:rounded-lg">
                         <div className={`p-4 sm:p-6 md:p-8 ${activeTab === 'compensation' ? 'hidden' : ''}`}>
                             <h2 className="mb-4 text-lg font-semibold text-gray-900 sm:mb-6 sm:text-xl">{t('lbl_employee_information')}</h2>
 
@@ -291,7 +293,9 @@ const EmployeeEditPage = () => {
                                             name="name"
                                             value={formData.name}
                                             onChange={handleInputChange}
-                                            className={`w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${formErrors.name ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-[#046ca9] focus:ring-[#046ca9]'}`}
+                                            className={`w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${
+                                                formErrors.name ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-[#046ca9] focus:ring-[#046ca9]'
+                                            }`}
                                             placeholder={t('placeholder_full_name')}
                                         />
                                         {formErrors.name && <p className="mt-1 text-xs text-red-500">{formErrors.name}</p>}
@@ -306,7 +310,9 @@ const EmployeeEditPage = () => {
                                                 name="password"
                                                 value={formData.password}
                                                 onChange={handleInputChange}
-                                                className={`w-full rounded-lg border px-4 py-3 pr-12 text-sm focus:outline-none focus:ring-2 ${formErrors.password ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-[#046ca9] focus:ring-[#046ca9]'}`}
+                                                className={`w-full rounded-lg border px-4 py-3 pr-12 text-sm focus:outline-none focus:ring-2 ${
+                                                    formErrors.password ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-[#046ca9] focus:ring-[#046ca9]'
+                                                }`}
                                                 placeholder={t('employee_edit_password_placeholder')}
                                             />
                                             <button type="button" onClick={() => setShowPassword((v) => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700">
@@ -326,10 +332,18 @@ const EmployeeEditPage = () => {
                                                 name="password_confirmation"
                                                 value={formData.password_confirmation}
                                                 onChange={handleInputChange}
-                                                className={`w-full rounded-lg border px-4 py-3 pr-12 text-sm focus:outline-none focus:ring-2 ${formErrors.password_confirmation ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-[#046ca9] focus:ring-[#046ca9]'}`}
+                                                className={`w-full rounded-lg border px-4 py-3 pr-12 text-sm focus:outline-none focus:ring-2 ${
+                                                    formErrors.password_confirmation
+                                                        ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                                                        : 'border-gray-300 focus:border-[#046ca9] focus:ring-[#046ca9]'
+                                                }`}
                                                 placeholder={t('placeholder_confirm_password')}
                                             />
-                                            <button type="button" onClick={() => setShowConfirmPassword((v) => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700">
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowConfirmPassword((v) => !v)}
+                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                                            >
                                                 {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                                             </button>
                                         </div>
@@ -370,9 +384,7 @@ const EmployeeEditPage = () => {
                                         <label className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_role')}</label>
                                         {isBusinessAdmin ? (
                                             <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
-                                                <span className="inline-flex items-center rounded-full bg-[#034d79]/10 px-2.5 py-0.5 text-xs font-medium text-[#034d79]">
-                                                    {t('role_store_owner')}
-                                                </span>
+                                                <span className="inline-flex items-center rounded-full bg-[#034d79]/10 px-2.5 py-0.5 text-xs font-medium text-[#034d79]">{t('role_store_owner')}</span>
                                                 <span className="text-xs text-gray-400">{t('employee_business_admin_role_locked')}</span>
                                             </div>
                                         ) : (
@@ -460,7 +472,9 @@ const EmployeeEditPage = () => {
                                                 name="payment_mode"
                                                 value={compensationData.payment_mode}
                                                 onChange={handleCompensationChange}
-                                                className={`w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${formErrors.payment_mode ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-[#046ca9] focus:ring-[#046ca9]'}`}
+                                                className={`w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${
+                                                    formErrors.payment_mode ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-[#046ca9] focus:ring-[#046ca9]'
+                                                }`}
                                             >
                                                 <option value="">{t('lbl_select_payment_mode')}</option>
                                                 <option value="cash">{t('lbl_payment_mode_cash')}</option>
@@ -481,7 +495,11 @@ const EmployeeEditPage = () => {
                                                         name="bank_account_name"
                                                         value={compensationData.bank_account_name}
                                                         onChange={handleCompensationChange}
-                                                        className={`w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${formErrors.bank_account_name ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-[#046ca9] focus:ring-[#046ca9]'}`}
+                                                        className={`w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${
+                                                            formErrors.bank_account_name
+                                                                ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                                                                : 'border-gray-300 focus:border-[#046ca9] focus:ring-[#046ca9]'
+                                                        }`}
                                                         placeholder={t('placeholder_bank_account_name')}
                                                     />
                                                     {formErrors.bank_account_name && <p className="mt-1 text-xs text-red-500">{formErrors.bank_account_name}</p>}
@@ -496,7 +514,11 @@ const EmployeeEditPage = () => {
                                                         name="bank_account_number"
                                                         value={compensationData.bank_account_number}
                                                         onChange={handleCompensationChange}
-                                                        className={`w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${formErrors.bank_account_number ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-[#046ca9] focus:ring-[#046ca9]'}`}
+                                                        className={`w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${
+                                                            formErrors.bank_account_number
+                                                                ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                                                                : 'border-gray-300 focus:border-[#046ca9] focus:ring-[#046ca9]'
+                                                        }`}
                                                         placeholder={t('placeholder_bank_account_number')}
                                                     />
                                                     {formErrors.bank_account_number && <p className="mt-1 text-xs text-red-500">{formErrors.bank_account_number}</p>}
@@ -511,7 +533,11 @@ const EmployeeEditPage = () => {
                                                         name="bank_name"
                                                         value={compensationData.bank_name}
                                                         onChange={handleCompensationChange}
-                                                        className={`w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${formErrors.bank_name ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-[#046ca9] focus:ring-[#046ca9]'}`}
+                                                        className={`w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${
+                                                            formErrors.bank_name
+                                                                ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                                                                : 'border-gray-300 focus:border-[#046ca9] focus:ring-[#046ca9]'
+                                                        }`}
                                                         placeholder={t('placeholder_bank_name')}
                                                     />
                                                     {formErrors.bank_name && <p className="mt-1 text-xs text-red-500">{formErrors.bank_name}</p>}
@@ -526,7 +552,11 @@ const EmployeeEditPage = () => {
                                                         name="bank_branch"
                                                         value={compensationData.bank_branch}
                                                         onChange={handleCompensationChange}
-                                                        className={`w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${formErrors.bank_branch ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-[#046ca9] focus:ring-[#046ca9]'}`}
+                                                        className={`w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${
+                                                            formErrors.bank_branch
+                                                                ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                                                                : 'border-gray-300 focus:border-[#046ca9] focus:ring-[#046ca9]'
+                                                        }`}
                                                         placeholder={t('placeholder_bank_branch')}
                                                     />
                                                     {formErrors.bank_branch && <p className="mt-1 text-xs text-red-500">{formErrors.bank_branch}</p>}
@@ -557,14 +587,14 @@ const EmployeeEditPage = () => {
                                     type="button"
                                     onClick={() => router.push('/employees')}
                                     disabled={isSubmitting}
-                                    className="w-full rounded-xl border border-gray-300 bg-white px-6 py-3 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+                                    className="w-full rounded-lg border border-gray-300 bg-white px-6 py-3 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                                 >
                                     {t('btn_cancel')}
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={isSubmitting}
-                                    className="group relative inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-[#046ca9] to-[#034d79] px-6 py-3 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-[#046ca9] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+                                    className="group relative inline-flex w-full items-center justify-center rounded-lg bg-[#046ca9] px-6 py-3 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:bg-[#034d79]  focus:outline-none focus:ring-2 focus:ring-[#046ca9] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                                 >
                                     {isSubmitting ? (
                                         <>

@@ -21,7 +21,7 @@ const ReportSummaryCard: React.FC<ReportSummaryCardProps> = ({ items }) => {
     return (
         <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
             {items.map((stat, index) => (
-                <div key={index} className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md">
+                <div key={index} className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md">
                     <div className="p-3">
                         <div className="flex flex-col gap-2">
                             <div className="flex items-center justify-between">

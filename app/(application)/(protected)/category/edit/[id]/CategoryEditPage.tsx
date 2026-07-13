@@ -70,14 +70,10 @@ export default function CategoryEditPage() {
         <div className="space-y-6">
             {/* Header */}
             <div className="flex items-center gap-3">
-                <button
-                    type="button"
-                    onClick={() => router.push('/category')}
-                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50"
-                >
+                <button type="button" onClick={() => router.push('/category')} className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50">
                     <ArrowLeft className="h-4 w-4" />
                 </button>
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#046ca9] to-[#034d79] text-white shadow-sm">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#046ca9] text-white shadow-sm">
                     <Layers className="h-5 w-5" />
                 </div>
                 <div>
@@ -87,21 +83,24 @@ export default function CategoryEditPage() {
             </div>
 
             {/* Form Card */}
-            <div className="overflow-hidden rounded-2xl bg-white shadow-xl">
+            <div className="overflow-hidden rounded-lg bg-white shadow-sm">
                 <form onSubmit={handleSubmit}>
-                    <div className="p-8 space-y-6">
+                    <div className="space-y-6 p-8">
                         {/* Image Upload */}
                         <div>
                             <label className="mb-2 block text-sm font-medium text-gray-700">{t('category_image_label')}</label>
-                            <div className="rounded-xl border-2 border-dashed border-gray-300 p-6">
+                            <div className="rounded-lg border-2 border-dashed border-gray-300 p-6">
                                 {imagePreview ? (
                                     <div className="flex items-center gap-4">
-                                        <div className="relative h-20 w-20 overflow-hidden rounded-xl">
+                                        <div className="relative h-20 w-20 overflow-hidden rounded-lg">
                                             <Image src={imagePreview} alt="Preview" fill className="object-cover" unoptimized />
                                         </div>
                                         <button
                                             type="button"
-                                            onClick={() => { setFormImage(null); setImagePreview(null); }}
+                                            onClick={() => {
+                                                setFormImage(null);
+                                                setImagePreview(null);
+                                            }}
                                             className="flex items-center gap-1.5 rounded-lg border border-red-200 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50"
                                         >
                                             <X className="h-3.5 w-3.5" />
@@ -145,7 +144,13 @@ export default function CategoryEditPage() {
                                 onChange={setFormDescription}
                                 placeholder={t('category_desc_placeholder')}
                                 className="category-description-editor"
-                                modules={{ toolbar: [['bold', 'italic', 'underline'], [{ list: 'ordered' }, { list: 'bullet' }], ['link', 'clean']] }}
+                                modules={{
+                                    toolbar: [
+                                        ['bold', 'italic', 'underline'],
+                                        [{ list: 'ordered' }, { list: 'bullet' }],
+                                        ['link', 'clean'],
+                                    ],
+                                }}
                                 formats={['bold', 'italic', 'underline', 'list', 'link']}
                             />
                         </div>
@@ -164,7 +169,7 @@ export default function CategoryEditPage() {
                             <button
                                 type="submit"
                                 disabled={isUpdating}
-                                className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-[#046ca9] to-[#034d79] px-8 py-3 font-medium text-white transition-all hover:brightness-105 focus:ring-4 focus:ring-[#046ca9]/30 disabled:opacity-50 sm:w-auto sm:min-w-[160px]"
+                                className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#046ca9] px-8 py-3 font-medium text-white transition-all hover:bg-[#034d79] focus:ring-4 focus:ring-[#046ca9]/30 disabled:opacity-50 sm:w-auto sm:min-w-[160px]"
                             >
                                 {isUpdating ? (
                                     <>

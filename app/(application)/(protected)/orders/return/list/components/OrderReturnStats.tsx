@@ -36,7 +36,7 @@ const OrderReturnStats: React.FC<OrderReturnStatsProps> = ({ totalReturns, total
             value: exchanges.toString(),
             subtitle: formatCurrency(totalExchangeAmount),
             color: 'blue',
-            bgGradient: 'from-blue-500 to-indigo-600',
+            bgGradient: 'from-[#046ca9] to-[#034d79]',
         },
         {
             title: t('lbl_total'),
@@ -50,7 +50,7 @@ const OrderReturnStats: React.FC<OrderReturnStatsProps> = ({ totalReturns, total
     return (
         <div className="mb-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {stats.map((stat, index) => (
-                <div key={index} className="overflow-hidden rounded-xl bg-white shadow-sm transition-all duration-200 hover:shadow-md">
+                <div key={index} className="overflow-hidden rounded-lg bg-white shadow-sm transition-all duration-200 hover:shadow-md">
                     <div className={`h-1.5 bg-gradient-to-r ${stat.bgGradient}`} />
                     <div className="p-5">
                         <p className="mb-2 text-sm font-medium text-gray-600">{stat.title}</p>

@@ -15,15 +15,7 @@ interface PaymentLinkModalProps {
     remainingAmount: number;
 }
 
-export default function PaymentLinkModal({
-    open,
-    onClose,
-    dueId,
-    customerName,
-    customerPhone,
-    customerEmail,
-    remainingAmount,
-}: PaymentLinkModalProps) {
+export default function PaymentLinkModal({ open, onClose, dueId, customerName, customerPhone, customerEmail, remainingAmount }: PaymentLinkModalProps) {
     const { t } = getTranslation();
     const [createLink, { isLoading: creating }] = useCreateCustomerDuePaymentLinkMutation();
     const [sendReminder, { isLoading: sending }] = useSendCustomerDuePaymentLinkReminderMutation();
@@ -76,7 +68,7 @@ export default function PaymentLinkModal({
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl">
+            <div className="w-full max-w-lg rounded-lg bg-white p-6 shadow-sm">
                 <div className="mb-4 flex items-center justify-between">
                     <h3 className="flex items-center gap-2 text-lg font-bold text-gray-900">
                         <Share2 className="h-5 w-5 text-primary" />
@@ -92,14 +84,7 @@ export default function PaymentLinkModal({
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_amount')}</label>
-                                <input
-                                    type="number"
-                                    min={0.01}
-                                    step={0.01}
-                                    value={form.amount}
-                                    onChange={(e) => setForm({ ...form, amount: e.target.value })}
-                                    className="form-input w-full"
-                                />
+                                <input type="number" min={0.01} step={0.01} value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} className="form-input w-full" />
                             </div>
                             <div>
                                 <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_expires_in_days')}</label>

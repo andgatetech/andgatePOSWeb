@@ -262,7 +262,7 @@ const PurchaseReportPage = () => {
     );
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="min-h-screen bg-[#f6f8fb]">
             <div className="mx-auto">
                 <ReportExportToolbar
                     reportTitle={t('report_purchase_title')}
@@ -281,7 +281,7 @@ const PurchaseReportPage = () => {
 
                 <div className="mb-6 grid gap-6 lg:grid-cols-2">
                     {/* Status Breakdown */}
-                    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md">
+                    <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md">
                         <div className="border-b border-gray-100 bg-gray-50/50 px-6 py-4">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
@@ -310,7 +310,7 @@ const PurchaseReportPage = () => {
                     </div>
 
                     {/* Payment Status Breakdown */}
-                    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md">
+                    <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md">
                         <div className="border-b border-gray-100 bg-gray-50/50 px-6 py-4">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">

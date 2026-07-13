@@ -26,10 +26,7 @@ const ReorderSuggestionsPage = () => {
     const { data, isLoading } = useGetReorderSuggestionsQuery(params, { skip: !currentStoreId });
 
     const suggestions = useMemo(() => data?.data?.suggestions || data?.data || [], [data]);
-    const selectedSuggestions = useMemo(
-        () => suggestions.filter((item: any) => selectedIds.includes(Number(item.product_id))),
-        [selectedIds, suggestions]
-    );
+    const selectedSuggestions = useMemo(() => suggestions.filter((item: any) => selectedIds.includes(Number(item.product_id))), [selectedIds, suggestions]);
 
     const summary = useMemo(() => {
         const totals = suggestions.reduce(
@@ -53,24 +50,27 @@ const ReorderSuggestionsPage = () => {
     }, [suggestions]);
 
     const toggleSelect = useCallback((productId: number) => {
-        setSelectedIds((prev) => prev.includes(productId) ? prev.filter((id) => id !== productId) : [...prev, productId]);
+        setSelectedIds((prev) => (prev.includes(productId) ? prev.filter((id) => id !== productId) : [...prev, productId]));
     }, []);
 
     const toggleSelectAll = useCallback(() => {
         const allIds = suggestions.map((item: any) => Number(item.product_id)).filter(Boolean);
-        setSelectedIds((prev) => prev.length === allIds.length ? [] : allIds);
+        setSelectedIds((prev) => (prev.length === allIds.length ? [] : allIds));
     }, [suggestions]);
 
-    const handleCreateDraft = useCallback(async (productIds: number[]) => {
-        if (!currentStoreId || productIds.length === 0) return;
-        try {
-            const result = await createReorderDraft({ store_id: currentStoreId, product_ids: productIds }).unwrap();
-            setSelectedIds([]);
-            router.push(result.data.redirect_url);
-        } catch {
-            alert(t('msg_reorder_draft_failed'));
-        }
-    }, [createReorderDraft, currentStoreId, router, t]);
+    const handleCreateDraft = useCallback(
+        async (productIds: number[]) => {
+            if (!currentStoreId || productIds.length === 0) return;
+            try {
+                const result = await createReorderDraft({ store_id: currentStoreId, product_ids: productIds }).unwrap();
+                setSelectedIds([]);
+                router.push(result.data.redirect_url);
+            } catch {
+                alert(t('msg_reorder_draft_failed'));
+            }
+        },
+        [createReorderDraft, currentStoreId, router, t]
+    );
 
     const exportColumns = useMemo<ExportColumn[]>(
         () => [
@@ -104,12 +104,7 @@ const ReorderSuggestionsPage = () => {
             label: '',
             sortable: false,
             render: (_value: any, row: any) => (
-                <input
-                    type="checkbox"
-                    checked={selectedIds.includes(Number(row.product_id))}
-                    onChange={() => toggleSelect(Number(row.product_id))}
-                    className="form-checkbox h-4 w-4"
-                />
+                <input type="checkbox" checked={selectedIds.includes(Number(row.product_id))} onChange={() => toggleSelect(Number(row.product_id))} className="form-checkbox h-4 w-4" />
             ),
         },
         { key: 'product_name', label: t('lbl_product_name'), sortable: false },
@@ -123,12 +118,17 @@ const ReorderSuggestionsPage = () => {
             label: t('lbl_urgency'),
             sortable: false,
             render: (row: any) => (
-                <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold capitalize ${
-                    row.urgency === 'critical' ? 'bg-red-100 text-red-700' :
-                    row.urgency === 'high' ? 'bg-orange-100 text-orange-700' :
-                    row.urgency === 'medium' ? 'bg-amber-100 text-amber-700' :
-                    'bg-green-100 text-green-700'
-                }`}>
+                <span
+                    className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold capitalize ${
+                        row.urgency === 'critical'
+                            ? 'bg-red-100 text-red-700'
+                            : row.urgency === 'high'
+                            ? 'bg-orange-100 text-orange-700'
+                            : row.urgency === 'medium'
+                            ? 'bg-amber-100 text-amber-700'
+                            : 'bg-green-100 text-green-700'
+                    }`}
+                >
                     {t(`lbl_urgency_${row.urgency}`)}
                 </span>
             ),
@@ -208,15 +208,9 @@ const ReorderSuggestionsPage = () => {
 
             {selectedIds.length > 0 && (
                 <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-primary/20 bg-primary/5 px-4 py-3">
-                    <p className="text-sm font-semibold text-primary">
-                        {t('lbl_selected_for_purchase_draft').replace('{{count}}', String(selectedIds.length))}
-                    </p>
+                    <p className="text-sm font-semibold text-primary">{t('lbl_selected_for_purchase_draft').replace('{{count}}', String(selectedIds.length))}</p>
                     <div className="flex flex-wrap gap-2">
-                        <button
-                            type="button"
-                            onClick={toggleSelectAll}
-                            className="rounded-md border border-primary/30 bg-white px-4 py-2 text-sm font-semibold text-primary"
-                        >
+                        <button type="button" onClick={toggleSelectAll} className="rounded-md border border-primary/30 bg-white px-4 py-2 text-sm font-semibold text-primary">
                             {selectedIds.length === suggestions.length ? t('lbl_clear_selection') : t('lbl_select_all_short')}
                         </button>
                         <button
@@ -233,12 +227,7 @@ const ReorderSuggestionsPage = () => {
             )}
 
             <div className="overflow-hidden rounded-lg border border-slate-200 bg-white">
-                <ReusableTable
-                    columns={columns}
-                    data={suggestions}
-                    isLoading={isLoading}
-                    emptyMessage={t('lbl_no_reorder_suggestions')}
-                />
+                <ReusableTable columns={columns} data={suggestions} isLoading={isLoading} emptyMessage={t('lbl_no_reorder_suggestions')} />
             </div>
         </div>
     );

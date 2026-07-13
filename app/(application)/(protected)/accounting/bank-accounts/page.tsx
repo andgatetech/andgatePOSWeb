@@ -5,12 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
-import {
-    useGetBankAccountsQuery,
-    useCreateBankAccountMutation,
-    useUpdateBankAccountMutation,
-    useDeleteBankAccountMutation,
-} from '@/store/features/bank/bankApi';
+import { useGetBankAccountsQuery, useCreateBankAccountMutation, useUpdateBankAccountMutation, useDeleteBankAccountMutation } from '@/store/features/bank/bankApi';
 import { Building2, Pencil, Plus, Trash2 } from 'lucide-react';
 
 const ACCOUNT_TYPES = [
@@ -37,10 +32,7 @@ export default function BankAccountsPage() {
     const router = useRouter();
     const { formatCurrency } = useCurrency();
     const { currentStoreId } = useCurrentStore();
-    const { data, isLoading, refetch } = useGetBankAccountsQuery(
-        { store_id: currentStoreId },
-        { skip: !currentStoreId }
-    );
+    const { data, isLoading, refetch } = useGetBankAccountsQuery({ store_id: currentStoreId }, { skip: !currentStoreId });
     const [createAccount, { isLoading: creating }] = useCreateBankAccountMutation();
     const [updateAccount, { isLoading: updating }] = useUpdateBankAccountMutation();
     const [deleteAccount] = useDeleteBankAccountMutation();
@@ -119,7 +111,7 @@ export default function BankAccountsPage() {
             {isLoading ? (
                 <p className="text-sm text-gray-500">{t('lbl_loading')}</p>
             ) : accounts.length === 0 ? (
-                <div className="rounded-xl border border-gray-200 bg-white p-8 text-center">
+                <div className="rounded-lg border border-gray-200 bg-white p-8 text-center">
                     <Building2 className="mx-auto h-12 w-12 text-gray-300" />
                     <p className="mt-3 text-sm text-gray-500">{t('msg_no_bank_accounts')}</p>
                     <button onClick={openCreate} className="btn btn-outline-primary mt-4">
@@ -132,7 +124,7 @@ export default function BankAccountsPage() {
                         <div
                             key={account.id}
                             onClick={() => router.push(`/accounting/bank-accounts/${account.id}`)}
-                            className="cursor-pointer rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:border-primary/40 hover:shadow-md"
+                            className="cursor-pointer rounded-lg border border-gray-200 bg-white p-5 shadow-sm transition hover:border-primary/40 hover:shadow-md"
                         >
                             <div className="flex items-start justify-between">
                                 <div>
@@ -141,13 +133,19 @@ export default function BankAccountsPage() {
                                 </div>
                                 <div className="flex gap-1">
                                     <button
-                                        onClick={(e) => { e.stopPropagation(); openEdit(account); }}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            openEdit(account);
+                                        }}
                                         className="rounded p-1.5 text-gray-500 hover:bg-gray-100"
                                     >
                                         <Pencil className="h-4 w-4" />
                                     </button>
                                     <button
-                                        onClick={(e) => { e.stopPropagation(); handleDelete(account.id); }}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleDelete(account.id);
+                                        }}
                                         className="rounded p-1.5 text-danger hover:bg-red-50"
                                     >
                                         <Trash2 className="h-4 w-4" />
@@ -179,10 +177,8 @@ export default function BankAccountsPage() {
 
             {modalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                    <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl">
-                        <h3 className="mb-4 text-lg font-bold text-gray-900">
-                            {editingId ? t('lbl_edit_bank_account') : t('lbl_add_bank_account')}
-                        </h3>
+                    <div className="w-full max-w-lg rounded-lg bg-white p-6 shadow-sm">
+                        <h3 className="mb-4 text-lg font-bold text-gray-900">{editingId ? t('lbl_edit_bank_account') : t('lbl_add_bank_account')}</h3>
                         <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2">
                             <div>
                                 <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_bank_name')}</label>
@@ -203,12 +199,23 @@ export default function BankAccountsPage() {
                             <div>
                                 <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_account_type')}</label>
                                 <select value={form.account_type} onChange={(e) => setForm({ ...form, account_type: e.target.value })} className="form-select w-full">
-                                    {ACCOUNT_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+                                    {ACCOUNT_TYPES.map((t) => (
+                                        <option key={t.value} value={t.value}>
+                                            {t.label}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
                             <div>
                                 <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_opening_balance')}</label>
-                                <input type="number" min={0} step={0.01} value={form.opening_balance} onChange={(e) => setForm({ ...form, opening_balance: e.target.value })} className="form-input w-full" />
+                                <input
+                                    type="number"
+                                    min={0}
+                                    step={0.01}
+                                    value={form.opening_balance}
+                                    onChange={(e) => setForm({ ...form, opening_balance: e.target.value })}
+                                    className="form-input w-full"
+                                />
                             </div>
                             <div className="sm:col-span-2">
                                 <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_notes')}</label>
@@ -219,8 +226,12 @@ export default function BankAccountsPage() {
                                 <label className="text-sm">{t('lbl_active')}</label>
                             </div>
                             <div className="flex justify-end gap-2 sm:col-span-2">
-                                <button type="button" onClick={() => setModalOpen(false)} className="btn btn-outline-secondary">{t('lbl_cancel')}</button>
-                                <button type="submit" disabled={creating || updating} className="btn btn-primary">{editingId ? t('lbl_update') : t('lbl_add')}</button>
+                                <button type="button" onClick={() => setModalOpen(false)} className="btn btn-outline-secondary">
+                                    {t('lbl_cancel')}
+                                </button>
+                                <button type="submit" disabled={creating || updating} className="btn btn-primary">
+                                    {editingId ? t('lbl_update') : t('lbl_add')}
+                                </button>
                             </div>
                         </form>
                     </div>

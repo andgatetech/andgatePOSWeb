@@ -13,10 +13,7 @@ export default function CashFlowForecastPage() {
     const [daysBack, setDaysBack] = useState(90);
     const [forecastDays, setForecastDays] = useState(30);
 
-    const { data, isLoading, refetch } = useGetCashFlowForecastQuery(
-        { days_back: daysBack, forecast_days: forecastDays },
-        { skip: false }
-    );
+    const { data, isLoading, refetch } = useGetCashFlowForecastQuery({ days_back: daysBack, forecast_days: forecastDays }, { skip: false });
 
     const result = data?.data;
 
@@ -34,7 +31,7 @@ export default function CashFlowForecastPage() {
                 </div>
             </div>
 
-            <div className="flex flex-wrap items-end gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+            <div className="flex flex-wrap items-end gap-3 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
                 <div>
                     <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_historical_days')}</label>
                     <input type="number" min={7} max={365} value={daysBack} onChange={(e) => setDaysBack(Number(e.target.value))} className="form-input" />
@@ -43,7 +40,9 @@ export default function CashFlowForecastPage() {
                     <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_forecast_days')}</label>
                     <input type="number" min={7} max={365} value={forecastDays} onChange={(e) => setForecastDays(Number(e.target.value))} className="form-input" />
                 </div>
-                <button onClick={() => refetch()} className="btn btn-primary">{t('lbl_apply')}</button>
+                <button onClick={() => refetch()} className="btn btn-primary">
+                    {t('lbl_apply')}
+                </button>
             </div>
 
             {isLoading ? (
@@ -51,21 +50,21 @@ export default function CashFlowForecastPage() {
             ) : (
                 <>
                     <div className="grid gap-4 md:grid-cols-3">
-                        <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+                        <div className="rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
                             <p className="text-sm text-gray-500">{t('lbl_average_daily_net')}</p>
                             <p className="mt-2 text-2xl font-black text-gray-900">{formatCurrency(result?.average_daily_net || 0)}</p>
                         </div>
-                        <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+                        <div className="rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
                             <p className="text-sm text-gray-500">{t('lbl_trend_per_day')}</p>
                             <p className="mt-2 text-2xl font-black text-gray-900">{formatCurrency(result?.trend_per_day || 0)}</p>
                         </div>
-                        <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+                        <div className="rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
                             <p className="text-sm text-gray-500">{t('lbl_projected_end_balance')}</p>
                             <p className="mt-2 text-2xl font-black text-primary">{formatCurrency(result?.forecast?.[result.forecast.length - 1]?.running_balance || 0)}</p>
                         </div>
                     </div>
 
-                    <div className="h-80 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                    <div className="h-80 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
                         <ResponsiveContainer width="100%" height="100%">
                             <LineChart data={chartData}>
                                 <CartesianGrid strokeDasharray="3 3" />

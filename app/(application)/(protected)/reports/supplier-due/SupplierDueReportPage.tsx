@@ -303,7 +303,7 @@ const SupplierDueReportPage = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="min-h-screen bg-[#f6f8fb]">
             <div className="mx-auto">
                 <ReportExportToolbar
                     reportTitle={t('report_supplier_due_title')}
@@ -340,10 +340,12 @@ const SupplierDueReportPage = () => {
             </div>
             {paymentModal && (
                 <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/50 p-4">
-                    <div className="w-full max-w-md rounded-lg bg-white shadow-xl">
+                    <div className="w-full max-w-md rounded-lg bg-white shadow-sm">
                         <div className="border-b border-gray-200 p-5">
                             <h2 className="text-lg font-bold text-gray-900">{paymentModal.type === 'full' ? t('btn_clear_full_due') : t('btn_make_partial_payment')}</h2>
-                            <p className="mt-1 text-sm text-gray-500">{paymentModal.due.supplier || 'N/A'} · {paymentModal.due.reference}</p>
+                            <p className="mt-1 text-sm text-gray-500">
+                                {paymentModal.due.supplier || 'N/A'} · {paymentModal.due.reference}
+                            </p>
                         </div>
                         <div className="space-y-4 p-5">
                             <div className="rounded-lg bg-red-50 p-3">
@@ -367,16 +369,28 @@ const SupplierDueReportPage = () => {
                             <label className="block">
                                 <span className="mb-1 block text-sm font-semibold text-gray-700">{t('lbl_payment_method')}</span>
                                 <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} className="form-select w-full">
-                                    {paymentMethods.map((method) => <option key={method} value={method}>{method}</option>)}
+                                    {paymentMethods.map((method) => (
+                                        <option key={method} value={method}>
+                                            {method}
+                                        </option>
+                                    ))}
                                 </select>
                             </label>
                             <label className="block">
                                 <span className="mb-1 block text-sm font-semibold text-gray-700">{t('lbl_notes_optional')}</span>
-                                <textarea value={paymentNotes} onChange={(e) => setPaymentNotes(e.target.value)} className="form-textarea w-full" rows={3} placeholder={t('placeholder_payment_notes')} />
+                                <textarea
+                                    value={paymentNotes}
+                                    onChange={(e) => setPaymentNotes(e.target.value)}
+                                    className="form-textarea w-full"
+                                    rows={3}
+                                    placeholder={t('placeholder_payment_notes')}
+                                />
                             </label>
                         </div>
                         <div className="flex justify-end gap-3 border-t border-gray-200 p-5">
-                            <button type="button" className="btn btn-outline-danger" onClick={closePaymentModal}>{t('btn_cancel')}</button>
+                            <button type="button" className="btn btn-outline-danger" onClick={closePaymentModal}>
+                                {t('btn_cancel')}
+                            </button>
                             <button type="button" className="btn btn-primary" onClick={submitPayment} disabled={isPaymentLoading || isClearingDue}>
                                 {isPaymentLoading || isClearingDue ? t('lbl_processing') : t('btn_make_payment')}
                             </button>

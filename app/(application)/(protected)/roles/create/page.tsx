@@ -32,14 +32,14 @@ const RoleCreatePage = () => {
     }, [permissionsData]);
 
     const handleToggle = (perm: Permission) => {
-        setFormPermIds((prev) => prev.includes(perm.id) ? prev.filter((x) => x !== perm.id) : [...prev, perm.id]);
+        setFormPermIds((prev) => (prev.includes(perm.id) ? prev.filter((x) => x !== perm.id) : [...prev, perm.id]));
         setSelectAll(false);
     };
 
     const handleCategoryToggle = (_category: string, perms: Permission[]) => {
         const ids = perms.map((p) => p.id);
         const allSelected = ids.every((id) => formPermIds.includes(id));
-        setFormPermIds((prev) => allSelected ? prev.filter((id) => !ids.includes(id)) : [...new Set([...prev, ...ids])]);
+        setFormPermIds((prev) => (allSelected ? prev.filter((id) => !ids.includes(id)) : [...new Set([...prev, ...ids])]));
         setSelectAll(false);
     };
 
@@ -55,7 +55,10 @@ const RoleCreatePage = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!formName.trim()) { setNameError(t('roles_name_required_desc')); return; }
+        if (!formName.trim()) {
+            setNameError(t('roles_name_required_desc'));
+            return;
+        }
         setNameError('');
         try {
             await createRole({
@@ -72,13 +75,13 @@ const RoleCreatePage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+        <div className="min-h-screen bg-[#f6f8fb] p-4">
             <div className="mx-auto">
                 {/* Header */}
                 <div className="mb-6 space-y-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#046ca9] to-[#034d79] text-white shadow-sm">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#046ca9] text-white shadow-sm">
                                 <Shield className="h-5 w-5" />
                             </div>
                             <div>
@@ -97,7 +100,7 @@ const RoleCreatePage = () => {
                     </div>
 
                     {(currentStore || currentStoreId) && (
-                        <div className="rounded-xl border border-[#046ca9]/15 bg-[#046ca9]/5 p-3">
+                        <div className="rounded-lg border border-[#046ca9]/15 bg-[#046ca9]/5 p-3">
                             <div className="flex items-center gap-3">
                                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#046ca9]/10">
                                     <Store className="h-4 w-4 text-[#034d79]" />
@@ -111,9 +114,9 @@ const RoleCreatePage = () => {
                 </div>
 
                 {/* Main Card */}
-                <div className="overflow-hidden rounded-2xl bg-white shadow-xl">
+                <div className="overflow-hidden rounded-lg bg-white shadow-sm">
                     <form onSubmit={handleSubmit}>
-                        <div className="p-8 space-y-8">
+                        <div className="space-y-8 p-8">
                             {/* Basic Info */}
                             <div>
                                 <h3 className="mb-4 text-lg font-semibold text-gray-900">{t('lbl_role_information')}</h3>
@@ -125,9 +128,14 @@ const RoleCreatePage = () => {
                                         <input
                                             type="text"
                                             value={formName}
-                                            onChange={(e) => { setFormName(e.target.value); if (nameError) setNameError(''); }}
+                                            onChange={(e) => {
+                                                setFormName(e.target.value);
+                                                if (nameError) setNameError('');
+                                            }}
                                             placeholder={t('roles_name_placeholder')}
-                                            className={`w-full rounded-lg border bg-gray-50 px-4 py-3 text-sm transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-[#046ca9] ${nameError ? 'border-red-300' : 'border-gray-300'}`}
+                                            className={`w-full rounded-lg border bg-gray-50 px-4 py-3 text-sm transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-[#046ca9] ${
+                                                nameError ? 'border-red-300' : 'border-gray-300'
+                                            }`}
                                         />
                                         {nameError && <p className="mt-1 text-sm text-red-600">{nameError}</p>}
                                     </div>
@@ -180,7 +188,7 @@ const RoleCreatePage = () => {
                                 <button
                                     type="submit"
                                     disabled={isSubmitting}
-                                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-[#046ca9] to-[#034d79] px-8 py-3 font-medium text-white transition-all hover:brightness-105 focus:ring-4 focus:ring-[#046ca9]/30 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:min-w-[160px]"
+                                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#046ca9] px-8 py-3 font-medium text-white transition-all hover:bg-[#034d79] focus:ring-4 focus:ring-[#046ca9]/30 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:min-w-[160px]"
                                 >
                                     {isSubmitting ? (
                                         <>

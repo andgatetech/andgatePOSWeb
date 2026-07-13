@@ -121,7 +121,14 @@ const SupplierReportPage = () => {
 
     const summaryItems = useMemo(
         () => [
-            { label: t('report_total_sales'), value: formatNumber(summary.total_orders || 0), icon: <Receipt className="h-4 w-4 text-blue-600" />, bgColor: 'bg-blue-500', lightBg: 'bg-blue-50', textColor: 'text-blue-600' },
+            {
+                label: t('report_total_sales'),
+                value: formatNumber(summary.total_orders || 0),
+                icon: <Receipt className="h-4 w-4 text-blue-600" />,
+                bgColor: 'bg-blue-500',
+                lightBg: 'bg-blue-50',
+                textColor: 'text-blue-600',
+            },
             {
                 label: t('lbl_total'),
                 value: formatCurrency(summary.total_amount),
@@ -178,12 +185,7 @@ const SupplierReportPage = () => {
             {
                 key: 'payment_method',
                 label: t('lbl_payment_method'),
-                render: (v: any) =>
-                    !v || v === 'N/A' ? (
-                        <span className="text-xs text-gray-400">{t('lbl_not_specified')}</span>
-                    ) : (
-                        <span className="text-sm capitalize text-gray-700">{v}</span>
-                    ),
+                render: (v: any) => (!v || v === 'N/A' ? <span className="text-xs text-gray-400">{t('lbl_not_specified')}</span> : <span className="text-sm capitalize text-gray-700">{v}</span>),
             },
             {
                 key: 'status',
@@ -209,13 +211,13 @@ const SupplierReportPage = () => {
     );
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="min-h-screen bg-[#f6f8fb]">
             <div className="mx-auto">
                 <ReportExportToolbar
                     reportTitle={t('report_supplier_title')}
                     reportDescription={t('report_supplier_desc')}
                     reportIcon={<Users className="h-6 w-6 text-white" />}
-                    iconBgClass="bg-gradient-to-r from-cyan-600 to-cyan-700"
+                    iconBgClass="bg-[#046ca9]"
                     data={orders}
                     columns={exportColumns}
                     summary={exportSummary}

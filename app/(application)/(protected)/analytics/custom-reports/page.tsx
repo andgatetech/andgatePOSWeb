@@ -4,12 +4,7 @@ import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
-import {
-    useCreateCustomReportMutation,
-    useDeleteCustomReportMutation,
-    useGetCustomReportsQuery,
-    useUpdateCustomReportMutation,
-} from '@/store/features/analytics/analyticsApi';
+import { useCreateCustomReportMutation, useDeleteCustomReportMutation, useGetCustomReportsQuery, useUpdateCustomReportMutation } from '@/store/features/analytics/analyticsApi';
 import { BarChart3, GripVertical, Pencil, Plus, Trash2 } from 'lucide-react';
 
 const REPORT_TYPES = [
@@ -94,10 +89,7 @@ export default function CustomReportsPage() {
     const { t } = getTranslation();
     const router = useRouter();
     const { currentStoreId } = useCurrentStore();
-    const { data, isLoading, refetch } = useGetCustomReportsQuery(
-        { store_id: currentStoreId },
-        { skip: !currentStoreId }
-    );
+    const { data, isLoading, refetch } = useGetCustomReportsQuery({ store_id: currentStoreId }, { skip: !currentStoreId });
     const [createReport] = useCreateCustomReportMutation();
     const [updateReport] = useUpdateCustomReportMutation();
     const [deleteReport] = useDeleteCustomReportMutation();
@@ -144,9 +136,7 @@ export default function CustomReportsPage() {
     };
 
     const toggleColumn = (value: string) => {
-        const cols = form.columns.includes(value)
-            ? form.columns.filter((c: string) => c !== value)
-            : [...form.columns, value];
+        const cols = form.columns.includes(value) ? form.columns.filter((c: string) => c !== value) : [...form.columns, value];
         setForm({ ...form, columns: cols });
     };
 
@@ -203,23 +193,29 @@ export default function CustomReportsPage() {
             {isLoading ? (
                 <p className="text-sm text-gray-500">{t('lbl_loading')}</p>
             ) : reports.length === 0 ? (
-                <div className="rounded-xl border border-gray-200 bg-white p-8 text-center">
+                <div className="rounded-lg border border-gray-200 bg-white p-8 text-center">
                     <BarChart3 className="mx-auto h-12 w-12 text-gray-300" />
                     <p className="mt-3 text-sm text-gray-500">{t('msg_no_custom_reports')}</p>
-                    <button onClick={openCreate} className="btn btn-outline-primary mt-4">{t('lbl_add_custom_report')}</button>
+                    <button onClick={openCreate} className="btn btn-outline-primary mt-4">
+                        {t('lbl_add_custom_report')}
+                    </button>
                 </div>
             ) : (
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                     {reports.map((report: any) => (
-                        <div key={report.id} className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+                        <div key={report.id} className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
                             <div className="flex items-start justify-between">
                                 <div>
                                     <p className="font-bold text-gray-900">{report.name}</p>
-                                    <p className="text-xs text-gray-500 capitalize">{report.report_type}</p>
+                                    <p className="text-xs capitalize text-gray-500">{report.report_type}</p>
                                 </div>
                                 <div className="flex gap-1">
-                                    <button onClick={() => openEdit(report)} className="rounded p-1.5 text-gray-500 hover:bg-gray-100"><Pencil className="h-4 w-4" /></button>
-                                    <button onClick={() => handleDelete(report.id)} className="rounded p-1.5 text-danger hover:bg-red-50"><Trash2 className="h-4 w-4" /></button>
+                                    <button onClick={() => openEdit(report)} className="rounded p-1.5 text-gray-500 hover:bg-gray-100">
+                                        <Pencil className="h-4 w-4" />
+                                    </button>
+                                    <button onClick={() => handleDelete(report.id)} className="rounded p-1.5 text-danger hover:bg-red-50">
+                                        <Trash2 className="h-4 w-4" />
+                                    </button>
                                 </div>
                             </div>
                             {report.description && <p className="mt-2 text-sm text-gray-600">{report.description}</p>}
@@ -233,7 +229,7 @@ export default function CustomReportsPage() {
 
             {modalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                    <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-6 shadow-xl">
+                    <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-6 shadow-sm">
                         <h3 className="mb-4 text-lg font-bold text-gray-900">{editingId ? t('lbl_edit_custom_report') : t('lbl_add_custom_report')}</h3>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div className="grid gap-4 sm:grid-cols-2">
@@ -257,7 +253,11 @@ export default function CustomReportsPage() {
                                         }}
                                         className="form-select w-full"
                                     >
-                                        {REPORT_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+                                        {REPORT_TYPES.map((t) => (
+                                            <option key={t.value} value={t.value}>
+                                                {t.label}
+                                            </option>
+                                        ))}
                                     </select>
                                 </div>
                             </div>
@@ -289,11 +289,21 @@ export default function CustomReportsPage() {
                             <div className="grid gap-4 sm:grid-cols-2">
                                 <div>
                                     <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_start_date')}</label>
-                                    <input type="date" value={form.filters.start_date} onChange={(e) => setForm({ ...form, filters: { ...form.filters, start_date: e.target.value } })} className="form-input w-full" />
+                                    <input
+                                        type="date"
+                                        value={form.filters.start_date}
+                                        onChange={(e) => setForm({ ...form, filters: { ...form.filters, start_date: e.target.value } })}
+                                        className="form-input w-full"
+                                    />
                                 </div>
                                 <div>
                                     <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_end_date')}</label>
-                                    <input type="date" value={form.filters.end_date} onChange={(e) => setForm({ ...form, filters: { ...form.filters, end_date: e.target.value } })} className="form-input w-full" />
+                                    <input
+                                        type="date"
+                                        value={form.filters.end_date}
+                                        onChange={(e) => setForm({ ...form, filters: { ...form.filters, end_date: e.target.value } })}
+                                        className="form-input w-full"
+                                    />
                                 </div>
                             </div>
 
@@ -301,11 +311,21 @@ export default function CustomReportsPage() {
                                 <div className="grid gap-4 sm:grid-cols-2">
                                     <div>
                                         <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_payment_status')}</label>
-                                        <input value={form.filters.payment_status} onChange={(e) => setForm({ ...form, filters: { ...form.filters, payment_status: e.target.value } })} className="form-input w-full" placeholder="e.g. Paid" />
+                                        <input
+                                            value={form.filters.payment_status}
+                                            onChange={(e) => setForm({ ...form, filters: { ...form.filters, payment_status: e.target.value } })}
+                                            className="form-input w-full"
+                                            placeholder="e.g. Paid"
+                                        />
                                     </div>
                                     <div>
                                         <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_payment_method')}</label>
-                                        <input value={form.filters.payment_method} onChange={(e) => setForm({ ...form, filters: { ...form.filters, payment_method: e.target.value } })} className="form-input w-full" placeholder="e.g. Cash" />
+                                        <input
+                                            value={form.filters.payment_method}
+                                            onChange={(e) => setForm({ ...form, filters: { ...form.filters, payment_method: e.target.value } })}
+                                            className="form-input w-full"
+                                            placeholder="e.g. Cash"
+                                        />
                                     </div>
                                 </div>
                             )}
@@ -319,7 +339,12 @@ export default function CustomReportsPage() {
 
                             {form.report_type === 'inventory' && (
                                 <div className="flex items-center gap-2">
-                                    <input type="checkbox" checked={form.filters.low_stock} onChange={(e) => setForm({ ...form, filters: { ...form.filters, low_stock: e.target.checked } })} className="form-checkbox" />
+                                    <input
+                                        type="checkbox"
+                                        checked={form.filters.low_stock}
+                                        onChange={(e) => setForm({ ...form, filters: { ...form.filters, low_stock: e.target.checked } })}
+                                        className="form-checkbox"
+                                    />
                                     <label className="text-sm">{t('lbl_low_stock_only')}</label>
                                 </div>
                             )}
@@ -328,21 +353,41 @@ export default function CustomReportsPage() {
                                 <div>
                                     <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_group_by')}</label>
                                     <select value={form.group_by} onChange={(e) => setForm({ ...form, group_by: e.target.value })} className="form-select w-full">
-                                        {groupOptions.map((g) => <option key={g.value} value={g.value}>{g.label}</option>)}
+                                        {groupOptions.map((g) => (
+                                            <option key={g.value} value={g.value}>
+                                                {g.label}
+                                            </option>
+                                        ))}
                                     </select>
                                 </div>
                                 {form.group_by && aggregateOptions.length > 0 && (
                                     <>
                                         <div>
                                             <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_aggregate_column')}</label>
-                                            <select value={form.aggregate.column} onChange={(e) => setForm({ ...form, aggregate: { ...form.aggregate, column: e.target.value } })} className="form-select w-full">
-                                                {aggregateOptions.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+                                            <select
+                                                value={form.aggregate.column}
+                                                onChange={(e) => setForm({ ...form, aggregate: { ...form.aggregate, column: e.target.value } })}
+                                                className="form-select w-full"
+                                            >
+                                                {aggregateOptions.map((c) => (
+                                                    <option key={c.value} value={c.value}>
+                                                        {c.label}
+                                                    </option>
+                                                ))}
                                             </select>
                                         </div>
                                         <div>
                                             <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_aggregate_method')}</label>
-                                            <select value={form.aggregate.method} onChange={(e) => setForm({ ...form, aggregate: { ...form.aggregate, method: e.target.value } })} className="form-select w-full">
-                                                {['sum', 'avg', 'count', 'max', 'min'].map((m) => <option key={m} value={m}>{m}</option>)}
+                                            <select
+                                                value={form.aggregate.method}
+                                                onChange={(e) => setForm({ ...form, aggregate: { ...form.aggregate, method: e.target.value } })}
+                                                className="form-select w-full"
+                                            >
+                                                {['sum', 'avg', 'count', 'max', 'min'].map((m) => (
+                                                    <option key={m} value={m}>
+                                                        {m}
+                                                    </option>
+                                                ))}
                                             </select>
                                         </div>
                                     </>
@@ -353,7 +398,11 @@ export default function CustomReportsPage() {
                                 <div>
                                     <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_sort_by')}</label>
                                     <select value={form.sort_by} onChange={(e) => setForm({ ...form, sort_by: e.target.value })} className="form-select w-full">
-                                        {columnOptions.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+                                        {columnOptions.map((c) => (
+                                            <option key={c.value} value={c.value}>
+                                                {c.label}
+                                            </option>
+                                        ))}
                                     </select>
                                 </div>
                                 <div>
@@ -377,8 +426,12 @@ export default function CustomReportsPage() {
                             </div>
 
                             <div className="flex justify-end gap-2">
-                                <button type="button" onClick={() => setModalOpen(false)} className="btn btn-outline-secondary">{t('lbl_cancel')}</button>
-                                <button type="submit" className="btn btn-primary">{editingId ? t('lbl_update') : t('lbl_save')}</button>
+                                <button type="button" onClick={() => setModalOpen(false)} className="btn btn-outline-secondary">
+                                    {t('lbl_cancel')}
+                                </button>
+                                <button type="submit" className="btn btn-primary">
+                                    {editingId ? t('lbl_update') : t('lbl_save')}
+                                </button>
                             </div>
                         </form>
                     </div>

@@ -182,13 +182,13 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
             <div className="border-b border-gray-200 pb-4">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="rounded-lg bg-purple-100 p-2">
-                            <Package className="h-5 w-5 text-purple-600" />
+                        <div className="rounded-lg bg-[#eef7fc] p-2">
+                            <Package className="h-5 w-5 text-[#046ca9]" />
                         </div>
                         <div>
                             <h3 className="text-lg font-semibold text-gray-900">{t('lbl_product_variants')}</h3>
                             <p className="text-sm text-gray-600">
-                                {t('lbl_product')}: <span className="font-semibold text-purple-700">{formData.product_name || t('lbl_not_set')}</span>
+                                {t('lbl_product')}: <span className="font-semibold text-[#046ca9]">{formData.product_name || t('lbl_not_set')}</span>
                             </p>
                             <p className="text-xs text-gray-500">
                                 {productStocks.length} {productStocks.length !== 1 ? t('lbl_variants_configured') : t('lbl_variant_configured')}
@@ -199,7 +199,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                         type="button"
                         onClick={handleAddVariant}
                         disabled={attributeNames.length === 0}
-                        className="flex items-center justify-center gap-2 rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-50 sm:px-6 sm:py-3"
+                        className="flex items-center justify-center gap-2 rounded-lg bg-[#eef7fc] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#eef7fc] disabled:cursor-not-allowed disabled:opacity-50 sm:px-6 sm:py-3"
                         title={attributeNames.length === 0 ? 'Add attributes first in Attributes tab' : ''}
                     >
                         <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -221,12 +221,12 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
             {/* Variants List */}
             <div className="space-y-4">
                 {productStocks.map((stock, index) => (
-                    <div key={index} className="overflow-hidden rounded-xl border-2 border-gray-200 bg-white shadow-sm transition-all hover:border-purple-300">
+                    <div key={index} className="overflow-hidden rounded-xl border-2 border-gray-200 bg-white shadow-sm transition-all hover:border-[#cde2ef]">
                         {/* Variant Header */}
-                        <div className="flex items-center justify-between bg-gradient-to-r from-purple-50 to-indigo-50 p-4">
+                        <div className="flex items-center justify-between bg-[#eef7fc] p-4">
                             <div className="flex items-center gap-3">
                                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow">
-                                    <span className="font-bold text-purple-600">#{index + 1}</span>
+                                    <span className="font-bold text-[#046ca9]">#{index + 1}</span>
                                 </div>
                                 <div>
                                     <h4 className="font-semibold text-gray-900">{getVariantShortName(stock)}</h4>
@@ -237,7 +237,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                 <button
                                     type="button"
                                     onClick={() => setExpandedVariantIndex(expandedVariantIndex === index ? null : index)}
-                                    className="rounded-lg p-2 text-purple-600 transition-colors hover:bg-purple-100"
+                                    className="rounded-lg p-2 text-[#046ca9] transition-colors hover:bg-[#eef7fc]"
                                 >
                                     {expandedVariantIndex === index ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
                                 </button>
@@ -249,7 +249,12 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                 >
                                     <Copy className="h-4 w-4" />
                                 </button>
-                                <button type="button" onClick={() => handleDeleteVariant(index)} className="rounded-lg p-2 text-red-600 transition-colors hover:bg-red-100" title={t('title_delete_variant')}>
+                                <button
+                                    type="button"
+                                    onClick={() => handleDeleteVariant(index)}
+                                    className="rounded-lg p-2 text-red-600 transition-colors hover:bg-red-100"
+                                    title={t('title_delete_variant')}
+                                >
                                     <Trash2 className="h-4 w-4" />
                                 </button>
                             </div>
@@ -260,8 +265,8 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                             <div className="space-y-6 p-6">
                                 {/* Attribute Selection */}
                                 {attributeNames.length > 0 && (
-                                    <div className="rounded-lg border-2 border-purple-200 bg-purple-50 p-4">
-                                        <h5 className="mb-3 text-sm font-semibold text-purple-900">{t('lbl_variant_attributes')}</h5>
+                                    <div className="rounded-lg border-2 border-[#cde2ef] bg-purple-50 p-4">
+                                        <h5 className="mb-3 text-sm font-semibold text-[#046ca9]">{t('lbl_variant_attributes')}</h5>
                                         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                                             {attributeNames.map((attributeName) => (
                                                 <div key={attributeName}>
@@ -273,7 +278,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                                         value={stock.variant_data[attributeName] || ''}
                                                         onChange={(e) => handleVariantAttributeChange(index, attributeName, e.target.value)}
                                                         placeholder={`${t('placeholder_enter_attr')} ${attributeName}`}
-                                                        className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
+                                                        className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-[#cde2ef] focus:ring-2 focus:ring-purple-500"
                                                     />
                                                 </div>
                                             ))}
@@ -296,7 +301,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                                     value={stock.price}
                                                     onChange={(e) => handleVariantChange(index, 'price', e.target.value)}
                                                     placeholder="0.00"
-                                                    className="w-full rounded-lg border border-gray-300 py-2 pl-8 pr-4 focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
+                                                    className="w-full rounded-lg border border-gray-300 py-2 pl-8 pr-4 focus:border-[#cde2ef] focus:ring-2 focus:ring-purple-500"
                                                 />
                                             </div>
                                         </div>
@@ -312,7 +317,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                                     value={stock.purchase_price}
                                                     onChange={(e) => handleVariantChange(index, 'purchase_price', e.target.value)}
                                                     placeholder="0.00"
-                                                    className="w-full rounded-lg border border-gray-300 py-2 pl-8 pr-4 focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
+                                                    className="w-full rounded-lg border border-gray-300 py-2 pl-8 pr-4 focus:border-[#cde2ef] focus:ring-2 focus:ring-purple-500"
                                                 />
                                             </div>
                                         </div>
@@ -326,7 +331,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                                     value={stock.wholesale_price}
                                                     onChange={(e) => handleVariantChange(index, 'wholesale_price', e.target.value)}
                                                     placeholder="0.00"
-                                                    className="w-full rounded-lg border border-gray-300 py-2 pl-8 pr-4 focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
+                                                    className="w-full rounded-lg border border-gray-300 py-2 pl-8 pr-4 focus:border-[#cde2ef] focus:ring-2 focus:ring-purple-500"
                                                 />
                                             </div>
                                         </div>
@@ -346,7 +351,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                                 value={stock.quantity}
                                                 onChange={(e) => handleVariantChange(index, 'quantity', e.target.value)}
                                                 placeholder="0"
-                                                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
+                                                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-[#cde2ef] focus:ring-2 focus:ring-purple-500"
                                             />
                                         </div>
 
@@ -357,7 +362,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                             <select
                                                 value={stock.unit}
                                                 onChange={(e) => handleVariantChange(index, 'unit', e.target.value)}
-                                                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
+                                                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-[#cde2ef] focus:ring-2 focus:ring-purple-500"
                                             >
                                                 <option value="">{t('placeholder_select_unit')}</option>
                                                 <option value="Piece">{t('lbl_piece_default')}</option>
@@ -376,49 +381,49 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                                 value={stock.low_stock_quantity}
                                                 onChange={(e) => handleVariantChange(index, 'low_stock_quantity', e.target.value)}
                                                 placeholder="0"
-                                                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
+                                                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-[#cde2ef] focus:ring-2 focus:ring-purple-500"
                                             />
                                         </div>
 
                                         {(formData.has_batch || formData.has_expiry) && (
-                                        <>
-                                        {formData.has_batch && (
-                                        <div>
-                                            <label className="mb-1.5 block text-sm font-medium text-gray-700">{t('lbl_batch_number')}</label>
-                                            <input
-                                                type="text"
-                                                value={stock.batch_no}
-                                                onChange={(e) => handleVariantChange(index, 'batch_no', e.target.value)}
-                                                placeholder={t('placeholder_batch_number')}
-                                                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
-                                            />
-                                        </div>
-                                        )}
+                                            <>
+                                                {formData.has_batch && (
+                                                    <div>
+                                                        <label className="mb-1.5 block text-sm font-medium text-gray-700">{t('lbl_batch_number')}</label>
+                                                        <input
+                                                            type="text"
+                                                            value={stock.batch_no}
+                                                            onChange={(e) => handleVariantChange(index, 'batch_no', e.target.value)}
+                                                            placeholder={t('placeholder_batch_number')}
+                                                            className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-[#cde2ef] focus:ring-2 focus:ring-purple-500"
+                                                        />
+                                                    </div>
+                                                )}
 
-                                        {formData.has_batch && (
-                                        <div>
-                                            <label className="mb-1.5 block text-sm font-medium text-gray-700">{t('lbl_purchase_date')}</label>
-                                            <input
-                                                type="date"
-                                                value={stock.purchase_date}
-                                                onChange={(e) => handleVariantChange(index, 'purchase_date', e.target.value)}
-                                                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
-                                            />
-                                        </div>
-                                        )}
+                                                {formData.has_batch && (
+                                                    <div>
+                                                        <label className="mb-1.5 block text-sm font-medium text-gray-700">{t('lbl_purchase_date')}</label>
+                                                        <input
+                                                            type="date"
+                                                            value={stock.purchase_date}
+                                                            onChange={(e) => handleVariantChange(index, 'purchase_date', e.target.value)}
+                                                            className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-[#cde2ef] focus:ring-2 focus:ring-purple-500"
+                                                        />
+                                                    </div>
+                                                )}
 
-                                        {formData.has_expiry && (
-                                        <div>
-                                            <label className="mb-1.5 block text-sm font-medium text-gray-700">{t('lbl_expiry_date')}</label>
-                                            <input
-                                                type="date"
-                                                value={stock.expiry_date}
-                                                onChange={(e) => handleVariantChange(index, 'expiry_date', e.target.value)}
-                                                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
-                                            />
-                                        </div>
-                                        )}
-                                        </>
+                                                {formData.has_expiry && (
+                                                    <div>
+                                                        <label className="mb-1.5 block text-sm font-medium text-gray-700">{t('lbl_expiry_date')}</label>
+                                                        <input
+                                                            type="date"
+                                                            value={stock.expiry_date}
+                                                            onChange={(e) => handleVariantChange(index, 'expiry_date', e.target.value)}
+                                                            className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-[#cde2ef] focus:ring-2 focus:ring-purple-500"
+                                                        />
+                                                    </div>
+                                                )}
+                                            </>
                                         )}
                                     </div>
                                 </div>
@@ -437,7 +442,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                                 min="0"
                                                 max="100"
                                                 step="0.01"
-                                                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
+                                                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-[#cde2ef] focus:ring-2 focus:ring-purple-500"
                                             />
                                         </div>
 
@@ -447,7 +452,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                                     type="checkbox"
                                                     checked={stock.tax_included}
                                                     onChange={(e) => handleVariantChange(index, 'tax_included', e.target.checked)}
-                                                    className="h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-2 focus:ring-purple-500"
+                                                    className="h-4 w-4 rounded border-gray-300 text-[#046ca9] focus:ring-2 focus:ring-purple-500"
                                                 />
                                                 <span className="text-sm font-medium text-gray-700">{t('lbl_tax_included_price')}</span>
                                             </label>
@@ -473,12 +478,14 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                                     {...dragProps}
                                                     className={`flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed px-4 py-8 text-sm font-medium transition-colors ${
                                                         isDragging
-                                                            ? 'border-purple-600 bg-purple-50 text-purple-700'
-                                                            : 'border-gray-300 bg-gray-50 text-gray-700 hover:border-purple-400 hover:bg-purple-50'
+                                                            ? 'border-[#cde2ef] bg-purple-50 text-[#046ca9]'
+                                                            : 'border-gray-300 bg-gray-50 text-gray-700 hover:border-[#cde2ef] hover:bg-purple-50'
                                                     }`}
                                                 >
                                                     <ImageIcon className="h-5 w-5" />
-                                                    <span>{t('msg_upload_hint')} ({t('lbl_max')} {maxImagesPerVariant})</span>
+                                                    <span>
+                                                        {t('msg_upload_hint')} ({t('lbl_max')} {maxImagesPerVariant})
+                                                    </span>
                                                 </button>
 
                                                 {imageList.length > 0 && (

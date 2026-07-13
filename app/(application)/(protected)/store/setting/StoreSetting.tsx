@@ -73,7 +73,22 @@ const createEmptyPaymentStatusForm = (): PaymentStatusForm => ({
     is_active: true,
 });
 
-const VALID_SETTING_TABS = ['basic', 'hours', 'units', 'attributes', 'payment', 'mfs', 'currency', 'paymentstatus', 'warranty', 'adjustment', 'returnreasons', 'loyalty', 'branding', 'status'] as const;
+const VALID_SETTING_TABS = [
+    'basic',
+    'hours',
+    'units',
+    'attributes',
+    'payment',
+    'mfs',
+    'currency',
+    'paymentstatus',
+    'warranty',
+    'adjustment',
+    'returnreasons',
+    'loyalty',
+    'branding',
+    'status',
+] as const;
 
 const StoreSetting = () => {
     const { t } = getTranslation();
@@ -168,53 +183,50 @@ const StoreSetting = () => {
         return Array.isArray(payload) ? payload : [];
     }, [store]);
 
-    const setupCards = useMemo(
-        () => {
-            const units = Array.isArray(store?.units) ? store.units : [];
-            const activePaymentMethods = paymentMethods.filter((method: any) => method?.is_active === true || method?.is_active === 1);
-            const activePaymentStatuses = paymentStatusesData.filter((status: any) => status?.is_active === true || status?.is_active === 1);
-            const checks = [
-                {
-                    key: 'profile',
-                    label: t('store_setup_profile'),
-                    description: t('store_setup_profile_desc'),
-                    done: Boolean(store?.store_name && (store?.store_contact || store?.store_location || store?.store_address)),
-                    tab: 'basic',
-                    icon: Store,
-                },
-                {
-                    key: 'hours',
-                    label: t('store_setup_hours'),
-                    description: t('store_setup_hours_desc'),
-                    done: Boolean(store?.opening_time && store?.closing_time),
-                    tab: 'hours',
-                    icon: Clock,
-                },
-                {
-                    key: 'inventory',
-                    label: t('store_setup_inventory'),
-                    description: t('store_setup_inventory_desc'),
-                    done: units.length > 0,
-                    tab: 'units',
-                    icon: Package,
-                },
-                {
-                    key: 'checkout',
-                    label: t('store_setup_checkout'),
-                    description: t('store_setup_checkout_desc'),
-                    done: activePaymentMethods.length > 0 && activePaymentStatuses.length > 0 && Boolean(currencyData),
-                    tab: activePaymentMethods.length === 0 ? 'payment' : activePaymentStatuses.length === 0 ? 'paymentstatus' : 'currency',
-                    icon: CreditCard,
-                },
-            ];
+    const setupCards = useMemo(() => {
+        const units = Array.isArray(store?.units) ? store.units : [];
+        const activePaymentMethods = paymentMethods.filter((method: any) => method?.is_active === true || method?.is_active === 1);
+        const activePaymentStatuses = paymentStatusesData.filter((status: any) => status?.is_active === true || status?.is_active === 1);
+        const checks = [
+            {
+                key: 'profile',
+                label: t('store_setup_profile'),
+                description: t('store_setup_profile_desc'),
+                done: Boolean(store?.store_name && (store?.store_contact || store?.store_location || store?.store_address)),
+                tab: 'basic',
+                icon: Store,
+            },
+            {
+                key: 'hours',
+                label: t('store_setup_hours'),
+                description: t('store_setup_hours_desc'),
+                done: Boolean(store?.opening_time && store?.closing_time),
+                tab: 'hours',
+                icon: Clock,
+            },
+            {
+                key: 'inventory',
+                label: t('store_setup_inventory'),
+                description: t('store_setup_inventory_desc'),
+                done: units.length > 0,
+                tab: 'units',
+                icon: Package,
+            },
+            {
+                key: 'checkout',
+                label: t('store_setup_checkout'),
+                description: t('store_setup_checkout_desc'),
+                done: activePaymentMethods.length > 0 && activePaymentStatuses.length > 0 && Boolean(currencyData),
+                tab: activePaymentMethods.length === 0 ? 'payment' : activePaymentStatuses.length === 0 ? 'paymentstatus' : 'currency',
+                icon: CreditCard,
+            },
+        ];
 
-            return {
-                checks,
-                doneCount: checks.filter((item) => item.done).length,
-            };
-        },
-        [currencyData, paymentMethods, paymentStatusesData, store, t]
-    );
+        return {
+            checks,
+            doneCount: checks.filter((item) => item.done).length,
+        };
+    }, [currencyData, paymentMethods, paymentStatusesData, store, t]);
 
     // Keep mutation APIs for CRUD operations
     const [createAttribute] = useCreateProductAttributeMutation();
@@ -641,7 +653,12 @@ const StoreSetting = () => {
             return;
         }
 
-        const confirmed = await showConfirmDialog(t('msg_delete_payment_method_title'), `${t('msg_confirm_delete_name')} "${name}"? ${t('msg_cannot_be_undone')}`, t('btn_yes_delete'), t('btn_cancel'));
+        const confirmed = await showConfirmDialog(
+            t('msg_delete_payment_method_title'),
+            `${t('msg_confirm_delete_name')} "${name}"? ${t('msg_cannot_be_undone')}`,
+            t('btn_yes_delete'),
+            t('btn_cancel')
+        );
 
         if (!confirmed) return;
 
@@ -757,7 +774,12 @@ const StoreSetting = () => {
             return;
         }
 
-        const confirmed = await showConfirmDialog(t('msg_delete_adjustment_reason_title'), `${t('msg_confirm_delete_name')} "${name}"? ${t('msg_cannot_be_undone')}`, t('btn_yes_delete'), t('btn_cancel'));
+        const confirmed = await showConfirmDialog(
+            t('msg_delete_adjustment_reason_title'),
+            `${t('msg_confirm_delete_name')} "${name}"? ${t('msg_cannot_be_undone')}`,
+            t('btn_yes_delete'),
+            t('btn_cancel')
+        );
 
         if (!confirmed) return;
 
@@ -868,7 +890,12 @@ const StoreSetting = () => {
             return;
         }
 
-        const confirmed = await showConfirmDialog(t('msg_delete_order_return_reason_title'), `${t('msg_confirm_delete_name')} "${name}"? ${t('msg_cannot_be_undone')}`, t('btn_yes_delete'), t('btn_cancel'));
+        const confirmed = await showConfirmDialog(
+            t('msg_delete_order_return_reason_title'),
+            `${t('msg_confirm_delete_name')} "${name}"? ${t('msg_cannot_be_undone')}`,
+            t('btn_yes_delete'),
+            t('btn_cancel')
+        );
 
         if (!confirmed) return;
 
@@ -1229,7 +1256,12 @@ const StoreSetting = () => {
             return;
         }
 
-        const confirmed = await showConfirmDialog(t('msg_delete_payment_status_title'), `${t('msg_confirm_delete_name')} "${name}"? ${t('msg_cannot_be_undone')}`, t('btn_yes_delete'), t('btn_cancel'));
+        const confirmed = await showConfirmDialog(
+            t('msg_delete_payment_status_title'),
+            `${t('msg_confirm_delete_name')} "${name}"? ${t('msg_cannot_be_undone')}`,
+            t('btn_yes_delete'),
+            t('btn_cancel')
+        );
 
         if (!confirmed) return;
 
@@ -1649,7 +1681,7 @@ const StoreSetting = () => {
             {/* Header */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#046ca9] to-[#034d79] text-white shadow-sm">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#046ca9] text-white shadow-sm">
                         <Settings className="h-5 w-5" />
                     </div>
                     <div>
@@ -1661,7 +1693,7 @@ const StoreSetting = () => {
                 </div>
             </div>
 
-            <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
                 <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <h2 className="text-sm font-semibold text-slate-900">{t('store_setup_readiness')}</h2>
@@ -1702,7 +1734,7 @@ const StoreSetting = () => {
             {/* Alert Messages */}
             {message.text && (
                 <div
-                    className={`mb-6 flex items-center space-x-3 rounded-xl border p-4 shadow-sm ${
+                    className={`mb-6 flex items-center space-x-3 rounded-lg border p-4 shadow-sm ${
                         message.type === 'success' ? 'border-[#046ca9]/20 bg-[#046ca9]/5 text-[#034d79]' : 'border-red-200 bg-red-50 text-red-800'
                     }`}
                 >
@@ -1730,7 +1762,7 @@ const StoreSetting = () => {
                         <button
                             type="submit"
                             disabled={isUpdating}
-                            className="group relative inline-flex items-center rounded-xl bg-gradient-to-r from-[#046ca9] to-[#034d79] px-8 py-4 text-lg font-medium text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-[#046ca9] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+                            className="group relative inline-flex items-center rounded-lg bg-[#046ca9] px-8 py-4 text-lg font-medium text-white shadow-lg transition-all duration-200 hover:bg-[#034d79]  focus:outline-none focus:ring-2 focus:ring-[#046ca9] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
                         >
                             {isUpdating ? (
                                 <>

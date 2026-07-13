@@ -107,10 +107,7 @@ const PurchaseOrderListPage = () => {
         return params;
     }, [currentStoreId, orderPage, orderPerPage, orderSortField, orderSortDirection, orderStatusFilter, filterSearch]);
 
-    const { data: ordersResponse, isLoading: ordersLoading } = useGetPurchaseOrdersQuery(
-        orderQueryParams,
-        { skip: activeTab !== 'orders' || !currentStoreId }
-    );
+    const { data: ordersResponse, isLoading: ordersLoading } = useGetPurchaseOrdersQuery(orderQueryParams, { skip: activeTab !== 'orders' || !currentStoreId });
 
     // ─── Mutations ───
     const [convertToPO, { isLoading: isConverting }] = useConvertDraftToPurchaseOrderMutation();
@@ -156,9 +153,7 @@ const PurchaseOrderListPage = () => {
 
     // ─── Handlers ───
     const handleViewItems = (item: any) => {
-        const title = item.draft_reference
-            ? `${t('lbl_purchase_draft')}: ${item.draft_reference}`
-            : `${t('lbl_purchase_order')}: ${item.invoice_number}`;
+        const title = item.draft_reference ? `${t('lbl_purchase_draft')}: ${item.draft_reference}` : `${t('lbl_purchase_order')}: ${item.invoice_number}`;
         setSelectedItems(item.items || []);
         setModalTitle(title);
         setViewModalOpen(true);
@@ -167,9 +162,7 @@ const PurchaseOrderListPage = () => {
     const handlePrint = (item: any) => {
         const esc = escapePrintHtml;
         const isDraft = !!item.draft_reference;
-        const title = isDraft
-            ? `${t('lbl_purchase_draft')}: ${item.draft_reference}`
-            : `${t('lbl_purchase_order')}: ${item.invoice_number}`;
+        const title = isDraft ? `${t('lbl_purchase_draft')}: ${item.draft_reference}` : `${t('lbl_purchase_order')}: ${item.invoice_number}`;
         const items = item.items || [];
         const total = items.reduce((sum: number, itm: any) => {
             return sum + (parseFloat(itm.estimated_subtotal) || parseFloat(itm.subtotal) || parseFloat(itm.total) || 0);
@@ -202,14 +195,18 @@ const PurchaseOrderListPage = () => {
                 ${item.supplier?.name ? `<div><h3>${esc(t('lbl_supplier'))}</h3><p>${esc(item.supplier.name)}</p></div>` : ''}
                 <div><h3>${esc(t('lbl_total'))}</h3><p>৳${esc(total.toLocaleString())}</p></div>
             </div>
-            <table><thead><tr><th>#</th><th>${esc(t('lbl_product'))}</th><th>${esc(t('lbl_qty'))}</th><th>${esc(t('lbl_unit_price'))}</th><th class="text-right">${esc(t('lbl_subtotal'))}</th></tr></thead><tbody>
-            ${items.map((itm: any, i: number) => {
-                const name = itm.product_name || itm.product || t('lbl_na');
-                const qty = itm.quantity_ordered || itm.quantity || 0;
-                const price = parseFloat(itm.purchase_price || itm.unit_price || 0);
-                const subtotal = parseFloat(itm.estimated_subtotal) || parseFloat(itm.subtotal) || (qty * price);
-                return `<tr><td>${i + 1}</td><td>${esc(name)}</td><td>${esc(qty)}</td><td>৳${esc(price.toLocaleString())}</td><td class="text-right">৳${esc(subtotal.toLocaleString())}</td></tr>`;
-            }).join('')}
+            <table><thead><tr><th>#</th><th>${esc(t('lbl_product'))}</th><th>${esc(t('lbl_qty'))}</th><th>${esc(t('lbl_unit_price'))}</th><th class="text-right">${esc(
+            t('lbl_subtotal')
+        )}</th></tr></thead><tbody>
+            ${items
+                .map((itm: any, i: number) => {
+                    const name = itm.product_name || itm.product || t('lbl_na');
+                    const qty = itm.quantity_ordered || itm.quantity || 0;
+                    const price = parseFloat(itm.purchase_price || itm.unit_price || 0);
+                    const subtotal = parseFloat(itm.estimated_subtotal) || parseFloat(itm.subtotal) || qty * price;
+                    return `<tr><td>${i + 1}</td><td>${esc(name)}</td><td>${esc(qty)}</td><td>৳${esc(price.toLocaleString())}</td><td class="text-right">৳${esc(subtotal.toLocaleString())}</td></tr>`;
+                })
+                .join('')}
             <tr class="total-row"><td colspan="4" class="text-right"><strong>${esc(t('lbl_total'))}</strong></td><td class="text-right"><strong>৳${esc(total.toLocaleString())}</strong></td></tr>
             </tbody></table>
             </body></html>`;
@@ -217,15 +214,14 @@ const PurchaseOrderListPage = () => {
     };
 
     const handleReceiveItems = (order: any) => router.push(`/purchases/receive/${order.id}`);
-    const handleViewTransactions = (order: any) => { setSelectedTransactionOrder(order); setTransactionModalOpen(true); };
+    const handleViewTransactions = (order: any) => {
+        setSelectedTransactionOrder(order);
+        setTransactionModalOpen(true);
+    };
     const handleReturn = (order: any) => router.push(`/purchases/return/${order.id}`);
 
     const handleConvertToPurchaseOrder = async (draft: any) => {
-        const isConfirmed = await showConfirmDialog(
-            t('msg_convert_to_po'),
-            `${t('msg_convert_draft_confirm')} <strong>${draft.draft_reference}</strong>?`,
-            t('btn_yes_convert'), t('btn_cancel')
-        );
+        const isConfirmed = await showConfirmDialog(t('msg_convert_to_po'), `${t('msg_convert_draft_confirm')} <strong>${draft.draft_reference}</strong>?`, t('btn_yes_convert'), t('btn_cancel'));
         if (!isConfirmed) return;
 
         try {
@@ -233,8 +229,11 @@ const PurchaseOrderListPage = () => {
             const purchaseOrder = response?.data?.purchase_order || response?.data || response;
             if (!purchaseOrder?.invoice_number) throw new Error(t('msg_error_generic'));
 
-            showSuccessDialog(t('msg_po_created'),
-                `<p>${t('lbl_invoice')}: <strong>${purchaseOrder.invoice_number}</strong></p><p>${t('lbl_total')}: <strong>${formatCurrency(purchaseOrder.grand_total || purchaseOrder.total || 0)}</strong></p>`,
+            showSuccessDialog(
+                t('msg_po_created'),
+                `<p>${t('lbl_invoice')}: <strong>${purchaseOrder.invoice_number}</strong></p><p>${t('lbl_total')}: <strong>${formatCurrency(
+                    purchaseOrder.grand_total || purchaseOrder.total || 0
+                )}</strong></p>`,
                 t('btn_view_purchase_orders')
             ).then(() => setActiveTab('orders'));
         } catch (error: any) {
@@ -245,8 +244,12 @@ const PurchaseOrderListPage = () => {
     const handleDeleteDraft = async (draft: any) => {
         const isConfirmed = await showConfirmDialog(t('msg_delete_draft_confirm'), `${t('msg_are_you_sure_delete_draft')} ${draft.draft_reference}?`, t('btn_yes_delete'), t('btn_cancel'));
         if (!isConfirmed) return;
-        try { await deleteDraft(draft.id).unwrap(); showSuccessDialog(t('msg_success'), t('purchase_deleted')); }
-        catch (error: any) { showErrorDialog(t('msg_error'), error?.data?.message || t('purchase_deleted')); }
+        try {
+            await deleteDraft(draft.id).unwrap();
+            showSuccessDialog(t('msg_success'), t('purchase_deleted'));
+        } catch (error: any) {
+            showErrorDialog(t('msg_error'), error?.data?.message || t('purchase_deleted'));
+        }
     };
 
     // ─── Payment ───
@@ -270,15 +273,25 @@ const PurchaseOrderListPage = () => {
     const handlePartialPayment = async (e: React.FormEvent) => {
         e.preventDefault();
         const amount = parseFloat(paymentAmount);
-        if (amount <= 0) { Swal.fire(t('msg_error'), t('msg_payment_amount_positive'), 'error'); return; }
-        if (amount > selectedDue.amount_due) { Swal.fire(t('msg_error'), t('msg_payment_exceed_due'), 'error'); return; }
+        if (amount <= 0) {
+            Swal.fire(t('msg_error'), t('msg_payment_amount_positive'), 'error');
+            return;
+        }
+        if (amount > selectedDue.amount_due) {
+            Swal.fire(t('msg_error'), t('msg_payment_exceed_due'), 'error');
+            return;
+        }
 
         try {
             const response = await makePartialPayment({ id: selectedDue.id, store_id: currentStoreId, amount, payment_method: paymentMethod, notes: paymentNotes }).unwrap();
             const updated = { ...selectedDue, amount_due: selectedDue.amount_due - amount, payment_status: selectedDue.amount_due - amount <= 0 ? 'paid' : 'partial' };
             const transaction = { id: response?.data?.transaction?.id || Date.now(), amount, payment_method: paymentMethod, paid_at: new Date().toISOString(), notes: paymentNotes };
             closePaymentModal();
-            setTimeout(() => { setReceiptPurchaseOrder(updated); setReceiptTransaction(transaction); setShowReceipt(true); }, 100);
+            setTimeout(() => {
+                setReceiptPurchaseOrder(updated);
+                setReceiptTransaction(transaction);
+                setShowReceipt(true);
+            }, 100);
         } catch (err: any) {
             Swal.fire(t('msg_error'), err?.data?.message || t('msg_payment_failed'), 'error');
         }
@@ -289,9 +302,19 @@ const PurchaseOrderListPage = () => {
         try {
             const response = await clearFullDue({ id: selectedDue.id, store_id: currentStoreId, payment_method: paymentMethod, notes: paymentNotes || t('msg_due_cleared') }).unwrap();
             const updated = { ...selectedDue, amount_due: 0, payment_status: 'paid' };
-            const transaction = { id: response?.data?.transaction?.id || Date.now(), amount: selectedDue.amount_due, payment_method: paymentMethod, paid_at: new Date().toISOString(), notes: paymentNotes || t('msg_due_cleared') };
+            const transaction = {
+                id: response?.data?.transaction?.id || Date.now(),
+                amount: selectedDue.amount_due,
+                payment_method: paymentMethod,
+                paid_at: new Date().toISOString(),
+                notes: paymentNotes || t('msg_due_cleared'),
+            };
             closePaymentModal();
-            setTimeout(() => { setReceiptPurchaseOrder(updated); setReceiptTransaction(transaction); setShowReceipt(true); }, 100);
+            setTimeout(() => {
+                setReceiptPurchaseOrder(updated);
+                setReceiptTransaction(transaction);
+                setShowReceipt(true);
+            }, 100);
         } catch (err: any) {
             Swal.fire(t('msg_error'), err?.data?.message || t('msg_failed_to_clear_due'), 'error');
         }
@@ -309,15 +332,21 @@ const PurchaseOrderListPage = () => {
                             <li>${t('lbl_order_status')}: <strong class="text-blue-600">${t('lbl_status_ordered')}</strong></li>
                         </ul>
                     </div>`,
-                icon: 'error', confirmButtonText: t('btn_ok'), confirmButtonColor: '#dc2626',
+                icon: 'error',
+                confirmButtonText: t('btn_ok'),
+                confirmButtonColor: '#dc2626',
             });
             return;
         }
         const result = await Swal.fire({
             title: t('msg_delete_po_confirm'),
             html: `<p>${t('msg_are_you_sure_delete_po')} <strong>${due.invoice_number}</strong>?</p>`,
-            icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc2626', cancelButtonColor: '#6b7280',
-            confirmButtonText: t('btn_yes_delete'), cancelButtonText: t('btn_cancel'),
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: t('btn_yes_delete'),
+            cancelButtonText: t('btn_cancel'),
         });
         if (!result.isConfirmed) return;
         try {
@@ -349,7 +378,7 @@ const PurchaseOrderListPage = () => {
             {/* Header */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 text-white shadow-sm">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary/80 text-white shadow-sm">
                         <Package className="h-5 w-5" />
                     </div>
                     <div>
@@ -359,7 +388,7 @@ const PurchaseOrderListPage = () => {
                 </div>
                 <Link
                     href="/purchases/create"
-                    className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary/90"
+                    className="inline-flex items-center gap-2 rounded-lg bg-[#046ca9] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#046ca9]/90"
                 >
                     <Plus className="h-4 w-4" />
                     {t('btn_create_purchase_order')}
@@ -369,10 +398,8 @@ const PurchaseOrderListPage = () => {
             {/* Summary Cards */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 {summaryCards.map((card) => (
-                    <div key={card.label} className="flex items-center gap-4 rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
-                        <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${card.color}`}>
-                            {card.icon}
-                        </div>
+                    <div key={card.label} className="flex items-center gap-4 rounded-lg border border-gray-100 bg-white p-5 shadow-sm">
+                        <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${card.color}`}>{card.icon}</div>
                         <div>
                             <p className="text-xs font-medium text-gray-500">{card.label}</p>
                             <p className="text-xl font-bold text-gray-800">{card.value}</p>
@@ -381,15 +408,13 @@ const PurchaseOrderListPage = () => {
                 ))}
             </div>
 
-            <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+            <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
                 {/* Tabs */}
                 <div className="flex border-b border-gray-100">
                     <button
                         onClick={() => setActiveTab('drafts')}
                         className={`flex items-center gap-2 px-5 py-3.5 text-sm font-semibold transition-colors ${
-                            activeTab === 'drafts'
-                                ? 'border-b-2 border-primary text-primary'
-                                : 'text-gray-500 hover:text-gray-700'
+                            activeTab === 'drafts' ? 'border-b-2 border-primary text-primary' : 'text-gray-500 hover:text-gray-700'
                         }`}
                     >
                         <FileText className="h-4 w-4" />
@@ -398,9 +423,7 @@ const PurchaseOrderListPage = () => {
                     <button
                         onClick={() => setActiveTab('orders')}
                         className={`flex items-center gap-2 px-5 py-3.5 text-sm font-semibold transition-colors ${
-                            activeTab === 'orders'
-                                ? 'border-b-2 border-primary text-primary'
-                                : 'text-gray-500 hover:text-gray-700'
+                            activeTab === 'orders' ? 'border-b-2 border-primary text-primary' : 'text-gray-500 hover:text-gray-700'
                         }`}
                     >
                         <ShoppingCart className="h-4 w-4" />
@@ -415,11 +438,12 @@ const PurchaseOrderListPage = () => {
                             {statusFilters.map((f) => (
                                 <button
                                     key={f.key}
-                                    onClick={() => { setOrderStatusFilter(f.key); setOrderPage(1); }}
+                                    onClick={() => {
+                                        setOrderStatusFilter(f.key);
+                                        setOrderPage(1);
+                                    }}
                                     className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all ${
-                                        orderStatusFilter === f.key
-                                            ? 'bg-primary text-white shadow-sm'
-                                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                        orderStatusFilter === f.key ? 'bg-[#046ca9] text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                                     }`}
                                 >
                                     {f.label}
@@ -430,7 +454,10 @@ const PurchaseOrderListPage = () => {
                             <input
                                 type="text"
                                 value={filterSearch}
-                                onChange={(e) => { setFilterSearch(e.target.value); setOrderPage(1); }}
+                                onChange={(e) => {
+                                    setFilterSearch(e.target.value);
+                                    setOrderPage(1);
+                                }}
                                 placeholder={t('lbl_search') + '...'}
                                 className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                             />
@@ -452,10 +479,17 @@ const PurchaseOrderListPage = () => {
                                 onPageChange: setDraftPage,
                                 onItemsPerPageChange: setDraftPerPage,
                             }}
-                            sorting={{ field: draftSortField, direction: draftSortDirection, onSort: (f) => {
-                                if (draftSortField === f) setDraftSortDirection((p) => (p === 'asc' ? 'desc' : 'asc'));
-                                else { setDraftSortField(f); setDraftSortDirection('asc'); }
-                            }}}
+                            sorting={{
+                                field: draftSortField,
+                                direction: draftSortDirection,
+                                onSort: (f) => {
+                                    if (draftSortField === f) setDraftSortDirection((p) => (p === 'asc' ? 'desc' : 'asc'));
+                                    else {
+                                        setDraftSortField(f);
+                                        setDraftSortDirection('asc');
+                                    }
+                                },
+                            }}
                             onViewItems={handleViewItems}
                             onConvertToPO={handleConvertToPurchaseOrder}
                             onDelete={handleDeleteDraft}
@@ -477,10 +511,17 @@ const PurchaseOrderListPage = () => {
                                 onPageChange: setOrderPage,
                                 onItemsPerPageChange: setOrderPerPage,
                             }}
-                            sorting={{ field: orderSortField, direction: orderSortDirection, onSort: (f) => {
-                                if (orderSortField === f) setOrderSortDirection((p) => (p === 'asc' ? 'desc' : 'asc'));
-                                else { setOrderSortField(f); setOrderSortDirection('asc'); }
-                            }}}
+                            sorting={{
+                                field: orderSortField,
+                                direction: orderSortDirection,
+                                onSort: (f) => {
+                                    if (orderSortField === f) setOrderSortDirection((p) => (p === 'asc' ? 'desc' : 'asc'));
+                                    else {
+                                        setOrderSortField(f);
+                                        setOrderSortDirection('asc');
+                                    }
+                                },
+                            }}
                             onViewItems={handleViewItems}
                             onPrint={handlePrint}
                             onReceiveItems={handleReceiveItems}
@@ -501,12 +542,14 @@ const PurchaseOrderListPage = () => {
 
             {/* View Items Modal */}
             {viewModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-                    <div className="relative max-h-[85vh] w-full max-w-3xl overflow-auto rounded-2xl bg-white shadow-2xl">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+                    <div className="relative max-h-[85vh] w-full max-w-3xl overflow-auto rounded-lg bg-white shadow-lg">
                         <div className="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-6 py-4">
                             <h2 className="text-lg font-bold text-gray-800">{modalTitle}</h2>
                             <button onClick={() => setViewModalOpen(false)} className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100">
-                                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
                             </button>
                         </div>
                         <div className="p-6">
@@ -519,7 +562,7 @@ const PurchaseOrderListPage = () => {
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-sm">
                                         <thead>
-                                            <tr className="bg-gray-50 text-xs text-gray-500 uppercase">
+                                            <tr className="bg-gray-50 text-xs uppercase text-gray-500">
                                                 <th className="px-4 py-3 text-left">#</th>
                                                 <th className="px-4 py-3 text-left">{t('lbl_product')}</th>
                                                 <th className="px-4 py-3 text-right">{t('lbl_quantity')}</th>
@@ -532,7 +575,7 @@ const PurchaseOrderListPage = () => {
                                                 const productName = itm.product_name || itm.product || t('lbl_na');
                                                 const qty = parseFloat(itm.quantity_ordered || itm.quantity || 0);
                                                 const price = parseFloat(itm.purchase_price || itm.unit_price || 0);
-                                                const subtotal = parseFloat(itm.estimated_subtotal) || parseFloat(itm.subtotal) || (qty * price);
+                                                const subtotal = parseFloat(itm.estimated_subtotal) || parseFloat(itm.subtotal) || qty * price;
                                                 return (
                                                     <tr key={i} className="hover:bg-gray-50">
                                                         <td className="px-4 py-3 text-gray-400">{i + 1}</td>
@@ -546,13 +589,18 @@ const PurchaseOrderListPage = () => {
                                         </tbody>
                                         <tfoot>
                                             <tr className="bg-blue-50 font-semibold">
-                                                <td colSpan={4} className="px-4 py-3 text-right text-blue-800">{t('lbl_total')}</td>
+                                                <td colSpan={4} className="px-4 py-3 text-right text-blue-800">
+                                                    {t('lbl_total')}
+                                                </td>
                                                 <td className="px-4 py-3 text-right text-blue-800">
-                                                    ৳{selectedItems.reduce((sum: number, itm: any) => {
-                                                        const qty = parseFloat(itm.quantity_ordered || itm.quantity || 0);
-                                                        const price = parseFloat(itm.purchase_price || itm.unit_price || 0);
-                                                        return sum + (parseFloat(itm.estimated_subtotal) || parseFloat(itm.subtotal) || (qty * price));
-                                                    }, 0).toLocaleString()}
+                                                    ৳
+                                                    {selectedItems
+                                                        .reduce((sum: number, itm: any) => {
+                                                            const qty = parseFloat(itm.quantity_ordered || itm.quantity || 0);
+                                                            const price = parseFloat(itm.purchase_price || itm.unit_price || 0);
+                                                            return sum + (parseFloat(itm.estimated_subtotal) || parseFloat(itm.subtotal) || qty * price);
+                                                        }, 0)
+                                                        .toLocaleString()}
                                                 </td>
                                             </tr>
                                         </tfoot>
@@ -568,47 +616,87 @@ const PurchaseOrderListPage = () => {
             {transactionModalOpen && selectedTransactionOrder && (
                 <TransactionTrackingModal
                     order={selectedTransactionOrder}
-                    onClose={() => { setTransactionModalOpen(false); setSelectedTransactionOrder(null); }}
+                    onClose={() => {
+                        setTransactionModalOpen(false);
+                        setSelectedTransactionOrder(null);
+                    }}
                 />
             )}
 
             {/* Payment Modal */}
             {showPaymentModal && selectedDue && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-                    <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+                    <div className="w-full max-w-md rounded-lg bg-white shadow-lg">
                         <div className="flex items-center justify-between border-b px-6 py-4">
-                            <h2 className="text-lg font-bold text-gray-800">
-                                {paymentModalType === 'full' ? t('purchase_clear_due') : t('purchase_partial_payment')}
-                            </h2>
+                            <h2 className="text-lg font-bold text-gray-800">{paymentModalType === 'full' ? t('purchase_clear_due') : t('purchase_partial_payment')}</h2>
                             <button onClick={closePaymentModal} className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100">
-                                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
                             </button>
                         </div>
-                        <form onSubmit={paymentModalType === 'partial' ? handlePartialPayment : handleFullPayment} className="p-6 space-y-4">
-                            <div className="rounded-lg bg-gray-50 p-4 text-sm space-y-2">
-                                <div className="flex justify-between"><span className="text-gray-500">{t('lbl_invoice')}</span><span className="font-semibold">{selectedDue.invoice_number}</span></div>
-                                <div className="flex justify-between"><span className="text-gray-500">{t('lbl_total')}</span><span className="font-semibold">{formatCurrency(selectedDue.grand_total)}</span></div>
-                                <div className="flex justify-between"><span className="text-gray-500">{t('lbl_due')}</span><span className="font-semibold text-red-600">{formatCurrency(selectedDue.amount_due)}</span></div>
+                        <form onSubmit={paymentModalType === 'partial' ? handlePartialPayment : handleFullPayment} className="space-y-4 p-6">
+                            <div className="space-y-2 rounded-lg bg-gray-50 p-4 text-sm">
+                                <div className="flex justify-between">
+                                    <span className="text-gray-500">{t('lbl_invoice')}</span>
+                                    <span className="font-semibold">{selectedDue.invoice_number}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-500">{t('lbl_total')}</span>
+                                    <span className="font-semibold">{formatCurrency(selectedDue.grand_total)}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-500">{t('lbl_due')}</span>
+                                    <span className="font-semibold text-red-600">{formatCurrency(selectedDue.amount_due)}</span>
+                                </div>
                             </div>
                             {paymentModalType === 'partial' && (
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('lbl_payment_amount')}</label>
-                                    <input type="number" step="0.01" min="0" max={selectedDue.amount_due} value={paymentAmount} onChange={(e) => setPaymentAmount(e.target.value)} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary" required />
+                                    <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_payment_amount')}</label>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        min="0"
+                                        max={selectedDue.amount_due}
+                                        value={paymentAmount}
+                                        onChange={(e) => setPaymentAmount(e.target.value)}
+                                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary"
+                                        required
+                                    />
                                 </div>
                             )}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">{t('lbl_payment_method')}</label>
-                                <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary">
-                                    {activePaymentMethods.map((m) => <option key={m.id} value={m.payment_method_name}>{m.payment_method_name}</option>)}
+                                <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_payment_method')}</label>
+                                <select
+                                    value={paymentMethod}
+                                    onChange={(e) => setPaymentMethod(e.target.value)}
+                                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary"
+                                >
+                                    {activePaymentMethods.map((m) => (
+                                        <option key={m.id} value={m.payment_method_name}>
+                                            {m.payment_method_name}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">{t('lbl_notes')}</label>
-                                <input type="text" value={paymentNotes} onChange={(e) => setPaymentNotes(e.target.value)} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary" />
+                                <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_notes')}</label>
+                                <input
+                                    type="text"
+                                    value={paymentNotes}
+                                    onChange={(e) => setPaymentNotes(e.target.value)}
+                                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary"
+                                />
                             </div>
                             <div className="flex gap-3 pt-2">
-                                <button type="button" onClick={closePaymentModal} className="flex-1 rounded-lg border border-gray-300 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50">{t('lbl_cancel')}</button>
-                                <button type="submit" disabled={isPaymentLoading || isClearingDue} className="flex-1 rounded-lg bg-primary py-2.5 text-sm font-semibold text-white hover:bg-primary/90 disabled:opacity-50">
+                                <button type="button" onClick={closePaymentModal} className="flex-1 rounded-lg border border-gray-300 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                    {t('lbl_cancel')}
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={isPaymentLoading || isClearingDue}
+                                    className="flex-1 rounded-lg bg-[#046ca9] py-2.5 text-sm font-semibold text-white hover:bg-[#046ca9]/90 disabled:opacity-50"
+                                >
                                     {paymentModalType === 'full' ? t('purchase_clear_due') : t('lbl_pay')}
                                 </button>
                             </div>
@@ -622,7 +710,11 @@ const PurchaseOrderListPage = () => {
                 <PaymentReceipt
                     transaction={receiptTransaction}
                     purchaseOrder={receiptPurchaseOrder}
-                    onClose={() => { setShowReceipt(false); setReceiptTransaction(null); setReceiptPurchaseOrder(null); }}
+                    onClose={() => {
+                        setShowReceipt(false);
+                        setReceiptTransaction(null);
+                        setReceiptPurchaseOrder(null);
+                    }}
                 />
             )}
         </div>

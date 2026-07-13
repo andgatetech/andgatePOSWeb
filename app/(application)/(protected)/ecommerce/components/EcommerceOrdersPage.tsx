@@ -264,7 +264,7 @@ const EcommerceOrdersPage = () => {
         <div className="space-y-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#046ca9] to-[#034d79] text-white shadow-sm">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#046ca9] text-white shadow-sm">
                         <Globe2 className="h-5 w-5" />
                     </div>
                     <div>
@@ -276,7 +276,7 @@ const EcommerceOrdersPage = () => {
                     <button
                         type="button"
                         onClick={() => router.push('/ecommerce/orders/create')}
-                        className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
+                        className="inline-flex items-center gap-2 rounded-lg bg-[#046ca9] px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
                     >
                         <Plus className="h-4 w-4" />
                         {t('lbl_create_online_order')}
@@ -284,7 +284,7 @@ const EcommerceOrdersPage = () => {
                 )}
             </div>
 
-            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+            <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
                 <EcommerceOrdersFilter onFilterChange={handleFilterChange} />
             </div>
 
@@ -297,7 +297,7 @@ const EcommerceOrdersPage = () => {
             )}
 
             {!gate.blocked && courierCredentials.length > 0 && (
-                <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
                     <div className="mb-4 flex items-center gap-2">
                         <Truck className="h-5 w-5 text-[#046ca9]" />
                         <div>
@@ -320,18 +320,53 @@ const EcommerceOrdersPage = () => {
 
                         {bulkCourierProvider === 'redx' && (
                             <>
-                                <input value={bulkCourierForm.delivery_area} onChange={(event) => setBulkCourierForm((prev) => ({ ...prev, delivery_area: event.target.value }))} placeholder="Delivery area" className="h-10 rounded-lg border border-gray-300 px-3 text-sm outline-none focus:border-[#046ca9]" />
-                                <input value={bulkCourierForm.delivery_area_id} onChange={(event) => setBulkCourierForm((prev) => ({ ...prev, delivery_area_id: event.target.value }))} placeholder="Area ID" className="h-10 rounded-lg border border-gray-300 px-3 text-sm outline-none focus:border-[#046ca9]" />
-                                <input value={bulkCourierForm.pickup_area_id} onChange={(event) => setBulkCourierForm((prev) => ({ ...prev, pickup_area_id: event.target.value }))} placeholder="Pickup area ID" className="h-10 rounded-lg border border-gray-300 px-3 text-sm outline-none focus:border-[#046ca9]" />
-                                <input value={bulkCourierForm.parcel_weight} onChange={(event) => setBulkCourierForm((prev) => ({ ...prev, parcel_weight: event.target.value }))} placeholder="Weight gram" className="h-10 rounded-lg border border-gray-300 px-3 text-sm outline-none focus:border-[#046ca9]" />
+                                <input
+                                    value={bulkCourierForm.delivery_area}
+                                    onChange={(event) => setBulkCourierForm((prev) => ({ ...prev, delivery_area: event.target.value }))}
+                                    placeholder="Delivery area"
+                                    className="h-10 rounded-lg border border-gray-300 px-3 text-sm outline-none focus:border-[#046ca9]"
+                                />
+                                <input
+                                    value={bulkCourierForm.delivery_area_id}
+                                    onChange={(event) => setBulkCourierForm((prev) => ({ ...prev, delivery_area_id: event.target.value }))}
+                                    placeholder="Area ID"
+                                    className="h-10 rounded-lg border border-gray-300 px-3 text-sm outline-none focus:border-[#046ca9]"
+                                />
+                                <input
+                                    value={bulkCourierForm.pickup_area_id}
+                                    onChange={(event) => setBulkCourierForm((prev) => ({ ...prev, pickup_area_id: event.target.value }))}
+                                    placeholder="Pickup area ID"
+                                    className="h-10 rounded-lg border border-gray-300 px-3 text-sm outline-none focus:border-[#046ca9]"
+                                />
+                                <input
+                                    value={bulkCourierForm.parcel_weight}
+                                    onChange={(event) => setBulkCourierForm((prev) => ({ ...prev, parcel_weight: event.target.value }))}
+                                    placeholder="Weight gram"
+                                    className="h-10 rounded-lg border border-gray-300 px-3 text-sm outline-none focus:border-[#046ca9]"
+                                />
                             </>
                         )}
 
                         {bulkCourierProvider === 'pathao' && (
                             <>
-                                <input value={bulkCourierForm.recipient_city} onChange={(event) => setBulkCourierForm((prev) => ({ ...prev, recipient_city: event.target.value }))} placeholder="City ID" className="h-10 rounded-lg border border-gray-300 px-3 text-sm outline-none focus:border-[#046ca9]" />
-                                <input value={bulkCourierForm.recipient_zone} onChange={(event) => setBulkCourierForm((prev) => ({ ...prev, recipient_zone: event.target.value }))} placeholder="Zone ID" className="h-10 rounded-lg border border-gray-300 px-3 text-sm outline-none focus:border-[#046ca9]" />
-                                <input value={bulkCourierForm.item_weight} onChange={(event) => setBulkCourierForm((prev) => ({ ...prev, item_weight: event.target.value }))} placeholder="Weight KG" className="h-10 rounded-lg border border-gray-300 px-3 text-sm outline-none focus:border-[#046ca9]" />
+                                <input
+                                    value={bulkCourierForm.recipient_city}
+                                    onChange={(event) => setBulkCourierForm((prev) => ({ ...prev, recipient_city: event.target.value }))}
+                                    placeholder="City ID"
+                                    className="h-10 rounded-lg border border-gray-300 px-3 text-sm outline-none focus:border-[#046ca9]"
+                                />
+                                <input
+                                    value={bulkCourierForm.recipient_zone}
+                                    onChange={(event) => setBulkCourierForm((prev) => ({ ...prev, recipient_zone: event.target.value }))}
+                                    placeholder="Zone ID"
+                                    className="h-10 rounded-lg border border-gray-300 px-3 text-sm outline-none focus:border-[#046ca9]"
+                                />
+                                <input
+                                    value={bulkCourierForm.item_weight}
+                                    onChange={(event) => setBulkCourierForm((prev) => ({ ...prev, item_weight: event.target.value }))}
+                                    placeholder="Weight KG"
+                                    className="h-10 rounded-lg border border-gray-300 px-3 text-sm outline-none focus:border-[#046ca9]"
+                                />
                             </>
                         )}
 
@@ -352,16 +387,14 @@ const EcommerceOrdersPage = () => {
                 <EcommerceServiceRequest store={gate.store} requestedStatus="enable" />
             ) : (
                 <>
-                    {error && <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{formatApiError(error)}</div>}
+                    {error && <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">{formatApiError(error)}</div>}
                     <ReusableTable
                         data={orders}
                         columns={columns}
                         actions={actions}
                         onRowClick={handleOpenOrder}
                         rowClassName={(_row, index) =>
-                            `border-b border-gray-100 transition-colors last:border-0 ${
-                                index % 2 === 0 ? 'bg-white hover:bg-[#046ca9]/5' : 'bg-slate-50/60 hover:bg-[#046ca9]/5'
-                            }`
+                            `border-b border-gray-100 transition-colors last:border-0 ${index % 2 === 0 ? 'bg-white hover:bg-[#046ca9]/5' : 'bg-slate-50/60 hover:bg-[#046ca9]/5'}`
                         }
                         pagination={{
                             currentPage,
@@ -383,7 +416,6 @@ const EcommerceOrdersPage = () => {
                     />
                 </>
             )}
-
         </div>
     );
 };

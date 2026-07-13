@@ -48,7 +48,7 @@ const DemandForecastPage = () => {
                 key: 'will_stockout_in_window',
                 label: t('lbl_stockout_risk'),
                 width: 12,
-                format: (value) => value ? t('lbl_at_risk') : t('lbl_safe'),
+                format: (value) => (value ? t('lbl_at_risk') : t('lbl_safe')),
             },
             { key: 'confidence', label: t('lbl_confidence'), width: 12, format: (value) => t(`lbl_confidence_${value}`) },
         ],
@@ -73,11 +73,12 @@ const DemandForecastPage = () => {
             key: 'will_stockout_in_window',
             label: t('lbl_stockout_risk'),
             sortable: false,
-            render: (_value: any, row: any) => row.will_stockout_in_window ? (
-                <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">{t('lbl_at_risk')}</span>
-            ) : (
-                <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-700">{t('lbl_safe')}</span>
-            ),
+            render: (_value: any, row: any) =>
+                row.will_stockout_in_window ? (
+                    <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">{t('lbl_at_risk')}</span>
+                ) : (
+                    <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-700">{t('lbl_safe')}</span>
+                ),
         },
         {
             key: 'confidence',
@@ -121,7 +122,9 @@ const DemandForecastPage = () => {
                     onChange={(e) => setPeriod(e.target.value)}
                     className="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 >
-                    <option value="">{t('lbl_30_days')} ({t('lbl_default')})</option>
+                    <option value="">
+                        {t('lbl_30_days')} ({t('lbl_default')})
+                    </option>
                     <option value="7d">{t('lbl_7_days')}</option>
                     <option value="30d">{t('lbl_30_days')}</option>
                     <option value="90d">{t('lbl_90_days')}</option>
@@ -155,12 +158,7 @@ const DemandForecastPage = () => {
             </div>
 
             <div className="overflow-hidden rounded-lg border border-slate-200 bg-white">
-                <ReusableTable
-                    columns={columns}
-                    data={forecasts}
-                    isLoading={isLoading}
-                    emptyMessage={t('lbl_no_forecast_data')}
-                />
+                <ReusableTable columns={columns} data={forecasts} isLoading={isLoading} emptyMessage={t('lbl_no_forecast_data')} />
             </div>
         </div>
     );
