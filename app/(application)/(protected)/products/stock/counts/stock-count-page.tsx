@@ -1,25 +1,15 @@
 'use client';
 
-import { useDeferredValue, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { getTranslation } from '@/i18n';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
-import { useApproveStockCountMutation, useCreateStockCountMutation, useGetAllProductsQuery, useGetStockCountsQuery } from '@/store/features/Product/productApi';
-import { CheckCircle2, ClipboardList, Plus, RefreshCw, Search, X } from 'lucide-react';
+import { useApproveStockCountMutation, useCreateStockCountMutation, useGetStockCountsQuery } from '@/store/features/Product/productApi';
+import type { RootState } from '@/store';
+import { clearStockItems, removeStockItem } from '@/store/features/StockAdjustment/stockAdjustmentSlice';
+import { CheckCircle2, ClipboardList, RefreshCw, Save, Trash2, X } from 'lucide-react';
 import toast from 'react-hot-toast';
-
-type CountLine = {
-    product_stock_id: number;
-    label: string;
-    sku?: string;
-    system_quantity: number;
-    counted_quantity: number;
-};
-
-const normalizeProducts = (response: any) => {
-    const payload = response?.data?.items || response?.data || response?.items || [];
-    return Array.isArray(payload) ? payload : [];
-};
+import { useDispatch, useSelector } from 'react-redux';
 
 const normalizeSessions = (response: any) => {
     const payload = response?.data?.data || response?.data?.items || response?.data || response?.items || response;
@@ -29,82 +19,81 @@ const normalizeSessions = (response: any) => {
 export default function StockCountPage() {
     const { t } = getTranslation();
     const { formatNumber } = useCurrency();
-    const { currentStoreId } = useCurrentStore();
-    const [lines, setLines] = useState<CountLine[]>([]);
+    const dispatch = useDispatch();
+    const { currentStore, currentStoreId } = useCurrentStore();
     const [title, setTitle] = useState('');
-    const [productSearch, setProductSearch] = useState('');
-    const deferredProductSearch = useDeferredValue(productSearch.trim());
+    const [countedByItemId, setCountedByItemId] = useState<Record<number, number>>({});
     const [createStockCount, { isLoading: isCreating }] = useCreateStockCountMutation();
     const [approveStockCount, { isLoading: isApproving }] = useApproveStockCountMutation();
-    const { data: productsResponse, isLoading: productsLoading, isFetching: productsFetching } = useGetAllProductsQuery({
-        store_id: currentStoreId,
-        search: deferredProductSearch || undefined,
-        light: 1,
-        per_page: 25,
-        sort_field: 'product_name',
-        sort_direction: 'asc',
-        fast_pagination: 1,
-    }, { skip: !currentStoreId });
+    const selectedItems = useSelector((state: RootState) => (currentStoreId && state.stockAdjustment.itemsByStore ? state.stockAdjustment.itemsByStore[currentStoreId] || [] : []));
     const { data: countsResponse, refetch } = useGetStockCountsQuery({ store_id: currentStoreId, per_page: 10 }, { skip: !currentStoreId });
 
-    const stockOptions = useMemo(() => {
-        return normalizeProducts(productsResponse).flatMap((product: any) => {
-            const stocks = Array.isArray(product.stocks) ? product.stocks : Array.isArray(product.product_stocks) ? product.product_stocks : [];
-            const productName = product.product_name || product.name || '';
-            if (stocks.length === 0 && product.product_stock_id) {
-                return [{
-                    id: product.product_stock_id,
-                    productName,
-                    sku: product.sku,
-                    barcode: product.barcode,
-                    quantity: Number(product.quantity || 0),
-                    label: productName,
-                }];
-            }
-            return stocks.map((stock: any) => ({
-                id: stock.id,
-                productName,
-                sku: stock.sku || stock.barcode,
-                barcode: stock.barcode,
-                quantity: Number(stock.quantity || 0),
-                label: [productName, stock.variant_name || (stock.variant_data ? Object.values(stock.variant_data).join(' - ') : '')].filter(Boolean).join(' / '),
-            }));
+    useEffect(() => {
+        setCountedByItemId((prev) => {
+            const next = { ...prev };
+            selectedItems.forEach((item: any) => {
+                if (next[item.id] === undefined) {
+                    next[item.id] = Number(item.PlaceholderQuantity ?? item.quantity ?? 0);
+                }
+            });
+
+            Object.keys(next).forEach((id) => {
+                if (!selectedItems.some((item: any) => String(item.id) === id)) {
+                    delete next[Number(id)];
+                }
+            });
+
+            return next;
         });
-    }, [productsResponse]);
+    }, [selectedItems]);
 
-    const selectedStockIds = useMemo(() => new Set(lines.map((line) => line.product_stock_id)), [lines]);
+    const countLines = useMemo(() => selectedItems.map((item: any) => {
+        const systemQuantity = Number(item.PlaceholderQuantity ?? item.quantity ?? 0);
+        const countedQuantity = countedByItemId[item.id] ?? systemQuantity;
+        return {
+            itemId: item.id,
+            product_stock_id: item.stockId,
+            label: item.variantName ? `${item.title || item.name} / ${item.variantName}` : (item.title || item.name),
+            sku: item.sku,
+            unit: item.unit,
+            system_quantity: systemQuantity,
+            counted_quantity: countedQuantity,
+            variance: countedQuantity - systemQuantity,
+        };
+    }), [selectedItems, countedByItemId]);
 
-    const addLine = (stockId: string) => {
-        const stock = stockOptions.find((item: any) => String(item.id) === stockId);
-        if (!stock || lines.some((line) => line.product_stock_id === stock.id)) return;
-        setLines((prev) => [
-            ...prev,
-            {
-                product_stock_id: stock.id,
-                label: stock.label,
-                sku: stock.sku,
-                system_quantity: stock.quantity,
-                counted_quantity: stock.quantity,
-            },
-        ]);
+    const updateCountedQuantity = (itemId: number, quantity: number) => {
+        setCountedByItemId((prev) => ({ ...prev, [itemId]: Math.max(0, Number.isFinite(quantity) ? quantity : 0) }));
     };
 
-    const removeLine = (stockId: number) => {
-        setLines((prev) => prev.filter((line) => line.product_stock_id !== stockId));
+    const removeLine = (itemId: number) => {
+        if (!currentStoreId) return;
+        dispatch(removeStockItem({ storeId: currentStoreId, id: itemId }));
+    };
+
+    const clearDraft = () => {
+        if (!currentStoreId) return;
+        dispatch(clearStockItems(currentStoreId));
+        setCountedByItemId({});
     };
 
     const saveCount = async () => {
-        if (!currentStoreId || lines.length === 0) return;
+        if (!currentStoreId || countLines.length === 0) return;
+        const invalidLine = countLines.find((line) => !line.product_stock_id);
+        if (invalidLine) {
+            toast.error(t('stock_count_create_failed'));
+            return;
+        }
         try {
             await createStockCount({
                 store_id: currentStoreId,
                 title: title || t('stock_count_default_title'),
-                items: lines.map((line) => ({
+                items: countLines.map((line) => ({
                     product_stock_id: line.product_stock_id,
                     counted_quantity: line.counted_quantity,
                 })),
             }).unwrap();
-            setLines([]);
+            clearDraft();
             setTitle('');
             toast.success(t('stock_count_created'));
             refetch();
@@ -124,138 +113,166 @@ export default function StockCountPage() {
     };
 
     const sessions = normalizeSessions(countsResponse);
+    const totalVarianceLines = countLines.filter((line) => Math.abs(line.variance) > 0.00001).length;
+    const totalPositiveVariance = countLines.reduce((sum, line) => sum + Math.max(0, line.variance), 0);
+    const totalNegativeVariance = countLines.reduce((sum, line) => sum + Math.min(0, line.variance), 0);
 
     return (
-        <div className="space-y-5">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                    <h1 className="text-xl font-semibold text-slate-900 dark:text-white">{t('stock_count_title')}</h1>
-                    <p className="mt-1 text-sm text-slate-500">{t('stock_count_subtitle')}</p>
+        <div className="flex h-full flex-col bg-gradient-to-br from-gray-50 to-gray-100">
+            {isCreating && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm">
+                    <div className="rounded-xl border border-slate-200 bg-white px-6 py-5 text-center shadow-lg">
+                        <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-sky-100 border-t-sky-600" />
+                        <p className="mt-3 text-sm font-semibold text-slate-700">{t('stock_count_create_session')}</p>
+                    </div>
                 </div>
-                <button type="button" onClick={() => refetch()} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
-                    <RefreshCw className="h-4 w-4" />
-                    {t('btn_refresh')}
-                </button>
+            )}
+
+            <div className="p-4 sm:p-6">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="flex items-start gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#046ca9] to-[#034d79] text-white shadow-sm">
+                            <ClipboardList className="h-5 w-5" />
+                        </div>
+                        <div>
+                            <h1 className="text-xl font-bold text-gray-900">{t('stock_count_title')}</h1>
+                            <p className="mt-1 max-w-2xl text-sm text-gray-500">{t('stock_count_subtitle')}</p>
+                            <p className="mt-1 text-sm text-gray-500">
+                                {currentStore?.store_name && <span className="font-medium">{currentStore.store_name}</span>}
+                                {currentStore?.store_name && <span className="mx-2">•</span>}
+                                <span className="font-semibold text-[#034d79]">{countLines.length} {countLines.length === 1 ? 'Item' : 'Items'}</span>
+                            </p>
+                        </div>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                        <button type="button" onClick={() => refetch()} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                            <RefreshCw className="h-4 w-4" />
+                            {t('btn_refresh')}
+                        </button>
+                        <button type="button" onClick={clearDraft} disabled={countLines.length === 0} className="inline-flex items-center gap-2 rounded-lg border border-red-200 bg-white px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50">
+                            <Trash2 className="h-4 w-4" />
+                            {t('btn_clear')}
+                        </button>
+                    </div>
+                </div>
             </div>
 
-            <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-                <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(320px,420px)]">
-                    <input value={title} onChange={(event) => setTitle(event.target.value)} placeholder={t('stock_count_title_placeholder')} className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-sky-500" />
-                    <div className="relative">
-                        <Search className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                        <input
-                            value={productSearch}
-                            onChange={(event) => setProductSearch(event.target.value)}
-                            placeholder={t('placeholder_search_products') || t('stock_count_add_item')}
-                            className="w-full rounded-lg border border-slate-200 py-2 pl-9 pr-9 text-sm outline-none focus:border-sky-500"
-                        />
-                        {productSearch && (
-                            <button type="button" onClick={() => setProductSearch('')} className="absolute right-2 top-2 rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600" aria-label={t('btn_clear')}>
-                                <X className="h-4 w-4" />
-                            </button>
-                        )}
+            <div className="flex-1 overflow-auto px-4 pb-4 sm:px-6">
+                <div className="mx-auto max-w-5xl space-y-4">
+                    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                        <label className="mb-2 block text-sm font-semibold text-slate-700">{t('stock_count_title_placeholder')}</label>
+                        <input value={title} onChange={(event) => setTitle(event.target.value)} placeholder={t('stock_count_title_placeholder')} className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-sky-500" />
                     </div>
-                </div>
 
-                <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50/70 p-2">
-                    <div className="mb-2 flex items-center justify-between px-1">
-                        <p className="text-xs font-semibold uppercase text-slate-500">{t('lbl_search_results')}</p>
-                        <p className="text-xs text-slate-400">{productsFetching ? t('lbl_loading') : `${stockOptions.length}`}</p>
-                    </div>
-                    <div className="max-h-72 space-y-1 overflow-y-auto pr-1">
-                        {productsLoading || productsFetching ? (
-                            <div className="px-3 py-8 text-center text-sm text-slate-400">{t('lbl_loading')}</div>
-                        ) : stockOptions.length === 0 ? (
-                            <div className="px-3 py-8 text-center text-sm text-slate-400">{t('msg_no_products_found')}</div>
-                        ) : (
-                            stockOptions.map((stock: any) => {
-                                const selected = selectedStockIds.has(stock.id);
-                                return (
-                                    <button
-                                        key={stock.id}
-                                        type="button"
-                                        onClick={() => addLine(String(stock.id))}
-                                        disabled={selected}
-                                        className="flex w-full items-center justify-between gap-3 rounded-md border border-transparent bg-white px-3 py-2 text-left text-sm shadow-sm hover:border-sky-200 hover:bg-sky-50 disabled:cursor-not-allowed disabled:bg-emerald-50 disabled:text-emerald-700"
-                                    >
-                                        <span className="min-w-0">
-                                            <span className="block truncate font-semibold text-slate-800">{stock.label}</span>
-                                            <span className="block truncate text-xs text-slate-500">
-                                                {t('lbl_sku')}: {stock.sku || '-'} {stock.barcode ? `| ${stock.barcode}` : ''} | {t('stock_count_system_qty')}: {formatNumber(stock.quantity)}
-                                            </span>
-                                        </span>
-                                        <span className={`shrink-0 rounded-md px-2.5 py-1 text-xs font-semibold text-white ${selected ? 'bg-emerald-600' : 'bg-sky-600'}`}>
-                                            {selected ? t('stock_count_selected') : t('btn_add')}
-                                        </span>
-                                    </button>
-                                );
-                            })
-                        )}
-                    </div>
-                </div>
+                    {countLines.length === 0 ? (
+                        <div className="rounded-xl border-2 border-dashed border-slate-200 bg-white p-10 text-center shadow-sm">
+                            <ClipboardList className="mx-auto h-12 w-12 text-slate-300" />
+                            <h2 className="mt-4 text-lg font-bold text-slate-800">{t('stock_count_empty')}</h2>
+                            <p className="mt-2 text-sm text-slate-500">{t('transfer_step_search_desc')}</p>
+                        </div>
+                    ) : (
+                        countLines.map((line) => (
+                            <div key={line.itemId} className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:shadow-md sm:p-5">
+                                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                                    <div className="min-w-0 flex-1">
+                                        <div className="flex items-start gap-2">
+                                            <button type="button" onClick={() => removeLine(line.itemId)} className="mt-0.5 rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600" title={t('btn_remove')}>
+                                                <X className="h-4 w-4" />
+                                            </button>
+                                            <div className="min-w-0">
+                                                <h3 className="truncate text-base font-semibold text-gray-900">{line.label}</h3>
+                                                <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-600">
+                                                    {line.sku && <span className="rounded-md bg-gray-100 px-2 py-1 font-medium">SKU: {line.sku}</span>}
+                                                    <span className="rounded-md bg-blue-100 px-2 py-1 font-medium text-blue-700">{t('stock_count_system_qty')}: {formatNumber(line.system_quantity)}</span>
+                                                    {line.unit && <span className="rounded-md bg-gray-100 px-2 py-1 font-medium">{line.unit}</span>}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
 
-                <div className="mt-4 overflow-x-auto">
-                    <table className="min-w-full divide-y divide-slate-100 text-sm">
-                        <thead className="bg-slate-50 text-left text-xs font-semibold uppercase text-slate-500">
-                            <tr>
-                                <th className="px-3 py-2">{t('lbl_product')}</th>
-                                <th className="px-3 py-2">{t('lbl_sku')}</th>
-                                <th className="px-3 py-2 text-right">{t('stock_count_system_qty')}</th>
-                                <th className="px-3 py-2 text-right">{t('stock_count_counted_qty')}</th>
-                                <th className="px-3 py-2 text-right">{t('stock_count_variance')}</th>
-                                <th className="px-3 py-2 text-right">{t('lbl_action')}</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100">
-                            {lines.map((line, index) => (
-                                <tr key={line.product_stock_id}>
-                                    <td className="px-3 py-2 font-medium text-slate-800">{line.label}</td>
-                                    <td className="px-3 py-2 text-slate-500">{line.sku || '-'}</td>
-                                    <td className="px-3 py-2 text-right">{formatNumber(line.system_quantity)}</td>
-                                    <td className="px-3 py-2 text-right">
-                                        <input type="number" min="0" value={line.counted_quantity} onChange={(event) => setLines((prev) => prev.map((item, itemIndex) => itemIndex === index ? { ...item, counted_quantity: Number(event.target.value) || 0 } : item))} className="w-28 rounded-md border border-slate-200 px-2 py-1 text-right" />
-                                    </td>
-                                    <td className="px-3 py-2 text-right font-semibold">{formatNumber(line.counted_quantity - line.system_quantity)}</td>
-                                    <td className="px-3 py-2 text-right">
-                                        <button type="button" onClick={() => removeLine(line.product_stock_id)} className="inline-flex items-center justify-center rounded-md p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600" title={t('btn_remove')}>
-                                            <X className="h-4 w-4" />
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                            {lines.length === 0 && (
-                                <tr><td colSpan={6} className="px-3 py-8 text-center text-slate-400">{t('stock_count_empty')}</td></tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-
-                <button type="button" onClick={saveCount} disabled={isCreating || lines.length === 0} className="mt-4 inline-flex items-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-50">
-                    <Plus className="h-4 w-4" />
-                    {t('stock_count_create_session')}
-                </button>
-            </section>
-
-            <section className="rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
-                <div className="border-b border-slate-100 px-4 py-3">
-                    <h2 className="flex items-center gap-2 text-sm font-semibold text-slate-900"><ClipboardList className="h-4 w-4" />{t('stock_count_recent_sessions')}</h2>
-                </div>
-                <div className="divide-y divide-slate-100">
-                    {sessions.map((session: any) => (
-                        <div key={session.id} className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-                            <div>
-                                <p className="font-semibold text-slate-900">{session.reference_no} <span className="text-sm font-normal text-slate-500">{session.title || ''}</span></p>
-                                <p className="text-xs text-slate-500">{t('stock_count_variance_lines')}: {session.variance_count ?? '-'} | {t('stock_count_status')}: {session.status}</p>
+                                    <div className="grid gap-3 sm:grid-cols-[160px_140px]">
+                                        <div>
+                                            <label className="mb-1 block text-xs font-semibold uppercase text-gray-500">{t('stock_count_counted_qty')}</label>
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                value={line.counted_quantity}
+                                                onChange={(event) => updateCountedQuantity(line.itemId, Number(event.target.value))}
+                                                className="h-11 w-full rounded-lg border border-gray-300 px-3 text-right text-lg font-bold text-gray-900 focus:border-primary focus:ring-2 focus:ring-primary"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="mb-1 block text-xs font-semibold uppercase text-gray-500">{t('stock_count_variance')}</label>
+                                            <div className={`flex h-11 items-center justify-end rounded-lg border px-3 text-lg font-bold ${line.variance === 0 ? 'border-gray-200 bg-gray-50 text-gray-700' : line.variance > 0 ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-red-200 bg-red-50 text-red-700'}`}>
+                                                {line.variance > 0 ? '+' : ''}{formatNumber(line.variance)}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <button type="button" onClick={() => approve(session.id)} disabled={isApproving || session.status === 'approved'} className="inline-flex items-center justify-center gap-2 rounded-lg border border-emerald-200 px-3 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-50">
-                                <CheckCircle2 className="h-4 w-4" />
-                                {session.status === 'approved' ? t('stock_count_approved_status') : t('stock_count_approve')}
+                        ))
+                    )}
+
+                    <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
+                        <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+                            <h2 className="flex items-center gap-2 text-sm font-semibold text-slate-900"><ClipboardList className="h-4 w-4" />{t('stock_count_recent_sessions')}</h2>
+                            <button type="button" onClick={() => refetch()} className="rounded-md p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600">
+                                <RefreshCw className="h-4 w-4" />
                             </button>
                         </div>
-                    ))}
-                    {sessions.length === 0 && <div className="px-4 py-8 text-center text-sm text-slate-400">{t('stock_count_no_sessions')}</div>}
+                        <div className="divide-y divide-slate-100">
+                            {sessions.map((session: any) => (
+                                <div key={session.id} className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                                    <div>
+                                        <p className="font-semibold text-slate-900">{session.reference_no} <span className="text-sm font-normal text-slate-500">{session.title || ''}</span></p>
+                                        <p className="text-xs text-slate-500">{t('stock_count_variance_lines')}: {session.variance_count ?? '-'} | {t('stock_count_status')}: {session.status}</p>
+                                    </div>
+                                    <button type="button" onClick={() => approve(session.id)} disabled={isApproving || session.status === 'approved'} className="inline-flex items-center justify-center gap-2 rounded-lg border border-emerald-200 px-3 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-50">
+                                        <CheckCircle2 className="h-4 w-4" />
+                                        {session.status === 'approved' ? t('stock_count_approved_status') : t('stock_count_approve')}
+                                    </button>
+                                </div>
+                            ))}
+                            {sessions.length === 0 && <div className="px-4 py-8 text-center text-sm text-slate-400">{t('stock_count_no_sessions')}</div>}
+                        </div>
+                    </section>
                 </div>
-            </section>
+            </div>
+
+            <div className="border-t border-gray-200 bg-white shadow-lg">
+                <div className="p-4 sm:p-6">
+                    <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+                        <div className="flex flex-wrap items-center gap-3">
+                            <div className="rounded-lg bg-gray-100 px-4 py-2">
+                                <div className="text-xs text-gray-600">{t('stock_count_selected_items')}</div>
+                                <div className="text-lg font-bold text-gray-900">{countLines.length}</div>
+                            </div>
+                            <div className="rounded-lg bg-amber-100 px-4 py-2">
+                                <div className="text-xs text-amber-700">{t('stock_count_variance_lines')}</div>
+                                <div className="text-lg font-bold text-amber-700">{totalVarianceLines}</div>
+                            </div>
+                            <div className="rounded-lg bg-emerald-100 px-4 py-2">
+                                <div className="text-xs text-emerald-700">{t('stock_count_positive_variance')}</div>
+                                <div className="text-lg font-bold text-emerald-700">+{formatNumber(totalPositiveVariance)}</div>
+                            </div>
+                            <div className="rounded-lg bg-red-100 px-4 py-2">
+                                <div className="text-xs text-red-700">{t('stock_count_negative_variance')}</div>
+                                <div className="text-lg font-bold text-red-700">{formatNumber(totalNegativeVariance)}</div>
+                            </div>
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={saveCount}
+                            disabled={isCreating || countLines.length === 0}
+                            className="inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-3 text-sm font-semibold text-white shadow-md transition-all hover:from-blue-700 hover:to-blue-800 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 sm:min-w-[190px]"
+                        >
+                            <Save className="h-4 w-4" />
+                            {t('stock_count_create_session')}
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }

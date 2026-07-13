@@ -1,5 +1,22 @@
+import { Box, Package } from 'lucide-react';
+import { getServerTranslation } from '@/i18n';
+import PosLeftSide from '../../../pos/PosLeftSide';
 import StockCountPage from './stock-count-page';
 
-export default function Page() {
-    return <StockCountPage />;
+export default async function Page() {
+    const { t } = await getServerTranslation();
+
+    return (
+        <PosLeftSide
+            disableSerialSelection={true}
+            mobileButtonConfig={{
+                showIcon: <Box className="h-6 w-6" />,
+                hideIcon: <Package className="h-6 w-6" />,
+                label: t('lbl_stock'),
+            }}
+            reduxSlice="stock"
+        >
+            <StockCountPage />
+        </PosLeftSide>
+    );
 }
