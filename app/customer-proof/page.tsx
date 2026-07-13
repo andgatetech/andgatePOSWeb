@@ -2,9 +2,39 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { BarChart3, CheckCircle2, Clock3, MapPinned, PackageCheck, ShieldCheck } from 'lucide-react';
 
+const BASE_URL = 'https://andgatepos.com';
+
 export const metadata: Metadata = {
     title: 'Customer Proof & Operating Trust | AndgateBOS',
     description: 'How AndgateBOS proves operating readiness for Bangladeshi shops: onboarding, reports, permissions, offline safeguards, COD reconciliation and fiscal-readiness controls.',
+    keywords: [
+        'AndgateBOS customer proof',
+        'POS software trust Bangladesh',
+        'business software proof Bangladesh',
+        'retail software controls',
+        'SME Business OS readiness',
+    ],
+    alternates: {
+        canonical: `${BASE_URL}/customer-proof`,
+    },
+    robots: {
+        index: true,
+        follow: true,
+    },
+    openGraph: {
+        title: 'Customer Proof & Operating Trust | AndgateBOS',
+        description:
+            'Operating readiness for Bangladeshi shops: onboarding, reports, permissions, offline safeguards, COD reconciliation and fiscal-readiness controls.',
+        url: `${BASE_URL}/customer-proof`,
+        type: 'website',
+        images: [{ url: '/images/og-image.jpg', width: 1200, height: 630, alt: 'AndgateBOS Customer Proof' }],
+    },
+    twitter: {
+        card: 'summary_large_image',
+        title: 'Customer Proof & Operating Trust | AndgateBOS',
+        description: 'See how AndgateBOS supports reliable daily operations for Bangladeshi shops.',
+        images: ['/images/og-image.jpg'],
+    },
 };
 
 const proofItems = [

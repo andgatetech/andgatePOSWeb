@@ -24,6 +24,47 @@ export function generateMetadata({
     const baseUrl = getAppUrl();
     const fullUrl = `${baseUrl}${path}`;
     const canonical = canonicalUrl || fullUrl;
+    const privateAppPrefixes = [
+        '/account',
+        '/accounting',
+        '/analytics',
+        '/audit-logs',
+        '/brand',
+        '/business-os',
+        '/cash-closing',
+        '/cash-drawer',
+        '/category',
+        '/company',
+        '/compliance-calendar',
+        '/coupons',
+        '/customers',
+        '/dashboard',
+        '/data-export',
+        '/ecommerce',
+        '/employees',
+        '/expenses',
+        '/feedbacks',
+        '/fiscal-compliance',
+        '/font-icons',
+        '/hr',
+        '/label',
+        '/manual-payments',
+        '/notifications',
+        '/orders',
+        '/petty-cash',
+        '/pos',
+        '/products',
+        '/purchases',
+        '/reports',
+        '/roles',
+        '/service-jobs',
+        '/stock-transfers',
+        '/store',
+        '/subscription',
+        '/suppliers',
+        '/users',
+    ];
+    const shouldNoIndex = noIndex || privateAppPrefixes.some((prefix) => path === prefix || path.startsWith(`${prefix}/`) || path.startsWith(`/protected${prefix}`));
 
     const defaultKeywords = ['AndgateBOS', 'SME Business OS', 'business operating system', 'POS system', 'point of sale', 'inventory management', 'sales tracking', 'business management', 'retail software', 'cloud POS'];
 
@@ -36,11 +77,11 @@ export function generateMetadata({
         creator: 'Andgate Technologies',
         publisher: 'Andgate Technologies',
         robots: {
-            index: !noIndex,
-            follow: !noIndex,
+            index: !shouldNoIndex,
+            follow: !shouldNoIndex,
             googleBot: {
-                index: !noIndex,
-                follow: !noIndex,
+                index: !shouldNoIndex,
+                follow: !shouldNoIndex,
                 'max-video-preview': -1,
                 'max-image-preview': 'large',
                 'max-snippet': -1,

@@ -7,7 +7,7 @@ const BASE_URL = 'https://andgatepos.com';
 export const metadata: Metadata = {
     title: 'SME Business Operating System Bangladesh | AndgateBOS',
     description:
-        'AndgateBOS is an SME Business Operating System for Bangladesh businesses, with POS billing, inventory, purchase, CRM, supplier dues, cash closing, HR, reports, COD reconciliation and online store workflows.',
+        'AndgateBOS helps Bangladesh SMEs manage POS billing, inventory, CRM, supplier dues, cash closing, reports, COD and online store operations.',
     keywords: BD_KEYWORDS,
     alternates: {
         canonical: BASE_URL,
@@ -171,7 +171,6 @@ export default function HomePage() {
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }} />
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
-            <h1 className="sr-only">SME Business Operating System in Bangladesh with POS Billing and Inventory</h1>
             <HomePageClient />
         </>
     );

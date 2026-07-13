@@ -48,6 +48,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
             changeFrequency: 'weekly',
             priority: 0.82,
         },
+        {
+            url: `${baseUrl}/compare`,
+            lastModified: now,
+            changeFrequency: 'monthly',
+            priority: 0.76,
+        },
         ...seoArticles.map((article) => ({
             url: `${baseUrl}/blog/${article.slug}`,
             lastModified: new Date(article.updatedAt),
@@ -116,6 +122,36 @@ export default function sitemap(): MetadataRoute.Sitemap {
             lastModified: now,
             changeFrequency: 'weekly',
             priority: 0.82,
+        },
+        {
+            url: `${baseUrl}/demo`,
+            lastModified: now,
+            changeFrequency: 'monthly',
+            priority: 0.76,
+        },
+        {
+            url: `${baseUrl}/customer-proof`,
+            lastModified: now,
+            changeFrequency: 'monthly',
+            priority: 0.74,
+        },
+        {
+            url: `${baseUrl}/user-guide`,
+            lastModified: now,
+            changeFrequency: 'monthly',
+            priority: 0.68,
+        },
+        {
+            url: `${baseUrl}/promotion/comparison`,
+            lastModified: now,
+            changeFrequency: 'monthly',
+            priority: 0.7,
+        },
+        {
+            url: `${baseUrl}/promotion/partner`,
+            lastModified: now,
+            changeFrequency: 'monthly',
+            priority: 0.62,
         },
         {
             url: `${baseUrl}/promotion/affiliate`,

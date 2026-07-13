@@ -2,13 +2,31 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import MainLayout from '@/components/layouts/MainLayout';
 
+const BASE_URL = 'https://andgatepos.com';
+
 export const metadata: Metadata = {
     title: 'AndgateBOS Comparison — SME Business OS Bangladesh',
     description: 'Compare AndgateBOS with POS and business software options in Bangladesh. See POS, inventory, CRM, supplier 360, cash closing, ecommerce, reports and Bangla support.',
     keywords: 'POS software Bangladesh, compare POS, best POS Bangladesh, AndgateBOS comparison, retail POS comparison Bangladesh',
+    alternates: {
+        canonical: `${BASE_URL}/promotion/comparison`,
+    },
+    robots: {
+        index: true,
+        follow: true,
+    },
     openGraph: {
         title: 'AndgateBOS Comparison — SME Business OS Bangladesh',
         description: 'Compare AndgateBOS with common POS and business software choices for Bangladesh SMEs.',
+        url: `${BASE_URL}/promotion/comparison`,
+        type: 'website',
+        images: [{ url: '/images/og-image.jpg', width: 1200, height: 630, alt: 'AndgateBOS Comparison Bangladesh' }],
+    },
+    twitter: {
+        card: 'summary_large_image',
+        title: 'AndgateBOS Comparison — SME Business OS Bangladesh',
+        description: 'Compare AndgateBOS with common POS and business software choices for Bangladesh SMEs.',
+        images: ['/images/og-image.jpg'],
     },
 };
 

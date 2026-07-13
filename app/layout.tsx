@@ -109,7 +109,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         contactPoint: {
             '@type': 'ContactPoint',
             telephone: '+8801577303608',
-            email: 'support@andgatetech.net',
             contactType: 'customer support',
             availableLanguage: ['English', 'Bengali'],
         },

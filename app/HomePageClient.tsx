@@ -112,15 +112,21 @@ export default function HomePageClient() {
 
     const videoRef = useRef<HTMLIFrameElement>(null);
     const videoContainerRef = useRef<HTMLDivElement>(null);
-    const [isPlaying, setIsPlaying] = useState(true);
+    const [isPlaying, setIsPlaying] = useState(false);
     const [isMuted, setIsMuted] = useState(true);
     const [isFullscreen, setIsFullscreen] = useState(false);
+    const [isVideoLoaded, setIsVideoLoaded] = useState(false);
     const [openFaq, setOpenFaq] = useState<number | null>(null);
     const { data: publicStatsData } = useGetPublicStatsQuery();
     const activeStores = publicStatsData?.data?.active_stores;
     const businessCount = activeStores ? Math.max(10, Math.floor(activeStores / 10) * 10) : 100;
 
     const toggleVideo = useCallback(() => {
+        if (!isVideoLoaded) {
+            setIsVideoLoaded(true);
+            setIsPlaying(true);
+            return;
+        }
         const iframe = videoRef.current;
         if (!iframe) return;
         const cmd = isPlaying ? 'pauseVideo' : 'playVideo';
@@ -129,7 +135,7 @@ export default function HomePageClient() {
             '*'
         );
         setIsPlaying((p) => !p);
-    }, [isPlaying]);
+    }, [isPlaying, isVideoLoaded]);
 
     const toggleMute = useCallback(() => {
         const iframe = videoRef.current;
@@ -393,7 +399,7 @@ export default function HomePageClient() {
                                     </div>
                                     <div className="min-w-0">
                                         <p className="text-xs font-bold uppercase tracking-wide text-[#046ca9]">{t('feature_pos')}</p>
-                                        <h2 className="truncate text-lg font-black text-gray-950">AndgateBOS</h2>
+                                        <p className="truncate text-lg font-black text-gray-950">AndgateBOS</p>
                                     </div>
                                 </div>
                                 <div className="hidden flex-shrink-0 items-center gap-1.5 text-[11px] font-bold text-gray-400 sm:flex">
@@ -532,11 +538,11 @@ export default function HomePageClient() {
                     <p className="text-xs font-bold uppercase tracking-wide text-[#046ca9]">
                         {isBn ? 'লাইভ ডেমো' : 'Live Demo'}
                     </p>
-                    <h2 className="mt-2 text-2xl font-black leading-tight text-gray-950 sm:text-3xl">
+                    <p className="mt-2 text-2xl font-black leading-tight text-gray-950 sm:text-3xl">
                         {isBn
                             ? 'আপনার দোকান ডিজিটাল হলে কেমন হবে?'
                             : 'See your shop—fully digital, in 2 minutes'}
-                    </h2>
+                    </p>
                     <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-gray-500 sm:text-base">
                         {isBn
                             ? 'বিলিং থেকে স্টক — সব এক জায়গায়। ভুল কম, সময় বাঁচে, হিসেব মেলে। যে কেউ চালাতে পারে।'
@@ -567,14 +573,34 @@ export default function HomePageClient() {
                             className="relative overflow-hidden rounded-xl bg-black"
                             style={{ paddingBottom: '56.25%' }}
                         >
-                            <iframe
-                                ref={videoRef}
-                                src="https://www.youtube.com/embed/gELTWs7hFtc?autoplay=1&mute=1&start=163&loop=1&playlist=gELTWs7hFtc&controls=0&rel=0&modestbranding=1&enablejsapi=1&playsinline=1"
-                                title="AndgateBOS"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                allowFullScreen
-                                className="absolute inset-0 h-full w-full"
-                            />
+                            {isVideoLoaded ? (
+                                <iframe
+                                    ref={videoRef}
+                                    src="https://www.youtube.com/embed/gELTWs7hFtc?autoplay=1&mute=1&start=163&loop=1&playlist=gELTWs7hFtc&controls=0&rel=0&modestbranding=1&enablejsapi=1&playsinline=1"
+                                    title="AndgateBOS demo video"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowFullScreen
+                                    className="absolute inset-0 h-full w-full"
+                                />
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={toggleVideo}
+                                    className="absolute inset-0 flex h-full w-full items-center justify-center overflow-hidden bg-gray-950 text-white"
+                                    aria-label={isBn ? 'ডেমো ভিডিও চালু করুন' : 'Play demo video'}
+                                >
+                                    <Image
+                                        src="https://img.youtube.com/vi/gELTWs7hFtc/hqdefault.jpg"
+                                        alt="AndgateBOS demo video preview"
+                                        fill
+                                        sizes="(min-width: 768px) 768px, 100vw"
+                                        className="object-cover opacity-70"
+                                    />
+                                    <span className="relative z-10 flex h-16 w-16 items-center justify-center rounded-full bg-white text-[#046ca9] shadow-2xl transition-transform hover:scale-105">
+                                        <Play className="ml-1 h-7 w-7 fill-current" />
+                                    </span>
+                                </button>
+                            )}
                         </div>
                         {/* Control bar — same style as /demo */}
                         <div className="mt-2 flex items-center justify-center gap-3 pb-1">
@@ -708,7 +734,7 @@ export default function HomePageClient() {
                         <span className="mb-4 inline-block rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-white">
                             {t('business_types_badge')}
                         </span>
-                        <h2 className="mb-4 text-3xl font-black text-white sm:text-4xl">{t('business_types_heading')}</h2>
+                        <p className="mb-4 text-3xl font-black text-white sm:text-4xl">{t('business_types_heading')}</p>
                         <p className="mx-auto max-w-2xl text-base text-white/60">
                             {t('business_types_subtitle')}
                         </p>
@@ -788,7 +814,7 @@ export default function HomePageClient() {
                         <span className="mb-4 inline-block rounded-full border border-emerald-200 bg-emerald-50 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-emerald-700">
                             {t('bd_payments_badge')}
                         </span>
-                        <h2 className="mb-3 text-3xl font-black text-gray-900 sm:text-4xl">{t('bd_payments_heading')}</h2>
+                        <p className="mb-3 text-3xl font-black text-gray-900 sm:text-4xl">{t('bd_payments_heading')}</p>
                         <p className="mx-auto max-w-2xl text-base text-gray-500">{t('bd_payments_subtitle')}</p>
                     </div>
                     <div className="flex flex-wrap justify-center gap-4">
@@ -987,7 +1013,7 @@ export default function HomePageClient() {
             <section id="quick-start" className="bg-gray-50 py-24">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="mb-16 text-center">
-                        <h2 className="mb-3 text-3xl font-black text-gray-900 sm:text-4xl">{t('quick_start_title')}</h2>
+                        <p className="mb-3 text-3xl font-black text-gray-900 sm:text-4xl">{t('quick_start_title')}</p>
                         <p className="mx-auto max-w-2xl text-base text-gray-500">{t('quick_start_desc')}</p>
                     </div>
 
@@ -1029,9 +1055,9 @@ export default function HomePageClient() {
             <section id="features" className="bg-white py-24">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="mb-16 text-center">
-                        <h2 className="mb-3 text-3xl font-black text-gray-900 sm:text-4xl">
+                        <p className="mb-3 text-3xl font-black text-gray-900 sm:text-4xl">
                             {t('all_features_heading')}
-                        </h2>
+                        </p>
                         <p className="mx-auto max-w-2xl text-base text-gray-500">{t('all_features_desc')}</p>
                     </div>
 
@@ -1059,9 +1085,9 @@ export default function HomePageClient() {
             <section id="store-map" className="bg-gray-50 py-24">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="mb-12 text-center">
-                        <h2 className="mb-3 text-3xl font-black text-gray-900 sm:text-4xl">
+                        <p className="mb-3 text-3xl font-black text-gray-900 sm:text-4xl">
                             🇧🇩 {t('map_heading')}
-                        </h2>
+                        </p>
                         <p className="mx-auto max-w-2xl text-base text-gray-500">
                             {t('map_subtitle')}
                         </p>
@@ -1163,9 +1189,9 @@ export default function HomePageClient() {
                             <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
                         ))}
                     </div>
-                    <h2 className="mb-5 text-4xl font-black leading-tight text-white sm:text-5xl md:text-6xl">
+                    <p className="mb-5 text-4xl font-black leading-tight text-white sm:text-5xl md:text-6xl">
                         {t('cta_title').replace('{count}', localizeNumber(String(businessCount)))}
-                    </h2>
+                    </p>
                     <p className="mb-10 text-lg leading-relaxed text-white/75">{t('cta_desc').replace('{count}', localizeNumber(String(businessCount)))}</p>
                     <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
                         <Link
