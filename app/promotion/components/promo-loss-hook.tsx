@@ -53,7 +53,7 @@ export default function PromoLossHook() {
                 </div>
 
                 <div className="mt-4 text-center">
-                    <p className="text-sm font-semibold text-red-600">এগুলো কমাতেই AndgatePOS তৈরি হয়েছে।</p>
+                    <p className="text-sm font-semibold text-red-600">এগুলো কমাতেই AndgateBOS তৈরি হয়েছে।</p>
                 </div>
 
                 <div className="mt-8 flex flex-col items-center gap-3">

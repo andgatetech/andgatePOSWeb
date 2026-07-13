@@ -11,7 +11,7 @@ const tiers = [
 
 const steps = [
     { num: '১', title: 'রেজিস্ট্রেশন করুন', desc: 'ফর্ম পূরণ করুন, তথ্য যাচাই হলে অনুমোদন পাবেন' },
-    { num: '২', title: 'ট্রেনিং নিন', desc: 'AndgatePOS কীভাবে ডেমো দেখাতে হবে হাতে-কলমে শিখুন' },
+    { num: '২', title: 'ট্রেনিং নিন', desc: 'AndgateBOS কীভাবে ডেমো দেখাতে হবে হাতে-কলমে শিখুন' },
     { num: '৩', title: 'দোকানদারকে ডেমো দেখান', desc: 'পেইড সাবস্ক্রিপশন নিতে সাহায্য করুন এবং কমিশন পান' },
 ];
 
@@ -22,7 +22,7 @@ export default function PromoAffiliate() {
                 {/* Header */}
                 <div className="mb-10 text-center">
                     <span className="mb-3 inline-block rounded-full border border-[#e79237]/50 bg-[#e79237]/20 px-4 py-1 text-sm font-semibold text-[#e79237]">অ্যাফিলিয়েট প্রোগ্রাম</span>
-                    <h2 className="text-3xl font-bold text-white sm:text-4xl">পরিচিত দোকানদারকে AndgatePOS দেখান, পেইড সাবস্ক্রিপশন থেকে কমিশন পান</h2>
+                    <h2 className="text-3xl font-bold text-white sm:text-4xl">পরিচিত দোকানদারকে AndgateBOS দেখান, পেইড সাবস্ক্রিপশন থেকে কমিশন পান</h2>
                     <p className="mt-3 text-lg text-blue-100">আইটি সার্ভিস, হিসাবরক্ষণ, হার্ডওয়্যার বিক্রি বা স্থানীয় ব্যবসায়ী নেটওয়ার্ক থাকলে বাস্তব দোকানদারের সাথে সরাসরি কাজ শুরু করুন।</p>
                 </div>
 

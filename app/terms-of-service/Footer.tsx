@@ -12,7 +12,7 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 
-const AndGate = '/images/AndgateBOS-logo-vertical-small.png';
+const AndGate = '/images/andgatebos-logo-vertical.png';
 const FACEBOOK_URL = 'https://www.facebook.com/andgatepos';
 
 const Footer = () => {
@@ -91,7 +91,7 @@ const Footer = () => {
                             <div className="overflow-hidden rounded-xl bg-white px-4 py-2 shadow-sm">
                                 <Image
                                     src={AndGate}
-                                    alt="AndgatePOS"
+                                    alt="AndgateBOS"
                                     width={170}
                                     height={34}
                                     className="block h-8 w-auto object-contain"

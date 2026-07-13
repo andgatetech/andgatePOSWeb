@@ -59,12 +59,12 @@ const makePage = (
 ): LandingPage => ({
     slug,
     title,
-    metaTitle: `${title} | AndgatePOS`,
+    metaTitle: `${title} | AndgateBOS`,
     metaDescription: `${intro} Built for Bangladeshi SMEs with billing, stock, accounting, HR, cash drawer, COD reconciliation, fiscal-readiness controls, local payments, training and demo support.`,
     h1,
     eyebrow: 'Bangladesh SME Business OS',
     intro,
-    banglaIntro: 'বাংলাদেশি SME ব্যবসার জন্য AndgatePOS বিলিং, স্টক, হিসাব, কর্মী, ক্যাশ ড্রয়ার, রিপোর্ট, লোকাল পেমেন্ট, ট্রেনিং ও ডেমো সাপোর্ট এক জায়গায় দেয়।',
+    banglaIntro: 'বাংলাদেশি SME ব্যবসার জন্য AndgateBOS বিলিং, স্টক, হিসাব, কর্মী, ক্যাশ ড্রয়ার, রিপোর্ট, লোকাল পেমেন্ট, ট্রেনিং ও ডেমো সাপোর্ট এক জায়গায় দেয়।',
     primaryKeyword,
     secondaryKeywords,
     audience,
@@ -81,14 +81,14 @@ const seoExpansionPages: LandingPage[] = [
         'Fashion Shop POS Software',
         'fashion shop POS software',
         'Fashion Shop POS Software for Clothing Stores in Bangladesh',
-        'AndgatePOS helps fashion and clothing shops manage size, color, style, barcode billing, customer dues, stock movement and daily sales reports.',
+        'AndgateBOS helps fashion and clothing shops manage size, color, style, barcode billing, customer dues, stock movement and daily sales reports.',
         'Fashion houses, boutiques, clothing stores, footwear shops and lifestyle retailers.',
         ['Size and color variants', 'Barcode labels for clothing items', 'Customer due tracking', 'Branch-wise sales reports'],
         ['Track size and color stock clearly', 'Print labels for new collections', 'See best-selling styles', 'Manage staff access at the counter'],
         [
-            { question: 'Can AndgatePOS manage size and color variants?', answer: 'Yes. Fashion shops can manage variants such as size, color, design and model so stock stays easier to understand.' },
+            { question: 'Can AndgateBOS manage size and color variants?', answer: 'Yes. Fashion shops can manage variants such as size, color, design and model so stock stays easier to understand.' },
             { question: 'Can I print barcode labels for clothing items?', answer: 'Yes. Barcode and QR labels can be generated for products and used during checkout.' },
-            { question: 'Is AndgatePOS useful for boutiques?', answer: 'Yes. It fits boutiques and clothing stores that need billing, stock visibility, dues and reports.' },
+            { question: 'Is AndgateBOS useful for boutiques?', answer: 'Yes. It fits boutiques and clothing stores that need billing, stock visibility, dues and reports.' },
         ],
         ['clothing store POS Bangladesh', 'boutique POS software Bangladesh', 'fashion inventory software Bangladesh'],
         '/assets/LandingImage/updated/products.webp'
@@ -98,12 +98,12 @@ const seoExpansionPages: LandingPage[] = [
         'Electronics Shop POS Software',
         'electronics shop POS software',
         'Electronics Shop POS Software for Serial, Warranty and Stock',
-        'AndgatePOS helps electronics shops track serial products, warranty-aware sales, supplier purchases, customer history, stock value and profit reports.',
+        'AndgateBOS helps electronics shops track serial products, warranty-aware sales, supplier purchases, customer history, stock value and profit reports.',
         'Mobile shops, electronics stores, gadget shops, computer accessories retailers and appliance sellers.',
         ['Serial product tracking', 'Warranty-aware sales workflow', 'Supplier purchase records', 'Profit and stock reports'],
         ['Track serial numbers where needed', 'Keep customer purchase history', 'Monitor high-value stock', 'Record cash, card and mobile payments'],
         [
-            { question: 'Can electronics shops track serial products?', answer: 'Yes. AndgatePOS supports serial-based product workflows for items that need individual tracking.' },
+            { question: 'Can electronics shops track serial products?', answer: 'Yes. AndgateBOS supports serial-based product workflows for items that need individual tracking.' },
             { question: 'Can I manage warranty information?', answer: 'Warranty-related product details can be carried through the product and sales workflow where configured.' },
             { question: 'Does it support supplier purchases?', answer: 'Yes. Purchase orders, supplier dues and stock updates are part of the inventory workflow.' },
         ],
@@ -115,14 +115,14 @@ const seoExpansionPages: LandingPage[] = [
         'Cloud POS Software Bangladesh',
         'cloud POS software Bangladesh',
         'Cloud POS Software in Bangladesh for Shops and Multi-Branch SMEs',
-        'AndgatePOS is cloud business operating software for Bangladeshi retailers that need POS billing, browser access, centralized inventory, branch control, online orders and business reports.',
+        'AndgateBOS is cloud business operating software for Bangladeshi retailers that need POS billing, browser access, centralized inventory, branch control, online orders and business reports.',
         'Single-shop retailers, growing SMEs, multi-branch businesses and owners who want remote access.',
         ['Access from browser', 'Centralized store data', 'Multi-branch ready', 'Online store connection'],
         ['Check sales from outside the shop', 'Manage branches in one account', 'Keep POS and online stock connected', 'Avoid desktop-only software limits'],
         [
-            { question: 'What is cloud POS software?', answer: 'Cloud POS software runs through the internet and stores business data securely online. In AndgatePOS, that POS workflow is part of a wider Business OS for sales, stock, reports and operations.' },
+            { question: 'What is cloud POS software?', answer: 'Cloud POS software runs through the internet and stores business data securely online. In AndgateBOS, that POS workflow is part of a wider Business OS for sales, stock, reports and operations.' },
             { question: 'Is cloud POS suitable for Bangladesh?', answer: 'Yes, especially for businesses that want remote access, multi-branch visibility and easier software updates.' },
-            { question: 'Does AndgatePOS also support offline counter selling?', answer: 'The POS workflow is designed to continue counter sales during internet interruptions and sync when the connection returns.' },
+            { question: 'Does AndgateBOS also support offline counter selling?', answer: 'The POS workflow is designed to continue counter sales during internet interruptions and sync when the connection returns.' },
         ],
         ['web based POS Bangladesh', 'online POS software Bangladesh', 'cloud retail software Bangladesh'],
         '/assets/product-screenshots/current/desktop/dashboard/dashboard__dashboard.png'
@@ -132,12 +132,12 @@ const seoExpansionPages: LandingPage[] = [
         'Offline POS Software Bangladesh',
         'offline POS software Bangladesh',
         'Offline POS Software in Bangladesh for Internet-Unstable Shops',
-        'AndgatePOS is built for shops that cannot stop selling when internet drops, with PWA-based counter workflows, local order queueing and later sync.',
+        'AndgateBOS is built for shops that cannot stop selling when internet drops, with PWA-based counter workflows, local order queueing and later sync.',
         'Retail counters, grocery shops, pharmacies and rural or semi-urban stores with unstable internet.',
         ['Offline counter selling', 'Queued order sync', 'PWA install support', 'Local-first checkout resilience'],
         ['Keep selling during internet outages', 'Queue orders locally', 'Sync when internet returns', 'Reduce downtime at busy counters'],
         [
-            { question: 'Can AndgatePOS work offline?', answer: 'The POS counter workflow is designed to keep selling during internet interruption and sync queued work when connection returns.' },
+            { question: 'Can AndgateBOS work offline?', answer: 'The POS counter workflow is designed to keep selling during internet interruption and sync queued work when connection returns.' },
             { question: 'Why does offline POS matter in Bangladesh?', answer: 'Many shops face unstable broadband or mobile data. Offline POS helps the counter continue serving customers instead of stopping sales.' },
             { question: 'Is offline mode a replacement for internet?', answer: 'No. Internet is still needed for sync, setup and cloud access, but offline mode reduces interruption during checkout.' },
         ],
@@ -149,14 +149,14 @@ const seoExpansionPages: LandingPage[] = [
         'POS System for Small Business',
         'POS system for small business',
         'POS System for Small Businesses in Bangladesh',
-        'AndgatePOS gives small Bangladeshi shops a practical way to move from khata or Excel to digital billing, stock, dues, reports and online selling.',
+        'AndgateBOS gives small Bangladeshi shops a practical way to move from khata or Excel to digital billing, stock, dues, reports and online selling.',
         'Small retail shops, new entrepreneurs, family businesses and SMEs starting digital operations.',
         ['Free starting option', 'Simple checkout workflow', 'Customer and supplier dues', 'Training and demo support'],
         ['Start digital billing without a large upfront cost', 'Train staff gradually', 'Understand daily sales and profit', 'Upgrade as the shop grows'],
         [
-            { question: 'Is AndgatePOS good for small businesses?', answer: 'Yes. It is designed so small shops can start with core POS and inventory, then add more controls as they grow.' },
+            { question: 'Is AndgateBOS good for small businesses?', answer: 'Yes. It is designed so small shops can start with core POS and inventory, then add more controls as they grow.' },
             { question: 'Do I need accounting knowledge?', answer: 'No. The POS workflow is built for shop owners and staff, with reports that are easier to read than manual spreadsheets.' },
-            { question: 'Can I start free?', answer: 'Yes. AndgatePOS has a free starting option for businesses that want to try the workflow first.' },
+            { question: 'Can I start free?', answer: 'Yes. AndgateBOS has a free starting option for businesses that want to try the workflow first.' },
         ],
         ['small business POS Bangladesh', 'shop management software Bangladesh', 'SME POS Bangladesh'],
         '/assets/product-screenshots/current/desktop/dashboard/dashboard__dashboard.png'
@@ -166,12 +166,12 @@ const seoExpansionPages: LandingPage[] = [
         'Barcode POS Software Bangladesh',
         'barcode POS software Bangladesh',
         'Barcode POS Software in Bangladesh for Faster Checkout',
-        'AndgatePOS supports barcode and camera scanning, product labels, fast checkout, stock updates and invoice printing for Bangladeshi retail shops.',
+        'AndgateBOS supports barcode and camera scanning, product labels, fast checkout, stock updates and invoice printing for Bangladeshi retail shops.',
         'Grocery stores, super shops, pharmacies, fashion shops, electronics stores and product-heavy retailers.',
         ['Barcode and camera scanning', 'Product label printing', 'Faster checkout', 'Automatic stock updates'],
         ['Reduce typing at checkout', 'Improve billing accuracy', 'Print labels for shelves or products', 'Update stock after every sale'],
         [
-            { question: 'Does AndgatePOS support barcode scanning?', answer: 'Yes. Barcode scanning and camera-based scanning can be used to speed up checkout where products are configured with codes.' },
+            { question: 'Does AndgateBOS support barcode scanning?', answer: 'Yes. Barcode scanning and camera-based scanning can be used to speed up checkout where products are configured with codes.' },
             { question: 'Can I print barcode labels?', answer: 'Yes. Product label workflows support barcode or QR labels.' },
             { question: 'Which shops need barcode POS?', answer: 'Grocery stores, super shops, pharmacies, fashion stores and electronics shops benefit most from barcode checkout.' },
         ],
@@ -183,12 +183,12 @@ const seoExpansionPages: LandingPage[] = [
         'Sales Management Software Bangladesh',
         'sales management software Bangladesh',
         'Sales Management Software for Bangladeshi Retail Businesses',
-        'AndgatePOS helps business owners track sales, returns, payment methods, customer dues, expenses, profit and branch performance from one dashboard.',
+        'AndgateBOS helps business owners track sales, returns, payment methods, customer dues, expenses, profit and branch performance from one dashboard.',
         'Retailers, wholesalers, multi-branch SMEs, shop owners and managers who need clearer sales control.',
         ['Sales reports', 'Payment breakdown', 'Customer dues', 'Profit and loss visibility'],
         ['Track daily and monthly sales', 'See cash vs bKash/Nagad/card collections', 'Review customer due balances', 'Understand which products drive revenue'],
         [
-            { question: 'Can AndgatePOS track daily sales?', answer: 'Yes. Daily sales, order history, payment method breakdown and profit-related reports are available.' },
+            { question: 'Can AndgateBOS track daily sales?', answer: 'Yes. Daily sales, order history, payment method breakdown and profit-related reports are available.' },
             { question: 'Can I see customer dues?', answer: 'Yes. Customer due and partial payment tracking help owners follow up clearly.' },
             { question: 'Does it support branch-wise sales?', answer: 'Yes. Multi-store businesses can review sales and stock by store when configured.' },
         ],
@@ -200,12 +200,12 @@ const seoExpansionPages: LandingPage[] = [
         'Multi-Branch POS Software',
         'multi-branch POS software',
         'Multi-Branch POS Software for Growing Bangladeshi SMEs',
-        'AndgatePOS helps owners manage multiple shops with centralized products, branch-wise inventory, staff permissions, store-by-store business reports, stock transfers and cloud access.',
+        'AndgateBOS helps owners manage multiple shops with centralized products, branch-wise inventory, staff permissions, store-by-store business reports, stock transfers and cloud access.',
         'Growing retailers, chain shops, pharmacies, fashion brands, grocery groups and SMEs expanding to new locations.',
         ['Branch-wise stock', 'Store-by-store business overview', 'Staff roles', 'Cloud access for owners'],
         ['Compare store performance', 'Control staff permissions by role', 'See inventory and stock counts by branch', 'Open new branches without changing software'],
         [
-            { question: 'Can AndgatePOS manage multiple branches?', answer: 'Yes. AndgatePOS is designed for businesses that need multiple stores, staff roles, stock transfers, stock counts and branch-wise reporting.' },
+            { question: 'Can AndgateBOS manage multiple branches?', answer: 'Yes. AndgateBOS is designed for businesses that need multiple stores, staff roles, stock transfers, stock counts and branch-wise reporting.' },
             { question: 'Can I see each branch separately?', answer: 'Yes. Store-level workflows help separate branch sales, inventory, stock counts and cash activity while keeping owner visibility centralized.' },
             { question: 'Is multi-branch required?', answer: 'No. A business can start with one store and add more later.' },
         ],
@@ -214,16 +214,16 @@ const seoExpansionPages: LandingPage[] = [
     ),
     makePage(
         'andgatepos-vs-traditional-pos',
-        'AndgatePOS vs Traditional POS',
-        'AndgatePOS vs traditional POS',
-        'AndgatePOS vs Traditional POS Software in Bangladesh',
-        'Compare AndgatePOS with traditional desktop POS: cloud access, PWA offline workflows, online store connection, courier/COD support, fiscal-readiness records, subscriptions and easier updates.',
+        'AndgateBOS vs Traditional POS',
+        'AndgateBOS vs traditional POS',
+        'AndgateBOS vs Traditional POS Software in Bangladesh',
+        'Compare AndgateBOS with traditional desktop POS: cloud access, PWA offline workflows, online store connection, courier/COD support, fiscal-readiness records, subscriptions and easier updates.',
         'Shop owners comparing cloud SaaS POS with desktop or license-based POS software.',
         ['Cloud access', 'PWA offline workflow', 'Hawkeri online store connection', 'COD and fiscal-readiness controls'],
         ['Avoid desktop-only limitations', 'Manage online and counter sales together', 'Start with subscription pricing', 'Use branch, stock-count and staff controls as you grow'],
         [
-            { question: 'How is AndgatePOS different from traditional POS?', answer: 'Traditional POS is often desktop or license based. AndgatePOS is cloud-first with POS, inventory, reports, online store connection and offline counter resilience.' },
-            { question: 'Is traditional POS bad?', answer: 'No. It can work for simple offline billing. AndgatePOS is stronger when a business needs remote access, ecommerce and growth workflows.' },
+            { question: 'How is AndgateBOS different from traditional POS?', answer: 'Traditional POS is often desktop or license based. AndgateBOS is cloud-first with POS, inventory, reports, online store connection and offline counter resilience.' },
+            { question: 'Is traditional POS bad?', answer: 'No. It can work for simple offline billing. AndgateBOS is stronger when a business needs remote access, ecommerce and growth workflows.' },
             { question: 'Can I migrate gradually?', answer: 'Yes. Businesses can add products, test checkout and train staff before fully moving operations.' },
         ],
         ['cloud POS vs traditional POS Bangladesh', 'desktop POS alternative Bangladesh', 'SaaS POS Bangladesh'],
@@ -231,72 +231,72 @@ const seoExpansionPages: LandingPage[] = [
     ),
     makePage(
         'andgatepos-features',
-        'AndgatePOS Features',
-        'AndgatePOS features',
-        'AndgatePOS Features for POS, Business OS, CRM, Inventory, Reports and eCommerce',
-        'Explore AndgatePOS features for billing, inventory, CRM, supplier 360, cash closing, petty cash, local payments, purchase orders, stock counts, COD reconciliation, fiscal-readiness controls, reports, multi-branch control and Hawkeri online stores.',
-        'Bangladeshi SMEs evaluating the full AndgatePOS feature set before starting a demo or subscription.',
+        'AndgateBOS Features',
+        'AndgateBOS features',
+        'AndgateBOS Features for POS, Business OS, CRM, Inventory, Reports and eCommerce',
+        'Explore AndgateBOS features for billing, inventory, CRM, supplier 360, cash closing, petty cash, local payments, purchase orders, stock counts, COD reconciliation, fiscal-readiness controls, reports, multi-branch control and Hawkeri online stores.',
+        'Bangladeshi SMEs evaluating the full AndgateBOS feature set before starting a demo or subscription.',
         ['POS billing', 'Business OS, CRM and supplier 360', 'Inventory, stock counts and owner reports', 'Hawkeri ecommerce, COD and fiscal readiness'],
         ['Understand the full product scope', 'Match features to your shop type', 'Plan staff training', 'Choose the right subscription stage'],
         [
-            { question: 'What features does AndgatePOS include?', answer: 'Core features include POS billing, inventory, CRM, supplier 360, cash closing, petty cash, staff attendance, service jobs, product labels, purchases, local payment tracking, stock counts, reports, COD reconciliation, fiscal-readiness controls and online store connection.' },
+            { question: 'What features does AndgateBOS include?', answer: 'Core features include POS billing, inventory, CRM, supplier 360, cash closing, petty cash, staff attendance, service jobs, product labels, purchases, local payment tracking, stock counts, reports, COD reconciliation, fiscal-readiness controls and online store connection.' },
             { question: 'Does it include reporting?', answer: 'Yes. Sales, stock, payment, tax, profit, store-by-store business overview and operational reports are available.' },
-            { question: 'Does AndgatePOS connect with ecommerce?', answer: 'Yes. AndgatePOS connects with Hawkeri online store workflows, courier setup and COD reconciliation for businesses selling online.' },
+            { question: 'Does AndgateBOS connect with ecommerce?', answer: 'Yes. AndgateBOS connects with Hawkeri online store workflows, courier setup and COD reconciliation for businesses selling online.' },
         ],
-        ['POS software features Bangladesh', 'AndgatePOS inventory features', 'AndgatePOS reports'],
+        ['POS software features Bangladesh', 'AndgateBOS inventory features', 'AndgateBOS reports'],
         '/assets/product-screenshots/current/desktop/business-os/business-os__business-os.png'
     ),
     makePage(
         'andgatepos-pricing',
-        'AndgatePOS Pricing',
-        'AndgatePOS pricing',
-        'AndgatePOS Pricing for Bangladeshi Shops and SMEs',
-        'Understand AndgatePOS pricing, free starting option, monthly SaaS upgrade path, demo support, training and what to consider before choosing a plan.',
+        'AndgateBOS Pricing',
+        'AndgateBOS pricing',
+        'AndgateBOS Pricing for Bangladeshi Shops and SMEs',
+        'Understand AndgateBOS pricing, free starting option, monthly SaaS upgrade path, demo support, training and what to consider before choosing a plan.',
         'Shop owners, SMEs and growing retailers comparing POS subscription cost and business value.',
         ['Free starting option', 'Monthly SaaS model', 'Upgrade as you grow', 'Demo and training support'],
         ['Estimate your POS budget', 'Start free before upgrading', 'Choose based on users and branches', 'Avoid paying for features before you need them'],
         [
-            { question: 'Does AndgatePOS have a free plan?', answer: 'Yes. A free starting option is available so businesses can test core workflows before upgrading.' },
+            { question: 'Does AndgateBOS have a free plan?', answer: 'Yes. A free starting option is available so businesses can test core workflows before upgrading.' },
             { question: 'What affects pricing?', answer: 'Pricing depends on business needs such as users, branches, reporting, controls, ecommerce and support requirements.' },
             { question: 'Where can I see pricing plans?', answer: 'The main pricing page is available at /pricing, and businesses can request a demo for plan guidance.' },
         ],
-        ['POS subscription Bangladesh', 'AndgatePOS price', 'POS software monthly price Bangladesh'],
+        ['POS subscription Bangladesh', 'AndgateBOS price', 'POS software monthly price Bangladesh'],
         '/assets/LandingImage/updated/subscription.webp'
     ),
     makePage(
         'andgatepos-demo',
-        'AndgatePOS Demo',
-        'AndgatePOS demo',
-        'AndgatePOS Demo for Bangladeshi Retail Shops',
-        'Request or start an AndgatePOS demo to see POS billing, stock, reports, barcode workflows, local payments, offline mode and online store connection.',
-        'Business owners and teams that want to test AndgatePOS before adopting it in a live shop.',
+        'AndgateBOS Demo',
+        'AndgateBOS demo',
+        'AndgateBOS Demo for Bangladeshi Retail Shops',
+        'Request or start an AndgateBOS demo to see POS billing, stock, reports, barcode workflows, local payments, offline mode and online store connection.',
+        'Business owners and teams that want to test AndgateBOS before adopting it in a live shop.',
         ['Product walkthrough', 'Shop workflow setup', 'Training guidance', 'Subscription consultation'],
         ['See how checkout works', 'Review inventory and reports', 'Ask setup questions', 'Plan staff onboarding'],
         [
-            { question: 'Can I get an AndgatePOS demo?', answer: 'Yes. Businesses can use the public signup/contact flow to request help, training or a product walkthrough.' },
+            { question: 'Can I get an AndgateBOS demo?', answer: 'Yes. Businesses can use the public signup/contact flow to request help, training or a product walkthrough.' },
             { question: 'What should I prepare before a demo?', answer: 'Prepare your shop type, product count, branch count, payment methods and current pain points.' },
             { question: 'Can staff join the demo?', answer: 'Yes. Including counter staff or managers helps evaluate real workflow fit.' },
         ],
-        ['POS software demo Bangladesh', 'AndgatePOS training', 'POS onboarding Bangladesh'],
+        ['POS software demo Bangladesh', 'AndgateBOS training', 'POS onboarding Bangladesh'],
         '/assets/product-screenshots/current/desktop/pos/pos__pos.png'
     ),
     makePage(
         'faq',
-        'AndgatePOS FAQ',
-        'AndgatePOS FAQ',
-        'AndgatePOS FAQ for Bangladesh Business Software Buyers',
-        'Answers to common AndgatePOS questions about Business OS, POS billing, inventory, offline mode, pricing, training, barcode support, reports and ecommerce connection.',
-        'Shop owners, SMEs, managers and staff evaluating AndgatePOS before signup or demo.',
+        'AndgateBOS FAQ',
+        'AndgateBOS FAQ',
+        'AndgateBOS FAQ for Bangladesh Business Software Buyers',
+        'Answers to common AndgateBOS questions about Business OS, POS billing, inventory, offline mode, pricing, training, barcode support, reports and ecommerce connection.',
+        'Shop owners, SMEs, managers and staff evaluating AndgateBOS before signup or demo.',
         ['Buyer questions answered', 'Offline and pricing clarity', 'Feature explanations', 'Demo and training guidance'],
-        ['Understand if AndgatePOS fits your shop', 'Compare with manual or traditional POS', 'Plan setup and training', 'Know what to ask before subscribing'],
+        ['Understand if AndgateBOS fits your shop', 'Compare with manual or traditional POS', 'Plan setup and training', 'Know what to ask before subscribing'],
         [
-            { question: 'What is AndgatePOS?', answer: 'AndgatePOS is Bangladesh-focused SME Business OS with POS billing, inventory, reports, payments, customer/supplier records and ecommerce-connected shop operations.' },
-            { question: 'Who should use AndgatePOS?', answer: 'Retail shops, grocery stores, pharmacies, fashion shops, electronics shops, restaurants and multi-branch SMEs can use AndgatePOS.' },
-            { question: 'Why choose AndgatePOS for Bangladesh?', answer: 'It supports local workflows such as bKash/Nagad payment tracking, customer dues, offline counter resilience, Bangla-friendly support and affordable SaaS adoption.' },
-            { question: 'Does AndgatePOS support barcode and printing?', answer: 'Yes. Barcode scanning, product labels and receipt/invoice printing are supported where configured.' },
-            { question: 'Does AndgatePOS support multi-branch businesses?', answer: 'Yes. Businesses can start with one store and expand into multi-store workflows with staff roles and branch-wise reporting.' },
+            { question: 'What is AndgateBOS?', answer: 'AndgateBOS is Bangladesh-focused SME Business OS with POS billing, inventory, reports, payments, customer/supplier records and ecommerce-connected shop operations.' },
+            { question: 'Who should use AndgateBOS?', answer: 'Retail shops, grocery stores, pharmacies, fashion shops, electronics shops, restaurants and multi-branch SMEs can use AndgateBOS.' },
+            { question: 'Why choose AndgateBOS for Bangladesh?', answer: 'It supports local workflows such as bKash/Nagad payment tracking, customer dues, offline counter resilience, Bangla-friendly support and affordable SaaS adoption.' },
+            { question: 'Does AndgateBOS support barcode and printing?', answer: 'Yes. Barcode scanning, product labels and receipt/invoice printing are supported where configured.' },
+            { question: 'Does AndgateBOS support multi-branch businesses?', answer: 'Yes. Businesses can start with one store and expand into multi-store workflows with staff roles and branch-wise reporting.' },
         ],
-        ['AndgatePOS questions', 'POS software FAQ Bangladesh', 'AndgatePOS support'],
+        ['AndgateBOS questions', 'POS software FAQ Bangladesh', 'AndgateBOS support'],
         '/assets/product-screenshots/current/desktop/dashboard/dashboard__dashboard.png'
     ),
 ];
@@ -305,15 +305,15 @@ export const landingPages: LandingPage[] = [
     {
         slug: 'pos-software-bangladesh',
         title: 'POS Software in Bangladesh',
-        metaTitle: 'POS Software in Bangladesh | Retail, Inventory & Billing | AndgatePOS',
+        metaTitle: 'POS Software in Bangladesh | Retail, Inventory & Billing | AndgateBOS',
         metaDescription:
-            'AndgatePOS is SME Business OS and POS software in Bangladesh for retail shops, grocery stores, pharmacies, restaurants and fashion businesses. Manage billing, inventory, CRM, supplier dues, cash closing, stock counts, bKash/Nagad payments, COD reconciliation, fiscal readiness, reports and online store.',
+            'AndgateBOS is SME Business OS and POS software in Bangladesh for retail shops, grocery stores, pharmacies, restaurants and fashion businesses. Manage billing, inventory, CRM, supplier dues, cash closing, stock counts, bKash/Nagad payments, COD reconciliation, fiscal readiness, reports and online store.',
         h1: 'POS Software in Bangladesh for Retail, Billing and Inventory',
         eyebrow: 'Bangladesh POS Solution',
         intro:
-            'AndgatePOS helps Bangladeshi shop owners run sales, stock, billing, CRM, supplier dues, cash closing, stock counts, accounting, ecommerce, COD reconciliation and fiscal-readiness workflows from one simple Business OS.',
+            'AndgateBOS helps Bangladeshi shop owners run sales, stock, billing, CRM, supplier dues, cash closing, stock counts, accounting, ecommerce, COD reconciliation and fiscal-readiness workflows from one simple Business OS.',
         banglaIntro:
-            'বাংলাদেশের দোকানদারদের জন্য AndgatePOS একটি SME Business OS। POS বিলিং, বিক্রি, স্টক, হিসাব, পেমেন্ট আর রিপোর্ট এক জায়গা থেকেই চালাতে পারবেন।',
+            'বাংলাদেশের দোকানদারদের জন্য AndgateBOS একটি SME Business OS। POS বিলিং, বিক্রি, স্টক, হিসাব, পেমেন্ট আর রিপোর্ট এক জায়গা থেকেই চালাতে পারবেন।',
         primaryKeyword: 'POS software in Bangladesh',
         secondaryKeywords: [
             'best POS software in Bangladesh',
@@ -338,29 +338,29 @@ export const landingPages: LandingPage[] = [
         faq: [
             {
                 answer:
-                    'For small shops in Bangladesh, a good POS should be easy to use, support local payments, track inventory, print receipts and show daily profit reports. AndgatePOS is built around these local workflows.',
+                    'For small shops in Bangladesh, a good POS should be easy to use, support local payments, track inventory, print receipts and show daily profit reports. AndgateBOS is built around these local workflows.',
             },
             {
-                question: 'Does AndgatePOS support bKash and Nagad?',
+                question: 'Does AndgateBOS support bKash and Nagad?',
                 answer:
                     'Yes. You can record cash, bKash, Nagad, Rocket, Upay, card, bank transfer and partial payments from the POS checkout.',
             },
             {
-                question: 'Can I use AndgatePOS without internet?',
+                question: 'Can I use AndgateBOS without internet?',
                 answer:
                     'The POS counter workflow is designed to keep selling during internet interruptions and sync when the connection comes back.',
             },
             {
                 question: 'Is there a free POS plan?',
                 answer:
-                    'Yes. AndgatePOS has a free starting option so a business can try the core workflow before upgrading.',
+                    'Yes. AndgateBOS has a free starting option so a business can try the core workflow before upgrading.',
             },
         ],
     },
     {
         slug: 'retail-pos-software-bangladesh',
         title: 'Retail POS Software Bangladesh',
-        metaTitle: 'Retail POS Software Bangladesh | Shop Billing & Stock | AndgatePOS',
+        metaTitle: 'Retail POS Software Bangladesh | Shop Billing & Stock | AndgateBOS',
         metaDescription:
             'Retail POS software in Bangladesh for clothing, electronics, grocery, cosmetics and daily shop operations. Manage checkout, inventory, staff, reports and online selling.',
         h1: 'Retail POS Software for Bangladeshi Shops',
@@ -368,7 +368,7 @@ export const landingPages: LandingPage[] = [
         intro:
             'Run counter sales, customer dues, stock alerts, product variants, staff permissions and daily reports without juggling notebooks and spreadsheets.',
         banglaIntro:
-            'রিটেইল দোকানের বিল, স্টক, কর্মচারী, কাস্টমার বাকি আর রিপোর্ট সহজভাবে ম্যানেজ করার জন্য AndgatePOS তৈরি।',
+            'রিটেইল দোকানের বিল, স্টক, কর্মচারী, কাস্টমার বাকি আর রিপোর্ট সহজভাবে ম্যানেজ করার জন্য AndgateBOS তৈরি।',
         primaryKeyword: 'retail POS software Bangladesh',
         secondaryKeywords: ['retail software Bangladesh', 'retail billing software Bangladesh', 'shop billing software Bangladesh', 'shop management software Bangladesh', 'clothing store POS Bangladesh'],
         audience: 'Clothing stores, electronics shops, cosmetics shops, superstores, footwear shops and lifestyle retailers.',
@@ -377,7 +377,7 @@ export const landingPages: LandingPage[] = [
         modules: commonModules,
         useCases: ['Track sizes, colors and variants', 'Print barcode labels for products', 'Control cashier and manager access', 'View daily and monthly sales trends'],
         faq: [
-            { question: 'Can retail shops manage product variants?', answer: 'Yes. AndgatePOS supports variants such as size, color, model and serial where needed.' },
+            { question: 'Can retail shops manage product variants?', answer: 'Yes. AndgateBOS supports variants such as size, color, model and serial where needed.' },
             { question: 'Can I print barcode labels?', answer: 'Yes. You can generate and print barcode or QR labels directly from the product workflow.' },
             { question: 'Can I manage staff access?', answer: 'Yes. Staff roles and permissions help control who can sell, refund, edit stock or view reports.' },
         ],
@@ -385,7 +385,7 @@ export const landingPages: LandingPage[] = [
     {
         slug: 'restaurant-pos-software-bangladesh',
         title: 'Restaurant POS Software Bangladesh',
-        metaTitle: 'Restaurant POS Software Bangladesh | Fast Billing & Reports | AndgatePOS',
+        metaTitle: 'Restaurant POS Software Bangladesh | Fast Billing & Reports | AndgateBOS',
         metaDescription:
             'Restaurant POS software in Bangladesh for fast billing, payment tracking, expenses, inventory and daily sales reports. Built for cafes, bakeries and food shops.',
         h1: 'Restaurant POS Software for Fast Billing in Bangladesh',
@@ -393,7 +393,7 @@ export const landingPages: LandingPage[] = [
         intro:
             'Serve customers faster, track daily sales, manage expenses and keep food-item inventory visible from one POS dashboard.',
         banglaIntro:
-            'ক্যাফে, বেকারি বা খাবারের দোকানে দ্রুত বিল, পেমেন্ট, খরচ আর দৈনিক বিক্রির রিপোর্ট দেখতে AndgatePOS ব্যবহার করতে পারেন।',
+            'ক্যাফে, বেকারি বা খাবারের দোকানে দ্রুত বিল, পেমেন্ট, খরচ আর দৈনিক বিক্রির রিপোর্ট দেখতে AndgateBOS ব্যবহার করতে পারেন।',
         primaryKeyword: 'restaurant POS software Bangladesh',
         secondaryKeywords: ['restaurant billing software Bangladesh', 'restaurant POS system Bangladesh', 'cafe POS Bangladesh', 'food shop POS Bangladesh', 'restaurant management software Bangladesh'],
         audience: 'Restaurants, cafes, bakeries, fast food shops, juice bars and small food counters.',
@@ -402,7 +402,7 @@ export const landingPages: LandingPage[] = [
         modules: commonModules,
         useCases: ['Bill customers quickly during rush hour', 'Track cash, mobile payments and card payments', 'Record daily kitchen or shop expenses', 'Review best-selling food items'],
         faq: [
-            { question: 'Can restaurants track daily sales?', answer: 'Yes. AndgatePOS shows daily sales, payment method breakdown, expenses and profit-related reports.' },
+            { question: 'Can restaurants track daily sales?', answer: 'Yes. AndgateBOS shows daily sales, payment method breakdown, expenses and profit-related reports.' },
             { question: 'Does it work for bakeries and cafes?', answer: 'Yes. The workflow fits cafes, bakeries, food counters and small restaurants.' },
             { question: 'Can I print receipts?', answer: 'Yes. You can print receipts and invoices after checkout.' },
         ],
@@ -410,7 +410,7 @@ export const landingPages: LandingPage[] = [
     {
         slug: 'pharmacy-pos-software-bangladesh',
         title: 'Pharmacy POS Software Bangladesh',
-        metaTitle: 'Pharmacy POS Software Bangladesh | Stock, Billing & Reports | AndgatePOS',
+        metaTitle: 'Pharmacy POS Software Bangladesh | Stock, Billing & Reports | AndgateBOS',
         metaDescription:
             'Pharmacy POS software in Bangladesh for medicine billing, stock alerts, supplier purchases, reports and customer history. Manage pharmacy sales more clearly.',
         h1: 'Pharmacy POS Software for Stock and Billing in Bangladesh',
@@ -418,7 +418,7 @@ export const landingPages: LandingPage[] = [
         intro:
             'Keep medicine stock visible, reduce billing mistakes, track supplier purchases and know when important products are running low.',
         banglaIntro:
-            'ফার্মেসির ওষুধের স্টক, বিল, সরবরাহকারী ক্রয় আর কম স্টকের অ্যালার্ট সহজভাবে সামলাতে AndgatePOS সাহায্য করে।',
+            'ফার্মেসির ওষুধের স্টক, বিল, সরবরাহকারী ক্রয় আর কম স্টকের অ্যালার্ট সহজভাবে সামলাতে AndgateBOS সাহায্য করে।',
         primaryKeyword: 'pharmacy POS software Bangladesh',
         secondaryKeywords: ['pharmacy software Bangladesh', 'medicine shop software Bangladesh', 'pharmacy billing software Bangladesh', 'medicine inventory software Bangladesh'],
         audience: 'Pharmacies, medicine shops, healthcare retail counters and multi-branch pharmacy businesses.',
@@ -435,7 +435,7 @@ export const landingPages: LandingPage[] = [
     {
         slug: 'grocery-pos-software-bangladesh',
         title: 'Grocery POS Software Bangladesh',
-        metaTitle: 'Grocery POS Software Bangladesh | Barcode Billing & Stock | AndgatePOS',
+        metaTitle: 'Grocery POS Software Bangladesh | Barcode Billing & Stock | AndgateBOS',
         metaDescription:
             'Grocery POS software in Bangladesh for barcode billing, stock management, supplier purchases, customer dues and daily sales reports.',
         h1: 'Grocery POS Software for Barcode Billing and Stock',
@@ -452,7 +452,7 @@ export const landingPages: LandingPage[] = [
         modules: commonModules,
         useCases: ['Scan products quickly at checkout', 'Import product lists from Excel', 'Track stock by category', 'Manage supplier payments and purchase orders'],
         faq: [
-            { question: 'Can I use barcode scanning?', answer: 'Yes. AndgatePOS supports barcode and camera scanning for faster grocery checkout.' },
+            { question: 'Can I use barcode scanning?', answer: 'Yes. AndgateBOS supports barcode and camera scanning for faster grocery checkout.' },
             { question: 'Can I import many grocery products at once?', answer: 'Yes. Bulk Excel import helps upload products faster.' },
             { question: 'Can I track supplier dues?', answer: 'Yes. Supplier dues and payments can be tracked from purchase workflows.' },
         ],
@@ -460,7 +460,7 @@ export const landingPages: LandingPage[] = [
     {
         slug: 'inventory-management-software-bangladesh',
         title: 'Inventory Management Software Bangladesh',
-        metaTitle: 'Inventory Management Software Bangladesh | Stock Control | AndgatePOS',
+        metaTitle: 'Inventory Management Software Bangladesh | Stock Control | AndgateBOS',
         metaDescription:
             'Inventory management software in Bangladesh for stock alerts, product variants, serials, purchase orders, barcode labels and inventory reports.',
         h1: 'Inventory Management Software for Bangladeshi Businesses',
@@ -485,7 +485,7 @@ export const landingPages: LandingPage[] = [
     {
         slug: 'billing-software-bangladesh',
         title: 'Billing Software Bangladesh',
-        metaTitle: 'Billing Software Bangladesh | POS Invoice & Receipt | AndgatePOS',
+        metaTitle: 'Billing Software Bangladesh | POS Invoice & Receipt | AndgateBOS',
         metaDescription:
             'Billing software in Bangladesh for POS invoices, receipts, discounts, VAT/tax, bKash/Nagad payment tracking and customer dues.',
         h1: 'Billing Software in Bangladesh for Shops and Retail Counters',
@@ -502,7 +502,7 @@ export const landingPages: LandingPage[] = [
         modules: commonModules,
         useCases: ['Replace handwritten cash memos', 'Track paid, partial and due payments', 'Print invoices for customers', 'Review invoice history anytime'],
         faq: [
-            { question: 'Can I print customer invoices?', answer: 'Yes. AndgatePOS can print receipts and invoices from checkout and order history.' },
+            { question: 'Can I print customer invoices?', answer: 'Yes. AndgateBOS can print receipts and invoices from checkout and order history.' },
             { question: 'Can I track due payments?', answer: 'Yes. Paid, unpaid and partial payment statuses are supported.' },
             { question: 'Does it support VAT or tax reports?', answer: 'Yes. Tax-related reports and invoice records are available.' },
         ],

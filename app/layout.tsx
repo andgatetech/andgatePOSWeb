@@ -19,11 +19,11 @@ const BASE_URL = 'https://andgatepos.com';
 export const metadata: Metadata = {
     metadataBase: new URL(getAppUrl()),
     title: {
-        template: '%s | AndgatePOS',
-        default: 'AndgatePOS — SME Business Operating System Bangladesh',
+        template: '%s | AndgateBOS',
+        default: 'AndgateBOS — SME Business Operating System Bangladesh',
     },
     description:
-        'AndgatePOS is Bangladesh-focused SME business operating software with POS billing, inventory, CRM, supplier dues, cash closing, petty cash, staff attendance, reports, and a Hawkeri online store. Start free today!',
+        'AndgateBOS is Bangladesh-focused SME business operating software with POS billing, inventory, CRM, supplier dues, cash closing, petty cash, staff attendance, reports, and a Hawkeri online store. Start free today!',
     keywords: BD_KEYWORDS,
     authors: [{ name: 'Andgate Technologies', url: BASE_URL }],
     creator: 'Andgate Technologies',
@@ -44,8 +44,8 @@ export const metadata: Metadata = {
         locale: 'en_BD',
         alternateLocale: ['bn_BD'],
         url: BASE_URL,
-        siteName: 'AndgatePOS',
-        title: 'AndgatePOS — SME Business Operating System Bangladesh',
+        siteName: 'AndgateBOS',
+        title: 'AndgateBOS — SME Business Operating System Bangladesh',
         description:
             'Complete Business OS for Bangladesh SMEs. POS billing, inventory, CRM, supplier dues, cash closing, petty cash, HR attendance, reports, and a Hawkeri online store.',
         images: [
@@ -53,13 +53,13 @@ export const metadata: Metadata = {
                 url: '/images/og-image.jpg',
                 width: 1200,
                 height: 630,
-                alt: 'AndgatePOS — SME Business Operating System Bangladesh',
+                alt: 'AndgateBOS — SME Business Operating System Bangladesh',
             },
         ],
     },
     twitter: {
         card: 'summary_large_image',
-        title: 'AndgatePOS — SME Business Operating System Bangladesh',
+        title: 'AndgateBOS — SME Business Operating System Bangladesh',
         description:
             'Complete Business OS for Bangladesh SMEs. POS billing, stock, CRM, supplier dues, cash closing, reports, and online store. Start free today!',
         images: ['/images/og-image.jpg'],
@@ -80,7 +80,7 @@ export const metadata: Metadata = {
     appleWebApp: {
         capable: true,
         statusBarStyle: 'default',
-        title: 'AndgatePOS',
+        title: 'AndgateBOS',
     },
 };
 
@@ -97,7 +97,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         '@type': 'Organization',
         name: 'Andgate Technologies',
         url: BASE_URL,
-        logo: `${BASE_URL}/images/AndgateBOS-logo-squre-small.png`,
+        logo: `${BASE_URL}/images/andgatebos-icon-square.png`,
         description: 'Andgate Technologies builds SME Business OS, POS, inventory, ecommerce and operations software for businesses in Bangladesh.',
         address: {
             '@type': 'PostalAddress',
@@ -123,7 +123,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     const websiteJsonLd = {
         '@context': 'https://schema.org',
         '@type': 'WebSite',
-        name: 'AndgatePOS',
+        name: 'AndgateBOS',
         url: BASE_URL,
         inLanguage: ['en-BD', 'bn-BD'],
         publisher: {
@@ -136,7 +136,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     const professionalServiceJsonLd = {
         '@context': 'https://schema.org',
         '@type': 'ProfessionalService',
-        name: 'AndgatePOS',
+        name: 'AndgateBOS',
         url: BASE_URL,
         image: `${BASE_URL}/images/og-image.jpg`,
         telephone: '+8801577303608',

@@ -8,7 +8,7 @@ import LanguageDropdown from '../language-dropdown';
 import WhatsAppFloat from '../whatsapp-float';
 import Footer from '@/app/terms-of-service/Footer';
 
-const AndGate = '/images/AndgateBOS-logo-vertical-small.png';
+const AndGate = '/images/andgatebos-logo-vertical.png';
 
 interface MainLayoutProps {
     children: React.ReactNode;
@@ -38,7 +38,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
                     <div className="flex h-16 items-center justify-between">
                         {/* Logo */}
                         <Link href="/" className="flex-shrink-0">
-                            <Image src={AndGate} alt="AndgatePOS" width={180} height={36} className="h-9 w-auto object-contain" priority />
+                            <Image src={AndGate} alt="AndgateBOS" width={180} height={36} className="h-9 w-auto object-contain" priority />
                         </Link>
 
                         {/* Desktop Nav */}

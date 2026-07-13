@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     alternates: { canonical: HAWKERI_URL },
     openGraph: {
         title: 'Hawkeri Online Shopping Bangladesh',
-        description: 'A fresh local ecommerce marketplace powered by AndgatePOS sellers.',
+        description: 'A fresh local ecommerce marketplace powered by AndgateBOS sellers.',
         url: HAWKERI_URL,
         images: [{ url: '/assets/images/shopping-bag.png', width: 512, height: 512, alt: 'Hawkeri' }],
     },
@@ -123,7 +123,7 @@ const fallbackSections: HomepageSection[] = [
         type: 'trust_strip',
         title: { en: 'Why shoppers remember Hawkeri' },
         items: [
-            { title_en: 'Verified sellers', subtitle_en: 'Stores managed through AndgatePOS' },
+            { title_en: 'Verified sellers', subtitle_en: 'Stores managed through AndgateBOS' },
             { title_en: 'Local delivery', subtitle_en: 'Bangladesh-friendly fulfillment' },
             { title_en: 'Fresh stock', subtitle_en: 'Products sync from real shops' },
             { title_en: 'Secure checkout', subtitle_en: 'Built for COD and digital payment flows' },
@@ -161,7 +161,7 @@ const fallbackSections: HomepageSection[] = [
 
 const badgeItems = [
     { title: 'Fresh deals', text: 'Campaigns and offers ready for local shoppers', icon: Sparkles, tone: 'text-[#d94f2b] bg-[#fff0eb]' },
-    { title: 'Verified sellers', text: 'Storefronts connected to AndgatePOS workflows', icon: BadgeCheck, tone: 'text-[#006b5f] bg-[#e7f6f2]' },
+    { title: 'Verified sellers', text: 'Storefronts connected to AndgateBOS workflows', icon: BadgeCheck, tone: 'text-[#006b5f] bg-[#e7f6f2]' },
     { title: 'Local shops', text: 'Discover products from nearby Bangladesh businesses', icon: Store, tone: 'text-[#335c99] bg-[#edf4ff]' },
     { title: 'Fast checkout', text: 'Designed for simple COD and payment journeys', icon: Truck, tone: 'text-[#8a5a00] bg-[#fff7e6]' },
 ];

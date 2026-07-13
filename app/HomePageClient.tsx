@@ -393,7 +393,7 @@ export default function HomePageClient() {
                                     </div>
                                     <div className="min-w-0">
                                         <p className="text-xs font-bold uppercase tracking-wide text-[#046ca9]">{t('feature_pos')}</p>
-                                        <h2 className="truncate text-lg font-black text-gray-950">AndgatePOS</h2>
+                                        <h2 className="truncate text-lg font-black text-gray-950">AndgateBOS</h2>
                                     </div>
                                 </div>
                                 <div className="hidden flex-shrink-0 items-center gap-1.5 text-[11px] font-bold text-gray-400 sm:flex">
@@ -570,7 +570,7 @@ export default function HomePageClient() {
                             <iframe
                                 ref={videoRef}
                                 src="https://www.youtube.com/embed/gELTWs7hFtc?autoplay=1&mute=1&start=163&loop=1&playlist=gELTWs7hFtc&controls=0&rel=0&modestbranding=1&enablejsapi=1&playsinline=1"
-                                title="AndgatePOS"
+                                title="AndgateBOS"
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                 allowFullScreen
                                 className="absolute inset-0 h-full w-full"
@@ -640,8 +640,8 @@ export default function HomePageClient() {
                         </div>
                         <p className="text-base leading-8 text-gray-500">
                             {isBn
-                                ? 'আজকের live AndgatePOS থেকে নেওয়া স্ক্রিনশট: checkout, owner dashboard, multi-store reports, Analytics/BI, COD reconciliation, stock transfer এবং fiscal readiness একসাথে দেখা যাচ্ছে।'
-                                : 'Fresh screenshots from the live AndgatePOS app show checkout, owner dashboard, multi-store reports, Analytics/BI, COD reconciliation, stock transfer, and fiscal-readiness workflows working together.'}
+                                ? 'আজকের live AndgateBOS থেকে নেওয়া স্ক্রিনশট: checkout, owner dashboard, multi-store reports, Analytics/BI, COD reconciliation, stock transfer এবং fiscal readiness একসাথে দেখা যাচ্ছে।'
+                                : 'Fresh screenshots from the live AndgateBOS app show checkout, owner dashboard, multi-store reports, Analytics/BI, COD reconciliation, stock transfer, and fiscal-readiness workflows working together.'}
                         </p>
                     </div>
 
@@ -970,7 +970,7 @@ export default function HomePageClient() {
 
                             {/* Connection bridge */}
                             <div className="mt-5 flex items-center justify-center gap-3">
-                                <span className="rounded-lg border border-[#046ca9]/20 bg-[#046ca9]/5 px-3 py-1.5 text-xs font-bold text-[#046ca9]">AndgatePOS</span>
+                                <span className="rounded-lg border border-[#046ca9]/20 bg-[#046ca9]/5 px-3 py-1.5 text-xs font-bold text-[#046ca9]">AndgateBOS</span>
                                 <div className="flex items-center gap-1">
                                     <div className="h-px w-8 bg-gradient-to-r from-[#046ca9]/30 to-[#e79237]/30" />
                                     <Zap className="h-3.5 w-3.5 text-[#e79237]" />

@@ -19,14 +19,14 @@ import { ArrowRight, Phone } from 'lucide-react';
 const posPromotionSchema = {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
-    name: 'AndgatePOS',
+    name: 'AndgateBOS',
     applicationCategory: 'BusinessApplication',
     operatingSystem: 'Web, Android, iOS',
     url: 'https://andgatepos.com/promotion/pos',
     description: 'Cloud SME Business OS for Bangladeshi shops with POS billing, inventory, payment tracking, reports, and online store features.',
     brand: {
         '@type': 'Brand',
-        name: 'AndgatePOS',
+        name: 'AndgateBOS',
     },
     provider: {
         '@type': 'Organization',
@@ -52,18 +52,18 @@ const posFaqSchema = {
     mainEntity: [
         {
             '@type': 'Question',
-            name: 'Can I start AndgatePOS for free?',
+            name: 'Can I start AndgateBOS for free?',
             acceptedAnswer: {
                 '@type': 'Answer',
-                text: 'Yes. Bangladeshi shop owners can open a free AndgatePOS account and start using POS billing, inventory and Business OS features.',
+                text: 'Yes. Bangladeshi shop owners can open a free AndgateBOS account and start using POS billing, inventory and Business OS features.',
             },
         },
         {
             '@type': 'Question',
-            name: 'Does AndgatePOS work for small shops in Bangladesh?',
+            name: 'Does AndgateBOS work for small shops in Bangladesh?',
             acceptedAnswer: {
                 '@type': 'Answer',
-                text: 'Yes. AndgatePOS is built for retail shops, grocery stores, pharmacies, fashion shops, electronics shops, hardware shops, and other SME businesses in Bangladesh.',
+                text: 'Yes. AndgateBOS is built for retail shops, grocery stores, pharmacies, fashion shops, electronics shops, hardware shops, and other SME businesses in Bangladesh.',
             },
         },
     ],
@@ -129,7 +129,7 @@ export default function PromotionPage() {
                     <ArrowRight className="h-4 w-4" />
                 </a>
                 <a
-                    href="https://wa.me/8801577303608?text=%E0%A6%86%E0%A6%AE%E0%A6%BF%20AndgatePOS%20%E0%A6%AB%E0%A7%8D%E0%A6%B0%E0%A6%BF%20%E0%A6%9F%E0%A7%8D%E0%A6%B0%E0%A6%BE%E0%A6%AF%E0%A6%BC%E0%A6%BE%E0%A6%B2%20%E0%A6%B6%E0%A7%81%E0%A6%B0%E0%A7%81%20%E0%A6%95%E0%A6%B0%E0%A6%A4%E0%A7%87%20%E0%A6%9A%E0%A6%BE%E0%A6%87"
+                    href="https://wa.me/8801577303608?text=%E0%A6%86%E0%A6%AE%E0%A6%BF%20AndgateBOS%20%E0%A6%AB%E0%A7%8D%E0%A6%B0%E0%A6%BF%20%E0%A6%9F%E0%A7%8D%E0%A6%B0%E0%A6%BE%E0%A6%AF%E0%A6%BC%E0%A6%BE%E0%A6%B2%20%E0%A6%B6%E0%A7%81%E0%A6%B0%E0%A7%81%20%E0%A6%95%E0%A6%B0%E0%A6%A4%E0%A7%87%20%E0%A6%9A%E0%A6%BE%E0%A6%87"
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => trackEvent('mobile_sticky_whatsapp_click', 'Contact', { section: 'mobile_sticky' })}

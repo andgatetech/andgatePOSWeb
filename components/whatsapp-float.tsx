@@ -2,7 +2,7 @@
 
 export default function WhatsAppFloat() {
     const phone = '8801577303608';
-    const message = 'হ্যালো! আমি AndgatePOS সম্পর্কে জানতে চাই।';
+    const message = 'হ্যালো! আমি AndgateBOS সম্পর্কে জানতে চাই।';
     const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 
     return (

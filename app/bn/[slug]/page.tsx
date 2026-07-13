@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: BengaliSeoPageProps): Promise
     const enUrl = `${baseUrl}/${slug}`;
 
     return {
-        title: bnContent?.title ? `${bnContent.title} | AndgatePOS` : page.metaTitle,
+        title: bnContent?.title ? `${bnContent.title} | AndgateBOS` : page.metaTitle,
         description: page.banglaIntro,
         keywords: [page.primaryKeyword, ...page.secondaryKeywords, ...BD_KEYWORDS],
         alternates: {
@@ -49,7 +49,7 @@ export async function generateMetadata({ params }: BengaliSeoPageProps): Promise
             locale: 'bn_BD',
             alternateLocale: ['en_BD'],
             url,
-            siteName: 'AndgatePOS',
+            siteName: 'AndgateBOS',
             title: bnContent?.title ?? page.title,
             description: page.banglaIntro,
             images: [{ url: page.image, width: 1200, height: 630, alt: bnContent?.title ?? page.title }],

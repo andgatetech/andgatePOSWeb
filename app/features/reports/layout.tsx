@@ -4,18 +4,18 @@ import type { Metadata } from 'next';
 const BASE_URL = getAppUrl();
 
 export const metadata: Metadata = {
-    title: 'Business Reports & Accounting Features Bangladesh | AndgatePOS',
+    title: 'Business Reports & Accounting Features Bangladesh | AndgateBOS',
     description:
-        'See AndgatePOS reporting features for Bangladesh businesses: sales reports, profit and loss, stock reports, tax reports, supplier due and customer analytics.',
+        'See AndgateBOS reporting features for Bangladesh businesses: sales reports, profit and loss, stock reports, tax reports, supplier due and customer analytics.',
     keywords: ['business reports Bangladesh', 'POS reports Bangladesh', 'sales report software Bangladesh', 'profit loss report POS', 'inventory report software Bangladesh', ...BD_KEYWORDS],
     alternates: {
         canonical: `${BASE_URL}/features/reports`,
     },
     openGraph: {
-        title: 'Business Reports & Accounting Features | AndgatePOS Bangladesh',
+        title: 'Business Reports & Accounting Features | AndgateBOS Bangladesh',
         description: '20+ sales, stock, purchase, tax, customer, supplier and profit reports for Bangladeshi shops.',
         url: `${BASE_URL}/features/reports`,
-        images: [{ url: '/images/og-image.jpg', width: 1200, height: 630, alt: 'AndgatePOS reports and analytics features' }],
+        images: [{ url: '/images/og-image.jpg', width: 1200, height: 630, alt: 'AndgateBOS reports and analytics features' }],
     },
 };
 
@@ -23,7 +23,7 @@ export default function ReportsFeatureLayout({ children }: { children: React.Rea
     const schema = {
         '@context': 'https://schema.org',
         '@type': 'SoftwareApplication',
-        name: 'AndgatePOS Reports and Accounting',
+        name: 'AndgateBOS Reports and Accounting',
         applicationCategory: 'BusinessApplication',
         applicationSubCategory: 'Business Reporting Software',
         operatingSystem: 'Web Browser',

@@ -67,7 +67,7 @@ const copy: Record<
     en: {
         name: 'English',
         badge: 'Complete page and PDF-ready guide',
-        title: 'AndgatePOS User Guide',
+        title: 'AndgateBOS User Guide',
         subtitle:
             'A step-by-step operating guide for Bangladeshi SME business owners, shop managers, cashiers, inventory teams, accountants, ecommerce teams, and service staff.',
         print: 'Download PDF Guide',
@@ -113,10 +113,10 @@ const copy: Record<
                 title: '1. Login, Language, and Store Access',
                 intro: 'Start here before training staff. Correct store access prevents wrong sales, wrong stock, and wrong reports.',
                 image: screenshots.dashboard,
-                imageAlt: 'AndgatePOS dashboard after login',
-                gallery: [{ title: 'Mobile view', image: screenshots.mobile, imageAlt: 'AndgatePOS mobile dashboard' }],
+                imageAlt: 'AndgateBOS dashboard after login',
+                gallery: [{ title: 'Mobile view', image: screenshots.mobile, imageAlt: 'AndgateBOS mobile dashboard' }],
                 steps: [
-                    'Open AndgatePOS in Chrome or your preferred browser.',
+                    'Open AndgateBOS in Chrome or your preferred browser.',
                     'Enter mobile/email and password, then sign in.',
                     'Select Bangla or English from the top language menu.',
                     'Confirm you are inside the correct store or branch.',
@@ -129,7 +129,7 @@ const copy: Record<
                 title: '2. Store Setup and Staff Permission',
                 intro: 'Set shop identity, payment methods, invoice style, return rules, and staff access before live selling.',
                 image: screenshots.dashboard,
-                imageAlt: 'AndgatePOS dashboard overview',
+                imageAlt: 'AndgateBOS dashboard overview',
                 steps: [
                     'Go to Store Settings and enter business name, phone, address, VAT/BIN if applicable, and invoice footer.',
                     'Add payment methods such as cash, bKash, Nagad, Rocket, card, and bank.',
@@ -165,7 +165,7 @@ const copy: Record<
                 title: '4. POS Sale, Discount, Coupon, Return, and Due Sale',
                 intro: 'POS is the main cashier screen. Every sale should be recorded here so stock, cash, customer due, and reports stay correct.',
                 image: screenshots.pos,
-                imageAlt: 'AndgatePOS POS sales screen',
+                imageAlt: 'AndgateBOS POS sales screen',
                 steps: [
                     'Search product by name, SKU, or barcode.',
                     'Select variant such as size/color if the product has variants.',
@@ -183,7 +183,7 @@ const copy: Record<
                 title: '5. Products, Variants, Barcode Label, and Stock Alerts',
                 intro: 'Clean product data makes POS faster and reports more reliable.',
                 image: screenshots.productCreate,
-                imageAlt: 'AndgatePOS product list',
+                imageAlt: 'AndgateBOS product list',
                 gallery: [
                     { title: 'Product list', image: screenshots.products, imageAlt: 'Product list screen' },
                     { title: 'Stock alert', image: screenshots.stockThresholds, imageAlt: 'Stock thresholds screen' },
@@ -204,7 +204,7 @@ const copy: Record<
                 title: '6. Purchase, Receive Stock, and Supplier 360',
                 intro: 'Purchase flow controls supplier due, landed stock cost, and inventory quantity.',
                 image: screenshots.purchase,
-                imageAlt: 'AndgatePOS purchase creation screen',
+                imageAlt: 'AndgateBOS purchase creation screen',
                 gallery: [
                     { title: 'Supplier list', image: screenshots.supplierList, imageAlt: 'Supplier list screen' },
                     { title: 'Supplier due', image: screenshots.supplierDue, imageAlt: 'Supplier due screen' },
@@ -284,7 +284,7 @@ const copy: Record<
     bn: {
         name: 'বাংলা',
         badge: 'পূর্ণ পেইজ এবং PDF করার উপযোগী গাইড',
-        title: 'AndgatePOS ব্যবহার নির্দেশিকা',
+        title: 'AndgateBOS ব্যবহার নির্দেশিকা',
         subtitle:
             'বাংলাদেশি SME ব্যবসার মালিক, ম্যানেজার, ক্যাশিয়ার, ইনভেন্টরি টিম, হিসাব টিম, ই-কমার্স টিম এবং সার্ভিস স্টাফদের জন্য ধাপে ধাপে শেখার গাইড।',
         print: 'PDF গাইড ডাউনলোড করুন',
@@ -330,10 +330,10 @@ const copy: Record<
                 title: '১. লগইন, ভাষা এবং দোকানের অ্যাক্সেস',
                 intro: 'স্টাফ ট্রেনিংয়ের আগে এখান থেকে শুরু করুন। সঠিক দোকান অ্যাক্সেস না হলে বিক্রয়, স্টক এবং রিপোর্ট ভুল হতে পারে।',
                 image: screenshots.dashboard,
-                imageAlt: 'লগইনের পর AndgatePOS ড্যাশবোর্ড',
-                gallery: [{ title: 'মোবাইল ভিউ', image: screenshots.mobile, imageAlt: 'AndgatePOS মোবাইল ড্যাশবোর্ড' }],
+                imageAlt: 'লগইনের পর AndgateBOS ড্যাশবোর্ড',
+                gallery: [{ title: 'মোবাইল ভিউ', image: screenshots.mobile, imageAlt: 'AndgateBOS মোবাইল ড্যাশবোর্ড' }],
                 steps: [
-                    'Chrome বা পছন্দের ব্রাউজারে AndgatePOS খুলুন।',
+                    'Chrome বা পছন্দের ব্রাউজারে AndgateBOS খুলুন।',
                     'মোবাইল/ইমেইল ও পাসওয়ার্ড দিয়ে সাইন ইন করুন।',
                     'উপরের ভাষা মেনু থেকে বাংলা বা English নির্বাচন করুন।',
                     'আপনি সঠিক দোকান বা ব্রাঞ্চে আছেন কিনা নিশ্চিত করুন।',
@@ -346,7 +346,7 @@ const copy: Record<
                 title: '২. দোকান সেটআপ এবং স্টাফ পারমিশন',
                 intro: 'লাইভ বিক্রির আগে দোকানের তথ্য, payment method, invoice style, return rule এবং staff access ঠিক করুন।',
                 image: screenshots.businessOS,
-                imageAlt: 'AndgatePOS ড্যাশবোর্ড',
+                imageAlt: 'AndgateBOS ড্যাশবোর্ড',
                 steps: [
                     'Store Settings-এ business name, phone, address, VAT/BIN থাকলে সেটি, এবং invoice footer দিন।',
                     'Cash, bKash, Nagad, Rocket, card এবং bank payment method যোগ করুন।',
@@ -382,7 +382,7 @@ const copy: Record<
                 title: '৪. POS বিক্রয়, ছাড়, কুপন, রিটার্ন এবং বাকিতে বিক্রয়',
                 intro: 'POS হলো cashier screen। প্রতিটি sale এখানে করলে stock, cash, customer due এবং report ঠিক থাকে।',
                 image: screenshots.pos,
-                imageAlt: 'AndgatePOS POS sales screen',
+                imageAlt: 'AndgateBOS POS sales screen',
                 steps: [
                     'নাম, SKU বা barcode দিয়ে product খুঁজুন।',
                     'Size/color variant থাকলে সঠিক variant নির্বাচন করুন।',
@@ -400,7 +400,7 @@ const copy: Record<
                 title: '৫. পণ্য, ভ্যারিয়েন্ট, বারকোড লেবেল এবং স্টক সতর্কতা',
                 intro: 'পরিষ্কার product data থাকলে POS দ্রুত চলে এবং report বেশি নির্ভরযোগ্য হয়।',
                 image: screenshots.productCreate,
-                imageAlt: 'AndgatePOS product list',
+                imageAlt: 'AndgateBOS product list',
                 gallery: [
                     { title: 'Product list', image: screenshots.products, imageAlt: 'Product list screen' },
                     { title: 'Stock alert', image: screenshots.stockThresholds, imageAlt: 'Stock thresholds screen' },
@@ -421,7 +421,7 @@ const copy: Record<
                 title: '৬. পারচেজ, স্টক Receive এবং Supplier 360',
                 intro: 'Purchase flow supplier due, stock cost এবং inventory quantity নিয়ন্ত্রণ করে।',
                 image: screenshots.purchase,
-                imageAlt: 'AndgatePOS purchase creation screen',
+                imageAlt: 'AndgateBOS purchase creation screen',
                 gallery: [
                     { title: 'Supplier list', image: screenshots.supplierList, imageAlt: 'Supplier list screen' },
                     { title: 'Supplier due', image: screenshots.supplierDue, imageAlt: 'Supplier due screen' },
@@ -593,7 +593,7 @@ export default function UserGuideClient() {
                         <div className="print-shadow overflow-hidden rounded-2xl border border-white/15 bg-white/10 p-3 shadow-2xl backdrop-blur">
                             <ZoomableImage
                                 src={screenshots.pos}
-                                alt="AndgatePOS POS screenshot"
+                                alt="AndgateBOS POS screenshot"
                                 width={980}
                                 height={620}
                                 className="rounded-xl bg-white object-cover"

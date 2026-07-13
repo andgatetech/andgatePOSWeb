@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 
-const AndGate = '/images/AndgateBOS-logo-vertical-small.png';
+const AndGate = '/images/andgatebos-logo-vertical.png';
 const FACEBOOK_URL = 'https://www.facebook.com/andgatepos';
 
 const LINKS = {
@@ -47,7 +47,7 @@ export default function PromoFooter({ variant = 'affiliate' }: PromoFooterProps)
                     {/* Brand */}
                     <div className="lg:col-span-2">
                         <div className="mb-4 inline-flex rounded-lg bg-white p-2">
-                            <Image src={AndGate} alt="AndgatePOS" width={170} height={34} className="h-auto w-[170px] rounded object-contain" />
+                            <Image src={AndGate} alt="AndgateBOS" width={170} height={34} className="h-auto w-[170px] rounded object-contain" />
                         </div>
                         <p className="text-sm leading-relaxed text-slate-300 max-w-xs">
                             বাংলাদেশের দোকানদারদের জন্য সবচেয়ে সহজ POS সফটওয়্যার। ইনভেন্টরি, বিলিং, পার্চেজ অর্ডার, ২০+ রিপোর্ট — একটি অ্যাপে।

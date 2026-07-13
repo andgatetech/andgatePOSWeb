@@ -560,7 +560,7 @@ export async function generateOrderInvoicePDF(payload: InvoicePayload, reservedP
         stack: [
             { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 0.5 }], margin: [0, 0, 0, 5] },
             { text: `${t('lbl_print_date')}: ${currentDate} ${currentTime}`, alignment: 'center', fontSize: 8, color: '#6b7280' },
-            { text: `${t('lbl_powered_by')}: AndgatePOS | ${invoice} | ${t('lbl_page')}: 1 ${t('lbl_of')} 1`, alignment: 'center', fontSize: 8, color: '#6b7280' },
+            { text: `${t('lbl_powered_by')}: AndgateBOS | ${invoice} | ${t('lbl_page')}: 1 ${t('lbl_of')} 1`, alignment: 'center', fontSize: 8, color: '#6b7280' },
         ],
     });
 

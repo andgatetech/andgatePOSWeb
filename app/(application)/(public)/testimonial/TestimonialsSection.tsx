@@ -46,7 +46,7 @@ export default function TestimonialsSection() {
                         {header.title || t('testimonials.header.title') || 'Loved by Businesses'}
                     </h2>
                     <p className="mx-auto max-w-2xl text-base text-gray-500">
-                        {header.subtitle || t('testimonials.header.subtitle') || 'See what our customers say about AndgatePOS.'}
+                        {header.subtitle || t('testimonials.header.subtitle') || 'See what our customers say about AndgateBOS.'}
                     </p>
                 </div>
 

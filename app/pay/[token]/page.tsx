@@ -278,7 +278,7 @@ export default function PayPage() {
                     </form>
                 </div>
 
-                <p className="mt-6 text-center text-xs text-gray-400">Powered by AndgatePOS</p>
+                <p className="mt-6 text-center text-xs text-gray-400">Powered by AndgateBOS</p>
             </div>
         </div>
     );

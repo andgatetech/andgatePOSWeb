@@ -1,7 +1,7 @@
 import { WifiOff } from 'lucide-react';
 
 export const metadata = {
-    title: 'Offline — AndgatePOS',
+    title: 'Offline — AndgateBOS',
 };
 
 export default function OfflinePage() {

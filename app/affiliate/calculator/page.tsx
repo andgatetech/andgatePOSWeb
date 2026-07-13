@@ -185,7 +185,7 @@ export default function AffiliateCalculatorPage() {
                             {t('aff_calc_tier_suffix')}
                         </div>
                         <p className="mt-3 text-center text-xs text-white/70">
-                            Income depends on actual successful customer subscriptions. AndgatePOS does not guarantee any fixed income.
+                            Income depends on actual successful customer subscriptions. AndgateBOS does not guarantee any fixed income.
                         </p>
                         <div className="mt-4 text-center">
                             <Link

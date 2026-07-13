@@ -54,7 +54,7 @@ export default function HighIntentSeoPageView({ page, locale }: Props) {
     const softwareSchema = {
         '@context': 'https://schema.org',
         '@type': 'SoftwareApplication',
-        name: 'AndgatePOS',
+        name: 'AndgateBOS',
         applicationCategory: 'BusinessApplication',
         applicationSubCategory: 'SME Business Operating System',
         operatingSystem: 'Web Browser',
@@ -132,7 +132,7 @@ export default function HighIntentSeoPageView({ page, locale }: Props) {
                         <div className="grid grid-cols-[0.8fr_1fr_1fr] border-b border-gray-100 bg-gray-50 px-4 py-3 text-xs font-black uppercase tracking-widest text-gray-500">
                             <span>{isBn ? 'বিষয়' : 'Area'}</span>
                             <span>{isBn ? 'পুরনো পদ্ধতি' : 'Old way'}</span>
-                            <span>AndgatePOS</span>
+                            <span>AndgateBOS</span>
                         </div>
                         {content.comparison.map((row) => (
                             <div key={row.label} className="grid grid-cols-[0.8fr_1fr_1fr] gap-3 border-b border-gray-100 px-4 py-4 text-sm last:border-b-0">
@@ -149,7 +149,7 @@ export default function HighIntentSeoPageView({ page, locale }: Props) {
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="mb-10 max-w-3xl">
                         <p className="text-xs font-bold uppercase tracking-widest text-[#046ca9]">{isBn ? 'কেন কাজ করে' : 'Why it converts'}</p>
-                        <h2 className="mt-3 text-3xl font-black text-gray-950">{isBn ? 'বাংলাদেশি দোকান কেন AndgatePOS বেছে নেয়' : 'Why Bangladeshi shops move to AndgatePOS'}</h2>
+                        <h2 className="mt-3 text-3xl font-black text-gray-950">{isBn ? 'বাংলাদেশি দোকান কেন AndgateBOS বেছে নেয়' : 'Why Bangladeshi shops move to AndgateBOS'}</h2>
                     </div>
                     <div className="grid gap-5 md:grid-cols-3">
                         {content.reasons.map((reason) => (

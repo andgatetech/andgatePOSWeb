@@ -8,7 +8,7 @@ import Link from 'next/link';
 const BASE_URL = getAppUrl();
 
 export const metadata: Metadata = {
-    title: 'Business OS & POS Guides Bangladesh | AndgatePOS Blog',
+    title: 'Business OS & POS Guides Bangladesh | AndgateBOS Blog',
     description: 'Guides for Bangladeshi SME owners about Business OS, POS software, billing, inventory, barcode checkout, offline POS, pricing and shop management.',
     alternates: {
         canonical: `${BASE_URL}/blog`,
@@ -17,8 +17,8 @@ export const metadata: Metadata = {
         type: 'website',
         locale: 'en_BD',
         url: `${BASE_URL}/blog`,
-        siteName: 'AndgatePOS',
-        title: 'Business OS & POS Guides Bangladesh | AndgatePOS Blog',
+        siteName: 'AndgateBOS',
+        title: 'Business OS & POS Guides Bangladesh | AndgateBOS Blog',
         description: 'Practical Business OS, POS, billing, inventory and shop management guides for Bangladeshi SMEs.',
     },
 };
@@ -27,7 +27,7 @@ export default function BlogIndexPage() {
     const collectionSchema = {
         '@context': 'https://schema.org',
         '@type': 'CollectionPage',
-        name: 'AndgatePOS Blog',
+        name: 'AndgateBOS Blog',
         url: `${BASE_URL}/blog`,
         about: 'SME Business OS, POS software, inventory, billing and shop management for Bangladesh SMEs',
         hasPart: seoArticles.map((article) => ({
@@ -42,7 +42,7 @@ export default function BlogIndexPage() {
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }} />
             <section className="bg-[#f7fbff] pt-24">
                 <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
-                    <p className="text-sm font-bold uppercase tracking-widest text-[#046ca9]">AndgatePOS Guides</p>
+                    <p className="text-sm font-bold uppercase tracking-widest text-[#046ca9]">AndgateBOS Guides</p>
                     <h1 className="mt-3 max-w-3xl text-4xl font-black leading-tight text-gray-950 sm:text-5xl">
                         Business OS and POS guides for Bangladeshi SMEs
                     </h1>

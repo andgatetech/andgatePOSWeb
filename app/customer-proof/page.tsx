@@ -3,8 +3,8 @@ import Link from 'next/link';
 import { BarChart3, CheckCircle2, Clock3, MapPinned, PackageCheck, ShieldCheck } from 'lucide-react';
 
 export const metadata: Metadata = {
-    title: 'Customer Proof & Operating Trust | AndgatePOS',
-    description: 'How AndgatePOS proves operating readiness for Bangladeshi shops: onboarding, reports, permissions, offline safeguards, COD reconciliation and fiscal-readiness controls.',
+    title: 'Customer Proof & Operating Trust | AndgateBOS',
+    description: 'How AndgateBOS proves operating readiness for Bangladeshi shops: onboarding, reports, permissions, offline safeguards, COD reconciliation and fiscal-readiness controls.',
 };
 
 const proofItems = [
@@ -32,7 +32,7 @@ export default function CustomerProofPage() {
                     <p className="text-sm font-semibold uppercase tracking-wide text-sky-700">Operating proof</p>
                     <h1 className="mt-3 max-w-3xl text-4xl font-bold leading-tight sm:text-5xl">Trust is built from daily business controls, not only feature lists.</h1>
                     <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-600">
-                        AndgatePOS is being hardened as a Bangladesh-focused business operating system with checkout reliability, stock-count audit trails, store-by-store owner reports, courier/COD reconciliation, compliance reminders and controlled fiscal-readiness messaging.
+                        AndgateBOS is being hardened as a Bangladesh-focused business operating system with checkout reliability, stock-count audit trails, store-by-store owner reports, courier/COD reconciliation, compliance reminders and controlled fiscal-readiness messaging.
                     </p>
                     <div className="mt-7 flex flex-wrap gap-3">
                         <Link href="/pricing" className="rounded-lg bg-sky-700 px-5 py-3 text-sm font-semibold text-white hover:bg-sky-800">View Packages</Link>

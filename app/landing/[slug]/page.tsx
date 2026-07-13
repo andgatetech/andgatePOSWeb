@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: LandingPageProps): Promise<Me
             locale: 'en_BD',
             alternateLocale: ['bn_BD'],
             url,
-            siteName: 'AndgatePOS',
+            siteName: 'AndgateBOS',
             title: page.metaTitle,
             description: page.metaDescription,
             images: [
@@ -46,7 +46,7 @@ export async function generateMetadata({ params }: LandingPageProps): Promise<Me
                     url: page.image,
                     width: 1200,
                     height: 630,
-                    alt: `${page.title} - AndgatePOS`,
+                    alt: `${page.title} - AndgateBOS`,
                 },
             ],
         },
@@ -76,7 +76,7 @@ export default async function LandingPage({ params }: LandingPageProps) {
     const softwareSchema = {
         '@context': 'https://schema.org',
         '@type': 'SoftwareApplication',
-        name: 'AndgatePOS',
+        name: 'AndgateBOS',
         applicationCategory: 'BusinessApplication',
         applicationSubCategory: 'SME Business Operating System',
         operatingSystem: 'Web Browser',

@@ -5,9 +5,9 @@ import { Metadata } from 'next';
 const BASE_URL = 'https://andgatepos.com';
 
 export const metadata: Metadata = {
-    title: 'SME Business Operating System Bangladesh | AndgatePOS',
+    title: 'SME Business Operating System Bangladesh | AndgateBOS',
     description:
-        'AndgatePOS is an SME Business Operating System for Bangladesh businesses, with POS billing, inventory, purchase, CRM, supplier dues, cash closing, HR, reports, COD reconciliation and online store workflows.',
+        'AndgateBOS is an SME Business Operating System for Bangladesh businesses, with POS billing, inventory, purchase, CRM, supplier dues, cash closing, HR, reports, COD reconciliation and online store workflows.',
     keywords: BD_KEYWORDS,
     alternates: {
         canonical: BASE_URL,
@@ -18,11 +18,11 @@ export const metadata: Metadata = {
         },
     },
     openGraph: {
-        title: 'AndgatePOS — SME Business Operating System Bangladesh',
+        title: 'AndgateBOS — SME Business Operating System Bangladesh',
         description:
             'More than POS: a complete Business OS for Bangladesh SMEs covering billing, inventory, purchase, CRM, supplier dues, cash closing, HR, reports, COD reconciliation and online store.',
         url: BASE_URL,
-        images: [{ url: '/images/og-image.jpg', width: 1200, height: 630, alt: 'AndgatePOS — SME Business Operating System Bangladesh' }],
+        images: [{ url: '/images/og-image.jpg', width: 1200, height: 630, alt: 'AndgateBOS — SME Business Operating System Bangladesh' }],
     },
 };
 
@@ -30,7 +30,7 @@ export default function HomePage() {
     const softwareSchema = {
         '@context': 'https://schema.org',
         '@type': 'SoftwareApplication',
-        name: 'AndgatePOS',
+        name: 'AndgateBOS',
         applicationCategory: 'BusinessApplication',
         applicationSubCategory: 'SME Business Operating System',
         operatingSystem: 'Web Browser',
@@ -41,7 +41,7 @@ export default function HomePage() {
             name: 'Bangladesh',
         },
         description:
-            'AndgatePOS is cloud business operating software for Bangladeshi retail shops, grocery stores, pharmacies, restaurants and fashion businesses with POS billing, inventory, payments, CRM, supplier 360, cash closing, stock count approvals, COD reconciliation, fiscal readiness, reports and ecommerce.',
+            'AndgateBOS is cloud business operating software for Bangladeshi retail shops, grocery stores, pharmacies, restaurants and fashion businesses with POS billing, inventory, payments, CRM, supplier 360, cash closing, stock count approvals, COD reconciliation, fiscal readiness, reports and ecommerce.',
         offers: {
             '@type': 'Offer',
             priceCurrency: 'BDT',
@@ -88,7 +88,7 @@ export default function HomePage() {
         mainEntity: [
             {
                 '@type': 'Question',
-                name: 'Does AndgatePOS work without internet?',
+                name: 'Does AndgateBOS work without internet?',
                 acceptedAnswer: {
                     '@type': 'Answer',
                     text: 'Yes. The POS terminal works fully offline — sell, accept payments, and print receipts with no connection. Orders save locally and sync to the cloud automatically when your internet returns.',

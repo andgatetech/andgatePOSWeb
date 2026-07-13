@@ -2,8 +2,8 @@ import { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
     return {
-        name: 'AndgatePOS',
-        short_name: 'AndgatePOS',
+        name: 'AndgateBOS',
+        short_name: 'AndgateBOS',
         description: 'SME Business Operating System with POS, inventory, reports and daily operations',
         start_url: '/dashboard',
         scope: '/',

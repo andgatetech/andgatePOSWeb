@@ -4,18 +4,18 @@ import type { Metadata } from 'next';
 const BASE_URL = getAppUrl();
 
 export const metadata: Metadata = {
-    title: 'Inventory Management Features Bangladesh | AndgatePOS',
+    title: 'Inventory Management Features Bangladesh | AndgateBOS',
     description:
-        'Manage stock, purchase orders, low-stock alerts, suppliers, barcode labels and multi-store inventory with AndgatePOS inventory software for Bangladesh.',
+        'Manage stock, purchase orders, low-stock alerts, suppliers, barcode labels and multi-store inventory with AndgateBOS inventory software for Bangladesh.',
     keywords: ['inventory management software Bangladesh', 'stock management software Bangladesh', 'purchase order software Bangladesh', 'barcode inventory Bangladesh', ...BD_KEYWORDS],
     alternates: {
         canonical: `${BASE_URL}/features/inventory`,
     },
     openGraph: {
-        title: 'Inventory Management Features | AndgatePOS Bangladesh',
+        title: 'Inventory Management Features | AndgateBOS Bangladesh',
         description: 'Real-time stock, purchase orders, supplier due, low-stock alerts and multi-store inventory control.',
         url: `${BASE_URL}/features/inventory`,
-        images: [{ url: '/images/og-image.jpg', width: 1200, height: 630, alt: 'AndgatePOS inventory management features' }],
+        images: [{ url: '/images/og-image.jpg', width: 1200, height: 630, alt: 'AndgateBOS inventory management features' }],
     },
 };
 
@@ -23,7 +23,7 @@ export default function InventoryFeatureLayout({ children }: { children: React.R
     const schema = {
         '@context': 'https://schema.org',
         '@type': 'SoftwareApplication',
-        name: 'AndgatePOS Inventory Management',
+        name: 'AndgateBOS Inventory Management',
         applicationCategory: 'BusinessApplication',
         applicationSubCategory: 'Inventory Management Software',
         operatingSystem: 'Web Browser',

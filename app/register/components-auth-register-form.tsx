@@ -100,7 +100,7 @@ const ComponentsAuthRegisterForm = ({ defaultSource = 'website_registration', de
             dispatch(login({ user, token, tokenExpiresAt: validTokenExpiresAt, permissions }));
 
             trackEvent('register_success', 'CompleteRegistration', {
-                content_name: 'AndgatePOS Registration',
+                content_name: 'AndgateBOS Registration',
                 content_category: 'SaaS Signup',
                 status: true,
                 store_type: credentials.store_type,
@@ -121,7 +121,7 @@ const ComponentsAuthRegisterForm = ({ defaultSource = 'website_registration', de
             });
 
             trackEvent('trial_started', 'StartTrial', {
-                content_name: 'AndgatePOS Trial',
+                content_name: 'AndgateBOS Trial',
                 content_category: 'SaaS Trial',
                 status: true,
                 store_type: credentials.store_type,
@@ -142,7 +142,7 @@ const ComponentsAuthRegisterForm = ({ defaultSource = 'website_registration', de
             });
 
             trackEvent('trial_started_custom', 'TrialStarted', {
-                content_name: 'AndgatePOS Trial',
+                content_name: 'AndgateBOS Trial',
                 content_category: 'SaaS Trial',
                 status: true,
                 store_type: credentials.store_type,

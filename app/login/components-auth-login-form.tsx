@@ -154,7 +154,7 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
             dispatch(login({ user, token, tokenExpiresAt: validTokenExpiresAt, permissions }));
 
             trackEvent('login_success', 'Login', {
-                content_name: 'AndgatePOS Login',
+                content_name: 'AndgateBOS Login',
                 status: true,
                 remember_me: rememberMe,
                 user_role: user.role,

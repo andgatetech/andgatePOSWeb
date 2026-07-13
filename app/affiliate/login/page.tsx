@@ -117,7 +117,7 @@ export default function AffiliateLoginPage() {
 
                     <div className="mt-5 flex flex-col gap-2 sm:flex-row">
                         <a
-                            href={`${ADMIN_WHATSAPP}?text=${encodeURIComponent('I need help with AndgatePOS affiliate password setup.')}`}
+                            href={`${ADMIN_WHATSAPP}?text=${encodeURIComponent('I need help with AndgateBOS affiliate password setup.')}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-[#25d366]/40 bg-[#25d366]/10 px-4 py-2.5 text-sm font-semibold text-[#128c4e] transition hover:bg-[#25d366]/20"

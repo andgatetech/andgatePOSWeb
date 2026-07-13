@@ -25,8 +25,8 @@ export default function LandingIndexPageView() {
                         </h1>
                         <p className="mt-5 text-base leading-8 text-gray-600">
                             {isBn
-                                ? 'Business OS, retail billing, inventory, restaurant, pharmacy, grocery এবং shop management search-এর জন্য তৈরি AndgatePOS পেজগুলো এখানে পাবেন।'
-                                : 'Find the right AndgatePOS page for Business OS, retail billing, inventory, restaurant, pharmacy, grocery and shop management searches in Bangladesh.'}
+                                ? 'Business OS, retail billing, inventory, restaurant, pharmacy, grocery এবং shop management search-এর জন্য তৈরি AndgateBOS পেজগুলো এখানে পাবেন।'
+                                : 'Find the right AndgateBOS page for Business OS, retail billing, inventory, restaurant, pharmacy, grocery and shop management searches in Bangladesh.'}
                         </p>
                     </div>
 

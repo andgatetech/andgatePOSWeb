@@ -10,21 +10,21 @@ type ContentRoute = {
 };
 
 const PUBLIC_CONTENT_ROUTES: Array<{ match: (pathname: string) => boolean; route: ContentRoute }> = [
-    { match: (pathname) => pathname === '/', route: { name: 'AndgatePOS Home', category: 'Website' } },
-    { match: (pathname) => pathname === '/pricing', route: { name: 'AndgatePOS Pricing', category: 'Pricing' } },
-    { match: (pathname) => pathname === '/demo', route: { name: 'AndgatePOS Demo', category: 'Lead' } },
-    { match: (pathname) => pathname === '/contact', route: { name: 'AndgatePOS Contact', category: 'Lead' } },
-    { match: (pathname) => pathname === '/about', route: { name: 'About AndgatePOS', category: 'Company' } },
-    { match: (pathname) => pathname.startsWith('/features/'), route: { name: 'AndgatePOS Feature', category: 'Feature' } },
-    { match: (pathname) => pathname === '/landing' || pathname.startsWith('/landing/'), route: { name: 'AndgatePOS Landing Page', category: 'Landing' } },
-    { match: (pathname) => pathname.startsWith('/bn/'), route: { name: 'AndgatePOS Bangla Page', category: 'Website' } },
+    { match: (pathname) => pathname === '/', route: { name: 'AndgateBOS Home', category: 'Website' } },
+    { match: (pathname) => pathname === '/pricing', route: { name: 'AndgateBOS Pricing', category: 'Pricing' } },
+    { match: (pathname) => pathname === '/demo', route: { name: 'AndgateBOS Demo', category: 'Lead' } },
+    { match: (pathname) => pathname === '/contact', route: { name: 'AndgateBOS Contact', category: 'Lead' } },
+    { match: (pathname) => pathname === '/about', route: { name: 'About AndgateBOS', category: 'Company' } },
+    { match: (pathname) => pathname.startsWith('/features/'), route: { name: 'AndgateBOS Feature', category: 'Feature' } },
+    { match: (pathname) => pathname === '/landing' || pathname.startsWith('/landing/'), route: { name: 'AndgateBOS Landing Page', category: 'Landing' } },
+    { match: (pathname) => pathname.startsWith('/bn/'), route: { name: 'AndgateBOS Bangla Page', category: 'Website' } },
     { match: (pathname) => pathname === '/best-pos-software-bangladesh', route: { name: 'Best POS Software Bangladesh', category: 'SEO Landing' } },
     { match: (pathname) => pathname === '/free-pos-software-bangladesh', route: { name: 'Free POS Software Bangladesh', category: 'SEO Landing' } },
-    { match: (pathname) => pathname === '/blog' || pathname.startsWith('/blog/'), route: { name: 'AndgatePOS Blog', category: 'Content' } },
-    { match: (pathname) => pathname === '/compare' || pathname.startsWith('/compare/'), route: { name: 'AndgatePOS Compare', category: 'Comparison' } },
+    { match: (pathname) => pathname === '/blog' || pathname.startsWith('/blog/'), route: { name: 'AndgateBOS Blog', category: 'Content' } },
+    { match: (pathname) => pathname === '/compare' || pathname.startsWith('/compare/'), route: { name: 'AndgateBOS Compare', category: 'Comparison' } },
     { match: (pathname) => pathname === '/hawkeri', route: { name: 'Hawkeri Online Store', category: 'Product' } },
-    { match: (pathname) => pathname === '/training', route: { name: 'AndgatePOS Training', category: 'Support' } },
-    { match: (pathname) => pathname === '/user-guide', route: { name: 'AndgatePOS User Guide', category: 'Support' } },
+    { match: (pathname) => pathname === '/training', route: { name: 'AndgateBOS Training', category: 'Support' } },
+    { match: (pathname) => pathname === '/user-guide', route: { name: 'AndgateBOS User Guide', category: 'Support' } },
 ];
 
 function getPublicContentRoute(pathname: string) {

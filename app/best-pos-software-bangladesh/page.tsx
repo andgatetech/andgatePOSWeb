@@ -23,7 +23,7 @@ export const metadata: Metadata = page
               type: 'website',
               locale: 'en_BD',
               url: `${getAppUrl()}${page.path}`,
-              siteName: 'AndgatePOS',
+              siteName: 'AndgateBOS',
               title: page.metaTitle,
               description: page.metaDescription,
               images: [{ url: page.image, width: 1200, height: 630, alt: page.title }],

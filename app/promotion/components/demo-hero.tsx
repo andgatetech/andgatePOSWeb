@@ -167,7 +167,7 @@ export default function DemoHero() {
                     আপনি যে ডেমো দেখতে চেয়েছিলেন, <span className="text-primary">এই যে সেটা।</span>
                 </h1>
                 <p className="mx-auto mb-8 max-w-xl text-base leading-relaxed text-gray-600 sm:text-lg">
-                    ৩ মিনিটে পুরো AndgatePOS দেখে নিন — বিলিং, স্টক, রিপোর্ট সব লাইভ। দেখা শেষে ফর্ম পূরণ করলেই নিজের অ্যাকাউন্টে ঢুকে হাতে-কলমে চালিয়ে দেখতে পারবেন।
+                    ৩ মিনিটে পুরো AndgateBOS দেখে নিন — বিলিং, স্টক, রিপোর্ট সব লাইভ। দেখা শেষে ফর্ম পূরণ করলেই নিজের অ্যাকাউন্টে ঢুকে হাতে-কলমে চালিয়ে দেখতে পারবেন।
                 </p>
 
                 <div className="mx-auto max-w-3xl overflow-hidden rounded-2xl border border-gray-100 bg-white p-2 shadow-2xl">
@@ -176,7 +176,7 @@ export default function DemoHero() {
                             ref={iframeRef}
                             className="absolute inset-0 h-full w-full"
                             src={`https://www.youtube.com/embed/${DEMO_VIDEO_ID}?rel=0&modestbranding=1&enablejsapi=1&controls=0&playsinline=1&autoplay=1&mute=1`}
-                            title="AndgatePOS Demo"
+                            title="AndgateBOS Demo"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowFullScreen
                         />

@@ -148,7 +148,7 @@ const Header = () => {
                     <div className="horizontal-logo mr-2 flex shrink-0 items-center lg:hidden">
                         <Link href="/dashboard" className="main-logo flex items-center">
                             <Image
-                                src="/images/AndgateBOS-logo-vertical-small.png"
+                                src="/images/andgatebos-logo-vertical.png"
                                 alt="logo icon"
                                 width={120}
                                 height={24}

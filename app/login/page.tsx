@@ -128,7 +128,7 @@ const LoginPage = () => {
                             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#046ca9] to-[#034d79] shadow-md shadow-[#046ca9]/20">
                                 <Zap className="h-4 w-4 text-white" />
                             </div>
-                            <span className="text-lg font-black text-gray-900">AndgatePOS</span>
+                            <span className="text-lg font-black text-gray-900">AndgateBOS</span>
                         </div>
 
                         <div className="mb-7">

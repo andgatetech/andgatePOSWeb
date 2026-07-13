@@ -4,18 +4,18 @@ import type { Metadata } from 'next';
 const BASE_URL = getAppUrl();
 
 export const metadata: Metadata = {
-    title: 'POS Terminal Features | Fast Billing Software Bangladesh | AndgatePOS',
+    title: 'POS Terminal Features | Fast Billing Software Bangladesh | AndgateBOS',
     description:
-        'Explore AndgatePOS terminal features for Bangladeshi shops: barcode billing, split payments, receipt printing, returns, discounts and offline POS selling.',
+        'Explore AndgateBOS terminal features for Bangladeshi shops: barcode billing, split payments, receipt printing, returns, discounts and offline POS selling.',
     keywords: ['POS terminal Bangladesh', 'barcode billing software Bangladesh', 'offline POS Bangladesh', 'retail checkout software', ...BD_KEYWORDS],
     alternates: {
         canonical: `${BASE_URL}/features/pos`,
     },
     openGraph: {
-        title: 'POS Terminal Features | AndgatePOS Bangladesh',
+        title: 'POS Terminal Features | AndgateBOS Bangladesh',
         description: 'Fast checkout, barcode scan, payments, receipts, returns and offline selling for Bangladesh retail counters.',
         url: `${BASE_URL}/features/pos`,
-        images: [{ url: '/images/og-image.jpg', width: 1200, height: 630, alt: 'AndgatePOS POS terminal features' }],
+        images: [{ url: '/images/og-image.jpg', width: 1200, height: 630, alt: 'AndgateBOS POS terminal features' }],
     },
 };
 
@@ -23,7 +23,7 @@ export default function PosFeatureLayout({ children }: { children: React.ReactNo
     const schema = {
         '@context': 'https://schema.org',
         '@type': 'SoftwareApplication',
-        name: 'AndgatePOS POS Terminal',
+        name: 'AndgateBOS POS Terminal',
         applicationCategory: 'BusinessApplication',
         applicationSubCategory: 'Point of Sale Software',
         operatingSystem: 'Web Browser',

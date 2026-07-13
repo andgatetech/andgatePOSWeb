@@ -24,14 +24,14 @@ const affiliateTypes = [
     { title: 'কম্পিউটার ও হার্ডওয়্যার শপ', desc: 'প্রিন্টার, বারকোড স্ক্যানার বা কম্পিউটার কিনতে আসা দোকানদারদের ডেমো দেখাতে পারবেন।' },
     { title: 'হিসাবরক্ষক বা ব্যবসা পরামর্শদাতা', desc: 'হিসাব, স্টক ও রিপোর্টিং সমস্যার ভাষা সহজে বুঝিয়ে বলতে পারবেন।' },
     { title: 'ফেসবুক/ইউটিউব কনটেন্ট ক্রিয়েটর', desc: 'স্থানীয় ব্যবসায়ী দর্শক থাকলে শিক্ষামূলক কনটেন্ট থেকে আগ্রহী দোকানদার আনতে পারবেন।' },
-    { title: 'AndgatePOS ব্যবহার করে সন্তুষ্ট কাস্টমার', desc: 'নিজের অভিজ্ঞতা দিয়ে অন্য দোকানদারকে বাস্তবভাবে বোঝাতে পারবেন।' },
+    { title: 'AndgateBOS ব্যবহার করে সন্তুষ্ট কাস্টমার', desc: 'নিজের অভিজ্ঞতা দিয়ে অন্য দোকানদারকে বাস্তবভাবে বোঝাতে পারবেন।' },
     { title: 'বিশ্ববিদ্যালয় বা ব্যবসায়ী কমিউনিটি', desc: 'নিজের এলাকার দোকান বা ছোট ব্যবসায়ীদের নেটওয়ার্কে নিয়মিত পরিচিতি আছে।' },
 ];
 
 const steps = [
     { icon: Users, title: 'অ্যাফিলিয়েট হিসেবে রেজিস্টার করুন', desc: 'আপনার নাম, মোবাইল নম্বর, এলাকা এবং কোন ধরনের দোকানদারের সাথে কাজ করতে পারবেন সেটি জানান।' },
-    { icon: Sparkles, title: 'AndgatePOS ট্রেনিং নিন', desc: 'বিলিং, স্টক, রিপোর্ট, পেমেন্ট এবং সাবস্ক্রিপশন প্ল্যান কীভাবে বোঝাতে হবে, সেগুলো হাতে-কলমে শিখে নিন।' },
-    { icon: BadgeCheck, title: 'দোকানদারের সাথে সরাসরি কথা বলে ডেমো দেখান', desc: 'দোকানের বর্তমান হিসাব, স্টক বা বিলিং সমস্যার সাথে AndgatePOS-এর ব্যবহার মিলিয়ে সহজ ভাষায় লাইভ ডেমো দেখান।' },
+    { icon: Sparkles, title: 'AndgateBOS ট্রেনিং নিন', desc: 'বিলিং, স্টক, রিপোর্ট, পেমেন্ট এবং সাবস্ক্রিপশন প্ল্যান কীভাবে বোঝাতে হবে, সেগুলো হাতে-কলমে শিখে নিন।' },
+    { icon: BadgeCheck, title: 'দোকানদারের সাথে সরাসরি কথা বলে ডেমো দেখান', desc: 'দোকানের বর্তমান হিসাব, স্টক বা বিলিং সমস্যার সাথে AndgateBOS-এর ব্যবহার মিলিয়ে সহজ ভাষায় লাইভ ডেমো দেখান।' },
     { icon: Banknote, title: 'পেইড সাবস্ক্রিপশন করিয়ে কমিশন পান', desc: 'দোকান মালিক পেইড সাবস্ক্রিপশন নিলে এবং পেমেন্ট যাচাই শেষ হলে আপনার কমিশন যোগ হবে।' },
     {
         icon: ShieldCheck,
@@ -55,7 +55,7 @@ const heroProof = [
 ];
 
 const afterSubmitSteps = [
-    'ফর্ম জমা দেওয়ার পর AndgatePOS টিম আপনার তথ্য যাচাই করবে।',
+    'ফর্ম জমা দেওয়ার পর AndgateBOS টিম আপনার তথ্য যাচাই করবে।',
     '২৪-৪৮ ঘণ্টার মধ্যে WhatsApp বা ফোনে যোগাযোগ করা হবে।',
     'অ্যাপ্রুভ হলে ট্রেনিং, ডেমো গাইড ও অ্যাফিলিয়েট কোড পাবেন।',
     'তারপর দোকানদারকে সরাসরি ডেমো দেখিয়ে পেইড সাবস্ক্রিপশন নিতে সাহায্য করবেন।',
@@ -72,7 +72,7 @@ const faqs = [
     },
     {
         q: 'ট্রেনিং কীভাবে হবে?',
-        a: 'অ্যাপ্রুভালের পর AndgatePOS টিম আপনাকে POS ডেমো, দোকানদারকে বোঝানোর স্ক্রিপ্ট এবং সাবস্ক্রিপশন প্রসেস দেখাবে।',
+        a: 'অ্যাপ্রুভালের পর AndgateBOS টিম আপনাকে POS ডেমো, দোকানদারকে বোঝানোর স্ক্রিপ্ট এবং সাবস্ক্রিপশন প্রসেস দেখাবে।',
     },
     {
         q: 'নিজের দোকান বা ভুয়া সাইনআপে কমিশন পাব?',
@@ -83,9 +83,9 @@ const faqs = [
 const affiliateProgramSchema = {
     '@context': 'https://schema.org',
     '@type': 'Service',
-    name: 'AndgatePOS Affiliate Program',
+    name: 'AndgateBOS Affiliate Program',
     url: 'https://andgatepos.com/promotion/affiliate',
-    description: 'Affiliate program for Bangladesh where approved affiliates get training, show AndgatePOS demos to shop owners, and earn commission from verified paid subscriptions.',
+    description: 'Affiliate program for Bangladesh where approved affiliates get training, show AndgateBOS demos to shop owners, and earn commission from verified paid subscriptions.',
     provider: {
         '@type': 'Organization',
         name: 'Andgate Technologies',
@@ -163,7 +163,7 @@ export default function AffiliatePromotionPage() {
                     <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'linear-gradient(135deg, #ffffff 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
                     <div className="relative mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
                         <div>
-                            <span className="inline-flex rounded-full border border-[#e79237]/50 bg-[#e79237]/15 px-4 py-1.5 text-sm font-bold text-[#ffd29f]">AndgatePOS Affiliate Program</span>
+                            <span className="inline-flex rounded-full border border-[#e79237]/50 bg-[#e79237]/15 px-4 py-1.5 text-sm font-bold text-[#ffd29f]">AndgateBOS Affiliate Program</span>
                             <h1 className="mt-5 max-w-3xl text-4xl font-black leading-tight sm:text-5xl lg:text-6xl">দোকানদারকে ডেমো দেখান, পেইড সাবস্ক্রিপশন থেকে কমিশন পান</h1>
                             <p className="mt-5 max-w-2xl text-base leading-8 text-slate-200 sm:text-lg">
                                 বাংলাদেশের দোকানগুলো এখন খাতার হিসাব ছেড়ে ডিজিটাল বিলিং, স্টক কন্ট্রোল ও পরিষ্কার রিপোর্টের দিকে যাচ্ছে। আপনি ট্রেনিং নিয়ে দোকানদারের সাথে সরাসরি কথা বলবেন, ডেমো
@@ -254,9 +254,9 @@ export default function AffiliatePromotionPage() {
                     <div className="mx-auto max-w-6xl">
                         <div className="max-w-2xl">
                             <p className="text-sm font-bold uppercase tracking-wider text-[#046ca9]">কারা যোগ দিতে পারবেন</p>
-                            <h2 className="mt-2 text-3xl font-black text-slate-950">যাদের জন্য AndgatePOS অ্যাফিলিয়েট প্রোগ্রাম ভালো</h2>
+                            <h2 className="mt-2 text-3xl font-black text-slate-950">যাদের জন্য AndgateBOS অ্যাফিলিয়েট প্রোগ্রাম ভালো</h2>
                             <p className="mt-3 text-slate-600">
-                                অপরিচিত মানুষকে ফোন করার দরকার নেই। আপনার পরিচিত ব্যবসায়ীদের হিসাব, স্টক বা বিলিংয়ের সমস্যা বুঝে তাদের জন্য AndgatePOS সমাধান হিসেবে পরিচয় করিয়ে দিন।
+                                অপরিচিত মানুষকে ফোন করার দরকার নেই। আপনার পরিচিত ব্যবসায়ীদের হিসাব, স্টক বা বিলিংয়ের সমস্যা বুঝে তাদের জন্য AndgateBOS সমাধান হিসেবে পরিচয় করিয়ে দিন।
                             </p>
                         </div>
                         <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -335,7 +335,7 @@ export default function AffiliatePromotionPage() {
                             <p className="text-sm font-bold uppercase tracking-wider text-[#046ca9]">দোকানদারকে কী বলবেন</p>
                             <h2 className="mt-2 text-3xl font-black text-slate-950">সহজ ভাষায় সমস্যা ধরুন, তারপর সমাধান দেখান</h2>
                             <p className="mt-3 leading-7 text-slate-600">
-                                “আপনার দোকানে কি এখনো খাতায় হিসাব রাখেন? AndgatePOS দিয়ে মোবাইলে বিলিং, স্টক অ্যালার্ট, লাভের রিপোর্ট আর কর্মচারীর বিক্রির হিসাব একসাথে দেখতে পারবেন।”
+                                “আপনার দোকানে কি এখনো খাতায় হিসাব রাখেন? AndgateBOS দিয়ে মোবাইলে বিলিং, স্টক অ্যালার্ট, লাভের রিপোর্ট আর কর্মচারীর বিক্রির হিসাব একসাথে দেখতে পারবেন।”
                             </p>
                         </div>
                         <div className="grid gap-3 sm:grid-cols-2">
@@ -503,7 +503,7 @@ export default function AffiliatePromotionPage() {
                                     </button>
                                     <p className="text-center text-xs font-semibold text-slate-500">রেজিস্ট্রেশনের পর সাধারণত ২৪-৪৮ ঘণ্টার মধ্যে যোগাযোগ করা হবে।</p>
                                     <p className="text-center text-xs text-slate-400">
-                                        রেজিস্টার করলে আপনি AndgatePOS-এর{' '}
+                                        রেজিস্টার করলে আপনি AndgateBOS-এর{' '}
                                         <Link href="/affiliate/policies" className="text-[#046ca9] underline">
                                             অ্যাফিলিয়েট নীতিমালা
                                         </Link>
@@ -533,7 +533,7 @@ export default function AffiliatePromotionPage() {
                 </section>
 
                 <section className="bg-[#046ca9] px-4 py-14 text-center text-white sm:px-6">
-                    <h2 className="text-3xl font-black">আজই AndgatePOS অ্যাফিলিয়েট প্রোগ্রাম শুরু করুন</h2>
+                    <h2 className="text-3xl font-black">আজই AndgateBOS অ্যাফিলিয়েট প্রোগ্রাম শুরু করুন</h2>
                     <p className="mx-auto mt-3 max-w-2xl text-white/80">বাস্তব দোকানদারের সাথে সরাসরি কাজ, পরিষ্কার কমিশন ট্র্যাকিং এবং বাংলাদেশের জন্য সহজ পেমেন্ট প্রক্রিয়া।</p>
                     <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
                         <a
@@ -566,7 +566,7 @@ export default function AffiliatePromotionPage() {
                     <ArrowRight className="h-4 w-4" />
                 </a>
                 <a
-                    href="https://wa.me/8801577303608?text=%E0%A6%86%E0%A6%AE%E0%A6%BF%20AndgatePOS%20%E0%A6%85%E0%A7%8D%E0%A6%AF%E0%A6%BE%E0%A6%AB%E0%A6%BF%E0%A6%B2%E0%A6%BF%E0%A6%AF%E0%A6%BC%E0%A7%87%E0%A6%9F%20%E0%A6%AA%E0%A7%8D%E0%A6%B0%E0%A7%8B%E0%A6%97%E0%A7%8D%E0%A6%B0%E0%A6%BE%E0%A6%AE%20%E0%A6%B8%E0%A6%AE%E0%A7%8D%E0%A6%AA%E0%A6%B0%E0%A7%8D%E0%A6%95%E0%A7%87%20%E0%A6%9C%E0%A6%BE%E0%A6%A8%E0%A6%A4%E0%A7%87%20%E0%A6%9A%E0%A6%BE%E0%A6%87"
+                    href="https://wa.me/8801577303608?text=%E0%A6%86%E0%A6%AE%E0%A6%BF%20AndgateBOS%20%E0%A6%85%E0%A7%8D%E0%A6%AF%E0%A6%BE%E0%A6%AB%E0%A6%BF%E0%A6%B2%E0%A6%BF%E0%A6%AF%E0%A6%BC%E0%A7%87%E0%A6%9F%20%E0%A6%AA%E0%A7%8D%E0%A6%B0%E0%A7%8B%E0%A6%97%E0%A7%8D%E0%A6%B0%E0%A6%BE%E0%A6%AE%20%E0%A6%B8%E0%A6%AE%E0%A7%8D%E0%A6%AA%E0%A6%B0%E0%A7%8D%E0%A6%95%E0%A7%87%20%E0%A6%9C%E0%A6%BE%E0%A6%A8%E0%A6%A4%E0%A7%87%20%E0%A6%9A%E0%A6%BE%E0%A6%87"
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => trackEvent('affiliate_mobile_sticky_whatsapp_click', 'Contact', { section: 'mobile_sticky' })}

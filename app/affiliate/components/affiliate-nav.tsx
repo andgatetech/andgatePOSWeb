@@ -8,7 +8,7 @@ import { getAffiliateToken } from '@/store/features/affiliate/affiliatePortalApi
 import { getTranslation } from '@/i18n';
 
 const ADMIN_WHATSAPP = 'https://wa.me/8801577303608';
-const ANDGATE_LOGO = '/images/AndgateBOS-logo-vertical-small.png';
+const ANDGATE_LOGO = '/images/andgatebos-logo-vertical.png';
 
 const LINKS = [
     { href: '/affiliate',             labelKey: 'aff_nav_home',        icon: '🏠', desc: 'রেজিস্ট্রেশন, টায়ার তথ্য ও FAQ',              public: true  },
@@ -37,7 +37,7 @@ export default function AffiliateNav() {
                         <span className="flex h-9 w-36 items-center overflow-hidden rounded bg-white">
                             <Image
                                 src={ANDGATE_LOGO}
-                                alt="AndgatePOS"
+                                alt="AndgateBOS"
                                 width={144}
                                 height={29}
                                 className="h-full w-full object-contain"
@@ -58,7 +58,7 @@ export default function AffiliateNav() {
                             {i18n.language === 'bn' ? 'EN' : 'বাং'}
                         </button>
                         <a
-                            href={`${ADMIN_WHATSAPP}?text=${encodeURIComponent('আমি AndgatePOS অ্যাফিলিয়েট প্রোগ্রামের সদস্য। আমার একটু সাহায্য দরকার।')}`}
+                            href={`${ADMIN_WHATSAPP}?text=${encodeURIComponent('আমি AndgateBOS অ্যাফিলিয়েট প্রোগ্রামের সদস্য। আমার একটু সাহায্য দরকার।')}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             title="WhatsApp-এ সাহায্য নিন"

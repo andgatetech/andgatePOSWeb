@@ -572,7 +572,7 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
 
             // Company info
             const companyInfoStack: any[] = [
-                { text: currentStore?.store_name || 'andgatePOS', style: 'companyName' },
+                { text: currentStore?.store_name || 'AndgateBOS', style: 'companyName' },
                 ...((currentStore?.store_location || '').replace(/[\s,;.|/-]/g, '').length > 0 ? [{ text: currentStore!.store_location, style: 'companyInfo' }] : []),
                 {
                     text: [
@@ -988,7 +988,7 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
             }
             footerStack.push(
                 { text: `${t('lbl_print_date')}: ${currentDate} ${currentTime}`, alignment: 'center', fontSize: 8, color: '#6b7280' },
-                { text: `${t('lbl_powered_by')}: AndgatePOS | ${invoice} | ${t('lbl_page')}: ${formatNumber(1)} ${t('lbl_of')} ${formatNumber(1)}`, alignment: 'center', fontSize: 8, color: '#6b7280' },
+                { text: `${t('lbl_powered_by')}: AndgateBOS | ${invoice} | ${t('lbl_page')}: ${formatNumber(1)} ${t('lbl_of')} ${formatNumber(1)}`, alignment: 'center', fontSize: 8, color: '#6b7280' },
             );
             content.push({ stack: footerStack });
 
@@ -1193,7 +1193,7 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
 
                             {/* Company Info */}
                             <div className="min-w-0 flex-grow">
-                                <h1 className="text-lg font-bold text-gray-800 sm:text-2xl">{currentStore?.store_name || 'andgatePOS'}</h1>
+                                <h1 className="text-lg font-bold text-gray-800 sm:text-2xl">{currentStore?.store_name || 'AndgateBOS'}</h1>
                                 <p className="mt-0.5 text-xs text-gray-600 sm:mt-1 sm:text-sm">{currentStore?.store_location || t('lbl_store_address')}</p>
                                 <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-gray-600 sm:mt-2 sm:gap-4 sm:text-sm">
                                     {currentStore?.store_email && <span className="truncate">{currentStore.store_email}</span>}
@@ -1531,7 +1531,7 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
                         <p>
                             {t('lbl_print_date')}: {currentDate} {currentTime}
                         </p>
-                        <p>{t('lbl_powered_by')}: AndgatePOS | {invoice} | {t('lbl_page')}: {formatNumber(1)} {t('lbl_of')} {formatNumber(1)}</p>
+                        <p>{t('lbl_powered_by')}: AndgateBOS | {invoice} | {t('lbl_page')}: {formatNumber(1)} {t('lbl_of')} {formatNumber(1)}</p>
                     </div>
                 </div>
             </div>
@@ -1635,7 +1635,7 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
             <div aria-hidden className="hidden">
                 <div className="thermal-receipt-print-area mx-auto w-[58mm] bg-white p-[3mm] font-mono text-[10px] leading-tight text-black">
                         <div className="text-center">
-                            <div className="mb-1 break-words text-[15px] font-black uppercase">{currentStore?.store_name || 'andgatePOS'}</div>
+                            <div className="mb-1 break-words text-[15px] font-black uppercase">{currentStore?.store_name || 'AndgateBOS'}</div>
                             {currentStore?.store_location && <div className="break-words text-[8px]">{currentStore.store_location}</div>}
                             {currentStore?.store_contact && <div className="text-[8px]">{t('lbl_phone')}: {currentStore.store_contact}</div>}
                             {currentStore?.store_email && <div className="break-words text-[8px]">{currentStore.store_email}</div>}
@@ -1820,7 +1820,7 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
                             {currentStore?.invoice_footer && (
                                 <div className="mt-1 break-words text-[9px] font-medium">{currentStore.invoice_footer}</div>
                             )}
-                            <div className="mt-2 text-[8px]">{t('lbl_powered_by')}: AndgatePOS</div>
+                            <div className="mt-2 text-[8px]">{t('lbl_powered_by')}: AndgateBOS</div>
                         </div>
                     </div>
                 </div>

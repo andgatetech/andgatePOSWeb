@@ -322,7 +322,7 @@ const Orders = () => {
 <body>
     <div class="receipt-container">
         <div class="receipt-header">
-            <div class="store-name">${esc(currentStore?.store_name || 'andgatePOS')}</div>
+            <div class="store-name">${esc(currentStore?.store_name || 'AndgateBOS')}</div>
             ${currentStore?.store_location ? `<div class="store-info">${esc(currentStore.store_location)}</div>` : ''}
             ${currentStore?.store_contact ? `<div class="store-info">Ph: ${esc(currentStore.store_contact)}</div>` : ''}
             ${currentStore?.store_email ? `<div class="store-info">${esc(currentStore.store_email)}</div>` : ''}
@@ -409,7 +409,7 @@ const Orders = () => {
 
         <div class="footer">
             <div class="footer-text">Thank you!</div>
-            <div class="footer-text">andgatePOS</div>
+            <div class="footer-text">AndgateBOS</div>
         </div>
     </div>
 </body>

@@ -40,7 +40,7 @@ export const generateReviewSchema = (
     return {
         '@context': 'https://schema.org',
         '@type': 'Product',
-        name: 'AndgatePOS System',
+        name: 'AndgateBOS System',
         review: reviews.map((review) => ({
             '@type': 'Review',
             author: {

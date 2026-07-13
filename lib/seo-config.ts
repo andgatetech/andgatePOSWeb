@@ -1,4 +1,4 @@
-// Bangladesh-focused keyword list for AndgatePOS
+// Bangladesh-focused keyword list for AndgateBOS
 export const BD_KEYWORDS = [
     // Primary — high commercial intent (English)
     'POS software Bangladesh',
@@ -53,7 +53,7 @@ export const BD_KEYWORDS = [
     'পিওএস সফটওয়্যার বাংলাদেশ',
     'বিনামূল্যে অনলাইন স্টোর বাংলাদেশ',
     // Brand
-    'AndgatePOS',
+    'AndgateBOS',
     'Andgate Technologies',
     'Hawkeri online store',
 ];

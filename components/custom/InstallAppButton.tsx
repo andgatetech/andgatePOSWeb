@@ -22,7 +22,7 @@ const InstallGuide = ({ isIOS, onClose }: { isIOS: boolean; onClose: () => void 
             onClick={(e) => e.stopPropagation()}
         >
             <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-base font-bold text-gray-900">Install AndgatePOS</h3>
+                <h3 className="text-base font-bold text-gray-900">Install AndgateBOS</h3>
                 <button
                     type="button"
                     onClick={onClose}

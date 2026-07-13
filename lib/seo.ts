@@ -14,7 +14,7 @@ interface SeoMetaProps {
 
 export function generateMetadata({
     title,
-    description = 'AndgatePOS - SME Business Operating System for managing POS billing, products, orders, customers, inventory, reports and business operations efficiently.',
+    description = 'AndgateBOS - SME Business Operating System for managing POS billing, products, orders, customers, inventory, reports and business operations efficiently.',
     keywords = [],
     path,
     image = '/images/default-og-image.jpg',
@@ -25,11 +25,11 @@ export function generateMetadata({
     const fullUrl = `${baseUrl}${path}`;
     const canonical = canonicalUrl || fullUrl;
 
-    const defaultKeywords = ['AndgatePOS', 'SME Business OS', 'business operating system', 'POS system', 'point of sale', 'inventory management', 'sales tracking', 'business management', 'retail software', 'cloud POS'];
+    const defaultKeywords = ['AndgateBOS', 'SME Business OS', 'business operating system', 'POS system', 'point of sale', 'inventory management', 'sales tracking', 'business management', 'retail software', 'cloud POS'];
 
     return {
         metadataBase: new URL(baseUrl),
-        title: `${title} | AndgatePOS System`,
+        title: `${title} | AndgateBOS System`,
         description,
         keywords: [...defaultKeywords, ...keywords],
         authors: [{ name: 'Andgate Technologies' }],
@@ -50,21 +50,21 @@ export function generateMetadata({
             type: 'website',
             locale: 'en_US',
             url: fullUrl,
-            siteName: 'AndgatePOS System',
-            title: `${title} | AndgatePOS System`,
+            siteName: 'AndgateBOS System',
+            title: `${title} | AndgateBOS System`,
             description,
             images: [
                 {
                     url: `${baseUrl}${image}`,
                     width: 1200,
                     height: 630,
-                    alt: `${title} - AndgatePOS`,
+                    alt: `${title} - AndgateBOS`,
                 },
             ],
         },
         twitter: {
             card: 'summary_large_image',
-            title: `${title} | AndgatePOS System`,
+            title: `${title} | AndgateBOS System`,
             description,
             images: [`${baseUrl}${image}`],
             creator: '@andgatetech',
@@ -82,13 +82,13 @@ export function generateMetadata({
 export const commonMetadata = {
     dashboard: {
         title: 'Dashboard',
-        description: 'Monitor your business performance with comprehensive analytics, sales reports, and real-time insights on your AndgatePOS dashboard.',
+        description: 'Monitor your business performance with comprehensive analytics, sales reports, and real-time insights on your AndgateBOS dashboard.',
         keywords: ['dashboard', 'analytics', 'business insights', 'sales reports', 'performance metrics'],
         path: '/dashboard',
     },
     products: {
         title: 'Product Management',
-        description: 'Manage your inventory, add new products, track stock levels, and organize your catalog with AndgatePOS product management system.',
+        description: 'Manage your inventory, add new products, track stock levels, and organize your catalog with AndgateBOS product management system.',
         keywords: ['product management', 'inventory', 'stock tracking', 'catalog management', 'product catalog'],
         path: '/protected/products',
     },
@@ -100,7 +100,7 @@ export const commonMetadata = {
     },
     customers: {
         title: 'Customer Management',
-        description: 'Manage customer relationships, track purchase history, loyalty programs, and customer analytics with AndgatePOS.',
+        description: 'Manage customer relationships, track purchase history, loyalty programs, and customer analytics with AndgateBOS.',
         keywords: ['customer management', 'customer database', 'loyalty programs', 'customer analytics', 'CRM'],
         path: '/protected/customers',
     },

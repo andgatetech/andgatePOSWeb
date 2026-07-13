@@ -65,7 +65,7 @@ export default function AffiliateLandingPage() {
                         {t('aff_hero_title_1')}<br />{t('aff_hero_title_2')}
                     </h1>
                     <p className="text-lg text-white/80 mb-8 max-w-2xl mx-auto">
-                        Earn commission by referring real businesses to AndgatePOS. Commission is paid after successful subscription payment and lock period.
+                        Earn commission by referring real businesses to AndgateBOS. Commission is paid after successful subscription payment and lock period.
                     </p>
                     <div className="flex flex-col sm:flex-row flex-wrap gap-3 justify-center">
                         <button onClick={() => setShowForm(true)} className="rounded-xl bg-yellow-400 text-slate-900 font-bold px-6 py-3 text-base sm:text-lg hover:bg-yellow-300 transition">
@@ -129,7 +129,7 @@ export default function AffiliateLandingPage() {
                         ))}
                     </div>
                     <div className="mt-6 rounded-xl bg-primary/10 border border-primary/20 p-4 text-sm text-center text-primary font-medium">
-                        Income depends on actual successful customer subscriptions. AndgatePOS does not guarantee any fixed income.
+                        Income depends on actual successful customer subscriptions. AndgateBOS does not guarantee any fixed income.
                     </div>
                 </div>
             </section>

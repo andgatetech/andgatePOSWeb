@@ -973,7 +973,7 @@ export default function TrainingPage() {
                     <h1 className="mb-5 text-4xl font-black leading-tight text-white sm:text-5xl md:text-6xl">
                         {t('training.page_title')}
                         <span className="block bg-gradient-to-r from-[#5bb8e8] to-[#e8f4fb] bg-clip-text text-transparent">
-                            AndgatePOS
+                            AndgateBOS
                         </span>
                     </h1>
                     <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-slate-400">

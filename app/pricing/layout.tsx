@@ -3,11 +3,11 @@ import { Metadata } from 'next';
 const BASE_URL = 'https://andgatepos.com';
 
 export const metadata: Metadata = {
-    title: 'Pricing Plans — AndgatePOS Bangladesh | মূল্য পরিকল্পনা',
+    title: 'Pricing Plans — AndgateBOS Bangladesh | মূল্য পরিকল্পনা',
     description:
-        'AndgatePOS pricing plans for Bangladesh businesses. Free plan available. Paid plans with products, multi-store, CRM, supplier dues, cash closing, reports, and Hawkeri online store. No setup fee. Cancel anytime.',
+        'AndgateBOS pricing plans for Bangladesh businesses. Free plan available. Paid plans with products, multi-store, CRM, supplier dues, cash closing, reports, and Hawkeri online store. No setup fee. Cancel anytime.',
     keywords: [
-        'AndgatePOS pricing Bangladesh',
+        'AndgateBOS pricing Bangladesh',
         'POS software price Bangladesh',
         'বিলিং সফটওয়্যার মূল্য বাংলাদেশ',
         'cheap POS software Bangladesh',
@@ -20,11 +20,11 @@ export const metadata: Metadata = {
         canonical: `${BASE_URL}/pricing`,
     },
     openGraph: {
-        title: 'Pricing Plans — AndgatePOS Bangladesh',
+        title: 'Pricing Plans — AndgateBOS Bangladesh',
         description:
             'Simple, transparent pricing for Bangladesh shop owners. Free plan available. No setup fee. Cancel anytime. Supports POS, CRM, cash closing, reports and Hawkeri online store.',
         url: `${BASE_URL}/pricing`,
-        images: [{ url: '/images/og-image.jpg', width: 1200, height: 630, alt: 'AndgatePOS Pricing Bangladesh' }],
+        images: [{ url: '/images/og-image.jpg', width: 1200, height: 630, alt: 'AndgateBOS Pricing Bangladesh' }],
     },
 };
 

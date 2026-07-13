@@ -3,44 +3,44 @@ import { Metadata } from 'next';
 const BASE_URL = 'https://andgatepos.com';
 
 export const metadata: Metadata = {
-    title: 'About AndgatePOS — SME Business Operating System | Bangladesh',
+    title: 'About AndgateBOS — SME Business Operating System | Bangladesh',
     description:
-        'AndgatePOS is Bangladesh\'s emerging SME Business Operating System. Built by Andgate Technologies — a Product Engineering company with expertise in SaaS, AI, IoT, Cloud, and Digital Transformation. More than POS. A complete business platform.',
+        'AndgateBOS is Bangladesh\'s emerging SME Business Operating System. Built by Andgate Technologies — a Product Engineering company with expertise in SaaS, AI, IoT, Cloud, and Digital Transformation. More than POS. A complete business platform.',
     keywords: [
-        'about AndgatePOS',
+        'about AndgateBOS',
         'Andgate Technologies',
         'SME Business Operating System',
         'business management software Bangladesh',
         'POS software company Bangladesh',
         'retail management platform',
-        'AndgatePOS Dhaka',
+        'AndgateBOS Dhaka',
         'business automation Bangladesh',
         'cloud POS Bangladesh',
         'digital transformation Bangladesh',
-        'AndgatePOS সম্পর্কে',
+        'AndgateBOS সম্পর্কে',
     ],
     alternates: {
         canonical: `${BASE_URL}/about`,
     },
     openGraph: {
-        title: 'About AndgatePOS — SME Business Operating System | Bangladesh',
+        title: 'About AndgateBOS — SME Business Operating System | Bangladesh',
         description: 'Built in Dhaka by Andgate Technologies. More than POS — a complete business operating system for Bangladeshi SMEs with AI, ecommerce, accounting, and enterprise-grade engineering.',
         url: `${BASE_URL}/about`,
-        images: [{ url: '/images/og-image.jpg', width: 1200, height: 630, alt: 'About AndgatePOS' }],
+        images: [{ url: '/images/og-image.jpg', width: 1200, height: 630, alt: 'About AndgateBOS' }],
     },
 };
 
 const aboutPageJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'AboutPage',
-    name: 'About AndgatePOS',
+    name: 'About AndgateBOS',
     url: `${BASE_URL}/about`,
     mainEntity: {
         '@type': 'Organization',
         name: 'Andgate Technologies',
         url: BASE_URL,
-        logo: `${BASE_URL}/images/AndgateBOS-logo-squre-small.png`,
-        description: 'Andgate Technologies is a Product Engineering and Digital Transformation company that builds SaaS platforms, AI systems, IoT solutions, and enterprise software. Creator of AndgatePOS and Hawkeri.',
+        logo: `${BASE_URL}/images/andgatebos-icon-square.png`,
+        description: 'Andgate Technologies is a Product Engineering and Digital Transformation company that builds SaaS platforms, AI systems, IoT solutions, and enterprise software. Creator of AndgateBOS and Hawkeri.',
         address: {
             '@type': 'PostalAddress',
             streetAddress: 'House 34, Road 3, Block B, Aftabnagar, Badda',

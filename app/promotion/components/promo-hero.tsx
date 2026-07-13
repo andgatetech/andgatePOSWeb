@@ -162,7 +162,7 @@ export default function PromoHero() {
                                     ref={iframeRef}
                                     className="block h-[360px] w-full rounded-xl sm:h-[640px]"
                                     src={`https://www.youtube.com/embed/${HERO_VIDEO_ID}?autoplay=1&mute=1&loop=1&playlist=${HERO_VIDEO_ID}&controls=0&modestbranding=1&enablejsapi=1`}
-                                    title="AndgatePOS Demo"
+                                    title="AndgateBOS Demo"
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                     allowFullScreen
                                 />

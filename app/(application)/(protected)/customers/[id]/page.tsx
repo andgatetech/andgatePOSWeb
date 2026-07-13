@@ -50,7 +50,7 @@ export default function Customer360Page() {
     const creditLimit = Number(customer?.credit_limit || 0);
     const isOverCreditLimit = creditLimit > 0 && totalDue > creditLimit;
     const availableCredit = creditLimit > 0 ? Math.max(0, creditLimit - totalDue) : 0;
-    const storeName = currentStore?.store_name || 'AndgatePOS';
+    const storeName = currentStore?.store_name || 'AndgateBOS';
     const taskTypes = useMemo(
         () => [
             { value: 'call', label: t('crm_task_call') },

@@ -3,18 +3,18 @@ import Link from 'next/link';
 import MainLayout from '@/components/layouts/MainLayout';
 
 export const metadata: Metadata = {
-    title: 'AndgatePOS Comparison — SME Business OS Bangladesh',
-    description: 'Compare AndgatePOS with POS and business software options in Bangladesh. See POS, inventory, CRM, supplier 360, cash closing, ecommerce, reports and Bangla support.',
-    keywords: 'POS software Bangladesh, compare POS, best POS Bangladesh, AndgatePOS comparison, retail POS comparison Bangladesh',
+    title: 'AndgateBOS Comparison — SME Business OS Bangladesh',
+    description: 'Compare AndgateBOS with POS and business software options in Bangladesh. See POS, inventory, CRM, supplier 360, cash closing, ecommerce, reports and Bangla support.',
+    keywords: 'POS software Bangladesh, compare POS, best POS Bangladesh, AndgateBOS comparison, retail POS comparison Bangladesh',
     openGraph: {
-        title: 'AndgatePOS Comparison — SME Business OS Bangladesh',
-        description: 'Compare AndgatePOS with common POS and business software choices for Bangladesh SMEs.',
+        title: 'AndgateBOS Comparison — SME Business OS Bangladesh',
+        description: 'Compare AndgateBOS with common POS and business software choices for Bangladesh SMEs.',
     },
 };
 
 const competitors = [
     {
-        name: 'AndgatePOS',
+        name: 'AndgateBOS',
         tag: 'SME Business OS',
         price: 'Free trial available',
         operations: 'Business OS, cash closing, petty cash, HR attendance, service jobs',
@@ -144,10 +144,10 @@ export default function ComparisonPage() {
                                 Business software comparison for Bangladesh SMEs
                             </div>
                             <h1 className="text-4xl font-black leading-tight text-gray-950 sm:text-5xl lg:text-[3.35rem]">
-                                Compare AndgatePOS with POS and business software options
+                                Compare AndgateBOS with POS and business software options
                             </h1>
                             <p className="mx-auto mt-5 max-w-3xl text-base leading-8 text-gray-600 sm:text-lg">
-                                AndgatePOS is not only counter billing. It combines POS, inventory, CRM, Supplier 360,
+                                AndgateBOS is not only counter billing. It combines POS, inventory, CRM, Supplier 360,
                                 cash closing, petty cash, HR attendance, service jobs, reports and ecommerce for Bangladesh SME operations.
                             </p>
                             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
@@ -207,7 +207,7 @@ export default function ComparisonPage() {
                 <section className="bg-gray-50 py-16">
                     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                         <div className="mb-10 text-center">
-                            <p className="text-xs font-bold uppercase tracking-widest text-[#e79237]">Why AndgatePOS</p>
+                            <p className="text-xs font-bold uppercase tracking-widest text-[#e79237]">Why AndgateBOS</p>
                             <h2 className="mt-3 text-3xl font-black text-gray-950">Built for how Bangladesh SMEs actually run</h2>
                         </div>
                         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -224,7 +224,7 @@ export default function ComparisonPage() {
 
                 <section className="bg-[#022d45] py-16 text-white">
                     <div className="mx-auto max-w-4xl px-4 text-center sm:px-6">
-                        <h2 className="text-3xl font-black">Start with AndgatePOS free</h2>
+                        <h2 className="text-3xl font-black">Start with AndgateBOS free</h2>
                         <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-slate-300">
                             Test POS billing, stock, CRM, supplier dues and daily Business OS controls before moving your full shop workflow.
                         </p>

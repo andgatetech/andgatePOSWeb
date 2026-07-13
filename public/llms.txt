@@ -1,6 +1,6 @@
-# AndgatePOS
+# AndgateBOS
 
-AndgatePOS is a cloud POS, inventory, billing, payment tracking, reporting, and ecommerce software platform for small and medium businesses in Bangladesh.
+AndgateBOS is a cloud POS, inventory, billing, payment tracking, reporting, and ecommerce software platform for small and medium businesses in Bangladesh.
 
 ## Core Product
 
@@ -25,7 +25,7 @@ AndgatePOS is a cloud POS, inventory, billing, payment tracking, reporting, and 
 - Commission calculator: https://andgatepos.com/affiliate/calculator
 - Affiliate policies: https://andgatepos.com/affiliate/policies
 
-## What AndgatePOS Helps With
+## What AndgateBOS Helps With
 
 - Fast POS billing from mobile, tablet, or laptop
 - Barcode and camera scanning
@@ -39,11 +39,11 @@ AndgatePOS is a cloud POS, inventory, billing, payment tracking, reporting, and 
 
 ## Target Customers
 
-AndgatePOS is designed for retail shops, grocery stores, pharmacies, fashion stores, electronics shops, hardware shops, mini marts, supermarkets, restaurants, and other product-based SME businesses in Bangladesh.
+AndgateBOS is designed for retail shops, grocery stores, pharmacies, fashion stores, electronics shops, hardware shops, mini marts, supermarkets, restaurants, and other product-based SME businesses in Bangladesh.
 
 ## Brand Facts
 
-- Brand: AndgatePOS
+- Brand: AndgateBOS
 - Company: Andgate Technologies
 - Country served: Bangladesh
 - Support phone and WhatsApp: +8801577303608

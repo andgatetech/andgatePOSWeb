@@ -11,7 +11,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useSelector } from 'react-redux';
 
-const AndGateLogo = '/images/andgatePOS.png';
+const AndGateLogo = '/images/andgatebos-logo-vertical.png';
 
 interface SubscriptionPageShellProps {
     children: React.ReactNode;
@@ -50,7 +50,7 @@ export default function SubscriptionPageShell({ children }: SubscriptionPageShel
         <div className="flex min-h-screen flex-col bg-gray-50">
             <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b bg-white/95 px-4 shadow-sm backdrop-blur-md sm:px-6">
                 <Link href="/" className="flex items-center">
-                    <Image src={AndGateLogo} alt="AndgatePOS Logo" width={180} height={36} className="h-9 w-auto object-contain" priority />
+                    <Image src={AndGateLogo} alt="AndgateBOS Logo" width={180} height={36} className="h-9 w-auto object-contain" priority />
                 </Link>
                 <Link href="/login" className="rounded-lg bg-[#046ca9] px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90">
                     Login
@@ -58,7 +58,7 @@ export default function SubscriptionPageShell({ children }: SubscriptionPageShel
             </header>
             <div className="flex-1">{children}</div>
             <footer className="border-t bg-white px-4 py-6 text-center text-sm text-gray-500 sm:px-6">
-                &copy; {new Date().getFullYear()} AndgatePOS &middot; +880 1577303608 &middot; support@andgatetech.net
+                &copy; {new Date().getFullYear()} AndgateBOS &middot; +880 1577303608 &middot; support@andgatetech.net
             </footer>
         </div>
     );

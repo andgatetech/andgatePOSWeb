@@ -9,8 +9,8 @@ import Link from 'next/link';
 const baseUrl = getAppUrl();
 
 export const metadata: Metadata = {
-    title: 'SEO Page Index | AndgatePOS',
-    description: 'Internal index of AndgatePOS SEO landing, comparison and buyer-intent pages.',
+    title: 'SEO Page Index | AndgateBOS',
+    description: 'Internal index of AndgateBOS SEO landing, comparison and buyer-intent pages.',
     robots: {
         index: false,
         follow: false,
@@ -55,9 +55,9 @@ export default function SeoIndexPage() {
                         </div>
                         <h1 className="text-4xl font-black tracking-tight text-gray-950 sm:text-5xl">All SEO pages / সব SEO পেজ</h1>
                         <p className="mt-5 text-base leading-8 text-gray-600">
-                            Use this page to quickly open every new SEO landing, comparison and buyer-intent page created for AndgatePOS.
+                            Use this page to quickly open every new SEO landing, comparison and buyer-intent page created for AndgateBOS.
                             <br />
-                            AndgatePOS-এর জন্য তৈরি সব নতুন SEO পেজ দ্রুত খুলতে এই পেজটি ব্যবহার করুন।
+                            AndgateBOS-এর জন্য তৈরি সব নতুন SEO পেজ দ্রুত খুলতে এই পেজটি ব্যবহার করুন।
                         </p>
                     </div>
 

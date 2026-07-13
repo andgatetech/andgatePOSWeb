@@ -71,7 +71,7 @@ export const seoArticles: SeoArticle[] = [
         faq: [
             { question: 'How much does POS software cost in Bangladesh?', answer: 'Cost varies by provider and plan. Small shops can often start free or basic, while growing businesses pay more for users, branches, reporting and support.' },
             { question: 'Is the cheapest POS the best choice?', answer: 'Not always. Missing inventory, reports or support can cost more than the subscription savings.' },
-            { question: 'Can I start free with AndgatePOS?', answer: 'Yes. AndgatePOS has a free starting option for testing the core workflow.' },
+            { question: 'Can I start free with AndgateBOS?', answer: 'Yes. AndgateBOS has a free starting option for testing the core workflow.' },
         ],
     },
     {
@@ -117,7 +117,7 @@ export const seoArticles: SeoArticle[] = [
         faq: [
             { question: 'Can grocery shops use barcode POS?', answer: 'Yes. Barcode checkout is one of the most useful POS workflows for grocery stores.' },
             { question: 'How can I reduce stock mistakes?', answer: 'Use product codes, purchase records, stock adjustments with reasons and daily stock reports.' },
-            { question: 'Can POS track supplier dues?', answer: 'Yes. AndgatePOS supports supplier and purchase workflows for due tracking.' },
+            { question: 'Can POS track supplier dues?', answer: 'Yes. AndgateBOS supports supplier and purchase workflows for due tracking.' },
         ],
     },
     {
@@ -161,7 +161,7 @@ export const seoArticles: SeoArticle[] = [
             { title: 'Use due reports regularly', body: 'Weekly due reports help owners follow up before balances become too old.' },
         ],
         faq: [
-            { question: 'Can POS track partial payments?', answer: 'Yes. AndgatePOS supports paid, unpaid and partial payment workflows.' },
+            { question: 'Can POS track partial payments?', answer: 'Yes. AndgateBOS supports paid, unpaid and partial payment workflows.' },
             { question: 'Is customer due tracking useful for small shops?', answer: 'Yes. It is especially useful for shops with repeat customers or local credit sales.' },
             { question: 'Can I see old due invoices?', answer: 'Yes. Digital records make previous invoices easier to search.' },
         ],
@@ -232,7 +232,7 @@ export const seoArticles: SeoArticle[] = [
         faq: [
             { question: 'দোকানের হিসাব software কী?', answer: 'এটি এমন software যা দোকানের bill, stock, payment, due এবং report digital ভাবে manage করতে সাহায্য করে।' },
             { question: 'ছোট দোকানে কি POS দরকার?', answer: 'পণ্য, বাকি বা daily report manage করতে সমস্যা হলে POS software দরকার হতে পারে।' },
-            { question: 'AndgatePOS কি Bangla-friendly?', answer: 'AndgatePOS বাংলাদেশি shop workflow এবং local payment মাথায় রেখে তৈরি।' },
+            { question: 'AndgateBOS কি Bangla-friendly?', answer: 'AndgateBOS বাংলাদেশি shop workflow এবং local payment মাথায় রেখে তৈরি।' },
         ],
     },
     {
@@ -253,7 +253,7 @@ export const seoArticles: SeoArticle[] = [
             { title: 'Review daily collection reports', body: 'Daily payment reports help owners compare cash drawer, mobile wallet transactions and card/bank collections.' },
         ],
         faq: [
-            { question: 'Can POS track bKash and Nagad?', answer: 'Yes. AndgatePOS can record local payment methods such as bKash, Nagad, Rocket, Upay, cash, card and bank transfer.' },
+            { question: 'Can POS track bKash and Nagad?', answer: 'Yes. AndgateBOS can record local payment methods such as bKash, Nagad, Rocket, Upay, cash, card and bank transfer.' },
             { question: 'Can I track partial payments?', answer: 'Yes. Partial and due payments can be recorded for customers.' },
             { question: 'Why separate payment reports?', answer: 'Separate payment reports make daily reconciliation easier and reduce confusion between cash and mobile wallet collections.' },
         ],

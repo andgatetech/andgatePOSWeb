@@ -48,7 +48,7 @@ export async function generateMetadata({ params }: SeoSlugPageProps): Promise<Me
             locale: 'en_BD',
             alternateLocale: ['bn_BD'],
             url,
-            siteName: 'AndgatePOS',
+            siteName: 'AndgateBOS',
             title: page.metaTitle,
             description: page.metaDescription,
             images: [{ url: page.image, width: 1200, height: 630, alt: page.title }],
@@ -78,7 +78,7 @@ export default async function SeoSlugPage({ params }: SeoSlugPageProps) {
         const softwareSchema = {
             '@context': 'https://schema.org',
             '@type': 'SoftwareApplication',
-            name: 'AndgatePOS',
+            name: 'AndgateBOS',
             applicationCategory: 'BusinessApplication',
             applicationSubCategory: 'SME Business Operating System',
             operatingSystem: 'Web Browser',

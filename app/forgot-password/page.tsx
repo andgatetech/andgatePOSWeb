@@ -8,7 +8,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { FormEvent, useState } from 'react';
 
-const AndGate = '/images/AndgateBOS-logo-vertical-small.png';
+const AndGate = '/images/andgatebos-logo-vertical.png';
 
 const ForgotPasswordPage = () => {
     const [email, setEmail] = useState('');
@@ -36,7 +36,7 @@ const ForgotPasswordPage = () => {
 
                 <div className="relative">
                     <Link href="/">
-                        <Image src={AndGate} alt="AndgatePOS" width={200} height={40} className="h-10 w-auto object-contain brightness-0 invert" />
+                        <Image src={AndGate} alt="AndgateBOS" width={200} height={40} className="h-10 w-auto object-contain brightness-0 invert" />
                     </Link>
                 </div>
 
@@ -81,7 +81,7 @@ const ForgotPasswordPage = () => {
             <div className="flex flex-1 flex-col justify-center bg-slate-50 px-6 py-12 sm:px-10 lg:px-16">
                 <div className="mb-8 flex justify-center lg:hidden">
                     <Link href="/">
-                        <Image src={AndGate} alt="AndgatePOS" width={180} height={36} className="h-9 w-auto object-contain" />
+                        <Image src={AndGate} alt="AndgateBOS" width={180} height={36} className="h-9 w-auto object-contain" />
                     </Link>
                 </div>
 

@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: BlogArticlePageProps): Promis
             type: 'article',
             locale: 'en_BD',
             url,
-            siteName: 'AndgatePOS',
+            siteName: 'AndgateBOS',
             title: article.metaTitle,
             description: article.metaDescription,
             publishedTime: article.updatedAt,
@@ -75,7 +75,7 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
             url: baseUrl,
             logo: {
                 '@type': 'ImageObject',
-                url: `${baseUrl}/images/AndgateBOS-logo-squre-small.png`,
+                url: `${baseUrl}/images/andgatebos-icon-square.png`,
             },
         },
     };

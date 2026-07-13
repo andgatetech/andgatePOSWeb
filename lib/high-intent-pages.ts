@@ -31,21 +31,21 @@ export type HighIntentSeoPage = {
 export const highIntentPages: HighIntentSeoPage[] = [
     {
         path: '/compare/andgatepos-vs-manual-register',
-        title: 'AndgatePOS vs Manual Register',
-        metaTitle: 'AndgatePOS vs Manual Register | Digital POS for Bangladesh Shops',
+        title: 'AndgateBOS vs Manual Register',
+        metaTitle: 'AndgateBOS vs Manual Register | Digital POS for Bangladesh Shops',
         metaDescription:
-            'Compare AndgatePOS with manual register books for Bangladeshi shops. See how digital POS improves billing, inventory, reports, customer dues and daily business control.',
-        h1: 'AndgatePOS vs Manual Register for Bangladesh Shops',
+            'Compare AndgateBOS with manual register books for Bangladeshi shops. See how digital POS improves billing, inventory, reports, customer dues and daily business control.',
+        h1: 'AndgateBOS vs Manual Register for Bangladesh Shops',
         eyebrow: 'Comparison',
         intro:
             'Manual register books work when a shop is tiny, but they make it hard to track stock, profit, dues and sales history as the business grows.',
         banglaIntro:
             'খাতায় হিসাব রাখা ছোট দোকানে শুরুতে চলে, কিন্তু দোকান বড় হলে স্টক, বাকি, লাভ আর দৈনিক বিক্রির হিসাব মেলানো কঠিন হয়ে যায়।',
-        primaryKeyword: 'AndgatePOS vs manual register',
+        primaryKeyword: 'AndgateBOS vs manual register',
         secondaryKeywords: ['digital POS vs manual register Bangladesh', 'shop register alternative Bangladesh', 'POS software for shop accounting', 'manual khata alternative Bangladesh'],
         image: '/assets/product-screenshots/current/desktop/pos/pos__pos.png',
         verdict:
-            'Choose AndgatePOS if you want searchable sales records, stock alerts, payment tracking and reports without depending on handwritten khata.',
+            'Choose AndgateBOS if you want searchable sales records, stock alerts, payment tracking and reports without depending on handwritten khata.',
         comparison: [
             { label: 'Billing speed', oldWay: 'Write items and calculate totals manually.', andgate: 'Scan products, apply discounts and print receipts quickly.' },
             { label: 'Stock tracking', oldWay: 'Stock count depends on memory or manual checking.', andgate: 'Stock updates automatically after sales and purchases.' },
@@ -59,15 +59,15 @@ export const highIntentPages: HighIntentSeoPage[] = [
         ],
         faq: [
             { question: 'Is manual register enough for a small shop?', answer: 'It can work at the beginning, but stock, dues and reports become difficult as product count and sales volume grow.' },
-            { question: 'Can AndgatePOS replace daily cash memo books?', answer: 'Yes. AndgatePOS can create digital bills, print receipts and keep sales history.' },
+            { question: 'Can AndgateBOS replace daily cash memo books?', answer: 'Yes. AndgateBOS can create digital bills, print receipts and keep sales history.' },
             { question: 'Will my staff need accounting knowledge?', answer: 'No. The POS workflow is designed for regular shop staff and business owners.' },
         ],
         bn: {
-            title: 'AndgatePOS বনাম খাতার হিসাব',
-            h1: 'বাংলাদেশি দোকানের জন্য AndgatePOS বনাম খাতার হিসাব',
+            title: 'AndgateBOS বনাম খাতার হিসাব',
+            h1: 'বাংলাদেশি দোকানের জন্য AndgateBOS বনাম খাতার হিসাব',
             eyebrow: 'তুলনা',
             intro: 'খাতায় হিসাব রাখা ছোট দোকানে শুরুতে চলে, কিন্তু দোকান বড় হলে স্টক, বাকি, লাভ আর দৈনিক বিক্রির হিসাব মেলানো কঠিন হয়ে যায়।',
-            verdict: 'যদি হাতে লেখা খাতার বদলে বিক্রির রেকর্ড, স্টক অ্যালার্ট, পেমেন্ট ট্র্যাকিং আর রিপোর্ট এক জায়গায় চান, AndgatePOS ভালো পছন্দ।',
+            verdict: 'যদি হাতে লেখা খাতার বদলে বিক্রির রেকর্ড, স্টক অ্যালার্ট, পেমেন্ট ট্র্যাকিং আর রিপোর্ট এক জায়গায় চান, AndgateBOS ভালো পছন্দ।',
             comparison: [
                 { label: 'বিল করার গতি', oldWay: 'পণ্য লিখে হাতে হাতে মোট হিসাব করতে হয়।', andgate: 'পণ্য স্ক্যান, ডিসকাউন্ট আর রসিদ প্রিন্ট দ্রুত করা যায়।' },
                 { label: 'স্টক ট্র্যাকিং', oldWay: 'স্টক জানতে স্মৃতি বা হাতে গোনা হিসাবের উপর নির্ভর করতে হয়।', andgate: 'বিক্রি ও ক্রয়ের সাথে সাথে স্টক আপডেট হয়।' },
@@ -81,7 +81,7 @@ export const highIntentPages: HighIntentSeoPage[] = [
             ],
             faq: [
                 { question: 'ছোট দোকানের জন্য খাতার হিসাব কি যথেষ্ট?', answer: 'শুরুতে চলতে পারে, কিন্তু পণ্য ও বিক্রি বাড়লে স্টক, বাকি আর রিপোর্ট সামলানো কঠিন হয়ে যায়।' },
-                { question: 'AndgatePOS কি ক্যাশ মেমো খাতা রিপ্লেস করতে পারে?', answer: 'হ্যাঁ। AndgatePOS ডিজিটাল বিল তৈরি, রসিদ প্রিন্ট আর বিক্রির ইতিহাস সংরক্ষণ করতে পারে।' },
+                { question: 'AndgateBOS কি ক্যাশ মেমো খাতা রিপ্লেস করতে পারে?', answer: 'হ্যাঁ। AndgateBOS ডিজিটাল বিল তৈরি, রসিদ প্রিন্ট আর বিক্রির ইতিহাস সংরক্ষণ করতে পারে।' },
                 { question: 'কর্মচারীদের কি অ্যাকাউন্টিং জানতে হবে?', answer: 'না। POS ফ্লো সাধারণ দোকান কর্মী ও ব্যবসার মালিকদের জন্য সহজভাবে বানানো।' },
             ],
         },
@@ -102,7 +102,7 @@ export const highIntentPages: HighIntentSeoPage[] = [
         secondaryKeywords: ['POS software vs Excel Bangladesh', 'Excel inventory alternative Bangladesh', 'shop management software vs spreadsheet', 'Excel stock management alternative Bangladesh'],
         image: '/assets/product-screenshots/current/desktop/product/products-thresholds__products__thresholds.png',
         verdict:
-            'Use Excel for planning. Use AndgatePOS when billing, inventory, payments and reports need to happen during real business operations.',
+            'Use Excel for planning. Use AndgateBOS when billing, inventory, payments and reports need to happen during real business operations.',
         comparison: [
             { label: 'Checkout', oldWay: 'Excel is not built for fast billing or receipt printing.', andgate: 'POS checkout handles billing, discounts, payments and receipts.' },
             { label: 'Inventory updates', oldWay: 'Staff must update sheets manually.', andgate: 'Stock updates from sales, purchases and adjustments.' },
@@ -117,14 +117,14 @@ export const highIntentPages: HighIntentSeoPage[] = [
         faq: [
             { question: 'Can I manage inventory in Excel?', answer: 'Yes for very small lists, but it becomes error-prone when sales, purchases and multiple staff are involved.' },
             { question: 'Why is POS better than Excel for billing?', answer: 'POS software is built for checkout, payment tracking, receipt printing and automatic stock updates.' },
-            { question: 'Can I import products from Excel to AndgatePOS?', answer: 'Yes. AndgatePOS supports bulk product import workflows.' },
+            { question: 'Can I import products from Excel to AndgateBOS?', answer: 'Yes. AndgateBOS supports bulk product import workflows.' },
         ],
         bn: {
             title: 'POS বনাম Excel',
             h1: 'দোকান ম্যানেজমেন্টে POS সফটওয়্যার বনাম Excel',
             eyebrow: 'তুলনা',
             intro: 'Excel পণ্যের তালিকা রাখার জন্য ভালো, কিন্তু লাইভ বিল, স্টক আপডেট, রসিদ, কর্মচারী অ্যাক্সেস আর রিপোর্টের জন্য POS সফটওয়্যার বেশি কার্যকর।',
-            verdict: 'পরিকল্পনা বা সাধারণ তালিকার জন্য Excel ব্যবহার করুন। বাস্তব বিক্রি, স্টক, পেমেন্ট আর রিপোর্ট চালানোর জন্য AndgatePOS ব্যবহার করুন।',
+            verdict: 'পরিকল্পনা বা সাধারণ তালিকার জন্য Excel ব্যবহার করুন। বাস্তব বিক্রি, স্টক, পেমেন্ট আর রিপোর্ট চালানোর জন্য AndgateBOS ব্যবহার করুন।',
             comparison: [
                 { label: 'চেকআউট', oldWay: 'Excel দ্রুত বিল বা রসিদ প্রিন্টের জন্য বানানো নয়।', andgate: 'POS চেকআউটে বিল, ডিসকাউন্ট, পেমেন্ট আর রসিদ একসাথে হয়।' },
                 { label: 'স্টক আপডেট', oldWay: 'কর্মচারীদের হাতে শিট আপডেট করতে হয়।', andgate: 'বিক্রি, ক্রয় আর অ্যাডজাস্টমেন্ট থেকে স্টক আপডেট হয়।' },
@@ -139,14 +139,14 @@ export const highIntentPages: HighIntentSeoPage[] = [
             faq: [
                 { question: 'Excel দিয়ে কি ইনভেন্টরি ম্যানেজ করা যায়?', answer: 'খুব ছোট তালিকার জন্য যায়, কিন্তু বিক্রি, ক্রয় আর একাধিক কর্মচারী থাকলে ভুলের ঝুঁকি বাড়ে।' },
                 { question: 'বিলিংয়ের জন্য POS কেন Excel-এর চেয়ে ভালো?', answer: 'POS চেকআউট, পেমেন্ট ট্র্যাকিং, রসিদ প্রিন্ট আর অটোমেটিক স্টক আপডেটের জন্য বানানো।' },
-                { question: 'Excel থেকে পণ্য ইমপোর্ট করা যাবে?', answer: 'হ্যাঁ। AndgatePOS বাল্ক প্রোডাক্ট ইমপোর্ট সাপোর্ট করে।' },
+                { question: 'Excel থেকে পণ্য ইমপোর্ট করা যাবে?', answer: 'হ্যাঁ। AndgateBOS বাল্ক প্রোডাক্ট ইমপোর্ট সাপোর্ট করে।' },
             ],
         },
     },
     {
         path: '/best-pos-software-bangladesh',
         title: 'Best POS Software Bangladesh',
-        metaTitle: 'Best POS Software in Bangladesh | What to Look For | AndgatePOS',
+        metaTitle: 'Best POS Software in Bangladesh | What to Look For | AndgateBOS',
         metaDescription:
             'Looking for the best POS software in Bangladesh? Compare must-have features like billing, inventory, CRM, supplier 360, cash closing, stock counts, COD reconciliation, reports, offline mode and online store support.',
         h1: 'Best POS Software in Bangladesh: What Your Shop Should Look For',
@@ -159,7 +159,7 @@ export const highIntentPages: HighIntentSeoPage[] = [
         secondaryKeywords: ['top POS software Bangladesh', 'best retail POS Bangladesh', 'best shop management software Bangladesh', 'POS software price in Bangladesh', 'POS software for small business Bangladesh'],
         image: '/assets/product-screenshots/current/desktop/dashboard/dashboard__dashboard.png',
         verdict:
-            'AndgatePOS is built for Bangladeshi retailers that need POS, inventory, CRM, supplier 360, accounting, payments, cash closing, stock counts, COD reconciliation, fiscal-readiness records, reports and an online store in one system.',
+            'AndgateBOS is built for Bangladeshi retailers that need POS, inventory, CRM, supplier 360, accounting, payments, cash closing, stock counts, COD reconciliation, fiscal-readiness records, reports and an online store in one system.',
         comparison: [
             { label: 'Local payments', oldWay: 'Many generic systems do not fit bKash/Nagad/Rocket workflows.', andgate: 'Cash, bKash, Nagad, Rocket, Upay, card and bank transfer can be recorded.' },
             { label: 'Inventory', oldWay: 'Basic billing tools often ignore stock depth.', andgate: 'Variants, serials, stock alerts, purchase orders, stock transfers, approved stock counts and labels are supported.' },
@@ -199,7 +199,7 @@ export const highIntentPages: HighIntentSeoPage[] = [
             },
         ],
         faq: [
-            { question: 'What is the best POS software in Bangladesh?', answer: 'The best option depends on your business type, but it should include billing, inventory, local payments, reports and support. AndgatePOS covers these needs for many retail workflows.' },
+            { question: 'What is the best POS software in Bangladesh?', answer: 'The best option depends on your business type, but it should include billing, inventory, local payments, reports and support. AndgateBOS covers these needs for many retail workflows.' },
             { question: 'Does the best POS need inventory management?', answer: 'Yes. For product-based shops, POS without inventory creates blind spots in stock and profit.' },
             { question: 'Should POS software support Bangladeshi payment methods?', answer: 'Yes. Cash, bKash, Nagad, Rocket, Upay, card and bank transfer tracking are important for local operations.' },
         ],
@@ -208,7 +208,7 @@ export const highIntentPages: HighIntentSeoPage[] = [
             h1: 'বাংলাদেশে সেরা POS সফটওয়্যার বাছাই করার সময় যা দেখবেন',
             eyebrow: 'বায়ার গাইড',
             intro: 'বাংলাদেশে ভালো POS সফটওয়্যার হতে হলে দোকানের বাস্তব কাজের সাথে মিল থাকতে হবে — দ্রুত বিল, স্টক, পেমেন্ট, CRM, সাপ্লায়ার বকেয়া, ক্যাশ ক্লোজিং, রিপোর্ট আর সহজ ব্যবহার।',
-            verdict: 'AndgatePOS বাংলাদেশি রিটেইল ব্যবসার জন্য POS, ইনভেন্টরি, CRM, সাপ্লায়ার ৩৬০, হিসাব, পেমেন্ট, ক্যাশ ক্লোজিং, পেটি ক্যাশ, রিপোর্ট আর অনলাইন স্টোর এক সিস্টেমে দেয়।',
+            verdict: 'AndgateBOS বাংলাদেশি রিটেইল ব্যবসার জন্য POS, ইনভেন্টরি, CRM, সাপ্লায়ার ৩৬০, হিসাব, পেমেন্ট, ক্যাশ ক্লোজিং, পেটি ক্যাশ, রিপোর্ট আর অনলাইন স্টোর এক সিস্টেমে দেয়।',
             comparison: [
                 { label: 'লোকাল পেমেন্ট', oldWay: 'অনেক জেনেরিক সিস্টেম বিকাশ/নগদ/রকেটের কাজের ধরনে মানায় না।', andgate: 'ক্যাশ, বিকাশ, নগদ, রকেট, উপায়, কার্ড ও ব্যাংক ট্রান্সফার রেকর্ড করা যায়।' },
                 { label: 'ইনভেন্টরি', oldWay: 'বেসিক বিলিং টুলে স্টকের গভীরতা থাকে না।', andgate: 'ভ্যারিয়েন্ট, সিরিয়াল, স্টক অ্যালার্ট, ক্রয় অর্ডার ও লেবেল সাপোর্ট করে।' },
@@ -244,7 +244,7 @@ export const highIntentPages: HighIntentSeoPage[] = [
                 },
             ],
             faq: [
-                { question: 'বাংলাদেশে সেরা POS সফটওয়্যার কোনটি?', answer: 'ব্যবসার ধরন অনুযায়ী পছন্দ বদলায়, তবে বিলিং, ইনভেন্টরি, লোকাল পেমেন্ট, রিপোর্ট ও সাপোর্ট থাকা জরুরি। AndgatePOS এসব চাহিদা কভার করে।' },
+                { question: 'বাংলাদেশে সেরা POS সফটওয়্যার কোনটি?', answer: 'ব্যবসার ধরন অনুযায়ী পছন্দ বদলায়, তবে বিলিং, ইনভেন্টরি, লোকাল পেমেন্ট, রিপোর্ট ও সাপোর্ট থাকা জরুরি। AndgateBOS এসব চাহিদা কভার করে।' },
                 { question: 'ভালো POS-এ কি ইনভেন্টরি থাকা দরকার?', answer: 'হ্যাঁ। পণ্যভিত্তিক দোকানে ইনভেন্টরি ছাড়া POS হলে স্টক আর লাভের হিসাব পরিষ্কার থাকে না।' },
                 { question: 'বাংলাদেশি পেমেন্ট পদ্ধতি সাপোর্ট করা দরকার?', answer: 'হ্যাঁ। ক্যাশ, বিকাশ, নগদ, রকেট, উপায়, কার্ড ও ব্যাংক ট্রান্সফার ট্র্যাকিং লোকাল অপারেশনের জন্য গুরুত্বপূর্ণ।' },
             ],
@@ -253,7 +253,7 @@ export const highIntentPages: HighIntentSeoPage[] = [
     {
         path: '/pos-software-price-bangladesh',
         title: 'POS Software Price Bangladesh',
-        metaTitle: 'POS Software Price in Bangladesh | Cost Guide | AndgatePOS',
+        metaTitle: 'POS Software Price in Bangladesh | Cost Guide | AndgateBOS',
         metaDescription:
             'Compare POS software price in Bangladesh. Learn what affects monthly cost, setup, users, inventory, CRM, supplier management, cash closing, reports, support, ecommerce and when a free POS plan is enough.',
         h1: 'POS Software Price in Bangladesh: What Shop Owners Should Know',
@@ -347,9 +347,9 @@ export const highIntentPages: HighIntentSeoPage[] = [
     {
         path: '/free-pos-software-bangladesh',
         title: 'Free POS Software Bangladesh',
-        metaTitle: 'Free POS Software Bangladesh | Start Free with AndgatePOS',
+        metaTitle: 'Free POS Software Bangladesh | Start Free with AndgateBOS',
         metaDescription:
-            'Start with free POS software in Bangladesh. AndgatePOS helps shops try billing, inventory, payment tracking and reports before upgrading as the business grows.',
+            'Start with free POS software in Bangladesh. AndgateBOS helps shops try billing, inventory, payment tracking and reports before upgrading as the business grows.',
         h1: 'Free POS Software in Bangladesh for Starting Shops',
         eyebrow: 'Free POS Plan',
         intro:
@@ -360,11 +360,11 @@ export const highIntentPages: HighIntentSeoPage[] = [
         secondaryKeywords: ['free POS software in Bangladesh', 'free billing software Bangladesh', 'free shop management software Bangladesh', 'free inventory software Bangladesh'],
         image: '/assets/product-screenshots/current/mobile/pos/pos__pos.png',
         verdict:
-            'Start free with AndgatePOS if you want to try digital POS first, then upgrade when you need more scale, users or advanced controls.',
+            'Start free with AndgateBOS if you want to try digital POS first, then upgrade when you need more scale, users or advanced controls.',
         comparison: [
             { label: 'Starting cost', oldWay: 'Paid-only software can feel risky before testing.', andgate: 'Start with a free plan and upgrade when ready.' },
             { label: 'Learning curve', oldWay: 'Complex tools slow down staff adoption.', andgate: 'Simple POS workflow helps staff learn faster.' },
-            { label: 'Core operations', oldWay: 'Free tools may only do basic billing.', andgate: 'AndgatePOS is designed around billing, stock, payments and reports.' },
+            { label: 'Core operations', oldWay: 'Free tools may only do basic billing.', andgate: 'AndgateBOS is designed around billing, stock, payments and reports.' },
             { label: 'Upgrade path', oldWay: 'Many free tools do not scale well.', andgate: 'Move to advanced features as your shop grows.' },
         ],
         reasons: [
@@ -373,7 +373,7 @@ export const highIntentPages: HighIntentSeoPage[] = [
             { title: 'Upgrade only when needed', description: 'Move to paid features as sales volume, users or branches increase.' },
         ],
         faq: [
-            { question: 'Is there free POS software in Bangladesh?', answer: 'Yes. AndgatePOS provides a free starting option so businesses can try the workflow.' },
+            { question: 'Is there free POS software in Bangladesh?', answer: 'Yes. AndgateBOS provides a free starting option so businesses can try the workflow.' },
             { question: 'Is free POS enough for every shop?', answer: 'Free POS is good for starting and testing. Growing shops may need more users, reports, controls or multi-store features.' },
             { question: 'Can I upgrade later?', answer: 'Yes. You can start small and upgrade when the business needs more capability.' },
         ],
@@ -382,11 +382,11 @@ export const highIntentPages: HighIntentSeoPage[] = [
             h1: 'শুরু করা দোকানের জন্য বাংলাদেশে ফ্রি POS সফটওয়্যার',
             eyebrow: 'ফ্রি POS প্ল্যান',
             intro: 'ফ্রি POS প্ল্যান দিয়ে দোকানদাররা আগে ডিজিটাল বিল, পণ্য সেটআপ, স্টক আর দৈনিক রিপোর্ট ব্যবহার করে দেখতে পারেন।',
-            verdict: 'আগে ডিজিটাল POS ব্যবহার করে দেখতে চাইলে AndgatePOS ফ্রি দিয়ে শুরু করুন, পরে ব্যবসা বড় হলে আপগ্রেড করুন।',
+            verdict: 'আগে ডিজিটাল POS ব্যবহার করে দেখতে চাইলে AndgateBOS ফ্রি দিয়ে শুরু করুন, পরে ব্যবসা বড় হলে আপগ্রেড করুন।',
             comparison: [
                 { label: 'শুরুর খরচ', oldWay: 'টেস্ট করার আগেই পেইড সফটওয়্যার ঝুঁকিপূর্ণ মনে হতে পারে।', andgate: 'ফ্রি প্ল্যান দিয়ে শুরু করে প্রস্তুত হলে আপগ্রেড করা যায়।' },
                 { label: 'শেখার সময়', oldWay: 'জটিল টুল কর্মচারীদের শেখা ধীর করে।', andgate: 'সহজ POS ফ্লো কর্মচারীদের দ্রুত শিখতে সাহায্য করে।' },
-                { label: 'মূল অপারেশন', oldWay: 'অনেক ফ্রি টুল শুধু বেসিক বিল করে।', andgate: 'AndgatePOS বিলিং, স্টক, পেমেন্ট ও রিপোর্ট মাথায় রেখে বানানো।' },
+                { label: 'মূল অপারেশন', oldWay: 'অনেক ফ্রি টুল শুধু বেসিক বিল করে।', andgate: 'AndgateBOS বিলিং, স্টক, পেমেন্ট ও রিপোর্ট মাথায় রেখে বানানো।' },
                 { label: 'আপগ্রেড পথ', oldWay: 'অনেক ফ্রি টুল পরে বড় করা কঠিন।', andgate: 'দোকান বড় হলে উন্নত ফিচারে যেতে পারবেন।' },
             ],
             reasons: [
@@ -395,7 +395,7 @@ export const highIntentPages: HighIntentSeoPage[] = [
                 { title: 'প্রয়োজনে আপগ্রেড', description: 'বিক্রি, ইউজার বা শাখা বাড়লে পেইড ফিচারে যান।' },
             ],
             faq: [
-                { question: 'বাংলাদেশে কি ফ্রি POS সফটওয়্যার আছে?', answer: 'হ্যাঁ। AndgatePOS ফ্রি স্টার্টিং অপশন দেয় যাতে ব্যবসা আগে ফ্লো ব্যবহার করে দেখতে পারে।' },
+                { question: 'বাংলাদেশে কি ফ্রি POS সফটওয়্যার আছে?', answer: 'হ্যাঁ। AndgateBOS ফ্রি স্টার্টিং অপশন দেয় যাতে ব্যবসা আগে ফ্লো ব্যবহার করে দেখতে পারে।' },
                 { question: 'ফ্রি POS কি সব দোকানের জন্য যথেষ্ট?', answer: 'শুরু ও টেস্ট করার জন্য ভালো। বড় দোকানে বেশি ইউজার, রিপোর্ট, কন্ট্রোল বা মাল্টি-স্টোর ফিচার লাগতে পারে।' },
                 { question: 'পরে কি আপগ্রেড করা যাবে?', answer: 'হ্যাঁ। ছোট করে শুরু করে ব্যবসার প্রয়োজন অনুযায়ী আপগ্রেড করতে পারবেন।' },
             ],
@@ -403,21 +403,21 @@ export const highIntentPages: HighIntentSeoPage[] = [
     },
     {
         path: '/compare/andgatepos-vs-mediasoft',
-        title: 'AndgatePOS vs Mediasoft',
-        metaTitle: 'AndgatePOS vs Mediasoft POS | Cloud vs Licensed POS Software Bangladesh',
+        title: 'AndgateBOS vs Mediasoft',
+        metaTitle: 'AndgateBOS vs Mediasoft POS | Cloud vs Licensed POS Software Bangladesh',
         metaDescription:
-            'Compare AndgatePOS with Mediasoft POS for Bangladeshi retail shops. See the differences between cloud subscription POS and traditional licensed billing software.',
-        h1: 'AndgatePOS vs Mediasoft POS for Bangladesh Retail Shops',
+            'Compare AndgateBOS with Mediasoft POS for Bangladeshi retail shops. See the differences between cloud subscription POS and traditional licensed billing software.',
+        h1: 'AndgateBOS vs Mediasoft POS for Bangladesh Retail Shops',
         eyebrow: 'Comparison',
         intro:
-            'Mediasoft is a long-established licensed billing software provider in Bangladesh. AndgatePOS is a cloud SaaS alternative built around multi-store access, owner reporting, Business OS controls, and ecommerce/courier workflows when enabled by package.',
+            'Mediasoft is a long-established licensed billing software provider in Bangladesh. AndgateBOS is a cloud SaaS alternative built around multi-store access, owner reporting, Business OS controls, and ecommerce/courier workflows when enabled by package.',
         banglaIntro:
-            'Mediasoft বাংলাদেশে দীর্ঘদিনের একটি লাইসেন্স-ভিত্তিক বিলিং সফটওয়্যার প্রোভাইডার। AndgatePOS একটি ক্লাউড SaaS বিকল্প, যেখানে মাল্টি-স্টোর অ্যাক্সেস, owner reporting, Business OS control এবং package অনুযায়ী ecommerce/courier workflow পরিচালনা করা যায়।',
-        primaryKeyword: 'AndgatePOS vs Mediasoft',
-        secondaryKeywords: ['Mediasoft POS alternative', 'cloud POS vs licensed POS Bangladesh', 'Mediasoft vs AndgatePOS', 'POS software comparison Bangladesh'],
+            'Mediasoft বাংলাদেশে দীর্ঘদিনের একটি লাইসেন্স-ভিত্তিক বিলিং সফটওয়্যার প্রোভাইডার। AndgateBOS একটি ক্লাউড SaaS বিকল্প, যেখানে মাল্টি-স্টোর অ্যাক্সেস, owner reporting, Business OS control এবং package অনুযায়ী ecommerce/courier workflow পরিচালনা করা যায়।',
+        primaryKeyword: 'AndgateBOS vs Mediasoft',
+        secondaryKeywords: ['Mediasoft POS alternative', 'cloud POS vs licensed POS Bangladesh', 'Mediasoft vs AndgateBOS', 'POS software comparison Bangladesh'],
         image: '/assets/product-screenshots/current/desktop/pos/pos__pos.png',
         verdict:
-            'Choose AndgatePOS if you want a cloud subscription you can access from anywhere, manage multiple stores in one account, and add online store/courier workflows from the same platform when your package needs them.',
+            'Choose AndgateBOS if you want a cloud subscription you can access from anywhere, manage multiple stores in one account, and add online store/courier workflows from the same platform when your package needs them.',
         comparison: [
             { label: 'Access model', oldWay: 'Typically installed/licensed software tied to a desktop or local setup.', andgate: 'Cloud-based — log in from any device, any branch, anywhere.' },
             { label: 'Multi-store management', oldWay: 'Often managed per-branch with separate installations.', andgate: 'All stores managed from one account with store-level switching.' },
@@ -431,16 +431,16 @@ export const highIntentPages: HighIntentSeoPage[] = [
             { title: 'Grows with you', description: 'Add stores, staff and sales channels without switching software.' },
         ],
         faq: [
-            { question: 'Is AndgatePOS a good alternative to Mediasoft?', answer: 'If you want a cloud-based system with multi-store access, owner reports, Business OS controls and optional ecommerce/courier workflows, AndgatePOS is built for that. If you need a long-established offline/desktop billing tool, Mediasoft is a known option in that category.' },
-            { question: 'Can I switch from Mediasoft to AndgatePOS?', answer: 'Yes. You can set up products, stock and stores in AndgatePOS and start billing without needing the old desktop installation.' },
-            { question: 'Does AndgatePOS support VAT and Bangladeshi payment methods?', answer: 'Yes. AndgatePOS supports bKash, Nagad, Rocket, bank transfer, cash and partial payments, along with sales and tax reports.' },
+            { question: 'Is AndgateBOS a good alternative to Mediasoft?', answer: 'If you want a cloud-based system with multi-store access, owner reports, Business OS controls and optional ecommerce/courier workflows, AndgateBOS is built for that. If you need a long-established offline/desktop billing tool, Mediasoft is a known option in that category.' },
+            { question: 'Can I switch from Mediasoft to AndgateBOS?', answer: 'Yes. You can set up products, stock and stores in AndgateBOS and start billing without needing the old desktop installation.' },
+            { question: 'Does AndgateBOS support VAT and Bangladeshi payment methods?', answer: 'Yes. AndgateBOS supports bKash, Nagad, Rocket, bank transfer, cash and partial payments, along with sales and tax reports.' },
         ],
         bn: {
-            title: 'AndgatePOS বনাম Mediasoft',
-            h1: 'বাংলাদেশি দোকানের জন্য AndgatePOS বনাম Mediasoft POS',
+            title: 'AndgateBOS বনাম Mediasoft',
+            h1: 'বাংলাদেশি দোকানের জন্য AndgateBOS বনাম Mediasoft POS',
             eyebrow: 'তুলনা',
-            intro: 'Mediasoft বাংলাদেশে দীর্ঘদিনের একটি লাইসেন্স-ভিত্তিক বিলিং সফটওয়্যার প্রোভাইডার। AndgatePOS একটি ক্লাউড SaaS বিকল্প, যেখানে মাল্টি-স্টোর অ্যাক্সেস, owner report, Business OS control এবং package অনুযায়ী ecommerce/courier workflow পরিচালনা করা যায়।',
-            verdict: 'যদি যেকোনো জায়গা থেকে অ্যাক্সেস করার মতো ক্লাউড সাবস্ক্রিপশন, এক অ্যাকাউন্টে একাধিক স্টোর, owner report এবং প্রয়োজন হলে ecommerce/courier workflow চান, তাহলে AndgatePOS ভালো পছন্দ।',
+            intro: 'Mediasoft বাংলাদেশে দীর্ঘদিনের একটি লাইসেন্স-ভিত্তিক বিলিং সফটওয়্যার প্রোভাইডার। AndgateBOS একটি ক্লাউড SaaS বিকল্প, যেখানে মাল্টি-স্টোর অ্যাক্সেস, owner report, Business OS control এবং package অনুযায়ী ecommerce/courier workflow পরিচালনা করা যায়।',
+            verdict: 'যদি যেকোনো জায়গা থেকে অ্যাক্সেস করার মতো ক্লাউড সাবস্ক্রিপশন, এক অ্যাকাউন্টে একাধিক স্টোর, owner report এবং প্রয়োজন হলে ecommerce/courier workflow চান, তাহলে AndgateBOS ভালো পছন্দ।',
             comparison: [
                 { label: 'অ্যাক্সেস মডেল', oldWay: 'সাধারণত ডেস্কটপ বা লোকাল সেটআপে ইনস্টল করা লাইসেন্সড সফটওয়্যার।', andgate: 'ক্লাউড-ভিত্তিক — যেকোনো ডিভাইস, যেকোনো শাখা থেকে লগইন করা যায়।' },
                 { label: 'মাল্টি-স্টোর ম্যানেজমেন্ট', oldWay: 'প্রায়ই প্রতিটি শাখায় আলাদা ইনস্টলেশন দিয়ে পরিচালিত হয়।', andgate: 'এক অ্যাকাউন্ট থেকে সব স্টোর পরিচালনা, স্টোর সুইচ করার সুযোগসহ।' },
@@ -454,29 +454,29 @@ export const highIntentPages: HighIntentSeoPage[] = [
                 { title: 'ব্যবসার সাথে বাড়ে', description: 'সফটওয়্যার পরিবর্তন না করেই স্টোর, স্টাফ আর বিক্রির চ্যানেল যুক্ত করা যায়।' },
             ],
             faq: [
-                { question: 'AndgatePOS কি Mediasoft-এর ভালো বিকল্প?', answer: 'মাল্টি-স্টোর অ্যাক্সেস, owner report, Business OS control এবং optional ecommerce/courier workflow সহ ক্লাউড-ভিত্তিক সিস্টেম চাইলে AndgatePOS উপযুক্ত। দীর্ঘদিনের অফলাইন/ডেস্কটপ বিলিং টুল চাইলে Mediasoft একটি পরিচিত অপশন।' },
-                { question: 'Mediasoft থেকে AndgatePOS-এ পরিবর্তন করা যাবে?', answer: 'হ্যাঁ। পুরনো ডেস্কটপ ইনস্টলেশন ছাড়াই AndgatePOS-এ পণ্য, স্টক আর স্টোর সেটআপ করে বিলিং শুরু করা যায়।' },
-                { question: 'AndgatePOS কি VAT আর বাংলাদেশি পেমেন্ট মেথড সাপোর্ট করে?', answer: 'হ্যাঁ। AndgatePOS bKash, Nagad, Rocket, ব্যাংক ট্রান্সফার, ক্যাশ আর আংশিক পেমেন্ট সাপোর্ট করে, সাথে বিক্রি ও ট্যাক্স রিপোর্ট।' },
+                { question: 'AndgateBOS কি Mediasoft-এর ভালো বিকল্প?', answer: 'মাল্টি-স্টোর অ্যাক্সেস, owner report, Business OS control এবং optional ecommerce/courier workflow সহ ক্লাউড-ভিত্তিক সিস্টেম চাইলে AndgateBOS উপযুক্ত। দীর্ঘদিনের অফলাইন/ডেস্কটপ বিলিং টুল চাইলে Mediasoft একটি পরিচিত অপশন।' },
+                { question: 'Mediasoft থেকে AndgateBOS-এ পরিবর্তন করা যাবে?', answer: 'হ্যাঁ। পুরনো ডেস্কটপ ইনস্টলেশন ছাড়াই AndgateBOS-এ পণ্য, স্টক আর স্টোর সেটআপ করে বিলিং শুরু করা যায়।' },
+                { question: 'AndgateBOS কি VAT আর বাংলাদেশি পেমেন্ট মেথড সাপোর্ট করে?', answer: 'হ্যাঁ। AndgateBOS bKash, Nagad, Rocket, ব্যাংক ট্রান্সফার, ক্যাশ আর আংশিক পেমেন্ট সাপোর্ট করে, সাথে বিক্রি ও ট্যাক্স রিপোর্ট।' },
             ],
         },
     },
     {
         path: '/compare/andgatepos-vs-other-pos-software-bangladesh',
-        title: 'AndgatePOS vs Other POS Software in Bangladesh',
-        metaTitle: 'AndgatePOS vs Other POS Software in Bangladesh | How to Choose',
+        title: 'AndgateBOS vs Other POS Software in Bangladesh',
+        metaTitle: 'AndgateBOS vs Other POS Software in Bangladesh | How to Choose',
         metaDescription:
-            'Compare AndgatePOS with other POS software options in Bangladesh like AmarSolution, Managerium and Sherazi POS. A practical guide to choosing cloud vs traditional retail software.',
-        h1: 'AndgatePOS vs Other POS Software Options in Bangladesh',
+            'Compare AndgateBOS with other POS software options in Bangladesh like AmarSolution, Managerium and Sherazi POS. A practical guide to choosing cloud vs traditional retail software.',
+        h1: 'AndgateBOS vs Other POS Software Options in Bangladesh',
         eyebrow: 'Comparison',
         intro:
-            'Bangladesh has several established POS providers such as AmarSolution, Managerium (AKIJ iBOS) and Sherazi POS, mostly built around traditional in-store billing. AndgatePOS takes a cloud-first Business OS approach with multi-store reporting, Analytics/BI, ecommerce and courier workflows built into one platform.',
+            'Bangladesh has several established POS providers such as AmarSolution, Managerium (AKIJ iBOS) and Sherazi POS, mostly built around traditional in-store billing. AndgateBOS takes a cloud-first Business OS approach with multi-store reporting, Analytics/BI, ecommerce and courier workflows built into one platform.',
         banglaIntro:
-            'বাংলাদেশে AmarSolution, Managerium (AKIJ iBOS), Sherazi POS-এর মতো বেশ কিছু পরিচিত POS প্রোভাইডার আছে, যেগুলো মূলত দোকানের ভেতরের বিলিং নিয়ে তৈরি। AndgatePOS একটি cloud-first Business OS, যেখানে multi-store report, Analytics/BI, ecommerce এবং courier workflow একসাথে আছে।',
-        primaryKeyword: 'AndgatePOS vs other POS software Bangladesh',
+            'বাংলাদেশে AmarSolution, Managerium (AKIJ iBOS), Sherazi POS-এর মতো বেশ কিছু পরিচিত POS প্রোভাইডার আছে, যেগুলো মূলত দোকানের ভেতরের বিলিং নিয়ে তৈরি। AndgateBOS একটি cloud-first Business OS, যেখানে multi-store report, Analytics/BI, ecommerce এবং courier workflow একসাথে আছে।',
+        primaryKeyword: 'AndgateBOS vs other POS software Bangladesh',
         secondaryKeywords: ['POS software comparison Bangladesh', 'AmarSolution alternative', 'Managerium alternative', 'Sherazi POS alternative', 'cloud POS Bangladesh'],
         image: '/assets/product-screenshots/current/desktop/business-os/business-os__business-os.png',
         verdict:
-            'If your business only needs in-store billing, several traditional Bangladeshi POS providers can handle that. If you want POS plus Business OS controls, multi-store reporting, Analytics/BI, ecommerce and courier workflows from one cloud account, AndgatePOS is built for that operating model.',
+            'If your business only needs in-store billing, several traditional Bangladeshi POS providers can handle that. If you want POS plus Business OS controls, multi-store reporting, Analytics/BI, ecommerce and courier workflows from one cloud account, AndgateBOS is built for that operating model.',
         comparison: [
             { label: 'Deployment', oldWay: 'Many established BD POS providers focus on on-premise or per-branch setups.', andgate: 'Fully cloud-based, accessible from any device with an internet connection.' },
             { label: 'Ecommerce integration', oldWay: 'Online selling is usually a separate system or add-on.', andgate: 'Online store, order management and product visibility are built into the core platform.' },
@@ -489,16 +489,16 @@ export const highIntentPages: HighIntentSeoPage[] = [
             { title: 'Try before you commit', description: 'A free starting tier lets you test the workflow before upgrading.' },
         ],
         faq: [
-            { question: 'Is AndgatePOS better than AmarSolution, Managerium or Sherazi POS?', answer: 'It depends on what you need. These are established Bangladeshi POS providers focused mainly on in-store billing. AndgatePOS is a cloud platform built for shops that also sell online and need delivery/fraud tools in the same system.' },
-            { question: 'Can I move my product and stock data into AndgatePOS?', answer: 'Yes. AndgatePOS supports bulk product import so you can set up your catalog without re-entering everything by hand.' },
-            { question: 'Does AndgatePOS work for single-branch shops too?', answer: 'Yes. You can start with one store and add more later — multi-store is optional, not required.' },
+            { question: 'Is AndgateBOS better than AmarSolution, Managerium or Sherazi POS?', answer: 'It depends on what you need. These are established Bangladeshi POS providers focused mainly on in-store billing. AndgateBOS is a cloud platform built for shops that also sell online and need delivery/fraud tools in the same system.' },
+            { question: 'Can I move my product and stock data into AndgateBOS?', answer: 'Yes. AndgateBOS supports bulk product import so you can set up your catalog without re-entering everything by hand.' },
+            { question: 'Does AndgateBOS work for single-branch shops too?', answer: 'Yes. You can start with one store and add more later — multi-store is optional, not required.' },
         ],
         bn: {
-            title: 'AndgatePOS বনাম অন্যান্য POS সফটওয়্যার',
-            h1: 'বাংলাদেশের অন্যান্য POS সফটওয়্যারের তুলনায় AndgatePOS',
+            title: 'AndgateBOS বনাম অন্যান্য POS সফটওয়্যার',
+            h1: 'বাংলাদেশের অন্যান্য POS সফটওয়্যারের তুলনায় AndgateBOS',
             eyebrow: 'তুলনা',
-            intro: 'বাংলাদেশে AmarSolution, Managerium (AKIJ iBOS), Sherazi POS-এর মতো বেশ কিছু পরিচিত POS প্রোভাইডার আছে, যেগুলো মূলত দোকানের ভেতরের বিলিং নিয়ে তৈরি। AndgatePOS একটি cloud-first Business OS, যেখানে multi-store report, Analytics/BI, ecommerce এবং courier workflow একসাথে আছে।',
-            verdict: 'শুধু দোকানের ভেতরের বিলিং দরকার হলে বাংলাদেশের অনেক প্রচলিত POS প্রোভাইডার সেটা করতে পারে। POS-এর সাথে Business OS control, multi-store report, Analytics/BI, ecommerce ও courier workflow এক cloud account থেকে চাইলে AndgatePOS সেই operating model-এর জন্য তৈরি।',
+            intro: 'বাংলাদেশে AmarSolution, Managerium (AKIJ iBOS), Sherazi POS-এর মতো বেশ কিছু পরিচিত POS প্রোভাইডার আছে, যেগুলো মূলত দোকানের ভেতরের বিলিং নিয়ে তৈরি। AndgateBOS একটি cloud-first Business OS, যেখানে multi-store report, Analytics/BI, ecommerce এবং courier workflow একসাথে আছে।',
+            verdict: 'শুধু দোকানের ভেতরের বিলিং দরকার হলে বাংলাদেশের অনেক প্রচলিত POS প্রোভাইডার সেটা করতে পারে। POS-এর সাথে Business OS control, multi-store report, Analytics/BI, ecommerce ও courier workflow এক cloud account থেকে চাইলে AndgateBOS সেই operating model-এর জন্য তৈরি।',
             comparison: [
                 { label: 'ডিপ্লয়মেন্ট', oldWay: 'বাংলাদেশের অনেক প্রচলিত POS প্রোভাইডার অন-প্রিমাইস বা প্রতি-শাখা সেটআপে কেন্দ্রিত।', andgate: 'সম্পূর্ণ ক্লাউড-ভিত্তিক, ইন্টারনেট থাকলে যেকোনো ডিভাইস থেকে অ্যাক্সেসযোগ্য।' },
                 { label: 'ইকমার্স ইন্টিগ্রেশন', oldWay: 'অনলাইন বিক্রি সাধারণত আলাদা সিস্টেম বা অ্যাড-অন।', andgate: 'অনলাইন স্টোর, অর্ডার ম্যানেজমেন্ট আর প্রোডাক্ট ভিজিবিলিটি কোর প্ল্যাটফর্মেই আছে।' },
@@ -511,9 +511,9 @@ export const highIntentPages: HighIntentSeoPage[] = [
                 { title: 'কমিট করার আগে টেস্ট করুন', description: 'ফ্রি স্টার্টিং টিয়ার দিয়ে আপগ্রেড করার আগে ফ্লো টেস্ট করা যায়।' },
             ],
             faq: [
-                { question: 'AndgatePOS কি AmarSolution, Managerium বা Sherazi POS-এর চেয়ে ভালো?', answer: 'এটা নির্ভর করে আপনার প্রয়োজনের উপর। এগুলো মূলত দোকানের ভেতরের বিলিংয়ে কেন্দ্রিত পরিচিত বাংলাদেশি POS প্রোভাইডার। AndgatePOS একটি ক্লাউড প্ল্যাটফর্ম, যারা অনলাইনেও বিক্রি করে আর একই সিস্টেমে ডেলিভারি/ফ্রড টুল চায় তাদের জন্য তৈরি।' },
-                { question: 'আমার পণ্য আর স্টক ডেটা AndgatePOS-এ আনা যাবে?', answer: 'হ্যাঁ। AndgatePOS বাল্ক প্রোডাক্ট ইমপোর্ট সাপোর্ট করে, তাই হাতে সব কিছু আবার লিখতে হয় না।' },
-                { question: 'এক শাখার দোকানের জন্যও কি AndgatePOS কাজ করে?', answer: 'হ্যাঁ। এক স্টোর দিয়ে শুরু করে পরে আরও যুক্ত করা যায় — মাল্টি-স্টোর বাধ্যতামূলক নয়।' },
+                { question: 'AndgateBOS কি AmarSolution, Managerium বা Sherazi POS-এর চেয়ে ভালো?', answer: 'এটা নির্ভর করে আপনার প্রয়োজনের উপর। এগুলো মূলত দোকানের ভেতরের বিলিংয়ে কেন্দ্রিত পরিচিত বাংলাদেশি POS প্রোভাইডার। AndgateBOS একটি ক্লাউড প্ল্যাটফর্ম, যারা অনলাইনেও বিক্রি করে আর একই সিস্টেমে ডেলিভারি/ফ্রড টুল চায় তাদের জন্য তৈরি।' },
+                { question: 'আমার পণ্য আর স্টক ডেটা AndgateBOS-এ আনা যাবে?', answer: 'হ্যাঁ। AndgateBOS বাল্ক প্রোডাক্ট ইমপোর্ট সাপোর্ট করে, তাই হাতে সব কিছু আবার লিখতে হয় না।' },
+                { question: 'এক শাখার দোকানের জন্যও কি AndgateBOS কাজ করে?', answer: 'হ্যাঁ। এক স্টোর দিয়ে শুরু করে পরে আরও যুক্ত করা যায় — মাল্টি-স্টোর বাধ্যতামূলক নয়।' },
             ],
         },
     },

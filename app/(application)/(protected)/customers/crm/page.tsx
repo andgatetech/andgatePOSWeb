@@ -43,7 +43,7 @@ export default function CustomerCrmPage() {
     }, []);
 
     const customers = useMemo(() => customersResponse?.data?.items || customersResponse?.data || [], [customersResponse]);
-    const storeName = currentStore?.store_name || 'AndgatePOS';
+    const storeName = currentStore?.store_name || 'AndgateBOS';
 
     const segmentCustomers = useMemo(() => {
         const due = customers.filter((customer: any) => getCustomerBalance(customer) < 0);

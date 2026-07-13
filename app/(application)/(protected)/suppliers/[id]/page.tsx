@@ -33,7 +33,7 @@ export default function Supplier360Page() {
     const [taskNote, setTaskNote] = useState('');
 
     const supplier = supplierResponse?.data?.supplier || supplierResponse?.data || supplierResponse;
-    const storeName = currentStore?.store_name || 'AndgatePOS';
+    const storeName = currentStore?.store_name || 'AndgateBOS';
 
     useEffect(() => {
         if (supplierId) {

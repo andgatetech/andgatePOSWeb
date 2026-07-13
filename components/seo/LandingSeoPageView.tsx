@@ -43,7 +43,7 @@ export const landingCopyBn: Record<string, LocalizedLandingCopy> = {
         title: 'বাংলাদেশে POS সফটওয়্যার',
         h1: 'বাংলাদেশের দোকানের জন্য POS সফটওয়্যার, বিলিং ও ইনভেন্টরি',
         eyebrow: 'বাংলাদেশ POS সলিউশন',
-        intro: 'AndgatePOS দিয়ে দোকানের বিক্রি, স্টক, বিল, CRM, সাপ্লায়ার বকেয়া, ক্যাশ ক্লোজিং, হিসাব, পেমেন্ট আর অনলাইন স্টোর এক জায়গা থেকে চালানো যায়।',
+        intro: 'AndgateBOS দিয়ে দোকানের বিক্রি, স্টক, বিল, CRM, সাপ্লায়ার বকেয়া, ক্যাশ ক্লোজিং, হিসাব, পেমেন্ট আর অনলাইন স্টোর এক জায়গা থেকে চালানো যায়।',
         audience: 'রিটেইল দোকান, মুদি দোকান, ফার্মেসি, ফ্যাশন শপ, রেস্টুরেন্ট, ইলেকট্রনিক্স দোকান এবং multi-branch ব্যবসা।',
         highlights: ['কাউন্টারে internet সমস্যা হলেও কাজ চালানো যায়', 'বিজনেস ওএসে daily operation দেখা যায়', 'CRM, supplier due ও cash closing', 'Hawkeri online store ও ২০টির বেশি report'],
         modules: commonModulesBn,
@@ -56,19 +56,19 @@ export const landingCopyBn: Record<string, LocalizedLandingCopy> = {
         faq: [
             {
                 question: 'বাংলাদেশের ছোট দোকানের জন্য কোন POS সফটওয়্যার ভালো?',
-                answer: 'ছোট দোকানের জন্য POS software সহজ হওয়া দরকার, local payment support থাকা দরকার, stock tracking, receipt print এবং daily profit report থাকা দরকার। AndgatePOS এই workflow মাথায় রেখেই তৈরি।',
+                answer: 'ছোট দোকানের জন্য POS software সহজ হওয়া দরকার, local payment support থাকা দরকার, stock tracking, receipt print এবং daily profit report থাকা দরকার। AndgateBOS এই workflow মাথায় রেখেই তৈরি।',
             },
             {
-                question: 'AndgatePOS কি bKash ও Nagad support করে?',
+                question: 'AndgateBOS কি bKash ও Nagad support করে?',
                 answer: 'হ্যাঁ। POS checkout থেকে cash, bKash, Nagad, Rocket, Upay, card, bank transfer এবং partial payment রেকর্ড করা যায়।',
             },
             {
-                question: 'Internet না থাকলে কি AndgatePOS ব্যবহার করা যাবে?',
+                question: 'Internet না থাকলে কি AndgateBOS ব্যবহার করা যাবে?',
                 answer: 'Counter sales workflow এমনভাবে করা হয়েছে যেন internet interruption থাকলেও বিক্রি চালানো যায় এবং connection ফিরে এলে sync হয়।',
             },
             {
                 question: 'Free POS plan আছে?',
-                answer: 'হ্যাঁ। AndgatePOS-এ free starting option আছে, যাতে upgrade করার আগে business core workflow try করতে পারে।',
+                answer: 'হ্যাঁ। AndgateBOS-এ free starting option আছে, যাতে upgrade করার আগে business core workflow try করতে পারে।',
             },
         ],
     },
@@ -82,7 +82,7 @@ export const landingCopyBn: Record<string, LocalizedLandingCopy> = {
         modules: commonModulesBn,
         useCases: ['Size, color ও variant track করুন', 'Product barcode label print করুন', 'Cashier ও manager access control করুন', 'Daily ও monthly sales trend দেখুন'],
         faq: [
-            { question: 'রিটেইল দোকানে product variant ম্যানেজ করা যাবে?', answer: 'হ্যাঁ। Size, color, model এবং দরকার হলে serial based variant AndgatePOS-এ support করে।' },
+            { question: 'রিটেইল দোকানে product variant ম্যানেজ করা যাবে?', answer: 'হ্যাঁ। Size, color, model এবং দরকার হলে serial based variant AndgateBOS-এ support করে।' },
             { question: 'Barcode label print করা যাবে?', answer: 'হ্যাঁ। Product workflow থেকেই barcode বা QR label generate এবং print করা যায়।' },
             { question: 'Staff access control করা যাবে?', answer: 'হ্যাঁ। Role ও permission দিয়ে কে sell, refund, stock edit বা report দেখতে পারবে তা নিয়ন্ত্রণ করা যায়।' },
         ],
@@ -97,7 +97,7 @@ export const landingCopyBn: Record<string, LocalizedLandingCopy> = {
         modules: commonModulesBn,
         useCases: ['Rush hour-এ দ্রুত bill করুন', 'Cash, mobile payment ও card payment track করুন', 'Daily kitchen বা shop expense রেকর্ড করুন', 'Best-selling food item দেখুন'],
         faq: [
-            { question: 'Restaurant কি daily sales track করতে পারবে?', answer: 'হ্যাঁ। AndgatePOS daily sales, payment method breakdown, expense এবং profit-related report দেখায়।' },
+            { question: 'Restaurant কি daily sales track করতে পারবে?', answer: 'হ্যাঁ। AndgateBOS daily sales, payment method breakdown, expense এবং profit-related report দেখায়।' },
             { question: 'Bakery ও cafe-তে ব্যবহার করা যাবে?', answer: 'হ্যাঁ। Cafe, bakery, food counter এবং ছোট restaurant-এর workflow-এর সঙ্গে এটি মানানসই।' },
             { question: 'Receipt print করা যাবে?', answer: 'হ্যাঁ। Checkout শেষে receipt ও invoice print করা যায়।' },
         ],
@@ -266,7 +266,7 @@ export default function LandingSeoPageView({ page, locale }: Props) {
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="mb-10 max-w-3xl">
                         <p className="text-xs font-bold uppercase tracking-widest text-white/60">{isBn ? 'ব্যবহারের জায়গা' : 'Use Cases'}</p>
-                        <h2 className="mt-3 text-3xl font-black">{isBn ? 'প্রতিদিনের কাজে AndgatePOS যেখানে সাহায্য করে' : 'Where AndgatePOS helps day to day'}</h2>
+                        <h2 className="mt-3 text-3xl font-black">{isBn ? 'প্রতিদিনের কাজে AndgateBOS যেখানে সাহায্য করে' : 'Where AndgateBOS helps day to day'}</h2>
                     </div>
                     <div className="grid gap-4 md:grid-cols-2">
                         {content.useCases.map((useCase) => (

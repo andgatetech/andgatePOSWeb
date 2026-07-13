@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: ComparePageProps): Promise<Me
             type: 'website',
             locale: 'en_BD',
             url,
-            siteName: 'AndgatePOS',
+            siteName: 'AndgateBOS',
             title: page.metaTitle,
             description: page.metaDescription,
             images: [{ url: page.image, width: 1200, height: 630, alt: page.title }],

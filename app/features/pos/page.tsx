@@ -31,8 +31,8 @@ export default function POSFeaturePage() {
         badge: isBn ? 'বিক্রয় কাউন্টার' : 'POS Terminal',
         title: isBn ? 'সেকেন্ডে বিল, মিনিটে বেশি বিক্রি' : 'Bill in Seconds, Sell More Every Minute',
         subtitle: isBn
-            ? 'কাউন্টারে লাইন জমার দিন শেষ। AndgatePOS-এর দ্রুত POS টার্মিনাল দিয়ে বারকোড স্ক্যান থেকে রসিদ প্রিন্ট — সব হয় কয়েক সেকেন্ডে।'
-            : 'No more long queues at the counter. With AndgatePOS fast POS terminal, from barcode scan to printed receipt — everything happens in seconds.',
+            ? 'কাউন্টারে লাইন জমার দিন শেষ। AndgateBOS-এর দ্রুত POS টার্মিনাল দিয়ে বারকোড স্ক্যান থেকে রসিদ প্রিন্ট — সব হয় কয়েক সেকেন্ডে।'
+            : 'No more long queues at the counter. With AndgateBOS fast POS terminal, from barcode scan to printed receipt — everything happens in seconds.',
     };
 
     const stats = [
