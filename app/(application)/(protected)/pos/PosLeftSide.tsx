@@ -15,6 +15,7 @@ import { addItemRedux } from '@/store/features/Order/OrderSlice';
 import { useGetAllProductsQuery, useLazyGetAllProductsQuery, useLazyGetSingleProductQuery } from '@/store/features/Product/productApi';
 import { addItemRedux as addPurchaseItem } from '@/store/features/PurchaseOrder/PurchaseOrderSlice';
 import { addStockItem } from '@/store/features/StockAdjustment/stockAdjustmentSlice';
+import { addTransferItem } from '@/store/features/stockTransfer/stockTransferDraftSlice';
 
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 import { usePOSMasterDataSync } from '@/hooks/usePOSMasterDataSync';
@@ -47,7 +48,7 @@ interface PosLeftSideProps {
         hideIcon: React.ReactNode;
         label?: string;
     };
-    reduxSlice?: 'pos' | 'stock' | 'label' | 'orderEdit' | 'orderReturn' | 'purchase'; // Which Redux slice to use
+    reduxSlice?: 'pos' | 'stock' | 'label' | 'orderEdit' | 'orderReturn' | 'purchase' | 'transfer'; // Which Redux slice to use
     enableOfflinePrefetch?: boolean;
 }
 
@@ -344,6 +345,8 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                 return currentStoreId && state.orderReturn?.sessionsByStore ? state.orderReturn.sessionsByStore[currentStoreId]?.exchangeItems || [] : [];
             case 'purchase':
                 return currentStoreId && state.purchaseOrder.ordersByStore ? state.purchaseOrder.ordersByStore[currentStoreId]?.items || [] : [];
+            case 'transfer':
+                return currentStoreId && state.stockTransferDraft.itemsByStore ? state.stockTransferDraft.itemsByStore[currentStoreId] || [] : [];
             case 'pos':
             default:
                 return currentStoreId && state.invoice.itemsByStore ? state.invoice.itemsByStore[currentStoreId] || [] : [];
@@ -535,6 +538,9 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                         })
                     );
                     break;
+                case 'transfer':
+                    dispatch(addTransferItem({ storeId: currentStoreId, item: itemToAdd }));
+                    break;
                 case 'pos':
                 default:
                     dispatch(addItemRedux({ storeId: currentStoreId, item: itemToAdd }));
@@ -685,6 +691,9 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                         })
                     );
                     break;
+                case 'transfer':
+                    dispatch(addTransferItem({ storeId: currentStoreId, item: itemToAdd }));
+                    break;
                 case 'pos':
                 default:
                     dispatch(addItemRedux({ storeId: currentStoreId, item: itemToAdd }));
@@ -777,6 +786,9 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                                 },
                             })
                         );
+                        break;
+                    case 'transfer':
+                        dispatch(addTransferItem({ storeId: currentStoreId, item: itemToAdd }));
                         break;
                     case 'pos':
                     default:

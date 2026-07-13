@@ -1,7 +1,8 @@
 'use client';
 
 import { useTranslation } from '@/components/i18n/TranslationProvider';
-import { ClipboardList, Truck } from 'lucide-react';
+import PosLeftSide from '../pos/PosLeftSide';
+import { Box, ClipboardList, Package, Truck } from 'lucide-react';
 import { useState } from 'react';
 import CreateTransferView from './components/CreateTransferView';
 import TransferHistoryView from './components/TransferHistoryView';
@@ -48,7 +49,19 @@ export default function StockTransfersPage() {
             </div>
 
             {view === 'create' ? (
-                <CreateTransferView onCreated={() => setView('history')} />
+                <div className="h-[calc(100vh-145px)] min-h-[620px]">
+                    <PosLeftSide
+                        disableSerialSelection={true}
+                        mobileButtonConfig={{
+                            showIcon: <Box className="h-6 w-6" />,
+                            hideIcon: <Package className="h-6 w-6" />,
+                            label: t('transfer_title'),
+                        }}
+                        reduxSlice="transfer"
+                    >
+                        <CreateTransferView onCreated={() => setView('history')} />
+                    </PosLeftSide>
+                </div>
             ) : (
                 <TransferHistoryView onCreateNew={() => setView('create')} />
             )}

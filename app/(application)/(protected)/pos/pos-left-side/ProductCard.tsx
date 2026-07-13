@@ -13,7 +13,7 @@ interface ProductCardProps {
     isMobileView?: boolean;
     onAddToCart: (product: Product) => void;
     onImageShow: (product: Product) => void;
-    mode?: 'pos' | 'stock' | 'label' | 'orderEdit' | 'orderReturn' | 'purchase';
+    mode?: 'pos' | 'stock' | 'label' | 'orderEdit' | 'orderReturn' | 'purchase' | 'transfer';
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
