@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import BrandedPageHeader from '@/components/common/BrandedPageHeader';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import { useCreateCustomReportMutation, useDeleteCustomReportMutation, useGetCustomReportsQuery, useUpdateCustomReportMutation } from '@/store/features/analytics/analyticsApi';
@@ -179,264 +180,273 @@ export default function CustomReportsPage() {
     };
 
     return (
-        <div className="space-y-5">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                    <h1 className="text-xl font-bold text-gray-900">{t('lbl_custom_reports')}</h1>
-                    <p className="text-sm text-gray-500">{t('lbl_custom_reports_desc')}</p>
-                </div>
-                <button onClick={openCreate} className="btn btn-primary inline-flex items-center gap-2">
-                    <Plus className="h-4 w-4" /> {t('lbl_add_custom_report')}
-                </button>
-            </div>
+        <div className="min-h-[calc(100vh-120px)] bg-[#f6f8fb] p-4 sm:p-6">
+            <div className="mx-auto max-w-7xl space-y-5">
+                <BrandedPageHeader
+                    icon={<BarChart3 className="h-6 w-6" />}
+                    title={t('lbl_custom_reports')}
+                    description={t('lbl_custom_reports_desc')}
+                    actions={
+                        <button onClick={openCreate} className="btn btn-primary inline-flex items-center gap-2">
+                            <Plus className="h-4 w-4" /> {t('lbl_add_custom_report')}
+                        </button>
+                    }
+                />
 
-            {isLoading ? (
-                <p className="text-sm text-gray-500">{t('lbl_loading')}</p>
-            ) : reports.length === 0 ? (
-                <div className="rounded-lg border border-gray-200 bg-white p-8 text-center">
-                    <BarChart3 className="mx-auto h-12 w-12 text-gray-300" />
-                    <p className="mt-3 text-sm text-gray-500">{t('msg_no_custom_reports')}</p>
-                    <button onClick={openCreate} className="btn btn-outline-primary mt-4">
-                        {t('lbl_add_custom_report')}
-                    </button>
-                </div>
-            ) : (
-                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                    {reports.map((report: any) => (
-                        <div key={report.id} className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-                            <div className="flex items-start justify-between">
-                                <div>
-                                    <p className="font-bold text-gray-900">{report.name}</p>
-                                    <p className="text-xs capitalize text-gray-500">{report.report_type}</p>
-                                </div>
-                                <div className="flex gap-1">
-                                    <button onClick={() => openEdit(report)} className="rounded p-1.5 text-gray-500 hover:bg-gray-100">
-                                        <Pencil className="h-4 w-4" />
-                                    </button>
-                                    <button onClick={() => handleDelete(report.id)} className="rounded p-1.5 text-danger hover:bg-red-50">
-                                        <Trash2 className="h-4 w-4" />
-                                    </button>
-                                </div>
-                            </div>
-                            {report.description && <p className="mt-2 text-sm text-gray-600">{report.description}</p>}
-                            <button onClick={() => router.push(`/analytics/custom-reports/${report.id}`)} className="btn btn-outline-primary mt-4 w-full text-sm">
-                                {t('lbl_run_report')}
-                            </button>
+                {isLoading ? (
+                    <div className="rounded-lg border border-gray-200 bg-white p-6 text-sm text-gray-500 shadow-sm">{t('lbl_loading')}</div>
+                ) : reports.length === 0 ? (
+                    <div className="rounded-lg border border-gray-200 bg-white p-8 text-center shadow-sm">
+                        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-lg bg-[#046ca9]/10 text-[#046ca9]">
+                            <BarChart3 className="h-7 w-7" />
                         </div>
-                    ))}
-                </div>
-            )}
-
-            {modalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                    <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-6 shadow-sm">
-                        <h3 className="mb-4 text-lg font-bold text-gray-900">{editingId ? t('lbl_edit_custom_report') : t('lbl_add_custom_report')}</h3>
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            <div className="grid gap-4 sm:grid-cols-2">
-                                <div>
-                                    <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_name')}</label>
-                                    <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required className="form-input w-full" />
+                        <p className="mt-3 text-sm text-gray-500">{t('msg_no_custom_reports')}</p>
+                        <button onClick={openCreate} className="btn btn-outline-primary mt-4">
+                            {t('lbl_add_custom_report')}
+                        </button>
+                    </div>
+                ) : (
+                    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                        {reports.map((report: any) => (
+                            <div key={report.id} className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm transition hover:border-[#046ca9]/20 hover:shadow-md">
+                                <div className="flex items-start justify-between">
+                                    <div>
+                                        <p className="font-bold text-gray-900">{report.name}</p>
+                                        <p className="text-xs capitalize text-gray-500">{report.report_type}</p>
+                                    </div>
+                                    <div className="flex gap-1">
+                                        <button onClick={() => openEdit(report)} className="rounded p-1.5 text-gray-500 hover:bg-gray-100">
+                                            <Pencil className="h-4 w-4" />
+                                        </button>
+                                        <button onClick={() => handleDelete(report.id)} className="rounded p-1.5 text-danger hover:bg-red-50">
+                                            <Trash2 className="h-4 w-4" />
+                                        </button>
+                                    </div>
                                 </div>
-                                <div>
-                                    <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_report_type')}</label>
-                                    <select
-                                        value={form.report_type}
-                                        onChange={(e) => {
-                                            const type = e.target.value;
-                                            setForm({
-                                                ...form,
-                                                report_type: type,
-                                                columns: COLUMN_OPTIONS[type].slice(0, 3).map((c) => c.value),
-                                                group_by: '',
-                                                aggregate: { column: AGGREGATE_COLUMNS[type]?.[0] || '', method: 'sum' },
-                                            });
-                                        }}
-                                        className="form-select w-full"
-                                    >
-                                        {REPORT_TYPES.map((t) => (
-                                            <option key={t.value} value={t.value}>
-                                                {t.label}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
+                                {report.description && <p className="mt-2 text-sm text-gray-600">{report.description}</p>}
+                                <button onClick={() => router.push(`/analytics/custom-reports/${report.id}`)} className="btn btn-outline-primary mt-4 w-full text-sm">
+                                    {t('lbl_run_report')}
+                                </button>
                             </div>
-                            <div>
-                                <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_description')}</label>
-                                <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={2} className="form-textarea w-full" />
-                            </div>
+                        ))}
+                    </div>
+                )}
 
-                            <div>
-                                <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_columns')}</label>
-                                <div className="rounded-lg border border-gray-200 p-3">
-                                    {columnOptions.map((col, idx) => (
-                                        <div
-                                            key={col.value}
-                                            draggable
-                                            onDragStart={() => handleDragStart(idx)}
-                                            onDragOver={(e) => e.preventDefault()}
-                                            onDrop={() => handleDrop(idx)}
-                                            className="flex items-center gap-2 py-1"
-                                        >
-                                            <GripVertical className="h-4 w-4 cursor-grab text-gray-400" />
-                                            <input type="checkbox" checked={form.columns.includes(col.value)} onChange={() => toggleColumn(col.value)} className="form-checkbox" />
-                                            <span className="text-sm text-gray-700">{col.label}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <div className="grid gap-4 sm:grid-cols-2">
-                                <div>
-                                    <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_start_date')}</label>
-                                    <input
-                                        type="date"
-                                        value={form.filters.start_date}
-                                        onChange={(e) => setForm({ ...form, filters: { ...form.filters, start_date: e.target.value } })}
-                                        className="form-input w-full"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_end_date')}</label>
-                                    <input
-                                        type="date"
-                                        value={form.filters.end_date}
-                                        onChange={(e) => setForm({ ...form, filters: { ...form.filters, end_date: e.target.value } })}
-                                        className="form-input w-full"
-                                    />
-                                </div>
-                            </div>
-
-                            {form.report_type === 'sales' && (
+                {modalOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                        <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-6 shadow-sm">
+                            <h3 className="mb-4 text-lg font-bold text-gray-900">{editingId ? t('lbl_edit_custom_report') : t('lbl_add_custom_report')}</h3>
+                            <form onSubmit={handleSubmit} className="space-y-4">
                                 <div className="grid gap-4 sm:grid-cols-2">
                                     <div>
-                                        <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_payment_status')}</label>
+                                        <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_name')}</label>
+                                        <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required className="form-input w-full" />
+                                    </div>
+                                    <div>
+                                        <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_report_type')}</label>
+                                        <select
+                                            value={form.report_type}
+                                            onChange={(e) => {
+                                                const type = e.target.value;
+                                                setForm({
+                                                    ...form,
+                                                    report_type: type,
+                                                    columns: COLUMN_OPTIONS[type].slice(0, 3).map((c) => c.value),
+                                                    group_by: '',
+                                                    aggregate: { column: AGGREGATE_COLUMNS[type]?.[0] || '', method: 'sum' },
+                                                });
+                                            }}
+                                            className="form-select w-full"
+                                        >
+                                            {REPORT_TYPES.map((t) => (
+                                                <option key={t.value} value={t.value}>
+                                                    {t.label}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_description')}</label>
+                                    <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={2} className="form-textarea w-full" />
+                                </div>
+
+                                <div>
+                                    <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_columns')}</label>
+                                    <div className="rounded-lg border border-gray-200 p-3">
+                                        {columnOptions.map((col, idx) => (
+                                            <div
+                                                key={col.value}
+                                                draggable
+                                                onDragStart={() => handleDragStart(idx)}
+                                                onDragOver={(e) => e.preventDefault()}
+                                                onDrop={() => handleDrop(idx)}
+                                                className="flex items-center gap-2 py-1"
+                                            >
+                                                <GripVertical className="h-4 w-4 cursor-grab text-gray-400" />
+                                                <input type="checkbox" checked={form.columns.includes(col.value)} onChange={() => toggleColumn(col.value)} className="form-checkbox" />
+                                                <span className="text-sm text-gray-700">{col.label}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="grid gap-4 sm:grid-cols-2">
+                                    <div>
+                                        <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_start_date')}</label>
                                         <input
-                                            value={form.filters.payment_status}
-                                            onChange={(e) => setForm({ ...form, filters: { ...form.filters, payment_status: e.target.value } })}
+                                            type="date"
+                                            value={form.filters.start_date}
+                                            onChange={(e) => setForm({ ...form, filters: { ...form.filters, start_date: e.target.value } })}
                                             className="form-input w-full"
-                                            placeholder="e.g. Paid"
                                         />
                                     </div>
                                     <div>
-                                        <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_payment_method')}</label>
+                                        <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_end_date')}</label>
                                         <input
-                                            value={form.filters.payment_method}
-                                            onChange={(e) => setForm({ ...form, filters: { ...form.filters, payment_method: e.target.value } })}
+                                            type="date"
+                                            value={form.filters.end_date}
+                                            onChange={(e) => setForm({ ...form, filters: { ...form.filters, end_date: e.target.value } })}
                                             className="form-input w-full"
-                                            placeholder="e.g. Cash"
                                         />
                                     </div>
                                 </div>
-                            )}
 
-                            {form.report_type === 'expenses' && (
-                                <div>
-                                    <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_category')}</label>
-                                    <input value={form.filters.category} onChange={(e) => setForm({ ...form, filters: { ...form.filters, category: e.target.value } })} className="form-input w-full" />
-                                </div>
-                            )}
-
-                            {form.report_type === 'inventory' && (
-                                <div className="flex items-center gap-2">
-                                    <input
-                                        type="checkbox"
-                                        checked={form.filters.low_stock}
-                                        onChange={(e) => setForm({ ...form, filters: { ...form.filters, low_stock: e.target.checked } })}
-                                        className="form-checkbox"
-                                    />
-                                    <label className="text-sm">{t('lbl_low_stock_only')}</label>
-                                </div>
-                            )}
-
-                            <div className="grid gap-4 sm:grid-cols-3">
-                                <div>
-                                    <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_group_by')}</label>
-                                    <select value={form.group_by} onChange={(e) => setForm({ ...form, group_by: e.target.value })} className="form-select w-full">
-                                        {groupOptions.map((g) => (
-                                            <option key={g.value} value={g.value}>
-                                                {g.label}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                                {form.group_by && aggregateOptions.length > 0 && (
-                                    <>
+                                {form.report_type === 'sales' && (
+                                    <div className="grid gap-4 sm:grid-cols-2">
                                         <div>
-                                            <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_aggregate_column')}</label>
-                                            <select
-                                                value={form.aggregate.column}
-                                                onChange={(e) => setForm({ ...form, aggregate: { ...form.aggregate, column: e.target.value } })}
-                                                className="form-select w-full"
-                                            >
-                                                {aggregateOptions.map((c) => (
-                                                    <option key={c.value} value={c.value}>
-                                                        {c.label}
-                                                    </option>
-                                                ))}
-                                            </select>
+                                            <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_payment_status')}</label>
+                                            <input
+                                                value={form.filters.payment_status}
+                                                onChange={(e) => setForm({ ...form, filters: { ...form.filters, payment_status: e.target.value } })}
+                                                className="form-input w-full"
+                                                placeholder="e.g. Paid"
+                                            />
                                         </div>
                                         <div>
-                                            <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_aggregate_method')}</label>
-                                            <select
-                                                value={form.aggregate.method}
-                                                onChange={(e) => setForm({ ...form, aggregate: { ...form.aggregate, method: e.target.value } })}
-                                                className="form-select w-full"
-                                            >
-                                                {['sum', 'avg', 'count', 'max', 'min'].map((m) => (
-                                                    <option key={m} value={m}>
-                                                        {m}
-                                                    </option>
-                                                ))}
-                                            </select>
+                                            <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_payment_method')}</label>
+                                            <input
+                                                value={form.filters.payment_method}
+                                                onChange={(e) => setForm({ ...form, filters: { ...form.filters, payment_method: e.target.value } })}
+                                                className="form-input w-full"
+                                                placeholder="e.g. Cash"
+                                            />
                                         </div>
-                                    </>
+                                    </div>
                                 )}
-                            </div>
 
-                            <div className="grid gap-4 sm:grid-cols-2">
-                                <div>
-                                    <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_sort_by')}</label>
-                                    <select value={form.sort_by} onChange={(e) => setForm({ ...form, sort_by: e.target.value })} className="form-select w-full">
-                                        {columnOptions.map((c) => (
-                                            <option key={c.value} value={c.value}>
-                                                {c.label}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_sort_order')}</label>
-                                    <select value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: e.target.value })} className="form-select w-full">
-                                        <option value="asc">Ascending</option>
-                                        <option value="desc">Descending</option>
-                                    </select>
-                                </div>
-                            </div>
+                                {form.report_type === 'expenses' && (
+                                    <div>
+                                        <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_category')}</label>
+                                        <input
+                                            value={form.filters.category}
+                                            onChange={(e) => setForm({ ...form, filters: { ...form.filters, category: e.target.value } })}
+                                            className="form-input w-full"
+                                        />
+                                    </div>
+                                )}
 
-                            <div className="flex items-center gap-4">
-                                <div className="flex items-center gap-2">
-                                    <input type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} className="form-checkbox" />
-                                    <label className="text-sm">{t('lbl_active')}</label>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <input type="checkbox" checked={form.is_shared} onChange={(e) => setForm({ ...form, is_shared: e.target.checked })} className="form-checkbox" />
-                                    <label className="text-sm">{t('lbl_shared')}</label>
-                                </div>
-                            </div>
+                                {form.report_type === 'inventory' && (
+                                    <div className="flex items-center gap-2">
+                                        <input
+                                            type="checkbox"
+                                            checked={form.filters.low_stock}
+                                            onChange={(e) => setForm({ ...form, filters: { ...form.filters, low_stock: e.target.checked } })}
+                                            className="form-checkbox"
+                                        />
+                                        <label className="text-sm">{t('lbl_low_stock_only')}</label>
+                                    </div>
+                                )}
 
-                            <div className="flex justify-end gap-2">
-                                <button type="button" onClick={() => setModalOpen(false)} className="btn btn-outline-secondary">
-                                    {t('lbl_cancel')}
-                                </button>
-                                <button type="submit" className="btn btn-primary">
-                                    {editingId ? t('lbl_update') : t('lbl_save')}
-                                </button>
-                            </div>
-                        </form>
+                                <div className="grid gap-4 sm:grid-cols-3">
+                                    <div>
+                                        <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_group_by')}</label>
+                                        <select value={form.group_by} onChange={(e) => setForm({ ...form, group_by: e.target.value })} className="form-select w-full">
+                                            {groupOptions.map((g) => (
+                                                <option key={g.value} value={g.value}>
+                                                    {g.label}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    {form.group_by && aggregateOptions.length > 0 && (
+                                        <>
+                                            <div>
+                                                <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_aggregate_column')}</label>
+                                                <select
+                                                    value={form.aggregate.column}
+                                                    onChange={(e) => setForm({ ...form, aggregate: { ...form.aggregate, column: e.target.value } })}
+                                                    className="form-select w-full"
+                                                >
+                                                    {aggregateOptions.map((c) => (
+                                                        <option key={c.value} value={c.value}>
+                                                            {c.label}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_aggregate_method')}</label>
+                                                <select
+                                                    value={form.aggregate.method}
+                                                    onChange={(e) => setForm({ ...form, aggregate: { ...form.aggregate, method: e.target.value } })}
+                                                    className="form-select w-full"
+                                                >
+                                                    {['sum', 'avg', 'count', 'max', 'min'].map((m) => (
+                                                        <option key={m} value={m}>
+                                                            {m}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+
+                                <div className="grid gap-4 sm:grid-cols-2">
+                                    <div>
+                                        <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_sort_by')}</label>
+                                        <select value={form.sort_by} onChange={(e) => setForm({ ...form, sort_by: e.target.value })} className="form-select w-full">
+                                            {columnOptions.map((c) => (
+                                                <option key={c.value} value={c.value}>
+                                                    {c.label}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_sort_order')}</label>
+                                        <select value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: e.target.value })} className="form-select w-full">
+                                            <option value="asc">Ascending</option>
+                                            <option value="desc">Descending</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-4">
+                                    <div className="flex items-center gap-2">
+                                        <input type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} className="form-checkbox" />
+                                        <label className="text-sm">{t('lbl_active')}</label>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <input type="checkbox" checked={form.is_shared} onChange={(e) => setForm({ ...form, is_shared: e.target.checked })} className="form-checkbox" />
+                                        <label className="text-sm">{t('lbl_shared')}</label>
+                                    </div>
+                                </div>
+
+                                <div className="flex justify-end gap-2">
+                                    <button type="button" onClick={() => setModalOpen(false)} className="btn btn-outline-secondary">
+                                        {t('lbl_cancel')}
+                                    </button>
+                                    <button type="submit" className="btn btn-primary">
+                                        {editingId ? t('lbl_update') : t('lbl_save')}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
-                </div>
-            )}
+                )}
+            </div>
         </div>
     );
 }

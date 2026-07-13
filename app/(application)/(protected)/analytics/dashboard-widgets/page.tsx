@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import BrandedPageHeader from '@/components/common/BrandedPageHeader';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import { useGetDashboardLayoutQuery, useSaveDashboardLayoutMutation } from '@/store/features/analytics/analyticsApi';
@@ -77,47 +78,50 @@ export default function DashboardWidgetsPage() {
         }).unwrap();
     };
 
-    if (isLoading) return <p className="text-sm text-gray-500">{t('lbl_loading')}</p>;
+    if (isLoading) return <div className="min-h-[calc(100vh-120px)] bg-[#f6f8fb] p-4 text-sm text-gray-500 sm:p-6">{t('lbl_loading')}</div>;
 
     return (
-        <div className="space-y-5">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                    <h1 className="text-xl font-bold text-gray-900">{t('lbl_dashboard_widgets')}</h1>
-                    <p className="text-sm text-gray-500">{t('lbl_dashboard_widgets_desc')}</p>
-                </div>
-                <button onClick={handleSave} disabled={saving} className="btn btn-primary inline-flex items-center gap-2">
-                    <Save className="h-4 w-4" /> {saving ? t('lbl_saving') : t('lbl_save_layout')}
-                </button>
-            </div>
+        <div className="min-h-[calc(100vh-120px)] bg-[#f6f8fb] p-4 sm:p-6">
+            <div className="mx-auto max-w-7xl space-y-5">
+                <BrandedPageHeader
+                    icon={<LayoutDashboard className="h-6 w-6" />}
+                    title={t('lbl_dashboard_widgets')}
+                    description={t('lbl_dashboard_widgets_desc')}
+                    actions={
+                        <button onClick={handleSave} disabled={saving} className="btn btn-primary inline-flex items-center gap-2">
+                            <Save className="h-4 w-4" /> {saving ? t('lbl_saving') : t('lbl_save_layout')}
+                        </button>
+                    }
+                />
 
-            <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-                <div className="mb-4 flex items-center gap-2 text-sm text-gray-500">
-                    <LayoutDashboard className="h-4 w-4" />
-                    <span>{t('lbl_drag_to_reorder')}</span>
-                </div>
-                <div className="space-y-2">
-                    {widgets.map((widget, idx) => (
-                        <div
-                            key={widget.key}
-                            draggable
-                            onDragStart={() => handleDragStart(idx)}
-                            onDragOver={(e) => e.preventDefault()}
-                            onDrop={() => handleDrop(idx)}
-                            className="flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 p-3"
-                        >
-                            <GripVertical className="h-5 w-5 cursor-grab text-gray-400" />
-                            <input type="checkbox" checked={widget.visible} onChange={() => toggle(widget.key)} className="form-checkbox" />
-                            <span className="flex-1 text-sm font-medium text-gray-700">{widget.label}</span>
-                            <div className="flex items-center gap-2">
-                                <label className="text-xs text-gray-500">{t('lbl_width')}</label>
-                                <select value={widget.cols} onChange={(e) => updateCols(widget.key, Number(e.target.value))} className="form-select text-sm">
-                                    <option value={6}>Half (6/12)</option>
-                                    <option value={12}>Full (12/12)</option>
-                                </select>
+                <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+                    <div className="mb-4 flex items-center gap-2 text-sm text-gray-500">
+                        <LayoutDashboard className="h-4 w-4" />
+                        <span>{t('lbl_drag_to_reorder')}</span>
+                    </div>
+                    <div className="space-y-2">
+                        {widgets.map((widget, idx) => (
+                            <div
+                                key={widget.key}
+                                draggable
+                                onDragStart={() => handleDragStart(idx)}
+                                onDragOver={(e) => e.preventDefault()}
+                                onDrop={() => handleDrop(idx)}
+                                className="flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 p-3"
+                            >
+                                <GripVertical className="h-5 w-5 cursor-grab text-gray-400" />
+                                <input type="checkbox" checked={widget.visible} onChange={() => toggle(widget.key)} className="form-checkbox" />
+                                <span className="flex-1 text-sm font-medium text-gray-700">{widget.label}</span>
+                                <div className="flex items-center gap-2">
+                                    <label className="text-xs text-gray-500">{t('lbl_width')}</label>
+                                    <select value={widget.cols} onChange={(e) => updateCols(widget.key, Number(e.target.value))} className="form-select text-sm">
+                                        <option value={6}>Half (6/12)</option>
+                                        <option value={12}>Full (12/12)</option>
+                                    </select>
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>
