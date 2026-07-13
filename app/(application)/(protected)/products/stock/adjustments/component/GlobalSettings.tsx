@@ -29,19 +29,19 @@ const GlobalSettings = ({ globalReason, globalNotes, onReasonChange, onNotesChan
         <div className="mx-auto mt-6 max-w-4xl rounded-xl border border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-6 shadow-sm">
             <h3 className="mb-2 flex items-center gap-2 text-lg font-semibold text-gray-900">
                 <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">i</span>
-                Same Reason for All Items
+                {t('stock_adjustment_same_reason_title')}
             </h3>
-            <p className="mb-4 text-sm text-gray-600">Use this when all selected products are from the same stock count, damage check, or correction.</p>
+            <p className="mb-4 text-sm text-gray-600">{t('stock_adjustment_same_reason_desc')}</p>
 
             <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                    <label className="mb-2 block text-sm font-medium text-gray-700">Reason for Items Without Own Reason</label>
+                    <label className="mb-2 block text-sm font-medium text-gray-700">{t('stock_adjustment_global_reason_label')}</label>
                     {adjustmentReasons.length === 0 ? (
                         <div className="rounded-lg border-2 border-yellow-200 bg-yellow-50 p-3">
                             <p className="text-xs font-medium text-yellow-800">
-                                No stock reason found.{' '}
+                                {t('stock_adjustment_no_reason_found')}{' '}
                                 <Link href="/store/setting?tab=adjustment" className="font-semibold text-yellow-900 underline hover:text-yellow-700">
-                                    Add common reasons
+                                    {t('stock_adjustment_add_common_reasons')}
                                 </Link>
                             </p>
                         </div>
@@ -68,12 +68,12 @@ const GlobalSettings = ({ globalReason, globalNotes, onReasonChange, onNotesChan
                 </div>
 
                 <div>
-                    <label className="mb-2 block text-sm font-medium text-gray-700">Common Note</label>
+                    <label className="mb-2 block text-sm font-medium text-gray-700">{t('stock_adjustment_common_note')}</label>
                     <input
                         type="text"
                         value={globalNotes}
                         onChange={(e) => onNotesChange(e.target.value)}
-                        placeholder="Example: Monthly physical stock count"
+                        placeholder={t('stock_adjustment_common_note_placeholder')}
                         className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 shadow-sm focus:border-primary focus:ring-2 focus:ring-primary"
                     />
                 </div>

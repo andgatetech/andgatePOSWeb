@@ -7,8 +7,8 @@ import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useApproveStockCountMutation, useCreateStockCountMutation, useGetStockCountsQuery } from '@/store/features/Product/productApi';
 import type { RootState } from '@/store';
 import { clearStockItems, removeStockItem } from '@/store/features/StockAdjustment/stockAdjustmentSlice';
-import { CheckCircle2, ClipboardList, RefreshCw, Save, Trash2, X } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { AlertTriangle, CheckCircle2, ClipboardList, Loader2, RefreshCw, Save, Trash2, X } from 'lucide-react';
+import { showMessage } from '@/lib/toast';
 import { useDispatch, useSelector } from 'react-redux';
 
 const normalizeSessions = (response: any) => {
@@ -23,6 +23,7 @@ export default function StockCountPage() {
     const { currentStore, currentStoreId } = useCurrentStore();
     const [title, setTitle] = useState('');
     const [countedByItemId, setCountedByItemId] = useState<Record<number, number>>({});
+    const [submitError, setSubmitError] = useState('');
     const [createStockCount, { isLoading: isCreating }] = useCreateStockCountMutation();
     const [approveStockCount, { isLoading: isApproving }] = useApproveStockCountMutation();
     const selectedItems = useSelector((state: RootState) => (currentStoreId && state.stockAdjustment.itemsByStore ? state.stockAdjustment.itemsByStore[currentStoreId] || [] : []));
@@ -47,12 +48,15 @@ export default function StockCountPage() {
         });
     }, [selectedItems]);
 
+    const resolveStockId = (item: any) => item.stockId ?? item.productStockId ?? item.product_stock_id ?? item.stock_id;
+
     const countLines = useMemo(() => selectedItems.map((item: any) => {
         const systemQuantity = Number(item.PlaceholderQuantity ?? item.quantity ?? 0);
         const countedQuantity = countedByItemId[item.id] ?? systemQuantity;
+        const productStockId = Number(resolveStockId(item));
         return {
             itemId: item.id,
-            product_stock_id: item.stockId,
+            product_stock_id: Number.isFinite(productStockId) && productStockId > 0 ? productStockId : null,
             label: item.variantName ? `${item.title || item.name} / ${item.variantName}` : (item.title || item.name),
             sku: item.sku,
             unit: item.unit,
@@ -78,10 +82,21 @@ export default function StockCountPage() {
     };
 
     const saveCount = async () => {
-        if (!currentStoreId || countLines.length === 0) return;
+        setSubmitError('');
+        if (!currentStoreId) {
+            setSubmitError(t('stock_count_select_store'));
+            showMessage(t('stock_count_select_store'), 'error');
+            return;
+        }
+        if (countLines.length === 0) {
+            setSubmitError(t('stock_count_select_products'));
+            showMessage(t('stock_count_select_products'), 'error');
+            return;
+        }
         const invalidLine = countLines.find((line) => !line.product_stock_id);
         if (invalidLine) {
-            toast.error(t('stock_count_create_failed'));
+            setSubmitError(t('stock_count_missing_stock'));
+            showMessage(t('stock_count_missing_stock'), 'error');
             return;
         }
         try {
@@ -95,20 +110,22 @@ export default function StockCountPage() {
             }).unwrap();
             clearDraft();
             setTitle('');
-            toast.success(t('stock_count_created'));
+            showMessage(t('stock_count_created'), 'success');
             refetch();
         } catch (error: any) {
-            toast.error(error?.data?.message || t('stock_count_create_failed'));
+            const message = error?.data?.message || t('stock_count_create_failed');
+            setSubmitError(message);
+            showMessage(message, 'error');
         }
     };
 
     const approve = async (id: number) => {
         try {
             await approveStockCount({ id }).unwrap();
-            toast.success(t('stock_count_approved'));
+            showMessage(t('stock_count_approved'), 'success');
             refetch();
         } catch (error: any) {
-            toast.error(error?.data?.message || t('stock_count_approve_failed'));
+            showMessage(error?.data?.message || t('stock_count_approve_failed'), 'error');
         }
     };
 
@@ -118,17 +135,17 @@ export default function StockCountPage() {
     const totalNegativeVariance = countLines.reduce((sum, line) => sum + Math.min(0, line.variance), 0);
 
     return (
-        <div className="flex h-full flex-col bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="flex h-full flex-col bg-[#f6f9fc]">
             {isCreating && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm">
-                    <div className="rounded-xl border border-slate-200 bg-white px-6 py-5 text-center shadow-lg">
+                    <div className="rounded-xl border border-[#d7e6f2] bg-white px-6 py-5 text-center shadow-lg">
                         <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-sky-100 border-t-sky-600" />
-                        <p className="mt-3 text-sm font-semibold text-slate-700">{t('stock_count_create_session')}</p>
+                        <p className="mt-3 text-sm font-semibold text-slate-700">{t('stock_count_saving')}</p>
                     </div>
                 </div>
             )}
 
-            <div className="p-4 sm:p-6">
+            <div className="border-b border-[#d7e6f2] bg-white p-4 sm:p-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div className="flex items-start gap-3">
                         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#046ca9] to-[#034d79] text-white shadow-sm">
@@ -145,7 +162,7 @@ export default function StockCountPage() {
                         </div>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                        <button type="button" onClick={() => refetch()} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                        <button type="button" onClick={() => refetch()} className="inline-flex items-center gap-2 rounded-lg border border-[#d7e6f2] bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-[#eef6fb]">
                             <RefreshCw className="h-4 w-4" />
                             {t('btn_refresh')}
                         </button>
@@ -159,7 +176,17 @@ export default function StockCountPage() {
 
             <div className="flex-1 overflow-auto px-4 pb-4 sm:px-6">
                 <div className="mx-auto max-w-5xl space-y-4">
-                    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                    {submitError && (
+                        <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                            <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0" />
+                            <div>
+                                <p className="font-semibold">{t('stock_count_needs_attention')}</p>
+                                <p className="mt-0.5">{submitError}</p>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="rounded-xl border border-[#d7e6f2] bg-white p-4 shadow-sm">
                         <label className="mb-2 block text-sm font-semibold text-slate-700">{t('stock_count_title_placeholder')}</label>
                         <input value={title} onChange={(event) => setTitle(event.target.value)} placeholder={t('stock_count_title_placeholder')} className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-sky-500" />
                     </div>
@@ -172,7 +199,7 @@ export default function StockCountPage() {
                         </div>
                     ) : (
                         countLines.map((line) => (
-                            <div key={line.itemId} className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:shadow-md sm:p-5">
+                            <div key={line.itemId} className="rounded-xl border border-[#d7e6f2] bg-white p-4 shadow-sm transition-all hover:shadow-md sm:p-5">
                                 <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                                     <div className="min-w-0 flex-1">
                                         <div className="flex items-start gap-2">
@@ -239,7 +266,7 @@ export default function StockCountPage() {
                 </div>
             </div>
 
-            <div className="border-t border-gray-200 bg-white shadow-lg">
+            <div className="border-t border-[#d7e6f2] bg-white shadow-lg">
                 <div className="p-4 sm:p-6">
                     <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
                         <div className="flex flex-wrap items-center gap-3">
@@ -265,10 +292,10 @@ export default function StockCountPage() {
                             type="button"
                             onClick={saveCount}
                             disabled={isCreating || countLines.length === 0}
-                            className="inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-3 text-sm font-semibold text-white shadow-md transition-all hover:from-blue-700 hover:to-blue-800 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 sm:min-w-[190px]"
+                            className="inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-[#046ca9] to-[#034d79] px-6 py-3 text-sm font-semibold text-white shadow-md transition-all hover:from-[#035f95] hover:to-[#023d61] hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 sm:min-w-[190px]"
                         >
-                            <Save className="h-4 w-4" />
-                            {t('stock_count_create_session')}
+                            {isCreating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                            {isCreating ? t('stock_count_saving') : t('stock_count_create_session')}
                         </button>
                     </div>
                 </div>

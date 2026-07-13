@@ -89,11 +89,11 @@ export default function CreateTransferView({ onCreated }: { onCreated: () => voi
     const canCreate = Boolean(currentStoreId && toStoreId && Number(currentStoreId) !== Number(toStoreId) && draftItems.length > 0 && !isLoading);
 
     return (
-        <div className="flex h-full flex-col bg-gradient-to-br from-gray-50 to-gray-100">
-            <div className="p-4 sm:p-6">
+        <div className="flex h-full flex-col bg-[#f6f9fc]">
+            <div className="border-b border-[#d7e6f2] bg-white p-4 sm:p-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div className="flex items-start gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 text-white shadow-sm">
+                        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#046ca9] to-[#034d79] text-white shadow-sm">
                             <Truck className="h-5 w-5" />
                         </div>
                         <div>
@@ -115,20 +115,20 @@ export default function CreateTransferView({ onCreated }: { onCreated: () => voi
 
             <div className="flex-1 overflow-auto px-4 pb-4 sm:px-6">
                 <div className="mx-auto max-w-5xl space-y-4">
-                    <section className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-5">
+                    <section className="rounded-xl border border-[#d7e6f2] bg-white p-4 shadow-sm sm:p-5">
                         <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-gray-700">
-                            <Store className="h-4 w-4 text-primary" />
+                            <Store className="h-4 w-4 text-[#046ca9]" />
                             {t('transfer_route')}
                         </div>
                         <div className="grid items-end gap-4 sm:grid-cols-[1fr_auto_1fr]">
                             <div>
                                 <label className="mb-1.5 block text-xs font-medium text-gray-500">{t('transfer_from_store')}</label>
-                                <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm font-semibold text-gray-800">
+                                <div className="rounded-lg border border-[#d7e6f2] bg-[#f6f9fc] px-3 py-2.5 text-sm font-semibold text-gray-800">
                                     {currentStore?.store_name || t('lbl_current_store')}
                                 </div>
                             </div>
                             <div className="flex justify-center pb-2">
-                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
+                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#e7f3fb] text-[#046ca9]">
                                     <ArrowRight className="h-4 w-4" />
                                 </div>
                             </div>
@@ -137,7 +137,7 @@ export default function CreateTransferView({ onCreated }: { onCreated: () => voi
                                 <select
                                     value={toStoreId}
                                     onChange={(e) => setToStoreId(e.target.value)}
-                                    className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
+                                    className="w-full rounded-lg border border-[#d7e6f2] bg-white px-3 py-2.5 text-sm outline-none focus:border-[#046ca9] focus:ring-2 focus:ring-[#046ca9]/10"
                                 >
                                     <option value="">{t('transfer_select_destination')}</option>
                                     {otherStores.map((s: any) => (
@@ -153,21 +153,21 @@ export default function CreateTransferView({ onCreated }: { onCreated: () => voi
                                 value={note}
                                 onChange={(e) => setNote(e.target.value)}
                                 placeholder={t('transfer_note_placeholder')}
-                                className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
+                                className="w-full rounded-lg border border-[#d7e6f2] px-3 py-2.5 text-sm outline-none focus:border-[#046ca9] focus:ring-2 focus:ring-[#046ca9]/10"
                             />
                         </div>
                     </section>
 
                     {draftItems.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-white px-4 py-12 text-center shadow-sm">
+                        <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-[#d7e6f2] bg-white px-4 py-12 text-center shadow-sm">
                             <Package className="mb-3 h-10 w-10 text-gray-300" />
                             <p className="text-sm font-semibold text-gray-500">{t('transfer_empty_title')}</p>
                             <p className="mt-1 max-w-md text-xs text-gray-400">{t('transfer_empty_desc')}</p>
                         </div>
                     ) : (
-                        <section className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+                        <section className="overflow-hidden rounded-xl border border-[#d7e6f2] bg-white shadow-sm">
                             <table className="w-full text-sm">
-                                <thead className="bg-gray-50">
+                                <thead className="bg-[#f6f9fc]">
                                     <tr className="text-left text-xs font-semibold uppercase text-gray-500">
                                         <th className="px-3 py-2.5">{t('transfer_product')}</th>
                                         <th className="px-3 py-2.5">{t('transfer_available')}</th>
@@ -192,7 +192,7 @@ export default function CreateTransferView({ onCreated }: { onCreated: () => voi
                                                         max={available}
                                                         value={item.quantity}
                                                         onChange={(e) => updateQuantity(item.id, Number(e.target.value))}
-                                                        className="w-24 rounded-lg border border-gray-200 px-2 py-1.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
+                                                        className="w-24 rounded-lg border border-[#d7e6f2] px-2 py-1.5 text-sm outline-none focus:border-[#046ca9] focus:ring-2 focus:ring-[#046ca9]/10"
                                                     />
                                                 </td>
                                                 <td className="px-3 py-3 text-right">
@@ -215,7 +215,7 @@ export default function CreateTransferView({ onCreated }: { onCreated: () => voi
                 </div>
             </div>
 
-            <div className="border-t border-gray-200 bg-white shadow-lg">
+            <div className="border-t border-[#d7e6f2] bg-white shadow-lg">
                 <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-6">
                     <div className="flex flex-wrap items-center gap-3">
                         <div className="rounded-lg bg-gray-100 px-4 py-2">
@@ -232,7 +232,7 @@ export default function CreateTransferView({ onCreated }: { onCreated: () => voi
                         type="button"
                         onClick={handleCreate}
                         disabled={!canCreate}
-                        className="inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-3 text-sm font-semibold text-white shadow-md transition-all hover:from-blue-700 hover:to-blue-800 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 sm:min-w-[180px]"
+                        className="inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-[#046ca9] to-[#034d79] px-6 py-3 text-sm font-semibold text-white shadow-md transition-all hover:from-[#035f95] hover:to-[#023d61] hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 sm:min-w-[180px]"
                     >
                         {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Truck className="h-4 w-4" />}
                         {isLoading ? t('transfer_creating') : t('transfer_create')}

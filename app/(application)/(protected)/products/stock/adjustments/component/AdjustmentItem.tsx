@@ -77,22 +77,22 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
                             <button
                                 onClick={() => setIsPreviewOpen(true)}
                                 className="flex-shrink-0 rounded-lg bg-blue-50 p-1.5 text-blue-600 transition-colors hover:bg-blue-100 hover:text-blue-800"
-                                title="View details"
+                                title={t('btn_view_details')}
                             >
                                 <Eye className="h-4 w-4" />
                             </button>
                             <h3 className="text-lg font-semibold text-gray-900">{item.title || item.name}</h3>
-                            {item.has_serial && <span className="rounded-md bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-700">Serial Tracked</span>}
+                            {item.has_serial && <span className="rounded-md bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-700">{t('stock_adjustment_serial_tracked')}</span>}
                         </div>
                         <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-gray-600">
                             {item.sku && <span className="rounded-md bg-gray-100 px-2 py-1 font-medium">SKU: {item.sku}</span>}
-                            <span className="rounded-md bg-blue-100 px-2 py-1 font-medium text-blue-700">Current Stock: {currentStock}</span>
-                            {item.unit && <span className="rounded-md bg-gray-100 px-2 py-1 font-medium">Unit: {item.unit}</span>}
+                            <span className="rounded-md bg-blue-100 px-2 py-1 font-medium text-blue-700">{t('stock_adjustment_current_stock')}: {currentStock}</span>
+                            {item.unit && <span className="rounded-md bg-gray-100 px-2 py-1 font-medium">{t('stock_adjustment_unit')}: {item.unit}</span>}
                             {item.rate && <span className="text-gray-400">•</span>}
                             {item.rate && <span className="font-medium text-gray-700">{formatCurrency(item.rate)}</span>}
                         </div>
                     </div>
-                    <button onClick={() => onRemove(item.id)} className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600" title="Remove item">
+                    <button onClick={() => onRemove(item.id)} className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600" title={t('stock_adjustment_remove_item')}>
                         <Trash2 className="h-5 w-5" />
                     </button>
                 </div>
@@ -113,12 +113,12 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
                                                 d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                                             />
                                         </svg>
-                                        <p className="text-sm font-bold text-purple-900">Serial Number Management Required</p>
+                                        <p className="text-sm font-bold text-purple-900">{t('stock_adjustment_serial_required')}</p>
                                     </div>
                                     <p className="mt-1 text-xs text-purple-700">
                                         {serialAdjustments.length > 0
-                                            ? `✅ ${serialAdjustments.length} serial(s) ready to adjust`
-                                            : 'Click "Manage Serials" to update statuses or add new serial numbers'}
+                                            ? t('stock_adjustment_serials_ready', { count: serialAdjustments.length })
+                                            : t('stock_adjustment_serial_manage_hint')}
                                     </p>
                                 </div>
                                 <button
@@ -133,14 +133,14 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
                                             d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
                                         />
                                     </svg>
-                                    Manage Serials
+                                    {t('stock_adjustment_manage_serials')}
                                 </button>
                             </div>
 
                             {/* Show serial adjustments summary */}
                             {serialAdjustments.length > 0 && (
                                 <div className="mt-3 space-y-1 border-t border-purple-200 pt-3">
-                                    <p className="text-xs font-semibold text-purple-800">Serials to Adjust:</p>
+                                    <p className="text-xs font-semibold text-purple-800">{t('stock_adjustment_serials_to_adjust')}</p>
                                     <div className="max-h-24 space-y-1 overflow-auto">
                                         {serialAdjustments.slice(0, 5).map((serial: any, idx: number) => (
                                             <div key={idx} className="flex items-center gap-2 rounded bg-white px-2 py-1 text-xs">
@@ -162,7 +162,7 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
                                                 <span className="text-gray-500">({serial.reason})</span>
                                             </div>
                                         ))}
-                                        {serialAdjustments.length > 5 && <p className="text-xs text-purple-600">... and {serialAdjustments.length - 5} more</p>}
+                                        {serialAdjustments.length > 5 && <p className="text-xs text-purple-600">{t('stock_adjustment_and_more', { count: serialAdjustments.length - 5 })}</p>}
                                     </div>
                                 </div>
                             )}
@@ -170,8 +170,7 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
                             {/* Info box */}
                             <div className="mt-3 rounded-md border border-purple-300 bg-purple-100/50 p-2">
                                 <p className="text-xs text-purple-800">
-                                    <strong>Note:</strong> This product uses serial numbers. Each serial must be individually managed. You can update existing serial statuses (sold, damaged, returned)
-                                    or add new serial numbers in bulk.
+                                    <strong>{t('stock_adjustment_note')}:</strong> {t('stock_adjustment_serial_note')}
                                 </p>
                             </div>
                         </div>
@@ -181,7 +180,7 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
                     <div className="grid gap-4 sm:grid-cols-4 lg:grid-cols-8">
                         {/* Adjustment Type */}
                         <div className="sm:col-span-4 lg:col-span-3">
-                            <label className="mb-2 block text-sm font-medium text-gray-700">Stock Change Type *</label>
+                            <label className="mb-2 block text-sm font-medium text-gray-700">{t('stock_adjustment_change_type')} *</label>
                             <div className="flex gap-2">
                                 <button
                                     type="button"
@@ -208,7 +207,7 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
 
                         {/* Adjustment Quantity */}
                         <div className="sm:col-span-4 lg:col-span-2">
-                            <label className="mb-2 block text-sm font-medium text-gray-700">Qty to Adjust *</label>
+                            <label className="mb-2 block text-sm font-medium text-gray-700">{t('stock_adjustment_qty_to_adjust')} *</label>
                             <div className="flex items-stretch gap-1">
                                 <button
                                     type="button"
@@ -234,25 +233,25 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
                                 </button>
                             </div>
                             <div className={`mt-2 rounded-md border px-2 py-1.5 text-xs font-medium ${isOverDecrease ? 'border-red-200 bg-red-50 text-red-700' : 'border-gray-200 bg-gray-50 text-gray-700'}`}>
-                                After save: {currentStock} {adjustmentType === 'increase' ? '+' : '-'} {adjustmentQuantity || 0} = <span className="font-bold">{Math.max(0, projectedStock)}</span>
+                                {t('stock_adjustment_after_save')}: {currentStock} {adjustmentType === 'increase' ? '+' : '-'} {adjustmentQuantity || 0} = <span className="font-bold">{Math.max(0, projectedStock)}</span>
                             </div>
                             {isOverDecrease && (
                                 <div className="mt-2 flex items-start gap-1.5 rounded-md border border-red-200 bg-red-50 px-2 py-1.5 text-xs text-red-700">
                                     <AlertTriangle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
-                                    <span>Decrease cannot be more than current stock.</span>
+                                    <span>{t('stock_adjustment_decrease_limit')}</span>
                                 </div>
                             )}
                         </div>
 
                         {/* Reason */}
                         <div className="sm:col-span-2 lg:col-span-2">
-                            <label className="mb-2 block text-sm font-medium text-gray-700">Reason *</label>
+                            <label className="mb-2 block text-sm font-medium text-gray-700">{t('reason')} *</label>
                             {adjustmentReasons.length === 0 ? (
                                 <div className="rounded-lg border-2 border-yellow-200 bg-yellow-50 p-3">
                                     <p className="text-xs font-medium text-yellow-800">
-                                        No stock reason found.{' '}
+                                        {t('stock_adjustment_no_reason_found')}{' '}
                                         <Link href="/store/setting?tab=adjustment" className="font-semibold text-yellow-900 underline hover:text-yellow-700">
-                                            Add common reasons
+                                            {t('stock_adjustment_add_common_reasons')}
                                         </Link>
                                     </p>
                                 </div>
@@ -279,12 +278,12 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
 
                         {/* Notes */}
                         <div className="sm:col-span-2 lg:col-span-1">
-                            <label className="mb-2 block text-sm font-medium text-gray-700">Notes</label>
+                            <label className="mb-2 block text-sm font-medium text-gray-700">{t('stock_adjustment_notes')}</label>
                             <input
                                 type="text"
                                 value={notes}
                                 onChange={(e) => onAdjustmentChange(item.id, 'notes', e.target.value)}
-                                placeholder="Optional"
+                                placeholder={t('optional')}
                                 className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-primary focus:ring-2 focus:ring-primary"
                             />
                         </div>

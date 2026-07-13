@@ -14,12 +14,12 @@ export default function StockTransfersPage() {
     const [view, setView] = useState<View>('create');
 
     return (
-        <div className="min-h-[calc(100vh-64px)] bg-gray-50/50 pb-8">
+        <div className="min-h-[calc(100vh-64px)] bg-[#f6f9fc] pb-8">
             {/* Page header */}
-            <div className="sticky top-0 z-10 border-b border-gray-200 bg-white/90 px-4 py-3 backdrop-blur sm:px-6">
-                <div className="mx-auto flex max-w-6xl items-center justify-between">
+            <div className="sticky top-0 z-10 border-b border-[#d7e6f2] bg-white/95 px-4 py-3 backdrop-blur sm:px-6 lg:px-8">
+                <div className="flex w-full items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 text-white shadow-sm">
+                        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#046ca9] to-[#034d79] text-white shadow-sm">
                             <Truck className="h-5 w-5" />
                         </div>
                         <div>
@@ -27,7 +27,7 @@ export default function StockTransfersPage() {
                             <p className="text-sm text-gray-500">{t('transfer_desc')}</p>
                         </div>
                     </div>
-                    <div className="flex rounded-lg border border-gray-200 bg-gray-50 p-1">
+                    <div className="flex rounded-lg border border-[#d7e6f2] bg-[#f6f9fc] p-1">
                         <button
                             onClick={() => setView('create')}
                             className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition-all ${
