@@ -133,6 +133,7 @@ export const baseApi = createApi({
         'AccountingCashBook',
         'AccountingIncome',
         'AccountingReports',
+        'RunningBusinessMigration',
         'AiReports',
         'StockThresholds',
         'Stock',

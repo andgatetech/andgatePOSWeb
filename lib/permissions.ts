@@ -194,6 +194,7 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     '/accounting/bank-accounts': ['accounting.accounts.index'],
     '/accounting/bank-accounts/[id]': ['accounting.accounts.index'],
     '/accounting/cash-book': ['accounting.cash-book.index'],
+    '/accounting/running-business-migration': ['accounting.opening-balances.view'],
     '/accounting/journals': ['accounting.journals.index'],
     '/accounting/chart-of-accounts': ['accounting.accounts.index'],
     '/accounting/income': ['accounting.income.index'],

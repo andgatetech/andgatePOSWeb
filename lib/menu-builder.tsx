@@ -306,8 +306,13 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
     {
         label: 'Accounting',
         icon: React.createElement(BookOpen),
-        requiredPermissions: ['accounting.accounts.index', 'accounting.journals.index', 'accounting.cash-book.index', 'accounting.income.index', 'accounting.reports.view'],
+        requiredPermissions: ['accounting.accounts.index', 'accounting.journals.index', 'accounting.cash-book.index', 'accounting.income.index', 'accounting.reports.view', 'accounting.opening-balances.view'],
         subMenu: [
+            {
+                label: 'rbm_title',
+                href: '/accounting/running-business-migration',
+                requiredPermissions: ['accounting.opening-balances.view'],
+            },
             {
                 label: 'Bank Accounts',
                 href: '/accounting/bank-accounts',
