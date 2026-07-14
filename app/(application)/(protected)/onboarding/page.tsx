@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, CheckCircle2, Circle, PackagePlus, ShoppingCart, Store, Tags, UserPlus, WalletCards } from 'lucide-react';
+import { ArrowRight, BookOpenCheck, CheckCircle2, Circle, PackagePlus, RefreshCw, ShoppingCart, Store, Tags, UserPlus, WalletCards } from 'lucide-react';
 import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetDashboardOnboardingQuery } from '@/store/features/dashboard/dashboad';
@@ -64,6 +64,48 @@ export default function OnboardingPage() {
                         <div className="h-2 rounded-full bg-emerald-500 transition-all" style={{ width: `${progress}%` }} />
                     </div>
                 </div>
+            </section>
+
+            <section className="grid gap-4 md:grid-cols-2">
+                <Link
+                    href={nextStep?.href || '/store/setting'}
+                    className="group rounded-xl border border-emerald-100 bg-white p-5 shadow-sm transition hover:border-emerald-200 hover:shadow-md dark:border-slate-700 dark:bg-slate-900"
+                >
+                    <div className="flex items-start gap-4">
+                        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
+                            <BookOpenCheck className="h-6 w-6" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                            <p className="text-xs font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">{t('onboarding_path_new_shop_badge')}</p>
+                            <h2 className="mt-1 text-base font-bold text-gray-900 dark:text-white">{t('onboarding_path_new_shop_title')}</h2>
+                            <p className="mt-2 text-sm leading-5 text-gray-500 dark:text-gray-400">{t('onboarding_path_new_shop_desc')}</p>
+                            <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-emerald-700 group-hover:text-emerald-800 dark:text-emerald-300">
+                                {nextStep ? t(actionKey(nextStep.key)) : t('onboarding_path_continue')}
+                                <ArrowRight className="h-4 w-4" />
+                            </span>
+                        </div>
+                    </div>
+                </Link>
+
+                <Link
+                    href="/accounting/running-business-migration"
+                    className="group rounded-xl border border-amber-100 bg-white p-5 shadow-sm transition hover:border-amber-200 hover:shadow-md dark:border-slate-700 dark:bg-slate-900"
+                >
+                    <div className="flex items-start gap-4">
+                        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-amber-50 text-amber-600">
+                            <RefreshCw className="h-6 w-6" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                            <p className="text-xs font-bold uppercase tracking-wide text-amber-700 dark:text-amber-300">{t('onboarding_path_running_shop_badge')}</p>
+                            <h2 className="mt-1 text-base font-bold text-gray-900 dark:text-white">{t('onboarding_path_running_shop_title')}</h2>
+                            <p className="mt-2 text-sm leading-5 text-gray-500 dark:text-gray-400">{t('onboarding_path_running_shop_desc')}</p>
+                            <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-amber-700 group-hover:text-amber-800 dark:text-amber-300">
+                                {t('onboarding_path_running_shop_action')}
+                                <ArrowRight className="h-4 w-4" />
+                            </span>
+                        </div>
+                    </div>
+                </Link>
             </section>
 
             <section className="grid gap-4 md:grid-cols-2">

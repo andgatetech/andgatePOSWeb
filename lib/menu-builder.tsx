@@ -80,6 +80,12 @@ const compactGroup = (label: string, icon: React.ReactNode, items: MenuItem[]): 
     return { label, icon, subMenu };
 };
 
+const nestedGroup = (label: string, items: MenuItem[]): MenuItem | null => {
+    const subMenu = uniqueMenuItems(items.filter(Boolean).map(cloneMenuItem));
+    if (subMenu.length === 0) return null;
+    return { label, subMenu };
+};
+
 const findMenu = (items: MenuItem[], label: string): MenuItem | undefined => items.find((item) => item.label === label);
 
 const leavesFrom = (items: MenuItem[], labels: string[]): MenuItem[] => labels.flatMap((label) => {
@@ -106,6 +112,7 @@ function simplifyMenuForDailyUse(items: MenuItem[], userRole?: string): MenuItem
     const analytics = findMenu(items, 'Analytics & BI');
     const hr = findMenu(items, 'hr_title');
     const store = findMenu(items, 'Store');
+    const ecommerce = findMenu(items, 'Ecommerce Management');
     const feedback = findMenu(items, 'Feedback');
     const administration = findMenu(items, 'Administration');
     const businessOs = findMenu(items, 'business_os_title');
@@ -115,25 +122,47 @@ function simplifyMenuForDailyUse(items: MenuItem[], userRole?: string): MenuItem
     if (pos) result.push({ ...cloneMenuItem(pos), label: 'Sell' });
     if (orders) result.push(cloneMenuItem(orders));
 
+    const productLeaves = leavesFrom(items, ['Product']);
+    const productCoreHrefs = new Set(['/products/create', '/products']);
+    const productGroup = nestedGroup('Products', productLeaves.filter((item) => item.href && productCoreHrefs.has(item.href)));
+    const stockGroup = nestedGroup('Stock', productLeaves.filter((item) => !item.href || !productCoreHrefs.has(item.href)));
+    const categoryGroup = nestedGroup('Category', leavesFrom(items, ['Category']));
+    const brandGroup = nestedGroup('Brand', leavesFrom(items, ['Brand']));
     const productsAndStock = compactGroup('Products & Stock', React.createElement(Package), [
-        ...leavesFrom(items, ['Product', 'Category', 'Brand']),
+        ...(productGroup ? [productGroup] : []),
+        ...(stockGroup ? [stockGroup] : []),
+        ...(categoryGroup ? [categoryGroup] : []),
+        ...(brandGroup ? [brandGroup] : []),
     ]);
     if (productsAndStock) result.push(productsAndStock);
 
     const purchases = findMenu(items, 'Purchases Order');
-    if (purchases) result.push({ ...cloneMenuItem(purchases), label: 'Purchases' });
+    if (purchases) {
+        result.push({
+            label: 'Purchases',
+            icon: React.createElement(ShoppingCart),
+            subMenu: flattenLeafItems([purchases]),
+        });
+    }
 
+    const customerGroup = nestedGroup('Customers', leavesFrom(items, ['Customer']));
+    const supplierGroup = nestedGroup('Suppliers', leavesFrom(items, ['Supplier']));
     const parties = compactGroup('Customers & Suppliers', React.createElement(Users), [
-        ...leavesFrom(items, ['Customer', 'Supplier']),
+        ...(customerGroup ? [customerGroup] : []),
+        ...(supplierGroup ? [supplierGroup] : []),
     ]);
     if (parties) result.push(parties);
 
-    const moneyItems = [
-        ...leavesFrom(items, ['Expenses']),
-        ...(operations ? flattenLeafItems([operations]) : []),
-        ...(isOwner && accounting ? [{ ...cloneMenuItem(accounting), label: 'Advanced Accounting' }] : []),
-    ];
-    const money = compactGroup('Money', React.createElement(Receipt), moneyItems);
+    const expensesGroup = nestedGroup('Expenses', leavesFrom(items, ['Expenses']));
+    const cashOperationsGroup = nestedGroup('Cash & Operations', operations ? flattenLeafItems([operations]) : []);
+    const accountingGroup = isOwner && accounting
+        ? nestedGroup('Accounting', flattenLeafItems([accounting]).filter((item) => item.href !== '/accounting/running-business-migration'))
+        : null;
+    const money = compactGroup('Money', React.createElement(Receipt), [
+        ...(expensesGroup ? [expensesGroup] : []),
+        ...(cashOperationsGroup ? [cashOperationsGroup] : []),
+        ...(accountingGroup ? [accountingGroup] : []),
+    ]);
     if (money) result.push(money);
 
     if (reports) {
@@ -163,11 +192,20 @@ function simplifyMenuForDailyUse(items: MenuItem[], userRole?: string): MenuItem
     ]);
     if (team) result.push(team);
 
-    const settings = compactGroup('Settings', React.createElement(Settings), [
+    if (ecommerce) {
+        result.push({ ...cloneMenuItem(ecommerce), label: 'Online Store' });
+    }
+
+    const storeSetupGroup = nestedGroup('Store Setup', store ? flattenLeafItems([store]) : []);
+    const supportGroup = nestedGroup('Support', [
         ...(notifications ? [notifications] : []),
-        ...(store ? flattenLeafItems([store]) : []),
         ...(feedback ? flattenLeafItems([feedback]) : []),
-        ...(isOwner && administration ? flattenLeafItems([administration]) : []),
+    ]);
+    const adminGroup = isOwner ? nestedGroup('Administration', administration ? flattenLeafItems([administration]) : []) : null;
+    const settings = compactGroup('Settings', React.createElement(Settings), [
+        ...(storeSetupGroup ? [storeSetupGroup] : []),
+        ...(supportGroup ? [supportGroup] : []),
+        ...(adminGroup ? [adminGroup] : []),
         ...(isOwner && businessOs ? [businessOs] : []),
     ]);
     if (settings) result.push(settings);
@@ -932,8 +970,7 @@ function filterMenuItem(item: MenuItem, userPermissions: string[] | undefined, u
 export function buildMenuFromPermissions(userPermissions: string[] | undefined, userRole?: string, accessibleFeatures?: string[]): MenuItem[] {
     const filteredItems = ALL_MENU_ITEMS
         .map((item) => filterMenuItem(item, userPermissions, userRole, accessibleFeatures))
-        .filter((item): item is MenuItem => item !== null)
-        .filter((item) => item.label !== 'Ecommerce Management');
+        .filter((item): item is MenuItem => item !== null);
 
     return SIMPLIFICATION_FLAGS.simplifiedNavigation ? simplifyMenuForDailyUse(filteredItems, userRole) : filteredItems;
 }
