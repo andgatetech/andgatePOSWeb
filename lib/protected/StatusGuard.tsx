@@ -32,10 +32,15 @@ export default function StatusGuard({ children }: StatusGuardProps) {
         if (redirectingRef.current) return;
         redirectingRef.current = true;
         dispatch(logoutAction());
-        persistor.purge().catch(() => {});
         clearAuthCookies();
         clearAuthLocalStorage();
-        window.location.replace(getLoginPath());
+        Promise.resolve()
+            .then(() => persistor.purge())
+            .then(() => persistor.flush())
+            .catch(() => {})
+            .finally(() => {
+                window.location.replace(getLoginPath());
+            });
     }, [dispatch, getLoginPath]);
 
     // Force logout if the saved token expiry is missing or expired while the tab is open.

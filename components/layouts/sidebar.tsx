@@ -197,14 +197,13 @@ const Sidebar = () => {
             {/* ── Logo ─────────────────────────────────────────────────── */}
             <div className="relative flex h-[68px] flex-shrink-0 items-center justify-center border-b border-white/[0.06] px-4">
                 <Link href="/dashboard" className="flex items-center justify-center">
-                    <div className="overflow-hidden rounded-xl border border-white/20 bg-white shadow-sm">
+                    <div className="flex h-11 w-[176px] items-center justify-center rounded-lg border border-white/20 bg-white px-3 shadow-sm">
                         <Image
                             src="/images/andgatebos-logo-vertical.png"
                             alt="AndgateBOS"
                             width={164}
                             height={33}
-                            className="h-8 w-auto object-contain px-2 py-1"
-                            style={{ width: 'auto' }}
+                            className="h-auto max-h-8 w-full object-contain"
                             priority
                             unoptimized
                         />

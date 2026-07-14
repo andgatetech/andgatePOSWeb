@@ -36,6 +36,7 @@ const safeLocalStorageSet = (key: string, value: string) => {
 };
 
 const waitForPersistFlush = async () => {
+    persistor.persist();
     await Promise.race([
         persistor.flush(),
         new Promise<void>((resolve) => {
@@ -145,6 +146,7 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
             safeLocalStorageSet(AUTH_TOKEN_STORAGE_KEY, token);
             safeLocalStorageSet(AUTH_TOKEN_EXPIRES_AT_KEY, validTokenExpiresAt);
             safeLocalStorageSet(REMEMBER_LOGIN_KEY, String(rememberMe));
+            persistor.persist();
 
             if (rememberMe && navigator.storage?.persist) {
                 navigator.storage.persist().catch(() => {});

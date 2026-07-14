@@ -145,13 +145,10 @@ function simplifyMenuForDailyUse(items: MenuItem[], userRole?: string): MenuItem
         });
     }
 
-    const customerGroup = nestedGroup('Customers', leavesFrom(items, ['Customer']));
-    const supplierGroup = nestedGroup('Suppliers', leavesFrom(items, ['Supplier']));
-    const parties = compactGroup('Customers & Suppliers', React.createElement(Users), [
-        ...(customerGroup ? [customerGroup] : []),
-        ...(supplierGroup ? [supplierGroup] : []),
-    ]);
-    if (parties) result.push(parties);
+    const customers = compactGroup('Customers', React.createElement(Users), leavesFrom(items, ['Customer']));
+    const suppliers = compactGroup('Suppliers', React.createElement(Truck), leavesFrom(items, ['Supplier']));
+    if (customers) result.push(customers);
+    if (suppliers) result.push(suppliers);
 
     const expensesGroup = nestedGroup('Expenses', leavesFrom(items, ['Expenses']));
     const cashOperationsGroup = nestedGroup('Cash & Operations', operations ? flattenLeafItems([operations]) : []);

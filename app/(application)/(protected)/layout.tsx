@@ -10,6 +10,7 @@ import Sidebar from '@/components/layouts/sidebar';
 import Portals from '@/components/portals';
 import StatusGuard from '@/lib/protected/StatusGuard';
 import SubscriptionGate from '@/lib/protected/SubscriptionGate';
+import RouteAccessGate from '@/lib/protected/RouteAccessGate';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import WorkflowTracker from './dashboard/components/WorkflowTracker';
 
@@ -29,7 +30,9 @@ function ProtectedLayoutInner({ children }: { children: React.ReactNode }) {
                         <Header />
                         <CriticalBanner />
                         <div className="px-3 py-4 pb-20 sm:px-4 lg:px-6 lg:pb-4">
-                            <SubscriptionGate>{children}</SubscriptionGate>
+                            <SubscriptionGate>
+                                <RouteAccessGate>{children}</RouteAccessGate>
+                            </SubscriptionGate>
                         </div>
                         <Footer />
                         <Portals />

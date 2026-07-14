@@ -56,9 +56,9 @@ function AuthExpiryWatcher() {
         if (token && !isTokenExpired(tokenExpiresAt)) return;
 
         dispatch(logout());
-        persistor.purge();
         clearAuthCookies();
         clearAuthLocalStorage();
+        persistor.flush().catch(() => {});
     }, [dispatch, isAuthenticated, token, tokenExpiresAt]);
 
     return null;

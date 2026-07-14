@@ -12,8 +12,8 @@ import { MessagesSquare, ClipboardList } from 'lucide-react';
 import { RootState, persistor } from '@/store';
 import { useLogoutMutation } from '@/store/features/auth/authApi';
 import { logout as logoutAction } from '@/store/features/auth/authSlice';
-import { resetToggleSidebar } from '@/store/themeConfigSlice';
-import { Maximize, Minimize, ShoppingCart } from 'lucide-react';
+import { resetToggleSidebar, toggleSidebar } from '@/store/themeConfigSlice';
+import { Maximize, Menu, Minimize, ShoppingCart } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { getTranslation } from '@/i18n';
@@ -138,6 +138,7 @@ const Header = () => {
     }, [pathname]);
 
     const isRtl = useSelector((state: RootState) => state.themeConfig.rtlClass) === 'rtl';
+    const sidebarCollapsed = useSelector((state: RootState) => state.themeConfig.sidebar);
     const userPerms = useSelector((state: RootState) => state.auth.user?.permissions ?? []);
     const canGiveFeedback = userPerms.includes('feedbacks.create');
     const canViewFeedback = userPerms.includes('feedbacks.index');
@@ -148,7 +149,7 @@ const Header = () => {
                 <div className="relative flex w-full items-center bg-[#034d79] px-3 py-2.5 sm:px-5">
                     {/* Logo — mobile: small inline; desktop: hidden (sidebar has it) */}
                     <div className="horizontal-logo mr-2 flex shrink-0 items-center lg:hidden">
-                        <Link href="/dashboard" className="main-logo flex items-center">
+                        <Link href="/dashboard" className="main-logo flex items-center rounded-lg bg-white px-2 py-1 shadow-sm">
                             <Image
                                 src="/images/andgatebos-logo-vertical.png"
                                 alt="logo icon"
@@ -160,6 +161,16 @@ const Header = () => {
                             />
                         </Link>
                     </div>
+
+                    <button
+                        type="button"
+                        onClick={() => dispatch(toggleSidebar())}
+                        aria-label={sidebarCollapsed ? 'Open sidebar' : 'Hide sidebar'}
+                        title={sidebarCollapsed ? 'Open sidebar' : 'Hide sidebar'}
+                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-white/[0.08] text-white transition-colors hover:bg-white/[0.15] ltr:mr-2 rtl:ml-2"
+                    >
+                        <Menu className="h-[18px] w-[18px]" />
+                    </button>
 
                     {/* Left Action Buttons — POS + Calculator (desktop only; mobile uses bottom nav) */}
                     <div className="hidden items-center gap-1.5 sm:gap-2 ltr:mr-2 rtl:ml-2 lg:flex">

@@ -283,14 +283,14 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     '/notifications/send': ['notifications.create'],
 
     // ── Ecommerce Management ──────────────────────────────────
-    '/ecommerce/stores': ['stores.view'],
-    '/ecommerce/orders': ['orders.index'],
-    '/ecommerce/cod-reconciliation': ['orders.index'],
-    '/ecommerce/products': ['products.index'],
-    '/ecommerce/carts': ['orders.view'],
-    '/ecommerce/wishlists': ['orders.view'],
-    '/ecommerce/setting/credentials': ['stores.edit'],
-    '/ecommerce/setting/marketing': ['stores.edit'],
+    '/ecommerce/stores': ['ecommerce.manage', 'stores.view'],
+    '/ecommerce/orders': ['ecommerce.manage', 'orders.index'],
+    '/ecommerce/cod-reconciliation': ['ecommerce.manage', 'orders.index'],
+    '/ecommerce/products': ['ecommerce.manage', 'products.index'],
+    '/ecommerce/carts': ['ecommerce.manage', 'orders.view'],
+    '/ecommerce/wishlists': ['ecommerce.manage', 'orders.view'],
+    '/ecommerce/setting/credentials': ['ecommerce.manage', 'stores.edit'],
+    '/ecommerce/setting/marketing': ['ecommerce.manage', 'stores.edit'],
 
     // ── Feedbacks ──────────────────────────────────────────────
     '/feedbacks': ['feedbacks.index'],
@@ -329,6 +329,44 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     '/users/profile': [],
     '/users/user-account-settings': [],
     '/users/account-settings': [],
+};
+
+const SUBSCRIPTION_EXEMPT_PERMISSIONS = [
+    'store.settings',
+    'stores.edit',
+    'stores.view',
+];
+
+const isSubscriptionExemptPermission = (permission: string): boolean =>
+    SUBSCRIPTION_EXEMPT_PERMISSIONS.includes(permission)
+    || permission.startsWith('affiliate.')
+    || permission.startsWith('business-os.')
+    || permission.startsWith('business-tasks.')
+    || permission.startsWith('cash-closing.')
+    || permission.startsWith('petty-cash.')
+    || permission.startsWith('service-jobs.')
+    || permission.startsWith('cash-drawer.');
+
+export const routeRequiresPackageFeature = (route: string): boolean => {
+    const routeKey = findMatchingRouteKey(route);
+    if (!routeKey) return false;
+
+    const requiredPermissions = ROUTE_PERMISSIONS[routeKey] ?? [];
+    return requiredPermissions.some((permission) => permission !== 'subscription.owner' && !isSubscriptionExemptPermission(permission));
+};
+
+export const canAccessRoutePackageFeature = (route: string, accessibleFeatures: string[] | undefined): boolean => {
+    const routeKey = findMatchingRouteKey(route);
+    if (!routeKey) return true;
+
+    const requiredPermissions = ROUTE_PERMISSIONS[routeKey] ?? [];
+    const featurePermissions = requiredPermissions.filter((permission) => permission !== 'subscription.owner' && !isSubscriptionExemptPermission(permission));
+
+    if (featurePermissions.length === 0 || accessibleFeatures === undefined) {
+        return true;
+    }
+
+    return featurePermissions.some((permission) => accessibleFeatures.includes(permission));
 };
 
 /**
