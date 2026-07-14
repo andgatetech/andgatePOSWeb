@@ -7358,5 +7358,13 @@
   "rbm_owner_capital": "Owner Capital",
   "rbm_review_totals": "Review Totals",
   "rbm_equity_adjustment": "Equity Adjustment",
-  "rbm_asset_adjustment": "Asset Adjustment"
+  "rbm_asset_adjustment": "Asset Adjustment",
+  "rbm_product_stock_lines": "Product Stock Lines",
+  "rbm_select_stock_item": "Select product stock",
+  "rbm_unit_cost": "Unit Cost",
+  "rbm_customer_receivable_lines": "Customer Receivable Lines",
+  "rbm_supplier_payable_lines": "Supplier Payable Lines",
+  "rbm_customer_id": "Customer ID",
+  "rbm_supplier_id": "Supplier ID",
+  "rbm_no_lines": "No lines added yet"
 }

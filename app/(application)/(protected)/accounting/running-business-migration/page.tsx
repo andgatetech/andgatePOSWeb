@@ -12,6 +12,7 @@ import {
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import { useCurrency } from '@/hooks/useCurrency';
+import { useGetProductStocksQuery } from '@/store/features/ProductStock/productStockApi';
 import { AlertCircle, CalendarDays, CheckCircle2, ClipboardCheck, FileText, Loader2, Save, Send, ShieldCheck } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -38,6 +39,7 @@ export default function RunningBusinessMigrationPage() {
     const { formatCurrency } = useCurrency();
     const { currentStoreId, currentStore } = useCurrentStore();
     const { data, isLoading, refetch } = useGetRunningBusinessMigrationQuery({ store_id: Number(currentStoreId) }, { skip: !currentStoreId });
+    const { data: stockData } = useGetProductStocksQuery({ store_id: currentStoreId, per_page: 200 }, { skip: !currentStoreId });
     const [saveMigration, { isLoading: saving }] = useSaveRunningBusinessMigrationMutation();
     const [markReady, { isLoading: markingReady }] = useMarkRunningBusinessMigrationReadyMutation();
     const [postOpeningBalance, { isLoading: posting }] = usePostRunningBusinessOpeningBalanceMutation();
@@ -99,15 +101,29 @@ export default function RunningBusinessMigrationPage() {
     };
 
     const getAmount = (step: ChecklistKey, field: string) => Number(stepData[step]?.[field] || 0);
+    const stockOptions = useMemo(() => {
+        const rows = stockData?.data?.data || [];
+        return rows.flatMap((product: any) =>
+            (product.stocks || []).map((stock: any) => ({
+                id: stock.stock_id,
+                label: `${product.product_name}${stock.variant_name ? ` - ${stock.variant_name}` : ''}${stock.sku ? ` (${stock.sku})` : ''}`,
+                currentQuantity: Number(stock.quantity || 0),
+            }))
+        );
+    }, [stockData]);
+    const sumItems = (step: ChecklistKey, field: string) => (Array.isArray(stepData[step]?.items) ? stepData[step].items.reduce((sum: number, item: any) => sum + Number(item[field] || 0), 0) : 0);
+    const openingStockItemsValue = Array.isArray(stepData.opening_stock?.items)
+        ? stepData.opening_stock.items.reduce((sum: number, item: any) => sum + Number(item.quantity || 0) * Number(item.unit_cost || 0), 0)
+        : 0;
     const debitTotal =
         getAmount('opening_cash_bank', 'cash_in_hand') +
         getAmount('opening_cash_bank', 'bank_balance') +
         getAmount('opening_cash_bank', 'mobile_banking') +
-        getAmount('opening_stock', 'inventory_value') +
-        getAmount('customer_receivables', 'receivables') +
+        (openingStockItemsValue || getAmount('opening_stock', 'inventory_value')) +
+        (sumItems('customer_receivables', 'amount') || getAmount('customer_receivables', 'receivables')) +
         getAmount('opening_expenses_liabilities', 'other_assets');
     const creditTotal =
-        getAmount('supplier_payables', 'payables') +
+        (sumItems('supplier_payables', 'amount') || getAmount('supplier_payables', 'payables')) +
         getAmount('opening_expenses_liabilities', 'loans_payable') +
         getAmount('opening_expenses_liabilities', 'outstanding_expenses') +
         getAmount('owner_equity', 'owner_capital');
@@ -140,6 +156,29 @@ export default function RunningBusinessMigrationPage() {
         } catch (error: any) {
             showErrorDialog(error?.data?.errors?.opening_balance || error?.data?.message || t('msg_error_generic'));
         }
+    };
+
+    const updateArrayItem = (step: ChecklistKey, index: number, patch: Record<string, any>) => {
+        setStepData((prev) => {
+            const items = Array.isArray(prev[step]?.items) ? [...prev[step].items] : [];
+            items[index] = { ...(items[index] || {}), ...patch };
+            return { ...prev, [step]: { ...(prev[step] || {}), items } };
+        });
+    };
+
+    const addArrayItem = (step: ChecklistKey, item: Record<string, any>) => {
+        setStepData((prev) => {
+            const items = Array.isArray(prev[step]?.items) ? [...prev[step].items] : [];
+            return { ...prev, [step]: { ...(prev[step] || {}), items: [...items, item] } };
+        });
+    };
+
+    const removeArrayItem = (step: ChecklistKey, index: number) => {
+        setStepData((prev) => {
+            const items = Array.isArray(prev[step]?.items) ? [...prev[step].items] : [];
+            items.splice(index, 1);
+            return { ...prev, [step]: { ...(prev[step] || {}), items } };
+        });
     };
 
     if (isLoading) return <Loader />;
@@ -303,6 +342,44 @@ export default function RunningBusinessMigrationPage() {
                                 <AmountField label={t('rbm_owner_capital')} value={stepData.owner_equity?.owner_capital} onChange={(value) => setStepField('owner_equity', 'owner_capital', value)} />
                             )}
                         </div>
+                        {currentStep === 'opening_stock' && (
+                            <StockItemsEditor
+                                t={t}
+                                stockOptions={stockOptions}
+                                items={stepData.opening_stock?.items || []}
+                                onAdd={() => addArrayItem('opening_stock', { product_stock_id: '', quantity: '', unit_cost: '' })}
+                                onUpdate={(index, patch) => updateArrayItem('opening_stock', index, patch)}
+                                onRemove={(index) => removeArrayItem('opening_stock', index)}
+                            />
+                        )}
+                        {currentStep === 'customer_receivables' && (
+                            <SimpleAmountItemsEditor
+                                t={t}
+                                title={t('rbm_customer_receivable_lines')}
+                                nameLabel={t('lbl_customer')}
+                                idLabel={t('rbm_customer_id')}
+                                idField="customer_id"
+                                amountLabel={t('rbm_receivables')}
+                                items={stepData.customer_receivables?.items || []}
+                                onAdd={() => addArrayItem('customer_receivables', { name: '', amount: '' })}
+                                onUpdate={(index, patch) => updateArrayItem('customer_receivables', index, patch)}
+                                onRemove={(index) => removeArrayItem('customer_receivables', index)}
+                            />
+                        )}
+                        {currentStep === 'supplier_payables' && (
+                            <SimpleAmountItemsEditor
+                                t={t}
+                                title={t('rbm_supplier_payable_lines')}
+                                nameLabel={t('lbl_supplier')}
+                                idLabel={t('rbm_supplier_id')}
+                                idField="supplier_id"
+                                amountLabel={t('rbm_payables')}
+                                items={stepData.supplier_payables?.items || []}
+                                onAdd={() => addArrayItem('supplier_payables', { name: '', amount: '' })}
+                                onUpdate={(index, patch) => updateArrayItem('supplier_payables', index, patch)}
+                                onRemove={(index) => removeArrayItem('supplier_payables', index)}
+                            />
+                        )}
                         <textarea
                             className="form-textarea mt-3 min-h-28 w-full"
                             value={String(stepData[currentStep]?.summary || '')}
@@ -345,5 +422,103 @@ const SummaryBox = ({ label, value }: { label: string; value: string }) => (
     <div className="rounded-lg bg-gray-50 px-3 py-2">
         <p className="text-xs text-gray-500">{label}</p>
         <p className="mt-1 text-sm font-bold text-gray-900">{value}</p>
+    </div>
+);
+
+const StockItemsEditor = ({
+    t,
+    stockOptions,
+    items,
+    onAdd,
+    onUpdate,
+    onRemove,
+}: {
+    t: (key: string) => string;
+    stockOptions: Array<{ id: number; label: string; currentQuantity: number }>;
+    items: any[];
+    onAdd: () => void;
+    onUpdate: (index: number, patch: Record<string, any>) => void;
+    onRemove: (index: number) => void;
+}) => (
+    <div className="mt-4 rounded-lg border border-gray-100">
+        <div className="flex items-center justify-between border-b border-gray-100 px-3 py-2">
+            <h3 className="text-xs font-bold text-gray-700">{t('rbm_product_stock_lines')}</h3>
+            <button type="button" onClick={onAdd} className="rounded-md bg-primary px-3 py-1.5 text-xs font-bold text-white">
+                {t('btn_add')}
+            </button>
+        </div>
+        <div className="space-y-2 p-3">
+            {items.map((item, index) => (
+                <div key={index} className="grid gap-2 rounded-lg bg-gray-50 p-2 md:grid-cols-[1fr_110px_120px_auto]">
+                    <select className="form-select" value={item.product_stock_id || ''} onChange={(event) => onUpdate(index, { product_stock_id: event.target.value })}>
+                        <option value="">{t('rbm_select_stock_item')}</option>
+                        {stockOptions.map((option) => (
+                            <option key={option.id} value={option.id}>
+                                {option.label}
+                            </option>
+                        ))}
+                    </select>
+                    <input type="number" min="0" step="0.01" className="form-input" placeholder={t('rbm_inventory_qty')} value={item.quantity || ''} onChange={(event) => onUpdate(index, { quantity: event.target.value })} />
+                    <input type="number" min="0" step="0.01" className="form-input" placeholder={t('rbm_unit_cost')} value={item.unit_cost || ''} onChange={(event) => onUpdate(index, { unit_cost: event.target.value })} />
+                    <button type="button" onClick={() => onRemove(index)} className="rounded-md border border-red-200 px-3 py-2 text-xs font-bold text-red-600 hover:bg-red-50">
+                        {t('btn_delete')}
+                    </button>
+                </div>
+            ))}
+            {items.length === 0 && <p className="py-3 text-center text-xs text-gray-400">{t('rbm_no_lines')}</p>}
+        </div>
+    </div>
+);
+
+const SimpleAmountItemsEditor = ({
+    t,
+    title,
+    nameLabel,
+    idLabel,
+    idField,
+    amountLabel,
+    items,
+    onAdd,
+    onUpdate,
+    onRemove,
+}: {
+    t: (key: string) => string;
+    title: string;
+    nameLabel: string;
+    idLabel?: string;
+    idField?: string;
+    amountLabel: string;
+    items: any[];
+    onAdd: () => void;
+    onUpdate: (index: number, patch: Record<string, any>) => void;
+    onRemove: (index: number) => void;
+}) => (
+    <div className="mt-4 rounded-lg border border-gray-100">
+        <div className="flex items-center justify-between border-b border-gray-100 px-3 py-2">
+            <h3 className="text-xs font-bold text-gray-700">{title}</h3>
+            <button type="button" onClick={onAdd} className="rounded-md bg-primary px-3 py-1.5 text-xs font-bold text-white">
+                {t('btn_add')}
+            </button>
+        </div>
+        <div className="space-y-2 p-3">
+            {items.map((item, index) => (
+                <div key={index} className="grid gap-2 rounded-lg bg-gray-50 p-2 md:grid-cols-[100px_1fr_140px_auto]">
+                    <input
+                        type="number"
+                        min="0"
+                        className="form-input"
+                        placeholder={idLabel || 'ID'}
+                        value={(idField ? item[idField] : '') || ''}
+                        onChange={(event) => idField && onUpdate(index, { [idField]: event.target.value })}
+                    />
+                    <input className="form-input" placeholder={nameLabel} value={item.name || ''} onChange={(event) => onUpdate(index, { name: event.target.value })} />
+                    <input type="number" min="0" step="0.01" className="form-input" placeholder={amountLabel} value={item.amount || ''} onChange={(event) => onUpdate(index, { amount: event.target.value })} />
+                    <button type="button" onClick={() => onRemove(index)} className="rounded-md border border-red-200 px-3 py-2 text-xs font-bold text-red-600 hover:bg-red-50">
+                        {t('btn_delete')}
+                    </button>
+                </div>
+            ))}
+            {items.length === 0 && <p className="py-3 text-center text-xs text-gray-400">{t('rbm_no_lines')}</p>}
+        </div>
     </div>
 );

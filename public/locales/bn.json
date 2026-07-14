@@ -7358,5 +7358,13 @@
   "rbm_owner_capital": "মালিকের মূলধন",
   "rbm_review_totals": "রিভিউ টোটাল",
   "rbm_equity_adjustment": "ইকুইটি অ্যাডজাস্টমেন্ট",
-  "rbm_asset_adjustment": "অ্যাসেট অ্যাডজাস্টমেন্ট"
+  "rbm_asset_adjustment": "অ্যাসেট অ্যাডজাস্টমেন্ট",
+  "rbm_product_stock_lines": "প্রোডাক্ট স্টক লাইন",
+  "rbm_select_stock_item": "প্রোডাক্ট স্টক সিলেক্ট করুন",
+  "rbm_unit_cost": "ইউনিট কস্ট",
+  "rbm_customer_receivable_lines": "কাস্টমার পাওনা লাইন",
+  "rbm_supplier_payable_lines": "সাপ্লায়ার দেনা লাইন",
+  "rbm_customer_id": "কাস্টমার ID",
+  "rbm_supplier_id": "সাপ্লায়ার ID",
+  "rbm_no_lines": "এখনও কোনো লাইন যোগ করা হয়নি"
 }
