@@ -39,6 +39,7 @@ const withPWA = require('@ducanh2912/next-pwa').default({
                 options: {
                     cacheName: 'app-pages',
                     networkTimeoutSeconds: 8,
+                    cacheableResponse: { statuses: [200] },
                     expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 7 },
                 },
             },
@@ -48,11 +49,16 @@ const withPWA = require('@ducanh2912/next-pwa').default({
                 handler: 'NetworkOnly',
             },
             {
-                // Cache-first for static assets
-                urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|ico|woff2?)$/i,
+                // Cache public static assets only. Do not cache API/storage
+                // media here because product/customer files can be tenant data.
+                urlPattern: ({ request, url }) =>
+                    ['image', 'font'].includes(request.destination) &&
+                    url.origin === self.location.origin &&
+                    !url.pathname.startsWith('/storage/'),
                 handler: 'CacheFirst',
                 options: {
                     cacheName: 'static-assets',
+                    cacheableResponse: { statuses: [200] },
                     expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 30 },
                 },
             },

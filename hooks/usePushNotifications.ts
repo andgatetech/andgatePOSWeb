@@ -27,14 +27,12 @@ export function usePushNotifications() {
         if (!VAPID_PUBLIC_KEY) return;
         if (typeof window === 'undefined') return;
         if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+        if (!('Notification' in window) || Notification.permission !== 'granted') return;
 
         subscribedRef.current = true;
 
         (async () => {
             try {
-                const permission = await Notification.requestPermission();
-                if (permission !== 'granted') return;
-
                 const registration = await navigator.serviceWorker.ready;
 
                 // Re-use existing subscription if already subscribed

@@ -34,8 +34,12 @@ export const usePWAInstall = (): PWAInstallState => {
             return;
         }
 
-        // iOS/iPadOS: Safari doesn't fire beforeinstallprompt
-        const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) && !(window as any).MSStream;
+        // iOS/iPadOS Safari doesn't fire beforeinstallprompt. Modern iPadOS
+        // often reports as Mac, so also detect touch-enabled Mac user agents.
+        const ios =
+            (/iphone|ipad|ipod/i.test(navigator.userAgent) ||
+                (navigator.userAgent.includes('Mac') && navigator.maxTouchPoints > 1)) &&
+            !(window as any).MSStream;
         setIsIOS(ios);
         setIsReady(true);
 

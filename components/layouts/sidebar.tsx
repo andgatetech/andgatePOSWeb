@@ -16,6 +16,7 @@ import { useGetUnreadCountQuery } from '@/store/features/notification/notificati
 import { usePWAInstall } from '@/hooks/usePWAInstall';
 import { useGetStoreQuery } from '@/store/features/store/storeApi';
 import { useFeatureAccess } from '@/hooks/useFeatureAccess';
+import PwaInstallGuide from '@/components/custom/PwaInstallGuide';
 
 import { AlertTriangle, Ban, ChevronDown, Crown, Search } from 'lucide-react';
 import Image from 'next/image';
@@ -31,6 +32,7 @@ const Sidebar = () => {
     const [storeWarning, setStoreWarning] = useState<string | null>(null);
     const [isSwitchingStore, setIsSwitchingStore] = useState(false);
     const [storeSearch, setStoreSearch] = useState('');
+    const [showInstallGuide, setShowInstallGuide] = useState(false);
     const [fetchStorePermissions] = useLazyGetStorePermissionsQuery();
     const pwa = usePWAInstall();
 
@@ -532,7 +534,13 @@ const Sidebar = () => {
             {pwa.isInstallable && !pwa.isInstalled && (
                 <div className="flex-shrink-0 border-t border-white/[0.06] px-3 py-3">
                     <button
-                        onClick={() => pwa.install()}
+                        onClick={() => {
+                            if (pwa.hasNativePrompt) {
+                                pwa.install();
+                                return;
+                            }
+                            setShowInstallGuide(true);
+                        }}
                         className="flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left text-white transition-colors hover:bg-white/[0.05]"
                     >
                         <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 text-sm font-bold text-white shadow-lg">
@@ -546,6 +554,9 @@ const Sidebar = () => {
                         </div>
                     </button>
                 </div>
+            )}
+            {showInstallGuide && (
+                <PwaInstallGuide isIOS={pwa.isIOS} onClose={() => setShowInstallGuide(false)} />
             )}
 
         </nav>

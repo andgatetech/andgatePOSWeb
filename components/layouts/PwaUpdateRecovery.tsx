@@ -33,6 +33,12 @@ export default function PwaUpdateRecovery() {
             return;
         }
 
+        const checkForUpdate = () => {
+            navigator.serviceWorker.getRegistration().then((registration) => {
+                registration?.update().catch(() => {});
+            }).catch(() => {});
+        };
+
         const handleControllerChange = () => {
             if (recentlyReloadedForServiceWorkerUpdate()) {
                 return;
@@ -45,10 +51,19 @@ export default function PwaUpdateRecovery() {
             window.location.reload();
         };
 
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') checkForUpdate();
+        };
+
+        checkForUpdate();
         navigator.serviceWorker.addEventListener('controllerchange', handleControllerChange);
+        window.addEventListener('focus', checkForUpdate);
+        document.addEventListener('visibilitychange', handleVisibilityChange);
 
         return () => {
             navigator.serviceWorker.removeEventListener('controllerchange', handleControllerChange);
+            window.removeEventListener('focus', checkForUpdate);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
         };
     }, []);
 
