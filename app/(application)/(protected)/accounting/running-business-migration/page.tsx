@@ -34,6 +34,8 @@ const defaultChecklist = checklistSteps.reduce((acc, step) => {
     return acc;
 }, {} as RunningBusinessMigrationChecklist);
 
+const displayStatus = (value?: string | null) => (value || 'not_started').replace(/_/g, ' ');
+
 export default function RunningBusinessMigrationPage() {
     const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
@@ -69,18 +71,25 @@ export default function RunningBusinessMigrationPage() {
         setCurrentStep(key);
     };
 
+    const buildSavePayload = () => ({
+        store_id: Number(currentStoreId),
+        migration_date: migrationDate || null,
+        status: status?.status === 'not_started' ? ('draft' as const) : status?.status === 'draft' || status?.status === 'in_progress' ? ('in_progress' as const) : undefined,
+        current_step: currentStep,
+        checklist,
+        step_data: stepData,
+        notes,
+    });
+
+    const saveCurrentMigration = async () => {
+        if (!currentStoreId) return false;
+        await saveMigration(buildSavePayload()).unwrap();
+        return true;
+    };
+
     const handleSave = async () => {
-        if (!currentStoreId) return;
         try {
-            await saveMigration({
-                store_id: Number(currentStoreId),
-                migration_date: migrationDate || null,
-                status: status?.status === 'not_started' ? 'draft' : status?.status === 'draft' || status?.status === 'in_progress' ? 'in_progress' : undefined,
-                current_step: currentStep,
-                checklist,
-                step_data: stepData,
-                notes,
-            }).unwrap();
+            await saveCurrentMigration();
             showSuccessDialog(t('rbm_saved'));
             refetch();
         } catch {
@@ -113,7 +122,7 @@ export default function RunningBusinessMigrationPage() {
     }, [stockData]);
     const sumItems = (step: ChecklistKey, field: string) => (Array.isArray(stepData[step]?.items) ? stepData[step].items.reduce((sum: number, item: any) => sum + Number(item[field] || 0), 0) : 0);
     const openingStockItemsValue = Array.isArray(stepData.opening_stock?.items)
-        ? stepData.opening_stock.items.reduce((sum: number, item: any) => sum + Number(item.quantity || 0) * Number(item.unit_cost || 0), 0)
+        ? stepData.opening_stock.items.reduce((sum: number, item: any) => sum + (item.product_stock_id ? Number(item.quantity || 0) * Number(item.unit_cost || 0) : 0), 0)
         : 0;
     const debitTotal =
         getAmount('opening_cash_bank', 'cash_in_hand') +
@@ -135,6 +144,7 @@ export default function RunningBusinessMigrationPage() {
     const handleMarkReady = async () => {
         if (!currentStoreId) return;
         try {
+            await saveCurrentMigration();
             await markReady({ store_id: Number(currentStoreId) }).unwrap();
             showSuccessDialog(t('rbm_marked_ready'));
             refetch();
@@ -150,6 +160,7 @@ export default function RunningBusinessMigrationPage() {
         if (!confirmed) return;
 
         try {
+            await saveCurrentMigration();
             await postOpeningBalance({ store_id: Number(currentStoreId) }).unwrap();
             showSuccessDialog(t('rbm_posted'));
             refetch();
@@ -199,7 +210,7 @@ export default function RunningBusinessMigrationPage() {
                     <button
                         type="button"
                         onClick={handleSave}
-                        disabled={saving || markingReady || !currentStoreId}
+                        disabled={saving || markingReady || posting || !currentStoreId || status?.status === 'posted'}
                         className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-primary/20 bg-white px-4 py-2 text-sm font-semibold text-primary shadow-sm hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
@@ -239,11 +250,11 @@ export default function RunningBusinessMigrationPage() {
                         <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
                             <div className="rounded-md bg-gray-50 px-3 py-2">
                                 <p className="text-gray-500">{t('lbl_status')}</p>
-                                <p className="mt-1 font-bold capitalize text-gray-900">{status?.status || 'not_started'}</p>
+                                <p className="mt-1 font-bold capitalize text-gray-900">{displayStatus(status?.status)}</p>
                             </div>
                             <div className="rounded-md bg-gray-50 px-3 py-2">
                                 <p className="text-gray-500">{t('rbm_opening_balance')}</p>
-                                <p className="mt-1 font-bold capitalize text-gray-900">{status?.opening_balance?.status || 'not_configured'}</p>
+                                <p className="mt-1 font-bold capitalize text-gray-900">{displayStatus(status?.opening_balance?.status || 'not_configured')}</p>
                             </div>
                         </div>
                     </div>

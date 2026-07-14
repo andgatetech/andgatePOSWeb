@@ -323,6 +323,9 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
             useBalance: false,
             pointsToUse: 0,
             balanceToUse: 0,
+            // Partial/Due need a registered customer to track — fall back to paid once cleared.
+            paymentStatus: prev.paymentStatus === 'due' || prev.paymentStatus === 'partial' ? 'paid' : prev.paymentStatus,
+            partialPaymentAmount: 0,
         }));
     };
 
@@ -367,6 +370,9 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
                 useBalance: false,
                 pointsToUse: 0,
                 balanceToUse: 0,
+                // Partial/Due need a registered customer to track — fall back to paid once cleared.
+                paymentStatus: prevForm.paymentStatus === 'due' || prevForm.paymentStatus === 'partial' ? 'paid' : prevForm.paymentStatus,
+                partialPaymentAmount: 0,
             }));
 
             return next;
@@ -561,14 +567,9 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
     };
 
     useEffect(() => {
-        // Update due amount based on payment status and partial payment
-        if (formData.paymentStatus === 'due') {
-            setFormData((prev) => ({
-                ...prev,
-                dueAmount: calculateTotal(),
-                partialPaymentAmount: 0,
-            }));
-        } else if (formData.paymentStatus === 'partial') {
+        // Update due amount based on payment status and partial payment.
+        // "Due" allows an optional amount collected now, same as "Partial" — the remainder is due either way.
+        if (formData.paymentStatus === 'due' || formData.paymentStatus === 'partial') {
             const total = calculateTotal();
             const paid = formData.partialPaymentAmount || 0;
             setFormData((prev) => ({
@@ -639,7 +640,7 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
                         ...prev,
                         paymentStatus: value,
                         partialPaymentAmount: 0,
-                        dueAmount: value === 'due' ? calculateTotal() : 0,
+                        dueAmount: value === 'due' || value === 'partial' ? calculateTotal() : 0,
                         paymentMethod: statusStillValid ? prev.paymentMethod : '',
                     };
                 });
@@ -759,7 +760,12 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
             discount: calculateDiscount() + calculateMembershipDiscount(),
             payment_status: formData.paymentStatus,
             payment_method: formData.paymentMethod,
-            amount_paid: formData.paymentStatus === 'paid' ? grandTotal : formData.paymentStatus === 'partial' ? formData.partialPaymentAmount : 0,
+            amount_paid:
+                formData.paymentStatus === 'paid'
+                    ? grandTotal
+                    : formData.paymentStatus === 'partial' || formData.paymentStatus === 'due'
+                      ? formData.partialPaymentAmount || 0
+                      : 0,
             change_amount: formData.paymentStatus === 'paid' ? formData.changeAmount : 0,
             due_amount: formData.dueAmount,
         };
@@ -914,8 +920,8 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
             paymentMethod: formData.paymentMethod,
             paymentStatus: formData.paymentStatus,
             partialPaymentAmount: formData.partialPaymentAmount || 0,
-            amount_paid: formData.amountPaid || formData.partialPaymentAmount || 0,
-            dueAmount: formData.paymentStatus === 'due' ? calculateTotal() : formData.paymentStatus === 'partial' ? calculateTotal() - (formData.partialPaymentAmount || 0) : 0,
+            amount_paid: formData.paymentStatus === 'due' || formData.paymentStatus === 'partial' ? formData.partialPaymentAmount || 0 : formData.amountPaid || 0,
+            dueAmount: formData.paymentStatus === 'due' || formData.paymentStatus === 'partial' ? calculateTotal() - (formData.partialPaymentAmount || 0) : 0,
             totals: {
                 subtotal: calculateSubtotalWithoutTax(),
                 tax: calculateTax(),

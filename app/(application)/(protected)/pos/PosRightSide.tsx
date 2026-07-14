@@ -663,6 +663,9 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             useBalance: false,
             pointsToUse: 0,
             balanceToUse: 0,
+            // Partial/Due need a registered customer to track — fall back to paid once cleared.
+            paymentStatus: prev.paymentStatus === 'due' || prev.paymentStatus === 'partial' ? 'paid' : prev.paymentStatus,
+            partialPaymentAmount: 0,
         }));
     };
 
@@ -708,6 +711,9 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                 useBalance: false,
                 pointsToUse: 0,
                 balanceToUse: 0,
+                // Partial/Due need a registered customer to track — fall back to paid once cleared.
+                paymentStatus: prevForm.paymentStatus === 'due' || prevForm.paymentStatus === 'partial' ? 'paid' : prevForm.paymentStatus,
+                partialPaymentAmount: 0,
             }));
 
             return next;
@@ -1038,7 +1044,14 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
 
         const isCash = formData.paymentMethod.toLowerCase() === 'cash';
         const total = calculatePaidQuoteTotal();
-        const amountPaid = formData.paymentStatus === 'paid' ? (isCash ? Math.max(formData.amountPaid || 0, total) : total) : formData.paymentStatus === 'partial' ? formData.partialPaymentAmount : 0;
+        const amountPaid =
+            formData.paymentStatus === 'paid'
+                ? isCash
+                    ? Math.max(formData.amountPaid || 0, total)
+                    : total
+                : formData.paymentStatus === 'partial' || formData.paymentStatus === 'due'
+                  ? formData.partialPaymentAmount || 0
+                  : 0;
 
         return {
             store_id: currentStoreId,
@@ -1124,14 +1137,9 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
     }, [quoteOrder, quotePayload]);
 
     useEffect(() => {
-        // Update due amount based on payment status and partial payment
-        if (formData.paymentStatus === 'due') {
-            setFormData((prev) => ({
-                ...prev,
-                dueAmount: backendGrandTotal,
-                partialPaymentAmount: 0,
-            }));
-        } else if (formData.paymentStatus === 'partial') {
+        // Update due amount based on payment status and partial payment.
+        // "Due" allows an optional amount collected now, same as "Partial" — the remainder is due either way.
+        if (formData.paymentStatus === 'due' || formData.paymentStatus === 'partial') {
             const total = backendGrandTotal;
             const paid = formData.partialPaymentAmount || 0;
             setFormData((prev) => ({
@@ -1241,7 +1249,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                     ...prev,
                     paymentStatus: value,
                     partialPaymentAmount: 0,
-                    dueAmount: value === 'due' ? backendGrandTotal : 0,
+                    dueAmount: value === 'due' || value === 'partial' ? backendGrandTotal : 0,
                 }));
                 return;
             }
@@ -1393,10 +1401,10 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                 actualChangeAmount = 0;
                 dueAmount = Number(freshPayment.due_amount ?? grandTotal - formData.partialPaymentAmount);
             } else if (formData.paymentStatus === 'due') {
-                // For due, no amount paid
-                actualAmountPaid = 0;
+                // For due, an amount received now is optional — the rest stays due.
+                actualAmountPaid = Number(freshPayment.amount_paid ?? formData.partialPaymentAmount ?? 0);
                 actualChangeAmount = 0;
-                dueAmount = Number(freshPayment.due_amount ?? grandTotal);
+                dueAmount = Number(freshPayment.due_amount ?? grandTotal - actualAmountPaid);
             }
 
             // Soft credit-limit enforcement for due/partial sales

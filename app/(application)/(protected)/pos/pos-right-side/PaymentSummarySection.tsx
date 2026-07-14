@@ -110,6 +110,11 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
         status_color: PAYMENT_STATUS_CONFIGS[s.value].hex,
     }));
 
+    // Partial/Due require a registered customer to track the balance against — mirrors the
+    // backend rule in OrderService::validateOrderRules (walk-in must be "paid"; due/partial need
+    // customer_id or customer_name).
+    const hasRegisteredCustomer = !isWalkInCustomer && (!!selectedCustomer || !!formData.customerName?.trim());
+
     const getAvailablePaymentStatuses = () => {
         const baseStatuses = paymentStatusOptions.length > 0 ? paymentStatusOptions : defaultStatuses;
         const mappedStatuses = baseStatuses.map((s: any) => ({
@@ -119,9 +124,12 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
             color: s.status_color || '#6b7280',
         }));
         const allowedByMethod = getAllowedStatusesForMethod(formData.paymentMethod);
-        return mappedStatuses.filter((s: any) =>
-            ['paid', 'partial', 'due'].includes(s.value) && allowedByMethod.includes(s.value)
-        );
+        return mappedStatuses.filter((s: any) => {
+            if (!['paid', 'partial', 'due'].includes(s.value)) return false;
+            if (!allowedByMethod.includes(s.value)) return false;
+            if ((s.value === 'partial' || s.value === 'due') && !hasRegisteredCustomer) return false;
+            return true;
+        });
     };
 
     const availablePaymentStatuses = getAvailablePaymentStatuses();
@@ -319,17 +327,20 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                 </div>
             )}
 
-            {/* ── Partial Payment Input ── */}
-            {!isReturnMode && formData.paymentStatus === 'partial' && !isWalkInCustomer && (
+            {/* ── Partial / Due Amount Input ── */}
+            {/* Due allows an optional amount collected now (remainder stays due); Partial requires it. */}
+            {!isReturnMode && (formData.paymentStatus === 'partial' || formData.paymentStatus === 'due') && !isWalkInCustomer && (
                 <div className="rounded-xl border-2 border-blue-200 bg-blue-50 p-3">
                     <div className="mb-2 flex items-center justify-between">
-                        <label className="text-sm font-semibold text-blue-700">{t('lbl_partial_payment_amount')}</label>
+                        <label className="text-sm font-semibold text-blue-700">
+                            {formData.paymentStatus === 'due' ? t('lbl_amount_received_now_optional') : t('lbl_partial_payment_amount')}
+                        </label>
                         <span className="text-xs text-blue-500">{t('lbl_grand_total')}: {formatCurrency(totalPayable)}</span>
                     </div>
                     <input
                         type="number" name="partialPaymentAmount" step="0.01" min="0" max={totalPayable}
                         className="form-input w-full border-blue-300 text-base font-semibold focus:border-primary focus:ring-primary"
-                        placeholder={t('lbl_enter_amount')}
+                        placeholder={formData.paymentStatus === 'due' ? formatNumber(0, 2) : t('lbl_enter_amount')}
                         value={formData.partialPaymentAmount || ''}
                         onChange={onInputChange}
                     />
@@ -345,8 +356,8 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                 </div>
             )}
 
-            {/* ── Due Info ── */}
-            {!isReturnMode && formData.paymentStatus === 'due' && selectedCustomer && (
+            {/* ── Due Info (nothing collected yet) ── */}
+            {!isReturnMode && formData.paymentStatus === 'due' && selectedCustomer && !(formData.partialPaymentAmount > 0) && (
                 <div className="flex items-center justify-between rounded-xl border-2 border-red-200 bg-red-50 px-4 py-3">
                     <div>
                         <p className="text-sm font-semibold text-red-700">{t('lbl_full_amount_due')}</p>
@@ -357,7 +368,7 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
             )}
 
             {/* ── Partial Breakdown ── */}
-            {!isReturnMode && formData.paymentStatus === 'partial' && formData.partialPaymentAmount > 0 && (
+            {!isReturnMode && (formData.paymentStatus === 'partial' || formData.paymentStatus === 'due') && formData.partialPaymentAmount > 0 && (
                 <div className="rounded-xl border border-blue-200 bg-blue-50 px-3 py-2.5">
                     <div className="flex justify-between text-sm">
                         <span className="text-green-700">{t('lbl_amount_paying_now')}</span>
