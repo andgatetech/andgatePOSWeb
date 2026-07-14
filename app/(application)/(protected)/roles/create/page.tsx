@@ -4,7 +4,7 @@ import PermissionSelector, { Permission } from '@/app/(application)/(protected)/
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import { showMessage } from '@/lib/toast';
-import { useCreateRoleMutation, useGetAllPermissionsQuery } from '@/store/features/roles/rolesApi';
+import { useCreateRoleMutation, useGetAllPermissionsQuery, useGetRoleTemplatesQuery } from '@/store/features/roles/rolesApi';
 import { ArrowLeft, Shield, Store } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
@@ -15,6 +15,7 @@ const RoleCreatePage = () => {
     const { currentStore, currentStoreId } = useCurrentStore();
 
     const { data: permissionsData, isLoading: permissionsLoading } = useGetAllPermissionsQuery(undefined, { refetchOnMountOrArgChange: 60 });
+    const { data: templatesData } = useGetRoleTemplatesQuery(undefined, { refetchOnMountOrArgChange: 300 });
     const [createRole, { isLoading: isSubmitting }] = useCreateRoleMutation();
 
     const [formName, setFormName] = useState('');
@@ -30,6 +31,21 @@ const RoleCreatePage = () => {
         if (Array.isArray(d?.data)) return d.data as Permission[];
         return [] as Permission[];
     }, [permissionsData]);
+
+    const roleTemplates = useMemo(() => {
+        const d = templatesData as any;
+        if (Array.isArray(d?.data?.templates)) return d.data.templates;
+        if (Array.isArray(d?.data)) return d.data;
+        return [];
+    }, [templatesData]);
+
+    const applyTemplate = (template: any) => {
+        setFormName(template.name || '');
+        setFormDescription(template.description || '');
+        setFormPermIds(Array.isArray(template.permission_ids) ? template.permission_ids : []);
+        setSelectAll(false);
+        setNameError('');
+    };
 
     const handleToggle = (perm: Permission) => {
         setFormPermIds((prev) => (prev.includes(perm.id) ? prev.filter((x) => x !== perm.id) : [...prev, perm.id]));
@@ -117,6 +133,33 @@ const RoleCreatePage = () => {
                 <div className="overflow-hidden rounded-lg bg-white shadow-sm">
                     <form onSubmit={handleSubmit}>
                         <div className="space-y-8 p-8">
+                            {roleTemplates.length > 0 && (
+                                <div>
+                                    <h3 className="mb-2 text-lg font-semibold text-gray-900">{t('roles_template_title')}</h3>
+                                    <p className="mb-4 text-sm text-gray-500">{t('roles_template_desc')}</p>
+                                    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                                        {roleTemplates.map((template: any) => (
+                                            <button
+                                                key={template.key}
+                                                type="button"
+                                                onClick={() => applyTemplate(template)}
+                                                className="rounded-lg border border-gray-200 bg-gray-50 p-4 text-left transition hover:border-[#046ca9] hover:bg-white hover:shadow-sm"
+                                            >
+                                                <div className="flex items-start justify-between gap-3">
+                                                    <div>
+                                                        <p className="font-semibold text-gray-900">{template.name}</p>
+                                                        <p className="mt-1 text-sm leading-5 text-gray-500">{template.description}</p>
+                                                    </div>
+                                                    <span className="rounded-full bg-[#046ca9]/10 px-2 py-1 text-xs font-semibold text-[#034d79]">
+                                                        {template.permission_count}
+                                                    </span>
+                                                </div>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
                             {/* Basic Info */}
                             <div>
                                 <h3 className="mb-4 text-lg font-semibold text-gray-900">{t('lbl_role_information')}</h3>

@@ -5,14 +5,14 @@ import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { resolveStorageUrl } from '@/lib/image-url';
 import { useGetDashboardSectionsFiveQuery } from '@/store/features/dashboard/dashboad';
-import { motion } from 'framer-motion';
+import { motion, type Variants } from 'framer-motion';
 import { Package, ShoppingBag, Tag } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 
 // Animation Variants
-const containerVariants = {
+const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
         opacity: 1,
@@ -22,7 +22,7 @@ const containerVariants = {
     },
 };
 
-const itemVariants = {
+const itemVariants: Variants = {
     hidden: { y: 20, opacity: 0 },
     visible: {
         y: 0,
@@ -48,6 +48,33 @@ const SectionSkeleton = () => (
         </div>
     </div>
 );
+
+type TopCategory = {
+    category_name: string;
+    total_sold: number;
+    total_revenue: number;
+};
+
+type TopBrand = {
+    brand_name: string;
+    total_sold: number;
+    total_revenue: number;
+};
+
+type TopPurchasedProduct = {
+    product_id: number;
+    product_name: string;
+    product_image: string | null;
+    total_cost: number;
+    total_purchased: number;
+    trend?: 'positive' | 'negative';
+    percentage_change?: number;
+};
+
+type SummaryBucket<T> = {
+    data: T[];
+    count: number;
+};
 
 // Donut Chart Component
 const DonutChart = ({ data, colors, count, label }: { data: Array<{ label: string; value: number }>; colors: string[]; count: number | string; label: string }) => {
@@ -248,18 +275,18 @@ export default function SectionsFive() {
         );
     }
 
-    const top_categories = categoriesData?.data?.top_categories || { data: [], count: 0 };
-    const top_brands = brandsData?.data?.top_brands || { data: [], count: 0 };
-    const top_purchased_products = productsData?.data?.top_purchased_products || { data: [], count: 0 };
+    const top_categories = (categoriesData?.data?.top_categories || { data: [], count: 0 }) as SummaryBucket<TopCategory>;
+    const top_brands = (brandsData?.data?.top_brands || { data: [], count: 0 }) as SummaryBucket<TopBrand>;
+    const top_purchased_products = (productsData?.data?.top_purchased_products || { data: [], count: 0 }) as SummaryBucket<TopPurchasedProduct>;
 
     // Prepare chart data for categories
-    const categoryChartData = top_categories.data.slice(0, 3).map((cat) => ({
+    const categoryChartData = top_categories.data.slice(0, 3).map((cat: TopCategory) => ({
         label: cat.category_name,
         value: cat.total_sold,
     }));
 
     // Prepare chart data for brands
-    const brandChartData = top_brands.data.slice(0, 3).map((brand) => ({
+    const brandChartData = top_brands.data.slice(0, 3).map((brand: TopBrand) => ({
         label: brand.brand_name,
         value: brand.total_sold,
     }));
@@ -338,7 +365,7 @@ export default function SectionsFive() {
                                 <div className="h-2 w-2 rounded-full bg-[#e79237]"></div>
                                 {t('lbl_total_revenue')}
                             </div>
-                            <span className="font-bold text-gray-900 dark:text-white">{formatCurrency(top_categories.data.reduce((sum, cat) => sum + cat.total_revenue, 0))}</span>
+                            <span className="font-bold text-gray-900 dark:text-white">{formatCurrency(top_categories.data.reduce((sum: number, cat: TopCategory) => sum + cat.total_revenue, 0))}</span>
                         </div>
                     </div>
                 </div>
@@ -413,7 +440,7 @@ export default function SectionsFive() {
                                 <div className="h-2 w-2 rounded-full bg-[#e79237]"></div>
                                 {t('lbl_total_revenue')}
                             </div>
-                            <span className="font-bold text-gray-900 dark:text-white">{formatCurrency(top_brands.data.reduce((sum, brand) => sum + brand.total_revenue, 0))}</span>
+                            <span className="font-bold text-gray-900 dark:text-white">{formatCurrency(top_brands.data.reduce((sum: number, brand: TopBrand) => sum + brand.total_revenue, 0))}</span>
                         </div>
                     </div>
                 </div>
@@ -475,7 +502,7 @@ export default function SectionsFive() {
 
                 <div className="space-y-2">
                     {top_purchased_products.data && top_purchased_products.data.length > 0 ? (
-                        top_purchased_products.data.map((product: any, index: number) => (
+                        top_purchased_products.data.map((product: TopPurchasedProduct, index: number) => (
                             <motion.div
                                 key={product.product_id}
                                 initial={{ opacity: 0, x: -20 }}

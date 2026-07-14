@@ -22,6 +22,7 @@ import {
     Users,
 } from 'lucide-react';
 import React from 'react';
+import { SIMPLIFICATION_FLAGS } from './simplification-flags';
 
 export interface MenuItem {
     label: string;
@@ -43,6 +44,137 @@ export interface MenuItem {
     sectionBreak?: boolean; // true = render a visual divider above this item
 }
 
+const cloneMenuItem = (item: MenuItem): MenuItem => ({
+    ...item,
+    subMenu: item.subMenu?.map(cloneMenuItem),
+});
+
+const flattenLeafItems = (items: MenuItem[] = []): MenuItem[] => {
+    const leaves: MenuItem[] = [];
+
+    items.forEach((item) => {
+        if (item.href) {
+            leaves.push({ ...item, subMenu: undefined });
+        }
+        if (item.subMenu?.length) {
+            leaves.push(...flattenLeafItems(item.subMenu));
+        }
+    });
+
+    return leaves;
+};
+
+const uniqueMenuItems = (items: MenuItem[]): MenuItem[] => {
+    const seen = new Set<string>();
+    return items.filter((item) => {
+        const key = item.href || item.label;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+    });
+};
+
+const compactGroup = (label: string, icon: React.ReactNode, items: MenuItem[]): MenuItem | null => {
+    const subMenu = uniqueMenuItems(items.filter(Boolean).map(cloneMenuItem));
+    if (subMenu.length === 0) return null;
+    return { label, icon, subMenu };
+};
+
+const findMenu = (items: MenuItem[], label: string): MenuItem | undefined => items.find((item) => item.label === label);
+
+const leavesFrom = (items: MenuItem[], labels: string[]): MenuItem[] => labels.flatMap((label) => {
+    const item = findMenu(items, label);
+    return item ? flattenLeafItems([item]) : [];
+});
+
+/**
+ * Shopkeeper-first navigation. RBAC and package filtering happen before this
+ * grouping, so this layer only reduces cognitive load; it does not grant access.
+ */
+function simplifyMenuForDailyUse(items: MenuItem[], userRole?: string): MenuItem[] {
+    const isOwner = userRole === 'business_admin';
+    const result: MenuItem[] = [];
+
+    const dashboard = findMenu(items, 'Dashboard');
+    const onboarding = findMenu(items, 'Getting Started');
+    const notifications = findMenu(items, 'Notifications');
+    const pos = findMenu(items, 'POS');
+    const orders = findMenu(items, 'Orders');
+    const operations = findMenu(items, 'operations_title');
+    const accounting = findMenu(items, 'Accounting');
+    const reports = findMenu(items, 'Report');
+    const analytics = findMenu(items, 'Analytics & BI');
+    const hr = findMenu(items, 'hr_title');
+    const store = findMenu(items, 'Store');
+    const feedback = findMenu(items, 'Feedback');
+    const administration = findMenu(items, 'Administration');
+    const businessOs = findMenu(items, 'business_os_title');
+
+    if (dashboard) result.push(cloneMenuItem(dashboard));
+    if (onboarding) result.push(cloneMenuItem(onboarding));
+    if (pos) result.push({ ...cloneMenuItem(pos), label: 'Sell' });
+    if (orders) result.push(cloneMenuItem(orders));
+
+    const productsAndStock = compactGroup('Products & Stock', React.createElement(Package), [
+        ...leavesFrom(items, ['Product', 'Category', 'Brand']),
+    ]);
+    if (productsAndStock) result.push(productsAndStock);
+
+    const purchases = findMenu(items, 'Purchases Order');
+    if (purchases) result.push({ ...cloneMenuItem(purchases), label: 'Purchases' });
+
+    const parties = compactGroup('Customers & Suppliers', React.createElement(Users), [
+        ...leavesFrom(items, ['Customer', 'Supplier']),
+    ]);
+    if (parties) result.push(parties);
+
+    const moneyItems = [
+        ...leavesFrom(items, ['Expenses']),
+        ...(operations ? flattenLeafItems([operations]) : []),
+        ...(isOwner && accounting ? [{ ...cloneMenuItem(accounting), label: 'Advanced Accounting' }] : []),
+    ];
+    const money = compactGroup('Money', React.createElement(Receipt), moneyItems);
+    if (money) result.push(money);
+
+    if (reports) {
+        const reportLeaves = flattenLeafItems([reports]);
+        const everydayReportHrefs = new Set([
+            '/reports/business-overview',
+            '/reports/sales',
+            '/reports/customer-due',
+            '/reports/supplier-due',
+            '/reports/stock',
+            '/reports/low-stock',
+            '/reports/profit-loss',
+            '/reports/expense',
+        ]);
+        const everydayReports = reportLeaves.filter((item) => item.href && everydayReportHrefs.has(item.href));
+        const advancedReports = reportLeaves.filter((item) => !item.href || !everydayReportHrefs.has(item.href));
+        const reportGroup = compactGroup('Reports', React.createElement(BarChart), [
+            ...everydayReports,
+            ...(isOwner && advancedReports.length ? [{ label: 'Advanced Reports', icon: React.createElement(BarChart3), subMenu: uniqueMenuItems(advancedReports) }] : []),
+            ...(isOwner && analytics ? [{ ...cloneMenuItem(analytics), label: 'Analytics & BI' }] : []),
+        ]);
+        if (reportGroup) result.push({ ...reportGroup, href: '/reports' });
+    }
+
+    const team = compactGroup('Team', React.createElement(Users), [
+        ...(hr ? flattenLeafItems([hr]) : []),
+    ]);
+    if (team) result.push(team);
+
+    const settings = compactGroup('Settings', React.createElement(Settings), [
+        ...(notifications ? [notifications] : []),
+        ...(store ? flattenLeafItems([store]) : []),
+        ...(feedback ? flattenLeafItems([feedback]) : []),
+        ...(isOwner && administration ? flattenLeafItems([administration]) : []),
+        ...(isOwner && businessOs ? [businessOs] : []),
+    ]);
+    if (settings) result.push(settings);
+
+    return result;
+}
+
 /**
  * Complete menu structure with permission requirements
  * This defines ALL possible menu items - they will be filtered based on user permissions
@@ -52,6 +184,11 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         label: 'Dashboard',
         icon: React.createElement(Home),
         href: '/dashboard',
+    },
+    {
+        label: 'Getting Started',
+        icon: React.createElement(BookOpen),
+        href: '/onboarding',
     },
     {
         label: 'business_os_title',
@@ -793,5 +930,10 @@ function filterMenuItem(item: MenuItem, userPermissions: string[] | undefined, u
  * @returns Filtered menu items array
  */
 export function buildMenuFromPermissions(userPermissions: string[] | undefined, userRole?: string, accessibleFeatures?: string[]): MenuItem[] {
-    return ALL_MENU_ITEMS.map((item) => filterMenuItem(item, userPermissions, userRole, accessibleFeatures)).filter((item): item is MenuItem => item !== null);
+    const filteredItems = ALL_MENU_ITEMS
+        .map((item) => filterMenuItem(item, userPermissions, userRole, accessibleFeatures))
+        .filter((item): item is MenuItem => item !== null)
+        .filter((item) => item.label !== 'Ecommerce Management');
+
+    return SIMPLIFICATION_FLAGS.simplifiedNavigation ? simplifyMenuForDailyUse(filteredItems, userRole) : filteredItems;
 }

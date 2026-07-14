@@ -8,8 +8,14 @@ import { useCreateExpenseMutation } from '@/store/features/expense/expenseApi';
 import { useGetAccountsQuery } from '@/store/features/accounting/accountingApi';
 import { ArrowLeft, Receipt, Store } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+
+type ExpensePaymentMethod = {
+    id: number;
+    payment_method_name: string;
+    is_active: boolean | number;
+};
 
 const CreateExpensePage = () => {
     const { t } = getTranslation();
@@ -17,8 +23,8 @@ const CreateExpensePage = () => {
     const { currentStore, currentStoreId } = useCurrentStore();
     const [createExpense, { isLoading }] = useCreateExpenseMutation();
 
-    const paymentMethods = useSelector((state: RootState) => state.auth.currentStore?.payment_methods || []);
-    const activePaymentMethods = paymentMethods.filter((pm) => pm.is_active);
+    const paymentMethods = useSelector((state: RootState) => state.auth.currentStore?.payment_methods || []) as ExpensePaymentMethod[];
+    const activePaymentMethods = paymentMethods.filter((pm: ExpensePaymentMethod) => pm.is_active);
 
     const { data: accountsResponse } = useGetAccountsQuery({ store_id: currentStoreId }, { skip: !currentStoreId });
     const coaAccounts: any[] = Array.isArray(accountsResponse?.data) ? (accountsResponse.data as any[]).filter((a: any) => a.type === 'expense') : [];
@@ -31,6 +37,26 @@ const CreateExpensePage = () => {
         notes: '',
     });
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const commonExpenseTitles = [
+        { value: 'Shop rent', labelKey: 'expense_common_shop_rent' },
+        { value: 'Transport', labelKey: 'expense_common_transport' },
+        { value: 'Snacks', labelKey: 'expense_common_snacks' },
+        { value: 'Electricity', labelKey: 'expense_common_electricity' },
+    ];
+
+    useEffect(() => {
+        if (formData.payment_type) return;
+
+        const cashMethod = activePaymentMethods.find((method: ExpensePaymentMethod) => String(method.payment_method_name).toLowerCase() === 'cash');
+        const defaultMethod = cashMethod || activePaymentMethods[0];
+
+        setFormData((prev) => ({
+            ...prev,
+            payment_type: defaultMethod?.payment_method_name || 'cash',
+        }));
+        // Only initialize once when store payment methods load.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [activePaymentMethods.length]);
 
     const validateForm = () => {
         const newErrors: Record<string, string> = {};
@@ -131,6 +157,21 @@ const CreateExpensePage = () => {
                                         }`}
                                     />
                                     {errors.title && <p className="mt-1 text-xs text-red-500">{errors.title}</p>}
+                                    <div className="mt-2 flex flex-wrap gap-2">
+                                        {commonExpenseTitles.map(({ value, labelKey }) => (
+                                            <button
+                                                key={value}
+                                                type="button"
+                                                onClick={() => {
+                                                    setFormData({ ...formData, title: value });
+                                                    if (errors.title) setErrors({ ...errors, title: '' });
+                                                }}
+                                                className="rounded-full border border-gray-200 px-3 py-1 text-xs font-medium text-gray-600 hover:border-[#046ca9] hover:text-[#046ca9]"
+                                            >
+                                                {t(labelKey)}
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
 
                                 {/* Amount */}
@@ -204,7 +245,7 @@ const CreateExpensePage = () => {
                                 </label>
                                 <div className="flex flex-wrap gap-3">
                                     {activePaymentMethods.length > 0 ? (
-                                        activePaymentMethods.map((method) => (
+                                        activePaymentMethods.map((method: ExpensePaymentMethod) => (
                                             <button
                                                 key={method.id}
                                                 type="button"

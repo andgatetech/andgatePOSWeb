@@ -4,13 +4,13 @@ import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetDashboardSectionsFourQuery } from '@/store/features/dashboard/dashboad';
-import { motion } from 'framer-motion';
+import { motion, type Variants } from 'framer-motion';
 import { Banknote, Clock, CreditCard, FileText, MoreHorizontal, Receipt, ShoppingCart, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
 // Animation Variants
-const containerVariants = {
+const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
         opacity: 1,
@@ -20,7 +20,7 @@ const containerVariants = {
     },
 };
 
-const itemVariants = {
+const itemVariants: Variants = {
     hidden: { y: 20, opacity: 0 },
     visible: {
         y: 0,

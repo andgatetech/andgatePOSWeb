@@ -25,6 +25,13 @@ const rolesApi = baseApi.injectEndpoints({
             }),
             providesTags: ['Permissions'],
         }),
+        getRoleTemplates: builder.query({
+            query: () => ({
+                url: '/roles/templates',
+                method: 'GET',
+            }),
+            providesTags: ['Permissions'],
+        }),
         getRoleUsers: builder.query({
             query: (id: number) => ({
                 url: `/roles/${id}/users`,
@@ -33,7 +40,7 @@ const rolesApi = baseApi.injectEndpoints({
             providesTags: (_result, _error, id) => [{ type: 'Roles', id: `users-${id}` }],
         }),
         createRole: builder.mutation({
-            query: (data: { name: string; description?: string; permission_ids?: number[] }) => ({
+            query: (data: { store_id?: number | null; name: string; description?: string; permission_ids?: number[] }) => ({
                 url: '/roles',
                 method: 'POST',
                 body: data,
@@ -41,7 +48,7 @@ const rolesApi = baseApi.injectEndpoints({
             invalidatesTags: ['Roles'],
         }),
         updateRole: builder.mutation({
-            query: ({ id, ...data }: { id: number; name?: string; description?: string; permission_ids?: number[] }) => ({
+            query: ({ id, ...data }: { id: number; store_id?: number | null; name?: string; description?: string; permission_ids?: number[] }) => ({
                 url: `/roles/${id}`,
                 method: 'PUT',
                 body: data,
@@ -78,6 +85,7 @@ export const {
     useGetRolesQuery,
     useGetRoleQuery,
     useGetAllPermissionsQuery,
+    useGetRoleTemplatesQuery,
     useGetRoleUsersQuery,
     useCreateRoleMutation,
     useUpdateRoleMutation,

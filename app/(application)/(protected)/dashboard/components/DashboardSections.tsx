@@ -5,15 +5,15 @@ import { getTranslation } from '@/i18n';
 import { CurrencyDisplay } from '@/lib/CurrencyDisplay';
 import { resolveStorageUrl } from '@/lib/image-url';
 import { useGetDashboardSectionsQuery } from '@/store/features/dashboard/dashboad';
-import { DashboardProduct } from '@/types/dashboard.types';
-import { motion } from 'framer-motion';
+import { DashboardProduct, RecentSale } from '@/types/dashboard.types';
+import { motion, type Variants } from 'framer-motion';
 import { Calendar, Package, Phone, TrendingUp } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 
 // Animation Variants
-const cardVariants = {
+const cardVariants: Variants = {
     hidden: { opacity: 0, y: 30, scale: 0.95 },
     visible: {
         opacity: 1,
@@ -26,7 +26,7 @@ const cardVariants = {
     },
 };
 
-const listVariants = {
+const listVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
         opacity: 1,
@@ -37,7 +37,7 @@ const listVariants = {
     },
 };
 
-const itemVariants = {
+const itemVariants: Variants = {
     hidden: { opacity: 0, y: 15 },
     visible: {
         opacity: 1,
@@ -50,7 +50,7 @@ const itemVariants = {
     },
 };
 
-const itemVariantsDown = {
+const itemVariantsDown: Variants = {
     hidden: { opacity: 0, y: -15 },
     visible: {
         opacity: 1,
@@ -102,7 +102,7 @@ const StatusBadge = ({ status }: { status: string }) => {
 };
 
 // Stock status badge component
-const StockStatusBadge = ({ status, quantity }: { status: string; quantity: number }) => {
+const StockStatusBadge = ({ status, quantity }: { status?: string; quantity?: number }) => {
     const { t } = getTranslation();
     const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
         out_of_stock: { bg: 'bg-gray-100', text: 'text-gray-700', label: t('lbl_out_of_stock') },
@@ -112,7 +112,7 @@ const StockStatusBadge = ({ status, quantity }: { status: string; quantity: numb
         low: { bg: 'bg-orange-100', text: 'text-orange-700', label: t('status_low_stock') },
     };
 
-    const config = statusConfig[status?.toLowerCase()] ?? statusConfig.low;
+    const config = statusConfig[(status ?? 'low').toLowerCase()] ?? statusConfig.low;
 
     return (
         <div className="text-right">
@@ -227,8 +227,8 @@ export default function DashboardSections() {
                 <div className="mb-3 border-t border-gray-200"></div>
 
                 <motion.div variants={listVariants} className="space-y-2">
-                    {top_selling_products?.pos_products?.length > 0 ? (
-                        top_selling_products?.pos_products.map((product: DashboardProduct, index) => (
+                {top_selling_products?.pos_products?.length > 0 ? (
+                        top_selling_products?.pos_products.map((product: DashboardProduct, index: number) => (
                             <motion.div
                                 key={`top-selling-${product.product_id}-${index}`}
                                 variants={itemVariantsDown}
@@ -385,7 +385,7 @@ export default function DashboardSections() {
 
                 <motion.div variants={listVariants} className="space-y-3">
                     {recent_sales?.sales?.length > 0 ? (
-                        recent_sales.sales.map((sale, index) => (
+                        recent_sales.sales.map((sale: RecentSale, index: number) => (
                             <motion.div
                                 key={`recent-sale-${sale.order_id}-${index}`}
                                 variants={itemVariantsDown}

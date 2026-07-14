@@ -4,17 +4,17 @@ import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import { useGetDashboardTopCustomersQuery } from '@/store/features/dashboard/dashboad';
-import { motion } from 'framer-motion';
+import { motion, type Variants } from 'framer-motion';
 import { ShoppingBag, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
-const itemVariants = {
+const itemVariants: Variants = {
     hidden: { opacity: 0, y: 12 },
     visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 60, damping: 25 } },
 };
 
-const listVariants = {
+const listVariants: Variants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.1 } },
 };

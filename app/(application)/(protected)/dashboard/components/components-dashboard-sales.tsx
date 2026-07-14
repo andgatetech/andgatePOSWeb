@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import { RootState } from '@/store';
+import { SIMPLIFICATION_FLAGS } from '@/lib/simplification-flags';
 import { useGetDashboardLayoutQuery } from '@/store/features/analytics/analyticsApi';
 import ManualPaymentsPage from '../../manual-payments/page';
 import AlertStrip from './AlertStrip';
@@ -46,6 +47,28 @@ const DEFAULT_WIDGETS = [
     { key: 'top_customers', visible: true, order: 16, cols: 3 },
 ];
 
+const DASHBOARD_WIDGETS_BY_EXPERIENCE: Record<string, string[]> = {
+    cashier: ['alerts', 'quick_actions', 'cash_position', 'customer_due', 'sections', 'section_four'],
+    accountant: ['alerts', 'summary', 'customer_due', 'supplier_due', 'cash_position', 'profit_expense', 'section_four'],
+    manager: ['alerts', 'business_health', 'summary', 'quick_actions', 'customer_due', 'supplier_due', 'cash_position', 'sections', 'dead_stock', 'section_five', 'top_customers'],
+    owner: DEFAULT_WIDGETS.map((widget) => widget.key),
+};
+
+function resolveDashboardExperience(user: any): keyof typeof DASHBOARD_WIDGETS_BY_EXPERIENCE {
+    if (user?.role === 'business_admin') return 'owner';
+
+    const permissions = new Set(user?.permissions || []);
+    const hasAccounting = ['accounting.accounts.index', 'accounting.cash-book.index', 'accounting.journals.index', 'accounting.reports.view', 'reports.profit-loss'].some((permission) => permissions.has(permission));
+    const hasManagerOps = ['products.index', 'purchase-orders.index', 'expenses.index', 'reports.purchase', 'stock.adjustments'].some((permission) => permissions.has(permission));
+    const hasCashierOps = permissions.has('orders.create') || permissions.has('orders.index');
+
+    if (hasAccounting && !hasManagerOps) return 'accountant';
+    if (hasManagerOps) return 'manager';
+    if (hasCashierOps) return 'cashier';
+
+    return 'owner';
+}
+
 const widgetComponents: Record<string, React.ReactNode> = {
     business_health: <BusinessHealthScore />,
     quick_actions: <QuickActions />,
@@ -85,16 +108,20 @@ const ComponentsDashboardSales = () => {
 
     const widgets = useMemo(() => {
         const saved = layoutData?.data?.layout?.widgets;
+        const experience = SIMPLIFICATION_FLAGS.roleDashboard ? resolveDashboardExperience(user) : 'owner';
+        const allowedKeys = new Set(DASHBOARD_WIDGETS_BY_EXPERIENCE[experience]);
+        const roleDefaults = DEFAULT_WIDGETS.filter((widget) => allowedKeys.has(widget.key));
+
         if (canCustomize && saved?.length) {
             // Backfill any widget key missing from an older saved layout (e.g. saved
             // before a widget existed) so it doesn't silently disappear — same fix as
             // analytics/dashboard-widgets/page.tsx.
             const savedKeys = new Set(saved.map((w: any) => w.key));
-            const missing = DEFAULT_WIDGETS.filter((w) => !savedKeys.has(w.key));
-            return [...saved, ...missing];
+            const missing = roleDefaults.filter((w) => !savedKeys.has(w.key));
+            return [...saved, ...missing].filter((w: any) => allowedKeys.has(w.key));
         }
-        return DEFAULT_WIDGETS;
-    }, [layoutData, canCustomize]);
+        return roleDefaults;
+    }, [layoutData, canCustomize, user]);
 
     if (subscriptionExpired) {
         return <ManualPaymentsPage />;

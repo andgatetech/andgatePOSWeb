@@ -11,6 +11,7 @@ import Portals from '@/components/portals';
 import StatusGuard from '@/lib/protected/StatusGuard';
 import SubscriptionGate from '@/lib/protected/SubscriptionGate';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
+import WorkflowTracker from './dashboard/components/WorkflowTracker';
 
 function ProtectedLayoutInner({ children }: { children: React.ReactNode }) {
     usePushNotifications();
@@ -20,6 +21,7 @@ function ProtectedLayoutInner({ children }: { children: React.ReactNode }) {
             <div className="relative">
                 <Overlay />
                 <ScrollToTop />
+                <WorkflowTracker />
 
                 <MainContainer>
                     <Sidebar />

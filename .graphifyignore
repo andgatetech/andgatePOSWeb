@@ -1,0 +1,124 @@
+# Dependencies
+.git/
+node_modules/
+.pnpm-store/
+
+# Graphify output
+graphify-out/
+.graphify/
+.code-review-graph/
+
+# Next.js generated output
+.next/
+out/
+dist/
+build/
+coverage/
+.turbo/
+.cache/
+
+# Static assets
+public/
+assets/
+screenshots/
+images/
+
+# Keep source files under public only if they are actual code
+# Do not whitelist public images for architecture analysis.
+
+# Documentation and papers
+*.md
+*.mdx
+*.txt
+*.rst
+*.pdf
+*.doc
+*.docx
+*.xls
+*.xlsx
+*.ppt
+*.pptx
+
+# Images
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.webp
+*.bmp
+*.ico
+*.avif
+
+# Media
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.webm
+*.mp3
+*.wav
+*.ogg
+
+# Generated assets
+*.map
+*.min.js
+*.min.css
+
+# Logs, caches and temporary files
+*.log
+*.cache
+*.tmp
+*.temp
+*.bak
+*.swp
+
+# Archives and data exports
+*.zip
+*.tar
+*.tar.gz
+*.gz
+*.rar
+*.7z
+*.csv
+*.sql
+*.dump
+
+# IDE and OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Secrets
+.env
+.env.*
+
+# Remaining semantic/document formats
+*.html
+*.htm
+*.adoc
+*.asciidoc
+*.org
+
+# Extensionless documentation
+README
+README.*
+CHANGELOG
+CHANGELOG.*
+LICENSE
+LICENSE.*
+COPYING
+COPYING.*
+NOTICE
+NOTICE.*
+CONTRIBUTING
+CONTRIBUTING.*
+SECURITY
+SECURITY.*
+AUTHORS
+AUTHORS.*
+
+# YAML is classified by Graphify as documentation
+*.yaml
+*.yml
