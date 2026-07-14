@@ -2,6 +2,7 @@
 
 import Loader from '@/lib/Loader';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
+import { escapePrintHtml, printInWindow } from '@/lib/printUtil';
 import {
     useGetRunningBusinessMigrationQuery,
     useMarkRunningBusinessMigrationReadyMutation,
@@ -13,7 +14,9 @@ import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useGetProductStocksQuery } from '@/store/features/ProductStock/productStockApi';
-import { AlertCircle, CalendarDays, CheckCircle2, ClipboardCheck, FileText, Loader2, LockKeyhole, Save, Send, ShieldCheck } from 'lucide-react';
+import { useGetStoreCustomersListQuery } from '@/store/features/customer/customer';
+import { useGetSuppliersQuery } from '@/store/features/supplier/supplierApi';
+import { AlertCircle, CalendarDays, CheckCircle2, ClipboardCheck, FileText, Loader2, LockKeyhole, Printer, Save, Send, ShieldCheck } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 type ChecklistKey = keyof RunningBusinessMigrationChecklist;
@@ -42,6 +45,10 @@ export default function RunningBusinessMigrationPage() {
     const { currentStoreId, currentStore } = useCurrentStore();
     const { data, isLoading, refetch } = useGetRunningBusinessMigrationQuery({ store_id: Number(currentStoreId) }, { skip: !currentStoreId });
     const { data: stockData } = useGetProductStocksQuery({ store_id: currentStoreId, per_page: 200 }, { skip: !currentStoreId });
+    const [customerSearch, setCustomerSearch] = useState('');
+    const [supplierSearch, setSupplierSearch] = useState('');
+    const { data: customersData } = useGetStoreCustomersListQuery({ store_id: currentStoreId, search: customerSearch, per_page: 25, sort_field: 'name', sort_direction: 'asc' }, { skip: !currentStoreId });
+    const { data: suppliersData } = useGetSuppliersQuery({ store_id: currentStoreId, search: supplierSearch, per_page: 25, sort_field: 'name', sort_direction: 'asc' }, { skip: !currentStoreId });
     const [saveMigration, { isLoading: saving }] = useSaveRunningBusinessMigrationMutation();
     const [markReady, { isLoading: markingReady }] = useMarkRunningBusinessMigrationReadyMutation();
     const [postOpeningBalance, { isLoading: posting }] = usePostRunningBusinessOpeningBalanceMutation();
@@ -131,6 +138,8 @@ export default function RunningBusinessMigrationPage() {
             }))
         );
     }, [stockData]);
+    const customerOptions = useMemo(() => customersData?.data?.items || customersData?.data || [], [customersData]);
+    const supplierOptions = useMemo(() => suppliersData?.data?.items || suppliersData?.data || [], [suppliersData]);
     const sumItems = (step: ChecklistKey, field: string) => (Array.isArray(stepData[step]?.items) ? stepData[step].items.reduce((sum: number, item: any) => sum + Number(item[field] || 0), 0) : 0);
     const openingStockItemsValue = Array.isArray(stepData.opening_stock?.items)
         ? stepData.opening_stock.items.reduce((sum: number, item: any) => sum + (item.product_stock_id ? Number(item.quantity || 0) * Number(item.unit_cost || 0) : 0), 0)
@@ -149,8 +158,8 @@ export default function RunningBusinessMigrationPage() {
         getAmount('owner_equity', 'owner_capital');
     const equityAdjustment = Math.max(0, debitTotal - creditTotal);
     const assetAdjustment = Math.max(0, creditTotal - debitTotal);
-    const balancedDebit = debitTotal + assetAdjustment;
-    const balancedCredit = creditTotal + equityAdjustment;
+    const totalAssets = debitTotal;
+    const totalDuesAndInvestment = creditTotal;
 
     const handleMarkReady = async () => {
         if (!currentStoreId) return;
@@ -167,7 +176,7 @@ export default function RunningBusinessMigrationPage() {
 
     const handlePostOpeningBalance = async () => {
         if (!currentStoreId) return;
-        const confirmed = await showConfirmDialog(t('rbm_post_opening_balance'), t('rbm_post_confirm'), t('rbm_post_opening_balance'), t('btn_cancel'));
+        const confirmed = await showConfirmDialog(t('rbm_post_opening_balance'), t('rbm_post_confirm_final'), t('rbm_post_opening_balance'), t('btn_cancel'));
         if (!confirmed) return;
 
         try {
@@ -178,6 +187,82 @@ export default function RunningBusinessMigrationPage() {
         } catch (error: any) {
             showErrorDialog(error?.data?.errors?.opening_balance || error?.data?.message || t('msg_error_generic'));
         }
+    };
+
+    const printReview = () => {
+        const esc = escapePrintHtml;
+        const stockItems = stepData.opening_stock?.items || [];
+        const customerItems = stepData.customer_receivables?.items || [];
+        const supplierItems = stepData.supplier_payables?.items || [];
+        const row = (label: string, value: string) => `<tr><td>${esc(label)}</td><td>${esc(value)}</td></tr>`;
+        const amountLines = (items: any[]) =>
+            items.length
+                ? items.map((item) => `<tr><td>${esc(item.name || '-')}</td><td>${esc(formatCurrency(Number(item.amount || 0)))}</td></tr>`).join('')
+                : `<tr><td colspan="2">${esc(t('rbm_no_lines'))}</td></tr>`;
+        const stockLines = stockItems
+            .filter((item: any) => item.product_stock_id)
+            .map((item: any) => `<tr><td>${esc(item.name || item.product_stock_id || '-')}</td><td>${esc(formatCurrency(Number(item.quantity || 0) * Number(item.unit_cost || 0)))}</td></tr>`)
+            .join('');
+        const html = `<!DOCTYPE html>
+            <html>
+                <head>
+                    <meta charset="utf-8">
+                    <meta name="viewport" content="width=device-width,initial-scale=1">
+                    <title>${esc(t('rbm_print_title'))}</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 24px; color: #111827; }
+                        .sheet { max-width: 760px; margin: 0 auto; }
+                        h1 { font-size: 22px; margin: 0; }
+                        h2 { font-size: 14px; margin: 22px 0 8px; border-bottom: 1px solid #e5e7eb; padding-bottom: 6px; }
+                        .meta { color: #6b7280; font-size: 12px; margin-top: 4px; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+                        td, th { border: 1px solid #e5e7eb; padding: 8px; font-size: 12px; text-align: left; }
+                        th { background: #f9fafb; }
+                        td:last-child, th:last-child { text-align: right; font-weight: 700; }
+                        .sign { display: flex; justify-content: space-between; gap: 24px; margin-top: 42px; font-size: 12px; }
+                        .sign div { width: 45%; border-top: 1px solid #9ca3af; padding-top: 8px; text-align: center; }
+                        @media print { body { padding: 0; } }
+                    </style>
+                </head>
+                <body>
+                    <div class="sheet">
+                        <h1>${esc(t('rbm_print_title'))}</h1>
+                        <div class="meta">${esc(currentStore?.store_name || t('lbl_store'))} · ${esc(t('rbm_migration_date'))}: ${esc(migrationDate || '-')} · ${esc(new Date().toLocaleString())}</div>
+                        <h2>${esc(t('rbm_review_totals'))}</h2>
+                        <table><tbody>
+                            ${row(t('rbm_total_assets'), formatCurrency(totalAssets))}
+                            ${row(t('rbm_total_dues_investment'), formatCurrency(totalDuesAndInvestment))}
+                            ${row(t('rbm_equity_adjustment'), formatCurrency(equityAdjustment))}
+                            ${row(t('rbm_asset_adjustment'), formatCurrency(assetAdjustment))}
+                        </tbody></table>
+                        <h2>${esc(t('rbm_step_cash_bank'))}</h2>
+                        <table><tbody>
+                            ${row(t('rbm_cash_in_hand'), formatCurrency(getAmount('opening_cash_bank', 'cash_in_hand')))}
+                            ${row(t('rbm_bank_balance'), formatCurrency(getAmount('opening_cash_bank', 'bank_balance')))}
+                            ${row(t('rbm_mobile_banking'), formatCurrency(getAmount('opening_cash_bank', 'mobile_banking')))}
+                        </tbody></table>
+                        <h2>${esc(t('rbm_step_opening_stock'))}</h2>
+                        <table><tbody>
+                            ${row(t('rbm_inventory_value'), formatCurrency(openingStockItemsValue || getAmount('opening_stock', 'inventory_value')))}
+                            ${row(t('rbm_inventory_qty'), String(stepData.opening_stock?.quantity_counted || '-'))}
+                        </tbody></table>
+                        ${stockLines ? `<table><thead><tr><th>${esc(t('rbm_product_stock_lines'))}</th><th>${esc(t('rbm_inventory_value'))}</th></tr></thead><tbody>${stockLines}</tbody></table>` : ''}
+                        <h2>${esc(t('rbm_customer_receivable_lines'))}</h2>
+                        <table><thead><tr><th>${esc(t('lbl_customer'))}</th><th>${esc(t('rbm_receivables'))}</th></tr></thead><tbody>${amountLines(customerItems)}</tbody></table>
+                        <h2>${esc(t('rbm_supplier_payable_lines'))}</h2>
+                        <table><thead><tr><th>${esc(t('lbl_supplier'))}</th><th>${esc(t('rbm_payables'))}</th></tr></thead><tbody>${amountLines(supplierItems)}</tbody></table>
+                        <h2>${esc(t('rbm_step_expenses_liabilities'))}</h2>
+                        <table><tbody>
+                            ${row(t('rbm_loans_payable'), formatCurrency(getAmount('opening_expenses_liabilities', 'loans_payable')))}
+                            ${row(t('rbm_outstanding_expenses'), formatCurrency(getAmount('opening_expenses_liabilities', 'outstanding_expenses')))}
+                            ${row(t('rbm_other_assets'), formatCurrency(getAmount('opening_expenses_liabilities', 'other_assets')))}
+                            ${row(t('rbm_owner_capital'), formatCurrency(getAmount('owner_equity', 'owner_capital')))}
+                        </tbody></table>
+                        <div class="sign"><div>${esc(t('rbm_owner_signature'))}</div><div>${esc(t('rbm_prepared_by'))}</div></div>
+                    </div>
+                </body>
+            </html>`;
+        printInWindow(html);
     };
 
     const updateArrayItem = (step: ChecklistKey, index: number, patch: Record<string, any>) => {
@@ -226,6 +311,15 @@ export default function RunningBusinessMigrationPage() {
                     >
                         {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                         {t('btn_save')}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={printReview}
+                        disabled={!currentStoreId}
+                        className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                        <Printer className="h-4 w-4" />
+                        {t('btn_print')}
                     </button>
                     <button
                         type="button"
@@ -401,9 +495,12 @@ export default function RunningBusinessMigrationPage() {
                                 t={t}
                                 title={t('rbm_customer_receivable_lines')}
                                 nameLabel={t('lbl_customer')}
-                                idLabel={t('rbm_customer_id')}
                                 idField="customer_id"
                                 amountLabel={t('rbm_receivables')}
+                                options={customerOptions}
+                                search={customerSearch}
+                                searchPlaceholder={t('rbm_search_customer')}
+                                onSearch={setCustomerSearch}
                                 items={stepData.customer_receivables?.items || []}
                                 onAdd={() => addArrayItem('customer_receivables', { name: '', amount: '' })}
                                 onUpdate={(index, patch) => updateArrayItem('customer_receivables', index, patch)}
@@ -415,9 +512,12 @@ export default function RunningBusinessMigrationPage() {
                                 t={t}
                                 title={t('rbm_supplier_payable_lines')}
                                 nameLabel={t('lbl_supplier')}
-                                idLabel={t('rbm_supplier_id')}
                                 idField="supplier_id"
                                 amountLabel={t('rbm_payables')}
+                                options={supplierOptions}
+                                search={supplierSearch}
+                                searchPlaceholder={t('rbm_search_supplier')}
+                                onSearch={setSupplierSearch}
                                 items={stepData.supplier_payables?.items || []}
                                 onAdd={() => addArrayItem('supplier_payables', { name: '', amount: '' })}
                                 onUpdate={(index, patch) => updateArrayItem('supplier_payables', index, patch)}
@@ -443,8 +543,8 @@ export default function RunningBusinessMigrationPage() {
                     <div className="rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
                         <h2 className="text-sm font-bold text-gray-800">{t('rbm_review_totals')}</h2>
                         <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-                            <SummaryBox label={t('lbl_debit')} value={formatCurrency(balancedDebit)} />
-                            <SummaryBox label={t('lbl_credit')} value={formatCurrency(balancedCredit)} />
+                            <SummaryBox label={t('rbm_total_assets')} value={formatCurrency(totalAssets)} />
+                            <SummaryBox label={t('rbm_total_dues_investment')} value={formatCurrency(totalDuesAndInvestment)} />
                             <SummaryBox label={t('rbm_equity_adjustment')} value={formatCurrency(equityAdjustment)} />
                             <SummaryBox label={t('rbm_asset_adjustment')} value={formatCurrency(assetAdjustment)} />
                         </div>
@@ -505,7 +605,14 @@ const StockItemsEditor = ({
         <div className="space-y-2 p-3">
             {items.map((item, index) => (
                 <div key={index} className="grid gap-2 rounded-lg bg-gray-50 p-2 md:grid-cols-[1fr_110px_120px_auto]">
-                    <select className="form-select" value={item.product_stock_id || ''} onChange={(event) => onUpdate(index, { product_stock_id: event.target.value })}>
+                    <select
+                        className="form-select"
+                        value={item.product_stock_id || ''}
+                        onChange={(event) => {
+                            const selected = stockOptions.find((option) => String(option.id) === event.target.value);
+                            onUpdate(index, { product_stock_id: event.target.value, name: selected?.label || '' });
+                        }}
+                    >
                         <option value="">{t('rbm_select_stock_item')}</option>
                         {stockOptions.map((option) => (
                             <option key={option.id} value={option.id}>
@@ -529,9 +636,12 @@ const SimpleAmountItemsEditor = ({
     t,
     title,
     nameLabel,
-    idLabel,
     idField,
     amountLabel,
+    options,
+    search,
+    searchPlaceholder,
+    onSearch,
     items,
     onAdd,
     onUpdate,
@@ -540,9 +650,12 @@ const SimpleAmountItemsEditor = ({
     t: (key: string) => string;
     title: string;
     nameLabel: string;
-    idLabel?: string;
     idField?: string;
     amountLabel: string;
+    options?: any[];
+    search?: string;
+    searchPlaceholder?: string;
+    onSearch?: (value: string) => void;
     items: any[];
     onAdd: () => void;
     onUpdate: (index: number, patch: Record<string, any>) => void;
@@ -556,16 +669,32 @@ const SimpleAmountItemsEditor = ({
             </button>
         </div>
         <div className="space-y-2 p-3">
+            {onSearch && (
+                <input
+                    className="form-input"
+                    placeholder={searchPlaceholder}
+                    value={search || ''}
+                    onChange={(event) => onSearch(event.target.value)}
+                />
+            )}
             {items.map((item, index) => (
-                <div key={index} className="grid gap-2 rounded-lg bg-gray-50 p-2 md:grid-cols-[100px_1fr_140px_auto]">
-                    <input
-                        type="number"
-                        min="0"
-                        className="form-input"
-                        placeholder={idLabel || 'ID'}
+                <div key={index} className="grid gap-2 rounded-lg bg-gray-50 p-2 md:grid-cols-[1fr_1fr_140px_auto]">
+                    <select
+                        className="form-select"
                         value={(idField ? item[idField] : '') || ''}
-                        onChange={(event) => idField && onUpdate(index, { [idField]: event.target.value })}
-                    />
+                        onChange={(event) => {
+                            const selected = (options || []).find((option) => String(option.id) === event.target.value);
+                            if (idField) onUpdate(index, { [idField]: event.target.value, name: selected?.name || selected?.company_name || '' });
+                        }}
+                    >
+                        <option value="">{searchPlaceholder || nameLabel}</option>
+                        {(options || []).map((option) => (
+                            <option key={option.id} value={option.id}>
+                                {option.name || option.company_name || option.phone || option.id}
+                                {option.phone ? ` (${option.phone})` : ''}
+                            </option>
+                        ))}
+                    </select>
                     <input className="form-input" placeholder={nameLabel} value={item.name || ''} onChange={(event) => onUpdate(index, { name: event.target.value })} />
                     <input type="number" min="0" step="0.01" className="form-input" placeholder={amountLabel} value={item.amount || ''} onChange={(event) => onUpdate(index, { amount: event.target.value })} />
                     <button type="button" onClick={() => onRemove(index)} className="rounded-md border border-red-200 px-3 py-2 text-xs font-bold text-red-600 hover:bg-red-50">
