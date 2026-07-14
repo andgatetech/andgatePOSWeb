@@ -373,7 +373,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                                     <button
                                                         type="button"
                                                         onClick={() => onItemWholesaleToggle(item.id)}
-                                                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium transition-colors ${
+                                                        className={`inline-flex min-h-9 min-w-[72px] items-center justify-center rounded-md px-3 py-1.5 text-sm font-semibold transition-colors ${
                                                             item.isWholesale ? 'bg-purple-100 text-purple-700 hover:bg-purple-200' : 'bg-green-100 text-green-700 hover:bg-green-200'
                                                         }`}
                                                         title={t('msg_switch_price_mode', { mode: item.isWholesale ? t('lbl_retail') : t('lbl_wholesale') })}
@@ -627,7 +627,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                                     <button
                                                         type="button"
                                                         onClick={() => onItemWholesaleToggle(item.id)}
-                                                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium transition-colors ${item.isWholesale ? 'bg-purple-100 text-purple-700 hover:bg-purple-200' : 'bg-green-100 text-green-700 hover:bg-green-200'}`}
+                                                        className={`inline-flex min-h-10 min-w-[84px] items-center justify-center rounded-md px-3 py-2 text-sm font-semibold transition-colors ${item.isWholesale ? 'bg-purple-100 text-purple-700 hover:bg-purple-200' : 'bg-green-100 text-green-700 hover:bg-green-200'}`}
                                                     >
                                                         {item.isWholesale ? t('lbl_wholesale') : t('lbl_retail')}
                                                     </button>

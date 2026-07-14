@@ -139,14 +139,14 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
     const [heldCartCount, setHeldCartCount] = useState(0);
 
     const [formData, setFormData] = useState<PosFormData>({
-        customerId: null,
+        customerId: 'walk-in',
         customerName: '',
         customerEmail: '',
         customerPhone: '',
         discount: 0,
         membershipDiscount: 0,
-        paymentMethod: '',
-        paymentStatus: '',
+        paymentMethod: 'cash',
+        paymentStatus: 'paid',
         usePoints: false,
         useBalance: false,
         pointsToUse: 0,
@@ -439,6 +439,21 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         return hasCash ? uniqueMethods : [{ ...DEFAULT_PAYMENT_METHOD, payment_method_name: 'Cash' }, ...uniqueMethods];
     }, [currentStore?.payment_methods]);
 
+    // Keep a fresh POS sale on the fast retail defaults: Walk-in + Cash + Paid.
+    useEffect(() => {
+        if (isReturnMode) return;
+
+        const cashMethod = paymentMethodOptions.find((m: any) => paymentMethodKey(m.payment_method_name) === 'cash');
+        const cashName = cashMethod?.payment_method_name || DEFAULT_PAYMENT_METHOD.payment_method_name;
+
+        setFormData((prev) => ({
+            ...prev,
+            customerId: prev.customerId ?? 'walk-in',
+            paymentMethod: prev.paymentMethod || cashName,
+            paymentStatus: prev.paymentStatus || 'paid',
+        }));
+    }, [isReturnMode, paymentMethodOptions]);
+
     // When going offline, lock payment method to Cash + status to paid
     useEffect(() => {
         if (!isOnline) {
@@ -568,6 +583,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             customerName: '',
             customerEmail: '',
             customerPhone: '',
+            paymentMethod: prev.paymentMethod || 'cash',
             paymentStatus: 'paid', // Auto-set to paid for walk-in
         }));
     };
@@ -1035,12 +1051,17 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             setFormData((prev) => ({
                 ...prev,
                 dueAmount: 0,
+                amountPaid:
+                    !prev.isSplitPayment && prev.paymentStatus === 'paid' && prev.paymentMethod.toLowerCase() === 'cash' && (prev.amountPaid || 0) <= 0 && backendGrandTotal > 0
+                        ? backendGrandTotal
+                        : prev.amountPaid,
             }));
         }
     }, [
         backendGrandTotal,
         formData.paymentStatus,
         formData.partialPaymentAmount,
+        formData.paymentMethod,
         invoiceItems,
         formData.discount,
         formData.usePoints,
@@ -1228,16 +1249,9 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             }
         }
 
-            // Validation: Cash Payment Amount Received
+            // Paid cash defaults to exact received amount; an entered short amount is invalid.
             if (!formData.isSplitPayment && formData.paymentStatus === 'paid' && formData.paymentMethod.toLowerCase() === 'cash') {
-                if (!formData.amountPaid || formData.amountPaid <= 0) {
-                    showMessage(t('msg_enter_amount_received'), 'error');
-                    // You might want to scroll to the specific section, but top is safe
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                    return;
-                }
-                // Optional: Check if amount is enough? usually 'paid' implies full payment
-                if (formData.amountPaid < grandTotal) {
+                if (formData.amountPaid > 0 && formData.amountPaid < grandTotal) {
                     showMessage(t('msg_amount_received_less_total'), 'error');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                     return;
@@ -1265,7 +1279,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             if (formData.paymentStatus === 'paid') {
                 // For paid status, use amountPaid for cash or full amount for other methods
                 if (formData.paymentMethod.toLowerCase() === 'cash') {
-                    actualAmountPaid = Math.max(Number(freshPayment.amount_paid ?? formData.amountPaid), grandTotal);
+                    actualAmountPaid = Math.max(Number(freshPayment.amount_paid ?? formData.amountPaid || grandTotal), grandTotal);
                     actualChangeAmount = Number(freshPayment.change_amount ?? Math.max(actualAmountPaid - grandTotal, 0));
                 } else {
                     actualAmountPaid = grandTotal;
@@ -1715,14 +1729,14 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             dispatch(clearItemsRedux(currentStoreId));
             clearCustomerSelection();
             setFormData({
-                customerId: null,
+                customerId: 'walk-in',
                 customerName: '',
                 customerEmail: '',
                 customerPhone: '',
                 discount: 0,
                 membershipDiscount: 0,
-                paymentMethod: '',
-                paymentStatus: '',
+                paymentMethod: 'cash',
+                paymentStatus: 'paid',
                 usePoints: false,
                 useBalance: false,
                 pointsToUse: 0,

@@ -2,6 +2,18 @@ import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
 import type { PosFormData } from './types';
 
+const BANGLADESH_QUICK_NOTES = [50, 100, 200, 500, 1000];
+
+const quickCashAmountsFor = (totalPayable: number): number[] => {
+    const total = Math.max(0, Number(totalPayable) || 0);
+    const roundedTo500 = total > 0 ? Math.ceil(total / 500) * 500 : 0;
+    const roundedTo1000 = total > 0 ? Math.ceil(total / 1000) * 1000 : 0;
+
+    return Array.from(new Set([...BANGLADESH_QUICK_NOTES, roundedTo500, roundedTo1000]))
+        .filter((amount) => amount > 0 && amount !== total)
+        .sort((a, b) => a - b);
+};
+
 interface CashPaymentSectionProps {
     formData: PosFormData;
     onInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -155,6 +167,7 @@ const CashPaymentSection: React.FC<CashPaymentSectionProps> = ({ formData, onInp
 
     // Normal POS Mode - Original logic
     const insufficientAmount = formData.amountPaid > 0 && formData.amountPaid < totalPayable;
+    const quickCashAmounts = quickCashAmountsFor(totalPayable);
 
     return (
         <div className="mt-4 rounded-lg border-2 border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 p-4 shadow-md">
@@ -189,7 +202,7 @@ const CashPaymentSection: React.FC<CashPaymentSectionProps> = ({ formData, onInp
                 </div>
                 {/* Quick Amount Buttons */}
                 <div className="flex flex-wrap items-center justify-end gap-2">
-                    {[100, 500, 1000].map((amount) => (
+                    {quickCashAmounts.map((amount) => (
                         <button
                             key={amount}
                             type="button"
@@ -199,13 +212,6 @@ const CashPaymentSection: React.FC<CashPaymentSectionProps> = ({ formData, onInp
                             {formatNumber(amount)}
                         </button>
                     ))}
-                    <button
-                        type="button"
-                        onClick={() => handleQuickAmount(totalPayable)}
-                        className="rounded-md border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-700 shadow-sm transition-all hover:border-blue-400 hover:bg-blue-100 hover:shadow active:scale-95"
-                    >
-                        {t('lbl_exact')}
-                    </button>
                 </div>
 
                 {formData.amountPaid > 0 && (
