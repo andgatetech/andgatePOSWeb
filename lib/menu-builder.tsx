@@ -93,6 +93,18 @@ const leavesFrom = (items: MenuItem[], labels: string[]): MenuItem[] => labels.f
     return item ? flattenLeafItems([item]) : [];
 });
 
+const groupReportLeavesBySection = (reports: MenuItem, excludeHrefs: Set<string>): MenuItem[] => (
+    reports.subMenu || []
+).flatMap((section) => {
+    const leaves = flattenLeafItems([section]).filter((item) => !item.href || !excludeHrefs.has(item.href));
+    if (!leaves.length) return [];
+    return [{
+        label: section.label,
+        icon: section.icon,
+        subMenu: uniqueMenuItems(leaves),
+    }];
+});
+
 /**
  * Shopkeeper-first navigation. RBAC and package filtering happen before this
  * grouping, so this layer only reduces cognitive load; it does not grant access.
@@ -151,13 +163,17 @@ function simplifyMenuForDailyUse(items: MenuItem[], userRole?: string): MenuItem
     if (suppliers) result.push(suppliers);
 
     const expensesGroup = nestedGroup('Expenses', leavesFrom(items, ['Expenses']));
-    const cashOperationsGroup = nestedGroup('Cash & Operations', operations ? flattenLeafItems([operations]) : []);
+    const operationLeaves = operations ? flattenLeafItems([operations]) : [];
+    const cashHrefs = new Set(['/cash-closing', '/cash-drawer/history', '/petty-cash']);
+    const cashGroup = nestedGroup('Cash', operationLeaves.filter((item) => item.href && cashHrefs.has(item.href)));
+    const operationsGroup = nestedGroup('Operations', operationLeaves.filter((item) => !item.href || !cashHrefs.has(item.href)));
     const accountingGroup = isOwner && accounting
         ? nestedGroup('Accounting', flattenLeafItems([accounting]).filter((item) => item.href !== '/accounting/running-business-migration'))
         : null;
     const money = compactGroup('Money', React.createElement(Receipt), [
         ...(expensesGroup ? [expensesGroup] : []),
-        ...(cashOperationsGroup ? [cashOperationsGroup] : []),
+        ...(cashGroup ? [cashGroup] : []),
+        ...(operationsGroup ? [operationsGroup] : []),
         ...(accountingGroup ? [accountingGroup] : []),
     ]);
     if (money) result.push(money);
@@ -175,10 +191,10 @@ function simplifyMenuForDailyUse(items: MenuItem[], userRole?: string): MenuItem
             '/reports/expense',
         ]);
         const everydayReports = reportLeaves.filter((item) => item.href && everydayReportHrefs.has(item.href));
-        const advancedReports = reportLeaves.filter((item) => !item.href || !everydayReportHrefs.has(item.href));
+        const advancedReportSections = groupReportLeavesBySection(reports, everydayReportHrefs);
         const reportGroup = compactGroup('Reports', React.createElement(BarChart), [
             ...everydayReports,
-            ...(isOwner && advancedReports.length ? [{ label: 'Advanced Reports', icon: React.createElement(BarChart3), subMenu: uniqueMenuItems(advancedReports) }] : []),
+            ...(isOwner && advancedReportSections.length ? [{ label: 'Advanced Reports', icon: React.createElement(BarChart3), subMenu: advancedReportSections }] : []),
             ...(isOwner && analytics ? [{ ...cloneMenuItem(analytics), label: 'Analytics & BI' }] : []),
         ]);
         if (reportGroup) result.push({ ...reportGroup, href: '/reports' });

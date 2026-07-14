@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import AnimateHeight from 'react-animate-height';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -84,12 +84,14 @@ const Sidebar = () => {
     };
 
     const isParentActive = (route: MenuItem): boolean => {
-        if (!route.subMenu) return false;
-        return route.subMenu.some((sub) => {
+        const hasActiveChild = (items: MenuItem[] = []): boolean => items.some((sub) => {
             if (sub.href) return isActiveRoute(sub.href);
-            if (sub.subMenu) return sub.subMenu.some((n) => !!n.href && isActiveRoute(n.href));
+            if (sub.subMenu) return hasActiveChild(sub.subMenu);
             return false;
         });
+
+        if (!route.subMenu) return false;
+        return hasActiveChild(route.subMenu);
     };
 
     const { accessibleFeatures } = useFeatureAccess();
@@ -126,6 +128,57 @@ const Sidebar = () => {
         }
         return `/subscription?${params.toString()}`;
     };
+
+    const renderSubMenuItems = (items: MenuItem[], depth = 0): ReactNode => (
+        items.map((item) => {
+            if (item.href) {
+                const active = isActiveRoute(item.href);
+                const locked = !!item.lockedByFeature;
+                return (
+                    <Link
+                        key={`${item.label}-${item.href}`}
+                        href={locked ? packageUpgradeHref(item.lockedByFeature) : item.href}
+                        title={locked ? t('msg_feature_not_in_plan') : undefined}
+                        className={`flex items-center gap-2 rounded-lg px-2.5 font-medium transition-all duration-150 ${
+                            depth > 1 ? 'py-1.5 text-[12.5px]' : 'py-2 text-[13.5px]'
+                        } ${
+                            locked
+                                ? 'text-white/45 hover:bg-white/[0.05] hover:text-white/70'
+                                : active
+                                ? 'bg-primary/[0.13] font-semibold text-white'
+                                : 'text-white hover:bg-white/[0.07]'
+                        }`}
+                    >
+                        {active && !locked && <span className="h-1 w-1 flex-shrink-0 rounded-full bg-white" />}
+                        <span className="min-w-0 flex-1 truncate">{t(item.label)}</span>
+                        {locked && <Ban className="h-3.5 w-3.5 flex-shrink-0 text-orange-300" />}
+                    </Link>
+                );
+            }
+
+            if (item.subMenu) {
+                return (
+                    <div key={`${item.label}-${depth}`} className={depth === 0 ? 'mt-4 first:mt-1' : 'mt-3 first:mt-2'}>
+                        <div className={`mb-1.5 flex items-center gap-2 rounded-md px-2 py-1 ${
+                            depth === 0 ? 'bg-white/[0.12]' : 'bg-white/[0.07]'
+                        }`}>
+                            <p className={`font-bold uppercase tracking-widest ${
+                                depth === 0 ? 'text-[10px] text-[#f8d36a]' : 'text-[9px] text-white/70'
+                            }`}>
+                                {t(item.label)}
+                            </p>
+                            <div className={`h-px flex-1 ${depth === 0 ? 'bg-[#f8d36a]/40' : 'bg-white/20'}`} />
+                        </div>
+                        <div className={depth > 0 ? 'pl-2' : undefined}>
+                            {renderSubMenuItems(item.subMenu, depth + 1)}
+                        </div>
+                    </div>
+                );
+            }
+
+            return null;
+        })
+    );
 
     // Refreshes the cached permissions array for the current store. Permissions are
     // otherwise only fetched once at login and persisted, so a role change made
@@ -373,72 +426,9 @@ const Sidebar = () => {
                                             </div>
                                         </button>
 
-                                        {/* Submenu */}
                                         <AnimateHeight duration={220} height={isOpen ? 'auto' : 0}>
                                             <div className="ml-[13px] mt-1 border-l border-white/[0.1] pl-3.5 pb-1">
-                                                {route.subMenu.map((sub) => {
-                                                    if (sub.href) {
-                                                        const active = isActiveRoute(sub.href);
-                                                        const locked = !!sub.lockedByFeature;
-                                                        return (
-                                                            <Link
-                                                                key={sub.label}
-                                                                href={locked ? packageUpgradeHref(sub.lockedByFeature) : sub.href}
-                                                                title={locked ? t('msg_feature_not_in_plan') : undefined}
-                                                                className={`flex items-center gap-2 rounded-lg px-2.5 py-2 text-[13.5px] font-medium transition-all duration-150 ${
-                                                                    locked
-                                                                        ? 'text-white/45 hover:bg-white/[0.05] hover:text-white/70'
-                                                                        : active
-                                                                        ? 'bg-primary/[0.13] font-semibold text-white'
-                                                                        : 'text-white hover:bg-white/[0.07]'
-                                                                }`}
-                                                            >
-                                                                {active && !locked && <span className="h-1 w-1 flex-shrink-0 rounded-full bg-white" />}
-                                                                <span className="min-w-0 flex-1 truncate">{t(sub.label)}</span>
-                                                                {locked && <Ban className="h-3.5 w-3.5 flex-shrink-0 text-orange-300" />}
-                                                            </Link>
-                                                        );
-                                                    }
-
-                                                    // Nested group (Reports sections)
-                                                    if (sub.subMenu) {
-                                                        return (
-                                                            <div key={sub.label} className="mt-4 first:mt-1">
-                                                                <div className="mb-1.5 flex items-center gap-2 rounded-md bg-white/[0.12] px-2 py-1">
-                                                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#f8d36a]">
-                                                                        {t(sub.label)}
-                                                                    </p>
-                                                                    <div className="h-px flex-1 bg-[#f8d36a]/40" />
-                                                                </div>
-                                                                {sub.subMenu.map((nested) => {
-                                                                    if (!nested.href) return null;
-                                                                    const active = isActiveRoute(nested.href);
-                                                                    const locked = !!nested.lockedByFeature;
-                                                                    return (
-                                                                        <Link
-                                                                            key={nested.label}
-                                                                            href={locked ? packageUpgradeHref(nested.lockedByFeature) : nested.href}
-                                                                            title={locked ? t('msg_feature_not_in_plan') : undefined}
-                                                                            className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-[13px] font-medium transition-all duration-150 ${
-                                                                                locked
-                                                                                    ? 'text-white/45 hover:bg-white/[0.05] hover:text-white/70'
-                                                                                    : active
-                                                                                    ? 'bg-primary/[0.13] font-semibold text-white'
-                                                                                    : 'text-white hover:bg-white/[0.07]'
-                                                                            }`}
-                                                                        >
-                                                                            {active && !locked && <span className="h-1 w-1 flex-shrink-0 rounded-full bg-white" />}
-                                                                            <span className="min-w-0 flex-1 truncate">{t(nested.label)}</span>
-                                                                            {locked && <Ban className="h-3.5 w-3.5 flex-shrink-0 text-orange-300" />}
-                                                                        </Link>
-                                                                    );
-                                                                })}
-                                                            </div>
-                                                        );
-                                                    }
-
-                                                    return null;
-                                                })}
+                                                {renderSubMenuItems(route.subMenu)}
                                             </div>
                                         </AnimateHeight>
                                     </>
