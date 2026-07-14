@@ -165,8 +165,9 @@ function simplifyMenuForDailyUse(items: MenuItem[], userRole?: string): MenuItem
     const expensesGroup = nestedGroup('Expenses', leavesFrom(items, ['Expenses']));
     const operationLeaves = operations ? flattenLeafItems([operations]) : [];
     const cashHrefs = new Set(['/cash-closing', '/cash-drawer/history', '/petty-cash']);
+    const serviceHrefs = new Set(['/service-jobs']);
     const cashGroup = nestedGroup('Cash', operationLeaves.filter((item) => item.href && cashHrefs.has(item.href)));
-    const operationsGroup = nestedGroup('Operations', operationLeaves.filter((item) => !item.href || !cashHrefs.has(item.href)));
+    const operationsGroup = nestedGroup('Operations', operationLeaves.filter((item) => !item.href || (!cashHrefs.has(item.href) && !serviceHrefs.has(item.href))));
     const accountingGroup = isOwner && accounting
         ? nestedGroup('Accounting', flattenLeafItems([accounting]).filter((item) => item.href !== '/accounting/running-business-migration'))
         : null;
@@ -177,6 +178,9 @@ function simplifyMenuForDailyUse(items: MenuItem[], userRole?: string): MenuItem
         ...(accountingGroup ? [accountingGroup] : []),
     ]);
     if (money) result.push(money);
+
+    const serviceGroup = compactGroup('Service', React.createElement(Shield), operationLeaves.filter((item) => item.href && serviceHrefs.has(item.href)));
+    if (serviceGroup) result.push(serviceGroup);
 
     if (reports) {
         const reportLeaves = flattenLeafItems([reports]);

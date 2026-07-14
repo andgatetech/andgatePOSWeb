@@ -16,7 +16,8 @@ import { useCurrency } from '@/hooks/useCurrency';
 import { useGetProductStocksQuery } from '@/store/features/ProductStock/productStockApi';
 import { useGetStoreCustomersListQuery } from '@/store/features/customer/customer';
 import { useGetSuppliersQuery } from '@/store/features/supplier/supplierApi';
-import { AlertCircle, CalendarDays, CheckCircle2, ClipboardCheck, FileText, Loader2, LockKeyhole, Printer, Save, Send, ShieldCheck } from 'lucide-react';
+import { AlertCircle, ArrowLeft, CalendarDays, CheckCircle2, ClipboardCheck, FileText, Loader2, LockKeyhole, Printer, Save, Send, ShieldCheck } from 'lucide-react';
+import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 
 type ChecklistKey = keyof RunningBusinessMigrationChecklist;
@@ -299,10 +300,17 @@ export default function RunningBusinessMigrationPage() {
                     </div>
                     <div>
                         <h1 className="text-xl font-bold text-gray-900">{t('rbm_title')}</h1>
-                        <p className="text-sm text-gray-500">{currentStore?.store_name || t('lbl_store')} · AngateBOS</p>
+                        <p className="text-sm text-gray-500">{currentStore?.store_name || t('lbl_store')} · AndgateBOS</p>
                     </div>
                 </div>
                 <div className="flex flex-wrap gap-2">
+                    <Link
+                        href="/onboarding"
+                        className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50"
+                    >
+                        <ArrowLeft className="h-4 w-4" />
+                        {t('rbm_back_to_onboarding')}
+                    </Link>
                     <button
                         type="button"
                         onClick={handleSave}

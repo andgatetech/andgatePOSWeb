@@ -154,6 +154,21 @@ const DashboardApi = baseApi.injectEndpoints({
             }),
             providesTags: ['Dashboard'],
         }),
+        getOnboardingWorkflow: builder.query({
+            query: (params) => ({
+                url: `/onboarding/workflow${params?.store_id ? `?store_id=${params.store_id}` : ''}`,
+                method: 'GET',
+            }),
+            providesTags: ['Dashboard'],
+        }),
+        updateOnboardingWorkflow: builder.mutation({
+            query: (body) => ({
+                url: '/onboarding/workflow',
+                method: 'PUT',
+                body,
+            }),
+            invalidatesTags: ['Dashboard'],
+        }),
         getDashboardHealthScore: builder.query({
             query: (params) => ({
                 url: `/dashboard/health-score${params?.store_id ? `?store_id=${params.store_id}` : ''}`,
@@ -236,6 +251,8 @@ export const {
     useGetDashboardTopCustomersQuery,
     useGetDashboardCustomerDuesQuery,
     useGetDashboardOnboardingQuery,
+    useGetOnboardingWorkflowQuery,
+    useUpdateOnboardingWorkflowMutation,
     useGetDashboardHealthScoreQuery,
     useGetDashboardCashPositionQuery,
     useGetDashboardSupplierDuesQuery,
