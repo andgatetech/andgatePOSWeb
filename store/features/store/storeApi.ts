@@ -38,6 +38,10 @@ const StoreApi = baseApi.injectEndpoints({
                 appendIfPresent('closing_time', updateData.closing_time);
                 appendIfPresent('loyalty_points_enabled', updateData.loyalty_points_enabled);
                 appendIfPresent('loyalty_points_rate', updateData.loyalty_points_rate);
+                appendIfPresent('loyalty_earning_points', updateData.loyalty_earning_points);
+                appendIfPresent('loyalty_earning_spend', updateData.loyalty_earning_spend);
+                appendIfPresent('loyalty_redemption_points', updateData.loyalty_redemption_points);
+                appendIfPresent('loyalty_redemption_value', updateData.loyalty_redemption_value);
                 appendIfPresent('is_active', updateData.is_active);
                 appendIfPresent('meta_pixel_enabled', updateData.meta_pixel_enabled);
                 appendIfPresent('meta_pixel_id', updateData.meta_pixel_id);

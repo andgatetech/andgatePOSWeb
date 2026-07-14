@@ -9,6 +9,8 @@ interface LoyaltyProgramTabProps {
     formData: {
         loyalty_points_enabled: boolean;
         loyalty_points_rate: string;
+        loyalty_earning_points: string;
+        loyalty_earning_spend: string;
         loyalty_redemption_points: string;
         loyalty_redemption_value: string;
     };
@@ -63,21 +65,33 @@ const LoyaltyProgramTab: React.FC<LoyaltyProgramTabProps> = ({ formData, handleI
                                     <div className="flex items-center gap-2">
                                         <input
                                             type="number"
-                                            name="loyalty_points_rate"
-                                            value={formData.loyalty_points_rate}
+                                            name="loyalty_earning_points"
+                                            value={formData.loyalty_earning_points}
                                             onChange={handleInputChange}
-                                            className="w-24 rounded-lg border border-gray-300 bg-white px-3 py-2 text-center transition-all focus:border-[#046ca9] focus:ring-2 focus:ring-[#046ca9]/20"
-                                            placeholder={t('placeholder_loyalty_rate')}
-                                            min="0"
+                                            className="w-20 rounded-lg border border-gray-300 bg-white px-3 py-2 text-center transition-all focus:border-[#046ca9] focus:ring-2 focus:ring-[#046ca9]/20"
+                                            min="1"
+                                            step="1"
+                                        />
+                                        <span className="whitespace-nowrap text-sm font-medium text-gray-600">{t('lbl_points')} /</span>
+                                        <input
+                                            type="number"
+                                            name="loyalty_earning_spend"
+                                            value={formData.loyalty_earning_spend}
+                                            onChange={handleInputChange}
+                                            className="w-20 rounded-lg border border-gray-300 bg-white px-3 py-2 text-center transition-all focus:border-[#046ca9] focus:ring-2 focus:ring-[#046ca9]/20"
+                                            min="0.01"
                                             step="0.01"
                                         />
-                                        <span className="text-sm font-medium text-gray-600">
-                                            {t('lbl_points')} / {symbol}1 {t('lbl_spent')}
-                                        </span>
+                                        <span className="whitespace-nowrap text-sm font-medium text-gray-600">{symbol} {t('lbl_spent')}</span>
                                     </div>
-                                    {formData.loyalty_points_rate && (
+                                    {formData.loyalty_earning_points && formData.loyalty_earning_spend && (
                                         <p className="mt-3 text-xs text-[#035b8c]">
-                                            {t('lbl_for_every')} <strong>{formData.loyalty_points_rate}</strong> {t('lbl_points')} {symbol}1 {t('lbl_spent')}.
+                                            <strong>{formData.loyalty_earning_points}</strong> {t('lbl_points')} /{' '}
+                                            <strong>
+                                                {symbol}
+                                                {formData.loyalty_earning_spend}
+                                            </strong>{' '}
+                                            {t('lbl_spent')}.
                                         </p>
                                     )}
                                 </div>
@@ -124,12 +138,13 @@ const LoyaltyProgramTab: React.FC<LoyaltyProgramTabProps> = ({ formData, handleI
                             </div>
 
                             {/* Combined plain-language summary */}
-                            {formData.loyalty_points_rate && formData.loyalty_redemption_points && formData.loyalty_redemption_value && (
+                            {formData.loyalty_earning_points && formData.loyalty_earning_spend && formData.loyalty_redemption_points && formData.loyalty_redemption_value && (
                                 <div className="rounded-lg bg-gray-50 p-4">
                                     <p className="text-xs text-gray-600">
                                         <strong>{t('lbl_how_it_works')}:</strong>{' '}
                                         {t('msg_loyalty_combined_summary', {
-                                            earnRate: formData.loyalty_points_rate,
+                                            earnPoints: formData.loyalty_earning_points,
+                                            earnSpend: formData.loyalty_earning_spend,
                                             redeemPoints: formData.loyalty_redemption_points,
                                             redeemValue: formData.loyalty_redemption_value,
                                             symbol,
