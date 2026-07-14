@@ -246,7 +246,7 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                     <div className="flex flex-wrap gap-2">
                         {paymentMethodOptions.map((method: any) => {
                             const name = method.payment_method_name || '';
-                            const selected = !formData.isSplitPayment && formData.paymentMethod === name;
+                            const selected = !formData.isSplitPayment && formData.paymentMethod.toLowerCase() === name.toLowerCase();
                             return (
                                 <button
                                     key={method.id ?? name}
