@@ -73,18 +73,23 @@ const CustomerSection: React.FC<CustomerSectionProps> = ({
 
             {/* ── Walk-in selected state ── */}
             {isWalkIn && (
-                <div className="flex items-center gap-3 rounded-xl border border-orange-200 bg-gradient-to-r from-orange-50 to-amber-50 px-4 py-3 shadow-sm">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-500 shadow-sm">
+                <div className="flex items-center gap-3 rounded-xl border-2 border-orange-500 bg-orange-50 px-4 py-3 shadow-sm ring-2 ring-orange-100">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-orange-500 shadow-sm">
                         <IconUser className="h-5 w-5 text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
-                        <p className="font-bold text-orange-900">{t('pos_walk_in_customer')}</p>
-                        <p className="text-xs text-orange-600">{t('pos_walk_in_no_details')}</p>
+                        <div className="flex flex-wrap items-center gap-2">
+                            <p className="font-bold text-orange-950">{t('pos_walk_in_customer')}</p>
+                            <span className="rounded-full bg-orange-500 px-2 py-0.5 text-[11px] font-bold uppercase text-white">
+                                {t('lbl_selected')}
+                            </span>
+                        </div>
+                        <p className="mt-0.5 text-xs font-medium text-orange-700">{t('pos_walk_in_no_details')}</p>
                     </div>
                     <button
                         type="button"
                         onClick={onClearWalkInCustomer}
-                        className="shrink-0 rounded-lg p-1.5 text-orange-400 transition-colors hover:bg-orange-100 hover:text-orange-700"
+                        className="shrink-0 rounded-lg border border-orange-200 bg-white p-2 text-orange-500 transition-colors hover:bg-orange-100 hover:text-orange-800"
                     >
                         <IconX className="h-4 w-4" />
                     </button>

@@ -61,10 +61,9 @@ export const DEFAULT_PAYMENT_METHOD = {
 // Digital-transfer methods where money clears instantly — "due" status is not
 // valid for these. Matched by substring so "bKash Personal", "Nagad Merchant"
 // etc. are covered. Plain cash is deliberately NOT here: the standard BD credit
-// sale (বাকি) is "customer takes goods now, pays cash later" — a registered
-// customer must be able to take a cash order as due/partial. Walk-in customers
-// are already restricted to "paid" separately (PaymentSummarySection), so due
-// on cash only ever appears when a real customer is selected.
+// sale (বাকি) is "customer takes goods now, pays cash later" — stores can see
+// due/partial choices in POS, while submit-time validation protects invalid
+// walk-in credit orders.
 const IMMEDIATE_METHOD_KEYWORDS = ['bkash', 'nagad', 'rocket', 'upay', 'card', 'tap', 'gpay', 'paytm'];
 
 /**

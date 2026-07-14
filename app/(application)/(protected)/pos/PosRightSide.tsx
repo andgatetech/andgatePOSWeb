@@ -124,6 +124,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
     const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const quoteRequestSeqRef = useRef(0);
     const isSubmittingRef = useRef(false);
+    const lastAutoPaidAmountRef = useRef(0);
 
     const [customerSearch, setCustomerSearch] = useState('');
     const [searchParams, setSearchParams] = useState('');
@@ -1051,10 +1052,19 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             setFormData((prev) => ({
                 ...prev,
                 dueAmount: 0,
-                amountPaid:
-                    !prev.isSplitPayment && prev.paymentStatus === 'paid' && prev.paymentMethod.toLowerCase() === 'cash' && (prev.amountPaid || 0) <= 0 && backendGrandTotal > 0
-                        ? backendGrandTotal
-                        : prev.amountPaid,
+                amountPaid: (() => {
+                    const currentAmountPaid = Number(prev.amountPaid) || 0;
+                    const wasAutoFilled = Math.abs(currentAmountPaid - lastAutoPaidAmountRef.current) < 0.01;
+                    const shouldUseExactPayment =
+                        !prev.isSplitPayment && prev.paymentStatus === 'paid' && prev.paymentMethod.toLowerCase() === 'cash' && backendGrandTotal > 0 && (currentAmountPaid <= 0 || wasAutoFilled);
+
+                    if (shouldUseExactPayment) {
+                        lastAutoPaidAmountRef.current = backendGrandTotal;
+                        return backendGrandTotal;
+                    }
+
+                    return prev.amountPaid;
+                })(),
             }));
         }
     }, [

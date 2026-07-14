@@ -118,10 +118,6 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
             label: s.status_name || s.label,
             color: s.status_color || '#6b7280',
         }));
-        if (isWalkInCustomer) {
-            const paidStatus = mappedStatuses.find((s: any) => s.value === 'paid');
-            return paidStatus ? [paidStatus] : [{ value: 'paid', label: t('status_paid'), color: '#22c55e' }];
-        }
         const allowedByMethod = getAllowedStatusesForMethod(formData.paymentMethod);
         return mappedStatuses.filter((s: any) =>
             ['paid', 'partial', 'due'].includes(s.value) && allowedByMethod.includes(s.value)
@@ -298,36 +294,28 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                     <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-400">
                         {t('lbl_payment_status')} <span className="text-red-400">*</span>
                     </p>
-                    {isWalkInCustomer ? (
-                        <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2">
-                            <span className="h-2 w-2 rounded-full bg-green-500" />
-                            <span className="text-sm font-semibold text-green-700">{t('status_paid')}</span>
-                            <span className="text-xs text-green-500">· {t('pos_walk_in_customer')}</span>
-                        </div>
-                    ) : (
-                        <div className="flex flex-wrap gap-2">
-                            {availablePaymentStatuses.map((status: any) => {
-                                const selected = formData.paymentStatus === status.value;
-                                return (
-                                    <button
-                                        key={status.value}
-                                        type="button"
-                                        onClick={() => emit('paymentStatus', status.value)}
-                                        style={selected ? { backgroundColor: status.color, borderColor: status.color } : { borderColor: status.color + '60' }}
-                                        className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition-all ${
-                                            selected ? 'text-white shadow-sm' : 'bg-white text-gray-600 hover:bg-gray-50'
-                                        }`}
-                                    >
-                                        <span
-                                            className="h-2 w-2 rounded-full"
-                                            style={{ backgroundColor: selected ? 'rgba(255,255,255,0.6)' : status.color }}
-                                        />
-                                        {status.label}
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    )}
+                    <div className="grid grid-cols-3 gap-2 sm:flex sm:flex-wrap">
+                        {availablePaymentStatuses.map((status: any) => {
+                            const selected = formData.paymentStatus === status.value;
+                            return (
+                                <button
+                                    key={status.value}
+                                    type="button"
+                                    onClick={() => emit('paymentStatus', status.value)}
+                                    style={selected ? { backgroundColor: status.color, borderColor: status.color } : { borderColor: status.color + '60' }}
+                                    className={`flex min-h-11 items-center justify-center gap-1.5 rounded-lg border px-3 py-2.5 text-sm font-semibold transition-all ${
+                                        selected ? 'text-white shadow-sm ring-2 ring-offset-1' : 'bg-white text-gray-700 hover:bg-gray-50'
+                                    }`}
+                                >
+                                    <span
+                                        className="h-2.5 w-2.5 rounded-full"
+                                        style={{ backgroundColor: selected ? 'rgba(255,255,255,0.75)' : status.color }}
+                                    />
+                                    {status.label}
+                                </button>
+                            );
+                        })}
+                    </div>
                 </div>
             )}
 
