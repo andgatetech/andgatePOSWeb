@@ -1279,7 +1279,8 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             if (formData.paymentStatus === 'paid') {
                 // For paid status, use amountPaid for cash or full amount for other methods
                 if (formData.paymentMethod.toLowerCase() === 'cash') {
-                    actualAmountPaid = Math.max(Number(freshPayment.amount_paid ?? formData.amountPaid || grandTotal), grandTotal);
+                    const receivedAmount = Number(freshPayment.amount_paid ?? formData.amountPaid);
+                    actualAmountPaid = Math.max(receivedAmount || grandTotal, grandTotal);
                     actualChangeAmount = Number(freshPayment.change_amount ?? Math.max(actualAmountPaid - grandTotal, 0));
                 } else {
                     actualAmountPaid = grandTotal;
