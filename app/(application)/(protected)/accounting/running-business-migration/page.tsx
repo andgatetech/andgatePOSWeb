@@ -13,7 +13,7 @@ import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useGetProductStocksQuery } from '@/store/features/ProductStock/productStockApi';
-import { AlertCircle, CalendarDays, CheckCircle2, ClipboardCheck, FileText, Loader2, Save, Send, ShieldCheck } from 'lucide-react';
+import { AlertCircle, CalendarDays, CheckCircle2, ClipboardCheck, FileText, Loader2, LockKeyhole, Save, Send, ShieldCheck } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 type ChecklistKey = keyof RunningBusinessMigrationChecklist;
@@ -98,6 +98,7 @@ export default function RunningBusinessMigrationPage() {
     };
 
     const activeStep = checklistSteps.find((step) => step.key === currentStep) || checklistSteps[0];
+    const stockEntryMode = stepData.opening_stock?.entry_mode || (Array.isArray(stepData.opening_stock?.items) && stepData.opening_stock.items.length > 0 ? 'product' : 'total');
 
     const setStepField = (step: ChecklistKey, field: string, value: string) => {
         setStepData((prev) => ({
@@ -105,6 +106,16 @@ export default function RunningBusinessMigrationPage() {
             [step]: {
                 ...(prev[step] || {}),
                 [field]: value,
+            },
+        }));
+    };
+
+    const setStockEntryMode = (mode: 'total' | 'product') => {
+        setStepData((prev) => ({
+            ...prev,
+            opening_stock: {
+                ...(prev.opening_stock || {}),
+                entry_mode: mode,
             },
         }));
     };
@@ -237,6 +248,15 @@ export default function RunningBusinessMigrationPage() {
                 </div>
             </div>
 
+            {status?.status === 'posted' && (
+                <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">
+                    <div className="flex gap-2">
+                        <LockKeyhole className="mt-0.5 h-4 w-4 shrink-0" />
+                        <p>{t('rbm_posted_lock_note')}</p>
+                    </div>
+                </div>
+            )}
+
             <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
                 <div className="space-y-4">
                     <div className="rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
@@ -325,35 +345,47 @@ export default function RunningBusinessMigrationPage() {
                         <div className="mt-4 grid gap-3 sm:grid-cols-2">
                             {currentStep === 'opening_cash_bank' && (
                                 <>
-                                    <AmountField label={t('rbm_cash_in_hand')} value={stepData.opening_cash_bank?.cash_in_hand} onChange={(value) => setStepField('opening_cash_bank', 'cash_in_hand', value)} />
-                                    <AmountField label={t('rbm_bank_balance')} value={stepData.opening_cash_bank?.bank_balance} onChange={(value) => setStepField('opening_cash_bank', 'bank_balance', value)} />
-                                    <AmountField label={t('rbm_mobile_banking')} value={stepData.opening_cash_bank?.mobile_banking} onChange={(value) => setStepField('opening_cash_bank', 'mobile_banking', value)} />
+                                    <AmountField label={t('rbm_cash_in_hand')} placeholder={t('rbm_cash_example')} value={stepData.opening_cash_bank?.cash_in_hand} onChange={(value) => setStepField('opening_cash_bank', 'cash_in_hand', value)} />
+                                    <AmountField label={t('rbm_bank_balance')} placeholder={t('rbm_bank_example')} value={stepData.opening_cash_bank?.bank_balance} onChange={(value) => setStepField('opening_cash_bank', 'bank_balance', value)} />
+                                    <AmountField label={t('rbm_mobile_banking')} placeholder={t('rbm_mobile_example')} value={stepData.opening_cash_bank?.mobile_banking} onChange={(value) => setStepField('opening_cash_bank', 'mobile_banking', value)} />
                                 </>
                             )}
                             {currentStep === 'opening_stock' && (
                                 <>
-                                    <AmountField label={t('rbm_inventory_value')} value={stepData.opening_stock?.inventory_value} onChange={(value) => setStepField('opening_stock', 'inventory_value', value)} />
-                                    <AmountField label={t('rbm_inventory_qty')} value={stepData.opening_stock?.quantity_counted} onChange={(value) => setStepField('opening_stock', 'quantity_counted', value)} />
+                                    <div className="sm:col-span-2">
+                                        <div className="grid gap-2 sm:grid-cols-2">
+                                            <StockModeButton active={stockEntryMode === 'total'} title={t('rbm_stock_mode_total')} description={t('rbm_stock_mode_total_desc')} onClick={() => setStockEntryMode('total')} />
+                                            <StockModeButton active={stockEntryMode === 'product'} title={t('rbm_stock_mode_product')} description={t('rbm_stock_mode_product_desc')} onClick={() => setStockEntryMode('product')} />
+                                        </div>
+                                    </div>
+                                    <AmountField
+                                        label={t('rbm_inventory_value')}
+                                        placeholder={t('rbm_inventory_value_example')}
+                                        disabled={stockEntryMode === 'product'}
+                                        value={stockEntryMode === 'product' ? openingStockItemsValue || '' : stepData.opening_stock?.inventory_value}
+                                        onChange={(value) => setStepField('opening_stock', 'inventory_value', value)}
+                                    />
+                                    <AmountField label={t('rbm_inventory_qty')} placeholder={t('rbm_inventory_qty_example')} value={stepData.opening_stock?.quantity_counted} onChange={(value) => setStepField('opening_stock', 'quantity_counted', value)} />
                                 </>
                             )}
                             {currentStep === 'customer_receivables' && (
-                                <AmountField label={t('rbm_receivables')} value={stepData.customer_receivables?.receivables} onChange={(value) => setStepField('customer_receivables', 'receivables', value)} />
+                                <AmountField label={t('rbm_receivables')} placeholder={t('rbm_receivables_example')} value={stepData.customer_receivables?.receivables} onChange={(value) => setStepField('customer_receivables', 'receivables', value)} />
                             )}
                             {currentStep === 'supplier_payables' && (
-                                <AmountField label={t('rbm_payables')} value={stepData.supplier_payables?.payables} onChange={(value) => setStepField('supplier_payables', 'payables', value)} />
+                                <AmountField label={t('rbm_payables')} placeholder={t('rbm_payables_example')} value={stepData.supplier_payables?.payables} onChange={(value) => setStepField('supplier_payables', 'payables', value)} />
                             )}
                             {currentStep === 'opening_expenses_liabilities' && (
                                 <>
-                                    <AmountField label={t('rbm_loans_payable')} value={stepData.opening_expenses_liabilities?.loans_payable} onChange={(value) => setStepField('opening_expenses_liabilities', 'loans_payable', value)} />
-                                    <AmountField label={t('rbm_outstanding_expenses')} value={stepData.opening_expenses_liabilities?.outstanding_expenses} onChange={(value) => setStepField('opening_expenses_liabilities', 'outstanding_expenses', value)} />
-                                    <AmountField label={t('rbm_other_assets')} value={stepData.opening_expenses_liabilities?.other_assets} onChange={(value) => setStepField('opening_expenses_liabilities', 'other_assets', value)} />
+                                    <AmountField label={t('rbm_loans_payable')} placeholder={t('rbm_loans_example')} value={stepData.opening_expenses_liabilities?.loans_payable} onChange={(value) => setStepField('opening_expenses_liabilities', 'loans_payable', value)} />
+                                    <AmountField label={t('rbm_outstanding_expenses')} placeholder={t('rbm_expense_example')} value={stepData.opening_expenses_liabilities?.outstanding_expenses} onChange={(value) => setStepField('opening_expenses_liabilities', 'outstanding_expenses', value)} />
+                                    <AmountField label={t('rbm_other_assets')} placeholder={t('rbm_other_assets_example')} value={stepData.opening_expenses_liabilities?.other_assets} onChange={(value) => setStepField('opening_expenses_liabilities', 'other_assets', value)} />
                                 </>
                             )}
                             {currentStep === 'owner_equity' && (
-                                <AmountField label={t('rbm_owner_capital')} value={stepData.owner_equity?.owner_capital} onChange={(value) => setStepField('owner_equity', 'owner_capital', value)} />
+                                <AmountField label={t('rbm_owner_capital')} placeholder={t('rbm_owner_capital_example')} value={stepData.owner_equity?.owner_capital} onChange={(value) => setStepField('owner_equity', 'owner_capital', value)} />
                             )}
                         </div>
-                        {currentStep === 'opening_stock' && (
+                        {currentStep === 'opening_stock' && stockEntryMode === 'product' && (
                             <StockItemsEditor
                                 t={t}
                                 stockOptions={stockOptions}
@@ -363,6 +395,7 @@ export default function RunningBusinessMigrationPage() {
                                 onRemove={(index) => removeArrayItem('opening_stock', index)}
                             />
                         )}
+                        {currentStep === 'opening_stock' && stockEntryMode === 'total' && <p className="mt-3 text-xs text-gray-500">{t('rbm_stock_total_note')}</p>}
                         {currentStep === 'customer_receivables' && (
                             <SimpleAmountItemsEditor
                                 t={t}
@@ -422,11 +455,22 @@ export default function RunningBusinessMigrationPage() {
     );
 }
 
-const AmountField = ({ label, value, onChange }: { label: string; value: any; onChange: (value: string) => void }) => (
+const AmountField = ({ label, value, placeholder, disabled, onChange }: { label: string; value: any; placeholder?: string; disabled?: boolean; onChange: (value: string) => void }) => (
     <label className="block">
         <span className="mb-1 block text-xs font-semibold text-gray-600">{label}</span>
-        <input type="number" min="0" step="0.01" className="form-input w-full" value={value || ''} onChange={(event) => onChange(event.target.value)} />
+        <input type="number" min="0" step="0.01" disabled={disabled} placeholder={placeholder} className="form-input w-full disabled:cursor-not-allowed disabled:bg-gray-100" value={value || ''} onChange={(event) => onChange(event.target.value)} />
     </label>
+);
+
+const StockModeButton = ({ active, title, description, onClick }: { active: boolean; title: string; description: string; onClick: () => void }) => (
+    <button
+        type="button"
+        onClick={onClick}
+        className={`min-h-20 rounded-lg border px-3 py-2 text-left transition ${active ? 'border-primary bg-primary/5 text-primary' : 'border-gray-200 bg-white text-gray-700 hover:border-primary/40'}`}
+    >
+        <span className="block text-sm font-bold">{title}</span>
+        <span className="mt-1 block text-xs text-gray-500">{description}</span>
+    </button>
 );
 
 const SummaryBox = ({ label, value }: { label: string; value: string }) => (
