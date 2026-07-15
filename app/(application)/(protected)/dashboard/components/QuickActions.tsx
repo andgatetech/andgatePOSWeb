@@ -60,12 +60,12 @@ export default function QuickActions() {
                     key={href}
                     href={href}
                     onClick={() => trackEvent('dashboard_quick_action_click', 'ViewContent', { action: labelKey, href })}
-                    className={`group flex items-center gap-3 rounded-xl bg-gradient-to-r ${gradient} px-4 py-3.5 shadow-lg ${shadow} transition-all duration-200 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-xl`}
+                    className={`group flex min-w-0 items-center gap-3 rounded-xl bg-gradient-to-r ${gradient} px-4 py-3.5 shadow-lg ${shadow} transition-all duration-200 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-xl`}
                 >
                     <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-white/20 transition-transform duration-200 group-hover:scale-110">
                         <Icon className="h-4 w-4 text-white" />
                     </div>
-                    <span className="text-sm font-semibold text-white">{t(labelKey)}</span>
+                    <span className="min-w-0 flex-1 text-sm font-semibold leading-tight text-white">{t(labelKey)}</span>
                 </Link>
             ))}
         </div>
