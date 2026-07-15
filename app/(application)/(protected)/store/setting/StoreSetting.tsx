@@ -1755,7 +1755,7 @@ const StoreSetting = () => {
             )}
 
             {/* Main Form */}
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-6">
                 {/* Tabs Navigation */}
                 <StoreSettingTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
@@ -1766,7 +1766,8 @@ const StoreSetting = () => {
                 {['basic', 'hours', 'loyalty', 'branding', 'status'].includes(activeTab) && (
                     <div className="flex justify-center pt-4">
                         <button
-                            type="submit"
+                            type="button"
+                            onClick={handleSubmit}
                             disabled={isUpdating}
                             className="group relative inline-flex items-center rounded-lg bg-[#046ca9] px-8 py-4 text-lg font-medium text-white shadow-lg transition-all duration-200 hover:bg-[#034d79]  focus:outline-none focus:ring-2 focus:ring-[#046ca9] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
                         >
@@ -1784,7 +1785,7 @@ const StoreSetting = () => {
                         </button>
                     </div>
                 )}
-            </form>
+            </div>
 
             {/* Mobile FAB */}
             <MobileStoreSettingFAB activeTab={activeTab} onTabChange={setActiveTab} />
