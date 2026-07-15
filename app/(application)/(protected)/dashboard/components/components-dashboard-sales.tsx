@@ -7,6 +7,7 @@ import { getTranslation } from '@/i18n';
 import { RootState } from '@/store';
 import { SIMPLIFICATION_FLAGS } from '@/lib/simplification-flags';
 import { useGetDashboardLayoutQuery } from '@/store/features/analytics/analyticsApi';
+import { AlertTriangle, BarChart3, Coins, PackageSearch, Rocket } from 'lucide-react';
 import ManualPaymentsPage from '../../manual-payments/page';
 import AlertStrip from './AlertStrip';
 import Analytics from './Analytics';
@@ -25,34 +26,72 @@ import Summary from './Summary';
 import SupplierDueWidget from './SupplierDueWidget';
 import TopCustomers from './TopCustomers';
 
-// Business-owner priority sequence: urgent attention → guidance → pulse → action →
-// money owed → billing → deep analytics → breakdowns. Keep in sync with
-// DashboardLayoutController::DEFAULT_WIDGETS (backend) and analytics/dashboard-widgets/page.tsx.
+// Business-owner priority sequence: setup/urgent → today's pulse → money →
+// stock/sales → deeper insight. Keep in sync with DashboardLayoutController::DEFAULT_WIDGETS
+// (backend) and analytics/dashboard-widgets/page.tsx.
 const DEFAULT_WIDGETS = [
-    { key: 'alerts', visible: true, order: 1, cols: 12 },
-    { key: 'onboarding', visible: true, order: 2, cols: 12 },
-    { key: 'business_health', visible: true, order: 3, cols: 12 },
-    { key: 'summary', visible: true, order: 4, cols: 12 },
-    { key: 'quick_actions', visible: true, order: 5, cols: 12 },
-    { key: 'customer_due', visible: true, order: 6, cols: 12 },
-    { key: 'supplier_due', visible: true, order: 7, cols: 12 },
-    { key: 'cash_position', visible: true, order: 8, cols: 12 },
-    { key: 'subscription', visible: true, order: 9, cols: 12 },
-    { key: 'analytics', visible: true, order: 10, cols: 12 },
+    { key: 'onboarding', visible: true, order: 1, cols: 12 },
+    { key: 'alerts', visible: true, order: 2, cols: 12 },
+    { key: 'summary', visible: true, order: 3, cols: 12 },
+    { key: 'quick_actions', visible: true, order: 4, cols: 12 },
+    { key: 'cash_position', visible: true, order: 5, cols: 12 },
+    { key: 'business_health', visible: true, order: 6, cols: 12 },
+    { key: 'customer_due', visible: true, order: 7, cols: 12 },
+    { key: 'supplier_due', visible: true, order: 8, cols: 12 },
+    { key: 'section_four', visible: true, order: 9, cols: 12 },
+    { key: 'profit_expense', visible: true, order: 10, cols: 12 },
     { key: 'sections', visible: true, order: 11, cols: 12 },
     { key: 'dead_stock', visible: true, order: 12, cols: 12 },
-    { key: 'profit_expense', visible: true, order: 13, cols: 12 },
-    { key: 'section_four', visible: true, order: 14, cols: 12 },
-    { key: 'section_five', visible: true, order: 15, cols: 9 },
-    { key: 'top_customers', visible: true, order: 16, cols: 3 },
+    { key: 'analytics', visible: true, order: 13, cols: 12 },
+    { key: 'section_five', visible: true, order: 14, cols: 9 },
+    { key: 'top_customers', visible: true, order: 15, cols: 3 },
+    { key: 'subscription', visible: true, order: 16, cols: 12 },
 ];
 
 const DASHBOARD_WIDGETS_BY_EXPERIENCE: Record<string, string[]> = {
-    cashier: ['alerts', 'quick_actions', 'cash_position', 'customer_due', 'sections', 'section_four'],
-    accountant: ['alerts', 'summary', 'customer_due', 'supplier_due', 'cash_position', 'profit_expense', 'section_four'],
-    manager: ['alerts', 'business_health', 'summary', 'quick_actions', 'customer_due', 'supplier_due', 'cash_position', 'sections', 'dead_stock', 'section_five', 'top_customers'],
+    cashier: ['onboarding', 'alerts', 'summary', 'quick_actions', 'cash_position', 'customer_due', 'sections', 'section_four'],
+    accountant: ['onboarding', 'alerts', 'summary', 'cash_position', 'customer_due', 'supplier_due', 'section_four', 'profit_expense'],
+    manager: ['onboarding', 'alerts', 'summary', 'quick_actions', 'cash_position', 'business_health', 'customer_due', 'supplier_due', 'sections', 'dead_stock', 'section_five', 'top_customers'],
     owner: DEFAULT_WIDGETS.map((widget) => widget.key),
 };
+
+const DASHBOARD_GROUPS = [
+    {
+        key: 'start',
+        titleKey: 'dashboard_group_start_title',
+        descKey: 'dashboard_group_start_desc',
+        icon: Rocket,
+        widgets: ['onboarding', 'alerts'],
+    },
+    {
+        key: 'today',
+        titleKey: 'dashboard_group_today_title',
+        descKey: 'dashboard_group_today_desc',
+        icon: AlertTriangle,
+        widgets: ['summary', 'quick_actions', 'cash_position', 'business_health'],
+    },
+    {
+        key: 'money',
+        titleKey: 'dashboard_group_money_title',
+        descKey: 'dashboard_group_money_desc',
+        icon: Coins,
+        widgets: ['customer_due', 'supplier_due', 'section_four', 'profit_expense'],
+    },
+    {
+        key: 'stock',
+        titleKey: 'dashboard_group_stock_title',
+        descKey: 'dashboard_group_stock_desc',
+        icon: PackageSearch,
+        widgets: ['sections', 'dead_stock'],
+    },
+    {
+        key: 'insight',
+        titleKey: 'dashboard_group_insight_title',
+        descKey: 'dashboard_group_insight_desc',
+        icon: BarChart3,
+        widgets: ['analytics', 'section_five', 'top_customers', 'subscription'],
+    },
+];
 
 function resolveDashboardExperience(user: any): keyof typeof DASHBOARD_WIDGETS_BY_EXPERIENCE {
     if (user?.role === 'business_admin') return 'owner';
@@ -131,8 +170,23 @@ const ComponentsDashboardSales = () => {
         .filter((w: any) => w.visible !== false)
         .sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
 
+    const renderWidget = (widget: any) => {
+        const component = widgetComponents[widget.key];
+        if (!component) return null;
+
+        if (widget.key === 'section_five' || widget.key === 'top_customers') {
+            return null;
+        }
+
+        return (
+            <div key={widget.key} className={widget.cols === 6 ? 'lg:w-1/2' : 'w-full'}>
+                {component}
+            </div>
+        );
+    };
+
     return (
-        <div className="space-y-6">
+        <div className="space-y-7">
             {/* ── HEADER ── */}
             <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
@@ -145,38 +199,44 @@ const ComponentsDashboardSales = () => {
                 </div>
             </div>
 
-            {/* ── CUSTOMIZABLE WIDGETS ── */}
-            {visibleWidgets.map((widget: any) => {
-                const component = widgetComponents[widget.key];
-                if (!component) return null;
-
-                if (widget.key === 'section_five' || widget.key === 'top_customers') {
-                    // Keep the existing side-by-side grid for these two widgets
-                    return null;
-                }
+            {DASHBOARD_GROUPS.map((group) => {
+                const groupWidgets = visibleWidgets.filter((widget: any) => group.widgets.includes(widget.key));
+                if (groupWidgets.length === 0) return null;
+                const Icon = group.icon;
 
                 return (
-                    <div key={widget.key} className={widget.cols === 6 ? 'lg:w-1/2' : 'w-full'}>
-                        {component}
-                    </div>
+                    <section key={group.key} className="space-y-3">
+                        <div className="flex items-start gap-3">
+                            <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-900 text-white dark:bg-white dark:text-gray-900">
+                                <Icon className="h-4 w-4" />
+                            </span>
+                            <div className="min-w-0">
+                                <h2 className="text-base font-bold text-gray-900 dark:text-white">{t(group.titleKey)}</h2>
+                                <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">{t(group.descKey)}</p>
+                            </div>
+                        </div>
+
+                        <div className="space-y-5">
+                            {groupWidgets.map(renderWidget)}
+
+                            {groupWidgets.some((w: any) => w.key === 'section_five' || w.key === 'top_customers') && (
+                                <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
+                                    {groupWidgets.find((w: any) => w.key === 'section_five')?.visible !== false && (
+                                        <div className="lg:col-span-3">
+                                            <SectionsFive />
+                                        </div>
+                                    )}
+                                    {groupWidgets.find((w: any) => w.key === 'top_customers')?.visible !== false && (
+                                        <div className="lg:col-span-1">
+                                            <TopCustomers />
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    </section>
                 );
             })}
-
-            {/* ── SECTIONS FIVE + TOP CUSTOMERS GRID ── */}
-            {visibleWidgets.some((w: any) => w.key === 'section_five' || w.key === 'top_customers') && (
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
-                    {visibleWidgets.find((w: any) => w.key === 'section_five')?.visible !== false && (
-                        <div className="lg:col-span-3">
-                            <SectionsFive />
-                        </div>
-                    )}
-                    {visibleWidgets.find((w: any) => w.key === 'top_customers')?.visible !== false && (
-                        <div className="lg:col-span-1">
-                            <TopCustomers />
-                        </div>
-                    )}
-                </div>
-            )}
         </div>
     );
 };

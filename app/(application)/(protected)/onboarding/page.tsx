@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
     ArrowLeft,
     ArrowRight,
@@ -74,12 +74,23 @@ const businessCategories = [
     ['retail', 'রিটেইল / Other retail'],
 ];
 
+const stepIdsForDraft = (draft: Draft) => [
+    'welcome',
+    'business',
+    'operations',
+    draft.status === 'existing' || draft.status === 'assisted' ? 'opening' : 'capital',
+    'products',
+    'people',
+    'launch',
+];
+
 export default function OnboardingPage() {
     const { t, i18n } = getTranslation();
     const router = useRouter();
     const { currentStoreId, currentStore } = useCurrentStore();
     const [currentStep, setCurrentStep] = useState(0);
     const [draft, setDraft] = useState<Draft>(DEFAULT_DRAFT);
+    const hydratedStoreRef = useRef<string | number | null>(null);
 
     const storageKey = `andgatebos_onboarding_draft_${currentStoreId || 'default'}`;
     const { data, isLoading } = useGetDashboardOnboardingQuery(
@@ -172,30 +183,40 @@ export default function OnboardingPage() {
     }, [draft.hasEmployees, draft.status]);
 
     useEffect(() => {
+        const storeKey = currentStoreId || 'default';
+        if (hydratedStoreRef.current === storeKey) return;
+
         const workflow = workflowData?.data;
         if (workflow?.draft) {
             const nextDraft = { ...DEFAULT_DRAFT, ...workflow.draft };
             setDraft(nextDraft);
-            const stepIndex = steps.findIndex((step) => step.id === workflow.current_step);
+            const stepIndex = stepIdsForDraft(nextDraft).findIndex((stepId) => stepId === workflow.current_step);
             if (stepIndex >= 0) setCurrentStep(stepIndex);
+            hydratedStoreRef.current = storeKey;
             return;
         }
+
+        if (currentStoreId && workflowData === undefined) return;
+
         try {
             const saved = localStorage.getItem(storageKey);
             if (saved) setDraft({ ...DEFAULT_DRAFT, ...JSON.parse(saved) });
         } catch {
             setDraft(DEFAULT_DRAFT);
         }
-    }, [steps, storageKey, workflowData]);
+        hydratedStoreRef.current = storeKey;
+    }, [currentStoreId, storageKey, workflowData]);
 
     useEffect(() => {
+        if (hydratedStoreRef.current !== (currentStoreId || 'default')) return;
+
         try {
             localStorage.setItem(storageKey, JSON.stringify(draft));
         } catch {
             // Local draft remains a fallback if the API request fails.
         }
         if (!currentStoreId) return;
-        const stepIds = steps.map((step) => step.id);
+        const stepIds = stepIdsForDraft(draft);
         const timer = window.setTimeout(() => {
             saveWorkflow({
                 store_id: currentStoreId,
@@ -208,7 +229,7 @@ export default function OnboardingPage() {
             }).catch(() => {});
         }, 450);
         return () => window.clearTimeout(timer);
-    }, [currentStep, currentStoreId, draft, saveWorkflow, steps, storageKey]);
+    }, [currentStep, currentStoreId, draft, saveWorkflow, storageKey]);
 
     const active = steps[currentStep];
     const ActiveIcon = active.icon;
@@ -230,9 +251,9 @@ export default function OnboardingPage() {
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                     <div>
                         <p className="text-sm font-semibold text-sky-700 dark:text-sky-300">{currentStore?.store_name || t('lbl_store')}</p>
-                        <h1 className="mt-1 text-2xl font-bold text-slate-950 dark:text-white">ব্যবসা সেটআপ গাইড</h1>
+                        <h1 className="mt-1 text-2xl font-bold text-slate-950 dark:text-white">{t('onboarding_page_title')}</h1>
                         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">
-                            নতুন দোকান বা চলমান ব্যবসা - দুটির জন্যই নিরাপদভাবে AndgateBOS চালু করার ধাপ। Save automatic; refresh হলেও draft থাকবে।
+                            {t('onboarding_page_subtitle')}
                         </p>
                     </div>
                     <div className="min-w-[180px]">
@@ -279,7 +300,7 @@ export default function OnboardingPage() {
                             <ActiveIcon className="h-5 w-5" />
                         </span>
                         <div>
-                            <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Step {currentStep + 1} of {steps.length}</p>
+                            <p className="text-xs font-bold uppercase tracking-wide text-slate-400">{t('onboarding_step_counter', { current: currentStep + 1, total: steps.length })}</p>
                             <h2 className="mt-1 text-xl font-bold text-slate-950 dark:text-white">{active.title}</h2>
                             <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">{active.desc}</p>
                         </div>
@@ -288,7 +309,7 @@ export default function OnboardingPage() {
                     {active.id === 'welcome' && (
                         <div className="grid gap-3 sm:grid-cols-2">
                             <Info icon={ShieldCheck} title="নিরাপদ সেটআপ" text="Opening balance ও opening stock হিসাব/স্টক ledger ছাড়া সরাসরি বদলানো হবে না।" />
-                            <Info icon={RefreshCw} title="Resume করা যাবে" text="এই ডিভাইসে draft থাকবে। Backend workflow persistence next technical step." />
+                            <Info icon={RefreshCw} title={t('onboarding_resume_title')} text={t('onboarding_resume_text')} />
                             <Info icon={Store} title="ডিফল্ট তৈরি আছে" text="BDT, Cash, Main store settings, payment methods registration থেকেই আসে।" />
                             <Info icon={ShoppingCart} title="প্রথম কাজ" text="শেষে dashboard checklist আপনাকে first product ও first sale পর্যন্ত গাইড করবে।" />
                         </div>
@@ -378,7 +399,7 @@ export default function OnboardingPage() {
                     {activeDetected?.completed && (
                         <div className="mt-5 flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300">
                             <CheckCircle2 className="h-4 w-4" />
-                            This step is already detected as complete.
+                            {t('onboarding_detected_complete')}
                         </div>
                     )}
 
@@ -390,12 +411,12 @@ export default function OnboardingPage() {
                             className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-slate-300 px-4 text-sm font-semibold text-slate-700 disabled:opacity-40 dark:border-slate-600 dark:text-slate-200"
                         >
                             <ArrowLeft className="h-4 w-4" />
-                            আগে যান
+                            {t('btn_back')}
                         </button>
                         <div className="flex flex-col gap-3 sm:flex-row">
                             {active.skippable && (
                                 <button type="button" onClick={goNext} className="inline-flex min-h-11 items-center justify-center rounded-lg px-4 text-sm font-semibold text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">
-                                    পরে করব
+                                    {t('onboarding_do_later')}
                                 </button>
                             )}
                             {active.href && (
@@ -405,7 +426,7 @@ export default function OnboardingPage() {
                                 </Link>
                             )}
                             <button type="button" onClick={primaryAction} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-sky-600 px-4 text-sm font-semibold text-white hover:bg-sky-700">
-                                {currentStep === steps.length - 1 ? 'Dashboard খুলুন' : 'সংরক্ষণ করে এগিয়ে যান'}
+                                {currentStep === steps.length - 1 ? t('onboarding_open_dashboard') : t('onboarding_save_next')}
                                 <ArrowRight className="h-4 w-4" />
                             </button>
                         </div>

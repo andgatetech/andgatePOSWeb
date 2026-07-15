@@ -16,6 +16,7 @@ import {
     Store,
     Tags,
     UserPlus,
+    Wand2,
     X,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -121,29 +122,36 @@ export default function OnboardingChecklist() {
     };
 
     return (
-        <section className="overflow-hidden rounded-xl border border-sky-100 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
-            <div className="border-b border-gray-100 bg-gradient-to-r from-sky-50 via-white to-emerald-50 px-4 py-4 dark:border-slate-700 dark:from-slate-800 dark:via-slate-900 dark:to-slate-800 sm:px-5">
+        <section className="overflow-hidden rounded-xl border border-emerald-100 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
+            <div className="border-b border-gray-100 bg-emerald-50 px-4 py-4 dark:border-slate-700 dark:bg-slate-800 sm:px-5">
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                            <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-sky-600 text-white">
-                                <Store className="h-4 w-4" />
+                            <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-emerald-600 text-white">
+                                <Wand2 className="h-4 w-4" />
                             </span>
                             <div>
                                 <h2 className="text-base font-semibold text-gray-900 dark:text-white">
-                                    {t('onboarding_title')}
+                                    {t('dashboard_onboarding_center_title')}
                                 </h2>
                                 <p className="mt-0.5 text-sm text-gray-600 dark:text-gray-300">
-                                    {t('onboarding_subtitle')}
+                                    {t('dashboard_onboarding_center_desc')}
                                 </p>
                             </div>
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
+                        <Link
+                            href="/onboarding"
+                            className="inline-flex items-center gap-2 rounded-lg bg-gray-900 px-3 py-2 text-sm font-semibold text-white transition hover:bg-gray-800"
+                        >
+                            {t('dashboard_open_onboarding')}
+                            <ArrowRight className="h-4 w-4" />
+                        </Link>
                         {nextStep && (
                             <Link
                                 href={nextStep.href}
-                                className="inline-flex items-center gap-2 rounded-lg bg-sky-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-sky-700"
+                                className="inline-flex items-center gap-2 rounded-lg border border-emerald-200 bg-white px-3 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-50"
                             >
                                 {t(STEP_META[nextStep.key].actionKey)}
                                 <ArrowRight className="h-4 w-4" />
@@ -172,12 +180,12 @@ export default function OnboardingChecklist() {
 
             <div className="grid gap-3 border-b border-gray-100 bg-slate-50 px-4 py-3 dark:border-slate-700 dark:bg-slate-800/50 sm:grid-cols-3 sm:px-5">
                 {[
-                    ['1', 'onboarding_path_stock_ready'],
-                    ['2', 'onboarding_path_payment_ready'],
-                    ['3', 'onboarding_path_first_receipt'],
+                    ['1', 'dashboard_onboarding_path_choose'],
+                    ['2', 'dashboard_onboarding_path_prepare'],
+                    ['3', 'dashboard_onboarding_path_launch'],
                 ].map(([stepNo, labelKey]) => (
                     <div key={stepNo} className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200">
-                        <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-sky-600 text-xs font-bold text-white">{stepNo}</span>
+                        <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-emerald-600 text-xs font-bold text-white">{stepNo}</span>
                         <span className="font-medium">{t(labelKey)}</span>
                     </div>
                 ))}
