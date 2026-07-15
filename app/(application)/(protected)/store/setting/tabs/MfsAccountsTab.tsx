@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useGetStoreMfsAccountsQuery, useCreateStoreMfsAccountMutation, useUpdateStoreMfsAccountMutation, useDeleteStoreMfsAccountMutation } from '@/store/features/storeMfsAccount/storeMfsAccountApi';
 import { Pencil, Smartphone, Star, Trash2 } from 'lucide-react';
 
@@ -45,23 +46,41 @@ export default function MfsAccountsTab() {
     const [form, setForm] = useState<MfsAccount>(emptyForm);
     const [editingId, setEditingId] = useState<number | null>(null);
 
-    const accounts = data?.data?.accounts || [];
+    const accounts = data?.data?.accounts || data?.accounts || [];
+
+    const errorMessage = (error: any, fallback: string) => {
+        const errors = error?.data?.errors?.errors || error?.data?.errors;
+        if (errors && typeof errors === 'object') {
+            const first = Object.values(errors).flat()[0];
+            if (first) return String(first);
+        }
+        return error?.data?.message || error?.message || fallback;
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!currentStoreId || !form.account_number) return;
+        if (!currentStoreId) {
+            showErrorDialog(t('msg_please_select_store'));
+            return;
+        }
+        if (!form.account_number.trim()) {
+            showErrorDialog(t('msg_mfs_account_number_required'));
+            return;
+        }
 
         try {
             if (editingId) {
                 await updateAccount({ storeId: currentStoreId, accountId: editingId, ...form }).unwrap();
+                showSuccessDialog(t('msg_mfs_account_updated'));
             } else {
                 await createAccount({ storeId: currentStoreId, ...form }).unwrap();
+                showSuccessDialog(t('msg_mfs_account_created'));
             }
             setForm(emptyForm);
             setEditingId(null);
-            refetch();
-        } catch (e) {
-            // handled by RTK
+            await refetch();
+        } catch (e: any) {
+            showErrorDialog(errorMessage(e, editingId ? t('msg_failed_update_mfs_account') : t('msg_failed_create_mfs_account')));
         }
     };
 
@@ -75,9 +94,10 @@ export default function MfsAccountsTab() {
         if (!confirm(t('msg_confirm_delete'))) return;
         try {
             await deleteAccount({ storeId: currentStoreId, accountId: id }).unwrap();
-            refetch();
-        } catch (e) {
-            // handled by RTK
+            showSuccessDialog(t('msg_mfs_account_deleted'));
+            await refetch();
+        } catch (e: any) {
+            showErrorDialog(errorMessage(e, t('msg_failed_delete_mfs_account')));
         }
     };
 

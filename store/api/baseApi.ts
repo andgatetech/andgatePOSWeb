@@ -91,6 +91,7 @@ export const baseApi = createApi({
     baseQuery,
     tagTypes: [
         'Stores',
+        'StoreMfsAccounts',
         'User',
         'Products',
         'Orders',

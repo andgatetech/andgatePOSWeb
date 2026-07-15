@@ -7,7 +7,7 @@ const StoreMfsAccountApi = baseApi.injectEndpoints({
                 url: `/stores/${storeId}/mfs-accounts`,
                 method: 'GET',
             }),
-            providesTags: ['Stores'],
+            providesTags: (result, error, storeId) => [{ type: 'StoreMfsAccounts', id: storeId }],
         }),
         createStoreMfsAccount: builder.mutation({
             query: ({ storeId, ...data }: { storeId: number | string } & Record<string, any>) => ({
@@ -15,7 +15,7 @@ const StoreMfsAccountApi = baseApi.injectEndpoints({
                 method: 'POST',
                 body: data,
             }),
-            invalidatesTags: ['Stores'],
+            invalidatesTags: (result, error, arg) => [{ type: 'StoreMfsAccounts', id: arg.storeId }, 'Stores'],
         }),
         updateStoreMfsAccount: builder.mutation({
             query: ({ storeId, accountId, ...data }: { storeId: number | string; accountId: number | string } & Record<string, any>) => ({
@@ -23,14 +23,14 @@ const StoreMfsAccountApi = baseApi.injectEndpoints({
                 method: 'PUT',
                 body: data,
             }),
-            invalidatesTags: ['Stores'],
+            invalidatesTags: (result, error, arg) => [{ type: 'StoreMfsAccounts', id: arg.storeId }, 'Stores'],
         }),
         deleteStoreMfsAccount: builder.mutation({
             query: ({ storeId, accountId }: { storeId: number | string; accountId: number | string }) => ({
                 url: `/stores/${storeId}/mfs-accounts/${accountId}`,
                 method: 'DELETE',
             }),
-            invalidatesTags: ['Stores'],
+            invalidatesTags: (result, error, arg) => [{ type: 'StoreMfsAccounts', id: arg.storeId }, 'Stores'],
         }),
     }),
 });

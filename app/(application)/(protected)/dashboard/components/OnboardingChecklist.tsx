@@ -15,7 +15,6 @@ import {
     ShoppingCart,
     Store,
     Tags,
-    UserPlus,
     Wand2,
     X,
 } from 'lucide-react';
@@ -27,7 +26,6 @@ type OnboardingStepKey =
     | 'product_setup'
     | 'first_product'
     | 'opening_stock'
-    | 'first_customer'
     | 'first_sale';
 
 type OnboardingStep = {
@@ -77,12 +75,6 @@ const STEP_META: Record<OnboardingStepKey, { icon: ElementType; titleKey: string
         titleKey: 'onboarding_step_opening_stock',
         descKey: 'onboarding_step_opening_stock_desc',
         actionKey: 'onboarding_action_opening_stock',
-    },
-    first_customer: {
-        icon: UserPlus,
-        titleKey: 'onboarding_step_first_customer',
-        descKey: 'onboarding_step_first_customer_desc',
-        actionKey: 'onboarding_action_first_customer',
     },
     first_sale: {
         icon: ShoppingCart,

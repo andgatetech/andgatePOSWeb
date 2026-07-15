@@ -8,15 +8,27 @@ interface SplitPaymentModalProps {
     isOpen: boolean;
     totalPayable: number;
     paymentMethodOptions: any[];
+    storeMfsAccounts?: any[];
     initialSplitPayments: SplitPayment[];
     onConfirm: (payments: SplitPayment[]) => void;
     onClose: () => void;
 }
 
+const mfsProviderFromMethod = (name?: string) => {
+    const lower = String(name || '').toLowerCase();
+    if (lower.includes('bkash')) return 'bkash';
+    if (lower.includes('nagad')) return 'nagad';
+    if (lower.includes('rocket')) return 'rocket';
+    if (lower.includes('upay')) return 'upay';
+    if (lower.includes('mobile') || lower.includes('mfs') || lower.includes('mfc')) return 'mfs';
+    return '';
+};
+
 const SplitPaymentModal: React.FC<SplitPaymentModalProps> = ({
     isOpen,
     totalPayable,
     paymentMethodOptions,
+    storeMfsAccounts = [],
     initialSplitPayments,
     onConfirm,
     onClose,
@@ -74,6 +86,19 @@ const SplitPaymentModal: React.FC<SplitPaymentModalProps> = ({
         updateRow(idx, 'amount', fill);
     };
 
+    const findMfsAccount = (method?: string) => {
+        const providerKey = mfsProviderFromMethod(method);
+        if (!providerKey) return null;
+        return storeMfsAccounts
+            .filter((account: any) => {
+                const isActive = account?.is_active === undefined || account?.is_active === null || account?.is_active === true || account?.is_active === 1 || account?.is_active === '1';
+                if (!isActive) return false;
+                const provider = String(account?.provider || '').toLowerCase();
+                return providerKey === 'mfs' ? ['bkash', 'nagad', 'rocket', 'upay'].includes(provider) : provider === providerKey;
+            })
+            .sort((a: any, b: any) => Number(Boolean(b?.is_default)) - Number(Boolean(a?.is_default)))[0] || null;
+    };
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
             <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl">
@@ -93,51 +118,62 @@ const SplitPaymentModal: React.FC<SplitPaymentModalProps> = ({
 
                 {/* Rows */}
                 <div className="space-y-2.5 px-5 py-4">
-                    {rows.map((row, idx) => (
-                        <div key={idx} className="flex items-center gap-2">
-                            <select
-                                value={row.payment_type}
-                                onChange={(e) => updateRow(idx, 'payment_type', e.target.value)}
-                                className="form-select flex-1 rounded-lg border-gray-200 py-2 text-sm"
-                            >
-                                {paymentMethodOptions.map((m: any) => (
-                                    <option key={m.id ?? m.payment_method_name} value={m.payment_method_name}>
-                                        {m.payment_method_name}
-                                    </option>
-                                ))}
-                            </select>
-                            <div className="relative flex-1">
-                                <input
-                                    type="number"
-                                    min="0"
-                                    step="0.01"
-                                    value={row.amount || ''}
-                                    onChange={(e) => updateRow(idx, 'amount', parseFloat(e.target.value) || 0)}
-                                    placeholder="0.00"
-                                    className="form-input w-full rounded-lg border-gray-200 py-2 text-sm"
-                                />
-                                {remaining !== 0 && (
+                    {rows.map((row, idx) => {
+                        const mfsAccount = findMfsAccount(row.payment_type);
+                        const isMfsRow = Boolean(mfsProviderFromMethod(row.payment_type));
+                        return (
+                            <div key={idx} className="rounded-xl border border-gray-100 bg-gray-50/60 p-2">
+                                <div className="flex items-center gap-2">
+                                    <select
+                                        value={row.payment_type}
+                                        onChange={(e) => updateRow(idx, 'payment_type', e.target.value)}
+                                        className="form-select flex-1 rounded-lg border-gray-200 py-2 text-sm"
+                                    >
+                                        {paymentMethodOptions.map((m: any) => (
+                                            <option key={m.id ?? m.payment_method_name} value={m.payment_method_name}>
+                                                {m.payment_method_name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <div className="relative flex-1">
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            step="0.01"
+                                            value={row.amount || ''}
+                                            onChange={(e) => updateRow(idx, 'amount', parseFloat(e.target.value) || 0)}
+                                            placeholder="0.00"
+                                            className="form-input w-full rounded-lg border-gray-200 py-2 text-sm"
+                                        />
+                                        {remaining !== 0 && (
+                                            <button
+                                                type="button"
+                                                onClick={() => fillRemaining(idx)}
+                                                className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-primary hover:underline"
+                                            >
+                                                {t('btn_fill')}
+                                            </button>
+                                        )}
+                                    </div>
                                     <button
                                         type="button"
-                                        onClick={() => fillRemaining(idx)}
-                                        className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-primary hover:underline"
+                                        onClick={() => removeRow(idx)}
+                                        disabled={rows.length <= 2}
+                                        className="flex h-8 w-8 items-center justify-center rounded-full text-gray-400 hover:bg-red-50 hover:text-danger disabled:opacity-30"
                                     >
-                                        {t('btn_fill')}
+                                        <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 12H5" />
+                                        </svg>
                                     </button>
+                                </div>
+                                {isMfsRow && (
+                                    <p className={`mt-1.5 text-xs font-medium ${mfsAccount ? 'text-emerald-700' : 'text-amber-700'}`}>
+                                        {mfsAccount ? `${t('pos_mfs_receive_account')}: ${mfsAccount.account_number}` : t('pos_mfs_account_not_configured')}
+                                    </p>
                                 )}
                             </div>
-                            <button
-                                type="button"
-                                onClick={() => removeRow(idx)}
-                                disabled={rows.length <= 2}
-                                className="flex h-8 w-8 items-center justify-center rounded-full text-gray-400 hover:bg-red-50 hover:text-danger disabled:opacity-30"
-                            >
-                                <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 12H5" />
-                                </svg>
-                            </button>
-                        </div>
-                    ))}
+                        );
+                    })}
 
                     <button
                         type="button"

@@ -38,6 +38,11 @@ Audience lens: SME shop owner in Bangladesh — thinks in cash/stock/বাক�
 - **Low/polish — step-1 icon/content mismatch.** "Welcome" step used a `Languages` icon but contained no language control or language-related content (real language switch lives only in the global header dropdown).
   Fix: swapped step icon to `Sparkles`.
 
+## Fixed — follow-up (2026-07-15, later same day)
+
+- **Checklist could never reach 100% for walk-in-only shops.** `first_customer` step required a `pos_customers` row, but walk-in sales never create one (`OrderController.php` — no `customer_id` → `is_walk_in: true`, nothing written to `pos_customers`). Majority-walk-in BD shops (the common case) could finish every other step and stay capped at 6/7 forever.
+  Fix: dropped `first_customer` as a required step. `WidgetsController.php`'s onboarding steps array is now 6 items (`store_profile`, `payment_methods`, `product_setup`, `first_product`, `opening_stock`, `first_sale`); `total_count` is `count($steps)` so it's automatically 6. Removed the now-dead `$customerCount` query, the dead `first_customer` entry from `OnboardingChecklist.tsx`'s `STEP_META`/type union, and updated the wizard's `detectedTotal` fallback (`?? 7` → `?? 6`).
+
 ## Still open
 
 - **High — employee role guidance still decorative.** Role chips (cashier/salesperson/manager/accountant/storekeeper/custom) are shown but not selectable; toggling "has employees" still just redirects to `/employees/create` with no inline role assignment. Needs a real component, not a copy/icon fix — out of scope for this pass.

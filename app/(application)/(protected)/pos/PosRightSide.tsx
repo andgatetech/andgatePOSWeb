@@ -30,6 +30,7 @@ import { clearItemsRedux, removeItemRedux, setItemsRedux, updateItemRedux } from
 import type { Item } from '@/store/features/Order/OrderSlice';
 import type { ExchangeItem, ReturnItem } from '@/store/features/Order/OrderReturnSlice';
 import { useCreateCustomerMutation, useGetStoreCustomersListQuery } from '@/store/features/customer/customer';
+import { useGetStoreMfsAccountsQuery } from '@/store/features/storeMfsAccount/storeMfsAccountApi';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
@@ -185,6 +186,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
     const [createOrderReturn] = useCreateOrderReturnMutation();
     const [quoteOrderReturn] = useQuoteOrderReturnMutation();
     const [createCustomer] = useCreateCustomerMutation();
+    const { data: storeMfsAccountsResponse } = useGetStoreMfsAccountsQuery(currentStoreId || '', { skip: !currentStoreId });
     const [loading, setLoading] = useState(false);
     const [returnQuotePreview, setReturnQuotePreview] = useState<QuoteOrderReturnResult | null>(null);
     const [pendingReturnData, setPendingReturnData] = useState<any>(null);
@@ -529,6 +531,11 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         const hasCash = uniqueMethods.some((m: any) => paymentMethodKey(m.payment_method_name) === 'cash');
         return hasCash ? uniqueMethods : [{ ...DEFAULT_PAYMENT_METHOD, payment_method_name: 'Cash' }, ...uniqueMethods];
     }, [currentStore?.payment_methods]);
+    const storeMfsAccounts = useMemo(() => {
+        const response: any = storeMfsAccountsResponse || {};
+        const accounts = response?.data?.accounts || response?.accounts || response?.data || [];
+        return Array.isArray(accounts) ? accounts : [];
+    }, [storeMfsAccountsResponse]);
 
     // Keep a fresh POS sale on the fast retail defaults: Walk-in + Cash + Paid.
     useEffect(() => {
@@ -2260,6 +2267,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                     selectedCustomer={selectedCustomer}
                     paymentMethodOptions={paymentMethodOptions}
                     paymentStatusOptions={paymentStatusOptions}
+                    storeMfsAccounts={storeMfsAccounts}
                     onInputChange={handleInputChange}
                     totalQty={totalQty}
                     unit={invoiceItems[0]?.unit}
@@ -2283,6 +2291,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                     isOpen={showSplitModal}
                     totalPayable={backendGrandTotal}
                     paymentMethodOptions={paymentMethodOptions}
+                    storeMfsAccounts={storeMfsAccounts}
                     initialSplitPayments={formData.splitPayments}
                     onConfirm={(payments: SplitPayment[]) => {
                         setFormData((prev) => ({

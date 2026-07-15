@@ -3,6 +3,7 @@ import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import { FALLBACK_PAYMENT_STATUSES, PAYMENT_STATUS_CONFIGS, getAllowedStatusesForMethod, getPaymentStatusConfig } from '@/lib/paymentConstants';
+import Link from 'next/link';
 import { checkCreditLimit, type Customer, type PosFormData } from './types';
 
 interface PaymentSummarySectionProps {
@@ -10,6 +11,7 @@ interface PaymentSummarySectionProps {
     selectedCustomer: Customer | null;
     paymentMethodOptions: any[];
     paymentStatusOptions: any[];
+    storeMfsAccounts?: any[];
     onInputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
     totalQty?: number;
     unit?: string;
@@ -31,6 +33,16 @@ interface PaymentSummarySectionProps {
 // Synthetic event helper so pill buttons can share onInputChange
 const makeEvent = (name: string, value: string) =>
     ({ target: { name, value, type: 'select-one' } } as React.ChangeEvent<HTMLSelectElement>);
+
+const mfsProviderFromMethod = (name?: string) => {
+    const lower = String(name || '').toLowerCase();
+    if (lower.includes('bkash')) return 'bkash';
+    if (lower.includes('nagad')) return 'nagad';
+    if (lower.includes('rocket')) return 'rocket';
+    if (lower.includes('upay')) return 'upay';
+    if (lower.includes('mobile') || lower.includes('mfs') || lower.includes('mfc')) return 'mfs';
+    return '';
+};
 
 // Icon for each payment method keyword
 const MethodIcon = ({ name }: { name: string }) => {
@@ -68,6 +80,7 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
     selectedCustomer,
     paymentMethodOptions,
     paymentStatusOptions,
+    storeMfsAccounts = [],
     onInputChange,
     totalQty = 0,
     unit,
@@ -134,6 +147,17 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
 
     const availablePaymentStatuses = getAvailablePaymentStatuses();
     const getSelectedStatusColor = () => getPaymentStatusConfig(formData.paymentStatus).hex || '#6b7280';
+    const selectedMfsProvider = mfsProviderFromMethod(formData.paymentMethod);
+    const selectedMfsAccount = selectedMfsProvider
+        ? storeMfsAccounts
+              .filter((account: any) => {
+                  const isActive = account?.is_active === undefined || account?.is_active === null || account?.is_active === true || account?.is_active === 1 || account?.is_active === '1';
+                  if (!isActive) return false;
+                  const provider = String(account?.provider || '').toLowerCase();
+                  return selectedMfsProvider === 'mfs' ? ['bkash', 'nagad', 'rocket', 'upay'].includes(provider) : provider === selectedMfsProvider;
+              })
+              .sort((a: any, b: any) => Number(Boolean(b?.is_default)) - Number(Boolean(a?.is_default)))[0]
+        : null;
 
     const methodLabel = (name: string) => {
         const lower = name.toLowerCase();
@@ -293,6 +317,26 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                             </button>
                         )}
                     </div>
+                    {selectedMfsProvider && !formData.isSplitPayment && (
+                        <div className={`mt-2 rounded-lg border px-3 py-2 text-xs ${selectedMfsAccount ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-amber-200 bg-amber-50 text-amber-800'}`}>
+                            {selectedMfsAccount ? (
+                                <div className="flex flex-wrap items-center justify-between gap-2">
+                                    <span className="font-semibold">{t('pos_mfs_receive_account')}</span>
+                                    <span className="font-mono text-sm font-bold">{selectedMfsAccount.account_number}</span>
+                                    <span className="rounded-full bg-white/70 px-2 py-0.5 font-medium">
+                                        {selectedMfsAccount.provider_label || selectedMfsAccount.provider} · {selectedMfsAccount.account_type || t('lbl_account')}
+                                    </span>
+                                </div>
+                            ) : (
+                                <div className="flex flex-wrap items-center justify-between gap-2">
+                                    <span className="font-semibold">{t('pos_mfs_account_not_configured')}</span>
+                                    <Link href="/store/setting?tab=mfs" className="font-semibold text-primary underline-offset-2 hover:underline">
+                                        {t('pos_setup_mfs_account')}
+                                    </Link>
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
             )}
 

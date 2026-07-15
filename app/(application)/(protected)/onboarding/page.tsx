@@ -111,7 +111,7 @@ export default function OnboardingPage() {
     const payload = data?.data;
     const apiSteps = Array.isArray(payload?.steps) ? payload.steps : [];
     const detectedCompleted = Number(payload?.completed_count ?? 0);
-    const detectedTotal = Number(payload?.total_count ?? 7);
+    const detectedTotal = Number(payload?.total_count ?? 6);
 
     const steps = useMemo<Step[]>(() => {
         const existing = draft.status === 'existing' || draft.status === 'assisted';

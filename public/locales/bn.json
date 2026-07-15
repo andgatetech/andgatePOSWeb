@@ -7644,6 +7644,9 @@
   "notification_view_all": "সব নোটিফিকেশন দেখুন",
   "placeholder_coupon_code": "কুপন কোড",
   "lbl_split": "ভাগ করে পেমেন্ট",
+  "pos_mfs_receive_account": "এই MFS অ্যাকাউন্টে টাকা নিন",
+  "pos_mfs_account_not_configured": "এই পেমেন্টের জন্য MFS অ্যাকাউন্ট সেট করা নেই",
+  "pos_setup_mfs_account": "MFS অ্যাকাউন্ট সেট করুন",
   "lbl_split_payment": "ভাগ করে পেমেন্ট",
   "btn_fill": "বাকি টাকা বসান",
   "btn_add_payment_method": "আরেকটি পেমেন্ট মাধ্যম যোগ করুন",
@@ -7787,5 +7790,12 @@
   "purchase_lifecycle_goods_not_received": "মাল আসেনি",
   "purchase_lifecycle_goods_received": "মাল এসেছে",
   "purchase_lifecycle_supplier_due": "বাকি টাকা",
-  "onboarding_launch_counts_note": "'আপনার সেটআপ' ও 'সিস্টেমে পাওয়া গেছে' সংখ্যা আলাদা হতে পারে — প্রথমটা এই উইজার্ডে আপনি যা শেষ করেছেন তা দেখায়, দ্বিতীয়টা দোকানে সত্যিকার সংরক্ষিত তথ্য দেখায়। দ্বিতীয়টাই আসল।"
+  "onboarding_launch_counts_note": "'আপনার সেটআপ' ও 'সিস্টেমে পাওয়া গেছে' সংখ্যা আলাদা হতে পারে — প্রথমটা এই উইজার্ডে আপনি যা শেষ করেছেন তা দেখায়, দ্বিতীয়টা দোকানে সত্যিকার সংরক্ষিত তথ্য দেখায়। দ্বিতীয়টাই আসল।",
+  "msg_mfs_account_number_required": "MFS অ্যাকাউন্ট নম্বর দিন",
+  "msg_mfs_account_created": "MFS অ্যাকাউন্ট যোগ হয়েছে",
+  "msg_mfs_account_updated": "MFS অ্যাকাউন্ট আপডেট হয়েছে",
+  "msg_mfs_account_deleted": "MFS অ্যাকাউন্ট মুছে ফেলা হয়েছে",
+  "msg_failed_create_mfs_account": "MFS অ্যাকাউন্ট যোগ করা যায়নি",
+  "msg_failed_update_mfs_account": "MFS অ্যাকাউন্ট আপডেট করা যায়নি",
+  "msg_failed_delete_mfs_account": "MFS অ্যাকাউন্ট মুছতে ব্যর্থ"
 }

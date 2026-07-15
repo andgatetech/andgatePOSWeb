@@ -7644,6 +7644,9 @@
   "notification_view_all": "View all notifications",
   "placeholder_coupon_code": "Coupon code",
   "lbl_split": "Split",
+  "pos_mfs_receive_account": "Receive in this MFS account",
+  "pos_mfs_account_not_configured": "No MFS account is set for this payment method",
+  "pos_setup_mfs_account": "Set up MFS account",
   "lbl_split_payment": "Split payment",
   "btn_fill": "Fill",
   "btn_add_payment_method": "Add payment method",
@@ -7787,5 +7790,12 @@
   "purchase_lifecycle_goods_not_received": "Goods not received",
   "purchase_lifecycle_goods_received": "Goods received",
   "purchase_lifecycle_supplier_due": "Supplier due",
-  "onboarding_launch_counts_note": "Your setup count and detected count can differ — one tracks what you finished in this wizard, the other tracks what's actually saved in your store data. Trust the detected count."
+  "onboarding_launch_counts_note": "Your setup count and detected count can differ — one tracks what you finished in this wizard, the other tracks what's actually saved in your store data. Trust the detected count.",
+  "msg_mfs_account_number_required": "Enter the MFS account number",
+  "msg_mfs_account_created": "MFS account added",
+  "msg_mfs_account_updated": "MFS account updated",
+  "msg_mfs_account_deleted": "MFS account deleted",
+  "msg_failed_create_mfs_account": "Could not add MFS account",
+  "msg_failed_update_mfs_account": "Could not update MFS account",
+  "msg_failed_delete_mfs_account": "Could not delete MFS account"
 }
