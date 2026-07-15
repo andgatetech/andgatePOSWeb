@@ -109,6 +109,11 @@ export default function HomePageClient() {
     const { t, data, i18n } = useTranslation();
     const isBn = i18n.language === 'bn';
     const localizeNumber = useCallback((value: string | number) => convertNumberByLanguage(value, i18n.language), [i18n.language]);
+    const mapDivisions = Array.isArray(data.map_divisions)
+        ? data.map_divisions
+        : isBn
+          ? ['ঢাকা', 'চট্টগ্রাম', 'রাজশাহী', 'খুলনা', 'বরিশাল', 'সিলেট', 'রংপুর', 'ময়মনসিংহ']
+          : ['Dhaka', 'Chittagong', 'Rajshahi', 'Khulna', 'Barishal', 'Sylhet', 'Rangpur', 'Mymensingh'];
 
     const videoRef = useRef<HTMLIFrameElement>(null);
     const videoContainerRef = useRef<HTMLDivElement>(null);
@@ -1094,7 +1099,7 @@ export default function HomePageClient() {
                     </div>
                     <BangladeshMap />
                     <div className="mt-8 flex flex-wrap justify-center gap-2">
-                        {(data.map_divisions as string[] || []).map((div: string) => (
+                        {mapDivisions.map((div: string) => (
                             <span key={div} className="rounded-full border border-[#046ca9]/20 bg-[#046ca9]/5 px-4 py-1.5 text-sm font-semibold text-[#046ca9]">
                                 {div}
                             </span>

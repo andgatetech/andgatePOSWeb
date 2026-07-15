@@ -7678,7 +7678,7 @@
   "offline_session_expired_login_to_sync": "সেশন শেষ হয়েছে — অর্ডার সিঙ্ক করতে আবার লগইন করুন",
   "map_store_tier": "দোকানের স্তর",
   "map_division": "বিভাগ",
-  "map_divisions": "বিভাগসমূহ",
+  "map_divisions_label": "বিভাগসমূহ",
   "map_active_pos_store": "একটিভ POS দোকান",
   "map_active_pos_stores": "একটিভ POS দোকান",
   "profile_no_payment_history": "কোনো পেমেন্ট হিস্টোরি পাওয়া যায়নি।",

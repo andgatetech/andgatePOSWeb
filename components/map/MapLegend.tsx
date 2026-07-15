@@ -30,7 +30,7 @@ export default function MapLegend() {
 
             <div className="my-3 border-t border-gray-100" />
 
-            <h4 className="mb-3 text-xs font-bold uppercase tracking-widest text-gray-500">{t('map_divisions')}</h4>
+            <h4 className="mb-3 text-xs font-bold uppercase tracking-widest text-gray-500">{t('map_divisions_label')}</h4>
 
             <ul className="grid grid-cols-2 gap-x-3 gap-y-1.5">
                 {BANGLADESH_DIVISIONS.map((div) => (

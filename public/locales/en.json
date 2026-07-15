@@ -7678,7 +7678,7 @@
   "offline_session_expired_login_to_sync": "Session expired — login again to sync your orders",
   "map_store_tier": "Store tier",
   "map_division": "Division",
-  "map_divisions": "Divisions",
+  "map_divisions_label": "Divisions",
   "map_active_pos_store": "Active POS store",
   "map_active_pos_stores": "Active POS stores",
   "profile_no_payment_history": "No payment history found.",
