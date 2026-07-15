@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { ElementType } from 'react';
 import { getTranslation } from '@/i18n';
-import { useGetDashboardOnboardingQuery } from '@/store/features/dashboard/dashboad';
+import { useGetDashboardOnboardingQuery, useGetOnboardingWorkflowQuery } from '@/store/features/dashboard/dashboad';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import {
     ArrowRight,
@@ -102,6 +102,10 @@ export default function OnboardingChecklist() {
         { store_id: currentStoreId },
         { skip: !currentStoreId }
     ) as { data?: OnboardingResponse; isLoading: boolean };
+    const { data: workflowData } = useGetOnboardingWorkflowQuery(
+        { store_id: currentStoreId },
+        { skip: !currentStoreId }
+    ) as any;
 
     useEffect(() => {
         setDismissed(localStorage.getItem(storageKey) === '1');
@@ -111,8 +115,14 @@ export default function OnboardingChecklist() {
     const steps = useMemo(() => payload?.steps || [], [payload?.steps]);
     const nextStep = steps.find((step) => !step.completed);
     const progress = payload?.progress_percent || 0;
+    const workflow = workflowData?.data;
+    const workflowComplete = workflow?.status === 'completed';
+    const workflowHref = workflowComplete ? '/dashboard' : '/onboarding';
+    const workflowActionKey = workflow?.current_step && workflow.current_step !== 'welcome'
+        ? 'dashboard_resume_onboarding'
+        : 'dashboard_open_onboarding';
 
-    if (dismissed || payload?.is_complete || (!isLoading && steps.length === 0)) {
+    if (dismissed || (workflowComplete && payload?.is_complete) || (!isLoading && steps.length === 0 && workflowComplete)) {
         return null;
     }
 
@@ -142,10 +152,10 @@ export default function OnboardingChecklist() {
                     </div>
                     <div className="flex items-center gap-3">
                         <Link
-                            href="/onboarding"
+                            href={workflowHref}
                             className="inline-flex items-center gap-2 rounded-lg bg-gray-900 px-3 py-2 text-sm font-semibold text-white transition hover:bg-gray-800"
                         >
-                            {t('dashboard_open_onboarding')}
+                            {t(workflowActionKey)}
                             <ArrowRight className="h-4 w-4" />
                         </Link>
                         {nextStep && (
@@ -170,7 +180,10 @@ export default function OnboardingChecklist() {
                 <div className="mt-4">
                     <div className="mb-1 flex items-center justify-between text-xs font-semibold text-gray-600 dark:text-gray-300">
                         <span>{t('onboarding_progress')}</span>
-                        <span>{payload?.completed_count || 0}/{payload?.total_count || 0}</span>
+                        <span>
+                            {payload?.completed_count || 0}/{payload?.total_count || 0}
+                            {!workflowComplete && workflow?.current_step ? ` · ${t('dashboard_onboarding_wizard_active')}` : ''}
+                        </span>
                     </div>
                     <div className="h-2 rounded-full bg-gray-200 dark:bg-slate-700">
                         <div className="h-2 rounded-full bg-emerald-500 transition-all" style={{ width: `${progress}%` }} />

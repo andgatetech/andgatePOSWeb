@@ -26,6 +26,7 @@ import {
 
 import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { trackGTMEvent } from '@/lib/analytics';
 import {
     useGetDashboardOnboardingQuery,
     useGetOnboardingWorkflowQuery,
@@ -90,7 +91,9 @@ export default function OnboardingPage() {
     const { currentStoreId, currentStore } = useCurrentStore();
     const [currentStep, setCurrentStep] = useState(0);
     const [draft, setDraft] = useState<Draft>(DEFAULT_DRAFT);
+    const [completedStepIds, setCompletedStepIds] = useState<string[]>([]);
     const hydratedStoreRef = useRef<string | number | null>(null);
+    const viewedStepRef = useRef<string | null>(null);
 
     const storageKey = `andgatebos_onboarding_draft_${currentStoreId || 'default'}`;
     const { data, isLoading } = useGetDashboardOnboardingQuery(
@@ -105,9 +108,8 @@ export default function OnboardingPage() {
 
     const payload = data?.data;
     const apiSteps = Array.isArray(payload?.steps) ? payload.steps : [];
-    const completed = Number(payload?.completed_count ?? 0);
-    const total = Number(payload?.total_count ?? 7);
-    const progress = Number(payload?.progress_percent ?? (total ? Math.round((completed / total) * 100) : 0));
+    const detectedCompleted = Number(payload?.completed_count ?? 0);
+    const detectedTotal = Number(payload?.total_count ?? 7);
 
     const steps = useMemo<Step[]>(() => {
         const existing = draft.status === 'existing' || draft.status === 'assisted';
@@ -182,6 +184,16 @@ export default function OnboardingPage() {
         ];
     }, [draft.hasEmployees, draft.status]);
 
+    const stepIds = useMemo(() => stepIdsForDraft(draft), [draft]);
+    const workflowCompleted = useMemo(
+        () => completedStepIds.filter((stepId) => stepIds.includes(stepId)),
+        [completedStepIds, stepIds]
+    );
+    const progress = Math.round((workflowCompleted.length / stepIds.length) * 100);
+    const active = steps[currentStep];
+    const ActiveIcon = active.icon;
+    const activeComplete = workflowCompleted.includes(active?.id);
+
     useEffect(() => {
         const storeKey = currentStoreId || 'default';
         if (hydratedStoreRef.current === storeKey) return;
@@ -190,8 +202,14 @@ export default function OnboardingPage() {
         if (workflow?.draft) {
             const nextDraft = { ...DEFAULT_DRAFT, ...workflow.draft };
             setDraft(nextDraft);
+            setCompletedStepIds(Array.isArray(workflow.completed_steps) ? workflow.completed_steps : []);
             const stepIndex = stepIdsForDraft(nextDraft).findIndex((stepId) => stepId === workflow.current_step);
             if (stepIndex >= 0) setCurrentStep(stepIndex);
+            trackGTMEvent('onboarding_resumed', {
+                store_id: currentStoreId,
+                business_status: workflow.business_status,
+                current_step: workflow.current_step,
+            });
             hydratedStoreRef.current = storeKey;
             return;
         }
@@ -204,8 +222,20 @@ export default function OnboardingPage() {
         } catch {
             setDraft(DEFAULT_DRAFT);
         }
+        trackGTMEvent('onboarding_started', { store_id: currentStoreId });
         hydratedStoreRef.current = storeKey;
     }, [currentStoreId, storageKey, workflowData]);
+
+    useEffect(() => {
+        if (!active?.id || viewedStepRef.current === active.id) return;
+        viewedStepRef.current = active.id;
+        trackGTMEvent('onboarding_step_viewed', {
+            store_id: currentStoreId,
+            step: active.id,
+            business_status: draft.status,
+            business_category: draft.category,
+        });
+    }, [active?.id, currentStoreId, draft.category, draft.status]);
 
     useEffect(() => {
         if (hydratedStoreRef.current !== (currentStoreId || 'default')) return;
@@ -216,7 +246,6 @@ export default function OnboardingPage() {
             // Local draft remains a fallback if the API request fails.
         }
         if (!currentStoreId) return;
-        const stepIds = stepIdsForDraft(draft);
         const timer = window.setTimeout(() => {
             saveWorkflow({
                 store_id: currentStoreId,
@@ -224,25 +253,38 @@ export default function OnboardingPage() {
                 business_category: draft.category,
                 current_step: stepIds[currentStep] || 'welcome',
                 draft,
-                completed_steps: stepIds.slice(0, currentStep),
-                status: currentStep === stepIds.length - 1 ? 'completed' : 'in_progress',
+                completed_steps: workflowCompleted,
+                status: workflowCompleted.includes('launch') ? 'completed' : 'in_progress',
             }).catch(() => {});
         }, 450);
         return () => window.clearTimeout(timer);
-    }, [currentStep, currentStoreId, draft, saveWorkflow, storageKey]);
+    }, [currentStep, currentStoreId, draft, saveWorkflow, stepIds, storageKey, workflowCompleted]);
 
-    const active = steps[currentStep];
-    const ActiveIcon = active.icon;
-    const activeDetected = apiSteps.find((step: any) => step.key === active?.id);
-
-    const goNext = () => setCurrentStep((value) => Math.min(value + 1, steps.length - 1));
+    const markStepComplete = (stepId = active?.id) => {
+        if (!stepId) return;
+        setCompletedStepIds((prev) => {
+            if (prev.includes(stepId)) return prev;
+            trackGTMEvent('onboarding_step_completed', {
+                store_id: currentStoreId,
+                step: stepId,
+                business_status: draft.status,
+                business_category: draft.category,
+            });
+            return [...prev, stepId];
+        });
+    };
+    const goNext = () => {
+        markStepComplete();
+        setCurrentStep((value) => Math.min(value + 1, steps.length - 1));
+    };
     const goBack = () => setCurrentStep((value) => Math.max(value - 1, 0));
     const primaryAction = () => {
+        markStepComplete();
         if (currentStep === steps.length - 1) {
             router.push('/dashboard');
             return;
         }
-        goNext();
+        setCurrentStep((value) => Math.min(value + 1, steps.length - 1));
     };
 
     return (
@@ -273,7 +315,7 @@ export default function OnboardingPage() {
                     {steps.map((step, index) => {
                         const Icon = step.icon;
                         const activeItem = index === currentStep;
-                        const complete = index < currentStep || apiSteps.some((apiStep: any) => apiStep.key === step.id && apiStep.completed);
+                        const complete = workflowCompleted.includes(step.id);
                         const StatusIcon = complete ? CheckCircle2 : Circle;
                         return (
                             <button
@@ -320,7 +362,7 @@ export default function OnboardingPage() {
                             <div className="grid gap-3 md:grid-cols-3">
                                 <Choice selected={draft.status === 'existing'} title="আমার ব্যবসা আগে থেকেই চলছে" text="ক্যাশ, স্টক, বাকি/দেনা আনতে হবে" onClick={() => setDraft({ ...draft, status: 'existing' })} />
                                 <Choice selected={draft.status === 'new'} title="আমি নতুন ব্যবসা শুরু করছি" text="সিম্পল সেটআপ, opening history লাগবে না" onClick={() => setDraft({ ...draft, status: 'new' })} />
-                                <Choice selected={draft.status === 'assisted'} title="আগে সফটওয়্যার ব্যবহার করেছি" text="Excel/CSV বা support assisted migration" onClick={() => setDraft({ ...draft, status: 'assisted' })} />
+                                <Choice selected={draft.status === 'assisted'} title="আগে সফটওয়্যার ব্যবহার করেছি" text="Automated import এখন বাধ্যতামূলক নয়; support-assisted migration হিসেবে চলবে" onClick={() => setDraft({ ...draft, status: 'assisted' })} />
                             </div>
                             <label className="block">
                                 <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">ব্যবসার ধরন</span>
@@ -348,9 +390,22 @@ export default function OnboardingPage() {
                     {active.id === 'opening' && (
                         <div className="space-y-4">
                             <div className="grid gap-3 md:grid-cols-2">
-                                <Info icon={Banknote} title="Simple setup" text="Cash, bank, mobile banking, customer due, supplier due, opening stock." />
-                                <Info icon={FileSpreadsheet} title="Advanced setup" text="Full trial balance, account-wise balance, branch-wise stock, receivable/payable import." />
+                                <Info
+                                    icon={Banknote}
+                                    title="বর্তমানে সাপোর্টেড সেটআপ"
+                                    text="Cash, bank, mobile banking, customer due, supplier due, owner capital ও opening stock draft করে balanced posting flow দিয়ে পোস্ট করুন।"
+                                />
+                                <Info
+                                    icon={FileSpreadsheet}
+                                    title="জটিল/পুরোনো সফটওয়্যার ডাটা"
+                                    text="Full trial balance, branch-wise stock বা Excel/CSV migration এখন assisted path. ইউজারকে automated import আছে এমন ভুল ধারণা দেওয়া হবে না।"
+                                />
                             </div>
+                            <Info
+                                icon={ShieldCheck}
+                                title="কেন এটা আলাদা পেজে"
+                                text="এই ধাপে শুধু পথ দেখানো হচ্ছে। আসল টাকা/স্টক posting running business migration পেজে validation, review, print এবং final confirm সহ হবে।"
+                            />
                             {active.warning && (
                                 <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900 dark:border-amber-500/30 dark:bg-amber-950/30 dark:text-amber-100">
                                     {active.warning}
@@ -387,7 +442,8 @@ export default function OnboardingPage() {
                     {active.id === 'launch' && (
                         <div className="space-y-4">
                             <div className="grid gap-3 md:grid-cols-2">
-                                <Info icon={ClipboardCheck} title="Detected progress" text={`${completed}/${total} checklist items complete from current system data.`} />
+                                <Info icon={ClipboardCheck} title="Wizard progress" text={`${workflowCompleted.length}/${stepIds.length} onboarding steps saved. Dashboard checklist will continue after launch.`} />
+                                <Info icon={CheckCircle2} title="Detected business setup" text={`${detectedCompleted}/${detectedTotal} checklist items already complete from current system data.`} />
                                 <Info icon={Languages} title="Language" text={`Current language: ${i18n.language || 'bn'}. Bangla copy is primary for shopkeeper flow.`} />
                             </div>
                             <div className="rounded-lg border border-slate-200 p-4 dark:border-slate-700">
@@ -396,7 +452,7 @@ export default function OnboardingPage() {
                         </div>
                     )}
 
-                    {activeDetected?.completed && (
+                    {activeComplete && (
                         <div className="mt-5 flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300">
                             <CheckCircle2 className="h-4 w-4" />
                             {t('onboarding_detected_complete')}
@@ -415,12 +471,23 @@ export default function OnboardingPage() {
                         </button>
                         <div className="flex flex-col gap-3 sm:flex-row">
                             {active.skippable && (
-                                <button type="button" onClick={goNext} className="inline-flex min-h-11 items-center justify-center rounded-lg px-4 text-sm font-semibold text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        trackGTMEvent('onboarding_step_skipped', {
+                                            store_id: currentStoreId,
+                                            step: active.id,
+                                            business_status: draft.status,
+                                        });
+                                        goNext();
+                                    }}
+                                    className="inline-flex min-h-11 items-center justify-center rounded-lg px-4 text-sm font-semibold text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+                                >
                                     {t('onboarding_do_later')}
                                 </button>
                             )}
                             {active.href && (
-                                <Link href={active.href} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-sky-200 px-4 text-sm font-semibold text-sky-700 hover:bg-sky-50 dark:border-sky-700 dark:text-sky-300 dark:hover:bg-sky-950/30">
+                                <Link href={active.href} onClick={() => markStepComplete()} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-sky-200 px-4 text-sm font-semibold text-sky-700 hover:bg-sky-50 dark:border-sky-700 dark:text-sky-300 dark:hover:bg-sky-950/30">
                                     {active.action}
                                     <ArrowRight className="h-4 w-4" />
                                 </Link>

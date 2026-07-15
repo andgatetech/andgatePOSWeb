@@ -40,6 +40,40 @@ const defaultChecklist = checklistSteps.reduce((acc, step) => {
 
 const displayStatus = (value?: string | null) => (value || 'not_started').replace(/_/g, ' ');
 
+const parseCsvText = (text: string) => {
+    const rows = text
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .map((line) => line.split(',').map((cell) => cell.trim().replace(/^"|"$/g, '')));
+
+    if (rows.length === 0) return [];
+
+    const first = rows[0].map((cell) => cell.toLowerCase());
+    const hasHeader = first.some((cell) => ['name', 'product', 'customer', 'supplier', 'amount', 'quantity', 'qty', 'unit_cost', 'cost'].includes(cell));
+    const headers = hasHeader ? first : [];
+    const body = hasHeader ? rows.slice(1) : rows;
+
+    return body.map((row) => {
+        const get = (keys: string[], fallbackIndex: number) => {
+            const index = headers.findIndex((header) => keys.includes(header));
+            return row[index >= 0 ? index : fallbackIndex] || '';
+        };
+
+        return {
+            name: get(['name', 'product', 'customer', 'supplier'], 0),
+            quantity: get(['quantity', 'qty'], 1),
+            unit_cost: get(['unit_cost', 'unit cost', 'cost', 'purchase_price'], 2),
+            amount: get(['amount', 'due', 'balance', 'payable', 'receivable'], 1),
+        };
+    });
+};
+
+const positiveNumber = (value: unknown) => {
+    const parsed = Number(String(value ?? '').replace(/[^\d.-]/g, ''));
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+};
+
 export default function RunningBusinessMigrationPage() {
     const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
@@ -70,9 +104,13 @@ export default function RunningBusinessMigrationPage() {
         setNotes(status.notes || '');
     }, [status]);
 
+    const assistedMigration = stepData.assisted_migration || {};
+    const assistedMigrationBlocked = Boolean(assistedMigration.required) && !assistedMigration.support_reviewed;
     const completedCount = useMemo(() => checklistSteps.filter((step) => checklist[step.key]).length, [checklist]);
     const progress = Math.round((completedCount / checklistSteps.length) * 100);
-    const canMarkReady = Boolean(migrationDate) && checklistSteps.filter((step) => step.key !== 'review_ready').every((step) => checklist[step.key]);
+    const canMarkReady = Boolean(migrationDate)
+        && !assistedMigrationBlocked
+        && checklistSteps.filter((step) => step.key !== 'review_ready').every((step) => checklist[step.key]);
 
     const toggleStep = (key: ChecklistKey) => {
         setChecklist((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -116,6 +154,63 @@ export default function RunningBusinessMigrationPage() {
                 [field]: value,
             },
         }));
+    };
+
+    const setAssistedMigrationField = (field: string, value: string | boolean) => {
+        setStepData((prev) => ({
+            ...prev,
+            assisted_migration: {
+                ...(prev.assisted_migration || {}),
+                [field]: value,
+            },
+        }));
+    };
+
+    const applyAssistedImport = (target: 'opening_stock' | 'customer_receivables' | 'supplier_payables') => {
+        const rows = parseCsvText(String(assistedMigration.import_text || ''));
+        if (rows.length === 0) {
+            showErrorDialog(t('rbm_import_empty'));
+            return;
+        }
+
+        setStepData((prev) => {
+            if (target === 'opening_stock') {
+                const existing = Array.isArray(prev.opening_stock?.items) ? prev.opening_stock.items : [];
+                const items = rows
+                    .map((row) => ({
+                        name: row.name,
+                        product_stock_id: '',
+                        quantity: positiveNumber(row.quantity) || '',
+                        unit_cost: positiveNumber(row.unit_cost) || '',
+                    }))
+                    .filter((row) => row.name || row.quantity || row.unit_cost);
+
+                return {
+                    ...prev,
+                    opening_stock: {
+                        ...(prev.opening_stock || {}),
+                        entry_mode: 'product',
+                        items: [...existing, ...items],
+                    },
+                };
+            }
+
+            const existing = Array.isArray(prev[target]?.items) ? prev[target].items : [];
+            const items = rows
+                .map((row) => ({ name: row.name, amount: positiveNumber(row.amount) || '' }))
+                .filter((row) => row.name || row.amount);
+
+            return {
+                ...prev,
+                [target]: {
+                    ...(prev[target] || {}),
+                    items: [...existing, ...items],
+                },
+            };
+        });
+
+        setAssistedMigrationField('support_reviewed', false);
+        showSuccessDialog(t('rbm_import_applied'));
     };
 
     const setStockEntryMode = (mode: 'total' | 'product') => {
@@ -386,6 +481,96 @@ export default function RunningBusinessMigrationPage() {
                             <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
                             <p>{t('rbm_stock_note')}</p>
                         </div>
+                    </div>
+
+                    <div className="rounded-lg border border-sky-100 bg-white p-4 shadow-sm">
+                        <label className="flex items-start gap-3">
+                            <input
+                                type="checkbox"
+                                checked={Boolean(assistedMigration.required)}
+                                onChange={(event) => setAssistedMigrationField('required', event.target.checked)}
+                                className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                            />
+                            <span>
+                                <span className="block text-sm font-bold text-gray-800">{t('rbm_assisted_title')}</span>
+                                <span className="mt-1 block text-xs leading-5 text-gray-500">{t('rbm_assisted_desc')}</span>
+                            </span>
+                        </label>
+                        {assistedMigration.required && (
+                            <div className="mt-4 space-y-3">
+                                <label className="block">
+                                    <span className="mb-1 block text-xs font-semibold text-gray-600">{t('rbm_assisted_source')}</span>
+                                    <input
+                                        className="form-input w-full"
+                                        value={assistedMigration.source_system || ''}
+                                        onChange={(event) => setAssistedMigrationField('source_system', event.target.value)}
+                                        placeholder={t('rbm_assisted_source_placeholder')}
+                                    />
+                                </label>
+                                <label className="block">
+                                    <span className="mb-1 block text-xs font-semibold text-gray-600">{t('rbm_assisted_file_summary')}</span>
+                                    <textarea
+                                        className="form-textarea min-h-20 w-full"
+                                        value={assistedMigration.file_summary || ''}
+                                        onChange={(event) => setAssistedMigrationField('file_summary', event.target.value)}
+                                        placeholder={t('rbm_assisted_file_placeholder')}
+                                    />
+                                </label>
+                                <label className="block">
+                                    <span className="mb-1 block text-xs font-semibold text-gray-600">{t('rbm_assisted_contact')}</span>
+                                    <input
+                                        className="form-input w-full"
+                                        value={assistedMigration.contact_preference || ''}
+                                        onChange={(event) => setAssistedMigrationField('contact_preference', event.target.value)}
+                                        placeholder={t('rbm_assisted_contact_placeholder')}
+                                    />
+                                </label>
+                                <div className="rounded-lg border border-sky-100 bg-sky-50 p-3">
+                                    <label className="block">
+                                        <span className="mb-1 block text-xs font-semibold text-sky-800">{t('rbm_import_paste_label')}</span>
+                                        <textarea
+                                            className="form-textarea min-h-24 w-full bg-white"
+                                            value={assistedMigration.import_text || ''}
+                                            onChange={(event) => setAssistedMigrationField('import_text', event.target.value)}
+                                            placeholder={t('rbm_import_paste_placeholder')}
+                                        />
+                                    </label>
+                                    <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                                        <button
+                                            type="button"
+                                            onClick={() => applyAssistedImport('opening_stock')}
+                                            className="rounded-md border border-sky-200 bg-white px-3 py-2 text-xs font-bold text-sky-700 hover:bg-sky-50"
+                                        >
+                                            {t('rbm_import_stock')}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => applyAssistedImport('customer_receivables')}
+                                            className="rounded-md border border-sky-200 bg-white px-3 py-2 text-xs font-bold text-sky-700 hover:bg-sky-50"
+                                        >
+                                            {t('rbm_import_customer_due')}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => applyAssistedImport('supplier_payables')}
+                                            className="rounded-md border border-sky-200 bg-white px-3 py-2 text-xs font-bold text-sky-700 hover:bg-sky-50"
+                                        >
+                                            {t('rbm_import_supplier_due')}
+                                        </button>
+                                    </div>
+                                    <p className="mt-2 text-xs leading-5 text-sky-700">{t('rbm_import_review_note')}</p>
+                                </div>
+                                <label className="flex items-start gap-3 rounded-lg border border-emerald-100 bg-emerald-50 p-3 text-sm text-emerald-800">
+                                    <input
+                                        type="checkbox"
+                                        checked={Boolean(assistedMigration.support_reviewed)}
+                                        onChange={(event) => setAssistedMigrationField('support_reviewed', event.target.checked)}
+                                        className="mt-1 h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-600"
+                                    />
+                                    <span>{t('rbm_assisted_reviewed')}</span>
+                                </label>
+                            </div>
+                        )}
                     </div>
                 </div>
 
