@@ -3,8 +3,9 @@ import UniversalFilter from '@/components/common/UniversalFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useUniversalFilter } from '@/hooks/useUniversalFilter';
 import { getTranslation } from '@/i18n';
-import { ClipboardList, CreditCard } from 'lucide-react';
-import React from 'react';
+import { useGetSuppliersQuery } from '@/store/features/supplier/supplierApi';
+import { ClipboardList, CreditCard, Truck } from 'lucide-react';
+import React, { useMemo } from 'react';
 
 interface PurchaseReportFilterProps {
     onFilterChange: (apiParams: Record<string, any>) => void;
@@ -14,9 +15,16 @@ const PurchaseReportFilter: React.FC<PurchaseReportFilterProps> = ({ onFilterCha
     const { t } = getTranslation();
     const [selectedStatus, setSelectedStatus] = React.useState<string>('all');
     const [selectedPaymentStatus, setSelectedPaymentStatus] = React.useState<string>('all');
+    const [selectedSupplierId, setSelectedSupplierId] = React.useState<string>('all');
 
-    const { userStores } = useCurrentStore();
+    const { currentStoreId, userStores } = useCurrentStore();
     const { filters, handleFilterChange, buildApiParams } = useUniversalFilter();
+
+    // Backend already supports supplier_id (PurchaseReportController.php) — it just had no
+    // way to reach it from the UI, forcing anyone tracking a specific supplier to scan every
+    // page of the full purchase list by hand.
+    const { data: suppliersResponse } = useGetSuppliersQuery({ store_id: currentStoreId, per_page: 100 }, { skip: !currentStoreId });
+    const suppliers: any[] = useMemo(() => suppliersResponse?.data?.data || suppliersResponse?.data || [], [suppliersResponse]);
 
     // Stabilize the callback to prevent unnecessary re-renders
     const stableOnFilterChange = React.useCallback(onFilterChange, [onFilterChange]);
@@ -24,6 +32,7 @@ const PurchaseReportFilter: React.FC<PurchaseReportFilterProps> = ({ onFilterCha
     const handleReset = React.useCallback(() => {
         setSelectedStatus('all');
         setSelectedPaymentStatus('all');
+        setSelectedSupplierId('all');
     }, []);
 
     React.useEffect(() => {
@@ -34,6 +43,9 @@ const PurchaseReportFilter: React.FC<PurchaseReportFilterProps> = ({ onFilterCha
         }
         if (selectedPaymentStatus !== 'all') {
             additionalParams.payment_status = selectedPaymentStatus;
+        }
+        if (selectedSupplierId !== 'all') {
+            additionalParams.supplier_id = selectedSupplierId;
         }
 
         if (filters.storeId === 'all') {
@@ -48,11 +60,12 @@ const PurchaseReportFilter: React.FC<PurchaseReportFilterProps> = ({ onFilterCha
         const apiParams = buildApiParams(additionalParams);
         stableOnFilterChange(apiParams);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [filters, selectedStatus, selectedPaymentStatus, userStores]);
+    }, [filters, selectedStatus, selectedPaymentStatus, selectedSupplierId, userStores]);
 
     React.useEffect(() => {
         setSelectedStatus('all');
         setSelectedPaymentStatus('all');
+        setSelectedSupplierId('all');
     }, [filters.storeId]);
 
     const customFilters = (
@@ -87,6 +100,22 @@ const PurchaseReportFilter: React.FC<PurchaseReportFilterProps> = ({ onFilterCha
                 </select>
                 <CreditCard className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
             </div>
+
+            <div className="relative">
+                <select
+                    value={selectedSupplierId}
+                    onChange={(e) => setSelectedSupplierId(e.target.value)}
+                    className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-gray-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:w-auto"
+                >
+                    <option value="all">{t('lbl_all_suppliers')}</option>
+                    {suppliers.map((supplier: any) => (
+                        <option key={supplier.id} value={supplier.id}>
+                            {supplier.name}
+                        </option>
+                    ))}
+                </select>
+                <Truck className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+            </div>
         </>
     );
 
@@ -98,7 +127,7 @@ const PurchaseReportFilter: React.FC<PurchaseReportFilterProps> = ({ onFilterCha
             showDateFilter={true}
             showSearch={true}
             customFilters={customFilters}
-            customActiveCount={(selectedStatus !== 'all' ? 1 : 0) + (selectedPaymentStatus !== 'all' ? 1 : 0)}
+            customActiveCount={(selectedStatus !== 'all' ? 1 : 0) + (selectedPaymentStatus !== 'all' ? 1 : 0) + (selectedSupplierId !== 'all' ? 1 : 0)}
             onResetFilters={handleReset}
         />
     );

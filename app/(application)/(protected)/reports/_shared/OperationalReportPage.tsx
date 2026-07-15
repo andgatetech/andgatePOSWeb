@@ -53,7 +53,7 @@ const OperationalReportPage: React.FC<OperationalReportPageProps> = ({ title, de
     const [itemsPerPage, setItemsPerPage] = useState(15);
     const [sortField, setSortField] = useState(defaultSort);
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
-    const [getReport, { data: reportData, isLoading }] = useReportMutation();
+    const [getReport, { data: reportData, isLoading, isError }] = useReportMutation();
     const [getReportForExport] = useReportMutation();
     const lastQueryParams = useRef('');
 
@@ -178,6 +178,22 @@ const OperationalReportPage: React.FC<OperationalReportPageProps> = ({ title, de
     );
 
     if (isLoading && !reportData?.data) return <Loader message={t('report_loading')} />;
+
+    if (isError && !reportData?.data) {
+        return (
+            <div className="rounded-lg border border-red-200 bg-red-50 p-8 text-center dark:border-red-900/40 dark:bg-red-950/20">
+                <AlertTriangle className="mx-auto h-10 w-10 text-red-500" />
+                <p className="mt-3 font-semibold text-red-700 dark:text-red-400">{t('msg_failed_load_report_try_again')}</p>
+                <button
+                    type="button"
+                    onClick={() => getReport(queryParams)}
+                    className="mt-4 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700"
+                >
+                    {t('btn_retry')}
+                </button>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6">

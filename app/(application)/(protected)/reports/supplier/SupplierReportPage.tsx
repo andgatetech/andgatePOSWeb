@@ -7,9 +7,10 @@ import ReusableTable from '@/components/common/ReusableTable';
 import PurchaseReportFilter from '@/components/filters/reports/PurchaseReportFilter';
 import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
+import Loader from '@/lib/Loader';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetSupplierReportMutation } from '@/store/features/reports/reportApi';
-import { Banknote, FileText, Package, Receipt, Users } from 'lucide-react';
+import { AlertTriangle, Banknote, FileText, Package, Receipt, Users } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const SupplierReportPage = () => {
@@ -22,7 +23,7 @@ const SupplierReportPage = () => {
     const [sortField, setSortField] = useState('created_at');
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
-    const [getSupplierReport, { data: reportData, isLoading }] = useGetSupplierReportMutation();
+    const [getSupplierReport, { data: reportData, isLoading, isError }] = useGetSupplierReportMutation();
     const [getSupplierReportForExport] = useGetSupplierReportMutation();
 
     const lastQueryParams = useRef<string>('');
@@ -210,6 +211,10 @@ const SupplierReportPage = () => {
         [t, formatCurrency]
     );
 
+    if (isLoading && !reportData?.data) {
+        return <Loader message={t('report_loading')} />;
+    }
+
     return (
         <div className="min-h-screen bg-[#f6f8fb]">
             <div className="mx-auto">
@@ -229,6 +234,15 @@ const SupplierReportPage = () => {
                 <div className="mb-6">
                     <PurchaseReportFilter onFilterChange={handleFilterChange} />
                 </div>
+                {isError && !reportData?.data && (
+                    <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-8 text-center dark:border-red-900/40 dark:bg-red-950/20">
+                        <AlertTriangle className="mx-auto h-10 w-10 text-red-500" />
+                        <p className="mt-3 font-semibold text-red-700 dark:text-red-400">{t('msg_failed_load_report_try_again')}</p>
+                        <button type="button" onClick={() => getSupplierReport(queryParams)} className="mt-4 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700">
+                            {t('btn_retry')}
+                        </button>
+                    </div>
+                )}
                 <ReusableTable
                     data={orders}
                     columns={columns}

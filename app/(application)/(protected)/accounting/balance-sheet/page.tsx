@@ -298,21 +298,23 @@ const BalanceSheetPage = () => {
                                         <span className="font-semibold text-sm uppercase tracking-wide">{sectionLabel[type]}</span>
                                         <span className={`font-bold ${colors.amount}`}>৳{total.toLocaleString()}</span>
                                     </div>
-                                    <table className="w-full text-sm">
-                                        <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-                                            {rows.map((row: any, i: number) => (
-                                                <tr key={i} className="hover:bg-gray-50 dark:hover:bg-gray-800/40">
-                                                    <td className="px-5 py-2.5 text-gray-600 dark:text-gray-300">
-                                                        <span className="font-mono text-xs text-gray-400 mr-2">{row.account_code}</span>
-                                                        {row.name}
-                                                    </td>
-                                                    <td className={`px-5 py-2.5 text-right font-medium ${colors.amount}`}>
-                                                        ৳{Math.abs(Number(row.balance ?? 0)).toLocaleString()}
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-sm">
+                                            <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                                                {rows.map((row: any, i: number) => (
+                                                    <tr key={i} className="hover:bg-gray-50 dark:hover:bg-gray-800/40">
+                                                        <td className="px-5 py-2.5 text-gray-600 dark:text-gray-300">
+                                                            <span className="font-mono text-xs text-gray-400 mr-2">{row.account_code}</span>
+                                                            {row.name}
+                                                        </td>
+                                                        <td className={`px-5 py-2.5 text-right font-medium ${colors.amount}`}>
+                                                            ৳{Math.abs(Number(row.balance ?? 0)).toLocaleString()}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             );
                         })}

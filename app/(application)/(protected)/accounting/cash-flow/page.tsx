@@ -82,46 +82,48 @@ const SectionTable = ({
                 <h3 className="text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">{title}</h3>
                 <NetBadge value={total} />
             </div>
-            <table className="w-full text-sm">
-                <thead className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider bg-gray-50/50 dark:bg-gray-800/50">
-                    <tr>
-                        <th className="px-5 py-2 text-left">{t('lbl_activity')}</th>
-                        <th className="px-5 py-2 text-right text-green-600">{t('lbl_cash_in')}</th>
-                        <th className="px-5 py-2 text-right text-red-500">{t('lbl_cash_out')}</th>
-                        <th className="px-5 py-2 text-right">{t('lbl_net')}</th>
-                    </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
-                    {rows.map((row) => (
-                        <tr key={row.reference_type} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/30">
-                            <td className="px-5 py-3 text-gray-800 dark:text-gray-100 font-medium">{row.label}</td>
-                            <td className="px-5 py-3 text-right text-green-600 dark:text-green-400">
-                                {row.cash_in > 0 ? formatCurrency(row.cash_in) : '—'}
+            <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                    <thead className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider bg-gray-50/50 dark:bg-gray-800/50">
+                        <tr>
+                            <th className="px-5 py-2 text-left">{t('lbl_activity')}</th>
+                            <th className="px-5 py-2 text-right text-green-600">{t('lbl_cash_in')}</th>
+                            <th className="px-5 py-2 text-right text-red-500">{t('lbl_cash_out')}</th>
+                            <th className="px-5 py-2 text-right">{t('lbl_net')}</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
+                        {rows.map((row) => (
+                            <tr key={row.reference_type} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/30">
+                                <td className="px-5 py-3 text-gray-800 dark:text-gray-100 font-medium">{row.label}</td>
+                                <td className="px-5 py-3 text-right text-green-600 dark:text-green-400">
+                                    {row.cash_in > 0 ? formatCurrency(row.cash_in) : '—'}
+                                </td>
+                                <td className="px-5 py-3 text-right text-red-500 dark:text-red-400">
+                                    {row.cash_out > 0 ? formatCurrency(row.cash_out) : '—'}
+                                </td>
+                                <td className="px-5 py-3 text-right">
+                                    <NetBadge value={row.net} />
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                    <tfoot>
+                        <tr className="border-t-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 font-bold">
+                            <td className="px-5 py-3 text-xs uppercase tracking-wider text-gray-500">{t('lbl_section_total')}</td>
+                            <td className="px-5 py-3 text-right text-green-600">
+                                {formatCurrency(rows.reduce((s, r) => s + r.cash_in, 0))}
                             </td>
-                            <td className="px-5 py-3 text-right text-red-500 dark:text-red-400">
-                                {row.cash_out > 0 ? formatCurrency(row.cash_out) : '—'}
+                            <td className="px-5 py-3 text-right text-red-500">
+                                {formatCurrency(rows.reduce((s, r) => s + r.cash_out, 0))}
                             </td>
                             <td className="px-5 py-3 text-right">
-                                <NetBadge value={row.net} />
+                                <NetBadge value={total} />
                             </td>
                         </tr>
-                    ))}
-                </tbody>
-                <tfoot>
-                    <tr className="border-t-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 font-bold">
-                        <td className="px-5 py-3 text-xs uppercase tracking-wider text-gray-500">{t('lbl_section_total')}</td>
-                        <td className="px-5 py-3 text-right text-green-600">
-                            {formatCurrency(rows.reduce((s, r) => s + r.cash_in, 0))}
-                        </td>
-                        <td className="px-5 py-3 text-right text-red-500">
-                            {formatCurrency(rows.reduce((s, r) => s + r.cash_out, 0))}
-                        </td>
-                        <td className="px-5 py-3 text-right">
-                            <NetBadge value={total} />
-                        </td>
-                    </tr>
-                </tfoot>
-            </table>
+                    </tfoot>
+                </table>
+            </div>
         </div>
     );
 };

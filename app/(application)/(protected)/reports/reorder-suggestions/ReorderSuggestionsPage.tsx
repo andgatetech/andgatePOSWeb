@@ -23,7 +23,7 @@ const ReorderSuggestionsPage = () => {
         return p;
     }, [currentStoreId]);
 
-    const { data, isLoading } = useGetReorderSuggestionsQuery(params, { skip: !currentStoreId });
+    const { data, isLoading, isError, refetch } = useGetReorderSuggestionsQuery(params, { skip: !currentStoreId });
 
     const suggestions = useMemo(() => data?.data?.suggestions || data?.data || [], [data]);
     const selectedSuggestions = useMemo(() => suggestions.filter((item: any) => selectedIds.includes(Number(item.product_id))), [selectedIds, suggestions]);
@@ -226,7 +226,17 @@ const ReorderSuggestionsPage = () => {
                 </div>
             )}
 
-            <div className="overflow-hidden rounded-lg border border-slate-200 bg-white">
+            {isError && !data?.data && (
+                <div className="rounded-lg border border-red-200 bg-red-50 p-8 text-center dark:border-red-900/40 dark:bg-red-950/20">
+                    <AlertTriangle className="mx-auto h-10 w-10 text-red-500" />
+                    <p className="mt-3 font-semibold text-red-700 dark:text-red-400">{t('msg_failed_load_report_try_again')}</p>
+                    <button type="button" onClick={() => refetch()} className="mt-4 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700">
+                        {t('btn_retry')}
+                    </button>
+                </div>
+            )}
+
+            <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
                 <ReusableTable columns={columns} data={suggestions} isLoading={isLoading} emptyMessage={t('lbl_no_reorder_suggestions')} />
             </div>
         </div>

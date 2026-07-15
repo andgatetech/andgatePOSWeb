@@ -9,7 +9,7 @@ import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
 import { useGetStockAdjustmentReportMutation } from '@/store/features/reports/reportApi';
-import { ArrowDown, ArrowDownUp, ArrowUp, DollarSign, FileText, Hash, Info, Package, Store, TrendingUp, User } from 'lucide-react';
+import { AlertTriangle, ArrowDown, ArrowDownUp, ArrowUp, DollarSign, FileText, Hash, Info, Package, Store, TrendingUp, User } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const AdjustmentReportPage = () => {
@@ -22,7 +22,7 @@ const AdjustmentReportPage = () => {
     const [sortField, setSortField] = useState('created_at');
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
-    const [getStockAdjustmentReport, { data: reportData, isLoading }] = useGetStockAdjustmentReportMutation();
+    const [getStockAdjustmentReport, { data: reportData, isLoading, isError }] = useGetStockAdjustmentReportMutation();
     const [getStockAdjustmentReportForExport] = useGetStockAdjustmentReportMutation();
 
     const lastQueryParams = useRef<string>('');
@@ -257,12 +257,12 @@ const AdjustmentReportPage = () => {
             {
                 key: 'previous_purchase_price',
                 label: t('lbl_purchase_price'),
-                render: (_v: any, r: any) => renderPriceChange(r.previous_purchase_price, r.adjusted_purchase_price, 'Purchase'),
+                render: (_v: any, r: any) => renderPriceChange(r.previous_purchase_price, r.adjusted_purchase_price, t('lbl_purchase')),
             },
             {
                 key: 'previous_selling_price',
                 label: t('lbl_selling_price'),
-                render: (_v: any, r: any) => renderPriceChange(r.previous_selling_price, r.adjusted_selling_price, 'Selling'),
+                render: (_v: any, r: any) => renderPriceChange(r.previous_selling_price, r.adjusted_selling_price, t('lbl_selling')),
             },
             {
                 key: 'reason',
@@ -316,6 +316,15 @@ const AdjustmentReportPage = () => {
                 <div className="mb-6">
                     <AdjustmentReportFilter onFilterChange={handleFilterChange} />
                 </div>
+                {isError && !reportData?.data && (
+                    <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-8 text-center dark:border-red-900/40 dark:bg-red-950/20">
+                        <AlertTriangle className="mx-auto h-10 w-10 text-red-500" />
+                        <p className="mt-3 font-semibold text-red-700 dark:text-red-400">{t('msg_failed_load_report_try_again')}</p>
+                        <button type="button" onClick={() => getStockAdjustmentReport(queryParams)} className="mt-4 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700">
+                            {t('btn_retry')}
+                        </button>
+                    </div>
+                )}
                 <ReusableTable
                     data={adjustments}
                     columns={columns}

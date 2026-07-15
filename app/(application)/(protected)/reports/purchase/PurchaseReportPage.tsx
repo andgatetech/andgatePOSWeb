@@ -241,8 +241,8 @@ const PurchaseReportPage = () => {
                 label: t('lbl_paid_due'),
                 render: (value: any, row: any) => (
                     <div className="flex flex-col">
-                        <span className="text-xs font-medium text-success">P: {formatCurrency(value)}</span>
-                        <span className={`text-xs font-medium ${Number(row.amount_due) > 0 ? 'text-danger' : 'text-gray-400'}`}>D: {formatCurrency(row.amount_due)}</span>
+                        <span className="text-xs font-medium text-success">{t('lbl_paid')}: {formatCurrency(value)}</span>
+                        <span className={`text-xs font-medium ${Number(row.amount_due) > 0 ? 'text-danger' : 'text-gray-400'}`}>{t('lbl_due')}: {formatCurrency(row.amount_due)}</span>
                     </div>
                 ),
             },
@@ -338,7 +338,7 @@ const PurchaseReportPage = () => {
                                     </div>
                                     <div className="text-right">
                                         <p className="text-sm font-bold text-gray-900">{formatCurrency(item.total)}</p>
-                                        {Number(item.total_due) > 0 && <p className="mt-1 text-[10px] font-medium leading-none text-danger">Due: {formatCurrency(item.total_due)}</p>}
+                                        {Number(item.total_due) > 0 && <p className="mt-1 text-[10px] font-medium leading-none text-danger">{t('lbl_due')}: {formatCurrency(item.total_due)}</p>}
                                     </div>
                                 </div>
                             ))}

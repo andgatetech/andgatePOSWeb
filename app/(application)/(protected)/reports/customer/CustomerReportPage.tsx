@@ -7,8 +7,9 @@ import CustomerReportFilter from '@/components/filters/reports/CustomerReportFil
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
+import Loader from '@/lib/Loader';
 import { useGetCustomerReportMutation } from '@/store/features/reports/reportApi';
-import { AlertCircle, Banknote, FileText, Hash, Mail, Phone, ShoppingCart, TrendingDown, Users, Wallet } from 'lucide-react';
+import { AlertCircle, AlertTriangle, Banknote, FileText, Hash, Mail, Phone, ShoppingCart, TrendingDown, Users, Wallet } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const CustomerReportPage = () => {
@@ -21,7 +22,7 @@ const CustomerReportPage = () => {
     const [sortField, setSortField] = useState('total_orders');
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
-    const [getCustomerReport, { data: reportData, isLoading }] = useGetCustomerReportMutation();
+    const [getCustomerReport, { data: reportData, isLoading, isError }] = useGetCustomerReportMutation();
     const [getCustomerReportForExport] = useGetCustomerReportMutation();
 
     const lastQueryParams = useRef<string>('');
@@ -215,7 +216,7 @@ const CustomerReportPage = () => {
                             <Hash className="h-3 w-3 text-gray-400" />
                             <span className="font-mono text-sm font-semibold text-gray-600">{value}</span>
                         </div>
-                        <span className="text-[10px] text-gray-400">Code: {row.code}</span>
+                        <span className="text-[10px] text-gray-400">{t('lbl_code')}: {row.code}</span>
                     </div>
                 ),
             },
@@ -315,6 +316,10 @@ const CustomerReportPage = () => {
         [t, formatCurrency]
     );
 
+    if (isLoading && !reportData?.data) {
+        return <Loader message={t('report_loading')} />;
+    }
+
     return (
         <div className="min-h-screen bg-[#f6f8fb]">
             <div className="mx-auto">
@@ -334,6 +339,15 @@ const CustomerReportPage = () => {
                 <div className="mb-6">
                     <CustomerReportFilter onFilterChange={handleFilterChange} />
                 </div>
+                {isError && !reportData?.data && (
+                    <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-8 text-center dark:border-red-900/40 dark:bg-red-950/20">
+                        <AlertTriangle className="mx-auto h-10 w-10 text-red-500" />
+                        <p className="mt-3 font-semibold text-red-700 dark:text-red-400">{t('msg_failed_load_report_try_again')}</p>
+                        <button type="button" onClick={() => getCustomerReport(queryParams)} className="mt-4 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700">
+                            {t('btn_retry')}
+                        </button>
+                    </div>
+                )}
                 <ReusableTable
                     data={customers}
                     columns={columns}

@@ -10,7 +10,7 @@ import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import Loader from '@/lib/Loader';
 import { useGetOrderReturnsReportMutation } from '@/store/features/reports/reportApi';
-import { ArrowLeftRight, FileText, Hash, PackageX, Percent, RefreshCw, TrendingDown, User } from 'lucide-react';
+import { AlertTriangle, ArrowLeftRight, FileText, Hash, PackageX, Percent, RefreshCw, TrendingDown, User } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const OrderReturnsReportPage = () => {
@@ -23,7 +23,7 @@ const OrderReturnsReportPage = () => {
     const [sortField, setSortField] = useState('created_at');
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
-    const [getOrderReturnsReport, { data: reportData, isLoading }] = useGetOrderReturnsReportMutation();
+    const [getOrderReturnsReport, { data: reportData, isLoading, isError }] = useGetOrderReturnsReportMutation();
     const [getOrderReturnsReportForExport] = useGetOrderReturnsReportMutation();
 
     const lastQueryParams = useRef<string>('');
@@ -334,6 +334,18 @@ const OrderReturnsReportPage = () => {
 
     if (isLoading && !reportData?.data) {
         return <Loader message={t('report_loading')} />;
+    }
+
+    if (isError && !reportData?.data) {
+        return (
+            <div className="rounded-lg border border-red-200 bg-red-50 p-8 text-center dark:border-red-900/40 dark:bg-red-950/20">
+                <AlertTriangle className="mx-auto h-10 w-10 text-red-500" />
+                <p className="mt-3 font-semibold text-red-700 dark:text-red-400">{t('msg_failed_load_report_try_again')}</p>
+                <button type="button" onClick={() => getOrderReturnsReport(queryParams)} className="mt-4 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700">
+                    {t('btn_retry')}
+                </button>
+            </div>
+        );
     }
 
     return (

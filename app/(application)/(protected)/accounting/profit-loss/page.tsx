@@ -342,27 +342,29 @@ const BreakdownTable = ({ title, rows, positiveColor, t }: BreakdownTableProps) 
                 <h3 className="font-semibold text-gray-800 dark:text-white text-sm">{title}</h3>
                 <span className={`text-sm font-bold ${positiveColor}`}>৳{total.toLocaleString()}</span>
             </div>
-            <table className="w-full text-sm">
-                <thead className="bg-gray-50 dark:bg-gray-800 text-xs text-gray-400 uppercase">
-                    <tr>
-                        <th className="px-5 py-2.5 text-left">{t('lbl_account')}</th>
-                        <th className="px-5 py-2.5 text-right">{t('lbl_balance')}</th>
-                    </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-                    {rows.map((row: any, i: number) => (
-                        <tr key={i} className="hover:bg-gray-50 dark:hover:bg-gray-800/40">
-                            <td className="px-5 py-2.5 text-gray-700 dark:text-gray-300">
-                                <span className="font-mono text-xs text-gray-400 mr-2">{row.account_code}</span>
-                                {row.name}
-                            </td>
-                            <td className={`px-5 py-2.5 text-right font-medium ${positiveColor}`}>
-                                ৳{Math.abs(Number(row.balance ?? 0)).toLocaleString()}
-                            </td>
+            <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                    <thead className="bg-gray-50 dark:bg-gray-800 text-xs text-gray-400 uppercase">
+                        <tr>
+                            <th className="px-5 py-2.5 text-left">{t('lbl_account')}</th>
+                            <th className="px-5 py-2.5 text-right">{t('lbl_balance')}</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                        {rows.map((row: any, i: number) => (
+                            <tr key={i} className="hover:bg-gray-50 dark:hover:bg-gray-800/40">
+                                <td className="px-5 py-2.5 text-gray-700 dark:text-gray-300">
+                                    <span className="font-mono text-xs text-gray-400 mr-2">{row.account_code}</span>
+                                    {row.name}
+                                </td>
+                                <td className={`px-5 py-2.5 text-right font-medium ${positiveColor}`}>
+                                    ৳{Math.abs(Number(row.balance ?? 0)).toLocaleString()}
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 };
