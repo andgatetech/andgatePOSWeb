@@ -1699,7 +1699,7 @@ const StoreSetting = () => {
                 </div>
             </div>
 
-            <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+            <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
                 <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <h2 className="text-sm font-semibold text-slate-900">{t('store_setup_readiness')}</h2>
@@ -1709,7 +1709,7 @@ const StoreSetting = () => {
                         {setupCards.doneCount}/{setupCards.checks.length} {t('lbl_completed')}
                     </span>
                 </div>
-                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-4">
                     {setupCards.checks.map((item) => {
                         const Icon = item.icon;
                         return (
@@ -1717,11 +1717,11 @@ const StoreSetting = () => {
                                 type="button"
                                 key={item.key}
                                 onClick={() => setActiveTab(item.tab)}
-                                className={`flex min-h-[108px] items-start gap-3 rounded-lg border p-3 text-left transition ${
+                                className={`flex min-h-[76px] items-start gap-2 rounded-md border p-2.5 text-left transition ${
                                     item.done ? 'border-emerald-200 bg-emerald-50 hover:border-emerald-300' : 'border-amber-200 bg-amber-50 hover:border-amber-300'
                                 }`}
                             >
-                                <span className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg ${item.done ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                                <span className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md ${item.done ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
                                     <Icon className="h-4 w-4" />
                                 </span>
                                 <span className="min-w-0">
@@ -1729,7 +1729,7 @@ const StoreSetting = () => {
                                         {item.label}
                                         {item.done && <CheckCircle className="h-4 w-4 text-emerald-600" />}
                                     </span>
-                                    <span className="mt-1 block text-xs leading-5 text-slate-600">{item.description}</span>
+                                    <span className="mt-0.5 block line-clamp-2 text-xs leading-4 text-slate-600">{item.description}</span>
                                 </span>
                             </button>
                         );

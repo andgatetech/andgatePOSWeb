@@ -36,6 +36,7 @@ const MobileStoreSettingFAB: React.FC<MobileStoreSettingFABProps> = ({ activeTab
             title: t('store_settings_group_checkout'),
             tabs: [
                 { id: 'payment', label: t('lbl_payment_method'), icon: CreditCard },
+                { id: 'mfs', label: t('store_mfs_accounts'), icon: Smartphone },
                 { id: 'currency', label: t('store_currency_title'), icon: Coins },
                 { id: 'paymentstatus', label: t('order_payment_status'), icon: Flag },
             ],

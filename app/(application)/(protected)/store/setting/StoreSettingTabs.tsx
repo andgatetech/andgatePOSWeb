@@ -64,53 +64,58 @@ const StoreSettingTabs: React.FC<StoreSettingTabsProps> = ({ activeTab, onTabCha
             ],
         },
     ];
+    const activeGroup = groups.find((group) => group.tabs.some((tab) => tab.id === activeTab)) || groups[0];
 
     return (
         <>
             {/* Desktop & Tablet Tabs */}
-            <div className="mb-8 hidden space-y-4 md:block">
-                {groups.map((group) => (
-                    <section key={group.title} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                        <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-                            <div>
-                                <h2 className="text-sm font-semibold text-slate-900">{group.title}</h2>
-                                <p className="text-xs text-slate-500">{group.description}</p>
-                            </div>
-                        </div>
+            <div className="sticky top-[68px] z-20 mb-5 hidden rounded-lg border border-slate-200 bg-white/95 p-3 shadow-sm backdrop-blur md:block">
+                <div className="mb-3 flex flex-wrap gap-2">
+                    {groups.map((group) => {
+                        const isActive = group === activeGroup;
+                        return (
+                            <button
+                                key={group.title}
+                                type="button"
+                                onClick={() => onTabChange(group.tabs[0].id)}
+                                className={`rounded-md px-3 py-2 text-left text-xs font-semibold transition ${
+                                    isActive ? 'bg-[#046ca9] text-white shadow-sm' : 'bg-slate-100 text-slate-700 hover:bg-[#046ca9]/10 hover:text-[#034d79]'
+                                }`}
+                            >
+                                {group.title}
+                            </button>
+                        );
+                    })}
+                </div>
 
-                        <div className="grid grid-cols-2 gap-2 lg:grid-cols-3 xl:grid-cols-4">
-                            {group.tabs.map((tab) => {
-                                const Icon = tab.icon;
-                                const isActive = activeTab === tab.id;
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                    <div className="min-w-0">
+                        <h2 className="text-sm font-semibold text-slate-900">{activeGroup.title}</h2>
+                        <p className="text-xs text-slate-500">{activeGroup.description}</p>
+                    </div>
 
-                                return (
-                                    <button
-                                        key={tab.id}
-                                        type="button"
-                                        onClick={() => onTabChange(tab.id)}
-                                        className={`
-                                            group relative flex min-h-[76px] items-center gap-3 rounded-lg border p-3 text-left transition-all duration-200
-                                            ${isActive ? 'border-[#046ca9] bg-[#046ca9]/5 shadow-sm' : 'border-gray-200 bg-slate-50 hover:border-[#046ca9]/30 hover:bg-[#046ca9]/5'}
-                                        `}
-                                    >
-                                        <div
-                                            className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg transition-colors ${
-                                                isActive ? 'bg-[#046ca9] text-white' : 'bg-white text-gray-600 group-hover:bg-[#046ca9]/10 group-hover:text-[#046ca9]'
-                                            }`}
-                                        >
-                                            <Icon className="h-4 w-4" />
-                                        </div>
-                                        <div className="min-w-0">
-                                            <p className={`truncate text-sm font-semibold ${isActive ? 'text-[#034d79]' : 'text-gray-800'}`}>{tab.label}</p>
-                                            <p className={`mt-0.5 line-clamp-2 text-xs leading-4 ${isActive ? 'text-[#046ca9]' : 'text-gray-500'}`}>{tab.description}</p>
-                                        </div>
-                                        {isActive && <div className="absolute inset-y-3 right-0 w-1 rounded-l-full bg-[#e79237]" />}
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    </section>
-                ))}
+                    <div className="flex min-w-0 flex-1 flex-wrap gap-2 lg:justify-end">
+                        {activeGroup.tabs.map((tab) => {
+                            const Icon = tab.icon;
+                            const isActive = activeTab === tab.id;
+
+                            return (
+                                <button
+                                    key={tab.id}
+                                    type="button"
+                                    onClick={() => onTabChange(tab.id)}
+                                    title={tab.description}
+                                    className={`flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-semibold transition ${
+                                        isActive ? 'border-[#046ca9] bg-[#046ca9]/5 text-[#034d79]' : 'border-slate-200 bg-white text-slate-700 hover:border-[#046ca9]/30 hover:bg-[#046ca9]/5'
+                                    }`}
+                                >
+                                    <Icon className={`h-4 w-4 ${isActive ? 'text-[#046ca9]' : 'text-slate-500'}`} />
+                                    <span>{tab.label}</span>
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
             </div>
         </>
     );
