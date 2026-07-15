@@ -24,7 +24,12 @@ const PurchaseReportFilter: React.FC<PurchaseReportFilterProps> = ({ onFilterCha
     // way to reach it from the UI, forcing anyone tracking a specific supplier to scan every
     // page of the full purchase list by hand.
     const { data: suppliersResponse } = useGetSuppliersQuery({ store_id: currentStoreId, per_page: 100 }, { skip: !currentStoreId });
-    const suppliers: any[] = useMemo(() => suppliersResponse?.data?.data || suppliersResponse?.data || [], [suppliersResponse]);
+    // SupplierController::index() returns { data: { items: [...], pagination: {...} } } —
+    // not `data.data`. Falling back to `.data` itself (an object, not an array) here made
+    // `suppliers` a non-array whenever the `.data.data` guess missed, crashing every report
+    // page that reuses this filter (Purchase, Supplier, Supplier Due) with "X.map is not a
+    // function".
+    const suppliers: any[] = useMemo(() => suppliersResponse?.data?.items || [], [suppliersResponse]);
 
     // Stabilize the callback to prevent unnecessary re-renders
     const stableOnFilterChange = React.useCallback(onFilterChange, [onFilterChange]);
