@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { recoverFromStaleClientCache } from '@/lib/client-cache-recovery';
 
-export default function GlobalError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+export default function GlobalError({ error }: { error: Error & { digest?: string }; reset: () => void }) {
     const [isRecovering, setIsRecovering] = useState(false);
 
     useEffect(() => {
@@ -24,7 +24,7 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
                     </p>
                     <div style={{ display: 'flex', gap: '0.75rem' }}>
                         <button
-                            onClick={() => reset()}
+                            onClick={() => window.location.reload()}
                             style={{ borderRadius: '0.75rem', backgroundColor: '#046ca9', color: '#fff', padding: '0.625rem 1rem', fontSize: '0.875rem', fontWeight: 600, border: 'none', cursor: 'pointer' }}
                         >
                             Reload

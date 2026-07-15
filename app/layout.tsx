@@ -8,6 +8,7 @@ import { BD_KEYWORDS, getAppUrl } from '@/lib/seo-config';
 import { Metadata } from 'next';
 import { cookies, headers } from 'next/headers';
 import Script from 'next/script';
+import { Suspense } from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-perfect-scrollbar/dist/css/styles.css';
 import 'react-toastify/dist/ReactToastify.css';
@@ -240,6 +241,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                         (function () {
                             var key = 'andgatebos_chunk_recovery_reloaded_at';
                             var guardMs = 30000;
+                            try {
+                                var currentUrl = new URL(window.location.href);
+                                if (currentUrl.searchParams.has('cache-recovered') || currentUrl.searchParams.has('storage-guard')) {
+                                    currentUrl.searchParams.delete('cache-recovered');
+                                    currentUrl.searchParams.delete('storage-guard');
+                                    window.history.replaceState(window.history.state, '', currentUrl.pathname + currentUrl.search + currentUrl.hash);
+                                }
+                            } catch (e) {}
                             function recentlyReloaded() {
                                 try {
                                     var last = Number(sessionStorage.getItem(key) || 0);
@@ -268,8 +277,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                     `}
                 </Script>
                 <ProviderComponent initialLang={initialLang}>
-                    <PixelRouteTracker />
-                    <MarketingPixelTracker />
+                    <Suspense fallback={null}>
+                        <PixelRouteTracker />
+                        <MarketingPixelTracker />
+                    </Suspense>
                     <PwaStandaloneGate />
                     <PwaUpdateRecovery />
                     {children}
