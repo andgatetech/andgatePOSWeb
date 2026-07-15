@@ -168,6 +168,20 @@ const ReceiveItemsPage = () => {
             return;
         }
 
+        const overReceiveItem = activeItems.find((item: any) => {
+            const alreadyReceived = parseFloat(item.quantity_received || 0);
+            const receivingNow = receivedQuantities[item.id] || 0;
+            const ordered = parseFloat(item.quantity_ordered || 0);
+            return receivingNow > 0 && alreadyReceived + receivingNow > ordered;
+        });
+
+        if (overReceiveItem) {
+            const ordered = parseFloat(overReceiveItem.quantity_ordered || 0);
+            const alreadyReceived = parseFloat(overReceiveItem.quantity_received || 0);
+            showErrorDialog(`${t('msg_receive_qty_exceeds_remaining')} (${Math.max(ordered - alreadyReceived, 0)})`);
+            return;
+        }
+
         const newProductsWithoutPrice = activeItems.filter((item: any) => item.product_id === null && (purchasePrices[item.id] || 0) === 0 && (receivedQuantities[item.id] || 0) > 0);
         if (newProductsWithoutPrice.length > 0) {
             showErrorDialog(t('msg_set_purchase_prices'));

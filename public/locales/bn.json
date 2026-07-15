@@ -7578,5 +7578,6 @@
   "report_hub_expense_desc": "তারিখ ও ধরন অনুযায়ী দোকানের খরচ দেখুন।",
   "report_hub_advanced_title": "অ্যাডভান্সড রিপোর্ট",
   "purchase_return_invalid_qty": "ফেরতের পরিমাণ ০-এর বেশি হতে হবে।",
-  "purchase_return_qty_exceeds_received": "ফেরতের পরিমাণ স্টকে তোলা পরিমাণের বেশি হতে পারবে না।"
+  "purchase_return_qty_exceeds_received": "ফেরতের পরিমাণ স্টকে তোলা পরিমাণের বেশি হতে পারবে না।",
+  "msg_receive_qty_exceeds_remaining": "যত মাল বাকি আছে তার বেশি স্টকে তোলা যাবে না।"
 }

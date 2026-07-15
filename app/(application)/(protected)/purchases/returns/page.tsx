@@ -33,10 +33,10 @@ const PurchaseReturnsListPage = () => {
                     <div>
                         <h1 className="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
                             <RotateCcw size={20} className="text-danger" />
-                            {t('purchase_returns') || 'Purchase Returns'}
+                            {t('purchase_returns')}
                         </h1>
                         <p className="text-sm text-gray-500">
-                            {t('purchase_returns_subtitle') || 'History of returned items to suppliers'}
+                            {t('purchase_returns_subtitle')}
                         </p>
                     </div>
                 </div>
@@ -47,26 +47,26 @@ const PurchaseReturnsListPage = () => {
                 <table className="w-full text-sm">
                     <thead className="bg-gray-50 dark:bg-gray-800 text-left">
                         <tr>
-                            <th className="px-4 py-3">{t('reference') || 'Reference'}</th>
-                            <th className="px-4 py-3">{t('purchase_order') || 'Purchase Order'}</th>
-                            <th className="px-4 py-3">{t('supplier') || 'Supplier'}</th>
-                            <th className="px-4 py-3">{t('refund_type') || 'Refund Type'}</th>
-                            <th className="px-4 py-3 text-right">{t('amount') || 'Amount'}</th>
-                            <th className="px-4 py-3">{t('status') || 'Status'}</th>
-                            <th className="px-4 py-3">{t('date') || 'Date'}</th>
+                            <th className="px-4 py-3">{t('reference')}</th>
+                            <th className="px-4 py-3">{t('purchase_order')}</th>
+                            <th className="px-4 py-3">{t('supplier')}</th>
+                            <th className="px-4 py-3">{t('refund_type')}</th>
+                            <th className="px-4 py-3 text-right">{t('amount')}</th>
+                            <th className="px-4 py-3">{t('status')}</th>
+                            <th className="px-4 py-3">{t('date')}</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                         {isLoading || isFetching ? (
                             <tr>
                                 <td colSpan={7} className="py-10 text-center text-gray-400">
-                                    {t('loading') || 'Loading…'}
+                                    {t('loading')}
                                 </td>
                             </tr>
                         ) : returns.length === 0 ? (
                             <tr>
                                 <td colSpan={7} className="py-10 text-center text-gray-400">
-                                    {t('no_purchase_returns') || 'No purchase returns found'}
+                                    {t('no_purchase_returns')}
                                 </td>
                             </tr>
                         ) : (
@@ -89,9 +89,7 @@ const PurchaseReturnsListPage = () => {
                                                     : 'bg-primary/10 text-primary'
                                             }`}
                                         >
-                                            {ret.refund_type === 'cash'
-                                                ? (t('refund_cash') || 'Cash')
-                                                : (t('refund_credit') || 'Credit')}
+                                            {ret.refund_type === 'cash' ? t('refund_cash') : t('refund_credit')}
                                         </span>
                                     </td>
                                     <td className="px-4 py-3 text-right font-medium text-danger">
@@ -120,7 +118,7 @@ const PurchaseReturnsListPage = () => {
                         disabled={page === 1}
                         className="rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-1.5 text-sm disabled:opacity-40"
                     >
-                        {t('prev') || 'Prev'}
+                        {t('prev')}
                     </button>
                     <span className="px-3 py-1.5 text-sm text-gray-500">
                         {page} / {meta.last_page}
@@ -130,7 +128,7 @@ const PurchaseReturnsListPage = () => {
                         disabled={page === meta.last_page}
                         className="rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-1.5 text-sm disabled:opacity-40"
                     >
-                        {t('next') || 'Next'}
+                        {t('next')}
                     </button>
                 </div>
             )}

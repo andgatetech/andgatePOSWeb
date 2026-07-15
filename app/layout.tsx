@@ -235,6 +235,38 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                     })();
                 `}
             </Script> */}
+                <Script id="chunk-load-recovery" strategy="beforeInteractive">
+                    {`
+                        (function () {
+                            var key = 'andgatebos_chunk_recovery_reloaded_at';
+                            var guardMs = 30000;
+                            function recentlyReloaded() {
+                                try {
+                                    var last = Number(sessionStorage.getItem(key) || 0);
+                                    return last && Date.now() - last < guardMs;
+                                } catch (e) {
+                                    return true;
+                                }
+                            }
+                            function reloadOnce() {
+                                if (recentlyReloaded()) return;
+                                try { sessionStorage.setItem(key, String(Date.now())); } catch (e) { return; }
+                                window.location.reload();
+                            }
+                            window.addEventListener('error', function (event) {
+                                var target = event && event.target;
+                                var src = target && (target.src || target.href);
+                                if (src && String(src).indexOf('/_next/static/') !== -1) reloadOnce();
+                                var message = event && event.message ? String(event.message) : '';
+                                if (message.indexOf('ChunkLoadError') !== -1 || message.indexOf('Loading chunk') !== -1) reloadOnce();
+                            }, true);
+                            window.addEventListener('unhandledrejection', function (event) {
+                                var reason = event && event.reason ? String(event.reason.message || event.reason) : '';
+                                if (reason.indexOf('ChunkLoadError') !== -1 || reason.indexOf('Loading chunk') !== -1) reloadOnce();
+                            });
+                        })();
+                    `}
+                </Script>
                 <ProviderComponent initialLang={initialLang}>
                     <PixelRouteTracker />
                     <MarketingPixelTracker />

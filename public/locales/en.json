@@ -7578,5 +7578,6 @@
   "report_hub_expense_desc": "Review shop costs by date and type.",
   "report_hub_advanced_title": "Advanced reports",
   "purchase_return_invalid_qty": "Return quantity must be greater than 0.",
-  "purchase_return_qty_exceeds_received": "Return quantity cannot exceed received quantity."
+  "purchase_return_qty_exceeds_received": "Return quantity cannot exceed received quantity.",
+  "msg_receive_qty_exceeds_remaining": "Receive quantity cannot exceed remaining ordered quantity."
 }
