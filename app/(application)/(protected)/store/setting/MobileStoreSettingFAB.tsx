@@ -1,6 +1,6 @@
 'use client';
 
-import { Camera, Clock, Coins, CreditCard, Flag, Gift, ListChecks, Package, RotateCcw, Settings, Shield, Store, Tag, X } from 'lucide-react';
+import { Camera, Clock, Coins, CreditCard, Flag, Gift, ListChecks, Package, RotateCcw, Settings, Shield, Smartphone, Store, Tag, X } from 'lucide-react';
 import Image from 'next/image';
 import React, { useState } from 'react';
 import { getTranslation } from '@/i18n';
