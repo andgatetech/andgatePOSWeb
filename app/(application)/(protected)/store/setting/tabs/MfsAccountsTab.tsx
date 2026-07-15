@@ -5,7 +5,7 @@ import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useGetStoreMfsAccountsQuery, useCreateStoreMfsAccountMutation, useUpdateStoreMfsAccountMutation, useDeleteStoreMfsAccountMutation } from '@/store/features/storeMfsAccount/storeMfsAccountApi';
-import { Pencil, Smartphone, Star, Trash2 } from 'lucide-react';
+import { CheckCircle2, Pencil, Smartphone, Star, Trash2, XCircle } from 'lucide-react';
 
 const PROVIDERS = [
     { value: 'bkash', label: 'bKash', color: 'bg-pink-600' },
@@ -25,6 +25,10 @@ interface MfsAccount {
     sort_order: number;
 }
 
+interface MfsAccountsTabProps {
+    paymentMethods?: any[];
+}
+
 const emptyForm: MfsAccount = {
     provider: 'bkash',
     account_number: '',
@@ -35,7 +39,16 @@ const emptyForm: MfsAccount = {
     sort_order: 0,
 };
 
-export default function MfsAccountsTab() {
+const providerFromPaymentMethod = (name?: string) => {
+    const normalized = String(name || '').toLowerCase();
+    if (normalized.includes('bkash')) return 'bkash';
+    if (normalized.includes('nagad')) return 'nagad';
+    if (normalized.includes('rocket')) return 'rocket';
+    if (normalized.includes('upay')) return 'upay';
+    return '';
+};
+
+export default function MfsAccountsTab({ paymentMethods = [] }: MfsAccountsTabProps) {
     const { t } = getTranslation();
     const { currentStoreId } = useCurrentStore();
     const { data, isLoading, refetch } = useGetStoreMfsAccountsQuery(String(currentStoreId), { skip: !currentStoreId });
@@ -47,6 +60,21 @@ export default function MfsAccountsTab() {
     const [editingId, setEditingId] = useState<number | null>(null);
 
     const accounts = data?.data?.accounts || data?.accounts || [];
+    const activeMfsMethods = paymentMethods.filter((method: any) => {
+        const isActive = method?.is_active === true || method?.is_active === 1 || method?.is_active === '1';
+        return isActive && providerFromPaymentMethod(method?.payment_method_name);
+    });
+    const mappedProviders = PROVIDERS.map((provider) => {
+        const methods = activeMfsMethods.filter((method: any) => providerFromPaymentMethod(method?.payment_method_name) === provider.value);
+        const providerAccounts = accounts
+            .filter((account: MfsAccount) => account.provider === provider.value && account.is_active)
+            .sort((a: MfsAccount, b: MfsAccount) => Number(Boolean(b.is_default)) - Number(Boolean(a.is_default)));
+        return {
+            provider,
+            methods,
+            account: providerAccounts[0] || null,
+        };
+    });
 
     const errorMessage = (error: any, fallback: string) => {
         const errors = error?.data?.errors?.errors || error?.data?.errors;
@@ -103,6 +131,45 @@ export default function MfsAccountsTab() {
 
     return (
         <div className="space-y-6">
+            <div className="rounded-lg border border-blue-100 bg-blue-50 p-4">
+                <div className="mb-4">
+                    <h3 className="text-base font-bold text-blue-900">{t('mfs_mapping_title')}</h3>
+                    <p className="mt-1 text-sm text-blue-700">{t('mfs_mapping_desc')}</p>
+                </div>
+                <div className="grid gap-3 md:grid-cols-2">
+                    {mappedProviders.map(({ provider, methods, account }) => {
+                        const methodEnabled = methods.length > 0;
+                        const mapped = methodEnabled && account;
+                        return (
+                            <div key={provider.value} className="flex items-start justify-between gap-3 rounded-lg border border-white bg-white p-3 shadow-sm">
+                                <div className="flex items-start gap-3">
+                                    <span className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white ${provider.color}`}>
+                                        {provider.label[0]}
+                                    </span>
+                                    <div>
+                                        <p className="text-sm font-bold text-gray-900">{provider.label}</p>
+                                        <p className="text-sm text-gray-600">
+                                            {methodEnabled ? methods.map((method: any) => method.payment_method_name).join(', ') : t('mfs_payment_method_disabled')}
+                                        </p>
+                                        {account ? (
+                                            <p className="mt-1 text-sm font-semibold text-gray-900">
+                                                {account.account_number} · {account.account_type}
+                                            </p>
+                                        ) : (
+                                            <p className="mt-1 text-sm text-amber-700">{t('mfs_account_missing')}</p>
+                                        )}
+                                    </div>
+                                </div>
+                                <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold ${mapped ? 'bg-emerald-50 text-emerald-700' : methodEnabled ? 'bg-amber-50 text-amber-700' : 'bg-gray-100 text-gray-600'}`}>
+                                    {mapped ? <CheckCircle2 className="h-3.5 w-3.5" /> : <XCircle className="h-3.5 w-3.5" />}
+                                    {mapped ? t('mfs_mapped') : methodEnabled ? t('mfs_needs_account') : t('mfs_not_used')}
+                                </span>
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+
             <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
                 <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-gray-900">
                     <Smartphone className="h-5 w-5 text-primary" />

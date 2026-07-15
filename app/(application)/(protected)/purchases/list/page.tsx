@@ -4,6 +4,7 @@ import PaymentReceipt from '@/app/(application)/(protected)/purchases/list/compo
 import TransactionTrackingModal from '@/app/(application)/(protected)/purchases/list/components/TransactionTrackingModal';
 import DraftsTable from '@/app/(application)/(protected)/purchases/list/components/DraftsTable';
 import PurchaseOrdersTable from '@/app/(application)/(protected)/purchases/list/components/PurchaseOrdersTable';
+import DateColumn from '@/components/common/DateColumn';
 import UniversalFilter from '@/components/common/UniversalFilter';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
@@ -381,6 +382,13 @@ const PurchaseOrderListPage = () => {
         return parseFloat(item.estimated_subtotal) || parseFloat(item.subtotal) || parseFloat(item.total) || qty * price;
     };
 
+    const canReceiveMore = (order: any) => {
+        if (!order || ['received', 'completed', 'cancelled'].includes(order.status)) return false;
+        return getReceiveProgress(order.items || []).remaining > 0;
+    };
+
+    const canPaySupplier = (order: any) => order && parseFloat(order.amount_due || 0) > 0 && order.payment_status !== 'paid';
+
     // ─── Status filter chips ───
     const statusFilters: { key: OrderStatusFilter; label: string }[] = [
         { key: 'all', label: t('lbl_all') },
@@ -562,9 +570,7 @@ const PurchaseOrderListPage = () => {
                         <div className="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-6 py-4">
                             <div>
                                 <h2 className="text-lg font-bold text-gray-800">{modalTitle}</h2>
-                                <p className="text-xs text-gray-500">
-                                    {selectedPurchase?.created_at || selectedPurchase?.updated_at || '-'}
-                                </p>
+                                <DateColumn date={selectedPurchase?.created_at || selectedPurchase?.updated_at} />
                             </div>
                             <button
                                 onClick={() => {
@@ -592,21 +598,64 @@ const PurchaseOrderListPage = () => {
                                         const transactions = selectedPurchase?.pos_transactions || [];
                                         return (
                                             <>
+                                                <div className="flex flex-col gap-3 rounded-lg border border-blue-100 bg-blue-50 p-4 sm:flex-row sm:items-center sm:justify-between">
+                                                    <div>
+                                                        <p className="text-sm font-bold text-blue-900">{t('purchase_next_step')}</p>
+                                                        <p className="text-sm text-blue-700">
+                                                            {canReceiveMore(selectedPurchase)
+                                                                ? t('purchase_action_receive_remaining')
+                                                                : canPaySupplier(selectedPurchase)
+                                                                  ? t('purchase_action_pay_due')
+                                                                  : t('purchase_all_done')}
+                                                        </p>
+                                                    </div>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {canReceiveMore(selectedPurchase) && (
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => handleReceiveItems(selectedPurchase)}
+                                                                className="min-h-11 rounded-lg bg-[#046ca9] px-4 py-2 text-sm font-semibold text-white hover:bg-[#046ca9]/90"
+                                                            >
+                                                                {t('purchase_action_receive_remaining')}
+                                                            </button>
+                                                        )}
+                                                        {canPaySupplier(selectedPurchase) && (
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    setViewModalOpen(false);
+                                                                    openPaymentModal('partial', selectedPurchase);
+                                                                }}
+                                                                className="min-h-11 rounded-lg border border-[#046ca9] bg-white px-4 py-2 text-sm font-semibold text-[#046ca9] hover:bg-[#046ca9]/5"
+                                                            >
+                                                                {t('purchase_action_pay_due')}
+                                                            </button>
+                                                        )}
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handlePrint(selectedPurchase)}
+                                                            className="min-h-11 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+                                                        >
+                                                            {t('btn_print')}
+                                                        </button>
+                                                    </div>
+                                                </div>
+
                                                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                                                     <div className="rounded-lg border border-gray-100 bg-slate-50 p-4">
-                                                        <p className="text-xs font-medium text-gray-500">{t('lbl_total')}</p>
+                                                        <p className="text-sm font-medium text-gray-500">{t('lbl_total')}</p>
                                                         <p className="mt-1 text-xl font-bold text-gray-900">{formatCurrency(selectedPurchase?.grand_total ?? itemTotal)}</p>
                                                     </div>
                                                     <div className="rounded-lg border border-gray-100 bg-emerald-50 p-4">
-                                                        <p className="text-xs font-medium text-emerald-700">{t('lbl_amount_paid')}</p>
+                                                        <p className="text-sm font-medium text-emerald-700">{t('lbl_amount_paid')}</p>
                                                         <p className="mt-1 text-xl font-bold text-emerald-700">{formatCurrency(selectedPurchase?.amount_paid || 0)}</p>
                                                     </div>
                                                     <div className="rounded-lg border border-gray-100 bg-amber-50 p-4">
-                                                        <p className="text-xs font-medium text-amber-700">{t('lbl_amount_due')}</p>
+                                                        <p className="text-sm font-medium text-amber-700">{t('lbl_amount_due')}</p>
                                                         <p className="mt-1 text-xl font-bold text-amber-700">{formatCurrency(selectedPurchase?.amount_due || 0)}</p>
                                                     </div>
                                                     <div className="rounded-lg border border-gray-100 bg-blue-50 p-4">
-                                                        <p className="text-xs font-medium text-blue-700">{t('lbl_received')}</p>
+                                                        <p className="text-sm font-medium text-blue-700">{t('lbl_received')}</p>
                                                         <p className="mt-1 text-xl font-bold text-blue-700">{progress.percent}%</p>
                                                         <div className="mt-2 h-2 overflow-hidden rounded-full bg-white">
                                                             <div className="h-full rounded-full bg-blue-600" style={{ width: `${progress.percent}%` }} />
@@ -619,19 +668,19 @@ const PurchaseOrderListPage = () => {
                                                         <h3 className="mb-3 text-sm font-bold text-gray-800">{t('lbl_purchase_order')}</h3>
                                                         <div className="grid gap-3 text-sm sm:grid-cols-2">
                                                             <div>
-                                                                <p className="text-xs text-gray-500">{t('lbl_invoice')}</p>
+                                                                <p className="text-sm text-gray-500">{t('lbl_invoice')}</p>
                                                                 <p className="font-semibold text-gray-900">{selectedPurchase?.invoice_number || selectedPurchase?.draft_reference || '-'}</p>
                                                             </div>
                                                             <div>
-                                                                <p className="text-xs text-gray-500">{t('lbl_store')}</p>
+                                                                <p className="text-sm text-gray-500">{t('lbl_store')}</p>
                                                                 <p className="font-semibold text-gray-900">{selectedPurchase?.store_name || '-'}</p>
                                                             </div>
                                                             <div>
-                                                                <p className="text-xs text-gray-500">{t('lbl_order_status')}</p>
+                                                                <p className="text-sm text-gray-500">{t('lbl_order_status')}</p>
                                                                 <p className="font-semibold text-gray-900">{selectedPurchase?.status ? t(`lbl_status_${selectedPurchase.status}`) : '-'}</p>
                                                             </div>
                                                             <div>
-                                                                <p className="text-xs text-gray-500">{t('lbl_payment_status')}</p>
+                                                                <p className="text-sm text-gray-500">{t('lbl_payment_status')}</p>
                                                                 <p className="font-semibold text-gray-900">{selectedPurchase?.payment_status ? t(`lbl_payment_status_${selectedPurchase.payment_status}`) : '-'}</p>
                                                             </div>
                                                         </div>

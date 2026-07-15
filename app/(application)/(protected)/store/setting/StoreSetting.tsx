@@ -1596,7 +1596,7 @@ const StoreSetting = () => {
                     />
                 );
             case 'mfs':
-                return <MfsAccountsTab />;
+                return <MfsAccountsTab paymentMethods={paymentMethods} />;
             case 'currency':
                 return (
                     <CurrencyTab
