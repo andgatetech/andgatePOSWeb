@@ -7,6 +7,7 @@ import { getTranslation } from '@/i18n';
 import { RootState } from '@/store';
 import { SIMPLIFICATION_FLAGS } from '@/lib/simplification-flags';
 import { useGetDashboardLayoutQuery } from '@/store/features/analytics/analyticsApi';
+import { useGetDashboardOnboardingQuery } from '@/store/features/dashboard/dashboad';
 import { AlertTriangle, BarChart3, Coins, PackageSearch, Rocket } from 'lucide-react';
 import ManualPaymentsPage from '../../manual-payments/page';
 import AlertStrip from './AlertStrip';
@@ -144,6 +145,11 @@ const ComponentsDashboardSales = () => {
         currentStoreId ? { store_id: currentStoreId } : {},
         { skip: !canCustomize }
     );
+    const { data: onboardingData } = useGetDashboardOnboardingQuery(
+        { store_id: currentStoreId },
+        { skip: !currentStoreId }
+    ) as { data?: { data?: { is_complete?: boolean } } };
+    const onboardingComplete = Boolean(onboardingData?.data?.is_complete);
 
     const widgets = useMemo(() => {
         const saved = layoutData?.data?.layout?.widgets;
@@ -203,6 +209,9 @@ const ComponentsDashboardSales = () => {
                 const groupWidgets = visibleWidgets.filter((widget: any) => group.widgets.includes(widget.key));
                 if (groupWidgets.length === 0) return null;
                 const Icon = group.icon;
+                const isStartDone = group.key === 'start' && onboardingComplete;
+                const titleKey = isStartDone ? 'dashboard_group_start_title_done' : group.titleKey;
+                const descKey = isStartDone ? 'dashboard_group_start_desc_done' : group.descKey;
 
                 return (
                     <section key={group.key} className="space-y-3">
@@ -211,8 +220,8 @@ const ComponentsDashboardSales = () => {
                                 <Icon className="h-4 w-4" />
                             </span>
                             <div className="min-w-0">
-                                <h2 className="text-base font-bold text-gray-900 dark:text-white">{t(group.titleKey)}</h2>
-                                <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">{t(group.descKey)}</p>
+                                <h2 className="text-base font-bold text-gray-900 dark:text-white">{t(titleKey)}</h2>
+                                <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">{t(descKey)}</p>
                             </div>
                         </div>
 

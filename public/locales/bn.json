@@ -2813,6 +2813,8 @@
   "dashboard_store_data_note": "নিচে দেখানো সমস্ত তথ্য শুধুমাত্র এই স্টোরের জন্য",
   "dashboard_group_start_title": "এখান থেকে শুরু করুন",
   "dashboard_group_start_desc": "আগে সেটআপ শেষ করুন, তারপর জরুরি বিষয়গুলো দেখুন।",
+  "dashboard_group_start_title_done": "সব প্রস্তুত",
+  "dashboard_group_start_desc_done": "সেটআপ শেষ। এখন জরুরি বিষয়গুলো দেখে নিন।",
   "dashboard_group_today_title": "আজ দোকানের অবস্থা",
   "dashboard_group_today_desc": "আজকের বিক্রি, ক্যাশ, কাজ ও দোকানের স্বাস্থ্য এক জায়গায়।",
   "dashboard_group_money_title": "আদায় ও পরিশোধ",

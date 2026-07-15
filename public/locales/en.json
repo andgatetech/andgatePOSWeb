@@ -2956,6 +2956,8 @@
   "dashboard_store_data_note": "All data shown below is for this store only",
   "dashboard_group_start_title": "Start here",
   "dashboard_group_start_desc": "Finish setup first, then check anything urgent.",
+  "dashboard_group_start_title_done": "All set",
+  "dashboard_group_start_desc_done": "Setup's done. Here's anything that needs your attention.",
   "dashboard_group_today_title": "Today in the shop",
   "dashboard_group_today_desc": "Sales, cash, actions, and health signals for daily operation.",
   "dashboard_group_money_title": "Money to collect and pay",
