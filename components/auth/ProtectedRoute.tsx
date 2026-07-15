@@ -1,9 +1,11 @@
 'use client';
 
 import { RootState } from '@/store';
+import { clearAuthCookies, clearAuthLocalStorage, isTokenExpired } from '@/lib/auth-session';
+import { logout as logoutAction } from '@/store/features/auth/authSlice';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 interface ProtectedRouteProps {
     children: React.ReactNode;
@@ -24,15 +26,20 @@ interface ProtectedRouteProps {
  */
 export default function ProtectedRoute({ children, requiredPermissions = [], redirectTo = '/dashboard' }: ProtectedRouteProps) {
     const router = useRouter();
+    const dispatch = useDispatch();
     const user = useSelector((state: RootState) => state.auth.user);
     const token = useSelector((state: RootState) => state.auth.token);
+    const tokenExpiresAt = useSelector((state: RootState) => state.auth.tokenExpiresAt);
     const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
     const [isAuthorized, setIsAuthorized] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        // Require explicit authentication and a token
-        if (!isAuthenticated || !token) {
+        // Require explicit authentication and a non-expired token.
+        if (!isAuthenticated || !token || isTokenExpired(tokenExpiresAt)) {
+            dispatch(logoutAction());
+            clearAuthCookies();
+            clearAuthLocalStorage();
             router.replace('/login');
             setIsAuthorized(false);
             setIsLoading(false);
@@ -63,7 +70,7 @@ export default function ProtectedRoute({ children, requiredPermissions = [], red
         }
 
         setIsLoading(false);
-    }, [user, token, isAuthenticated, requiredPermissions, router, redirectTo]);
+    }, [dispatch, user, token, tokenExpiresAt, isAuthenticated, requiredPermissions, router, redirectTo]);
 
     // Show loading state
     if (isLoading) {

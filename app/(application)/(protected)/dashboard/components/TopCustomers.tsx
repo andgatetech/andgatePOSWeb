@@ -21,11 +21,11 @@ const listVariants: Variants = {
 
 const avatarColor = (name: string) => {
     const palette = [
-        'bg-[#046ca9]/10 text-[#046ca9]',
-        'bg-[#0f9f6e]/10 text-[#0f9f6e]',
-        'bg-[#e79237]/10 text-[#9b5a18]',
-        'bg-[#6d5dfc]/10 text-[#4338ca]',
-        'bg-[#f43f5e]/10 text-[#be123c]',
+        'bg-primary-light text-primary',
+        'bg-success-light text-success',
+        'bg-warning-light text-warning',
+        'bg-secondary-light text-secondary',
+        'bg-danger-light text-danger',
     ];
     return palette[(name?.charCodeAt(0) ?? 0) % palette.length];
 };
@@ -47,7 +47,7 @@ export default function TopCustomers() {
         <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-all duration-300 hover:shadow-lg sm:p-6">
             <div className="mb-4 flex items-center justify-between">
                 <h3 className="flex items-center gap-2 font-semibold text-gray-800">
-                    <Users className="h-5 w-5 text-[#046ca9]" />
+                    <Users className="h-5 w-5 text-primary" />
                     {t('dashboard_top_customers')}
                 </h3>
                 <select
@@ -107,7 +107,7 @@ export default function TopCustomers() {
                             </div>
                             <div className="flex-shrink-0 text-right">
                                 <p className="text-sm font-bold text-gray-900">{formatCurrency(c.total_spent)}</p>
-                                <p className="text-[10px] font-semibold text-[#046ca9]">#{i + 1}</p>
+                                <p className="text-[10px] font-semibold text-primary">#{i + 1}</p>
                             </div>
                         </motion.div>
                     ))}

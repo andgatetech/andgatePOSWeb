@@ -82,7 +82,22 @@ const PurchaseReturnPage = () => {
 
     const handleSubmit = async () => {
         if (selectedItems.length === 0) {
-            showErrorDialog(t('purchase_return_no_items') || 'Select at least one item to return');
+            showErrorDialog(t('purchase_return_no_items'));
+            return;
+        }
+
+        const invalidItem = selectedItems.find((ri) => {
+            const orderItem = purchaseOrder?.items?.find((item: any) => item.id === ri.purchase_order_item_id);
+            const qty = parseFloat(ri.quantity_returned);
+            const maxQty = parseFloat(orderItem?.quantity_received || '0');
+            return !Number.isFinite(qty) || qty <= 0 || qty > maxQty;
+        });
+
+        if (invalidItem) {
+            const orderItem = purchaseOrder?.items?.find((item: any) => item.id === invalidItem.purchase_order_item_id);
+            const qty = parseFloat(invalidItem.quantity_returned);
+            const maxQty = parseFloat(orderItem?.quantity_received || '0');
+            showErrorDialog(!Number.isFinite(qty) || qty <= 0 ? t('purchase_return_invalid_qty') : `${t('purchase_return_qty_exceeds_received')} (${maxQty})`);
             return;
         }
 
@@ -103,10 +118,10 @@ const PurchaseReturnPage = () => {
                 items,
             }).unwrap();
 
-            showSuccessDialog(t('purchase_return_success') || 'Purchase return processed successfully');
+            showSuccessDialog(t('purchase_return_success'));
             router.push('/purchases/list');
         } catch (err: any) {
-            const msg = err?.data?.message || t('purchase_return_error') || 'Failed to process return';
+            const msg = err?.data?.message || t('purchase_return_error');
             showErrorDialog(msg);
         }
     };
@@ -115,7 +130,7 @@ const PurchaseReturnPage = () => {
     if (!purchaseOrder) {
         return (
             <div className="p-6 text-center text-danger">
-                {t('purchase_order_not_found') || 'Purchase order not found'}
+                {t('purchase_order_not_found')}
             </div>
         );
     }
@@ -131,7 +146,7 @@ const PurchaseReturnPage = () => {
                 </Link>
                 <div>
                     <h1 className="text-xl font-bold text-gray-800 dark:text-white">
-                        {t('purchase_return_title') || 'Purchase Return'}
+                        {t('purchase_return_title')}
                     </h1>
                     <p className="text-sm text-gray-500">
                         {purchaseOrder.invoice_number} · {purchaseOrder.supplier?.name || '—'}
@@ -141,7 +156,7 @@ const PurchaseReturnPage = () => {
 
             {!canReturn && (
                 <div className="mb-4 rounded-lg bg-warning/10 border border-warning/30 p-4 text-warning text-sm">
-                    {t('purchase_return_cannot') || 'Returns can only be made for received purchase orders.'}
+                    {t('purchase_return_cannot')}
                 </div>
             )}
 
@@ -151,11 +166,11 @@ const PurchaseReturnPage = () => {
                     <thead className="bg-gray-50 dark:bg-gray-800 text-left">
                         <tr>
                             <th className="px-4 py-3 w-10"></th>
-                            <th className="px-4 py-3">{t('product') || 'Product'}</th>
-                            <th className="px-4 py-3 text-right">{t('received') || 'Received'}</th>
-                            <th className="px-4 py-3 text-right">{t('price') || 'Price'}</th>
-                            <th className="px-4 py-3 text-right w-32">{t('return_qty') || 'Return Qty'}</th>
-                            <th className="px-4 py-3 w-44">{t('reason') || 'Reason'}</th>
+                            <th className="px-4 py-3">{t('product')}</th>
+                            <th className="px-4 py-3 text-right">{t('received')}</th>
+                            <th className="px-4 py-3 text-right">{t('price')}</th>
+                            <th className="px-4 py-3 text-right w-32">{t('return_qty')}</th>
+                            <th className="px-4 py-3 w-44">{t('reason')}</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
@@ -194,7 +209,7 @@ const PurchaseReturnPage = () => {
                                         <input
                                             type="text"
                                             disabled={!ri}
-                                            placeholder={t('optional') || 'Optional'}
+                                            placeholder={t('optional')}
                                             value={ri?.reason ?? ''}
                                             onChange={(e) => handleItemReason(item.id, e.target.value)}
                                             className="w-full rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-2 py-1 disabled:opacity-40"
@@ -211,22 +226,22 @@ const PurchaseReturnPage = () => {
             <div className="mb-6 grid gap-4 md:grid-cols-2">
                 <div>
                     <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {t('refund_type') || 'Refund Type'}
+                        {t('refund_type')}
                     </label>
                     <select
                         value={refundType}
                         onChange={(e) => setRefundType(e.target.value as 'credit' | 'cash')}
                         className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2"
                     >
-                        <option value="credit">{t('refund_credit') || 'Credit (reduce AP)'}</option>
-                        <option value="cash">{t('refund_cash') || 'Cash Refund'}</option>
+                        <option value="credit">{t('refund_credit')}</option>
+                        <option value="cash">{t('refund_cash')}</option>
                     </select>
                 </div>
 
                 {refundType === 'cash' && (
                     <div>
                         <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                            {t('payment_method') || 'Payment Method'}
+                            {t('payment_method')}
                         </label>
                         <input
                             type="text"
@@ -240,26 +255,26 @@ const PurchaseReturnPage = () => {
 
                 <div>
                     <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {t('reason') || 'Overall Reason'}
+                        {t('reason')}
                     </label>
                     <input
                         type="text"
                         value={globalReason}
                         onChange={(e) => setGlobalReason(e.target.value)}
-                        placeholder={t('optional') || 'Optional'}
+                        placeholder={t('optional')}
                         className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2"
                     />
                 </div>
 
                 <div>
                     <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {t('notes') || 'Notes'}
+                        {t('notes')}
                     </label>
                     <input
                         type="text"
                         value={notes}
                         onChange={(e) => setNotes(e.target.value)}
-                        placeholder={t('optional') || 'Optional'}
+                        placeholder={t('optional')}
                         className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2"
                     />
                 </div>
@@ -269,7 +284,7 @@ const PurchaseReturnPage = () => {
             <div className="flex flex-col items-end gap-4">
                 {selectedItems.length > 0 && (
                     <div className="text-right">
-                        <span className="text-sm text-gray-500">{t('total_return') || 'Total Return Amount'}: </span>
+                        <span className="text-sm text-gray-500">{t('total_return')}: </span>
                         <span className="text-lg font-bold text-danger">{formatCurrency(totalReturn)}</span>
                     </div>
                 )}
@@ -279,9 +294,7 @@ const PurchaseReturnPage = () => {
                     className="flex items-center gap-2 rounded-lg bg-danger px-6 py-2.5 text-white font-medium hover:bg-danger/90 disabled:opacity-50 disabled:cursor-not-allowed transition"
                 >
                     <RotateCcw size={16} />
-                    {isSubmitting
-                        ? (t('processing') || 'Processing…')
-                        : (t('process_return') || 'Process Return')}
+                    {isSubmitting ? t('processing') : t('process_return')}
                 </button>
             </div>
         </div>

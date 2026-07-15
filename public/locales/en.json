@@ -7415,7 +7415,6 @@
   "stock_adjustment_step_review": "Review the final stock impact, then save and print the slip.",
   "stock_adjustment_step_select": "Search or scan products from the left product panel.",
   "stock_adjustment_title": "Stock Count Adjustment",
-  "btn_view_details": "View details",
   "stock_adjustment_add_serial": "Add Serial",
   "stock_adjustment_add_serial_hint": "Click \"Add Serial\" to start updating serial statuses",
   "stock_adjustment_additional_notes": "Additional notes",
@@ -7577,5 +7576,7 @@
   "report_hub_profit_desc": "Review income, cost, expense, and profit.",
   "report_hub_expense_title": "Expenses",
   "report_hub_expense_desc": "Review shop costs by date and type.",
-  "report_hub_advanced_title": "Advanced reports"
+  "report_hub_advanced_title": "Advanced reports",
+  "purchase_return_invalid_qty": "Return quantity must be greater than 0.",
+  "purchase_return_qty_exceeds_received": "Return quantity cannot exceed received quantity."
 }
