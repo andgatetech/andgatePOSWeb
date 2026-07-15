@@ -6,7 +6,7 @@ import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { showConfirmDialog, showErrorDialog, showMessage, showSuccessDialog } from '@/lib/toast';
 import type { RootState } from '@/store';
 import { useGetUnitsQuery } from '@/store/features/Product/productApi';
-import { useCreatePurchaseDraftMutation, useCreatePurchaseOrderMutation, useUpdatePurchaseDraftMutation } from '@/store/features/PurchaseOrder/PurchaseOrderApi';
+import { useCompletePurchaseFlowMutation, useCreatePurchaseDraftMutation, useUpdatePurchaseDraftMutation } from '@/store/features/PurchaseOrder/PurchaseOrderApi';
 import {
     addItemRedux, clearItemsRedux, removeItemRedux, resetPurchaseOrderRedux,
     setNotesRedux, setPurchaseTypeRedux, setSupplierDetailsRedux,
@@ -15,7 +15,7 @@ import {
     updateItemVatRedux,
 } from '@/store/features/PurchaseOrder/PurchaseOrderSlice';
 import { useGetSuppliersQuery } from '@/store/features/supplier/supplierApi';
-import { Eye, FileText, Plus, Save, Search, ShoppingCart, Trash2, X } from 'lucide-react';
+import { CheckCircle2, CreditCard, Eye, FileText, PackageCheck, Plus, Save, Search, ShoppingCart, Trash2, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -34,7 +34,6 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
     const dispatch = useDispatch();
     const { formatCurrency } = useCurrency();
     const { currentStoreId } = useCurrentStore();
-    const userId = useSelector((state: RootState) => state.auth.user?.id);
     const router = useRouter();
 
     const storeOrder = useSelector((state: RootState) => (currentStoreId && state.purchaseOrder.ordersByStore ? state.purchaseOrder.ordersByStore[currentStoreId] : null));
@@ -60,13 +59,17 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
     const [itemModalOpen, setItemModalOpen] = useState(false);
     const [selectedItem, setSelectedItem] = useState<any>(null);
     const [showPreview, setShowPreview] = useState(false);
+    const [purchaseIntent, setPurchaseIntent] = useState<'quick' | 'order_later' | 'draft'>('quick');
+    const [paymentMode, setPaymentMode] = useState<'paid' | 'partial' | 'due'>('due');
+    const [paymentAmount, setPaymentAmount] = useState(0);
+    const [paymentMethod, setPaymentMethod] = useState('cash');
     const searchInputRef = useRef<HTMLInputElement>(null);
 
     const isMobileView = propIsMobileView !== undefined ? propIsMobileView : false;
     const showMobileCart = propShowMobileCart !== undefined ? propShowMobileCart : false;
 
     const [createDraft, { isLoading: isSavingDraft }] = useCreatePurchaseDraftMutation();
-    const [createPurchaseOrder, { isLoading: isCreatingPurchase }] = useCreatePurchaseOrderMutation();
+    const [completePurchaseFlow, { isLoading: isCompletingFlow }] = useCompletePurchaseFlowMutation();
     const [updateDraft, { isLoading: isUpdatingDraft }] = useUpdatePurchaseDraftMutation();
 
     const { data: suppliersResponse } = useGetSuppliersQuery(
@@ -112,6 +115,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                 unit: newProductUnit || defaultUnit,
                 quantity: newProductQty,
                 purchasePrice: newProductPrice,
+                amount: newProductQty * newProductPrice,
                 taxRate: 0,
                 taxIncluded: false,
                 inputVatCreditable: inputVatCreditable,
@@ -130,12 +134,12 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
     const handleQuantityChange = (itemId: number, value: string) => {
         if (!currentStoreId) return;
         const qty = parseFloat(value) || 1;
-        dispatch(updateItemQuantityRedux({ storeId: currentStoreId, itemId, quantity: Math.max(1, qty) }));
+        dispatch(updateItemQuantityRedux({ storeId: currentStoreId, id: itemId, quantity: Math.max(1, qty) }));
     };
 
     const handlePurchasePriceChange = (itemId: number, value: string) => {
         if (!currentStoreId) return;
-        dispatch(updateItemPurchasePriceRedux({ storeId: currentStoreId, itemId, purchasePrice: parseFloat(value) || 0 }));
+        dispatch(updateItemPurchasePriceRedux({ storeId: currentStoreId, id: itemId, purchasePrice: parseFloat(value) || 0 }));
     };
 
     const handleItemVatChange = (itemId: number, field: 'taxRate' | 'taxIncluded' | 'inputVatCreditable', value: number | boolean) => {
@@ -145,7 +149,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
 
     const handleRemoveItem = (itemId: number) => {
         if (!currentStoreId) return;
-        dispatch(removeItemRedux({ storeId: currentStoreId, itemId }));
+        dispatch(removeItemRedux({ storeId: currentStoreId, id: itemId }));
     };
 
     const itemTotal = (item: any) => {
@@ -159,8 +163,17 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
         if (rate <= 0) return 0;
         return item.taxIncluded ? base - base / (1 + rate / 100) : base * (rate / 100);
     };
-    const grandTotal = purchaseItems.reduce((total, item) => total + itemTotal(item), 0);
-    const inputVatTotal = purchaseItems.reduce((total, item: any) => total + (item.inputVatCreditable ? itemVat(item) : 0), 0);
+    const grandTotal = purchaseItems.reduce((total: number, item: any) => total + itemTotal(item), 0);
+    const inputVatTotal = purchaseItems.reduce((total: number, item: any) => total + (item.inputVatCreditable ? itemVat(item) : 0), 0);
+    const suggestedPaymentAmount = paymentMode === 'paid' ? grandTotal : paymentMode === 'partial' ? paymentAmount : 0;
+
+    useEffect(() => {
+        if (paymentMode === 'paid') {
+            setPaymentAmount(grandTotal);
+        } else if (paymentMode === 'due') {
+            setPaymentAmount(0);
+        }
+    }, [grandTotal, paymentMode]);
 
     const clearAllItems = async () => {
         if (!currentStoreId) return;
@@ -200,41 +213,76 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
         }
     };
 
-    const handleCreatePurchaseOrder = async () => {
+    const buildFlowItems = () => purchaseItems.map((item: any) => {
+        const sellingPrice = Number(item.sellingPrice || item.mrp || item.salePrice || item.purchasePrice || 0);
+        if (item.itemType === 'existing' && item.productId) {
+            const d: any = {
+                product_id: item.productId,
+                quantity_ordered: item.quantity,
+                quantity_received: purchaseIntent === 'quick' ? item.quantity : 0,
+                purchase_price: item.purchasePrice || 0,
+                selling_price: sellingPrice,
+                tax_rate: item.taxRate || 0,
+                tax_included: !!item.taxIncluded,
+                input_vat_creditable: !!item.inputVatCreditable,
+            };
+            if (item.productStockId) d.product_stock_id = item.productStockId;
+            return d;
+        }
+        const d: any = {
+            product_name: item.title,
+            product_description: item.description || '',
+            unit: item.unit || defaultUnit,
+            quantity_ordered: item.quantity,
+            quantity_received: purchaseIntent === 'quick' ? item.quantity : 0,
+            purchase_price: item.purchasePrice || 0,
+            selling_price: sellingPrice,
+            tax_rate: item.taxRate || 0,
+            tax_included: !!item.taxIncluded,
+            input_vat_creditable: !!item.inputVatCreditable,
+        };
+        if (item.variantInfo && Object.keys(item.variantInfo).length > 0) d.variant_data = item.variantInfo;
+        return d;
+    });
+
+    const handleCompleteFlow = async (intent: 'draft' | 'order_later' | 'receive_now' | 'receive_now_paid' | 'receive_now_due') => {
         if (!currentStoreId) { showMessage(t('msg_please_select_store'), 'error'); return; }
-        if (purchaseType === 'supplier' && !supplierId) { showMessage(t('msg_please_select_supplier'), 'error'); return; }
+        if (purchaseType === 'supplier' && intent !== 'draft' && !supplierId) { showMessage(t('msg_please_select_supplier'), 'error'); return; }
         if (purchaseItems.length === 0) { showMessage(t('msg_please_add_one_item'), 'error'); return; }
 
-        const purchaseOrderData: any = {
-            user_id: userId, store_id: currentStoreId,
+        const payAmount = intent === 'receive_now_paid'
+            ? Math.min(Number(suggestedPaymentAmount || 0), grandTotal)
+            : intent === 'receive_now'
+                ? Math.min(Number(paymentAmount || 0), grandTotal)
+                : 0;
+
+        const flowData: any = {
+            intent,
+            store_id: currentStoreId,
             supplier_id: purchaseType === 'supplier' ? supplierId : null,
-            purchase_type: purchaseType, status: 'ordered', notes: notes || '',
+            purchase_type: purchaseType,
             supplier_invoice_number: supplierInvoiceNumber || null,
             supplier_mushak_number: supplierMushakNumber || null,
             supplier_invoice_date: supplierInvoiceDate || null,
             input_vat_creditable: inputVatCreditable,
-            items: purchaseItems.map((item: any) => {
-                if (item.itemType === 'existing' && item.productId) {
-                    const d: any = { product_id: item.productId, quantity_ordered: item.quantity, purchase_price: item.purchasePrice, tax_rate: item.taxRate || 0, tax_included: !!item.taxIncluded, input_vat_creditable: !!item.inputVatCreditable };
-                    if (item.productStockId) d.product_stock_id = item.productStockId;
-                    return d;
-                }
-                const d: any = { product_name: item.title, product_description: item.description || '', unit: item.unit || defaultUnit, quantity_ordered: item.quantity, purchase_price: item.purchasePrice || 0, tax_rate: item.taxRate || 0, tax_included: !!item.taxIncluded, input_vat_creditable: !!item.inputVatCreditable };
-                if (item.variantInfo && Object.keys(item.variantInfo).length > 0) d.variant_info = item.variantInfo;
-                return d;
-            }),
+            notes: notes || '',
+            items: buildFlowItems(),
+            payment: {
+                amount: payAmount,
+                method: paymentMethod || 'cash',
+                notes: notes || '',
+            },
         };
 
         try {
-            const response = await createPurchaseOrder(purchaseOrderData).unwrap();
+            const response = await completePurchaseFlow(flowData).unwrap();
             const po = response.data || response;
-            const invoice = po.invoice_number || po.id;
-            showSuccessDialog(t('msg_purchase_order_created'), `${t('lbl_invoice')}: ${invoice} · ${t('lbl_total')}: ${formatCurrency(po.totals?.grand_total || grandTotal)}`);
+            showSuccessDialog(t('msg_purchase_flow_completed'), `${t('lbl_invoice')}: ${po.invoice_number || po.purchase_order_id} · ${t('lbl_due')}: ${formatCurrency(po.amount_due || 0)}`);
             dispatch(resetPurchaseOrderRedux(currentStoreId));
             clearSupplierSelection();
             router.push('/purchases/list');
         } catch (error: any) {
-            const msg = error?.data?.message || error?.message || t('msg_failed_to_create_po');
+            const msg = error?.data?.message || error?.message || t('msg_purchase_flow_failed');
             const detail = error?.data?.errors ? Object.values(error.data.errors).flat().join(', ') : '';
             showErrorDialog(msg, detail || '');
         }
@@ -351,6 +399,75 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                         <input className="form-input" type="date" value={supplierInvoiceDate} onChange={(e) => setVatEvidence({ supplierInvoiceDate: e.target.value })} />
                     </div>
                     {inputVatCreditable && !supplierMushakNumber && <p className="mt-2 text-xs text-amber-700">{t('msg_input_vat_needs_mushak')}</p>}
+                </div>
+
+                <div className="rounded-xl border border-emerald-100 bg-emerald-50/60 p-4">
+                    <div className="mb-3 flex flex-col gap-1">
+                        <h3 className="text-sm font-semibold text-gray-900">{t('purchase_flow_what_to_do')}</h3>
+                        <p className="text-xs text-gray-600">{t('purchase_flow_shopkeeper_hint')}</p>
+                    </div>
+                    <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
+                        {[
+                            { key: 'quick', icon: <PackageCheck className="h-4 w-4" />, title: t('purchase_flow_quick_title'), desc: t('purchase_flow_quick_desc') },
+                            { key: 'order_later', icon: <ShoppingCart className="h-4 w-4" />, title: t('purchase_flow_order_title'), desc: t('purchase_flow_order_desc') },
+                            { key: 'draft', icon: <Save className="h-4 w-4" />, title: t('purchase_flow_draft_title'), desc: t('purchase_flow_draft_desc') },
+                        ].map((option: any) => (
+                            <button
+                                key={option.key}
+                                type="button"
+                                onClick={() => setPurchaseIntent(option.key)}
+                                className={`rounded-lg border p-3 text-left transition ${purchaseIntent === option.key ? 'border-emerald-500 bg-white shadow-sm' : 'border-emerald-100 bg-white/70 hover:border-emerald-300'}`}
+                            >
+                                <div className="mb-1 flex items-center gap-2 text-sm font-semibold text-gray-900">
+                                    <span className={purchaseIntent === option.key ? 'text-emerald-600' : 'text-gray-500'}>{option.icon}</span>
+                                    {option.title}
+                                </div>
+                                <p className="text-xs text-gray-500">{option.desc}</p>
+                            </button>
+                        ))}
+                    </div>
+
+                    {purchaseIntent === 'quick' && (
+                        <div className="mt-4 rounded-lg border border-emerald-100 bg-white p-3">
+                            <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-900">
+                                <CreditCard className="h-4 w-4 text-emerald-600" />
+                                {t('purchase_flow_payment_title')}
+                            </div>
+                            <div className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_140px_160px]">
+                                <div className="grid grid-cols-3 gap-2">
+                                    {[
+                                        { key: 'due', label: t('purchase_flow_due') },
+                                        { key: 'partial', label: t('purchase_flow_partial_paid') },
+                                        { key: 'paid', label: t('purchase_flow_full_paid') },
+                                    ].map((mode: any) => (
+                                        <button
+                                            key={mode.key}
+                                            type="button"
+                                            onClick={() => setPaymentMode(mode.key)}
+                                            className={`rounded-lg border px-3 py-2 text-xs font-semibold ${paymentMode === mode.key ? 'border-primary bg-primary text-white' : 'border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100'}`}
+                                        >
+                                            {mode.label}
+                                        </button>
+                                    ))}
+                                </div>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    step="any"
+                                    className="form-input"
+                                    value={paymentMode === 'due' ? '' : paymentAmount || ''}
+                                    onChange={(e) => setPaymentAmount(Number(e.target.value || 0))}
+                                    disabled={paymentMode !== 'partial'}
+                                    placeholder={t('lbl_amount')}
+                                />
+                                <select className="form-select" value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
+                                    <option value="cash">{t('lbl_cash')}</option>
+                                    <option value="bank">{t('lbl_bank')}</option>
+                                    <option value="mobile_banking">{t('lbl_mobile_banking')}</option>
+                                </select>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Quick Add New Product */}
@@ -556,7 +673,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                     </div>
                     <div className="flex flex-col gap-2 sm:flex-row">
                         <button
-                            onClick={handleSaveDraft}
+                            onClick={() => purchaseIntent === 'draft' ? handleCompleteFlow('draft') : handleSaveDraft()}
                             disabled={isSavingDraft || isUpdatingDraft || purchaseItems.length === 0}
                             className="btn btn-outline-primary flex-1"
                             title={purchaseItems.length === 0 ? t('msg_add_items_first') : t('msg_save_draft')}
@@ -573,15 +690,37 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                             <FileText className="mr-2 h-4 w-4" />
                             {t('btn_preview')}
                         </button>
-                        <button
-                            onClick={handleCreatePurchaseOrder}
-                            disabled={isCreatingPurchase || purchaseItems.length === 0 || (purchaseType === 'supplier' && !supplierId)}
-                            className="btn btn-primary flex-1 shadow-lg shadow-primary/20"
-                            title={purchaseItems.length === 0 ? t('msg_add_items_first') : t('msg_create_purchase_order')}
-                        >
-                            <ShoppingCart className="mr-2 h-4 w-4" />
-                            {isCreatingPurchase ? t('lbl_creating') : t('btn_create_purchase_order')}
-                        </button>
+                        {purchaseIntent === 'order_later' && (
+                            <button
+                                onClick={() => handleCompleteFlow('order_later')}
+                                disabled={isCompletingFlow || purchaseItems.length === 0 || (purchaseType === 'supplier' && !supplierId)}
+                                className="btn btn-primary flex-1 shadow-lg shadow-primary/20"
+                                title={purchaseItems.length === 0 ? t('msg_add_items_first') : t('msg_create_purchase_order')}
+                            >
+                                <ShoppingCart className="mr-2 h-4 w-4" />
+                                {isCompletingFlow ? t('lbl_creating') : t('purchase_flow_order_button')}
+                            </button>
+                        )}
+                        {purchaseIntent === 'quick' && paymentMode === 'due' && (
+                            <button
+                                onClick={() => handleCompleteFlow('receive_now_due')}
+                                disabled={isCompletingFlow || purchaseItems.length === 0 || (purchaseType === 'supplier' && !supplierId)}
+                                className="btn btn-primary flex-1 shadow-lg shadow-primary/20"
+                            >
+                                <PackageCheck className="mr-2 h-4 w-4" />
+                                {isCompletingFlow ? t('lbl_saving') : t('purchase_flow_receive_due_button')}
+                            </button>
+                        )}
+                        {purchaseIntent === 'quick' && paymentMode !== 'due' && (
+                            <button
+                                onClick={() => handleCompleteFlow(paymentMode === 'paid' ? 'receive_now_paid' : 'receive_now')}
+                                disabled={isCompletingFlow || purchaseItems.length === 0 || (purchaseType === 'supplier' && !supplierId) || (paymentMode === 'partial' && paymentAmount <= 0)}
+                                className="btn btn-success flex-1 shadow-lg shadow-emerald-200"
+                            >
+                                <CheckCircle2 className="mr-2 h-4 w-4" />
+                                {isCompletingFlow ? t('lbl_saving') : paymentMode === 'paid' ? t('purchase_flow_receive_paid_button') : t('purchase_flow_receive_partial_button')}
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>
@@ -589,7 +728,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
             {/* Modals */}
             {showPreview && <PurchaseOrderPreview isOpen={showPreview} onClose={() => setShowPreview(false)} />}
             {itemModalOpen && selectedItem && <ItemPreviewModal isOpen={itemModalOpen} onClose={() => { setItemModalOpen(false); setSelectedItem(null); }} item={selectedItem} />}
-            {(isSavingDraft || isUpdatingDraft || isCreatingPurchase) && <LoadingOverlay />}
+            <LoadingOverlay isLoading={isSavingDraft || isUpdatingDraft || isCompletingFlow} />
         </div>
     );
 };

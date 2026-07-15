@@ -61,7 +61,7 @@ const PurchaseOrderListPage = () => {
     const [receiptPurchaseOrder, setReceiptPurchaseOrder] = useState<any>(null);
 
     const paymentMethods = useSelector((state: RootState) => state.auth.currentStore?.payment_methods || []);
-    const activePaymentMethods = paymentMethods.filter((pm) => pm.is_active);
+    const activePaymentMethods = paymentMethods.filter((pm: any) => pm.is_active);
 
     // ─── Pagination & Sort (consolidated per tab) ───
     const [draftPage, setDraftPage] = useState(1);
@@ -368,9 +368,9 @@ const PurchaseOrderListPage = () => {
     // ─── Status filter chips ───
     const statusFilters: { key: OrderStatusFilter; label: string }[] = [
         { key: 'all', label: t('lbl_all') },
-        { key: 'ordered', label: t('lbl_status_ordered') },
-        { key: 'received', label: t('lbl_status_received') },
-        { key: 'due', label: t('lbl_payment_due') },
+        { key: 'ordered', label: t('purchase_lifecycle_goods_not_received') },
+        { key: 'received', label: t('purchase_lifecycle_goods_received') },
+        { key: 'due', label: t('purchase_lifecycle_supplier_due') },
     ];
 
     return (
@@ -615,7 +615,8 @@ const PurchaseOrderListPage = () => {
             {/* Transaction Tracking Modal */}
             {transactionModalOpen && selectedTransactionOrder && (
                 <TransactionTrackingModal
-                    order={selectedTransactionOrder}
+                    isOpen={transactionModalOpen}
+                    purchaseOrder={selectedTransactionOrder}
                     onClose={() => {
                         setTransactionModalOpen(false);
                         setSelectedTransactionOrder(null);
@@ -672,7 +673,7 @@ const PurchaseOrderListPage = () => {
                                     onChange={(e) => setPaymentMethod(e.target.value)}
                                     className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary"
                                 >
-                                    {activePaymentMethods.map((m) => (
+                                    {activePaymentMethods.map((m: any) => (
                                         <option key={m.id} value={m.payment_method_name}>
                                             {m.payment_method_name}
                                         </option>

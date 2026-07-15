@@ -74,6 +74,15 @@ const PurchaseOrderApi = baseApi.injectEndpoints({
             invalidatesTags: ['PurchaseOrders', 'Products', 'Orders'],
         }),
 
+        completePurchaseFlow: builder.mutation({
+            query: (data: any) => ({
+                url: '/purchase-flow/complete',
+                method: 'POST',
+                body: data,
+            }),
+            invalidatesTags: ['PurchaseDrafts', 'PurchaseOrders', 'Products', 'Orders', 'PurchaseReturns'],
+        }),
+
         // Get all Purchase Orders
         getPurchaseOrders: builder.query({
             query: (params: any = {}) => ({
@@ -217,6 +226,7 @@ export const {
     // Purchase Order endpoints
     useConvertDraftToPurchaseOrderMutation,
     useCreatePurchaseOrderMutation,
+    useCompletePurchaseFlowMutation,
     useGetPurchaseOrdersQuery,
     useGetPurchaseOrderByIdQuery,
     useEditPurchaseOrderQuery,

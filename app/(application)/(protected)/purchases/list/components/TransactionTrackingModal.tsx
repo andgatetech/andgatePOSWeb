@@ -4,6 +4,7 @@ import DateColumn from '@/components/common/DateColumn';
 import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
 import { AlertCircle, Building2, Calendar, CheckCircle, Clock, CreditCard, FileText, Package, Receipt, ShoppingCart, Wallet, X } from 'lucide-react';
+import type React from 'react';
 import { useState } from 'react';
 import PaymentReceipt from './PaymentReceipt';
 
@@ -33,7 +34,7 @@ const TransactionTrackingModal: React.FC<TransactionTrackingModalProps> = ({ isO
     };
 
     const getPaymentMethodIcon = (method: string) => {
-        const icons: Record<string, JSX.Element> = {
+        const icons: Record<string, React.ReactElement> = {
             cash: <Wallet className="h-4 w-4" />,
             card: <CreditCard className="h-4 w-4" />,
             credit: <CreditCard className="h-4 w-4" />,
