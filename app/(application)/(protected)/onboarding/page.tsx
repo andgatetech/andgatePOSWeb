@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -63,16 +64,16 @@ const DEFAULT_DRAFT: Draft = {
     hasEmployees: false,
 };
 
-const businessCategories = [
-    ['grocery', 'মুদি / Grocery'],
-    ['fashion', 'ফ্যাশন / Clothing'],
-    ['electronics', 'ইলেকট্রনিক্স'],
-    ['mobile', 'মোবাইল ও এক্সেসরিজ'],
-    ['pharmacy', 'ফার্মেসি'],
-    ['restaurant', 'রেস্টুরেন্ট'],
-    ['wholesale', 'হোলসেল'],
-    ['service', 'সার্ভিস ব্যবসা'],
-    ['retail', 'রিটেইল / Other retail'],
+const businessCategories: Array<[string, string]> = [
+    ['grocery', 'onboarding_category_grocery'],
+    ['fashion', 'onboarding_category_fashion'],
+    ['electronics', 'onboarding_category_electronics'],
+    ['mobile', 'onboarding_category_mobile'],
+    ['pharmacy', 'onboarding_category_pharmacy'],
+    ['restaurant', 'onboarding_category_restaurant'],
+    ['wholesale', 'onboarding_category_wholesale'],
+    ['service', 'onboarding_category_service'],
+    ['retail', 'onboarding_category_retail'],
 ];
 
 const stepIdsForDraft = (draft: Draft) => [
@@ -117,72 +118,72 @@ export default function OnboardingPage() {
             {
                 id: 'welcome',
                 icon: Languages,
-                title: 'স্বাগতম',
-                desc: 'কয়েকটি সহজ ধাপে আপনার ব্যবসা সেটআপ করুন। বেশিরভাগ তথ্য পরে পরিবর্তন করা যাবে।',
+                title: t('onboarding_welcome_title'),
+                desc: t('onboarding_welcome_desc'),
             },
             {
                 id: 'business',
                 icon: Building2,
-                title: 'ব্যবসার অবস্থা',
-                desc: 'আপনি নতুন শুরু করছেন, নাকি আগে থেকেই ব্যবসা চলছে - এই অনুযায়ী পরের ধাপ সাজানো হবে।',
+                title: t('onboarding_business_title'),
+                desc: t('onboarding_business_desc'),
             },
             {
                 id: 'operations',
                 icon: WalletCards,
-                title: 'দোকান চালানোর সেটিংস',
-                desc: 'Main branch, cash payment, BDT currency, Asia/Dhaka timezone, walk-in customer - এগুলো ডিফল্ট হিসেবে থাকবে।',
+                title: t('onboarding_operations_title'),
+                desc: t('onboarding_operations_desc'),
                 href: '/store/setting',
-                action: 'দোকানের সেটিংস খুলুন',
+                action: t('onboarding_operations_action'),
             },
             existing
                 ? {
                     id: 'opening',
                     icon: Banknote,
-                    title: 'চলমান ব্যবসার শুরুর অবস্থা',
-                    desc: 'আজকের ক্যাশ, ব্যাংক, কাস্টমার পাওনা, সাপ্লায়ার দেনা ও স্টক নিরাপদভাবে আনুন।',
+                    title: t('onboarding_opening_title'),
+                    desc: t('onboarding_opening_desc'),
                     href: '/accounting/running-business-migration',
-                    action: 'মাইগ্রেশন সেটআপ খুলুন',
-                    warning: 'Accounting/stock data সরাসরি সংখ্যা বদলে নয়; balanced entry ও stock movement দিয়ে পোস্ট করতে হবে।',
+                    action: t('onboarding_opening_action'),
+                    warning: t('onboarding_opening_warning'),
                 }
                 : {
                     id: 'capital',
                     icon: Banknote,
-                    title: 'নতুন ব্যবসার শুরু',
-                    desc: 'শুরুর ক্যাশ/মূলধন থাকলে পরে হিসাব অংশে দিন। এখন চাইলে সরাসরি পণ্য যোগ করতে পারেন।',
+                    title: t('onboarding_capital_title'),
+                    desc: t('onboarding_capital_desc'),
                     href: '/products/create',
-                    action: 'প্রথম পণ্য যোগ করুন',
+                    action: t('onboarding_capital_action'),
                     skippable: true,
                 },
             {
                 id: 'products',
                 icon: PackagePlus,
-                title: 'পণ্য ও স্টক',
-                desc: 'প্রথম পণ্যের জন্য শুধু নাম, বিক্রয় মূল্য, ক্রয় মূল্য, পরিমাণ, ইউনিট, বারকোড যথেষ্ট। Advanced fields পরে।',
+                title: t('onboarding_products_title'),
+                desc: t('onboarding_products_desc'),
                 href: '/products/create',
-                action: 'পণ্য যোগ করুন',
+                action: t('onboarding_products_action'),
                 skippable: true,
             },
             {
                 id: 'people',
                 icon: Users,
-                title: 'কর্মচারী ও দায়িত্ব',
+                title: t('onboarding_people_title'),
                 desc: draft.hasEmployees
-                    ? 'Cashier, Salesperson, Manager, Accountant, Storekeeper - সহজ role দিয়ে শুরু করুন।'
-                    : 'আপনি একা চালালে employee setup skip করতে পারেন। Owner access প্রস্তুত থাকে।',
+                    ? t('onboarding_people_with_staff_desc')
+                    : t('onboarding_people_alone_desc'),
                 href: draft.hasEmployees ? '/employees/create' : '/dashboard',
-                action: draft.hasEmployees ? 'কর্মচারী যোগ করুন' : 'এখন বাদ দিন',
+                action: draft.hasEmployees ? t('onboarding_people_action_add') : t('onboarding_people_action_skip'),
                 skippable: true,
             },
             {
                 id: 'launch',
                 icon: ClipboardCheck,
-                title: 'রিভিউ ও চালু করুন',
-                desc: 'যা সম্পন্ন হয়েছে দেখুন, অসম্পূর্ণ optional কাজ পরে dashboard checklist থেকে করুন।',
+                title: t('onboarding_launch_title'),
+                desc: t('onboarding_launch_desc'),
                 href: '/dashboard',
-                action: 'AndgateBOS ব্যবহার শুরু করুন',
+                action: t('onboarding_launch_action'),
             },
         ];
-    }, [draft.hasEmployees, draft.status]);
+    }, [draft.hasEmployees, draft.status, t]);
 
     const stepIds = useMemo(() => stepIdsForDraft(draft), [draft]);
     const workflowCompleted = useMemo(
@@ -289,14 +290,21 @@ export default function OnboardingPage() {
 
     return (
         <div className="mx-auto max-w-6xl space-y-5">
-            <section className="border-b border-slate-200 bg-white px-4 py-5 shadow-sm dark:border-slate-700 dark:bg-slate-900 sm:px-5">
+            <section className="overflow-hidden rounded-xl border border-[#046ca9]/10 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                <div className="h-1 bg-gradient-to-r from-[#046ca9] to-[#034d79]" />
+                <div className="px-4 py-5 sm:px-5">
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                    <div>
-                        <p className="text-sm font-semibold text-sky-700 dark:text-sky-300">{currentStore?.store_name || t('lbl_store')}</p>
-                        <h1 className="mt-1 text-2xl font-bold text-slate-950 dark:text-white">{t('onboarding_page_title')}</h1>
+                    <div className="flex gap-3">
+                        <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl border border-[#046ca9]/10 bg-white shadow-sm">
+                            <Image src="/images/andgatebos-icon-square.png" alt="AndgateBOS" width={32} height={32} className="h-8 w-8 object-contain" />
+                        </span>
+                        <div>
+                        <p className="text-sm font-semibold text-[#046ca9] dark:text-sky-300">{currentStore?.store_name || t('lbl_store')} · AndgateBOS</p>
+                        <h1 className="mt-1 text-2xl font-black text-slate-950 dark:text-white">{t('onboarding_page_title')}</h1>
                         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">
                             {t('onboarding_page_subtitle')}
                         </p>
+                        </div>
                     </div>
                     <div className="min-w-[180px]">
                         <div className="mb-1 flex items-center justify-between text-xs font-semibold text-slate-600 dark:text-slate-300">
@@ -304,9 +312,10 @@ export default function OnboardingPage() {
                             <span>{isLoading ? '-' : `${progress}%`}</span>
                         </div>
                         <div className="h-2 rounded-full bg-slate-200 dark:bg-slate-700">
-                            <div className="h-2 rounded-full bg-emerald-500 transition-all" style={{ width: `${progress}%` }} />
+                            <div className="h-2 rounded-full bg-[#046ca9] transition-all" style={{ width: `${progress}%` }} />
                         </div>
                     </div>
+                </div>
                 </div>
             </section>
 
@@ -324,7 +333,7 @@ export default function OnboardingPage() {
                                 onClick={() => setCurrentStep(index)}
                                 className={`flex w-full items-center gap-3 rounded-lg border px-3 py-3 text-left transition ${
                                     activeItem
-                                        ? 'border-sky-300 bg-sky-50 text-sky-950 dark:border-sky-700 dark:bg-sky-950/40 dark:text-white'
+                                        ? 'border-[#046ca9]/30 bg-[#046ca9]/5 text-slate-950 dark:border-sky-700 dark:bg-sky-950/40 dark:text-white'
                                         : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200'
                                 }`}
                             >
@@ -338,7 +347,7 @@ export default function OnboardingPage() {
 
                 <main className="min-h-[520px] border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900 sm:p-6">
                     <div className="mb-5 flex items-start gap-3">
-                        <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300">
+                        <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg bg-[#046ca9]/10 text-[#046ca9] dark:bg-sky-950 dark:text-sky-300">
                             <ActiveIcon className="h-5 w-5" />
                         </span>
                         <div>
@@ -350,40 +359,40 @@ export default function OnboardingPage() {
 
                     {active.id === 'welcome' && (
                         <div className="grid gap-3 sm:grid-cols-2">
-                            <Info icon={ShieldCheck} title="নিরাপদ সেটআপ" text="Opening balance ও opening stock হিসাব/স্টক ledger ছাড়া সরাসরি বদলানো হবে না।" />
+                            <Info icon={ShieldCheck} title={t('onboarding_info_safe_title')} text={t('onboarding_info_safe_text')} />
                             <Info icon={RefreshCw} title={t('onboarding_resume_title')} text={t('onboarding_resume_text')} />
-                            <Info icon={Store} title="ডিফল্ট তৈরি আছে" text="BDT, Cash, Main store settings, payment methods registration থেকেই আসে।" />
-                            <Info icon={ShoppingCart} title="প্রথম কাজ" text="শেষে dashboard checklist আপনাকে first product ও first sale পর্যন্ত গাইড করবে।" />
+                            <Info icon={Store} title={t('onboarding_info_defaults_title')} text={t('onboarding_info_defaults_text')} />
+                            <Info icon={ShoppingCart} title={t('onboarding_info_first_task_title')} text={t('onboarding_info_first_task_text')} />
                         </div>
                     )}
 
                     {active.id === 'business' && (
                         <div className="space-y-5">
                             <div className="grid gap-3 md:grid-cols-3">
-                                <Choice selected={draft.status === 'existing'} title="আমার ব্যবসা আগে থেকেই চলছে" text="ক্যাশ, স্টক, বাকি/দেনা আনতে হবে" onClick={() => setDraft({ ...draft, status: 'existing' })} />
-                                <Choice selected={draft.status === 'new'} title="আমি নতুন ব্যবসা শুরু করছি" text="সিম্পল সেটআপ, opening history লাগবে না" onClick={() => setDraft({ ...draft, status: 'new' })} />
-                                <Choice selected={draft.status === 'assisted'} title="আগে সফটওয়্যার ব্যবহার করেছি" text="Automated import এখন বাধ্যতামূলক নয়; support-assisted migration হিসেবে চলবে" onClick={() => setDraft({ ...draft, status: 'assisted' })} />
+                                <Choice selected={draft.status === 'existing'} title={t('onboarding_choice_existing_title')} text={t('onboarding_choice_existing_text')} onClick={() => setDraft({ ...draft, status: 'existing' })} />
+                                <Choice selected={draft.status === 'new'} title={t('onboarding_choice_new_title')} text={t('onboarding_choice_new_text')} onClick={() => setDraft({ ...draft, status: 'new' })} />
+                                <Choice selected={draft.status === 'assisted'} title={t('onboarding_choice_assisted_title')} text={t('onboarding_choice_assisted_text')} onClick={() => setDraft({ ...draft, status: 'assisted' })} />
                             </div>
                             <label className="block">
-                                <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">ব্যবসার ধরন</span>
+                                <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">{t('onboarding_business_category_label')}</span>
                                 <select
                                     value={draft.category}
                                     onChange={(event) => setDraft({ ...draft, category: event.target.value })}
                                     className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-3 text-sm dark:border-slate-600 dark:bg-slate-800"
                                 >
-                                    {businessCategories.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+                                    {businessCategories.map(([value, labelKey]) => <option key={value} value={value}>{t(labelKey)}</option>)}
                                 </select>
-                                <span className="mt-1 block text-xs text-slate-500">এই অনুযায়ী product field, unit, barcode/serial recommendation দেখানো হবে।</span>
+                                <span className="mt-1 block text-xs text-slate-500">{t('onboarding_business_category_help')}</span>
                             </label>
                         </div>
                     )}
 
                     {active.id === 'operations' && (
                         <div className="space-y-3">
-                            <Toggle label="কাস্টমার বাকিতে বিক্রি করেন?" checked={draft.sellsOnCredit} onChange={(value) => setDraft({ ...draft, sellsOnCredit: value })} />
-                            <Toggle label="সাপ্লায়ারের কাছ থেকে বাকিতে কেনেন?" checked={draft.buysOnCredit} onChange={(value) => setDraft({ ...draft, buysOnCredit: value })} />
-                            <Toggle label="বারকোড ব্যবহার করেন?" checked={draft.usesBarcode} onChange={(value) => setDraft({ ...draft, usesBarcode: value })} />
-                            <Info icon={WalletCards} title="Recommended defaults" text="Cash payment, BDT currency, Asia/Dhaka timezone, default receipt settings পরে edit করা যাবে।" />
+                            <Toggle label={t('onboarding_toggle_customer_credit')} checked={draft.sellsOnCredit} onChange={(value) => setDraft({ ...draft, sellsOnCredit: value })} />
+                            <Toggle label={t('onboarding_toggle_supplier_credit')} checked={draft.buysOnCredit} onChange={(value) => setDraft({ ...draft, buysOnCredit: value })} />
+                            <Toggle label={t('onboarding_toggle_barcode')} checked={draft.usesBarcode} onChange={(value) => setDraft({ ...draft, usesBarcode: value })} />
+                            <Info icon={WalletCards} title={t('onboarding_info_recommended_defaults_title')} text={t('onboarding_info_recommended_defaults_text')} />
                         </div>
                     )}
 
@@ -392,19 +401,19 @@ export default function OnboardingPage() {
                             <div className="grid gap-3 md:grid-cols-2">
                                 <Info
                                     icon={Banknote}
-                                    title="বর্তমানে সাপোর্টেড সেটআপ"
-                                    text="Cash, bank, mobile banking, customer due, supplier due, owner capital ও opening stock draft করে balanced posting flow দিয়ে পোস্ট করুন।"
+                                    title={t('onboarding_opening_supported_title')}
+                                    text={t('onboarding_opening_supported_text')}
                                 />
                                 <Info
                                     icon={FileSpreadsheet}
-                                    title="জটিল/পুরোনো সফটওয়্যার ডাটা"
-                                    text="Full trial balance, branch-wise stock বা Excel/CSV migration এখন assisted path. ইউজারকে automated import আছে এমন ভুল ধারণা দেওয়া হবে না।"
+                                    title={t('onboarding_opening_assisted_title')}
+                                    text={t('onboarding_opening_assisted_text')}
                                 />
                             </div>
                             <Info
                                 icon={ShieldCheck}
-                                title="কেন এটা আলাদা পেজে"
-                                text="এই ধাপে শুধু পথ দেখানো হচ্ছে। আসল টাকা/স্টক posting running business migration পেজে validation, review, print এবং final confirm সহ হবে।"
+                                title={t('onboarding_opening_why_title')}
+                                text={t('onboarding_opening_why_text')}
                             />
                             {active.warning && (
                                 <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900 dark:border-amber-500/30 dark:bg-amber-950/30 dark:text-amber-100">
@@ -416,24 +425,24 @@ export default function OnboardingPage() {
 
                     {active.id === 'capital' && (
                         <div className="grid gap-3 md:grid-cols-2">
-                            <Info icon={Banknote} title="ক্যাশ/মূলধন পরে দিন" text="না জানলে এখন skip করুন। হিসাব ঠিক রাখতে posting flow দিয়ে পরে দিন।" />
-                            <Info icon={PackagePlus} title="পণ্য আগে যোগ করুন" text="নতুন ব্যবসার জন্য পণ্য তৈরি করাই সবচেয়ে দ্রুত operational path." />
+                            <Info icon={Banknote} title={t('onboarding_capital_cash_title')} text={t('onboarding_capital_cash_text')} />
+                            <Info icon={PackagePlus} title={t('onboarding_capital_product_title')} text={t('onboarding_capital_product_text')} />
                         </div>
                     )}
 
                     {active.id === 'products' && (
                         <div className="grid gap-3 md:grid-cols-2">
-                            <Info icon={PackagePlus} title="Manual first product" text="নাম, বিক্রয় মূল্য, ক্রয় মূল্য, quantity, unit, barcode enough." />
-                            <Info icon={Boxes} title="Business presets" text={draft.category === 'pharmacy' ? 'Batch ও expiry পরে enable করুন।' : draft.category === 'mobile' ? 'Serial/IMEI পরে enable করুন।' : draft.category === 'fashion' ? 'Size/color variants পরে enable করুন।' : 'Unit ও stock alert দিয়ে শুরু করুন।'} />
+                            <Info icon={PackagePlus} title={t('onboarding_products_manual_title')} text={t('onboarding_products_manual_text')} />
+                            <Info icon={Boxes} title={t('onboarding_products_preset_title')} text={draft.category === 'pharmacy' ? t('onboarding_products_preset_pharmacy') : draft.category === 'mobile' ? t('onboarding_products_preset_mobile') : draft.category === 'fashion' ? t('onboarding_products_preset_fashion') : t('onboarding_products_preset_default')} />
                         </div>
                     )}
 
                     {active.id === 'people' && (
                         <div className="space-y-4">
-                            <Toggle label="আমার কর্মচারী আছে" checked={draft.hasEmployees} onChange={(value) => setDraft({ ...draft, hasEmployees: value })} />
+                            <Toggle label={t('onboarding_toggle_has_employees')} checked={draft.hasEmployees} onChange={(value) => setDraft({ ...draft, hasEmployees: value })} />
                             <div className="grid gap-3 md:grid-cols-3">
-                                {['Cashier', 'Salesperson', 'Manager', 'Accountant', 'Storekeeper', 'Custom role'].map((role) => (
-                                    <div key={role} className="rounded-lg border border-slate-200 p-3 text-sm font-semibold text-slate-700 dark:border-slate-700 dark:text-slate-200">{role}</div>
+                                {['onboarding_role_cashier', 'onboarding_role_salesperson', 'onboarding_role_manager', 'onboarding_role_accountant', 'onboarding_role_storekeeper', 'onboarding_role_custom'].map((roleKey) => (
+                                    <div key={roleKey} className="rounded-lg border border-slate-200 p-3 text-sm font-semibold text-slate-700 dark:border-slate-700 dark:text-slate-200">{t(roleKey)}</div>
                                 ))}
                             </div>
                         </div>
@@ -442,12 +451,12 @@ export default function OnboardingPage() {
                     {active.id === 'launch' && (
                         <div className="space-y-4">
                             <div className="grid gap-3 md:grid-cols-2">
-                                <Info icon={ClipboardCheck} title="Wizard progress" text={`${workflowCompleted.length}/${stepIds.length} onboarding steps saved. Dashboard checklist will continue after launch.`} />
-                                <Info icon={CheckCircle2} title="Detected business setup" text={`${detectedCompleted}/${detectedTotal} checklist items already complete from current system data.`} />
-                                <Info icon={Languages} title="Language" text={`Current language: ${i18n.language || 'bn'}. Bangla copy is primary for shopkeeper flow.`} />
+                                <Info icon={ClipboardCheck} title={t('onboarding_launch_progress_title')} text={t('onboarding_launch_progress_text', { completed: workflowCompleted.length, total: stepIds.length })} />
+                                <Info icon={CheckCircle2} title={t('onboarding_launch_detected_title')} text={t('onboarding_launch_detected_text', { completed: detectedCompleted, total: detectedTotal })} />
+                                <Info icon={Languages} title={t('onboarding_launch_language_title')} text={t('onboarding_launch_language_text', { language: i18n.language || 'bn' })} />
                             </div>
                             <div className="rounded-lg border border-slate-200 p-4 dark:border-slate-700">
-                                <p className="font-semibold text-slate-900 dark:text-white">Optional incomplete items can be finished later from dashboard checklist.</p>
+                                <p className="font-semibold text-slate-900 dark:text-white">{t('onboarding_launch_optional_text')}</p>
                             </div>
                         </div>
                     )}
@@ -487,12 +496,12 @@ export default function OnboardingPage() {
                                 </button>
                             )}
                             {active.href && (
-                                <Link href={active.href} onClick={() => markStepComplete()} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-sky-200 px-4 text-sm font-semibold text-sky-700 hover:bg-sky-50 dark:border-sky-700 dark:text-sky-300 dark:hover:bg-sky-950/30">
+                                <Link href={active.href} onClick={() => markStepComplete()} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-[#046ca9]/20 px-4 text-sm font-semibold text-[#046ca9] hover:bg-[#046ca9]/5 dark:border-sky-700 dark:text-sky-300 dark:hover:bg-sky-950/30">
                                     {active.action}
                                     <ArrowRight className="h-4 w-4" />
                                 </Link>
                             )}
-                            <button type="button" onClick={primaryAction} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-sky-600 px-4 text-sm font-semibold text-white hover:bg-sky-700">
+                            <button type="button" onClick={primaryAction} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-[#046ca9] px-4 text-sm font-semibold text-white hover:bg-[#034d79]">
                                 {currentStep === steps.length - 1 ? t('onboarding_open_dashboard') : t('onboarding_save_next')}
                                 <ArrowRight className="h-4 w-4" />
                             </button>

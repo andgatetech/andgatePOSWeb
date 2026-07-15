@@ -17,6 +17,7 @@ import { useGetProductStocksQuery } from '@/store/features/ProductStock/productS
 import { useGetStoreCustomersListQuery } from '@/store/features/customer/customer';
 import { useGetSuppliersQuery } from '@/store/features/supplier/supplierApi';
 import { AlertCircle, ArrowLeft, CalendarDays, CheckCircle2, ClipboardCheck, FileText, Loader2, LockKeyhole, Printer, Save, Send, ShieldCheck } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -72,6 +73,12 @@ const parseCsvText = (text: string) => {
 const positiveNumber = (value: unknown) => {
     const parsed = Number(String(value ?? '').replace(/[^\d.-]/g, ''));
     return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+};
+
+const csvTemplates: Record<'opening_stock' | 'customer_receivables' | 'supplier_payables', string> = {
+    opening_stock: 'name,quantity,unit_cost\nExample Product,10,120',
+    customer_receivables: 'name,amount\nExample Customer,1500',
+    supplier_payables: 'name,amount\nExample Supplier,2500',
 };
 
 export default function RunningBusinessMigrationPage() {
@@ -211,6 +218,26 @@ export default function RunningBusinessMigrationPage() {
 
         setAssistedMigrationField('support_reviewed', false);
         showSuccessDialog(t('rbm_import_applied'));
+    };
+
+    const downloadCsvTemplate = (target: 'opening_stock' | 'customer_receivables' | 'supplier_payables') => {
+        const blob = new Blob([csvTemplates[target]], { type: 'text/csv;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${target}_sample.csv`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+    };
+
+    const handleCsvUpload = (file?: File | null) => {
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => setAssistedMigrationField('import_text', String(reader.result || ''));
+        reader.onerror = () => showErrorDialog(t('msg_error_generic'));
+        reader.readAsText(file);
     };
 
     const setStockEntryMode = (mode: 'total' | 'product') => {
@@ -388,14 +415,16 @@ export default function RunningBusinessMigrationPage() {
 
     return (
         <div className="space-y-5 p-4 sm:p-6">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="overflow-hidden rounded-xl border border-[#046ca9]/10 bg-white shadow-sm">
+                <div className="h-1 bg-gradient-to-r from-[#046ca9] to-[#034d79]" />
+                <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-white shadow-sm">
-                        <ClipboardCheck className="h-5 w-5" />
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-[#046ca9]/10 bg-white shadow-sm">
+                        <Image src="/images/andgatebos-icon-square.png" alt="AndgateBOS" width={32} height={32} className="h-8 w-8 object-contain" />
                     </div>
                     <div>
-                        <h1 className="text-xl font-bold text-gray-900">{t('rbm_title')}</h1>
-                        <p className="text-sm text-gray-500">{currentStore?.store_name || t('lbl_store')} · AndgateBOS</p>
+                        <h1 className="text-xl font-black text-gray-900">{t('rbm_title')}</h1>
+                        <p className="text-sm font-semibold text-[#046ca9]">{currentStore?.store_name || t('lbl_store')} · AndgateBOS</p>
                     </div>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -442,6 +471,7 @@ export default function RunningBusinessMigrationPage() {
                         {posting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                         {t('rbm_post_opening_balance')}
                     </button>
+                </div>
                 </div>
             </div>
 
@@ -526,6 +556,30 @@ export default function RunningBusinessMigrationPage() {
                                     />
                                 </label>
                                 <div className="rounded-lg border border-sky-100 bg-sky-50 p-3">
+                                    <div className="mb-3 rounded-md bg-white p-3">
+                                        <p className="text-xs font-bold text-sky-900">{t('rbm_import_file_title')}</p>
+                                        <div className="mt-2 grid gap-2 sm:grid-cols-3">
+                                            <button type="button" onClick={() => downloadCsvTemplate('opening_stock')} className="rounded-md border border-sky-200 px-3 py-2 text-xs font-bold text-sky-700 hover:bg-sky-50">
+                                                {t('rbm_sample_stock')}
+                                            </button>
+                                            <button type="button" onClick={() => downloadCsvTemplate('customer_receivables')} className="rounded-md border border-sky-200 px-3 py-2 text-xs font-bold text-sky-700 hover:bg-sky-50">
+                                                {t('rbm_sample_customer_due')}
+                                            </button>
+                                            <button type="button" onClick={() => downloadCsvTemplate('supplier_payables')} className="rounded-md border border-sky-200 px-3 py-2 text-xs font-bold text-sky-700 hover:bg-sky-50">
+                                                {t('rbm_sample_supplier_due')}
+                                            </button>
+                                        </div>
+                                        <label className="mt-3 block">
+                                            <span className="mb-1 block text-xs font-semibold text-gray-600">{t('rbm_upload_csv')}</span>
+                                            <input
+                                                type="file"
+                                                accept=".csv,text/csv,text/plain"
+                                                onChange={(event) => handleCsvUpload(event.target.files?.[0])}
+                                                className="block w-full text-xs text-gray-600 file:mr-3 file:rounded-md file:border-0 file:bg-sky-600 file:px-3 file:py-2 file:text-xs file:font-bold file:text-white hover:file:bg-sky-700"
+                                            />
+                                        </label>
+                                        <p className="mt-2 text-xs leading-5 text-gray-500">{t('rbm_upload_csv_help')}</p>
+                                    </div>
                                     <label className="block">
                                         <span className="mb-1 block text-xs font-semibold text-sky-800">{t('rbm_import_paste_label')}</span>
                                         <textarea
