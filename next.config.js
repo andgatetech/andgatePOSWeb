@@ -241,6 +241,13 @@ const nextConfig = {
                 destination: '/dashboard',
                 permanent: true,
             },
+            {
+                // Dashboard Widgets moved from Analytics & BI to Store settings (2026-07-16) —
+                // it's a layout preference, not an analytics/report view.
+                source: '/analytics/dashboard-widgets',
+                destination: '/store/dashboard-widgets',
+                permanent: true,
+            },
         ];
     },
 };

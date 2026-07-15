@@ -29,7 +29,7 @@ import TopCustomers from './TopCustomers';
 
 // Business-owner priority sequence: setup/urgent → today's pulse → money →
 // stock/sales → deeper insight. Keep in sync with DashboardLayoutController::DEFAULT_WIDGETS
-// (backend) and analytics/dashboard-widgets/page.tsx.
+// (backend) and store/dashboard-widgets/page.tsx.
 const DEFAULT_WIDGETS = [
     { key: 'onboarding', visible: true, order: 1, cols: 12 },
     { key: 'alerts', visible: true, order: 2, cols: 12 },
@@ -160,7 +160,7 @@ const ComponentsDashboardSales = () => {
         if (canCustomize && saved?.length) {
             // Backfill any widget key missing from an older saved layout (e.g. saved
             // before a widget existed) so it doesn't silently disappear — same fix as
-            // analytics/dashboard-widgets/page.tsx.
+            // store/dashboard-widgets/page.tsx.
             const savedKeys = new Set(saved.map((w: any) => w.key));
             const missing = roleDefaults.filter((w) => !savedKeys.has(w.key));
             return [...saved, ...missing].filter((w: any) => allowedKeys.has(w.key));

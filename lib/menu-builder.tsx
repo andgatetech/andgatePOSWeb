@@ -670,7 +670,6 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         requiredPermissions: [
             'analytics.custom_reports',
             'analytics.scheduled_reports',
-            'analytics.dashboard_widgets',
             'analytics.sales_tv',
             'analytics.branch_benchmark',
             'analytics.cashflow_forecast',
@@ -688,12 +687,6 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                 href: '/analytics/scheduled-reports',
                 requiredPermissions: ['analytics.scheduled_reports'],
                 requiredFeature: 'analytics.scheduled_reports',
-            },
-            {
-                label: 'Dashboard Widgets',
-                href: '/analytics/dashboard-widgets',
-                requiredPermissions: ['analytics.dashboard_widgets'],
-                requiredFeature: 'analytics.dashboard_widgets',
             },
             {
                 label: 'Sales TV',
@@ -776,7 +769,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
     {
         label: 'Store',
         icon: React.createElement(ShoppingBag),
-        requiredPermissions: ['stores.view'],
+        requiredPermissions: ['stores.view', 'analytics.dashboard_widgets'],
         subMenu: [
             {
                 label: 'Add Store',
@@ -792,6 +785,12 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                 label: 'Settings',
                 href: '/store/setting',
                 requiredPermissions: ['stores.edit'],
+            },
+            {
+                label: 'Dashboard Widgets',
+                href: '/store/dashboard-widgets',
+                requiredPermissions: ['analytics.dashboard_widgets'],
+                requiredFeature: 'analytics.dashboard_widgets',
             },
         ],
     },

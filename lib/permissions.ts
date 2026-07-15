@@ -120,6 +120,7 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     '/store/create': ['stores.create'],
     '/store/setting': ['stores.edit'],
     '/store/payment-methods': ['payment-methods.manage'],
+    '/store/dashboard-widgets': ['analytics.dashboard_widgets'],
     '/staff': ['users.view'],
 
     // ── Categories ─────────────────────────────────────────────
@@ -208,7 +209,6 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     '/analytics/custom-reports': ['analytics.custom_reports'],
     '/analytics/custom-reports/[id]': ['analytics.custom_reports'],
     '/analytics/scheduled-reports': ['analytics.scheduled_reports'],
-    '/analytics/dashboard-widgets': ['analytics.dashboard_widgets'],
     '/analytics/sales-tv': ['analytics.sales_tv'],
     '/analytics/branch-benchmarking': ['analytics.branch_benchmark'],
     '/analytics/cash-flow-forecast': ['analytics.cashflow_forecast'],
