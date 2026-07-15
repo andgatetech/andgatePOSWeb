@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
@@ -51,13 +51,18 @@ const providerFromPaymentMethod = (name?: string) => {
 export default function MfsAccountsTab({ paymentMethods = [] }: MfsAccountsTabProps) {
     const { t } = getTranslation();
     const { currentStoreId } = useCurrentStore();
-    const { data, isLoading, refetch } = useGetStoreMfsAccountsQuery(String(currentStoreId), { skip: !currentStoreId });
+    const storeId = useMemo(() => {
+        const normalized = Number(currentStoreId || 0);
+        return Number.isFinite(normalized) && normalized > 0 ? normalized : 0;
+    }, [currentStoreId]);
+    const { data, isLoading, refetch } = useGetStoreMfsAccountsQuery(storeId, { skip: !storeId });
     const [createAccount, { isLoading: creating }] = useCreateStoreMfsAccountMutation();
     const [updateAccount, { isLoading: updating }] = useUpdateStoreMfsAccountMutation();
     const [deleteAccount] = useDeleteStoreMfsAccountMutation();
 
     const [form, setForm] = useState<MfsAccount>(emptyForm);
     const [editingId, setEditingId] = useState<number | null>(null);
+    const [inlineError, setInlineError] = useState<string>('');
 
     const [accounts, setAccounts] = useState<MfsAccount[]>([]);
 
@@ -87,28 +92,32 @@ export default function MfsAccountsTab({ paymentMethods = [] }: MfsAccountsTabPr
             const first = Object.values(errors).flat()[0];
             if (first) return String(first);
         }
-        return error?.data?.message || error?.message || fallback;
+        const status = error?.status ? `${error.status}: ` : '';
+        return `${status}${error?.data?.message || error?.message || fallback}`;
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!currentStoreId) {
+        setInlineError('');
+        if (!storeId) {
             showErrorDialog(t('msg_please_select_store'));
+            setInlineError(t('msg_please_select_store'));
             return;
         }
         if (!form.account_number.trim()) {
             showErrorDialog(t('msg_mfs_account_number_required'));
+            setInlineError(t('msg_mfs_account_number_required'));
             return;
         }
 
         try {
             let savedAccount: MfsAccount | null = null;
             if (editingId) {
-                const response: any = await updateAccount({ storeId: currentStoreId, accountId: editingId, ...form }).unwrap();
+                const response: any = await updateAccount({ storeId, accountId: editingId, ...form }).unwrap();
                 savedAccount = response?.data?.account || response?.account || null;
                 showSuccessDialog(t('msg_mfs_account_updated'));
             } else {
-                const response: any = await createAccount({ storeId: currentStoreId, ...form }).unwrap();
+                const response: any = await createAccount({ storeId, ...form }).unwrap();
                 savedAccount = response?.data?.account || response?.account || null;
                 showSuccessDialog(t('msg_mfs_account_created'));
             }
@@ -122,7 +131,9 @@ export default function MfsAccountsTab({ paymentMethods = [] }: MfsAccountsTabPr
             setEditingId(null);
             await refetch();
         } catch (e: any) {
-            showErrorDialog(errorMessage(e, editingId ? t('msg_failed_update_mfs_account') : t('msg_failed_create_mfs_account')));
+            const message = errorMessage(e, editingId ? t('msg_failed_update_mfs_account') : t('msg_failed_create_mfs_account'));
+            setInlineError(message);
+            showErrorDialog(message);
         }
     };
 
@@ -132,14 +143,17 @@ export default function MfsAccountsTab({ paymentMethods = [] }: MfsAccountsTabPr
     };
 
     const handleDelete = async (id: number) => {
-        if (!currentStoreId) return;
+        if (!storeId) return;
         if (!confirm(t('msg_confirm_delete'))) return;
+        setInlineError('');
         try {
-            await deleteAccount({ storeId: currentStoreId, accountId: id }).unwrap();
+            await deleteAccount({ storeId, accountId: id }).unwrap();
             showSuccessDialog(t('msg_mfs_account_deleted'));
             await refetch();
         } catch (e: any) {
-            showErrorDialog(errorMessage(e, t('msg_failed_delete_mfs_account')));
+            const message = errorMessage(e, t('msg_failed_delete_mfs_account'));
+            setInlineError(message);
+            showErrorDialog(message);
         }
     };
 
@@ -189,6 +203,11 @@ export default function MfsAccountsTab({ paymentMethods = [] }: MfsAccountsTabPr
                     <Smartphone className="h-5 w-5 text-primary" />
                     {editingId ? t('lbl_edit_mfs_account') : t('lbl_add_mfs_account')}
                 </h3>
+                {inlineError && (
+                    <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+                        {inlineError}
+                    </div>
+                )}
                 <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2">
                     <div>
                         <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_provider')}</label>
@@ -238,7 +257,7 @@ export default function MfsAccountsTab({ paymentMethods = [] }: MfsAccountsTabPr
                                 {t('lbl_cancel')}
                             </button>
                         )}
-                        <button type="submit" disabled={creating || updating || !currentStoreId} className="btn btn-primary">
+                        <button type="submit" disabled={creating || updating || !storeId} className="btn btn-primary">
                             {creating || updating ? t('btn_saving') : editingId ? t('lbl_update') : t('lbl_add')}
                         </button>
                     </div>
