@@ -3,7 +3,7 @@
   "500": "500",
   "503": "503",
   "dashboard": "Dashboard",
-  "Getting Started": "Getting Started",
+  "Getting Started": "Business Setup",
   "Sell": "Sell",
   "Products & Stock": "Products & Stock",
   "Purchases": "Purchases",
@@ -12,7 +12,7 @@
   "Reports": "Reports",
   "Advanced Reports": "Advanced Reports",
   "Advanced Accounting": "Advanced Accounting",
-  "Team": "Team",
+  "Team": "Employee",
   "Stock": "Stock",
   "Customers": "Customers",
   "Suppliers": "Suppliers",
@@ -6374,6 +6374,7 @@
   "onboarding_do_later": "Do it later",
   "onboarding_open_dashboard": "Open dashboard",
   "onboarding_save_next": "Save and continue",
+  "onboarding_save_failed": "Couldn't save to your account — saved on this device only for now. Check your internet and come back to this screen.",
   "onboarding_progress": "Setup progress",
   "onboarding_welcome_title": "Welcome",
   "onboarding_welcome_desc": "Set up your business in a few simple steps. Most information can be changed later.",
@@ -6385,7 +6386,7 @@
   "onboarding_opening_title": "Starting position for running business",
   "onboarding_opening_desc": "Bring current cash, bank, customer due, supplier due, and stock safely into AndgateBOS.",
   "onboarding_opening_action": "Open migration setup",
-  "onboarding_opening_warning": "Accounting and stock data must be posted through balanced entries and stock movements, not direct number edits.",
+  "onboarding_opening_warning": "We'll record this safely step by step for you — no direct number editing here, so your stock and cash reports stay correct.",
   "onboarding_capital_title": "New business start",
   "onboarding_capital_desc": "If starting cash or capital exists, add it later in accounting. You can add products now.",
   "onboarding_capital_action": "Add first product",
@@ -7785,5 +7786,6 @@
   "msg_purchase_flow_failed": "Purchase could not be saved",
   "purchase_lifecycle_goods_not_received": "Goods not received",
   "purchase_lifecycle_goods_received": "Goods received",
-  "purchase_lifecycle_supplier_due": "Supplier due"
+  "purchase_lifecycle_supplier_due": "Supplier due",
+  "onboarding_launch_counts_note": "Your setup count and detected count can differ — one tracks what you finished in this wizard, the other tracks what's actually saved in your store data. Trust the detected count."
 }

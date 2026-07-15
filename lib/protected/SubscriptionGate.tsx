@@ -10,7 +10,7 @@ interface SubscriptionGateProps {
 
 // Routes that stay browsable even when the subscription is inactive/expired —
 // read-only/account pages plus the pages a user needs to actually renew.
-const SUBSCRIPTION_BYPASS_PATHS = ['/dashboard', '/store/setting', '/users/profile', '/users/user-account-settings', '/manual-payments', '/notifications'];
+const SUBSCRIPTION_BYPASS_PATHS = ['/dashboard', '/onboarding', '/store/setting', '/users/profile', '/users/user-account-settings', '/manual-payments', '/notifications'];
 
 // '/company' itself and its read-only branch list bypass; '/company/{id}/edit'
 // does not — it's a real mutation and shouldn't be swept in by a loose prefix match.

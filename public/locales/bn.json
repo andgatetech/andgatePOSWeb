@@ -2934,7 +2934,7 @@
   "counter": "কাউন্টার",
   "crypto": "ক্রিপ্টো",
   "dashboard": "ড্যাশবোর্ড",
-  "Getting Started": "দোকান সেটআপ",
+  "Getting Started": "ব্যবসা সেটআপ",
   "Sell": "বিক্রি করুন",
   "Products & Stock": "পণ্য ও স্টক",
   "Purchases": "মাল কেনা",
@@ -6375,6 +6375,7 @@
   "onboarding_do_later": "পরে করব",
   "onboarding_open_dashboard": "ড্যাশবোর্ড খুলুন",
   "onboarding_save_next": "সেভ করে এগিয়ে যান",
+  "onboarding_save_failed": "আপনার অ্যাকাউন্টে সেভ করা যায়নি — আপাতত শুধু এই ডিভাইসে সেভ আছে। ইন্টারনেট চেক করে এই স্ক্রিনে আবার আসুন।",
   "onboarding_progress": "সেটআপ অগ্রগতি",
   "onboarding_welcome_title": "স্বাগতম",
   "onboarding_welcome_desc": "কয়েকটি সহজ ধাপে আপনার ব্যবসা সেটআপ করুন। বেশিরভাগ তথ্য পরে পরিবর্তন করা যাবে।",
@@ -6386,7 +6387,7 @@
   "onboarding_opening_title": "চলমান ব্যবসার শুরুর অবস্থা",
   "onboarding_opening_desc": "আজকের ক্যাশ, ব্যাংক, কাস্টমার পাওনা, সাপ্লায়ার দেনা ও স্টক নিরাপদভাবে আনুন।",
   "onboarding_opening_action": "মাইগ্রেশন সেটআপ খুলুন",
-  "onboarding_opening_warning": "হিসাব ও স্টক সরাসরি সংখ্যা বদলে নয়; ব্যালেন্সড এন্ট্রি ও স্টক মুভমেন্ট দিয়ে পোস্ট করতে হবে।",
+  "onboarding_opening_warning": "এটা আমরা আপনার হয়ে ধাপে ধাপে নিরাপদভাবে সংরক্ষণ করব — এখানে সরাসরি সংখ্যা বদলাতে হবে না, তাই আপনার স্টক ও ক্যাশের হিসাব ঠিক থাকবে।",
   "onboarding_capital_title": "নতুন ব্যবসার শুরু",
   "onboarding_capital_desc": "শুরুর ক্যাশ/মূলধন থাকলে পরে হিসাব অংশে দিন। এখন চাইলে সরাসরি পণ্য যোগ করতে পারেন।",
   "onboarding_capital_action": "প্রথম পণ্য যোগ করুন",
@@ -7785,5 +7786,6 @@
   "msg_purchase_flow_failed": "ক্রয় সেভ করা যায়নি",
   "purchase_lifecycle_goods_not_received": "মাল আসেনি",
   "purchase_lifecycle_goods_received": "মাল এসেছে",
-  "purchase_lifecycle_supplier_due": "বাকি টাকা"
+  "purchase_lifecycle_supplier_due": "বাকি টাকা",
+  "onboarding_launch_counts_note": "'আপনার সেটআপ' ও 'সিস্টেমে পাওয়া গেছে' সংখ্যা আলাদা হতে পারে — প্রথমটা এই উইজার্ডে আপনি যা শেষ করেছেন তা দেখায়, দ্বিতীয়টা দোকানে সত্যিকার সংরক্ষিত তথ্য দেখায়। দ্বিতীয়টাই আসল।"
 }

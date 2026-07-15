@@ -12,10 +12,13 @@ import StatusGuard from '@/lib/protected/StatusGuard';
 import SubscriptionGate from '@/lib/protected/SubscriptionGate';
 import RouteAccessGate from '@/lib/protected/RouteAccessGate';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
+import { usePathname } from 'next/navigation';
 import WorkflowTracker from './dashboard/components/WorkflowTracker';
 
 function ProtectedLayoutInner({ children }: { children: React.ReactNode }) {
     usePushNotifications();
+    const pathname = usePathname();
+    const isOnboarding = pathname?.startsWith('/onboarding');
 
     return (
         <StatusGuard>
@@ -34,12 +37,12 @@ function ProtectedLayoutInner({ children }: { children: React.ReactNode }) {
                                 <RouteAccessGate>{children}</RouteAccessGate>
                             </SubscriptionGate>
                         </div>
-                        <Footer />
+                        {!isOnboarding && <Footer />}
                         <Portals />
                     </div>
                 </MainContainer>
 
-                <MobileBottomNav />
+                {!isOnboarding && <MobileBottomNav />}
             </div>
         </StatusGuard>
     );

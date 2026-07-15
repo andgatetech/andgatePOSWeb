@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import toast from 'react-hot-toast';
 import {
     ArrowLeft,
     ArrowRight,
@@ -19,8 +20,8 @@ import {
     RefreshCw,
     ShieldCheck,
     ShoppingCart,
+    Sparkles,
     Store,
-    UserPlus,
     Users,
     WalletCards,
 } from 'lucide-react';
@@ -117,7 +118,7 @@ export default function OnboardingPage() {
         return [
             {
                 id: 'welcome',
-                icon: Languages,
+                icon: Sparkles,
                 title: t('onboarding_welcome_title'),
                 desc: t('onboarding_welcome_desc'),
             },
@@ -256,7 +257,10 @@ export default function OnboardingPage() {
                 draft,
                 completed_steps: workflowCompleted,
                 status: workflowCompleted.includes('launch') ? 'completed' : 'in_progress',
-            }).catch(() => {});
+            })
+                .unwrap()
+                .then(() => toast.dismiss('onboarding-save-error'))
+                .catch(() => toast.error(t('onboarding_save_failed'), { id: 'onboarding-save-error' }));
         }, 450);
         return () => window.clearTimeout(timer);
     }, [currentStep, currentStoreId, draft, saveWorkflow, stepIds, storageKey, workflowCompleted]);
@@ -455,6 +459,7 @@ export default function OnboardingPage() {
                                 <Info icon={CheckCircle2} title={t('onboarding_launch_detected_title')} text={t('onboarding_launch_detected_text', { completed: detectedCompleted, total: detectedTotal })} />
                                 <Info icon={Languages} title={t('onboarding_launch_language_title')} text={t('onboarding_launch_language_text', { language: i18n.language || 'bn' })} />
                             </div>
+                            <p className="text-xs leading-5 text-slate-500 dark:text-slate-400">{t('onboarding_launch_counts_note')}</p>
                             <div className="rounded-lg border border-slate-200 p-4 dark:border-slate-700">
                                 <p className="font-semibold text-slate-900 dark:text-white">{t('onboarding_launch_optional_text')}</p>
                             </div>
@@ -496,7 +501,7 @@ export default function OnboardingPage() {
                                 </button>
                             )}
                             {active.href && (
-                                <Link href={active.href} onClick={() => markStepComplete()} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-[#046ca9]/20 px-4 text-sm font-semibold text-[#046ca9] hover:bg-[#046ca9]/5 dark:border-sky-700 dark:text-sky-300 dark:hover:bg-sky-950/30">
+                                <Link href={active.href} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-[#046ca9]/20 px-4 text-sm font-semibold text-[#046ca9] hover:bg-[#046ca9]/5 dark:border-sky-700 dark:text-sky-300 dark:hover:bg-sky-950/30">
                                     {active.action}
                                     <ArrowRight className="h-4 w-4" />
                                 </Link>

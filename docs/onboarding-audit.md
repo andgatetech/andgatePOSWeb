@@ -1,84 +1,50 @@
 # AndgateBOS Onboarding Audit
 
-Date: 2026-07-15
+Date: 2026-07-15 (re-audit)
 
-## Critical
+Audience lens: SME shop owner in Bangladesh — thinks in cash/stock/বাকি (customer credit)/দেনা (supplier due), not double-entry bookkeeping. Cheap Android, flaky data, Bangla-first.
 
-- Current onboarding needed durable backend progress.
-  - Current behavior before this patch: `/onboarding` and dashboard checklist inferred progress from existing records and kept no server-side step drafts/status.
-  - User impact: refresh/device change could not reliably resume an in-progress wizard.
-  - Business impact: support team had to help users recover unclear setup state.
-  - Implemented improvement: added `pos_onboarding_workflows`, store/user scoped model, service and API for draft JSON, current step, status, completion timestamps and version.
-  - Remaining improvement: add analytics events and deeper step-level audit rows if funnel reporting needs every field error.
-  - Technical impact: migration/model/service/controller/API/frontend synchronization.
-  - Risk level: Resolved for draft/resume; Low remaining for analytics detail.
+## Resolved since last pass
 
-- Opening stock is linked to stock adjustment page, not a guided safe opening-stock flow.
-  - Current behavior: checklist links to `/products/stock/adjustments`.
-  - User impact: users may not understand cost basis, warehouse, stock ledger impact.
-  - Business impact: wrong inventory valuation and reports.
-  - Recommended improvement: create dedicated opening stock draft/post flow using stock movement records, warehouse scope, duplicate prevention and audit.
-  - Technical impact: backend service and tests before exposing automated onboarding posting.
-  - Risk level: Critical.
+- Durable backend progress (`pos_onboarding_workflows`, draft/resume API) — confirmed live in `/onboarding`.
+- Migration presented inside onboarding as Step 4 ("opening"), not a separate route.
+- Business segmentation (existing/new/assisted + category) now drives step 4 and product presets.
+- Analytics funnel events (`onboarding_started/resumed/step_viewed/step_completed/step_skipped`) wired.
+- Mobile stepper layout structurally in place (aside stepper + one primary action per step).
 
-- Existing business migration is separate from onboarding.
-  - Current behavior: `/accounting/running-business-migration` exists as a separate route.
-  - User impact: user sees onboarding and migration as different tasks.
-  - Business impact: incomplete opening position before first live sale.
-  - Recommended improvement: keep route but present it inside onboarding as Step 4A with plain Bangla guidance and warnings.
-  - Technical impact: frontend navigation + later backend workflow link.
-  - Risk level: Critical.
+## Fixed this pass
 
-## High
+- **Critical — opening stock still routed to raw stock-adjustment screen.** Dashboard checklist widget's `opening_stock` step hardcoded `href: '/products/stock/adjustments'` while the wizard's own "opening" step already used the guided `/accounting/running-business-migration` flow. Two quality tiers for the same task, and the checklist (first thing shown post-signup) had the worse one.
+  Fix: `WidgetsController.php` `opening_stock` step now points to `/accounting/running-business-migration`.
 
-- Registration creates defaults but not with explicit onboarding state.
-  - Current behavior: registration creates store, template currencies, payment statuses, methods, reasons, ledgers, units, warranties and subscription.
-  - User impact: user cannot see what was already prepared.
-  - Business impact: repeated support questions and setup duplication risk.
-  - Recommended improvement: expose default-readiness checklist and backend idempotency audit.
-  - Technical impact: service extraction from large auth controller.
-  - Risk level: High.
+- **High — steps marked "complete" on click, not on completion.** `Link onClick={() => markStepComplete()}` ticked a step green the instant the action link was clicked, before the linked task was actually done (e.g. back button on migration page = false-positive complete).
+  Fix: removed the premature `onClick`; steps now only complete via the explicit "Save & Next" button.
 
-- Business segmentation is missing.
-  - Current behavior: onboarding shows new shop and existing shop cards only.
-  - User impact: first-time users receive same tasks as migrated businesses.
-  - Business impact: slower activation and lower first-sale conversion.
-  - Recommended improvement: ask business status and category first; drive recommended steps from that.
-  - Technical impact: frontend state now; backend workflow later.
-  - Risk level: High.
+- **High — dashboard's own "Resume onboarding" link could dead-end at a paywall.** `/onboarding` was missing from `SubscriptionGate`'s bypass list (unlike `/dashboard`), so a lapsed trial mid-setup blocked the wizard itself.
+  Fix: added `/onboarding` to `SUBSCRIPTION_BYPASS_PATHS`.
 
-- Employee setup exposes destination but not simplified role guidance.
-  - Current behavior: checklist has no employee/access step.
-  - User impact: owner may over-grant permissions or skip staff setup.
-  - Business impact: permission and accountability risk.
-  - Recommended improvement: simple role choices in onboarding, advanced permission matrix later.
-  - Technical impact: integrate package employee limits and role templates.
-  - Risk level: High.
+- **High — two unreconciled progress counters** (wizard's self-reported count vs. dashboard's real DB-detected count) shown with no explanation of why they differ.
+  Fix: added `onboarding_launch_counts_note` copy on the launch step clarifying the two numbers and which one to trust (the detected one).
 
-## Medium
+- **Medium — accounting jargon in the one warning that matters most.** `onboarding_opening_warning` used "balanced entries" / "stock movements" (ব্যালেন্সড এন্ট্রি / স্টক মুভমেন্ট) — bookkeeping terms, not shopkeeper language.
+  Fix: rewritten in plain Bangla/English in both locale files.
 
-- Bangla helper copy exists but is not wizard-style.
-  - Current behavior: checklist labels are translated but limited.
-  - User impact: non-technical users may not understand why a value matters.
-  - Business impact: incomplete setup and support load.
-  - Recommended improvement: short field explanations, examples, "can change later" copy.
-  - Technical impact: locale additions and component copy review.
-  - Risk level: Medium.
+- **Medium — full app chrome around a first-run wizard.** Sidebar auto-closes on mobile nav already (existing behavior), but `Footer` and `MobileBottomNav` still rendered during onboarding, adding clickable distractions/clutter on the audience's primary device.
+  Fix: `(protected)/layout.tsx` now suppresses `Footer` and `MobileBottomNav` on `/onboarding`. Desktop sidebar margin CSS left untouched — that rule (`main-container .main-content` `ml-[260px]`) is shared by every protected route and not safely verifiable without a live login session; changing it blind risked breaking layout repo-wide.
 
-- Mobile flow is checklist-first, not one-primary-action wizard.
-  - Current behavior: many cards/links shown together.
-  - User impact: small-screen cognitive load.
-  - Business impact: lower completion on Android/PWA.
-  - Recommended improvement: stepper layout with large tap targets and one primary action.
-  - Technical impact: frontend redesign.
-  - Risk level: Medium.
+- **Low — silent autosave failures.** `saveWorkflow(...).catch(() => {})` swallowed errors with zero UI feedback; on flaky mobile data, progress silently fell back to localStorage-only with the user believing it was saved server-side.
+  Fix: added `onboarding_save_failed` toast (react-hot-toast, deduped by id) on save failure, dismissed on next successful save.
 
-## Low
+- **Low/polish — step-1 icon/content mismatch.** "Welcome" step used a `Languages` icon but contained no language control or language-related content (real language switch lives only in the global header dropdown).
+  Fix: swapped step icon to `Sparkles`.
 
-- Analytics funnel events are not wired for onboarding steps.
-  - Current behavior: dashboard progress endpoint exists, no step event tracking observed.
-  - User impact: none directly.
-  - Business impact: no measurable drop-off data.
-  - Recommended improvement: add non-sensitive onboarding events.
-  - Technical impact: analytics service integration.
-  - Risk level: Low.
+## Still open
+
+- **High — employee role guidance still decorative.** Role chips (cashier/salesperson/manager/accountant/storekeeper/custom) are shown but not selectable; toggling "has employees" still just redirects to `/employees/create` with no inline role assignment. Needs a real component, not a copy/icon fix — out of scope for this pass.
+- **Unverified — mobile stepper layout.** Structurally a stepper, but not visually confirmed on a real small viewport; `/onboarding` is auth-gated and this session has no login credentials to screenshot it live.
+
+## Verification
+
+- `npx eslint` clean on all touched frontend files (1 pre-existing-pattern warning: missing `t` in a `useEffect` dep array — intentionally left out since `getTranslation()` isn't a memoized hook and adding it risks re-running the debounced autosave effect every render).
+- `php -l` clean on `WidgetsController.php`.
+- Not visually verified in-browser (no onboarding login session available in this environment).

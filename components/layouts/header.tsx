@@ -5,6 +5,7 @@ import Dropdown from '@/components/dropdown';
 import LanguageDropdown from '@/components/language-dropdown';
 import IconLogout from '@/components/icon/icon-logout';
 import IconUser from '@/components/icon/icon-user';
+import { usePWAInstall } from '@/hooks/usePWAInstall';
 import { clearAuthCookies, clearAuthLocalStorage } from '@/lib/auth-session';
 import { clearStaleClientCache } from '@/lib/client-cache-recovery';
 import { MessagesSquare, ClipboardList } from 'lucide-react';
@@ -36,6 +37,7 @@ const Header = () => {
     const router = useRouter();
     const [logout] = useLogoutMutation();
     const [isFullscreen, setIsFullscreen] = useState(false);
+    const pwa = usePWAInstall();
 
     const handleLogout = async () => {
         try {
@@ -139,6 +141,7 @@ const Header = () => {
 
     const isRtl = useSelector((state: RootState) => state.themeConfig.rtlClass) === 'rtl';
     const sidebarCollapsed = useSelector((state: RootState) => state.themeConfig.sidebar);
+    const hideHeaderSidebarToggle = pwa.isReady && pwa.isInstalled;
     const userPerms = useSelector((state: RootState) => state.auth.user?.permissions ?? []);
     const canGiveFeedback = userPerms.includes('feedbacks.create');
     const canViewFeedback = userPerms.includes('feedbacks.index');
@@ -162,15 +165,29 @@ const Header = () => {
                         </Link>
                     </div>
 
-                    <button
-                        type="button"
-                        onClick={() => dispatch(toggleSidebar())}
-                        aria-label={sidebarCollapsed ? 'Open sidebar' : 'Hide sidebar'}
-                        title={sidebarCollapsed ? 'Open sidebar' : 'Hide sidebar'}
-                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-white/[0.08] text-white transition-colors hover:bg-white/[0.15] ltr:mr-2 rtl:ml-2"
-                    >
-                        <Menu className="h-[18px] w-[18px]" />
-                    </button>
+                    {!hideHeaderSidebarToggle && !sidebarCollapsed && (
+                        <button
+                            type="button"
+                            onClick={() => dispatch(toggleSidebar())}
+                            aria-label="Open sidebar"
+                            title="Open sidebar"
+                            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-white/[0.08] text-white transition-colors hover:bg-white/[0.15] ltr:mr-2 rtl:ml-2 lg:hidden"
+                        >
+                            <Menu className="h-[18px] w-[18px]" />
+                        </button>
+                    )}
+
+                    {!hideHeaderSidebarToggle && sidebarCollapsed && (
+                        <button
+                            type="button"
+                            onClick={() => dispatch(toggleSidebar())}
+                            aria-label="Open sidebar"
+                            title="Open sidebar"
+                            className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-md bg-white/[0.08] text-white transition-colors hover:bg-white/[0.15] ltr:mr-2 rtl:ml-2 lg:flex"
+                        >
+                            <Menu className="h-[18px] w-[18px]" />
+                        </button>
+                    )}
 
                     {/* Left Action Buttons — POS + Calculator (desktop only; mobile uses bottom nav) */}
                     <div className="hidden items-center gap-1.5 sm:gap-2 ltr:mr-2 rtl:ml-2 lg:flex">
