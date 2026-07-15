@@ -11,6 +11,43 @@ import { useParams, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 
+const parseVariantData = (raw: any): Record<string, string> => {
+    if (!raw) return {};
+
+    let value = raw;
+    if (typeof value === 'string') {
+        try {
+            value = JSON.parse(value);
+        } catch {
+            return {};
+        }
+    }
+
+    if (Array.isArray(value)) return {};
+
+    if (value && typeof value === 'object') {
+        const keys = Object.keys(value);
+        const isCharacterObject = keys.length > 0 && keys.every((key, index) => String(index) === key);
+        if (isCharacterObject) {
+            try {
+                const joined = keys.map((key) => value[key]).join('');
+                const decoded = JSON.parse(joined);
+                return parseVariantData(decoded);
+            } catch {
+                return {};
+            }
+        }
+
+        return Object.fromEntries(
+            Object.entries(value)
+                .filter(([key, entryValue]) => key && entryValue !== undefined && entryValue !== null && entryValue !== '')
+                .map(([key, entryValue]) => [key, String(entryValue)])
+        );
+    }
+
+    return {};
+};
+
 const ReceiveItemsPage = () => {
     const { t } = getTranslation();
     const params = useParams();
@@ -55,7 +92,7 @@ const ReceiveItemsPage = () => {
                 selling[item.id] = parseFloat(item.current_stock_selling_price) || 0;
                 taxes[item.id] = parseFloat(item.tax_rate) || 0;
                 lowStock[item.id] = parseFloat(item.low_stock_quantity) || 5;
-                variants[item.id] = item.variant_data || {};
+                variants[item.id] = parseVariantData(item.variant_data || item.variant_info || {});
             });
 
             setReceivedQuantities(quantities);
@@ -73,8 +110,16 @@ const ReceiveItemsPage = () => {
         }
     }, [activePaymentMethods, paymentMethod]);
 
-    const handleQuantityChange = (itemId: number, value: string) => {
-        setReceivedQuantities((prev) => ({ ...prev, [itemId]: parseFloat(value) || 0 }));
+    const getRemainingQuantity = useCallback((item: any) => {
+        const ordered = parseFloat(item.quantity_ordered || 0);
+        const alreadyReceived = parseFloat(item.quantity_received || 0);
+        return Math.max(0, ordered - alreadyReceived);
+    }, []);
+
+    const handleQuantityChange = (itemId: number, value: string, maxQuantity?: number) => {
+        const parsed = value === '' ? 0 : parseFloat(value) || 0;
+        const bounded = maxQuantity === undefined ? Math.max(0, parsed) : Math.min(Math.max(0, parsed), maxQuantity);
+        setReceivedQuantities((prev) => ({ ...prev, [itemId]: bounded }));
     };
 
     const handlePriceChange = (itemId: number, value: string) => {
@@ -122,12 +167,11 @@ const ReceiveItemsPage = () => {
     };
 
     const calculateItemTotal = (itemId: number) => {
+        if (excludedItems.has(itemId)) return 0;
         return (receivedQuantities[itemId] || 0) * (purchasePrices[itemId] || 0);
     };
 
-    const calculateGrandTotal = () => {
-        return purchaseOrder?.items?.reduce((total: number, item: any) => total + calculateItemTotal(item.id), 0) || 0;
-    };
+    const calculateGrandTotal = () => purchaseOrder?.items?.reduce((total: number, item: any) => total + calculateItemTotal(item.id), 0) || 0;
 
     const calculateWAC = useCallback(
         (item: any) => {
@@ -153,6 +197,15 @@ const ReceiveItemsPage = () => {
         });
         return values;
     }, [purchaseOrder?.items, calculateWAC]);
+
+    const variantLabels = useMemo(() => {
+        if (!purchaseOrder?.items) return {};
+        const labels: Record<number, Record<string, string>> = {};
+        purchaseOrder.items.forEach((item: any) => {
+            labels[item.id] = parseVariantData(variantData[item.id] || item.variant_data || item.variant_info || {});
+        });
+        return labels;
+    }, [purchaseOrder?.items, variantData]);
 
     const handleReceiveItems = async () => {
         if (!purchaseOrder || !purchaseOrder.items) {
@@ -209,7 +262,7 @@ const ReceiveItemsPage = () => {
                     tax_rate: taxRates[item.id] || 0,
                     tax_included: false,
                     low_stock_quantity: lowStockQuantities[item.id] || 5,
-                    variant_data: Object.keys(variantData[item.id] || {}).length > 0 ? variantData[item.id] : undefined,
+                    variant_data: Object.keys(parseVariantData(variantData[item.id])).length > 0 ? parseVariantData(variantData[item.id]) : undefined,
                     batch_no: batchNumbers[item.id] || undefined,
                     expiry_date: expiryDates[item.id] || undefined,
                 };
@@ -239,6 +292,7 @@ const ReceiveItemsPage = () => {
     }
 
     const grandTotal = calculateGrandTotal();
+    const payableNow = Math.max(0, (purchaseOrder.amount_due || 0) + grandTotal);
     const supplierName = purchaseOrder.supplier?.name || t('lbl_na');
 
     const receiveBullets = [t('msg_receive_bullet_1'), t('msg_receive_bullet_2'), t('msg_receive_bullet_3'), t('msg_receive_bullet_4'), t('msg_receive_bullet_5')];
@@ -317,7 +371,9 @@ const ReceiveItemsPage = () => {
                         <tbody>
                             {purchaseOrder?.items?.map((item: any) => {
                                 const isNewProduct = item.product_id === null;
-                                const hasVariant = item.is_variant && item.variant_data;
+                                const itemVariantData = variantLabels[item.id] || {};
+                                const hasVariant = Object.keys(itemVariantData).length > 0;
+                                const remainingQuantity = getRemainingQuantity(item);
                                 const isExcluded = excludedItems.has(item.id);
                                 const itemWac = wacValues[item.id];
                                 const currentPurchasePrice = parseFloat(item.current_stock_purchase_price) || 0;
@@ -349,19 +405,20 @@ const ReceiveItemsPage = () => {
                                                     <span className="rounded bg-success/20 px-2 py-1 text-xs font-semibold text-success">{t('lbl_existing')}</span>
                                                 )}
                                                 {hasVariant && (
-                                                    <div className="mt-2 space-y-1">
+                                                    <div className="mt-2 space-y-1 rounded-lg border border-blue-100 bg-blue-50/40 p-2">
                                                         <p className="text-xs font-semibold text-[#046ca9]">
-                                                            {t('lbl_variant')}: {item.variant_name}
+                                                            {t('lbl_variant')}: {item.variant_name || Object.values(itemVariantData).join(' / ')}
                                                         </p>
-                                                        {Object.entries(variantData[item.id] || item.variant_data || {}).map(([key, value]: [string, any]) => (
-                                                            <div key={key} className="flex items-center gap-1">
-                                                                <span className="text-xs text-gray-500">{key}:</span>
+                                                        {Object.entries(itemVariantData).map(([key, value]: [string, any]) => (
+                                                            <div key={key} className="flex items-center gap-2">
+                                                                <span className="min-w-10 text-xs font-medium text-gray-500">{key}:</span>
                                                                 <input
                                                                     type="text"
-                                                                    className="form-input h-6 w-20 px-1 text-xs"
-                                                                    value={variantData[item.id]?.[key] || value || ''}
+                                                                    className="form-input h-7 w-28 px-2 text-xs"
+                                                                    value={variantData[item.id]?.[key] ?? value ?? ''}
                                                                     onChange={(e) => handleVariantChange(item.id, key, e.target.value)}
                                                                     placeholder={key}
+                                                                    disabled={isExcluded}
                                                                 />
                                                             </div>
                                                         ))}
@@ -376,10 +433,15 @@ const ReceiveItemsPage = () => {
                                                 type="number"
                                                 className="form-input w-24"
                                                 min="0"
+                                                max={remainingQuantity}
                                                 step="1"
                                                 value={receivedQuantities[item.id] === 0 ? '' : receivedQuantities[item.id] ?? ''}
-                                                onChange={(e) => handleQuantityChange(item.id, e.target.value)}
+                                                onChange={(e) => handleQuantityChange(item.id, e.target.value, remainingQuantity)}
+                                                disabled={isExcluded || remainingQuantity <= 0}
                                             />
+                                            <p className="mt-1 text-xs text-gray-400">
+                                                {t('lbl_remaining')}: {remainingQuantity}
+                                            </p>
                                         </td>
                                         <td>
                                             <div className="relative">
@@ -511,13 +573,16 @@ const ReceiveItemsPage = () => {
                                 className="form-input"
                                 step="0.01"
                                 min="0"
-                                max={grandTotal}
+                                max={payableNow}
                                 value={paymentAmount === 0 ? '' : paymentAmount}
-                                onChange={(e) => setPaymentAmount(e.target.value === '' ? 0 : parseFloat(e.target.value))}
+                                onChange={(e) => {
+                                    const nextAmount = e.target.value === '' ? 0 : parseFloat(e.target.value) || 0;
+                                    setPaymentAmount(Math.min(Math.max(0, nextAmount), payableNow));
+                                }}
                                 placeholder={t('placeholder_payment_amount')}
                             />
                             <p className="mt-1 text-xs text-gray-500">
-                                {t('lbl_maximum')}: {formatCurrency(grandTotal)}
+                                {t('lbl_maximum')}: {formatCurrency(payableNow)}
                             </p>
                         </div>
                         <div>
@@ -557,7 +622,7 @@ const ReceiveItemsPage = () => {
                             </div>
                             <div className="flex justify-between border-t pt-2">
                                 <span className="font-bold">{t('lbl_new_balance_due')}:</span>
-                                <span className={`text-lg font-bold ${grandTotal - paymentAmount > 0 ? 'text-orange-600' : 'text-green-600'}`}>{formatCurrency(grandTotal - paymentAmount)}</span>
+                                <span className={`text-lg font-bold ${payableNow - paymentAmount > 0 ? 'text-orange-600' : 'text-green-600'}`}>{formatCurrency(payableNow - paymentAmount)}</span>
                             </div>
                         </div>
                     </div>

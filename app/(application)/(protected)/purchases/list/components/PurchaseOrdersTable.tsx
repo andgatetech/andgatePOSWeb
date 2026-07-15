@@ -4,7 +4,7 @@ import DateColumn from '@/components/common/DateColumn';
 import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
 import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
-import { Clock, CreditCard, Eye, PackageCheck, Printer, RotateCcw, Trash2, Truck } from 'lucide-react';
+import { CheckCircle2, Clock, CreditCard, Eye, PackageCheck, Printer, RotateCcw, Trash2, Truck } from 'lucide-react';
 import { useMemo } from 'react';
 
 interface PurchaseOrdersTableProps {
@@ -28,7 +28,6 @@ interface PurchaseOrdersTableProps {
     onReceiveItems: (order: any) => void;
     onViewTransactions: (order: any) => void;
     onPartialPayment: (order: any) => void;
-    onClearFullDue: (order: any) => void;
     onDelete: (order: any) => void;
     onReturn: (order: any) => void;
     showReceive: boolean;
@@ -50,6 +49,18 @@ const paymentColors: Record<string, string> = {
     unpaid: 'bg-red-100 text-red-700',
 };
 
+const getRemainingQuantity = (order: any) =>
+    (order.items || []).reduce((total: number, item: any) => {
+        const ordered = parseFloat(item.quantity_ordered || 0);
+        const received = parseFloat(item.quantity_received || 0);
+        return total + Math.max(0, ordered - received);
+    }, 0);
+
+const canReceiveMore = (order: any) => !['received', 'cancelled', 'completed'].includes(order.status) && getRemainingQuantity(order) > 0;
+const hasSupplierDue = (order: any) => parseFloat(order.amount_due || 0) > 0 && order.payment_status !== 'paid';
+const canReturnItems = (order: any) => ['received', 'partially_received'].includes(order.status);
+const canDeleteOrder = (order: any) => order.status === 'ordered' && ['pending', 'unpaid'].includes(order.payment_status) && getRemainingQuantity(order) > 0;
+
 const PurchaseOrdersTable: React.FC<PurchaseOrdersTableProps> = ({
     orders,
     isLoading,
@@ -60,7 +71,6 @@ const PurchaseOrdersTable: React.FC<PurchaseOrdersTableProps> = ({
     onReceiveItems,
     onViewTransactions,
     onPartialPayment,
-    onClearFullDue,
     onDelete,
     onReturn,
     showReceive,
@@ -147,6 +157,35 @@ const PurchaseOrdersTable: React.FC<PurchaseOrdersTableProps> = ({
                 ),
             },
             {
+                key: 'next_step',
+                label: t('purchase_next_step'),
+                render: (_value, row) => {
+                    const remainingQty = getRemainingQuantity(row);
+                    if (canReceiveMore(row)) {
+                        return (
+                            <div className="inline-flex flex-col gap-0.5 rounded-lg bg-blue-50 px-2.5 py-1.5 text-xs text-blue-700">
+                                <span className="font-semibold">{t('purchase_action_receive_remaining')}</span>
+                                <span>{t('purchase_remaining_qty')}: {remainingQty}</span>
+                            </div>
+                        );
+                    }
+                    if (hasSupplierDue(row)) {
+                        return (
+                            <div className="inline-flex flex-col gap-0.5 rounded-lg bg-amber-50 px-2.5 py-1.5 text-xs text-amber-700">
+                                <span className="font-semibold">{t('purchase_action_pay_due')}</span>
+                                <span>{formatCurrency(row.amount_due || 0)}</span>
+                            </div>
+                        );
+                    }
+                    return (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+                            <CheckCircle2 className="h-3.5 w-3.5" />
+                            {t('purchase_all_done')}
+                        </span>
+                    );
+                },
+            },
+            {
                 key: 'created_at',
                 label: t('lbl_created'),
                 sortable: true,
@@ -159,10 +198,30 @@ const PurchaseOrdersTable: React.FC<PurchaseOrdersTableProps> = ({
     const getActions = useMemo((): TableAction[] | undefined => {
         const actions: TableAction[] = [
             {
+                label: t('purchase_action_receive_remaining'),
+                icon: <PackageCheck className="h-4 w-4" />,
+                className: 'text-blue-700',
+                hidden: (order) => !showReceive || !canReceiveMore(order),
+                onClick: onReceiveItems,
+            },
+            {
+                label: t('purchase_action_pay_due'),
+                icon: <CreditCard className="h-4 w-4" />,
+                className: 'text-blue-700',
+                hidden: (order) => !hasSupplierDue(order),
+                onClick: (order) => onPartialPayment(order),
+            },
+            {
                 label: t('btn_view'),
                 icon: <Eye className="h-4 w-4" />,
                 className: 'text-gray-700',
                 onClick: onViewItems,
+            },
+            {
+                label: t('purchase_action_payment_history'),
+                icon: <Clock className="h-4 w-4" />,
+                className: 'text-gray-700',
+                onClick: onViewTransactions,
             },
             {
                 label: t('btn_print'),
@@ -172,46 +231,28 @@ const PurchaseOrdersTable: React.FC<PurchaseOrdersTableProps> = ({
             },
         ];
 
-        if (showReceive) {
-            actions.push({
-                label: t('purchase_receive'),
-                icon: <PackageCheck className="h-4 w-4" />,
-                className: 'text-gray-700',
-                onClick: onReceiveItems,
-            });
-        }
-
-        actions.push({
-            label: t('lbl_payment'),
-            icon: <CreditCard className="h-4 w-4" />,
-            className: 'text-gray-700',
-            onClick: (order) => {
-                const due = parseFloat(order.amount_due) || 0;
-                if (due <= 0) return;
-                onPartialPayment(order);
-            },
-        });
-
         if (showReturn) {
             actions.push({
-                label: t('lbl_return'),
+                label: t('purchase_action_return_items'),
                 icon: <RotateCcw className="h-4 w-4" />,
                 className: 'text-warning',
+                hidden: (order) => !canReturnItems(order),
                 onClick: onReturn,
             });
         }
 
         if (showDelete) {
             actions.push({
-                label: t('lbl_delete'),
+                label: t('purchase_action_delete_order'),
                 icon: <Trash2 className="h-4 w-4" />,
                 className: 'text-danger',
+                hidden: (order) => !canDeleteOrder(order),
                 onClick: onDelete,
             });
         }
 
         return actions;
-    }, [t, onViewItems, onPrint, onReceiveItems, onPartialPayment, onReturn, onDelete, showReceive, showDelete, showReturn]);
+    }, [t, onViewItems, onPrint, onReceiveItems, onViewTransactions, onPartialPayment, onReturn, onDelete, showReceive, showDelete, showReturn]);
 
     return (
         <ReusableTable

@@ -43,6 +43,7 @@ const PurchaseOrderListPage = () => {
     // ─── Modals ───
     const [viewModalOpen, setViewModalOpen] = useState(false);
     const [selectedItems, setSelectedItems] = useState<any[]>([]);
+    const [selectedPurchase, setSelectedPurchase] = useState<any>(null);
     const [modalTitle, setModalTitle] = useState('');
     const [transactionModalOpen, setTransactionModalOpen] = useState(false);
     const [selectedTransactionOrder, setSelectedTransactionOrder] = useState<any>(null);
@@ -155,6 +156,7 @@ const PurchaseOrderListPage = () => {
     const handleViewItems = (item: any) => {
         const title = item.draft_reference ? `${t('lbl_purchase_draft')}: ${item.draft_reference}` : `${t('lbl_purchase_order')}: ${item.invoice_number}`;
         setSelectedItems(item.items || []);
+        setSelectedPurchase(item);
         setModalTitle(title);
         setViewModalOpen(true);
     };
@@ -365,6 +367,20 @@ const PurchaseOrderListPage = () => {
         return order.payment_status === 'paid' && (order.status === 'received' || order.status === 'completed');
     };
 
+    const getReceiveProgress = (items: any[] = []) => {
+        const ordered = items.reduce((sum, item) => sum + (parseFloat(item.quantity_ordered || item.quantity || 0) || 0), 0);
+        const received = items.reduce((sum, item) => sum + (parseFloat(item.quantity_received || 0) || 0), 0);
+        const remaining = Math.max(0, ordered - received);
+        const percent = ordered > 0 ? Math.min(100, Math.round((received / ordered) * 100)) : 0;
+        return { ordered, received, remaining, percent };
+    };
+
+    const getItemSubtotal = (item: any) => {
+        const qty = parseFloat(item.quantity_ordered || item.quantity || 0);
+        const price = parseFloat(item.purchase_price || item.unit_price || 0);
+        return parseFloat(item.estimated_subtotal) || parseFloat(item.subtotal) || parseFloat(item.total) || qty * price;
+    };
+
     // ─── Status filter chips ───
     const statusFilters: { key: OrderStatusFilter; label: string }[] = [
         { key: 'all', label: t('lbl_all') },
@@ -527,12 +543,11 @@ const PurchaseOrderListPage = () => {
                             onReceiveItems={handleReceiveItems}
                             onViewTransactions={handleViewTransactions}
                             onPartialPayment={(order) => openPaymentModal('partial', order)}
-                            onClearFullDue={(order) => openPaymentModal('full', order)}
                             onDelete={handleDeleteOrder}
                             onReturn={handleReturn}
-                            showReceive={orderStatusFilter !== 'received' && orderStatusFilter !== 'due'}
-                            showDelete={orderStatusFilter === 'ordered'}
-                            showReturn={orderStatusFilter === 'received'}
+                            showReceive
+                            showDelete
+                            showReturn
                         />
                     </div>
                 )}
@@ -543,68 +558,173 @@ const PurchaseOrderListPage = () => {
             {/* View Items Modal */}
             {viewModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
-                    <div className="relative max-h-[85vh] w-full max-w-3xl overflow-auto rounded-lg bg-white shadow-lg">
+                    <div className="relative max-h-[90vh] w-full max-w-6xl overflow-hidden rounded-lg bg-white shadow-xl">
                         <div className="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-6 py-4">
-                            <h2 className="text-lg font-bold text-gray-800">{modalTitle}</h2>
-                            <button onClick={() => setViewModalOpen(false)} className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100">
+                            <div>
+                                <h2 className="text-lg font-bold text-gray-800">{modalTitle}</h2>
+                                <p className="text-xs text-gray-500">
+                                    {selectedPurchase?.created_at || selectedPurchase?.updated_at || '-'}
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => {
+                                    setViewModalOpen(false);
+                                    setSelectedPurchase(null);
+                                }}
+                                className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100"
+                            >
                                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                 </svg>
                             </button>
                         </div>
-                        <div className="p-6">
+                        <div className="max-h-[calc(90vh-73px)] overflow-y-auto p-6">
                             {selectedItems.length === 0 ? (
                                 <div className="rounded-lg border border-dashed p-8 text-center">
                                     <Package className="mx-auto mb-3 h-12 w-12 text-gray-400" />
                                     <p className="text-gray-500">{t('msg_no_items_found')}</p>
                                 </div>
                             ) : (
-                                <div className="overflow-x-auto">
-                                    <table className="w-full text-sm">
-                                        <thead>
-                                            <tr className="bg-gray-50 text-xs uppercase text-gray-500">
-                                                <th className="px-4 py-3 text-left">#</th>
-                                                <th className="px-4 py-3 text-left">{t('lbl_product')}</th>
-                                                <th className="px-4 py-3 text-right">{t('lbl_quantity')}</th>
-                                                <th className="px-4 py-3 text-right">{t('lbl_unit_price')}</th>
-                                                <th className="px-4 py-3 text-right">{t('lbl_subtotal')}</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-gray-100">
-                                            {selectedItems.map((itm: any, i: number) => {
-                                                const productName = itm.product_name || itm.product || t('lbl_na');
-                                                const qty = parseFloat(itm.quantity_ordered || itm.quantity || 0);
-                                                const price = parseFloat(itm.purchase_price || itm.unit_price || 0);
-                                                const subtotal = parseFloat(itm.estimated_subtotal) || parseFloat(itm.subtotal) || qty * price;
-                                                return (
-                                                    <tr key={i} className="hover:bg-gray-50">
-                                                        <td className="px-4 py-3 text-gray-400">{i + 1}</td>
-                                                        <td className="px-4 py-3 font-medium text-gray-800">{productName}</td>
-                                                        <td className="px-4 py-3 text-right text-gray-600">{qty}</td>
-                                                        <td className="px-4 py-3 text-right text-gray-600">৳{price.toLocaleString()}</td>
-                                                        <td className="px-4 py-3 text-right font-semibold text-gray-800">৳{subtotal.toLocaleString()}</td>
-                                                    </tr>
-                                                );
-                                            })}
-                                        </tbody>
-                                        <tfoot>
-                                            <tr className="bg-blue-50 font-semibold">
-                                                <td colSpan={4} className="px-4 py-3 text-right text-blue-800">
-                                                    {t('lbl_total')}
-                                                </td>
-                                                <td className="px-4 py-3 text-right text-blue-800">
-                                                    ৳
-                                                    {selectedItems
-                                                        .reduce((sum: number, itm: any) => {
-                                                            const qty = parseFloat(itm.quantity_ordered || itm.quantity || 0);
-                                                            const price = parseFloat(itm.purchase_price || itm.unit_price || 0);
-                                                            return sum + (parseFloat(itm.estimated_subtotal) || parseFloat(itm.subtotal) || qty * price);
-                                                        }, 0)
-                                                        .toLocaleString()}
-                                                </td>
-                                            </tr>
-                                        </tfoot>
-                                    </table>
+                                <div className="space-y-5">
+                                    {(() => {
+                                        const progress = getReceiveProgress(selectedItems);
+                                        const itemTotal = selectedItems.reduce((sum: number, item: any) => sum + getItemSubtotal(item), 0);
+                                        const transactions = selectedPurchase?.pos_transactions || [];
+                                        return (
+                                            <>
+                                                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                                                    <div className="rounded-lg border border-gray-100 bg-slate-50 p-4">
+                                                        <p className="text-xs font-medium text-gray-500">{t('lbl_total')}</p>
+                                                        <p className="mt-1 text-xl font-bold text-gray-900">{formatCurrency(selectedPurchase?.grand_total ?? itemTotal)}</p>
+                                                    </div>
+                                                    <div className="rounded-lg border border-gray-100 bg-emerald-50 p-4">
+                                                        <p className="text-xs font-medium text-emerald-700">{t('lbl_amount_paid')}</p>
+                                                        <p className="mt-1 text-xl font-bold text-emerald-700">{formatCurrency(selectedPurchase?.amount_paid || 0)}</p>
+                                                    </div>
+                                                    <div className="rounded-lg border border-gray-100 bg-amber-50 p-4">
+                                                        <p className="text-xs font-medium text-amber-700">{t('lbl_amount_due')}</p>
+                                                        <p className="mt-1 text-xl font-bold text-amber-700">{formatCurrency(selectedPurchase?.amount_due || 0)}</p>
+                                                    </div>
+                                                    <div className="rounded-lg border border-gray-100 bg-blue-50 p-4">
+                                                        <p className="text-xs font-medium text-blue-700">{t('lbl_received')}</p>
+                                                        <p className="mt-1 text-xl font-bold text-blue-700">{progress.percent}%</p>
+                                                        <div className="mt-2 h-2 overflow-hidden rounded-full bg-white">
+                                                            <div className="h-full rounded-full bg-blue-600" style={{ width: `${progress.percent}%` }} />
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+                                                    <div className="rounded-lg border border-gray-100 p-4">
+                                                        <h3 className="mb-3 text-sm font-bold text-gray-800">{t('lbl_purchase_order')}</h3>
+                                                        <div className="grid gap-3 text-sm sm:grid-cols-2">
+                                                            <div>
+                                                                <p className="text-xs text-gray-500">{t('lbl_invoice')}</p>
+                                                                <p className="font-semibold text-gray-900">{selectedPurchase?.invoice_number || selectedPurchase?.draft_reference || '-'}</p>
+                                                            </div>
+                                                            <div>
+                                                                <p className="text-xs text-gray-500">{t('lbl_store')}</p>
+                                                                <p className="font-semibold text-gray-900">{selectedPurchase?.store_name || '-'}</p>
+                                                            </div>
+                                                            <div>
+                                                                <p className="text-xs text-gray-500">{t('lbl_order_status')}</p>
+                                                                <p className="font-semibold text-gray-900">{selectedPurchase?.status ? t(`lbl_status_${selectedPurchase.status}`) : '-'}</p>
+                                                            </div>
+                                                            <div>
+                                                                <p className="text-xs text-gray-500">{t('lbl_payment_status')}</p>
+                                                                <p className="font-semibold text-gray-900">{selectedPurchase?.payment_status ? t(`lbl_payment_status_${selectedPurchase.payment_status}`) : '-'}</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="rounded-lg border border-gray-100 p-4">
+                                                        <h3 className="mb-3 text-sm font-bold text-gray-800">{t('lbl_supplier')}</h3>
+                                                        <div className="space-y-2 text-sm">
+                                                            <div className="flex justify-between gap-3">
+                                                                <span className="text-gray-500">{t('lbl_name')}</span>
+                                                                <span className="text-right font-semibold text-gray-900">{selectedPurchase?.supplier?.name || t('lbl_walk_in_purchase')}</span>
+                                                            </div>
+                                                            <div className="flex justify-between gap-3">
+                                                                <span className="text-gray-500">{t('lbl_phone')}</span>
+                                                                <span className="text-right text-gray-800">{selectedPurchase?.supplier?.phone || '-'}</span>
+                                                            </div>
+                                                            <div className="flex justify-between gap-3">
+                                                                <span className="text-gray-500">{t('lbl_email')}</span>
+                                                                <span className="text-right text-gray-800">{selectedPurchase?.supplier?.email || '-'}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="rounded-lg border border-gray-100 p-4">
+                                                    <div className="mb-3 flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
+                                                        <h3 className="text-sm font-bold text-gray-800">{t('lbl_items')}</h3>
+                                                        <p className="text-xs text-gray-500">
+                                                            {t('status_ordered')}: {progress.ordered} · {t('lbl_already_received')}: {progress.received} · {t('purchase_remaining_qty')}: {progress.remaining}
+                                                        </p>
+                                                    </div>
+                                                    <div className="overflow-x-auto">
+                                                        <table className="w-full text-sm">
+                                                            <thead>
+                                                                <tr className="bg-gray-50 text-xs uppercase text-gray-500">
+                                                                    <th className="px-4 py-3 text-left">#</th>
+                                                                    <th className="px-4 py-3 text-left">{t('lbl_product')}</th>
+                                                                    <th className="px-4 py-3 text-right">{t('status_ordered')}</th>
+                                                                    <th className="px-4 py-3 text-right">{t('lbl_already_received')}</th>
+                                                                    <th className="px-4 py-3 text-right">{t('lbl_unit_price')}</th>
+                                                                    <th className="px-4 py-3 text-right">{t('lbl_subtotal')}</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody className="divide-y divide-gray-100">
+                                                                {selectedItems.map((itm: any, i: number) => {
+                                                                    const productName = itm.product_name || itm.product || t('lbl_na');
+                                                                    const orderedQty = parseFloat(itm.quantity_ordered || itm.quantity || 0);
+                                                                    const receivedQty = parseFloat(itm.quantity_received || 0);
+                                                                    const price = parseFloat(itm.purchase_price || itm.unit_price || 0);
+                                                                    const subtotal = getItemSubtotal(itm);
+                                                                    return (
+                                                                        <tr key={i} className="hover:bg-gray-50">
+                                                                            <td className="px-4 py-3 text-gray-400">{i + 1}</td>
+                                                                            <td className="px-4 py-3">
+                                                                                <p className="font-medium text-gray-800">{productName}</p>
+                                                                                {itm.variant_name && <p className="text-xs text-gray-500">{t('lbl_variant')}: {itm.variant_name}</p>}
+                                                                            </td>
+                                                                            <td className="px-4 py-3 text-right text-gray-600">{orderedQty}</td>
+                                                                            <td className="px-4 py-3 text-right text-gray-600">{receivedQty}</td>
+                                                                            <td className="px-4 py-3 text-right text-gray-600">{formatCurrency(price)}</td>
+                                                                            <td className="px-4 py-3 text-right font-semibold text-gray-800">{formatCurrency(subtotal)}</td>
+                                                                        </tr>
+                                                                    );
+                                                                })}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+
+                                                <div className="rounded-lg border border-gray-100 p-4">
+                                                    <div className="mb-3 flex items-center justify-between">
+                                                        <h3 className="text-sm font-bold text-gray-800">{t('lbl_transactions')}</h3>
+                                                        <span className="text-xs text-gray-500">{transactions.length}</span>
+                                                    </div>
+                                                    {transactions.length === 0 ? (
+                                                        <p className="rounded-lg bg-gray-50 p-4 text-sm text-gray-500">{t('msg_no_transactions_recorded')}</p>
+                                                    ) : (
+                                                        <div className="divide-y divide-gray-100">
+                                                            {transactions.map((trx: any) => (
+                                                                <div key={trx.id} className="flex flex-col gap-1 py-3 sm:flex-row sm:items-center sm:justify-between">
+                                                                    <div>
+                                                                        <p className="font-semibold text-gray-800">{formatCurrency(trx.amount || 0)} · {trx.payment_method || '-'}</p>
+                                                                        <p className="text-xs text-gray-500">{trx.paid_at || trx.created_at || '-'}</p>
+                                                                    </div>
+                                                                    <p className="text-sm text-gray-500">{trx.notes || '-'}</p>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </>
+                                        );
+                                    })()}
                                 </div>
                             )}
                         </div>
