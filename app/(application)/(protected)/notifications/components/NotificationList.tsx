@@ -108,7 +108,7 @@ const NotificationList = () => {
                         disabled={isMarkingAll}
                     >
                         <CheckCheck className="h-4 w-4" />
-                        Mark All Read
+                        {t('notification_mark_all_read')}
                     </button>
                 </div>
             </div>

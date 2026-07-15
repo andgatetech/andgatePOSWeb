@@ -266,7 +266,7 @@ export default function HrAttendancePage() {
                                     <option value="suprema_http">Suprema HTTP</option>
                                 </select>
                                 <input className="rounded-lg border border-gray-200 px-3 py-2 text-sm" value={deviceForm.ip_address} onChange={(e) => setDeviceForm((p) => ({ ...p, ip_address: e.target.value }))} placeholder={t('attendance_device_ip')} />
-                                <input className="rounded-lg border border-gray-200 px-3 py-2 text-sm" value={deviceForm.port} onChange={(e) => setDeviceForm((p) => ({ ...p, port: e.target.value }))} placeholder="Port (80)" />
+                                <input className="rounded-lg border border-gray-200 px-3 py-2 text-sm" value={deviceForm.port} onChange={(e) => setDeviceForm((p) => ({ ...p, port: e.target.value }))} placeholder={t('attendance_port_placeholder')} />
                             </div>
                             <button onClick={async () => {
                                 if (!deviceForm.name.trim()) return;
@@ -309,7 +309,7 @@ export default function HrAttendancePage() {
                                     {device.api_token && (
                                         <div className="mt-3 flex items-center gap-2 rounded-lg bg-gray-50 px-3 py-2">
                                             <code className="flex-1 text-xs text-gray-600 truncate select-all">{device.api_token}</code>
-                                            <button onClick={() => { navigator.clipboard.writeText(device.api_token); showMessage(t('attendance_token_copied'), 'success'); }} className="flex-shrink-0 rounded p-1 text-gray-400 hover:text-primary" title="Copy">
+                                            <button onClick={() => { navigator.clipboard.writeText(device.api_token); showMessage(t('attendance_token_copied'), 'success'); }} className="flex-shrink-0 rounded p-1 text-gray-400 hover:text-primary" title={t('btn_copy')}>
                                                 <Copy className="h-3.5 w-3.5" />
                                             </button>
                                         </div>
@@ -323,9 +323,9 @@ export default function HrAttendancePage() {
                         <div className="rounded-lg border border-blue-100 bg-blue-50 p-4">
                             <p className="text-sm font-semibold text-blue-800">{t('attendance_device_howto')}</p>
                             <p className="mt-1 text-xs text-blue-600">
-                                Configure your device to POST to:<br />
+                                {t('attendance_configure_post_to')}:<br />
                                 <code className="rounded bg-blue-100 px-1.5 py-0.5 font-mono">POST https://api.andgatepos.com/api/attendance/device/punch</code><br />
-                                Header: <code className="rounded bg-blue-100 px-1.5 py-0.5 font-mono">Authorization: Bearer YOUR_API_TOKEN</code>
+                                {t('attendance_header')}: <code className="rounded bg-blue-100 px-1.5 py-0.5 font-mono">Authorization: Bearer YOUR_API_TOKEN</code>
                             </p>
                         </div>
                     )}

@@ -567,7 +567,7 @@ const ProductTable = () => {
                                                 <button
                                                     className="group relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-lg border border-gray-200 bg-gray-100 transition-colors hover:border-blue-300 hover:bg-blue-50"
                                                     onClick={() => handleImageShow(product)}
-                                                    title="View Images"
+                                                    title={t('btn_view_images')}
                                                 >
                                                     {productImageUrl ? (
                                                         <Image src={productImageUrl} alt={product.product_name} fill className="object-cover transition-transform group-hover:scale-105" />

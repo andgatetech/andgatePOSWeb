@@ -71,7 +71,7 @@ const CouponInput: React.FC<CouponInputProps> = ({
                 </div>
                 <button type="button" onClick={onRemove}
                     className="text-xs font-semibold text-red-500 hover:text-red-700">
-                    Remove
+                    {t('btn_remove')}
                 </button>
             </div>
         );
@@ -85,7 +85,7 @@ const CouponInput: React.FC<CouponInputProps> = ({
                     value={code}
                     onChange={(e) => { setCode(e.target.value.toUpperCase()); setError(''); }}
                     onKeyDown={(e) => e.key === 'Enter' && handleApply()}
-                    placeholder="Coupon code"
+                    placeholder={t('placeholder_coupon_code')}
                     className="form-input flex-1 rounded-lg border-gray-200 py-2 text-sm uppercase placeholder:normal-case"
                     disabled={loading}
                 />
@@ -97,7 +97,7 @@ const CouponInput: React.FC<CouponInputProps> = ({
                 >
                     {loading ? (
                         <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                    ) : 'Apply'}
+                    ) : t('btn_apply')}
                 </button>
             </div>
             {error && <p className="text-xs text-danger">{error}</p>}

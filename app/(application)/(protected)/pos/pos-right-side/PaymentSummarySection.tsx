@@ -284,7 +284,7 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                                 <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                                 </svg>
-                                <span>Split</span>
+                                <span>{t('lbl_split')}</span>
                                 {formData.isSplitPayment && formData.splitPayments.length > 0 && (
                                     <span className="rounded-full bg-white/30 px-1.5 text-xs">
                                         {formData.splitPayments.length}

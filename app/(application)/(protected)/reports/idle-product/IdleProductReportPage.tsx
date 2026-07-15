@@ -227,7 +227,7 @@ const IdleProductReportPage = () => {
                             ) : (
                                 <>
                                     <AlertTriangle className="h-3.5 w-3.5" />
-                                    Never Sold
+                                    {t('idle_never_sold')}
                                 </>
                             )}
                         </div>

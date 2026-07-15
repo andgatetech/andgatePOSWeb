@@ -267,7 +267,7 @@ const Sidebar = () => {
                 <button
                     type="button"
                     onClick={() => dispatch(toggleSidebar())}
-                    aria-label="Collapse sidebar"
+                    aria-label={t('aria_collapse_sidebar')}
                     className="absolute right-3 flex h-7 w-7 items-center justify-center rounded-md text-white transition-colors hover:bg-white/10"
                 >
                     <IconCaretsDown className="rotate-90 scale-90" />
@@ -337,7 +337,7 @@ const Sidebar = () => {
                                         <input
                                             value={storeSearch}
                                             onChange={(event) => setStoreSearch(event.target.value)}
-                                            placeholder="Search store"
+                                            placeholder={t('placeholder_search_store')}
                                             className="min-w-0 flex-1 bg-transparent text-xs text-white placeholder:text-white/35 focus:outline-none"
                                         />
                                     </div>
@@ -376,7 +376,7 @@ const Sidebar = () => {
                                     </button>
                                 ))}
                                 {visibleStores.length === 0 && (
-                                    <p className="px-3 py-3 text-xs text-white/45">No store found</p>
+                                    <p className="px-3 py-3 text-xs text-white/45">{t('msg_no_store_found')}</p>
                                 )}
                             </div>
                         </div>

@@ -15,7 +15,7 @@ const ComponentsUsersProfilePaymentHistory = () => {
     if (!user) {
         return (
             <div className="rounded-xl border border-gray-100 bg-white p-6 text-center shadow-sm">
-                <p className="text-sm text-gray-500">No payment history found.</p>
+                <p className="text-sm text-gray-500">{t('profile_no_payment_history')}</p>
             </div>
         );
     }
@@ -26,7 +26,7 @@ const ComponentsUsersProfilePaymentHistory = () => {
     return (
         <div className="panel">
             <div className="mb-5 flex items-center justify-between">
-                <h5 className="text-lg font-semibold dark:text-white-light">Subscription History</h5>
+                <h5 className="text-lg font-semibold dark:text-white-light">{t('profile_subscription_history')}</h5>
             </div>
             <div>
                 {history.length > 0 ? (
@@ -50,10 +50,10 @@ const ComponentsUsersProfilePaymentHistory = () => {
                                         >
                                             <ul className="!min-w-[150px]">
                                                 <li>
-                                                    <button type="button">View Invoice</button>
+                                                    <button type="button">{t('btn_view_invoice')}</button>
                                                 </li>
                                                 <li>
-                                                    <button type="button">Download Invoice</button>
+                                                    <button type="button">{t('btn_download_invoice')}</button>
                                                 </li>
                                             </ul>
                                         </Dropdown>
@@ -63,7 +63,7 @@ const ComponentsUsersProfilePaymentHistory = () => {
                         </div>
                     ))
                 ) : (
-                    <p className="text-sm text-gray-500 dark:text-white-dark">No subscription/payment history available.</p>
+                    <p className="text-sm text-gray-500 dark:text-white-dark">{t('profile_no_subscription_history')}</p>
                 )}
             </div>
         </div>

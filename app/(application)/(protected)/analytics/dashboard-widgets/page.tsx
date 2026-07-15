@@ -115,8 +115,8 @@ export default function DashboardWidgetsPage() {
                                 <div className="flex items-center gap-2">
                                     <label className="text-xs text-gray-500">{t('lbl_width')}</label>
                                     <select value={widget.cols} onChange={(e) => updateCols(widget.key, Number(e.target.value))} className="form-select text-sm">
-                                        <option value={6}>Half (6/12)</option>
-                                        <option value={12}>Full (12/12)</option>
+                                        <option value={6}>{t('dashboard_widget_half_width')}</option>
+                                        <option value={12}>{t('dashboard_widget_full_width')}</option>
                                     </select>
                                 </div>
                             </div>

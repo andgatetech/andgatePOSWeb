@@ -96,7 +96,7 @@ const NotificationDropdown = () => {
                                     disabled={isMarkingAll}
                                 >
                                     <CheckCheck className="h-3.5 w-3.5" />
-                                    Mark all read
+                                    {t('notification_mark_all_read')}
                                 </button>
                             )}
                         </div>
@@ -132,7 +132,7 @@ const NotificationDropdown = () => {
                                         className="btn btn-primary btn-small block w-full rounded-lg py-2 text-center text-sm font-medium"
                                         onClick={closeDropdown}
                                     >
-                                        View All Notifications
+                                        {t('notification_view_all')}
                                     </Link>
                                 </div>
                             </li>
@@ -154,7 +154,7 @@ const NotificationDropdown = () => {
                                         className="btn btn-primary btn-small block w-full rounded-lg py-2 text-center text-sm font-medium"
                                         onClick={closeDropdown}
                                     >
-                                        View All Notifications
+                                        {t('notification_view_all')}
                                     </Link>
                                 </div>
                             </li>

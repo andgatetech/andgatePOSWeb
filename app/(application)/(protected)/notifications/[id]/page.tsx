@@ -40,10 +40,10 @@ export default function NotificationDetailPage() {
         return (
             <div className="panel flex min-h-[400px] flex-col items-center justify-center text-center">
                 <CircleAlert className="mb-4 h-12 w-12 text-gray-400" />
-                <h3 className="mb-2 text-xl font-semibold dark:text-white-light">Notification Not Found</h3>
-                <p className="mb-6 text-gray-500">The notification you are looking for does not exist or has been deleted.</p>
+                <h3 className="mb-2 text-xl font-semibold dark:text-white-light">{t('notification_not_found')}</h3>
+                <p className="mb-6 text-gray-500">{t('notification_not_found_desc')}</p>
                 <button type="button" className="btn btn-primary" onClick={() => router.push('/notifications')}>
-                    Back to List
+                    {t('btn_back_to_list')}
                 </button>
             </div>
         );
@@ -57,7 +57,7 @@ export default function NotificationDetailPage() {
             <div className="mb-6 flex items-center justify-between border-b pb-4 dark:border-gray-800">
                 <button type="button" className="btn btn-outline-primary btn-sm flex items-center gap-2" onClick={() => router.push('/notifications')}>
                     <ArrowLeft className="h-4 w-4" />
-                    Back
+                    {t('btn_back')}
                 </button>
             </div>
 
@@ -85,7 +85,7 @@ export default function NotificationDetailPage() {
                     {notification.action_url && (
                         <div className="mt-8 border-t pt-6 dark:border-gray-800">
                             <a href={notification.action_url} className="btn btn-primary inline-flex items-center gap-2">
-                                View Details
+                                {t('btn_view_details')}
                             </a>
                         </div>
                     )}

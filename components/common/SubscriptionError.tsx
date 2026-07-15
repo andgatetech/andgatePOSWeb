@@ -150,7 +150,7 @@ const SubscriptionError: React.FC<SubscriptionErrorProps> = ({ errorType, messag
             <div className="flex w-full items-center justify-center py-6">
                 <div className="flex items-center gap-3">
                     <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-blue-600"></div>
-                    <span className="text-sm font-medium text-gray-500">Redirecting to subscription plans...</span>
+                    <span className="text-sm font-medium text-gray-500">{t('subscription_redirecting_to_plans')}</span>
                 </div>
             </div>
         );
@@ -214,7 +214,7 @@ const SubscriptionError: React.FC<SubscriptionErrorProps> = ({ errorType, messag
                                                         </div>
                                                         <div className="flex-1">
                                                             <div className="mb-2 flex items-end justify-between">
-                                                                <span className="text-sm font-bold uppercase tracking-wider text-gray-600">Current Usage</span>
+                                                                <span className="text-sm font-bold uppercase tracking-wider text-gray-600">{t('subscription_current_usage')}</span>
                                                                 <div className="flex items-baseline gap-1.5">
                                                                     <span className={`text-4xl font-black ${colorTheme.text}`}>{displayNumber(currentVal as number)}</span>
                                                                     <span className="text-sm font-medium text-gray-500">/ {displayNumber(details.limit)} allowed</span>
@@ -231,7 +231,7 @@ const SubscriptionError: React.FC<SubscriptionErrorProps> = ({ errorType, messag
                                                             {isLimitReached && (
                                                                 <p className={`mb-0 mt-3 flex items-center gap-1.5 text-xs font-bold ${colorTheme.icon}`}>
                                                                     <AlertTriangle className="h-4 w-4" />
-                                                                    Maximum capacity reached for your current plan.
+                                                                    {t('subscription_max_capacity_reached')}
                                                                 </p>
                                                             )}
                                                         </div>
@@ -246,7 +246,7 @@ const SubscriptionError: React.FC<SubscriptionErrorProps> = ({ errorType, messag
                                                     <Sparkles className="h-5 w-5 text-purple-600" />
                                                 </div>
                                                 <div>
-                                                    <p className="font-semibold text-gray-900">Required Features:</p>
+                                                    <p className="font-semibold text-gray-900">{t('subscription_required_features')}:</p>
                                                     <p className="mt-1 text-sm text-gray-700">{displayNumber(details.required_features.join(' or '))}</p>
                                                 </div>
                                             </div>

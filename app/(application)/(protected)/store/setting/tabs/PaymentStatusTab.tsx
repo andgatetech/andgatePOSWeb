@@ -139,7 +139,7 @@ const PaymentStatusTab: React.FC<PaymentStatusTabProps> = ({
                         <textarea
                             value={newPaymentStatus.description}
                             onChange={(e) => setNewPaymentStatusField('description', e.target.value)}
-                            placeholder="Brief description of when this status should be used"
+                            placeholder={t('payment_status_description_placeholder')}
                             rows={2}
                             className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-1 focus:ring-[#046ca9]"
                         />

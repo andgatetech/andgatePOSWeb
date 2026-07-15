@@ -104,17 +104,17 @@ const EditPurchaseDraftPage = () => {
     }, [draft, currentStoreId, dispatch]);
 
     if (isLoading) {
-        return <Loader message="Loading draft..." />;
+        return <Loader message={t('msg_loading_draft')} />;
     }
 
     if (error || !draft) {
         return (
             <div className="flex h-screen items-center justify-center">
                 <div className="text-center">
-                    <p className="mb-4 text-lg text-red-600">Failed to load draft</p>
+                    <p className="mb-4 text-lg text-red-600">{t('msg_failed_to_load_draft')}</p>
                     <Link href="/purchases/list" className="btn btn-primary">
                         <ArrowLeft className="mr-2 h-4 w-4" />
-                        Back to List
+                        {t('btn_back_to_list')}
                     </Link>
                 </div>
             </div>
@@ -126,14 +126,14 @@ const EditPurchaseDraftPage = () => {
             {/* Header */}
             <div className="mb-6 flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold">Edit Purchase Draft</h1>
+                    <h1 className="text-2xl font-bold">{t('lbl_edit_purchase_draft')}</h1>
                     <p className="mt-1 text-sm text-gray-600">
-                        Draft Reference: <span className="font-semibold">{draftResponse.data.draft_reference}</span>
+                        {t('lbl_draft_reference')}: <span className="font-semibold">{draftResponse.data.draft_reference}</span>
                     </p>
                 </div>
                 <Link href="/purchases/list" className="btn btn-outline-secondary">
                     <ArrowLeft className="mr-2 h-4 w-4" />
-                    Back to List
+                    {t('btn_back_to_list')}
                 </Link>
             </div>
 

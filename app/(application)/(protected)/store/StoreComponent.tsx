@@ -208,35 +208,35 @@ const StoreComponent = () => {
             <div className="rounded-xl border border-sky-100 bg-white p-4 shadow-sm">
                 <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <h2 className="text-base font-semibold text-gray-900">Bangladesh VAT / BIN Setup</h2>
-                        <p className="text-sm text-gray-500">Controls Mushak invoice mode, BIN snapshot, and default VAT calculation.</p>
+                        <h2 className="text-base font-semibold text-gray-900">{t('lbl_bangladesh_vat_bin_setup')}</h2>
+                        <p className="text-sm text-gray-500">{t('msg_vat_bin_setup_desc')}</p>
                     </div>
                     <button onClick={saveVatProfile} disabled={isCreatingTaxProfile || isUpdatingTaxProfile} className="rounded-lg bg-[#046ca9] px-4 py-2 text-sm font-semibold text-white disabled:opacity-60">
-                        {isCreatingTaxProfile || isUpdatingTaxProfile ? 'Saving...' : 'Save VAT Profile'}
+                        {isCreatingTaxProfile || isUpdatingTaxProfile ? t('lbl_saving') : t('btn_save_vat_profile')}
                     </button>
                 </div>
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
                     <select className="form-select" value={vatForm.vat_status} onChange={(e) => setVatForm((p) => ({ ...p, vat_status: e.target.value }))}>
-                        <option value="not_registered">Not registered</option>
-                        <option value="pending">Pending registration</option>
-                        <option value="turnover_tax">Turnover tax</option>
-                        <option value="vat_registered">VAT registered</option>
-                        <option value="exempt">Exempt</option>
+                        <option value="not_registered">{t('vat_status_not_registered')}</option>
+                        <option value="pending">{t('vat_status_pending')}</option>
+                        <option value="turnover_tax">{t('vat_status_turnover_tax')}</option>
+                        <option value="vat_registered">{t('vat_status_registered')}</option>
+                        <option value="exempt">{t('vat_status_exempt')}</option>
                     </select>
                     <select className="form-select" value={vatForm.vat_invoice_type} onChange={(e) => setVatForm((p) => ({ ...p, vat_invoice_type: e.target.value }))}>
-                        <option value="regular_receipt">Regular receipt</option>
-                        <option value="mushak_6_3">Mushak 6.3</option>
-                        <option value="turnover_tax_invoice">Turnover tax invoice</option>
-                        <option value="vat_exempt_invoice">VAT exempt invoice</option>
+                        <option value="regular_receipt">{t('vat_invoice_regular_receipt')}</option>
+                        <option value="mushak_6_3">{t('vat_invoice_mushak_6_3')}</option>
+                        <option value="turnover_tax_invoice">{t('vat_invoice_turnover_tax')}</option>
+                        <option value="vat_exempt_invoice">{t('vat_invoice_exempt')}</option>
                     </select>
-                    <input className="form-input" placeholder="BIN / VAT Reg No" value={vatForm.registration_number} onChange={(e) => setVatForm((p) => ({ ...p, registration_number: e.target.value }))} />
-                    <input className="form-input" type="number" min="0" max="100" step="any" placeholder="Default VAT rate" value={vatForm.rate} onChange={(e) => setVatForm((p) => ({ ...p, rate: e.target.value }))} />
-                    <input className="form-input" placeholder="Tax label" value={vatForm.tax_label} onChange={(e) => setVatForm((p) => ({ ...p, tax_label: e.target.value }))} />
-                    <input className="form-input" placeholder="Commissionerate" value={vatForm.vat_commissionerate} onChange={(e) => setVatForm((p) => ({ ...p, vat_commissionerate: e.target.value }))} />
-                    <input className="form-input" placeholder="VAT circle" value={vatForm.vat_circle} onChange={(e) => setVatForm((p) => ({ ...p, vat_circle: e.target.value }))} />
+                    <input className="form-input" placeholder={t('placeholder_bin_vat_reg_no')} value={vatForm.registration_number} onChange={(e) => setVatForm((p) => ({ ...p, registration_number: e.target.value }))} />
+                    <input className="form-input" type="number" min="0" max="100" step="any" placeholder={t('placeholder_default_vat_rate')} value={vatForm.rate} onChange={(e) => setVatForm((p) => ({ ...p, rate: e.target.value }))} />
+                    <input className="form-input" placeholder={t('placeholder_tax_label')} value={vatForm.tax_label} onChange={(e) => setVatForm((p) => ({ ...p, tax_label: e.target.value }))} />
+                    <input className="form-input" placeholder={t('placeholder_commissionerate')} value={vatForm.vat_commissionerate} onChange={(e) => setVatForm((p) => ({ ...p, vat_commissionerate: e.target.value }))} />
+                    <input className="form-input" placeholder={t('placeholder_vat_circle')} value={vatForm.vat_circle} onChange={(e) => setVatForm((p) => ({ ...p, vat_circle: e.target.value }))} />
                     <label className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700">
                         <input type="checkbox" className="form-checkbox" checked={vatForm.prices_include_tax} onChange={(e) => setVatForm((p) => ({ ...p, prices_include_tax: e.target.checked }))} />
-                        Prices include VAT
+                        {t('lbl_prices_include_vat')}
                     </label>
                 </div>
             </div>

@@ -219,7 +219,7 @@ const ExpenseReportPage = () => {
                 />
                 <ReportSummaryCard items={summaryItems} />
                 <div className="mb-6">
-                    <BasicReportFilter onFilterChange={handleFilterChange} placeholder="Search expense titles, users..." />
+                    <BasicReportFilter onFilterChange={handleFilterChange} placeholder={t('placeholder_search_expense_titles_users')} />
                 </div>
                 <ReusableTable
                     data={expenses}

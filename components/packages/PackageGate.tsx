@@ -78,6 +78,7 @@ interface FeatureLockIconProps {
 }
 
 export function FeatureLockIcon({ featureSlug, className = '' }: FeatureLockIconProps) {
+    const { t } = useTranslation();
     const { canAccess, isLoading } = useFeatureAccess(featureSlug);
 
     if (isLoading || canAccess) {
@@ -85,7 +86,7 @@ export function FeatureLockIcon({ featureSlug, className = '' }: FeatureLockIcon
     }
 
     return (
-        <span className={`inline-flex items-center text-amber-500 ${className}`} title="Requires upgrade">
+        <span className={`inline-flex items-center text-amber-500 ${className}`} title={t('package_requires_upgrade')}>
             <svg className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zm0 2c1.654 0 3 1.346 3 3v3H9V7c0-1.654 1.346-3 3-3z" />
             </svg>

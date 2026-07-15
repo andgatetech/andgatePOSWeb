@@ -146,7 +146,7 @@ const Orders = () => {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thermal Receipt</title>
+    <title>${esc(t('thermal_receipt_title'))}</title>
     <style>
         * {
             margin: 0;
@@ -326,24 +326,24 @@ const Orders = () => {
             ${currentStore?.store_location ? `<div class="store-info">${esc(currentStore.store_location)}</div>` : ''}
             ${currentStore?.store_contact ? `<div class="store-info">Ph: ${esc(currentStore.store_contact)}</div>` : ''}
             ${currentStore?.store_email ? `<div class="store-info">${esc(currentStore.store_email)}</div>` : ''}
-            <div class="receipt-title">RECEIPT</div>
+            <div class="receipt-title">${esc(t('receipt_title'))}</div>
         </div>
 
         <div class="receipt-section">
             <div class="receipt-row">
-                <div class="row-label">Invoice No:</div>
+                <div class="row-label">${esc(t('receipt_invoice_no'))}:</div>
                 <div class="row-value">${esc(order.invoice || `#${order.id}`)}</div>
             </div>
             ${order.id ? `<div class="receipt-row">
-                <div class="row-label">Order ID:</div>
+                <div class="row-label">${esc(t('receipt_order_id'))}:</div>
                 <div class="row-value">#${esc(order.id)}</div>
             </div>` : ''}
             <div class="receipt-row">
-                <div class="row-label">Date:</div>
+                <div class="row-label">${esc(t('lbl_date'))}:</div>
                 <div class="row-value">${esc(new Date().toLocaleDateString())}</div>
             </div>
             <div class="receipt-row">
-                <div class="row-label">Cashier:</div>
+                <div class="row-label">${esc(t('receipt_cashier'))}:</div>
                 <div class="row-value">${esc(currentUser?.name || 'Staff')}</div>
             </div>
         </div>
@@ -352,11 +352,11 @@ const Orders = () => {
 
         <div class="receipt-section">
             <div class="receipt-row">
-                <div class="row-label">Customer:</div>
+                <div class="row-label">${esc(t('lbl_customer'))}:</div>
                 <div class="row-value">${esc(order.is_walk_in ? 'Walk-in' : (order.customer?.name || 'N/A'))}</div>
             </div>
             ${!order.is_walk_in && order.customer?.phone ? `<div class="receipt-row">
-                <div class="row-label">Ph:</div>
+                <div class="row-label">${esc(t('lbl_phone'))}:</div>
                 <div class="row-value">${esc(order.customer.phone)}</div>
             </div>` : ''}
         </div>
@@ -382,33 +382,33 @@ const Orders = () => {
 
         <div class="totals-section">
             <div class="total-row">
-                <div class="total-label">Subtotal:</div>
+                <div class="total-label">${esc(t('lbl_subtotal'))}:</div>
                 <div class="total-value">${esc(formatCurrency(order.financial?.subtotal ?? order.subtotal ?? order.total))}</div>
             </div>
             ${(order.financial?.tax ?? order.tax ?? 0) > 0 ? `<div class="total-row">
-                <div class="total-label">Tax:</div>
+                <div class="total-label">${esc(t('lbl_tax'))}:</div>
                 <div class="total-value">${esc(formatCurrency(order.financial?.tax ?? order.tax ?? 0))}</div>
             </div>` : ''}
             ${(order.financial?.discount ?? order.discount ?? 0) > 0 ? `<div class="total-row">
-                <div class="total-label">Discount:</div>
+                <div class="total-label">${esc(t('lbl_discount'))}:</div>
                 <div class="total-value">-${esc(formatCurrency(order.financial?.discount ?? order.discount ?? 0))}</div>
             </div>` : ''}
             <div class="total-row" style="border-top: 1px solid black; padding-top: 1px; margin-top: 1px;">
-                <div class="total-label">TOTAL:</div>
+                <div class="total-label">${esc(t('lbl_total'))}:</div>
                 <div class="total-value">${esc(formatCurrency(order.financial?.grand_total ?? order.grand_total ?? order.total))}</div>
             </div>
             ${(order.financial?.amount_paid ?? order.amount_paid ?? 0) > 0 ? `<div class="total-row">
-                <div class="total-label">Paid:</div>
+                <div class="total-label">${esc(t('lbl_paid'))}:</div>
                 <div class="total-value">${esc(formatCurrency(order.financial?.amount_paid ?? order.amount_paid ?? 0))}</div>
             </div>` : ''}
             ${(order.financial?.due_amount ?? order.due_amount ?? 0) > 0 ? `<div class="total-row">
-                <div class="total-label">Due:</div>
+                <div class="total-label">${esc(t('lbl_due'))}:</div>
                 <div class="total-value">${esc(formatCurrency(order.financial?.due_amount ?? order.due_amount ?? 0))}</div>
             </div>` : ''}
         </div>
 
         <div class="footer">
-            <div class="footer-text">Thank you!</div>
+            <div class="footer-text">${esc(t('receipt_thank_you'))}</div>
             <div class="footer-text">AndgateBOS</div>
         </div>
     </div>
@@ -418,7 +418,7 @@ const Orders = () => {
 
         // Isolated window print — single print() call, works with Bluetooth POS printers
         printInWindow(receiptHTML);
-    }, [currentStore, currentUser, formatCurrency]);
+    }, [currentStore, currentUser, formatCurrency, t]);
 
     // Close invoice preview
     const handleCloseInvoicePreview = useCallback(() => {

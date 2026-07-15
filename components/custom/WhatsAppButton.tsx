@@ -1,8 +1,10 @@
 'use client';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { getTranslation } from '@/i18n';
 
 export default function WhatsAppButton() {
+    const { t } = getTranslation();
     const pathname = usePathname();
     const [isScrollingUp, setIsScrollingUp] = useState(false);
     const [lastScrollY, setLastScrollY] = useState(0);
@@ -67,8 +69,8 @@ export default function WhatsAppButton() {
                                 </svg>
                             </div>
                             <div>
-                                <h3 className="text-sm font-semibold">Chat with us</h3>
-                                <p className="text-xs opacity-90">We typically reply instantly</p>
+                                <h3 className="text-sm font-semibold">{t('whatsapp_chat_with_us')}</h3>
+                                <p className="text-xs opacity-90">{t('whatsapp_reply_fast')}</p>
                             </div>
                         </div>
                         <button onClick={toggleChat} className="text-white transition-colors hover:text-gray-200">
@@ -84,13 +86,13 @@ export default function WhatsAppButton() {
                         {/* Welcome Message */}
                         <div className="mb-4">
                             <div className="rounded-lg bg-gray-100 p-3 text-sm">
-                                <p className="text-gray-800">👋 Hello! How can we help you today?</p>
+                                <p className="text-gray-800">{t('whatsapp_welcome')}</p>
                             </div>
                         </div>
 
                         {/* Quick Messages */}
                         <div className="mb-4 space-y-2">
-                            <p className="text-xs font-medium text-gray-600">Quick messages:</p>
+                            <p className="text-xs font-medium text-gray-600">{t('whatsapp_quick_messages')}:</p>
                             {quickMessages.map((quickMsg, index) => (
                                 <button
                                     key={index}
@@ -110,7 +112,7 @@ export default function WhatsAppButton() {
                                 value={message}
                                 onChange={(e) => setMessage(e.target.value)}
                                 onKeyPress={handleKeyPress}
-                                placeholder="Type your message..."
+                                placeholder={t('whatsapp_type_message')}
                                 className="flex-1 resize-none rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-green-500"
                                 rows={1}
                                 style={{ minHeight: '38px' }}
@@ -126,7 +128,7 @@ export default function WhatsAppButton() {
                                 </svg>
                             </button>
                         </div>
-                        <p className="mt-2 text-xs text-gray-500">Press Enter to send, Shift+Enter for new line</p>
+                        <p className="mt-2 text-xs text-gray-500">{t('whatsapp_enter_hint')}</p>
                     </div>
                 </div>
             )}
@@ -136,7 +138,7 @@ export default function WhatsAppButton() {
                 <button
                     onClick={toggleChat}
                     className="group relative flex items-center justify-center rounded-full bg-green-500 p-4 text-white shadow-lg transition-all duration-200 hover:bg-green-600 hover:shadow-xl"
-                    aria-label="Open WhatsApp chat"
+                    aria-label={t('whatsapp_open_chat')}
                 >
                     {/* Notification Badge */}
                     {!isChatOpen && <div className="absolute -right-1 -top-1 h-3 w-3 animate-pulse rounded-full bg-red-500"></div>}

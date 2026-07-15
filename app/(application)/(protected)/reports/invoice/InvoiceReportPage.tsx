@@ -267,7 +267,7 @@ const InvoiceReportPage = () => {
                 />
                 <ReportSummaryCard items={summaryItems} />
                 <div className="mb-6">
-                    <BasicReportFilter onFilterChange={handleFilterChange} placeholder="Search invoices, customer name, phone..." />
+                    <BasicReportFilter onFilterChange={handleFilterChange} placeholder={t('placeholder_search_invoices_customer_phone')} />
                 </div>
                 <ReusableTable
                     data={invoices}

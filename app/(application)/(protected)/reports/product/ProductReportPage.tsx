@@ -341,7 +341,7 @@ const ProductReportPage = () => {
                 />
                 <ReportSummaryCard items={summaryItems} />
                 <div className="mb-6">
-                    <BasicReportFilter onFilterChange={handleFilterChange} placeholder="Search products, SKU, category..." />
+                    <BasicReportFilter onFilterChange={handleFilterChange} placeholder={t('placeholder_search_products_sku_category')} />
                 </div>
                 <ReusableTable
                     data={products}

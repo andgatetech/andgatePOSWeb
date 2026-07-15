@@ -203,7 +203,7 @@ const LowStockReportPage = () => {
         () => [
             {
                 key: '_select',
-                label: <input type="checkbox" checked={allSelected} onChange={toggleSelectAll} className="h-4 w-4 cursor-pointer rounded border-gray-300 accent-primary" title="Select all" />,
+                label: <input type="checkbox" checked={allSelected} onChange={toggleSelectAll} className="h-4 w-4 cursor-pointer rounded border-gray-300 accent-primary" title={t('lbl_select_all')} />,
                 render: (_: any, r: any) => (
                     <input
                         type="checkbox"
@@ -307,10 +307,10 @@ const LowStockReportPage = () => {
                         onClick={() => handleQuickReorder(r.product_id)}
                         disabled={reorderLoading === r.product_id || isDraftLoading}
                         className="flex items-center gap-1 rounded-md bg-primary/10 px-2 py-1 text-[11px] font-semibold text-primary transition hover:bg-primary/20 disabled:opacity-50"
-                        title="Quick Reorder"
+                        title={t('lbl_quick_reorder')}
                     >
                         <ShoppingCart className="h-3 w-3" />
-                        {reorderLoading === r.product_id ? '...' : 'Reorder'}
+                        {reorderLoading === r.product_id ? '...' : t('lbl_reorder')}
                     </button>
                 ),
             },
@@ -336,7 +336,7 @@ const LowStockReportPage = () => {
                 <ReportSummaryCard items={summaryItems} />
                 <div className="mb-4 flex flex-wrap items-center gap-3">
                     <div className="flex-1">
-                        <BasicReportFilter onFilterChange={handleFilterChange} placeholder="Search product name, SKU..." />
+                        <BasicReportFilter onFilterChange={handleFilterChange} placeholder={t('placeholder_search_product_name_sku')} />
                     </div>
                     {selectedIds.length > 0 && (
                         <button

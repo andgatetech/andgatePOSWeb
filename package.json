@@ -6,6 +6,7 @@
         "dev": "next dev",
         "build": "next build --webpack",
         "check:i18n": "node scripts/check-i18n-keys.mjs",
+        "audit:branding-i18n": "node scripts/audit-branding-i18n.mjs",
         "screenshots:demo": "node scripts/capture-demo-screenshots.mjs",
         "video:demo": "node scripts/create-demo-video.mjs",
         "video:training": "node scripts/create-training-videos.mjs",

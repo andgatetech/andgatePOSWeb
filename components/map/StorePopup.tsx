@@ -2,6 +2,7 @@
 'use client';
 
 import { StoreLocation, TIER_CONFIG } from '@/lib/bangladesh-stores';
+import { getTranslation } from '@/i18n';
 import { MapPin, Phone, Store } from 'lucide-react';
 
 interface Props {
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export default function StorePopup({ store }: Props) {
+    const { t } = getTranslation();
     const tier = TIER_CONFIG[store.tier];
 
     return (
@@ -28,14 +30,14 @@ export default function StorePopup({ store }: Props) {
 
                 {/* Division */}
                 <p className="text-xs text-gray-500">
-                    <span className="font-medium text-gray-700">Division: </span>
+                    <span className="font-medium text-gray-700">{t('map_division')}: </span>
                     {store.division}
                 </p>
 
                 {/* Store count */}
                 <p className="flex items-center gap-1 text-sm font-semibold text-gray-800">
                     <Store className="h-3.5 w-3.5" style={{ color: tier.color }} />
-                    {store.storeCount} Active POS {store.storeCount === 1 ? 'Store' : 'Stores'}
+                    {store.storeCount} {store.storeCount === 1 ? t('map_active_pos_store') : t('map_active_pos_stores')}
                 </p>
 
                 {/* Address */}

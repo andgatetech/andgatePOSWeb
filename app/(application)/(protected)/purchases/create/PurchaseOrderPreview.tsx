@@ -168,13 +168,13 @@ const PurchaseOrderPreview: React.FC<PurchaseOrderPreviewProps> = ({ isOpen, onC
                                     </div>
                                     {supplierInvoiceNumber && (
                                         <div className="mb-2 flex justify-between">
-                                            <span className="text-gray-600">Supplier Invoice:</span>
+                                            <span className="text-gray-600">{t('lbl_supplier_invoice')}:</span>
                                             <span className="font-medium">{supplierInvoiceNumber}</span>
                                         </div>
                                     )}
                                     {supplierMushakNumber && (
                                         <div className="mb-2 flex justify-between">
-                                            <span className="text-gray-600">Mushak 6.3:</span>
+                                            <span className="text-gray-600">{t('lbl_mushak_6_3')}:</span>
                                             <span className="font-medium">{supplierMushakNumber}</span>
                                         </div>
                                     )}
@@ -193,7 +193,7 @@ const PurchaseOrderPreview: React.FC<PurchaseOrderPreviewProps> = ({ isOpen, onC
                                         <th className="px-3 py-3 text-center text-sm font-semibold uppercase tracking-wide text-gray-700">{t('lbl_unit')}</th>
                                         <th className="px-3 py-3 text-center text-sm font-semibold uppercase tracking-wide text-gray-700">{t('lbl_qty_ordered')}</th>
                                         <th className="px-3 py-3 text-right text-sm font-semibold uppercase tracking-wide text-gray-700">{t('lbl_est_price')}</th>
-                                        <th className="px-3 py-3 text-right text-sm font-semibold uppercase tracking-wide text-gray-700">VAT</th>
+                                        <th className="px-3 py-3 text-right text-sm font-semibold uppercase tracking-wide text-gray-700">{t('lbl_vat')}</th>
                                         <th className="px-3 py-3 text-right text-sm font-semibold uppercase tracking-wide text-gray-700">{t('lbl_est_total')}</th>
                                     </tr>
                                 </thead>
@@ -263,7 +263,7 @@ const PurchaseOrderPreview: React.FC<PurchaseOrderPreviewProps> = ({ isOpen, onC
                                     <span>{formatCurrency(subtotal)}</span>
                                 </div>
                                 <div className="flex justify-between text-sm text-sky-700">
-                                    <span>Input VAT claimable</span>
+                                    <span>{t('lbl_input_vat_claimable')}</span>
                                     <span>{formatCurrency(inputVatTotal)}</span>
                                 </div>
                                 <div className="flex justify-between border-t border-gray-300 pt-2 text-lg font-semibold">

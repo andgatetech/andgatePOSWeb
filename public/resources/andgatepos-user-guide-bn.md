@@ -1,15 +1,15 @@
-# AndgatePOS ব্যবহার নির্দেশিকা
+# AndgateBOS ব্যবহার নির্দেশিকা
 
 ভার্সন: জুন ২০২৬  
 কার জন্য: বাংলাদেশি SME ব্যবসার মালিক, দোকান ম্যানেজার, ক্যাশিয়ার, স্টক কর্মী, হিসাব কর্মী এবং ecommerce অপারেটর।
 
-## ১. AndgatePOS কী করে
+## ১. AndgateBOS কী করে
 
-AndgatePOS হলো বাংলাদেশি SME ব্যবসার জন্য একটি Business OS, যেখানে POS একটি গুরুত্বপূর্ণ মডিউল। এতে আছে কাউন্টার বিক্রি, স্টক, ক্রয়, সাপ্লায়ার, কাস্টমার, CRM, ক্যাশ ক্লোজিং, পেটি ক্যাশ, কর্মী হাজিরা, সার্ভিস জব, হিসাব, রিপোর্ট, ecommerce, courier setup, staff role এবং multi-store operation।
+AndgateBOS হলো বাংলাদেশি SME ব্যবসার জন্য একটি Business OS, যেখানে POS একটি গুরুত্বপূর্ণ মডিউল। এতে আছে কাউন্টার বিক্রি, স্টক, ক্রয়, সাপ্লায়ার, কাস্টমার, CRM, ক্যাশ ক্লোজিং, পেটি ক্যাশ, কর্মী হাজিরা, সার্ভিস জব, হিসাব, রিপোর্ট, ecommerce, courier setup, staff role এবং multi-store operation।
 
 ![ড্যাশবোর্ড](/assets/LandingImage/updated/dashboard.webp)
 
-## কীভাবে ধাপে ধাপে AndgatePOS শিখবেন
+## কীভাবে ধাপে ধাপে AndgateBOS শিখবেন
 
 আপনি technical না হলেও সমস্যা নেই। একদিনে সব শেখার দরকার নেই। এই order অনুসরণ করুন।
 
@@ -54,7 +54,7 @@ AndgatePOS হলো বাংলাদেশি SME ব্যবসার জ�
 19. `Products` খুলে stock কমেছে কিনা দেখুন।
 20. দিনশেষে `Cash Closing` খুলে counted cash submit করুন।
 
-এটাই AndgatePOS-এর সবচেয়ে ছোট complete workflow।
+এটাই AndgateBOS-এর সবচেয়ে ছোট complete workflow।
 
 ## Role অনুযায়ী শেখার পথ
 

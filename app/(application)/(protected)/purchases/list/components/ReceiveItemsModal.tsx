@@ -370,10 +370,10 @@ const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, purchaseO
                                         </td>
                                         <td className="px-4 py-3">
                                             <div className="flex justify-center gap-1">
-                                                <button onClick={() => handleReceiveItem(index)} className="rounded p-1.5 text-green-600 hover:bg-green-100" title="Receive all" disabled={isLoading}>
+                                                <button onClick={() => handleReceiveItem(index)} className="rounded p-1.5 text-green-600 hover:bg-green-100" title={t('btn_receive_all')} disabled={isLoading}>
                                                     <Check className="h-4 w-4" />
                                                 </button>
-                                                <button onClick={() => handleClearItem(index)} className="rounded p-1.5 text-red-600 hover:bg-red-100" title="Clear" disabled={isLoading}>
+                                                <button onClick={() => handleClearItem(index)} className="rounded p-1.5 text-red-600 hover:bg-red-100" title={t('btn_clear')} disabled={isLoading}>
                                                     <X className="h-4 w-4" />
                                                 </button>
                                             </div>

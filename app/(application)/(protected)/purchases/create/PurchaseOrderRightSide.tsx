@@ -337,20 +337,20 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                 <div className="rounded-xl border border-sky-100 bg-sky-50/60 p-4">
                     <div className="mb-3 flex items-center justify-between">
                         <div>
-                            <h3 className="text-sm font-semibold text-gray-900">Bangladesh VAT Evidence</h3>
-                            <p className="text-xs text-gray-500">Supplier Mushak/BIN info for input VAT credit.</p>
+                            <h3 className="text-sm font-semibold text-gray-900">{t('lbl_bangladesh_vat_evidence')}</h3>
+                            <p className="text-xs text-gray-500">{t('msg_supplier_mushak_bin_input_vat')}</p>
                         </div>
                         <label className="flex items-center gap-2 text-xs font-semibold text-gray-700">
                             <input type="checkbox" className="form-checkbox" checked={inputVatCreditable} onChange={(e) => setVatEvidence({ inputVatCreditable: e.target.checked })} />
-                            Claim input VAT
+                            {t('lbl_claim_input_vat')}
                         </label>
                     </div>
                     <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-                        <input className="form-input" placeholder="Supplier invoice no" value={supplierInvoiceNumber} onChange={(e) => setVatEvidence({ supplierInvoiceNumber: e.target.value })} />
-                        <input className="form-input" placeholder="Supplier Mushak 6.3 no" value={supplierMushakNumber} onChange={(e) => setVatEvidence({ supplierMushakNumber: e.target.value })} />
+                        <input className="form-input" placeholder={t('placeholder_supplier_invoice_no')} value={supplierInvoiceNumber} onChange={(e) => setVatEvidence({ supplierInvoiceNumber: e.target.value })} />
+                        <input className="form-input" placeholder={t('placeholder_supplier_mushak_no')} value={supplierMushakNumber} onChange={(e) => setVatEvidence({ supplierMushakNumber: e.target.value })} />
                         <input className="form-input" type="date" value={supplierInvoiceDate} onChange={(e) => setVatEvidence({ supplierInvoiceDate: e.target.value })} />
                     </div>
-                    {inputVatCreditable && !supplierMushakNumber && <p className="mt-2 text-xs text-amber-700">Input VAT needs supplier Mushak evidence.</p>}
+                    {inputVatCreditable && !supplierMushakNumber && <p className="mt-2 text-xs text-amber-700">{t('msg_input_vat_needs_mushak')}</p>}
                 </div>
 
                 {/* Quick Add New Product */}
@@ -440,7 +440,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                         <th className="px-4 py-3 text-left">{t('lbl_product')}</th>
                                         <th className="px-4 py-3 text-center w-20">{t('lbl_qty')}</th>
                                         <th className="px-4 py-3 text-right w-28">{t('lbl_price')}</th>
-                                        <th className="px-4 py-3 text-right w-28">VAT %</th>
+                                        <th className="px-4 py-3 text-right w-28">{t('lbl_vat_percent')}</th>
                                         <th className="px-4 py-3 text-right w-28">{t('lbl_total')}</th>
                                         <th className="px-4 py-3 text-center w-12"></th>
                                     </tr>
@@ -482,8 +482,8 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                                     <input type="number" min="0" max="100" step="any" className="w-20 rounded-md border border-gray-200 px-2 py-1.5 text-right text-sm focus:border-primary focus:ring-1 focus:ring-primary"
                                                         value={item.taxRate || ''}
                                                         onChange={(e) => handleItemVatChange(item.id, 'taxRate', parseFloat(e.target.value) || 0)} />
-                                                    <label className="flex items-center gap-1 text-[10px] text-gray-500"><input type="checkbox" checked={!!item.taxIncluded} onChange={(e) => handleItemVatChange(item.id, 'taxIncluded', e.target.checked)} /> incl</label>
-                                                    <label className="flex items-center gap-1 text-[10px] text-gray-500"><input type="checkbox" checked={!!item.inputVatCreditable} onChange={(e) => handleItemVatChange(item.id, 'inputVatCreditable', e.target.checked)} /> credit</label>
+                                                    <label className="flex items-center gap-1 text-[10px] text-gray-500"><input type="checkbox" checked={!!item.taxIncluded} onChange={(e) => handleItemVatChange(item.id, 'taxIncluded', e.target.checked)} /> {t('lbl_vat_included_short')}</label>
+                                                    <label className="flex items-center gap-1 text-[10px] text-gray-500"><input type="checkbox" checked={!!item.inputVatCreditable} onChange={(e) => handleItemVatChange(item.id, 'inputVatCreditable', e.target.checked)} /> {t('lbl_vat_credit_short')}</label>
                                                 </div>
                                             </td>
                                             <td className="px-4 py-3 text-right font-semibold text-gray-800">{formatCurrency(itemTotal(item))}</td>
@@ -524,7 +524,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                             <input type="number" min="0" step="any" className="w-full rounded-md border border-gray-200 px-2 py-1.5 text-sm focus:border-primary" value={item.purchasePrice || ''} onChange={(e) => handlePurchasePriceChange(item.id, e.target.value)} />
                                         </div>
                                         <div>
-                                            <label className="mb-0.5 block text-[10px] text-gray-400">VAT %</label>
+                                            <label className="mb-0.5 block text-[10px] text-gray-400">{t('lbl_vat_percent')}</label>
                                             <input type="number" min="0" max="100" step="any" className="w-full rounded-md border border-gray-200 px-2 py-1.5 text-sm focus:border-primary" value={item.taxRate || ''} onChange={(e) => handleItemVatChange(item.id, 'taxRate', parseFloat(e.target.value) || 0)} />
                                         </div>
                                     </div>
@@ -551,7 +551,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                         <span className="text-2xl font-bold text-primary">{formatCurrency(grandTotal)}</span>
                     </div>
                     <div className="mb-4 flex items-center justify-between text-sm">
-                        <span className="font-medium text-gray-500">Input VAT claimable</span>
+                        <span className="font-medium text-gray-500">{t('lbl_input_vat_claimable')}</span>
                         <span className="font-semibold text-sky-700">{formatCurrency(inputVatTotal)}</span>
                     </div>
                     <div className="flex flex-col gap-2 sm:flex-row">

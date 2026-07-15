@@ -1,6 +1,8 @@
 'use client';
+import { getTranslation } from '@/i18n';
 
 export default function WhatsAppFloat() {
+    const { t } = getTranslation();
     const phone = '8801577303608';
     const message = 'হ্যালো! আমি AndgateBOS সম্পর্কে জানতে চাই।';
     const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
@@ -10,12 +12,12 @@ export default function WhatsAppFloat() {
             href={url}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="WhatsApp-এ চ্যাট করুন"
+            aria-label={t('whatsapp_chat_bn')}
             className="group fixed bottom-6 right-6 z-50 flex items-center gap-3"
         >
             {/* Tooltip label */}
             <span className="max-w-0 overflow-hidden whitespace-nowrap rounded-full bg-gray-900 px-0 py-2 text-sm font-semibold text-white opacity-0 shadow-lg transition-all duration-300 group-hover:max-w-xs group-hover:px-4 group-hover:opacity-100">
-                WhatsApp-এ চ্যাট করুন
+                {t('whatsapp_chat_bn')}
             </span>
 
             {/* Button */}

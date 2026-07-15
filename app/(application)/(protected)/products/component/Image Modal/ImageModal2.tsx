@@ -21,6 +21,7 @@ interface ImageShowModalProps {
 
 export default function ImageShowModal({ isOpen, onClose, product }: ImageShowModalProps) {
     const { formatCurrency } = useCurrency();
+    const { t } = getTranslation();
     // State for selected variant (must be before early return)
     const [selectedVariantIndex, setSelectedVariantIndex] = useState<number | null>(null);
 
@@ -90,7 +91,7 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                                         {/* Variant Selector - Show if product has variants */}
                                         {hasVariants && product.stocks && product.stocks.length > 0 && (
                                             <div className="space-y-2">
-                                                <label className="text-sm font-semibold text-gray-700">Select Variant:</label>
+                                                <label className="text-sm font-semibold text-gray-700">{t('lbl_select_variant')}:</label>
                                                 <div className="flex flex-wrap gap-2">
                                                     <button
                                                         onClick={() => setSelectedVariantIndex(null)}
@@ -100,7 +101,7 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                                                                 : 'border-gray-300 bg-white text-gray-700 hover:border-primary/40'
                                                         }`}
                                                     >
-                                                        All Images
+                                                        {t('lbl_all_images')}
                                                     </button>
                                                     {product.stocks.map((stock: any, index: number) => (
                                                         <button
@@ -140,7 +141,7 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                                             <div className="flex h-52 items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 sm:h-80 lg:h-96">
                                                 <div className="text-center">
                                                     <Package className="mx-auto mb-2 h-16 w-16 text-gray-400" />
-                                                    <p className="text-gray-500">No images available</p>
+                                                    <p className="text-gray-500">{t('msg_no_images_available')}</p>
                                                 </div>
                                             </div>
                                         )}
@@ -148,7 +149,7 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                                         {isLowStock && (
                                             <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3">
                                                 <AlertCircle className="h-5 w-5 flex-shrink-0 text-amber-600" />
-                                                <span className="text-sm font-medium text-amber-800">Low stock alert</span>
+                                                <span className="text-sm font-medium text-amber-800">{t('lbl_low_stock_alert')}</span>
                                             </div>
                                         )}
                                     </div>
@@ -169,33 +170,33 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                                         <div className="rounded-lg border border-primary/15 bg-[#eef7fc] p-4">
                                             {hasVariants ? (
                                                 <div className="space-y-3">
-                                                    <p className="text-[11px] font-semibold uppercase tracking-wider text-primary/70">{product.stocks.length} Variants Available</p>
+                                                    <p className="text-[11px] font-semibold uppercase tracking-wider text-primary/70">{t('lbl_variants_available').replace('{{count}}', String(product.stocks.length))}</p>
                                                     <div className="grid grid-cols-2 gap-3">
                                                         <div>
-                                                            <p className="mb-0.5 text-[10px] font-medium uppercase tracking-wide text-gray-400">Price Range</p>
+                                                            <p className="mb-0.5 text-[10px] font-medium uppercase tracking-wide text-gray-400">{t('lbl_price_range')}</p>
                                                             <p className="text-base font-bold text-gray-900">
                                                                 {formatCurrency(Math.min(...product.stocks.map((s: any) => Number(s.price))))} –{' '}
                                                                 {formatCurrency(Math.max(...product.stocks.map((s: any) => Number(s.price))))}
                                                             </p>
                                                         </div>
                                                         <div>
-                                                            <p className="mb-0.5 text-[10px] font-medium uppercase tracking-wide text-gray-400">Total Stock</p>
-                                                            <p className="text-base font-semibold text-gray-700">{totalStock} units</p>
+                                                            <p className="mb-0.5 text-[10px] font-medium uppercase tracking-wide text-gray-400">{t('lbl_total_stock')}</p>
+                                                            <p className="text-base font-semibold text-gray-700">{totalStock} {t('lbl_units')}</p>
                                                         </div>
                                                     </div>
                                                 </div>
                                             ) : (
                                                 <div className="grid grid-cols-3 gap-3">
                                                     <div>
-                                                        <p className="mb-0.5 text-[10px] font-medium uppercase tracking-wide text-gray-400">Retail</p>
+                                                        <p className="mb-0.5 text-[10px] font-medium uppercase tracking-wide text-gray-400">{t('lbl_retail')}</p>
                                                         <p className="text-base font-bold text-gray-900">{formatCurrency(Number(primaryStock?.price || 0))}</p>
                                                     </div>
                                                     <div>
-                                                        <p className="mb-0.5 text-[10px] font-medium uppercase tracking-wide text-gray-400">Wholesale</p>
+                                                        <p className="mb-0.5 text-[10px] font-medium uppercase tracking-wide text-gray-400">{t('lbl_wholesale')}</p>
                                                         <p className="text-sm font-semibold text-gray-600">{formatCurrency(Number(primaryStock?.wholesale_price || 0))}</p>
                                                     </div>
                                                     <div>
-                                                        <p className="mb-0.5 text-[10px] font-medium uppercase tracking-wide text-gray-400">Purchase</p>
+                                                        <p className="mb-0.5 text-[10px] font-medium uppercase tracking-wide text-gray-400">{t('lbl_purchase')}</p>
                                                         <p className="text-sm font-semibold text-gray-600">{formatCurrency(Number(primaryStock?.purchase_price || 0))}</p>
                                                     </div>
                                                 </div>
@@ -203,7 +204,7 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                                             {primaryStock?.tax_rate && Number(primaryStock.tax_rate) > 0 && (
                                                 <div className="mt-3 border-t border-primary/20 pt-3">
                                                     <p className="text-xs text-gray-600">
-                                                        Tax: {primaryStock.tax_rate}% {primaryStock.tax_included ? '(included)' : '(excluded)'}
+                                                        {t('lbl_tax')}: {primaryStock.tax_rate}% {primaryStock.tax_included ? t('lbl_tax_included_parentheses') : t('lbl_tax_excluded_parentheses')}
                                                     </p>
                                                 </div>
                                             )}
@@ -211,7 +212,7 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
 
                                         {/* Product Information */}
                                         <div className="space-y-3">
-                                            <h3 className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Product Information</h3>
+                                            <h3 className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">{t('lbl_product_information')}</h3>
                                             <div className="grid grid-cols-2 gap-3">
                                                 <div className="rounded-lg bg-gray-50 p-3">
                                                     <p className="mb-0.5 text-[10px] font-medium uppercase tracking-wide text-gray-400">SKU</p>
@@ -222,17 +223,17 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                                                     )}
                                                 </div>
                                                 <div className="rounded-lg bg-gray-50 p-3">
-                                                    <p className="mb-0.5 text-[10px] font-medium uppercase tracking-wide text-gray-400">Unit</p>
+                                                    <p className="mb-0.5 text-[10px] font-medium uppercase tracking-wide text-gray-400">{t('lbl_unit')}</p>
                                                     <p className="text-sm font-medium capitalize text-gray-900">{primaryStock?.unit || product.unit || 'N/A'}</p>
                                                 </div>
                                                 <div className="rounded-lg bg-gray-50 p-3">
-                                                    <p className="mb-0.5 text-[10px] font-medium uppercase tracking-wide text-gray-400">Total Stock</p>
+                                                    <p className="mb-0.5 text-[10px] font-medium uppercase tracking-wide text-gray-400">{t('lbl_total_stock')}</p>
                                                     <p className="text-sm font-medium text-gray-900">
                                                         {totalStock} {primaryStock?.unit || product.unit || 'unit'}(s)
                                                     </p>
                                                 </div>
                                                 <div className="rounded-lg bg-gray-50 p-3">
-                                                    <p className="mb-0.5 text-[10px] font-medium uppercase tracking-wide text-gray-400">Low Stock Alert</p>
+                                                    <p className="mb-0.5 text-[10px] font-medium uppercase tracking-wide text-gray-400">{t('lbl_low_stock_alert')}</p>
                                                     <p className="text-sm font-medium text-gray-900">{displayLowStock}</p>
                                                 </div>
                                             </div>
@@ -241,7 +242,7 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                                         {/* Attributes */}
                                         {product.attributes && Object.keys(product.attributes).length > 0 && (
                                             <div className="space-y-3">
-                                                <h3 className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Attributes</h3>
+                                                <h3 className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">{t('lbl_attributes')}</h3>
                                                 <div className="flex flex-wrap gap-2">
                                                     {Array.isArray(product.attributes)
                                                         ? product.attributes.map((attr: any, index: number) => (
@@ -265,17 +266,17 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                                         {/* Stock Details Table - Show Variants */}
                                         {product.stocks && product.stocks.length > 0 && (
                                             <div className="space-y-3">
-                                                <h3 className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">{hasVariants ? 'Variant Details' : 'Stock Details'}</h3>
+                                                <h3 className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">{hasVariants ? t('lbl_variant_details') : t('lbl_stock_details')}</h3>
                                                 <div className="overflow-x-auto rounded-lg border border-gray-200">
                                                     <table className="min-w-full divide-y divide-gray-200">
                                                         <thead className="bg-gray-50">
                                                             <tr>
-                                                                {hasVariants && <th className="px-4 py-2 text-left text-xs font-semibold uppercase text-gray-600">Variant</th>}
+                                                                {hasVariants && <th className="px-4 py-2 text-left text-xs font-semibold uppercase text-gray-600">{t('lbl_variant')}</th>}
                                                                 <th className="px-4 py-2 text-left text-xs font-semibold uppercase text-gray-600">SKU</th>
-                                                                <th className="px-4 py-2 text-left text-xs font-semibold uppercase text-gray-600">Price</th>
-                                                                <th className="px-4 py-2 text-left text-xs font-semibold uppercase text-gray-600">Quantity</th>
-                                                                <th className="px-4 py-2 text-left text-xs font-semibold uppercase text-gray-600">Unit</th>
-                                                                {hasVariants && <th className="px-4 py-2 text-left text-xs font-semibold uppercase text-gray-600">Images</th>}
+                                                                <th className="px-4 py-2 text-left text-xs font-semibold uppercase text-gray-600">{t('lbl_price')}</th>
+                                                                <th className="px-4 py-2 text-left text-xs font-semibold uppercase text-gray-600">{t('lbl_quantity')}</th>
+                                                                <th className="px-4 py-2 text-left text-xs font-semibold uppercase text-gray-600">{t('lbl_unit')}</th>
+                                                                {hasVariants && <th className="px-4 py-2 text-left text-xs font-semibold uppercase text-gray-600">{t('lbl_images')}</th>}
                                                             </tr>
                                                         </thead>
                                                         <tbody className="divide-y divide-gray-200 bg-white">
@@ -304,9 +305,9 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                                                                     {hasVariants && (
                                                                         <td className="px-4 py-3 text-sm text-gray-700">
                                                                             {stock.images && stock.images.length > 0 ? (
-                                                                                <span className="text-xs font-medium text-primary">{stock.images.length} image(s)</span>
+                                                                                <span className="text-xs font-medium text-primary">{t('lbl_images_count').replace('{{count}}', String(stock.images.length))}</span>
                                                                             ) : (
-                                                                                <span className="text-xs text-gray-400">No images</span>
+                                                                                <span className="text-xs text-gray-400">{t('msg_no_images')}</span>
                                                                             )}
                                                                         </td>
                                                                     )}

@@ -80,8 +80,8 @@ const SplitPaymentModal: React.FC<SplitPaymentModalProps> = ({
                 {/* Header */}
                 <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
                     <div>
-                        <h2 className="text-base font-bold text-gray-800">Split Payment</h2>
-                        <p className="text-xs text-gray-400 mt-0.5">Total: {formatCurrency(totalPayable)}</p>
+                        <h2 className="text-base font-bold text-gray-800">{t('lbl_split_payment')}</h2>
+                        <p className="text-xs text-gray-400 mt-0.5">{t('lbl_total')}: {formatCurrency(totalPayable)}</p>
                     </div>
                     <button type="button" onClick={onClose}
                         className="flex h-8 w-8 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600">
@@ -122,7 +122,7 @@ const SplitPaymentModal: React.FC<SplitPaymentModalProps> = ({
                                         onClick={() => fillRemaining(idx)}
                                         className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-primary hover:underline"
                                     >
-                                        Fill
+                                        {t('btn_fill')}
                                     </button>
                                 )}
                             </div>
@@ -147,7 +147,7 @@ const SplitPaymentModal: React.FC<SplitPaymentModalProps> = ({
                         <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                         </svg>
-                        Add Payment Method
+                        {t('btn_add_payment_method')}
                     </button>
                 </div>
 
@@ -155,7 +155,7 @@ const SplitPaymentModal: React.FC<SplitPaymentModalProps> = ({
                 <div className={`mx-5 mb-4 flex items-center justify-between rounded-xl px-4 py-2.5 text-sm font-semibold ${
                     isBalanced ? 'bg-success/10 text-success' : remaining > 0 ? 'bg-warning/10 text-warning' : 'bg-danger/10 text-danger'
                 }`}>
-                    <span>{isBalanced ? 'Balanced' : remaining > 0 ? 'Remaining' : 'Exceeds total'}</span>
+                    <span>{isBalanced ? t('lbl_balanced') : remaining > 0 ? t('lbl_remaining') : t('lbl_exceeds_total')}</span>
                     <span>{isBalanced ? '✓' : formatCurrency(Math.abs(remaining))}</span>
                 </div>
 
@@ -163,7 +163,7 @@ const SplitPaymentModal: React.FC<SplitPaymentModalProps> = ({
                 <div className="flex gap-2 border-t border-gray-100 px-5 py-4">
                     <button type="button" onClick={onClose}
                         className="flex-1 rounded-xl border border-gray-200 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50">
-                        Cancel
+                        {t('btn_cancel')}
                     </button>
                     <button
                         type="button"
@@ -171,7 +171,7 @@ const SplitPaymentModal: React.FC<SplitPaymentModalProps> = ({
                         onClick={() => onConfirm(rows.map((r) => ({ ...r, amount: Number(r.amount) })))}
                         className="flex-1 rounded-xl bg-primary py-2.5 text-sm font-semibold text-white shadow-sm disabled:opacity-50 hover:bg-primary/90"
                     >
-                        Confirm Split
+                        {t('btn_confirm_split')}
                     </button>
                 </div>
             </div>

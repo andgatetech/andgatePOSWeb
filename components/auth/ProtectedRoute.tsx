@@ -3,6 +3,7 @@
 import { RootState } from '@/store';
 import { clearAuthCookies, clearAuthLocalStorage, isTokenExpired } from '@/lib/auth-session';
 import { logout as logoutAction } from '@/store/features/auth/authSlice';
+import { getTranslation } from '@/i18n';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -27,6 +28,7 @@ interface ProtectedRouteProps {
 export default function ProtectedRoute({ children, requiredPermissions = [], redirectTo = '/dashboard' }: ProtectedRouteProps) {
     const router = useRouter();
     const dispatch = useDispatch();
+    const { t } = getTranslation();
     const user = useSelector((state: RootState) => state.auth.user);
     const token = useSelector((state: RootState) => state.auth.token);
     const tokenExpiresAt = useSelector((state: RootState) => state.auth.tokenExpiresAt);
@@ -78,7 +80,7 @@ export default function ProtectedRoute({ children, requiredPermissions = [], red
             <div className="flex h-screen items-center justify-center">
                 <div className="flex flex-col items-center gap-4">
                     <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-                    <p className="text-gray-600">Checking permissions...</p>
+                    <p className="text-gray-600">{t('msg_checking_permissions')}</p>
                 </div>
             </div>
         );

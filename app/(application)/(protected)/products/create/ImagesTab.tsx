@@ -123,7 +123,7 @@ const ImagesTab: React.FC<ImagesTabProps> = ({ images, setImages, maxNumber, onP
                                                         type="button"
                                                         onClick={() => onImageUpdate(index)}
                                                         className="rounded-lg bg-gray-600 p-2.5 text-white shadow-lg transition-all duration-150 hover:scale-110 hover:bg-gray-700"
-                                                        title="Update image"
+                                                        title={t('btn_update_image')}
                                                     >
                                                         <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path
@@ -138,7 +138,7 @@ const ImagesTab: React.FC<ImagesTabProps> = ({ images, setImages, maxNumber, onP
                                                         type="button"
                                                         onClick={() => onImageRemove(index)}
                                                         className="rounded-lg bg-red-600 p-2.5 text-white shadow-lg transition-all duration-150 hover:scale-110 hover:bg-red-700"
-                                                        title="Remove image"
+                                                        title={t('btn_remove_image')}
                                                     >
                                                         <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path

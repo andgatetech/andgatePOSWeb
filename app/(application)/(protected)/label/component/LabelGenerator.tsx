@@ -685,7 +685,7 @@ const LabelGenerator = () => {
                                 </div>
                                 {labelType === 'qrcode' && (
                                     <label className="flex items-center gap-2 text-sm">
-                                        <input type="checkbox" checked={globalIncludeInfo} onChange={(e) => setGlobalIncludeInfo(e.target.checked)} className="h-4 w-4 rounded" /> Info
+                                        <input type="checkbox" checked={globalIncludeInfo} onChange={(e) => setGlobalIncludeInfo(e.target.checked)} className="h-4 w-4 rounded" /> {t('lbl_info')}
                                     </label>
                                 )}
                             </div>

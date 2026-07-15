@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
+import { getTranslation } from '@/i18n';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8080';
 
@@ -20,6 +21,7 @@ const PROVIDER_COLORS: Record<string, string> = {
 };
 
 export default function PayPage() {
+    const { t } = getTranslation();
     const params = useParams();
     const token = params?.token as string;
 
@@ -107,7 +109,7 @@ export default function PayPage() {
             <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
                 <div className="w-full max-w-md rounded-2xl bg-white p-8 text-center shadow-lg">
                     <div className="mb-4 text-5xl">⚠️</div>
-                    <h1 className="mb-2 text-xl font-bold text-gray-900">Link Not Available</h1>
+                    <h1 className="mb-2 text-xl font-bold text-gray-900">{t('pay_link_not_available')}</h1>
                     <p className="text-gray-600">{error}</p>
                 </div>
             </div>
@@ -119,9 +121,9 @@ export default function PayPage() {
             <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
                 <div className="w-full max-w-md rounded-2xl bg-white p-8 text-center shadow-lg">
                     <div className="mb-4 text-5xl">🎉</div>
-                    <h1 className="mb-2 text-xl font-bold text-gray-900">Payment Submitted</h1>
+                    <h1 className="mb-2 text-xl font-bold text-gray-900">{t('pay_payment_submitted')}</h1>
                     <p className="text-gray-600">
-                        Thank you! The shop will verify your transaction reference and update your due amount.
+                        {t('pay_payment_submitted_desc')}
                     </p>
                 </div>
             </div>
@@ -138,30 +140,30 @@ export default function PayPage() {
         <div className="min-h-screen bg-gray-50 py-8 px-4">
             <div className="mx-auto w-full max-w-md">
                 <div className="mb-6 text-center">
-                    <h1 className="text-2xl font-bold text-gray-900">{link?.store?.name || 'Payment Request'}</h1>
-                    <p className="text-sm text-gray-500">Secure payment request</p>
+                    <h1 className="text-2xl font-bold text-gray-900">{link?.store?.name || t('pay_payment_request')}</h1>
+                    <p className="text-sm text-gray-500">{t('pay_secure_request')}</p>
                 </div>
 
                 <div className="rounded-2xl bg-white p-6 shadow-lg">
                     <div className="mb-6 text-center">
-                        <p className="text-sm text-gray-500">Amount due</p>
+                        <p className="text-sm text-gray-500">{t('pay_amount_due')}</p>
                         <p className="text-4xl font-bold text-gray-900">BDT {Number(link?.amount || 0).toFixed(2)}</p>
-                        {link?.customer?.name && <p className="mt-1 text-sm text-gray-600">For: {link.customer.name}</p>}
+                        {link?.customer?.name && <p className="mt-1 text-sm text-gray-600">{t('pay_for')}: {link.customer.name}</p>}
                     </div>
 
                     {isExpired && (
-                        <div className="mb-4 rounded-lg bg-red-50 p-3 text-center text-sm text-red-700">This payment link has expired.</div>
+                        <div className="mb-4 rounded-lg bg-red-50 p-3 text-center text-sm text-red-700">{t('pay_link_expired')}</div>
                     )}
                     {isPaid && (
-                        <div className="mb-4 rounded-lg bg-green-50 p-3 text-center text-sm text-green-700">This payment has already been recorded.</div>
+                        <div className="mb-4 rounded-lg bg-green-50 p-3 text-center text-sm text-green-700">{t('pay_already_recorded')}</div>
                     )}
                     {isCancelled && (
-                        <div className="mb-4 rounded-lg bg-gray-100 p-3 text-center text-sm text-gray-700">This payment link has been cancelled.</div>
+                        <div className="mb-4 rounded-lg bg-gray-100 p-3 text-center text-sm text-gray-700">{t('pay_link_cancelled')}</div>
                     )}
 
                     {mfsAccounts.length > 0 && (
                         <div className="mb-6">
-                            <p className="mb-3 text-sm font-medium text-gray-700">Send money to:</p>
+                            <p className="mb-3 text-sm font-medium text-gray-700">{t('pay_send_money_to')}:</p>
                             <div className="space-y-2">
                                 {mfsAccounts.map((acc: any, idx: number) => (
                                     <div
@@ -174,7 +176,7 @@ export default function PayPage() {
                                             </span>
                                             <div>
                                                 <p className="text-sm font-medium text-gray-900">{PROVIDER_LABELS[acc.provider] || acc.provider}</p>
-                                                <p className="text-xs text-gray-500 capitalize">{acc.account_type} account</p>
+                                                <p className="text-xs text-gray-500 capitalize">{acc.account_type} {t('pay_account')}</p>
                                             </div>
                                         </div>
                                         <p className="font-mono text-sm font-semibold text-gray-900">{acc.account_number}</p>
@@ -186,7 +188,7 @@ export default function PayPage() {
 
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
-                            <label className="mb-1 block text-sm font-medium text-gray-700">Payment method used</label>
+                            <label className="mb-1 block text-sm font-medium text-gray-700">{t('pay_payment_method_used')}</label>
                             <select
                                 value={form.payment_method}
                                 onChange={(e) => setForm({ ...form, payment_method: e.target.value })}
@@ -194,19 +196,19 @@ export default function PayPage() {
                                 required
                                 className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:bg-gray-100"
                             >
-                                <option value="">Select payment method</option>
+                                <option value="">{t('pay_select_payment_method')}</option>
                                 {mfsAccounts.map((acc: any) => (
                                     <option key={acc.account_number} value={acc.provider}>
                                         {PROVIDER_LABELS[acc.provider] || acc.provider} - {acc.account_number}
                                     </option>
                                 ))}
-                                <option value="cash">Cash</option>
-                                <option value="other">Other</option>
+                                <option value="cash">{t('pay_cash')}</option>
+                                <option value="other">{t('pay_other')}</option>
                             </select>
                         </div>
 
                         <div>
-                            <label className="mb-1 block text-sm font-medium text-gray-700">Transaction reference / Txn ID</label>
+                            <label className="mb-1 block text-sm font-medium text-gray-700">{t('pay_transaction_reference')}</label>
                             <input
                                 type="text"
                                 value={form.transaction_reference}
@@ -219,7 +221,7 @@ export default function PayPage() {
                         </div>
 
                         <div>
-                            <label className="mb-1 block text-sm font-medium text-gray-700">Paid amount</label>
+                            <label className="mb-1 block text-sm font-medium text-gray-700">{t('pay_paid_amount')}</label>
                             <input
                                 type="number"
                                 min={0.01}
@@ -234,7 +236,7 @@ export default function PayPage() {
 
                         <div className="grid grid-cols-2 gap-3">
                             <div>
-                                <label className="mb-1 block text-sm font-medium text-gray-700">Your name</label>
+                                <label className="mb-1 block text-sm font-medium text-gray-700">{t('pay_your_name')}</label>
                                 <input
                                     type="text"
                                     value={form.customer_name}
@@ -244,7 +246,7 @@ export default function PayPage() {
                                 />
                             </div>
                             <div>
-                                <label className="mb-1 block text-sm font-medium text-gray-700">Your phone</label>
+                                <label className="mb-1 block text-sm font-medium text-gray-700">{t('pay_your_phone')}</label>
                                 <input
                                     type="tel"
                                     value={form.customer_phone}
@@ -256,7 +258,7 @@ export default function PayPage() {
                         </div>
 
                         <div>
-                            <label className="mb-1 block text-sm font-medium text-gray-700">Notes (optional)</label>
+                            <label className="mb-1 block text-sm font-medium text-gray-700">{t('pay_notes_optional')}</label>
                             <textarea
                                 value={form.notes}
                                 onChange={(e) => setForm({ ...form, notes: e.target.value })}
@@ -273,12 +275,12 @@ export default function PayPage() {
                             disabled={disabled}
                             className="w-full rounded-lg bg-primary px-4 py-3 text-sm font-semibold text-white hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
                         >
-                            {submitting ? 'Submitting...' : 'I have paid — submit reference'}
+                            {submitting ? t('pay_submitting') : t('pay_submit_reference')}
                         </button>
                     </form>
                 </div>
 
-                <p className="mt-6 text-center text-xs text-gray-400">Powered by AndgateBOS</p>
+                <p className="mt-6 text-center text-xs text-gray-400">{t('pay_powered_by')}</p>
             </div>
         </div>
     );

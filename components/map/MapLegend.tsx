@@ -2,11 +2,13 @@
 'use client';
 
 import { BANGLADESH_DIVISIONS, TIER_CONFIG } from '@/lib/bangladesh-stores';
+import { getTranslation } from '@/i18n';
 
 export default function MapLegend() {
+    const { t } = getTranslation();
     return (
         <div className="pointer-events-auto rounded-xl border border-gray-100 bg-white/95 p-4 shadow-xl backdrop-blur-sm">
-            <h4 className="mb-3 text-xs font-bold uppercase tracking-widest text-gray-500">Store Tier</h4>
+            <h4 className="mb-3 text-xs font-bold uppercase tracking-widest text-gray-500">{t('map_store_tier')}</h4>
 
             <ul className="space-y-2">
                 {(Object.entries(TIER_CONFIG) as [keyof typeof TIER_CONFIG, (typeof TIER_CONFIG)[keyof typeof TIER_CONFIG]][]).map(([key, cfg]) => (
@@ -28,7 +30,7 @@ export default function MapLegend() {
 
             <div className="my-3 border-t border-gray-100" />
 
-            <h4 className="mb-3 text-xs font-bold uppercase tracking-widest text-gray-500">Divisions</h4>
+            <h4 className="mb-3 text-xs font-bold uppercase tracking-widest text-gray-500">{t('map_divisions')}</h4>
 
             <ul className="grid grid-cols-2 gap-x-3 gap-y-1.5">
                 {BANGLADESH_DIVISIONS.map((div) => (

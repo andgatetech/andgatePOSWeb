@@ -310,7 +310,7 @@ const FeedbackManagementPage = () => {
                                                         onClick={() => handleDelete(feedback.id)}
                                                         disabled={isDeleting}
                                                         className="rounded-lg p-1.5 text-gray-300 transition-colors hover:bg-red-50 hover:text-red-500 disabled:opacity-50"
-                                                        title="Delete feedback"
+                                                        title={t('feedback_delete')}
                                                     >
                                                         <Trash2 className="h-4 w-4" />
                                                     </button>

@@ -313,10 +313,10 @@ export default function OfflineSyncManager() {
                         <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
                         </svg>
-                        <span className="text-sm font-semibold">Session expired — login again to sync your orders</span>
+                        <span className="text-sm font-semibold">{t('offline_session_expired_login_to_sync')}</span>
                     </div>
                     <Link href="/login" className="shrink-0 rounded-lg bg-white/20 px-3 py-1 text-xs font-bold transition hover:bg-white/30">
-                        Login
+                        {t('login')}
                     </Link>
                 </div>
             )}

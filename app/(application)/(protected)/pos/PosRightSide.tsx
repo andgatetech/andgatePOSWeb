@@ -2228,7 +2228,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
 
                 {!isReturnMode && (
                     <div className="mt-4 border-t border-gray-100 pt-3">
-                        <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-400">Coupon</p>
+                        <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-400">{t('lbl_coupon')}</p>
                         <CouponInput
                             storeId={currentStoreId}
                             orderTotal={backendGrandTotal}

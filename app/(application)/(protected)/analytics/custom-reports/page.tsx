@@ -417,8 +417,8 @@ export default function CustomReportsPage() {
                                     <div>
                                         <label className="mb-1 block text-sm font-medium text-gray-700">{t('lbl_sort_order')}</label>
                                         <select value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: e.target.value })} className="form-select w-full">
-                                            <option value="asc">Ascending</option>
-                                            <option value="desc">Descending</option>
+                                            <option value="asc">{t('lbl_ascending')}</option>
+                                            <option value="desc">{t('lbl_descending')}</option>
                                         </select>
                                     </div>
                                 </div>

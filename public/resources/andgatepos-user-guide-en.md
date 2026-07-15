@@ -1,17 +1,17 @@
-# AndgatePOS User Guide
+# AndgateBOS User Guide
 
 Version: June 2026  
 Audience: Bangladeshi SME owners, shop managers, cashiers, inventory staff, accounts staff, and ecommerce operators.
 
-## 1. What AndgatePOS Does
+## 1. What AndgateBOS Does
 
-AndgatePOS is an SME Business OS for Bangladeshi businesses, with POS as one core module. It covers counter sales, stock, purchases, suppliers, customers, CRM, cash closing, petty cash, attendance, service jobs, accounting, reports, ecommerce, courier setup, staff roles, and multi-store operation.
+AndgateBOS is an SME Business OS for Bangladeshi businesses, with POS as one core module. It covers counter sales, stock, purchases, suppliers, customers, CRM, cash closing, petty cash, attendance, service jobs, accounting, reports, ecommerce, courier setup, staff roles, and multi-store operation.
 
 Use this guide as a full workflow manual. Screenshots use existing product images where available.
 
 ![Dashboard](/assets/LandingImage/updated/dashboard.webp)
 
-## How to Learn AndgatePOS Step by Step
+## How to Learn AndgateBOS Step by Step
 
 If you are not technical, do not try to learn every module on day one. Follow this order.
 
@@ -56,7 +56,7 @@ Follow these steps exactly.
 19. Open `Products` and confirm stock decreased.
 20. At day end, open `Cash Closing` and submit counted cash.
 
-This is the smallest complete AndgatePOS workflow.
+This is the smallest complete AndgateBOS workflow.
 
 ## Role-Based Learning Path
 

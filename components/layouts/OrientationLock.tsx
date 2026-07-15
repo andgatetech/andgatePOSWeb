@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { getTranslation } from '@/i18n';
 
 /**
  * Three-layer portrait enforcement:
@@ -12,6 +13,7 @@ import { useEffect, useState } from 'react';
  *    Tablets (iPad landscape height ~768px) are NOT blocked.
  */
 const OrientationLock = () => {
+    const { t } = getTranslation();
     const [showOverlay, setShowOverlay] = useState(false);
 
     useEffect(() => {
@@ -55,7 +57,7 @@ const OrientationLock = () => {
         <div
             role="dialog"
             aria-modal="true"
-            aria-label="Please rotate your device"
+            aria-label={t('orientation_rotate_aria')}
             className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#034d79] text-white px-8"
             style={{ touchAction: 'none' }}
         >
@@ -84,11 +86,11 @@ const OrientationLock = () => {
                 </svg>
             </div>
 
-            <h2 className="text-xl font-bold mb-2 text-center">Rotate Your Device</h2>
+            <h2 className="text-xl font-bold mb-2 text-center">{t('orientation_rotate_title')}</h2>
             <p className="text-sm text-white/70 text-center leading-relaxed">
-                This app works best in<br />
-                <strong className="text-white">portrait mode</strong>.
-                <br />Please rotate your phone.
+                {t('orientation_rotate_line_1')}<br />
+                <strong className="text-white">{t('orientation_portrait_mode')}</strong>.
+                <br />{t('orientation_rotate_line_2')}
             </p>
 
             <style>{`

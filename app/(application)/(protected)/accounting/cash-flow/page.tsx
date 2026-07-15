@@ -73,6 +73,7 @@ const SectionTable = ({
     rows: CashFlowEntry[];
     total: number;
 }) => {
+    const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
     if (rows.length === 0) return null;
     return (
@@ -84,10 +85,10 @@ const SectionTable = ({
             <table className="w-full text-sm">
                 <thead className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider bg-gray-50/50 dark:bg-gray-800/50">
                     <tr>
-                        <th className="px-5 py-2 text-left">Activity</th>
-                        <th className="px-5 py-2 text-right text-green-600">Cash In</th>
-                        <th className="px-5 py-2 text-right text-red-500">Cash Out</th>
-                        <th className="px-5 py-2 text-right">Net</th>
+                        <th className="px-5 py-2 text-left">{t('lbl_activity')}</th>
+                        <th className="px-5 py-2 text-right text-green-600">{t('lbl_cash_in')}</th>
+                        <th className="px-5 py-2 text-right text-red-500">{t('lbl_cash_out')}</th>
+                        <th className="px-5 py-2 text-right">{t('lbl_net')}</th>
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
@@ -108,7 +109,7 @@ const SectionTable = ({
                 </tbody>
                 <tfoot>
                     <tr className="border-t-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 font-bold">
-                        <td className="px-5 py-3 text-xs uppercase tracking-wider text-gray-500">Section Total</td>
+                        <td className="px-5 py-3 text-xs uppercase tracking-wider text-gray-500">{t('lbl_section_total')}</td>
                         <td className="px-5 py-3 text-right text-green-600">
                             {formatCurrency(rows.reduce((s, r) => s + r.cash_in, 0))}
                         </td>
@@ -330,7 +331,7 @@ const CashFlowPage = () => {
             {/* Header */}
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                    <h1 className="text-xl font-bold text-gray-800 dark:text-white">Cash Flow Statement</h1>
+                    <h1 className="text-xl font-bold text-gray-800 dark:text-white">{t('lbl_cash_flow_statement')}</h1>
                     {cf && (
                         <p className="text-xs text-gray-400 mt-0.5">
                             {cf.period.from} — {cf.period.to}
@@ -360,7 +361,7 @@ const CashFlowPage = () => {
             {/* Filters */}
             <div className="flex flex-wrap items-end gap-3 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 p-4">
                 <div className="flex-1 min-w-[160px]">
-                    <label className="mb-1 block text-xs font-semibold text-gray-500">From</label>
+                    <label className="mb-1 block text-xs font-semibold text-gray-500">{t('lbl_from')}</label>
                     <input
                         type="date"
                         value={from}
@@ -369,7 +370,7 @@ const CashFlowPage = () => {
                     />
                 </div>
                 <div className="flex-1 min-w-[160px]">
-                    <label className="mb-1 block text-xs font-semibold text-gray-500">To</label>
+                    <label className="mb-1 block text-xs font-semibold text-gray-500">{t('lbl_to')}</label>
                     <input
                         type="date"
                         value={to}
@@ -383,7 +384,7 @@ const CashFlowPage = () => {
                     disabled={loading}
                     className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50 hover:bg-primary/90"
                 >
-                    {loading ? 'Loading...' : 'Run Report'}
+                    {loading ? t('lbl_loading') : t('btn_run_report')}
                 </button>
             </div>
 
@@ -394,11 +395,11 @@ const CashFlowPage = () => {
                     {/* Balance Summary Cards */}
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div className="rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-5">
-                            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Opening Balance</p>
+                            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{t('lbl_opening_balance')}</p>
                             <p className="mt-1 text-2xl font-black text-gray-800 dark:text-gray-100">
                                 {formatCurrency(cf.opening_balance)}
                             </p>
-                            <p className="text-xs text-gray-400 mt-0.5">Before {cf.period.from}</p>
+                            <p className="text-xs text-gray-400 mt-0.5">{t('lbl_before')} {cf.period.from}</p>
                         </div>
                         <div
                             className={`rounded-xl border p-5 ${
@@ -408,7 +409,7 @@ const CashFlowPage = () => {
                             }`}
                         >
                             <p className={`text-xs font-semibold uppercase tracking-wider ${cf.net_change >= 0 ? 'text-green-700 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                                Net Change
+                                {t('lbl_net_change')}
                             </p>
                             <p className={`mt-1 text-2xl font-black ${cf.net_change >= 0 ? 'text-green-700 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                                 {cf.net_change >= 0 ? '+' : ''}{formatCurrency(cf.net_change)}
@@ -418,29 +419,29 @@ const CashFlowPage = () => {
                             </p>
                         </div>
                         <div className="rounded-xl border border-primary/30 bg-primary/5 dark:bg-primary/10 p-5 text-primary">
-                            <p className="text-xs font-semibold uppercase tracking-wider opacity-70">Closing Balance</p>
+                            <p className="text-xs font-semibold uppercase tracking-wider opacity-70">{t('lbl_closing_balance')}</p>
                             <p className="mt-1 text-2xl font-black">{formatCurrency(cf.closing_balance)}</p>
-                            <p className="text-xs mt-0.5 opacity-60">As of {cf.period.to}</p>
+                            <p className="text-xs mt-0.5 opacity-60">{t('lbl_as_of')} {cf.period.to}</p>
                         </div>
                     </div>
 
                     {/* Operating Activities */}
                     <SectionTable
-                        title="Operating Activities"
+                        title={t('lbl_operating_activities')}
                         rows={cf.operating}
                         total={cf.operating_total}
                     />
 
                     {/* Other Activities */}
                     <SectionTable
-                        title="Investing & Other Activities"
+                        title={t('lbl_investing_other_activities')}
                         rows={cf.other}
                         total={cf.other_total}
                     />
 
                     {cf.operating.length === 0 && cf.other.length === 0 && (
                         <div className="rounded-xl border border-gray-100 py-16 text-center text-sm text-gray-400">
-                            No cash activity found for the selected period.
+                            {t('msg_no_cash_activity')}
                         </div>
                     )}
                 </>

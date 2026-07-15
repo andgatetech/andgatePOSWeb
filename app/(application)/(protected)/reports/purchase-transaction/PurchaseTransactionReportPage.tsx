@@ -236,7 +236,7 @@ const PurchaseTransactionReportPage = () => {
                     </div>
                 )}
                 <div className="mb-6">
-                    <BasicReportFilter onFilterChange={handleFilterChange} placeholder="Search transactions..." />
+                    <BasicReportFilter onFilterChange={handleFilterChange} placeholder={t('placeholder_search_transactions')} />
                 </div>
                 <ReusableTable
                     data={transactions}
