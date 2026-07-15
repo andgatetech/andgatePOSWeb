@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
@@ -59,7 +59,12 @@ export default function MfsAccountsTab({ paymentMethods = [] }: MfsAccountsTabPr
     const [form, setForm] = useState<MfsAccount>(emptyForm);
     const [editingId, setEditingId] = useState<number | null>(null);
 
-    const accounts = data?.data?.accounts || data?.accounts || [];
+    const [accounts, setAccounts] = useState<MfsAccount[]>([]);
+
+    useEffect(() => {
+        const rawAccounts = data?.data?.accounts || data?.accounts || [];
+        setAccounts(Array.isArray(rawAccounts) ? rawAccounts : []);
+    }, [data]);
     const activeMfsMethods = paymentMethods.filter((method: any) => {
         const isActive = method?.is_active === true || method?.is_active === 1 || method?.is_active === '1';
         return isActive && providerFromPaymentMethod(method?.payment_method_name);
@@ -97,12 +102,21 @@ export default function MfsAccountsTab({ paymentMethods = [] }: MfsAccountsTabPr
         }
 
         try {
+            let savedAccount: MfsAccount | null = null;
             if (editingId) {
-                await updateAccount({ storeId: currentStoreId, accountId: editingId, ...form }).unwrap();
+                const response: any = await updateAccount({ storeId: currentStoreId, accountId: editingId, ...form }).unwrap();
+                savedAccount = response?.data?.account || response?.account || null;
                 showSuccessDialog(t('msg_mfs_account_updated'));
             } else {
-                await createAccount({ storeId: currentStoreId, ...form }).unwrap();
+                const response: any = await createAccount({ storeId: currentStoreId, ...form }).unwrap();
+                savedAccount = response?.data?.account || response?.account || null;
                 showSuccessDialog(t('msg_mfs_account_created'));
+            }
+            if (savedAccount) {
+                setAccounts((prev) => {
+                    const withoutSaved = prev.filter((account) => account.id !== savedAccount?.id);
+                    return [...withoutSaved, savedAccount as MfsAccount].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0) || (a.id || 0) - (b.id || 0));
+                });
             }
             setForm(emptyForm);
             setEditingId(null);
@@ -224,8 +238,8 @@ export default function MfsAccountsTab({ paymentMethods = [] }: MfsAccountsTabPr
                                 {t('lbl_cancel')}
                             </button>
                         )}
-                        <button type="submit" disabled={creating || updating} className="btn btn-primary">
-                            {editingId ? t('lbl_update') : t('lbl_add')}
+                        <button type="submit" disabled={creating || updating || !currentStoreId} className="btn btn-primary">
+                            {creating || updating ? t('btn_saving') : editingId ? t('lbl_update') : t('lbl_add')}
                         </button>
                     </div>
                 </form>
