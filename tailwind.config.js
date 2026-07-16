@@ -19,6 +19,7 @@ module.exports = {
                 'slate-25': '#fafafa',
                 primary: {
                     DEFAULT: '#046ca9',
+                    dark: '#034d79',
                     light: '#e6f3fa',
                     'dark-light': 'rgba(4,108,169,.15)',
                 },

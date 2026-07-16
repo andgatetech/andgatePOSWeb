@@ -168,7 +168,7 @@ const EmployeeCreateForm = () => {
                 <div className="mb-4 rounded-lg bg-white p-4 shadow-sm transition-shadow duration-300  sm:mb-6 sm:rounded-lg sm:p-6 md:mb-8">
                     <div className="mb-4 flex flex-col items-start justify-between gap-4 sm:mb-6 sm:flex-row sm:items-center">
                         <div className="flex items-center space-x-3 sm:space-x-4">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#046ca9] shadow-md sm:h-12 sm:w-12 sm:rounded-lg">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary shadow-md sm:h-12 sm:w-12 sm:rounded-lg">
                                 <Users className="h-5 w-5 text-white sm:h-6 sm:w-6" />
                             </div>
                             <div>
@@ -186,12 +186,12 @@ const EmployeeCreateForm = () => {
                         </button>
                     </div>
                     {currentStore && (
-                        <div className="rounded-lg bg-[#046ca9]/5 p-3 sm:p-4">
+                        <div className="rounded-lg bg-primary/5 p-3 sm:p-4">
                             <div className="flex items-center space-x-2 sm:space-x-3">
-                                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#046ca9]/10 sm:h-8 sm:w-8">
-                                    <Store className="h-3.5 w-3.5 text-[#046ca9] sm:h-4 sm:w-4" />
+                                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 sm:h-8 sm:w-8">
+                                    <Store className="h-3.5 w-3.5 text-primary sm:h-4 sm:w-4" />
                                 </div>
-                                <p className="text-xs font-medium text-[#034d79] sm:text-sm">
+                                <p className="text-xs font-medium text-primary-dark sm:text-sm">
                                     {t('lbl_current_store')}: {currentStore.store_name}
                                 </p>
                             </div>
@@ -219,7 +219,7 @@ const EmployeeCreateForm = () => {
                                             value={formData.name}
                                             onChange={handleInputChange}
                                             className={`w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${
-                                                formErrors.name ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-[#046ca9] focus:ring-[#046ca9]'
+                                                formErrors.name ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-primary focus:ring-primary'
                                             }`}
                                             placeholder={t('placeholder_full_name')}
                                         />
@@ -237,7 +237,7 @@ const EmployeeCreateForm = () => {
                                             value={formData.email}
                                             onChange={handleInputChange}
                                             className={`w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${
-                                                formErrors.email ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-[#046ca9] focus:ring-[#046ca9]'
+                                                formErrors.email ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-primary focus:ring-primary'
                                             }`}
                                             placeholder={t('placeholder_email')}
                                         />
@@ -256,7 +256,7 @@ const EmployeeCreateForm = () => {
                                                 value={formData.password}
                                                 onChange={handleInputChange}
                                                 className={`w-full rounded-lg border px-4 py-3 pr-12 text-sm focus:outline-none focus:ring-2 ${
-                                                    formErrors.password ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-[#046ca9] focus:ring-[#046ca9]'
+                                                    formErrors.password ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-primary focus:ring-primary'
                                                 }`}
                                                 placeholder={t('placeholder_password')}
                                             />
@@ -285,7 +285,7 @@ const EmployeeCreateForm = () => {
                                                 className={`w-full rounded-lg border px-4 py-3 pr-12 text-sm focus:outline-none focus:ring-2 ${
                                                     formErrors.password_confirmation
                                                         ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-                                                        : 'border-gray-300 focus:border-[#046ca9] focus:ring-[#046ca9]'
+                                                        : 'border-gray-300 focus:border-primary focus:ring-primary'
                                                 }`}
                                                 placeholder={t('placeholder_confirm_password')}
                                             />
@@ -311,7 +311,7 @@ const EmployeeCreateForm = () => {
                                             name="phone"
                                             value={formData.phone}
                                             onChange={handleInputChange}
-                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
+                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
                                             placeholder={t('placeholder_phone')}
                                         />
                                     </div>
@@ -324,7 +324,7 @@ const EmployeeCreateForm = () => {
                                             value={formData.address}
                                             onChange={handleInputChange}
                                             rows={3}
-                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
+                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
                                             placeholder={t('placeholder_address')}
                                         />
                                     </div>
@@ -335,7 +335,7 @@ const EmployeeCreateForm = () => {
                                         <select
                                             value={selectedRoleId ?? ''}
                                             onChange={(e) => setSelectedRoleId(e.target.value === '' ? null : Number(e.target.value))}
-                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
+                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
                                         >
                                             <option value="">{t('lbl_no_role')}</option>
                                             {availableRoles.map((role) => (
@@ -364,7 +364,7 @@ const EmployeeCreateForm = () => {
                                 <button
                                     type="submit"
                                     disabled={isSubmitting}
-                                    className="group relative inline-flex w-full items-center justify-center rounded-lg bg-[#046ca9] px-6 py-3 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:bg-[#034d79]  focus:outline-none focus:ring-2 focus:ring-[#046ca9] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+                                    className="group relative inline-flex w-full items-center justify-center rounded-lg bg-primary px-6 py-3 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:bg-primary-dark  focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                                 >
                                     {isSubmitting ? (
                                         <>

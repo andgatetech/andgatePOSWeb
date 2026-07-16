@@ -213,7 +213,7 @@ const CreateSupplierPage = () => {
                 <div className="mb-4 rounded-lg bg-white p-4 shadow-sm transition-shadow duration-300  sm:mb-6 sm:rounded-lg sm:p-6 md:mb-8">
                     <div className="mb-4 flex flex-col items-start justify-between gap-4 sm:mb-6 sm:flex-row sm:items-center">
                         <div className="flex items-center space-x-3 sm:space-x-4">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#046ca9] shadow-md sm:h-12 sm:w-12 sm:rounded-lg">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary shadow-md sm:h-12 sm:w-12 sm:rounded-lg">
                                 <Truck className="h-5 w-5 text-white sm:h-6 sm:w-6" />
                             </div>
                             <div>
@@ -231,12 +231,12 @@ const CreateSupplierPage = () => {
                         </button>
                     </div>
                     {currentStore && (
-                        <div className="rounded-lg bg-[#046ca9]/5 p-3 sm:p-4">
+                        <div className="rounded-lg bg-primary/5 p-3 sm:p-4">
                             <div className="flex items-center space-x-2 sm:space-x-3">
-                                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#046ca9]/10 sm:h-8 sm:w-8">
-                                    <Store className="h-3.5 w-3.5 text-[#046ca9] sm:h-4 sm:w-4" />
+                                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 sm:h-8 sm:w-8">
+                                    <Store className="h-3.5 w-3.5 text-primary sm:h-4 sm:w-4" />
                                 </div>
-                                <p className="text-xs font-medium text-[#034d79] sm:text-sm">
+                                <p className="text-xs font-medium text-primary-dark sm:text-sm">
                                     {t('lbl_current_store')}: {currentStore.store_name}
                                 </p>
                             </div>
@@ -262,7 +262,7 @@ const CreateSupplierPage = () => {
                                         onChange={handleChange}
                                         placeholder={t('placeholder_enter_name')}
                                         className={`w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${
-                                            errors.name ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-[#046ca9] focus:ring-[#046ca9]'
+                                            errors.name ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-primary focus:ring-primary'
                                         }`}
                                     />
                                     {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name}</p>}
@@ -279,7 +279,7 @@ const CreateSupplierPage = () => {
                                         value={formData.company_name}
                                         onChange={handleChange}
                                         placeholder={t('supplier_company_name_placeholder')}
-                                        className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
+                                        className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
                                     />
                                 </div>
 
@@ -294,7 +294,7 @@ const CreateSupplierPage = () => {
                                         value={formData.contact_person}
                                         onChange={handleChange}
                                         placeholder={t('supplier_contact_person_placeholder')}
-                                        className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
+                                        className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
                                     />
                                 </div>
 
@@ -307,7 +307,7 @@ const CreateSupplierPage = () => {
                                         name="supplier_type"
                                         value={formData.supplier_type}
                                         onChange={handleChange}
-                                        className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
+                                        className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
                                     >
                                         {supplierTypeOptions.map((option) => (
                                             <option key={option.value} value={option.value}>
@@ -329,7 +329,7 @@ const CreateSupplierPage = () => {
                                         onChange={handleChange}
                                         placeholder={t('placeholder_email')}
                                         className={`w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${
-                                            errors.email ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-[#046ca9] focus:ring-[#046ca9]'
+                                            errors.email ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-primary focus:ring-primary'
                                         }`}
                                     />
                                     {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email}</p>}
@@ -347,7 +347,7 @@ const CreateSupplierPage = () => {
                                         onChange={handleChange}
                                         placeholder={t('placeholder_phone')}
                                         className={`w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${
-                                            errors.phone ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-[#046ca9] focus:ring-[#046ca9]'
+                                            errors.phone ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-primary focus:ring-primary'
                                         }`}
                                     />
                                     {errors.phone && <p className="mt-1 text-xs text-red-500">{errors.phone}</p>}
@@ -364,7 +364,7 @@ const CreateSupplierPage = () => {
                                         value={formData.mobile_banking_number}
                                         onChange={handleChange}
                                         placeholder={t('supplier_mobile_banking_placeholder')}
-                                        className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
+                                        className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
                                     />
                                 </div>
                             </div>
@@ -386,7 +386,7 @@ const CreateSupplierPage = () => {
                                             value={formData.opening_balance}
                                             onChange={handleChange}
                                             placeholder="0.00"
-                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
+                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
                                         />
                                     </div>
 
@@ -399,7 +399,7 @@ const CreateSupplierPage = () => {
                                             name="payment_terms"
                                             value={formData.payment_terms}
                                             onChange={handleChange}
-                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
+                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
                                         >
                                             {paymentTermOptions.map((option) => (
                                                 <option key={option.value} value={option.value}>
@@ -422,7 +422,7 @@ const CreateSupplierPage = () => {
                                             value={formData.credit_limit}
                                             onChange={handleChange}
                                             placeholder="0.00"
-                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
+                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
                                         />
                                     </div>
 
@@ -435,7 +435,7 @@ const CreateSupplierPage = () => {
                                             name="preferred_payment_method"
                                             value={formData.preferred_payment_method}
                                             onChange={handleChange}
-                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
+                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
                                         >
                                             {paymentMethodOptions.map((option) => (
                                                 <option key={option.value} value={option.value}>
@@ -456,7 +456,7 @@ const CreateSupplierPage = () => {
                                             value={formData.bank_name}
                                             onChange={handleChange}
                                             placeholder={t('supplier_bank_name_placeholder')}
-                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
+                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
                                         />
                                     </div>
 
@@ -471,7 +471,7 @@ const CreateSupplierPage = () => {
                                             value={formData.bank_account_name}
                                             onChange={handleChange}
                                             placeholder={t('supplier_bank_account_name_placeholder')}
-                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
+                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
                                         />
                                     </div>
 
@@ -486,7 +486,7 @@ const CreateSupplierPage = () => {
                                             value={formData.bank_account_number}
                                             onChange={handleChange}
                                             placeholder={t('supplier_bank_account_number_placeholder')}
-                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
+                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
                                         />
                                     </div>
                                 </div>
@@ -507,7 +507,7 @@ const CreateSupplierPage = () => {
                                             value={formData.trade_license_no}
                                             onChange={handleChange}
                                             placeholder={t('ph_trade_license_no')}
-                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
+                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
                                         />
                                     </div>
 
@@ -522,7 +522,7 @@ const CreateSupplierPage = () => {
                                             value={formData.tin_no}
                                             onChange={handleChange}
                                             placeholder={t('ph_tin_no')}
-                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
+                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
                                         />
                                     </div>
 
@@ -537,7 +537,7 @@ const CreateSupplierPage = () => {
                                             value={formData.bin_no}
                                             onChange={handleChange}
                                             placeholder={t('ph_bin_no')}
-                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
+                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
                                         />
                                     </div>
                                 </div>
@@ -560,7 +560,7 @@ const CreateSupplierPage = () => {
                                             rows={3}
                                             maxLength={500}
                                             className={`w-full resize-none rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${
-                                                errors.address ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-[#046ca9] focus:ring-[#046ca9]'
+                                                errors.address ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-primary focus:ring-primary'
                                             }`}
                                         />
                                         {errors.address && <p className="mt-1 text-xs text-red-500">{errors.address}</p>}
@@ -579,7 +579,7 @@ const CreateSupplierPage = () => {
                                             placeholder={t('supplier_notes_placeholder')}
                                             rows={3}
                                             maxLength={1000}
-                                            className="w-full resize-none rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
+                                            className="w-full resize-none rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
                                         />
                                         <p className="mt-1 text-xs text-gray-500">{formData.notes.length}/1000</p>
                                     </div>
@@ -593,7 +593,7 @@ const CreateSupplierPage = () => {
                                             name="status"
                                             value={formData.status}
                                             onChange={handleChange}
-                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#046ca9] focus:outline-none focus:ring-2 focus:ring-[#046ca9]"
+                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
                                         >
                                             <option value="active">{t('status_active')}</option>
                                             <option value="inactive">{t('status_inactive')}</option>
@@ -626,7 +626,7 @@ const CreateSupplierPage = () => {
                                 <button
                                     type="submit"
                                     disabled={createLoading}
-                                    className="group relative inline-flex w-full items-center justify-center rounded-lg bg-[#046ca9] px-6 py-3 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:bg-[#034d79]  focus:outline-none focus:ring-2 focus:ring-[#046ca9] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+                                    className="group relative inline-flex w-full items-center justify-center rounded-lg bg-primary px-6 py-3 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:bg-primary-dark  focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                                 >
                                     {createLoading ? (
                                         <>

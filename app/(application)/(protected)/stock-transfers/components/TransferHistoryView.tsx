@@ -35,7 +35,7 @@ export default function TransferHistoryView({ onCreateNew }: { onCreateNew: () =
     const [tab, setTab] = useState<Tab>('all');
     const [selectedTransferId, setSelectedTransferId] = useState<number | null>(null);
 
-    const { data: transfersData, refetch: refetchList } = useGetStockTransfersQuery(
+    const { data: transfersData, isLoading: transfersLoading, refetch: refetchList } = useGetStockTransfersQuery(
         { store_id: Number(currentStoreId), direction: tab === 'all' ? undefined : tab },
         { skip: !currentStoreId }
     );
@@ -134,7 +134,9 @@ export default function TransferHistoryView({ onCreateNew }: { onCreateNew: () =
 
             <div className="grid gap-4 lg:grid-cols-3">
                 <div className="rounded-xl border border-gray-200 bg-white p-3 shadow-sm lg:col-span-1">
-                    {transfers.length === 0 ? (
+                    {transfersLoading ? (
+                        <p className="py-8 text-center text-sm text-gray-400">{t('lbl_loading')}</p>
+                    ) : transfers.length === 0 ? (
                         <p className="py-8 text-center text-sm text-gray-400">{t('transfer_no_records')}</p>
                     ) : (
                         <div className="space-y-2">
