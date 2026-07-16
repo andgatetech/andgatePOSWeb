@@ -1,4 +1,4 @@
-import { AlertTriangle, ArrowDown, ArrowUp, Eye, Minus, PackageCheck, Plus, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, Eye, Minus, PackageCheck, Plus, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
@@ -42,19 +42,20 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
     const notes = adjustment?.notes || '';
     const serialAdjustments = adjustment?.serialAdjustments || [];
     const currentStock = Number(item.PlaceholderQuantity ?? item.quantity ?? 0);
-    const projectedStock = adjustmentType === 'increase' ? currentStock + adjustmentQuantity : currentStock - adjustmentQuantity;
-    const isOverDecrease = adjustmentType === 'decrease' && adjustmentQuantity > currentStock;
 
-    const updateAdjustmentType = (type: 'increase' | 'decrease') => {
-        onAdjustmentChange(item.id, 'adjustmentType', type);
-        if (type === 'decrease' && adjustmentQuantity > currentStock) {
-            onAdjustmentChange(item.id, 'adjustmentQuantity', currentStock);
-        }
-    };
+    // The shopkeeper types what they actually counted on the shelf, not a delta —
+    // direction/quantity (what the save payload and backend still expect) are derived
+    // from it so no API change is needed. Reconstruct the counted value from stored
+    // direction+quantity so it survives navigating away and back.
+    const countedQuantity = adjustment ? (adjustmentType === 'increase' ? currentStock + adjustmentQuantity : currentStock - adjustmentQuantity) : currentStock;
+    const delta = countedQuantity - currentStock;
+    const hasDiscrepancy = delta !== 0;
 
-    const updateAdjustmentQuantity = (quantity: number) => {
-        const cleanQuantity = Number.isFinite(quantity) ? Math.max(0, Math.floor(quantity)) : 0;
-        onAdjustmentChange(item.id, 'adjustmentQuantity', adjustmentType === 'decrease' ? Math.min(cleanQuantity, currentStock) : cleanQuantity);
+    const updateCountedQuantity = (nextCounted: number) => {
+        const clean = Number.isFinite(nextCounted) ? Math.max(0, Math.floor(nextCounted)) : currentStock;
+        const nextDelta = clean - currentStock;
+        onAdjustmentChange(item.id, 'adjustmentType', nextDelta >= 0 ? 'increase' : 'decrease');
+        onAdjustmentChange(item.id, 'adjustmentQuantity', Math.abs(nextDelta));
     };
 
     // Find selected reason details
@@ -188,129 +189,99 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
                         </div>
                     </div>
                 ) : (
-                    // Normal Product - Quantity Adjustment UI
-                    <div className="space-y-4">
-                        <div className="grid gap-3 xl:grid-cols-[240px_minmax(320px,1fr)]">
-                            {/* Adjustment Type */}
-                            <div className="min-w-0">
-                                <label className="mb-2 block text-sm font-medium text-gray-700">{t('stock_adjustment_change_type')} *</label>
-                                <div className="grid grid-cols-2 gap-2 rounded-lg bg-gray-100 p-1">
-                                    <button
-                                        type="button"
-                                        onClick={() => updateAdjustmentType('increase')}
-                                        className={`flex h-10 min-w-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-md px-2 text-sm font-medium transition-all ${
-                                            adjustmentType === 'increase' ? 'bg-white text-green-700 shadow-sm ring-1 ring-green-200' : 'text-gray-600 hover:bg-white'
-                                        }`}
-                                    >
-                                        <ArrowUp className="h-4 w-4 flex-shrink-0" />
-                                        <span className="truncate">{t('lbl_increase')}</span>
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => updateAdjustmentType('decrease')}
-                                        className={`flex h-10 min-w-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-md px-2 text-sm font-medium transition-all ${
-                                            adjustmentType === 'decrease' ? 'bg-white text-red-700 shadow-sm ring-1 ring-red-200' : 'text-gray-600 hover:bg-white'
-                                        }`}
-                                    >
-                                        <ArrowDown className="h-4 w-4 flex-shrink-0" />
-                                        <span className="truncate">{t('lbl_decrease')}</span>
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* Adjustment Quantity */}
-                            <div className="min-w-0">
-                                <label className="mb-2 block text-sm font-medium text-gray-700">{t('stock_adjustment_qty_to_adjust')} *</label>
-                                <div className="flex items-stretch gap-2">
-                                    <button
-                                        type="button"
-                                        onClick={() => updateAdjustmentQuantity(adjustmentQuantity - 1)}
-                                        className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-600 transition-colors hover:bg-gray-50"
-                                    >
-                                        <Minus className="h-4 w-4" />
-                                    </button>
-                                    <input
-                                        type="number"
-                                        min="0"
-                                        max={adjustmentType === 'decrease' ? currentStock : undefined}
-                                        value={adjustmentQuantity === 0 ? '' : adjustmentQuantity}
-                                        onChange={(e) => updateAdjustmentQuantity(e.target.value === '' ? 0 : Number(e.target.value))}
-                                        className="h-11 w-full min-w-0 rounded-lg border border-gray-300 bg-white px-2 text-center text-lg font-semibold text-gray-900 focus:border-primary focus:ring-2 focus:ring-primary"
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => updateAdjustmentQuantity(adjustmentQuantity + 1)}
-                                        className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-600 transition-colors hover:bg-gray-50"
-                                    >
-                                        <Plus className="h-4 w-4" />
-                                    </button>
-                                </div>
-                                <div
-                                    className={`mt-2 flex items-center gap-2 rounded-md border px-2 py-1.5 text-xs font-medium ${
-                                        isOverDecrease ? 'border-red-200 bg-red-50 text-red-700' : 'border-[#d8e4ec] bg-[#f6f8fb] text-gray-700'
-                                    }`}
+                    // Normal Product - count what's actually on the shelf; direction/delta are derived, not typed.
+                    <div className="space-y-3">
+                        <div className="flex flex-wrap items-center gap-3">
+                            <label className="text-sm font-medium text-gray-700">{t('stock_adjustment_counted_quantity')} *</label>
+                            <div className="flex items-stretch gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => updateCountedQuantity(countedQuantity - 1)}
+                                    className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-600 transition-colors hover:bg-gray-50"
                                 >
-                                    <PackageCheck className="h-3.5 w-3.5 flex-shrink-0" />
-                                    <span className="min-w-0 break-words">
-                                        {t('stock_adjustment_after_save')}: {currentStock} {adjustmentType === 'increase' ? '+' : '-'} {adjustmentQuantity || 0} ={' '}
-                                        <span className="font-bold">{Math.max(0, projectedStock)}</span>
-                                    </span>
-                                </div>
-                                {isOverDecrease && (
-                                    <div className="mt-2 flex items-start gap-1.5 rounded-md border border-red-200 bg-red-50 px-2 py-1.5 text-xs text-red-700">
-                                        <AlertTriangle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
-                                        <span>{t('stock_adjustment_decrease_limit')}</span>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                        <div className="grid gap-3 xl:grid-cols-[minmax(320px,1fr)_minmax(260px,0.75fr)]">
-                            {/* Reason */}
-                            <div className="min-w-0">
-                                <label className="mb-2 block text-sm font-medium text-gray-700">{t('reason')} *</label>
-                                {adjustmentReasons.length === 0 ? (
-                                    <div className="rounded-lg border-2 border-yellow-200 bg-yellow-50 p-3">
-                                        <p className="text-xs font-medium text-yellow-800">
-                                            {t('stock_adjustment_no_reason_found')}{' '}
-                                            <Link href="/store/setting?tab=adjustment" className="font-semibold text-yellow-900 underline hover:text-yellow-700">
-                                                {t('stock_adjustment_add_common_reasons')}
-                                            </Link>
-                                        </p>
-                                    </div>
-                                ) : (
-                                    <div className="space-y-1">
-                                        <select
-                                            value={reason}
-                                            onChange={(e) => onAdjustmentChange(item.id, 'reason', e.target.value)}
-                                            className="h-11 w-full min-w-0 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-primary focus:ring-2 focus:ring-primary"
-                                        >
-                                            <option value="">{t('placeholder_select_reason')}</option>
-                                            {adjustmentReasons
-                                                .filter((r: any) => r.is_active === 1 || r.is_active === true)
-                                                .map((r: any) => (
-                                                    <option key={r.id} value={r.id}>
-                                                        {r.name}
-                                                    </option>
-                                                ))}
-                                        </select>
-                                        {selectedReason?.description && <p className="text-xs italic text-gray-500">{selectedReason.description}</p>}
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Notes */}
-                            <div className="min-w-0">
-                                <label className="mb-2 block text-sm font-medium text-gray-700">{t('stock_adjustment_notes')}</label>
+                                    <Minus className="h-4 w-4" />
+                                </button>
                                 <input
-                                    type="text"
-                                    value={notes}
-                                    onChange={(e) => onAdjustmentChange(item.id, 'notes', e.target.value)}
-                                    placeholder={t('optional')}
-                                    className="h-11 w-full min-w-0 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-primary focus:ring-2 focus:ring-primary"
+                                    type="number"
+                                    inputMode="numeric"
+                                    min="0"
+                                    value={countedQuantity}
+                                    onChange={(e) => updateCountedQuantity(e.target.value === '' ? 0 : Number(e.target.value))}
+                                    className={`h-11 w-24 min-w-0 rounded-lg border bg-white px-2 text-center text-lg font-semibold focus:ring-2 ${
+                                        hasDiscrepancy ? 'border-primary text-gray-900 focus:border-primary focus:ring-primary' : 'border-green-300 text-green-700 focus:border-primary focus:ring-primary'
+                                    }`}
                                 />
+                                <button
+                                    type="button"
+                                    onClick={() => updateCountedQuantity(countedQuantity + 1)}
+                                    className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-600 transition-colors hover:bg-gray-50"
+                                >
+                                    <Plus className="h-4 w-4" />
+                                </button>
                             </div>
+                            {hasDiscrepancy ? (
+                                <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold ${delta > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                    {delta > 0 ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
+                                    {delta > 0 ? '+' : ''}
+                                    {delta}
+                                </span>
+                            ) : (
+                                <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2.5 py-1 text-xs font-bold text-green-700">
+                                    <PackageCheck className="h-3 w-3" />
+                                    {t('stock_adjustment_matches')}
+                                </span>
+                            )}
                         </div>
+
+                        {hasDiscrepancy && (
+                            <div className="grid gap-3 border-t border-dashed border-[#d8e4ec] pt-3 sm:grid-cols-[minmax(220px,1fr)_minmax(180px,0.75fr)]">
+                                {/* Reason */}
+                                <div className="min-w-0">
+                                    <label className="mb-2 block text-sm font-medium text-gray-700">{t('reason')} *</label>
+                                    {adjustmentReasons.length === 0 ? (
+                                        <div className="rounded-lg border-2 border-yellow-200 bg-yellow-50 p-3">
+                                            <p className="text-xs font-medium text-yellow-800">
+                                                {t('stock_adjustment_no_reason_found')}{' '}
+                                                <Link href="/store/setting?tab=adjustment" className="font-semibold text-yellow-900 underline hover:text-yellow-700">
+                                                    {t('stock_adjustment_add_common_reasons')}
+                                                </Link>
+                                            </p>
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-1">
+                                            <select
+                                                value={reason}
+                                                onChange={(e) => onAdjustmentChange(item.id, 'reason', e.target.value)}
+                                                className="h-11 w-full min-w-0 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-primary focus:ring-2 focus:ring-primary"
+                                            >
+                                                <option value="">{t('placeholder_select_reason')}</option>
+                                                {adjustmentReasons
+                                                    .filter((r: any) => r.is_active === 1 || r.is_active === true)
+                                                    .filter((r: any) => !r.direction || r.direction === 'either' || r.direction === (delta > 0 ? 'increase' : 'decrease'))
+                                                    .map((r: any) => (
+                                                        <option key={r.id} value={r.id}>
+                                                            {r.name}
+                                                        </option>
+                                                    ))}
+                                            </select>
+                                            {selectedReason?.description && <p className="text-xs italic text-gray-500">{selectedReason.description}</p>}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Notes */}
+                                <div className="min-w-0">
+                                    <label className="mb-2 block text-sm font-medium text-gray-700">{t('stock_adjustment_notes')}</label>
+                                    <input
+                                        type="text"
+                                        value={notes}
+                                        onChange={(e) => onAdjustmentChange(item.id, 'notes', e.target.value)}
+                                        placeholder={t('optional')}
+                                        className="h-11 w-full min-w-0 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-primary focus:ring-2 focus:ring-primary"
+                                    />
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>

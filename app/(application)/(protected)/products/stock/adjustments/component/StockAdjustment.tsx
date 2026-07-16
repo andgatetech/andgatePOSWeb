@@ -80,10 +80,14 @@ const StockAdjustment = () => {
             return;
         }
 
+        // An item whose counted quantity matches current stock (adjustmentQuantity === 0) needs no
+        // reason and isn't an error — it's simply confirmed and excluded from the save payload below.
+        // Only a *real* discrepancy without a reason is invalid.
         const invalidNormalProducts = cartItems.filter((item) => {
             if (item.has_serial) return false;
             const adj = getAdjustment(item.id);
-            return !adj || adj.adjustmentQuantity <= 0 || (!adj.reason && !globalConfig.reason);
+            if (!adj || adj.adjustmentQuantity <= 0) return false;
+            return !adj.reason && !globalConfig.reason;
         });
 
         const invalidSerialProducts = cartItems.filter((item) => {
@@ -167,6 +171,14 @@ const StockAdjustment = () => {
                 }
                 batchAdjustments.push(qtyAdj);
             }
+        }
+
+        // A full recount where every item already matched produces nothing to send —
+        // that's a successful count, not an error, so don't hit the API with an empty batch.
+        if (batchAdjustments.length === 0) {
+            showSuccessDialog(t('stock_adjustment_all_matched_title'), t('stock_adjustment_all_matched_desc'));
+            if (currentStoreId) dispatch(clearStockItems(currentStoreId));
+            return;
         }
 
         // Snapshot before clearing (Redux state wiped after clearStockItems)
