@@ -118,6 +118,15 @@ const nextConfig = {
                 hostname: 'api.andgatepos.com',
                 pathname: '/storage/**',
             },
+            {
+                protocol: 'https',
+                hostname: 'api.andgatebos.com',
+            },
+            {
+                protocol: 'https',
+                hostname: 'api.andgatebos.com',
+                pathname: '/storage/**',
+            },
         ],
     },
     reactStrictMode: true,
