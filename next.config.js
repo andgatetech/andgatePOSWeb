@@ -66,6 +66,8 @@ const withPWA = require('@ducanh2912/next-pwa').default({
     },
 });
 
+const apiProxyTarget = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8080';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     outputFileTracingRoot: __dirname,
@@ -137,6 +139,16 @@ const nextConfig = {
     poweredByHeader: false,
     compress: true,
     generateEtags: true,
+    async rewrites() {
+        const target = apiProxyTarget.replace(/\/+$/, '');
+
+        return [
+            {
+                source: '/api/:path*',
+                destination: `${target}/api/:path*`,
+            },
+        ];
+    },
     async headers() {
         const noIndexHeaders = [
             { key: 'X-Robots-Tag', value: 'noindex, nofollow' },
