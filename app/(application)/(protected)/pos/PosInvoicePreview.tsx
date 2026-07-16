@@ -170,10 +170,11 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
         return hookStore || storeData?.data || {};
     }, [hookStore, storeData?.data]);
 
-    // Fetch store logo from dedicated endpoint
+    // Fetch store logo from dedicated endpoint — only when the store actually has one,
+    // otherwise this 404s every time for the many stores that haven't uploaded a logo.
     const currentStoreId = currentStore?.id || storeId;
     const { data: logoData } = useGetStoreLogoQuery(currentStoreId, {
-        skip: !currentStoreId,
+        skip: !currentStoreId || !currentStore?.logo_path,
     });
 
     const {

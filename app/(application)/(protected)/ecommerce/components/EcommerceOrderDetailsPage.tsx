@@ -622,7 +622,8 @@ const EcommerceOrderDetailsPage = () => {
         return userStores.find((store) => Number(store.id) === Number(stores[0]?.id)) || currentStore || stores[0];
     }, [currentStore, stores, userStores]);
     const invoiceStoreId = Number(matchedStore?.id || currentStoreId || 0);
-    const { data: logoData } = useGetStoreLogoQuery(invoiceStoreId, { skip: !invoiceStoreId });
+    // Only fetch when the store actually has a logo — otherwise this 404s every time.
+    const { data: logoData } = useGetStoreLogoQuery(invoiceStoreId, { skip: !invoiceStoreId || !matchedStore?.logo_path });
     const defaultMerchantOrderId = `${order?.order_number || parentOrder?.order_number || `STORE-ORDER-${order?.id || orderId}`}-${order?.id || orderId}`;
     const defaultRecipientAddress = [shipping?.address_line, shipping?.area, shipping?.zone, shipping?.city, shipping?.postal_code].filter(Boolean).join(', ') || shipping?.address || '';
     const defaultItemDescription = useMemo(

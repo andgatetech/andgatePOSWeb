@@ -7455,6 +7455,7 @@
   "stock_adjustment_optional_notes": "Optional notes",
   "stock_adjustment_qty_to_adjust": "Qty to Adjust",
   "stock_adjustment_reason_placeholder": "e.g., Customer purchase",
+  "stock_adjustment_remove_confirm": "You've already entered a quantity, reason, or note for this item. Remove it anyway?",
   "stock_adjustment_remove_item": "Remove item",
   "stock_adjustment_review_hint": "Before saving, confirm the stock was physically checked. This change updates inventory immediately.",
   "stock_adjustment_save_serial_adjustments": "Save Serial Adjustments",

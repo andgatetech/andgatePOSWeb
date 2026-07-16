@@ -22,7 +22,16 @@ const SKIP_SELECTOR = [
     '[data-no-localize-digits]',
 ].join(',');
 
-const toBanglaDigits = (value: string) => value.replace(/\d/g, (digit) => BN_DIGITS[Number(digit)]);
+// Only localize digit runs that aren't part of an alphanumeric identifier (SKU, product
+// name, order code, etc.) — a digit run touching a Latin letter (e.g. "GAD260754", "E2E",
+// "SKU-20F7") is left untouched; a standalone number (price, quantity, date, phone) is not.
+const toBanglaDigits = (value: string) =>
+    value.replace(/\d+/g, (run, offset: number, full: string) => {
+        const before = full[offset - 1] || '';
+        const after = full[offset + run.length] || '';
+        if (/[A-Za-z]/.test(before) || /[A-Za-z]/.test(after)) return run;
+        return run.replace(/\d/g, (digit) => BN_DIGITS[Number(digit)]);
+    });
 
 const getStoredLanguage = () => {
     try {

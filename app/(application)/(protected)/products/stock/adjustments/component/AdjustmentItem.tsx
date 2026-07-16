@@ -67,6 +67,14 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
         onAdjustmentChange(item.id, 'serialAdjustments', serials);
     };
 
+    // A misclick on remove shouldn't silently discard a count someone already entered —
+    // only confirm when there's actual work to lose (quantity, reason, notes, or serials set).
+    const hasUnsavedWork = adjustmentQuantity > 0 || Boolean(reason) || Boolean(notes) || serialAdjustments.length > 0;
+    const handleRemove = () => {
+        if (hasUnsavedWork && !window.confirm(t('stock_adjustment_remove_confirm'))) return;
+        onRemove(item.id);
+    };
+
     return (
         <>
             <div className="group rounded-lg border border-[#d8e4ec] bg-white p-3 shadow-sm transition-all hover:border-[#b9d3e4] sm:p-4">
@@ -98,7 +106,7 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
                             {item.rate && <span className="font-medium text-gray-700">{formatCurrency(item.rate)}</span>}
                         </div>
                     </div>
-                    <button onClick={() => onRemove(item.id)} className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600" title={t('stock_adjustment_remove_item')}>
+                    <button onClick={handleRemove} className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600" title={t('stock_adjustment_remove_item')}>
                         <Trash2 className="h-5 w-5" />
                     </button>
                 </div>

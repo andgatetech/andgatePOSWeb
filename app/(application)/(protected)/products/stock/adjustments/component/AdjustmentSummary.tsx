@@ -20,7 +20,9 @@ const AdjustmentSummary = ({ totalItems, totalIncrease, totalDecrease, isSaving,
     return (
         <div
             className={`${
-                isSide ? 'rounded-lg border border-[#d8e4ec] bg-white shadow-sm' : 'fixed inset-x-0 bottom-0 z-30 border-t border-gray-200 bg-white shadow-[0_-10px_30px_rgba(15,23,42,0.12)]'
+                isSide
+                    ? 'rounded-lg border border-[#d8e4ec] bg-white shadow-sm'
+                    : 'fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-30 border-t border-gray-200 bg-white shadow-[0_-10px_30px_rgba(15,23,42,0.12)] lg:bottom-0'
             }`}
         >
             <div className={`${isSide ? 'p-4' : 'p-3 sm:p-4'}`}>

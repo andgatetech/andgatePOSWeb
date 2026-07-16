@@ -7455,6 +7455,7 @@
   "stock_adjustment_optional_notes": "ঐচ্ছিক নোট",
   "stock_adjustment_qty_to_adjust": "অ্যাডজাস্ট পরিমাণ",
   "stock_adjustment_reason_placeholder": "যেমন: কাস্টমার ক্রয়",
+  "stock_adjustment_remove_confirm": "এই পণ্যের জন্য আপনি ইতিমধ্যে পরিমাণ, কারণ বা নোট লিখেছেন। তারপরও কি সরাতে চান?",
   "stock_adjustment_remove_item": "আইটেম সরান",
   "stock_adjustment_review_hint": "সেভ করার আগে নিশ্চিত করুন পণ্যগুলো বাস্তবে গুনে দেখা হয়েছে। এই পরিবর্তন সাথে সাথে ইনভেন্টরিতে আপডেট হবে।",
   "stock_adjustment_save_serial_adjustments": "সিরিয়াল অ্যাডজাস্টমেন্ট সেভ করুন",

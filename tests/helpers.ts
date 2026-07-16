@@ -33,12 +33,22 @@ export async function getApiContext(request: APIRequestContext): Promise<{ token
 }
 
 export async function createProductViaApi(request: APIRequestContext, payload: Record<string, unknown>): Promise<number> {
-    const { token } = await getApiContext(request);
-    // Product store endpoint expects multipart/form-data
-    const multipart: Record<string, string> = {};
-    Object.entries(payload).forEach(([key, value]) => {
+    const { token, storeId } = await getApiContext(request);
+    // Product store endpoint expects multipart/form-data, with per-store stock
+    // (price/purchase_price/quantity/available) nested under stocks[0][...] rather
+    // than as flat top-level fields — see stocks.0.price etc. in the API's validation errors.
+    const { price, purchase_price, quantity, low_stock_quantity, available, ...productFields } = payload;
+    const multipart: Record<string, string> = { store_id: String(storeId) };
+    Object.entries(productFields).forEach(([key, value]) => {
         multipart[key] = value === null || value === undefined ? '' : String(value);
     });
+    multipart['stocks[0][store_id]'] = String(storeId);
+    multipart['stocks[0][quantity]'] = String(quantity ?? '0');
+    multipart['stocks[0][low_stock_quantity]'] = String(low_stock_quantity ?? '0');
+    multipart['stocks[0][price]'] = String(price ?? '0');
+    multipart['stocks[0][purchase_price]'] = String(purchase_price ?? '0');
+    multipart['stocks[0][available]'] = String(available ?? 'yes');
+
     const resp = await request.post(`${API_BASE_URL}/api/v1/products`, {
         multipart,
         headers: {
