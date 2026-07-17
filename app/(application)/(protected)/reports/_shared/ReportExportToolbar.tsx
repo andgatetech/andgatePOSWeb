@@ -561,7 +561,7 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({ reportTitle, 
                         <button
                             onClick={handlePdfExport}
                             disabled={isExporting}
-                            className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm font-medium text-red-700 transition-all hover:bg-red-100 hover:shadow-sm disabled:opacity-50"
+                            className="flex items-center gap-2 rounded-lg border border-danger bg-danger-light px-4 py-2 text-sm font-medium text-danger transition-all hover:bg-danger-light hover:shadow-sm disabled:opacity-50"
                         >
                             {activeExport === 'pdf' ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
                             <span>{t('btn_pdf')}</span>
@@ -570,7 +570,7 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({ reportTitle, 
                         <button
                             onClick={handleExcelExport}
                             disabled={isExporting}
-                            className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-2 text-sm font-medium text-green-700 transition-all hover:bg-green-100 hover:shadow-sm disabled:opacity-50"
+                            className="flex items-center gap-2 rounded-lg border border-success bg-success-light px-4 py-2 text-sm font-medium text-success transition-all hover:bg-success-light hover:shadow-sm disabled:opacity-50"
                         >
                             {activeExport === 'excel' ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileSpreadsheet className="h-4 w-4" />}
                             <span>{t('btn_excel')}</span>

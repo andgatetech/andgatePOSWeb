@@ -235,10 +235,10 @@ const SalesReportPage = () => {
                 render: (value: any) => {
                     const payStatus = value?.toLowerCase() || '';
                     const config: Record<string, { bg: string; text: string }> = {
-                        paid: { bg: 'bg-green-100', text: 'text-green-800' },
-                        partial: { bg: 'bg-yellow-100', text: 'text-yellow-800' },
-                        due: { bg: 'bg-red-100', text: 'text-red-800' },
-                        pending: { bg: 'bg-blue-100', text: 'text-blue-800' },
+                        paid: { bg: 'bg-success-light', text: 'text-success' },
+                        partial: { bg: 'bg-warning-light', text: 'text-warning' },
+                        due: { bg: 'bg-danger-light', text: 'text-danger' },
+                        pending: { bg: 'bg-info-light', text: 'text-info' },
                     };
                     const { bg, text } = config[payStatus] || { bg: 'bg-gray-100', text: 'text-gray-800' };
 

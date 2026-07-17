@@ -10,10 +10,10 @@ import { AlertCircle, AlertTriangle, ShieldCheck } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 const SEVERITY_COLORS: Record<string, string> = {
-    low: 'bg-green-100 text-green-700',
-    medium: 'bg-amber-100 text-amber-700',
-    high: 'bg-orange-100 text-orange-700',
-    critical: 'bg-red-100 text-red-700',
+    low: 'bg-success-light text-success',
+    medium: 'bg-warning-light text-warning',
+    high: 'bg-warning-light text-warning',
+    critical: 'bg-danger-light text-danger',
 };
 
 const AnomaliesPage = () => {
@@ -92,7 +92,7 @@ const AnomaliesPage = () => {
         <div className="space-y-6 p-4 sm:p-6">
             <div className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-slate-200 bg-white px-5 py-4 shadow-sm">
                 <div className="flex items-center gap-3">
-                    <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-red-50 text-red-600">
+                    <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-danger-light text-danger">
                         <AlertTriangle className="h-6 w-6" />
                     </span>
                     <div>
@@ -145,20 +145,20 @@ const AnomaliesPage = () => {
                     <p className="text-xs font-semibold uppercase text-slate-500">{t('lbl_total_items')}</p>
                     <p className="mt-1 text-2xl font-bold text-slate-900">{anomalies.length}</p>
                 </div>
-                <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-                    <p className="text-xs font-semibold uppercase text-red-600">{t('lbl_critical')}</p>
-                    <p className="mt-1 flex items-center gap-2 text-2xl font-bold text-red-700">
+                <div className="rounded-lg border border-danger bg-danger-light p-4">
+                    <p className="text-xs font-semibold uppercase text-danger">{t('lbl_critical')}</p>
+                    <p className="mt-1 flex items-center gap-2 text-2xl font-bold text-danger">
                         <AlertCircle className="h-5 w-5" />
                         {severityCounts.critical || 0}
                     </p>
                 </div>
-                <div className="rounded-lg border border-orange-200 bg-orange-50 p-4">
-                    <p className="text-xs font-semibold uppercase text-orange-700">{t('lbl_high')}</p>
-                    <p className="mt-1 text-2xl font-bold text-orange-800">{severityCounts.high || 0}</p>
+                <div className="rounded-lg border border-warning bg-warning-light p-4">
+                    <p className="text-xs font-semibold uppercase text-warning">{t('lbl_high')}</p>
+                    <p className="mt-1 text-2xl font-bold text-warning">{severityCounts.high || 0}</p>
                 </div>
-                <div className="rounded-lg border border-green-200 bg-green-50 p-4">
-                    <p className="text-xs font-semibold uppercase text-green-700">{t('lbl_safe')}</p>
-                    <p className="mt-1 flex items-center gap-2 text-2xl font-bold text-green-800">
+                <div className="rounded-lg border border-success bg-success-light p-4">
+                    <p className="text-xs font-semibold uppercase text-success">{t('lbl_safe')}</p>
+                    <p className="mt-1 flex items-center gap-2 text-2xl font-bold text-success">
                         <ShieldCheck className="h-5 w-5" />
                         {anomalies.length === 0 ? t('lbl_safe') : severityCounts.low || 0}
                     </p>

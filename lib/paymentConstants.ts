@@ -2,10 +2,10 @@
 // Import from here — never define these inline in components.
 
 export const PAYMENT_STATUS_CONFIGS = {
-    paid:    { labelKey: 'status_paid',    bg: 'bg-green-100',  text: 'text-green-800',  hex: '#22c55e' },
-    partial: { labelKey: 'status_partial', bg: 'bg-yellow-100', text: 'text-yellow-800', hex: '#3b82f6' },
-    due:     { labelKey: 'status_due',     bg: 'bg-red-100',    text: 'text-red-800',    hex: '#ef4444' },
-    pending: { labelKey: 'status_pending', bg: 'bg-orange-100', text: 'text-orange-800', hex: '#f97316' },
+    paid:    { labelKey: 'status_paid',    bg: 'bg-success-light', text: 'text-success', hex: '#00ab55' },
+    partial: { labelKey: 'status_partial', bg: 'bg-warning-light', text: 'text-warning', hex: '#e2a03f' },
+    due:     { labelKey: 'status_due',     bg: 'bg-danger-light',  text: 'text-danger',  hex: '#e7515a' },
+    pending: { labelKey: 'status_pending', bg: 'bg-warning-light', text: 'text-warning', hex: '#e2a03f' },
 } as const;
 
 // Backend aliases — normalize before any comparison or display

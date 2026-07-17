@@ -43,8 +43,8 @@ type Transfer = {
 };
 
 const TrendIcon = ({ trend }: { trend: string }) => {
-    if (trend === 'deteriorating') return <TrendingDown className="h-4 w-4 text-red-500" />;
-    if (trend === 'improving') return <TrendingUp className="h-4 w-4 text-green-500" />;
+    if (trend === 'deteriorating') return <TrendingDown className="h-4 w-4 text-danger" />;
+    if (trend === 'improving') return <TrendingUp className="h-4 w-4 text-success" />;
     return <Minus className="h-4 w-4 text-gray-400" />;
 };
 
@@ -52,12 +52,12 @@ const DaysUntilBadge = ({ days }: { days: number | null }) => {
     if (days === null) return <span className="text-xs text-gray-400">—</span>;
     const cls =
         days <= 3
-            ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
+            ? 'bg-danger-light text-danger dark:bg-red-900/30 dark:text-red-300'
             : days <= 7
-            ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300'
+            ? 'bg-warning-light text-warning dark:bg-orange-900/30 dark:text-orange-300'
             : days <= 14
-            ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300'
-            : 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300';
+            ? 'bg-warning-light text-warning dark:bg-yellow-900/30 dark:text-yellow-300'
+            : 'bg-success-light text-success dark:bg-green-900/30 dark:text-green-300';
     return <span className={`inline-block rounded px-2 py-0.5 text-xs font-medium ${cls}`}>{days}d</span>;
 };
 
@@ -143,7 +143,7 @@ export default function ThresholdIntelligencePage() {
             <div className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:flex-row lg:items-center lg:justify-between">
                 <div>
                     <h1 className="flex items-center gap-2 text-xl font-bold text-gray-900 dark:text-white">
-                        <Lightbulb className="h-5 w-5 text-yellow-500" />
+                        <Lightbulb className="h-5 w-5 text-warning" />
                         {t('Threshold Intelligence')}
                     </h1>
                     <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">{t('Velocity-based threshold recommendations and stockout trend analysis')}</p>
@@ -193,9 +193,9 @@ export default function ThresholdIntelligencePage() {
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                     {[
                         { label: t('Products analysed'), value: d.total_products, color: 'text-gray-700 dark:text-gray-200' },
-                        { label: t('Thresholds to fix'), value: needsAdj, color: needsAdj > 0 ? 'text-orange-600' : 'text-green-600' },
-                        { label: t('Deteriorating'), value: detCount, color: detCount > 0 ? 'text-red-600' : 'text-green-600' },
-                        { label: t('Transfer tips'), value: transfers.length, color: transfers.length > 0 ? 'text-blue-600' : 'text-gray-400' },
+                        { label: t('Thresholds to fix'), value: needsAdj, color: needsAdj > 0 ? 'text-warning' : 'text-success' },
+                        { label: t('Deteriorating'), value: detCount, color: detCount > 0 ? 'text-danger' : 'text-success' },
+                        { label: t('Transfer tips'), value: transfers.length, color: transfers.length > 0 ? 'text-info' : 'text-gray-400' },
                     ].map((card) => (
                         <div key={card.label} className="rounded-lg border border-gray-100 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
                             <div className={`text-2xl font-bold ${card.color}`}>{card.value}</div>
@@ -217,10 +217,10 @@ export default function ThresholdIntelligencePage() {
                     >
                         {t(tabId === 'recommendations' ? 'Recommendations' : 'Transfer Suggestions')}
                         {tabId === 'recommendations' && needsAdj > 0 && (
-                            <span className="ml-1.5 rounded-full bg-orange-100 px-1.5 py-0.5 text-xs text-orange-700 dark:bg-orange-900/30 dark:text-orange-300">{needsAdj}</span>
+                            <span className="ml-1.5 rounded-full bg-warning-light px-1.5 py-0.5 text-xs text-warning dark:bg-orange-900/30 dark:text-orange-300">{needsAdj}</span>
                         )}
                         {tabId === 'transfers' && transfers.length > 0 && (
-                            <span className="ml-1.5 rounded-full bg-blue-100 px-1.5 py-0.5 text-xs text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">{transfers.length}</span>
+                            <span className="ml-1.5 rounded-full bg-info-light px-1.5 py-0.5 text-xs text-info dark:bg-blue-900/30 dark:text-blue-300">{transfers.length}</span>
                         )}
                     </button>
                 ))}
@@ -261,7 +261,7 @@ export default function ThresholdIntelligencePage() {
                                     {recs.map((rec) => (
                                         <tr
                                             key={rec.stock_id}
-                                            className={`transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50 ${rec.needs_adjustment ? 'bg-orange-50/30 dark:bg-orange-900/5' : ''}`}
+                                            className={`transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50 ${rec.needs_adjustment ? 'bg-warning-light/30 dark:bg-orange-900/5' : ''}`}
                                         >
                                             <td className="px-4 py-3">
                                                 <div className="max-w-[200px] truncate font-medium text-gray-900 dark:text-white">{rec.product_name}</div>
@@ -271,7 +271,7 @@ export default function ThresholdIntelligencePage() {
                                             <td className="px-4 py-3 text-right tabular-nums text-gray-500">{rec.effective_threshold > 0 ? rec.effective_threshold : '—'}</td>
                                             <td className="px-4 py-3 text-right tabular-nums">
                                                 {rec.recommended_threshold > 0 ? (
-                                                    <span className={`font-semibold ${rec.needs_adjustment ? (rec.threshold_gap! > 0 ? 'text-orange-600' : 'text-blue-600') : 'text-green-600'}`}>
+                                                    <span className={`font-semibold ${rec.needs_adjustment ? (rec.threshold_gap! > 0 ? 'text-warning' : 'text-info') : 'text-success'}`}>
                                                         {rec.recommended_threshold}
                                                         {rec.threshold_gap !== null && rec.threshold_gap !== 0 && (
                                                             <span className="ml-1 text-xs font-normal opacity-70">
@@ -344,15 +344,15 @@ export default function ThresholdIntelligencePage() {
                                                 <div className="font-medium text-gray-900 dark:text-white">{tr.product_name}</div>
                                                 {tr.sku && <div className="text-xs text-gray-400">{tr.sku}</div>}
                                             </td>
-                                            <td className="px-4 py-3 text-right font-medium tabular-nums text-red-600">{tr.deficit_qty}</td>
-                                            <td className="px-4 py-3 text-right font-medium tabular-nums text-orange-600">{tr.units_needed}</td>
+                                            <td className="px-4 py-3 text-right font-medium tabular-nums text-danger">{tr.deficit_qty}</td>
+                                            <td className="px-4 py-3 text-right font-medium tabular-nums text-warning">{tr.units_needed}</td>
                                             <td className="px-4 py-3">
                                                 <div className="flex items-center gap-1.5">
-                                                    <ArrowRightLeft className="h-3.5 w-3.5 flex-shrink-0 text-blue-500" />
-                                                    <span className="font-medium text-blue-700 dark:text-blue-400">{tr.surplus_store_name}</span>
+                                                    <ArrowRightLeft className="h-3.5 w-3.5 flex-shrink-0 text-info" />
+                                                    <span className="font-medium text-info dark:text-info">{tr.surplus_store_name}</span>
                                                 </div>
                                             </td>
-                                            <td className="px-4 py-3 text-right tabular-nums text-green-600">{tr.transferable_qty}</td>
+                                            <td className="px-4 py-3 text-right tabular-nums text-success">{tr.transferable_qty}</td>
                                             <td className="px-4 py-3 text-right text-xs tabular-nums text-gray-500">{tr.avg_daily_sales > 0 ? tr.avg_daily_sales.toFixed(2) : '—'}</td>
                                         </tr>
                                     ))}

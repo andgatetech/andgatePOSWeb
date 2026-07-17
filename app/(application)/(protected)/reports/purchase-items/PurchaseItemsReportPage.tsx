@@ -157,7 +157,7 @@ const PurchaseItemsReportPage = () => {
             { key: 'category', label: t('lbl_category'), render: (v: any) => <span className="text-sm text-gray-700">{v || 'Uncategorized'}</span> },
             { key: 'brand', label: t('brand_title'), render: (v: any) => <span className="text-sm text-gray-700">{v || 'Unbranded'}</span> },
             { key: 'instock_qty', label: t('status_in_stock'), render: (v: any) => <span className={`font-semibold ${Number(v) > 0 ? 'text-gray-900' : 'text-danger'}`}>{v}</span> },
-            { key: 'purchase_qty', label: t('lbl_qty'), sortable: true, render: (v: any) => <span className="font-bold text-blue-600">{v}</span> },
+            { key: 'purchase_qty', label: t('lbl_qty'), sortable: true, render: (v: any) => <span className="font-bold text-info">{v}</span> },
             {
                 key: 'received_qty',
                 label: t('status_received'),

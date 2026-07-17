@@ -215,10 +215,10 @@ const TransactionReportPage = () => {
                 render: (value: any) => {
                     const status = value?.toLowerCase() || 'pending';
                     const config: Record<string, { bg: string; text: string }> = {
-                        paid: { bg: 'bg-green-100', text: 'text-green-800' },
-                        partial: { bg: 'bg-yellow-100', text: 'text-yellow-800' },
-                        due: { bg: 'bg-red-100', text: 'text-red-800' },
-                        pending: { bg: 'bg-orange-100', text: 'text-orange-800' },
+                        paid: { bg: 'bg-success-light', text: 'text-success' },
+                        partial: { bg: 'bg-warning-light', text: 'text-warning' },
+                        due: { bg: 'bg-danger-light', text: 'text-danger' },
+                        pending: { bg: 'bg-warning-light', text: 'text-warning' },
                     };
                     const { bg, text } = config[status] || { bg: 'bg-gray-100', text: 'text-gray-800' };
                     return <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${bg} ${text}`}>{value}</span>;

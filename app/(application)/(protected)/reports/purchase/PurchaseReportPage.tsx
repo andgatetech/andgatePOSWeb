@@ -203,10 +203,10 @@ const PurchaseReportPage = () => {
                 label: t('lbl_status'),
                 render: (value: any) => {
                     const config: Record<string, { bg: string; text: string }> = {
-                        received: { bg: 'bg-green-100', text: 'text-green-800' },
-                        ordered: { bg: 'bg-blue-100', text: 'text-blue-800' },
-                        pending: { bg: 'bg-yellow-100', text: 'text-yellow-800' },
-                        cancelled: { bg: 'bg-red-100', text: 'text-red-800' },
+                        received: { bg: 'bg-success-light', text: 'text-success' },
+                        ordered: { bg: 'bg-info-light', text: 'text-info' },
+                        pending: { bg: 'bg-warning-light', text: 'text-warning' },
+                        cancelled: { bg: 'bg-danger-light', text: 'text-danger' },
                     };
                     const { bg, text } = config[value?.toLowerCase()] || { bg: 'bg-gray-100', text: 'text-gray-800' };
                     return <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider ${bg} ${text}`}>{value}</span>;
@@ -217,9 +217,9 @@ const PurchaseReportPage = () => {
                 label: t('lbl_payment_method'),
                 render: (value: any) => {
                     const config: Record<string, { bg: string; text: string }> = {
-                        paid: { bg: 'bg-green-100', text: 'text-green-800' },
-                        partial: { bg: 'bg-yellow-100', text: 'text-yellow-800' },
-                        pending: { bg: 'bg-orange-100', text: 'text-orange-800' },
+                        paid: { bg: 'bg-success-light', text: 'text-success' },
+                        partial: { bg: 'bg-warning-light', text: 'text-warning' },
+                        pending: { bg: 'bg-warning-light', text: 'text-warning' },
                     };
                     const { bg, text } = config[value?.toLowerCase()] || { bg: 'bg-gray-100', text: 'text-gray-800' };
                     return <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider ${bg} ${text}`}>{value}</span>;
@@ -275,8 +275,8 @@ const PurchaseReportPage = () => {
                         <div className="border-b border-gray-100 bg-gray-50/50 px-6 py-4">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
-                                    <div className="rounded-lg bg-orange-100 p-2">
-                                        <PieChart className="h-5 w-5 text-orange-600" />
+                                    <div className="rounded-lg bg-warning-light p-2">
+                                        <PieChart className="h-5 w-5 text-warning" />
                                     </div>
                                     <div>
                                         <h3 className="font-bold text-gray-900">{t('lbl_orders_by_status')}</h3>
@@ -289,7 +289,7 @@ const PurchaseReportPage = () => {
                             {byStatus.map((item: any, idx: number) => (
                                 <div key={idx} className="flex items-center justify-between px-6 py-4 hover:bg-gray-50/50">
                                     <div className="flex items-center gap-3">
-                                        <div className={`h-2.5 w-2.5 rounded-full ${item.status === 'received' ? 'bg-green-500' : 'bg-blue-500'}`} />
+                                        <div className={`h-2.5 w-2.5 rounded-full ${item.status === 'received' ? 'bg-success' : 'bg-info'}`} />
                                         <span className="text-sm font-medium capitalize text-gray-700">{item.status}</span>
                                         <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-500">{item.count} orders</span>
                                     </div>
@@ -304,8 +304,8 @@ const PurchaseReportPage = () => {
                         <div className="border-b border-gray-100 bg-gray-50/50 px-6 py-4">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
-                                    <div className="rounded-lg bg-emerald-100 p-2">
-                                        <CreditCard className="h-5 w-5 text-emerald-600" />
+                                    <div className="rounded-lg bg-success-light p-2">
+                                        <CreditCard className="h-5 w-5 text-success" />
                                     </div>
                                     <div>
                                         <h3 className="font-bold text-gray-900">{t('lbl_payment_breakdown')}</h3>
@@ -320,7 +320,7 @@ const PurchaseReportPage = () => {
                                     <div className="flex items-center gap-3">
                                         <div
                                             className={`h-2.5 w-2.5 rounded-full ${
-                                                item.payment_status === 'paid' ? 'bg-green-500' : item.payment_status === 'partial' ? 'bg-yellow-500' : 'bg-orange-500'
+                                                item.payment_status === 'paid' ? 'bg-success' : item.payment_status === 'partial' ? 'bg-warning' : 'bg-warning'
                                             }`}
                                         />
                                         <span className="text-sm font-medium capitalize text-gray-700">{item.payment_status}</span>

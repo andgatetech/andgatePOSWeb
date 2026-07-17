@@ -199,8 +199,8 @@ const StockReportPage = () => {
                     );
                 },
             },
-            { key: 'stock_value', label: t('lbl_stock_value'), sortable: true, render: (v: any) => <span className="font-semibold text-blue-600">{formatCurrency(v)}</span> },
-            { key: 'retail_value', label: t('lbl_retail_value'), sortable: true, render: (v: any) => <span className="font-semibold text-green-600">{formatCurrency(v)}</span> },
+            { key: 'stock_value', label: t('lbl_stock_value'), sortable: true, render: (v: any) => <span className="font-semibold text-info">{formatCurrency(v)}</span> },
+            { key: 'retail_value', label: t('lbl_retail_value'), sortable: true, render: (v: any) => <span className="font-semibold text-success">{formatCurrency(v)}</span> },
             {
                 key: 'profit_margin',
                 label: t('lbl_margin'),
@@ -213,11 +213,11 @@ const StockReportPage = () => {
                 label: t('lbl_status'),
                 render: (v: any, r: any) =>
                     r.is_out_of_stock ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-danger">{t('lbl_out_of_stock')}</span>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-danger-light px-2.5 py-0.5 text-xs font-medium text-danger">{t('lbl_out_of_stock')}</span>
                     ) : r.is_low_stock ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-medium text-warning">{t('lbl_low_stock')}</span>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-warning-light px-2.5 py-0.5 text-xs font-medium text-warning">{t('lbl_low_stock')}</span>
                     ) : (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-success">{t('lbl_in_stock')}</span>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-success-light px-2.5 py-0.5 text-xs font-medium text-success">{t('lbl_in_stock')}</span>
                     ),
             },
         ],
@@ -225,15 +225,15 @@ const StockReportPage = () => {
     );
 
     if (isLoading && !reportData?.data) {
-        return <Loader message="Loading stock report..." />;
+        return <Loader message={t('report_loading')} />;
     }
 
     if (isError && !reportData?.data) {
         return (
-            <div className="rounded-lg border border-red-200 bg-red-50 p-8 text-center dark:border-red-900/40 dark:bg-red-950/20">
-                <AlertTriangle className="mx-auto h-10 w-10 text-red-500" />
-                <p className="mt-3 font-semibold text-red-700 dark:text-red-400">{t('msg_failed_load_report_try_again')}</p>
-                <button type="button" onClick={() => getStockReport(queryParams)} className="mt-4 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700">
+            <div className="rounded-lg border border-danger bg-danger-light p-8 text-center dark:border-red-900/40 dark:bg-red-950/20">
+                <AlertTriangle className="mx-auto h-10 w-10 text-danger" />
+                <p className="mt-3 font-semibold text-danger dark:text-danger">{t('msg_failed_load_report_try_again')}</p>
+                <button type="button" onClick={() => getStockReport(queryParams)} className="mt-4 rounded-lg bg-danger px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700">
                     {t('btn_retry')}
                 </button>
             </div>

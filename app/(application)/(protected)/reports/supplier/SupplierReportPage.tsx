@@ -186,10 +186,10 @@ const SupplierReportPage = () => {
                 render: (v: any) => {
                     const s = v?.toLowerCase();
                     let c = 'bg-gray-100 text-gray-800';
-                    if (s === 'received') c = 'bg-green-100 text-green-800';
-                    else if (s === 'ordered') c = 'bg-blue-100 text-blue-800';
-                    else if (s === 'pending') c = 'bg-yellow-100 text-yellow-800';
-                    else if (s === 'cancelled') c = 'bg-red-100 text-red-800';
+                    if (s === 'received') c = 'bg-success-light text-success';
+                    else if (s === 'ordered') c = 'bg-info-light text-info';
+                    else if (s === 'pending') c = 'bg-warning-light text-warning';
+                    else if (s === 'cancelled') c = 'bg-danger-light text-danger';
                     return <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${c}`}>{v}</span>;
                 },
             },
@@ -227,10 +227,10 @@ const SupplierReportPage = () => {
                     <PurchaseReportFilter onFilterChange={handleFilterChange} />
                 </div>
                 {isError && !reportData?.data && (
-                    <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-8 text-center dark:border-red-900/40 dark:bg-red-950/20">
-                        <AlertTriangle className="mx-auto h-10 w-10 text-red-500" />
-                        <p className="mt-3 font-semibold text-red-700 dark:text-red-400">{t('msg_failed_load_report_try_again')}</p>
-                        <button type="button" onClick={() => getSupplierReport(queryParams)} className="mt-4 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700">
+                    <div className="mb-6 rounded-lg border border-danger bg-danger-light p-8 text-center dark:border-red-900/40 dark:bg-red-950/20">
+                        <AlertTriangle className="mx-auto h-10 w-10 text-danger" />
+                        <p className="mt-3 font-semibold text-danger dark:text-danger">{t('msg_failed_load_report_try_again')}</p>
+                        <button type="button" onClick={() => getSupplierReport(queryParams)} className="mt-4 rounded-lg bg-danger px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700">
                             {t('btn_retry')}
                         </button>
                     </div>

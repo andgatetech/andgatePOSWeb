@@ -273,7 +273,7 @@ const CustomerReportPage = () => {
                 sortable: true,
                 render: (value: any) => {
                     const rate = Number(value || 0);
-                    const colorClass = rate > 20 ? 'text-danger bg-red-100' : rate > 10 ? 'text-warning bg-yellow-100' : 'text-success bg-green-100';
+                    const colorClass = rate > 20 ? 'text-danger bg-danger-light' : rate > 10 ? 'text-warning bg-warning-light' : 'text-success bg-success-light';
                     return (
                         <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-bold ${colorClass}`}>
                             {rate > 20 && <AlertCircle className="mr-0.5 h-3 w-3" />}
@@ -288,9 +288,9 @@ const CustomerReportPage = () => {
                 render: (value: any) => {
                     const status = value?.toLowerCase() || '';
                     const config: Record<string, { bg: string; text: string }> = {
-                        paid: { bg: 'bg-green-100', text: 'text-green-800' },
-                        partial: { bg: 'bg-yellow-100', text: 'text-yellow-800' },
-                        due: { bg: 'bg-red-100', text: 'text-red-800' },
+                        paid: { bg: 'bg-success-light', text: 'text-success' },
+                        partial: { bg: 'bg-warning-light', text: 'text-warning' },
+                        due: { bg: 'bg-danger-light', text: 'text-danger' },
                     };
                     const { bg, text } = config[status] || { bg: 'bg-gray-100', text: 'text-gray-800' };
                     return <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${bg} ${text}`}>{value}</span>;
@@ -324,10 +324,10 @@ const CustomerReportPage = () => {
                     <CustomerReportFilter onFilterChange={handleFilterChange} />
                 </div>
                 {isError && !reportData?.data && (
-                    <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-8 text-center dark:border-red-900/40 dark:bg-red-950/20">
-                        <AlertTriangle className="mx-auto h-10 w-10 text-red-500" />
-                        <p className="mt-3 font-semibold text-red-700 dark:text-red-400">{t('msg_failed_load_report_try_again')}</p>
-                        <button type="button" onClick={() => getCustomerReport(queryParams)} className="mt-4 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700">
+                    <div className="mb-6 rounded-lg border border-danger bg-danger-light p-8 text-center dark:border-red-900/40 dark:bg-red-950/20">
+                        <AlertTriangle className="mx-auto h-10 w-10 text-danger" />
+                        <p className="mt-3 font-semibold text-danger dark:text-danger">{t('msg_failed_load_report_try_again')}</p>
+                        <button type="button" onClick={() => getCustomerReport(queryParams)} className="mt-4 rounded-lg bg-danger px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700">
                             {t('btn_retry')}
                         </button>
                     </div>

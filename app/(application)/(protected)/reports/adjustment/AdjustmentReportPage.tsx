@@ -309,10 +309,10 @@ const AdjustmentReportPage = () => {
                     <AdjustmentReportFilter onFilterChange={handleFilterChange} />
                 </div>
                 {isError && !reportData?.data && (
-                    <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-8 text-center dark:border-red-900/40 dark:bg-red-950/20">
-                        <AlertTriangle className="mx-auto h-10 w-10 text-red-500" />
-                        <p className="mt-3 font-semibold text-red-700 dark:text-red-400">{t('msg_failed_load_report_try_again')}</p>
-                        <button type="button" onClick={() => getStockAdjustmentReport(queryParams)} className="mt-4 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700">
+                    <div className="mb-6 rounded-lg border border-danger bg-danger-light p-8 text-center dark:border-red-900/40 dark:bg-red-950/20">
+                        <AlertTriangle className="mx-auto h-10 w-10 text-danger" />
+                        <p className="mt-3 font-semibold text-danger dark:text-danger">{t('msg_failed_load_report_try_again')}</p>
+                        <button type="button" onClick={() => getStockAdjustmentReport(queryParams)} className="mt-4 rounded-lg bg-danger px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700">
                             {t('btn_retry')}
                         </button>
                     </div>

@@ -95,7 +95,7 @@ const PeriodFilter = ({
                                     if (opt.value !== 'custom') setOpen(false);
                                 }}
                                 className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
-                                    period === opt.value ? 'bg-blue-50 font-medium text-blue-700' : 'text-gray-600 hover:bg-gray-50'
+                                    period === opt.value ? 'bg-info-light font-medium text-info' : 'text-gray-600 hover:bg-gray-50'
                                 }`}
                             >
                                 <CalendarDays className="h-4 w-4" />
@@ -111,7 +111,7 @@ const PeriodFilter = ({
                                     type="date"
                                     value={customStart}
                                     onChange={(e) => onStartChange(e.target.value)}
-                                    className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                                    className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                                 />
                             </div>
                             <div>
@@ -120,7 +120,7 @@ const PeriodFilter = ({
                                     type="date"
                                     value={customEnd}
                                     onChange={(e) => onEndChange(e.target.value)}
-                                    className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                                    className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                                 />
                             </div>
                             <button
@@ -206,7 +206,7 @@ const CalcStep = ({
     <>
         {operation && (
             <div className="flex justify-center py-1">
-                <div className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${operation === '-' ? 'bg-red-100 text-red-500' : 'bg-emerald-100 text-emerald-600'}`}>
+                <div className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${operation === '-' ? 'bg-danger-light text-danger' : 'bg-success-light text-success'}`}>
                     {operation === '-' ? <Minus className="h-3 w-3" /> : '='}
                 </div>
             </div>
@@ -397,42 +397,42 @@ const ProfitLossReportPage = () => {
                 {isLoading ? (
                     <div className="flex h-64 items-center justify-center">
                         <div className="text-center">
-                            <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600"></div>
+                            <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-success border-t-emerald-600"></div>
                             <p className="mt-4 text-sm text-gray-600">{t('msg_calculating_profit')}</p>
                         </div>
                     </div>
                 ) : isError ? (
-                    <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center">
-                        <p className="text-sm text-red-600">{t('msg_failed_load_report_try_again')}</p>
+                    <div className="rounded-lg border border-danger bg-danger-light p-6 text-center">
+                        <p className="text-sm text-danger">{t('msg_failed_load_report_try_again')}</p>
                     </div>
                 ) : (
                     <div className="space-y-5">
                         {/* ━━━ HERO: Bottom Line ━━━ */}
                         <div
                             className={`overflow-hidden rounded-lg border-2 shadow-lg ${
-                                isProfit ? 'border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-green-50' : 'border-red-200 bg-gradient-to-br from-red-50 via-white to-rose-50'
+                                isProfit ? 'border-success bg-gradient-to-br from-emerald-50 via-white to-green-50' : 'border-danger bg-gradient-to-br from-red-50 via-white to-rose-50'
                             }`}
                         >
                             <div className="p-6 sm:p-8">
                                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                                     <div className="flex items-center gap-4">
-                                        <div className={`rounded-lg p-3 ${isProfit ? 'bg-emerald-100' : 'bg-red-100'}`}>
-                                            {isProfit ? <ArrowUp className="h-7 w-7 text-emerald-600" /> : <ArrowDown className="h-7 w-7 text-red-600" />}
+                                        <div className={`rounded-lg p-3 ${isProfit ? 'bg-success-light' : 'bg-danger-light'}`}>
+                                            {isProfit ? <ArrowUp className="h-7 w-7 text-success" /> : <ArrowDown className="h-7 w-7 text-danger" />}
                                         </div>
                                         <div>
                                             <p className="text-sm font-medium text-gray-500">{isProfit ? t('msg_after_all_costs_earned') : t('msg_after_all_costs_lost')}</p>
-                                            <p className={`text-3xl font-extrabold sm:text-4xl ${isProfit ? 'text-emerald-700' : 'text-red-700'}`}>
+                                            <p className={`text-3xl font-extrabold sm:text-4xl ${isProfit ? 'text-success' : 'text-danger'}`}>
                                                 <AnimatedCurrency value={Math.abs(businessProfit.amount || 0)} symbol={symbol} />
                                             </p>
-                                            <p className={`mt-1 text-sm ${isProfit ? 'text-emerald-600' : 'text-red-600'}`}>
+                                            <p className={`mt-1 text-sm ${isProfit ? 'text-success' : 'text-danger'}`}>
                                                 {t('lbl_business_margin')}: <span className="font-bold">{formatNumber(businessProfit.margin || 0)}%</span>
                                             </p>
                                         </div>
                                     </div>
                                     <div className="flex gap-4 sm:gap-6">
-                                        <div className={`rounded-lg px-4 py-3 ${isProfit ? 'bg-emerald-50' : 'bg-red-50'}`}>
+                                        <div className={`rounded-lg px-4 py-3 ${isProfit ? 'bg-success-light' : 'bg-danger-light'}`}>
                                             <p className="text-[11px] font-medium text-gray-400">{t('lbl_product_margin')}</p>
-                                            <p className={`text-2xl font-bold ${isProfit ? 'text-emerald-700' : 'text-red-700'}`}>{formatNumber(productProfit.margin || 0)}%</p>
+                                            <p className={`text-2xl font-bold ${isProfit ? 'text-success' : 'text-danger'}`}>{formatNumber(productProfit.margin || 0)}%</p>
                                         </div>
                                         <div className="rounded-lg bg-gray-50 px-4 py-3">
                                             <p className="text-[11px] font-medium text-gray-400">{t('lbl_total_orders')}</p>
@@ -447,13 +447,13 @@ const ProfitLossReportPage = () => {
                         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                             <SummaryCard
                                 icon={CircleDollarSign}
-                                iconBg="bg-emerald-50"
-                                iconColor="text-emerald-600"
+                                iconBg="bg-success-light"
+                                iconColor="text-success"
                                 label={t('msg_total_money_received_from_customers')}
                                 sublabel={t('lbl_you_earned')}
                                 value={summary.you_earned || 0}
                                 symbol={symbol}
-                                valueColor="text-emerald-700"
+                                valueColor="text-success"
                             />
                             <SummaryCard
                                 icon={Package}
@@ -467,23 +467,23 @@ const ProfitLossReportPage = () => {
                             />
                             <SummaryCard
                                 icon={Receipt}
-                                iconBg="bg-red-50"
-                                iconColor="text-red-500"
+                                iconBg="bg-danger-light"
+                                iconColor="text-danger"
                                 label={t('msg_running_costs_examples')}
                                 sublabel={t('lbl_your_expenses')}
                                 value={summary.your_expenses || 0}
                                 symbol={symbol}
-                                valueColor="text-red-600"
+                                valueColor="text-danger"
                             />
                             <SummaryCard
                                 icon={isProfit ? TrendingUp : ArrowDown}
-                                iconBg={isProfit ? 'bg-emerald-50' : 'bg-red-50'}
-                                iconColor={isProfit ? 'text-emerald-600' : 'text-red-500'}
+                                iconBg={isProfit ? 'bg-success-light' : 'bg-danger-light'}
+                                iconColor={isProfit ? 'text-success' : 'text-danger'}
                                 label={t('msg_real_profit_after_all_costs')}
                                 sublabel={t('lbl_you_keep')}
                                 value={summary.you_keep || 0}
                                 symbol={symbol}
-                                valueColor={isProfit ? 'text-emerald-700' : 'text-red-600'}
+                                valueColor={isProfit ? 'text-success' : 'text-danger'}
                             />
                         </div>
 
@@ -498,13 +498,13 @@ const ProfitLossReportPage = () => {
                                 <CalcStep
                                     step={1}
                                     icon={ShoppingCart}
-                                    iconBg="bg-emerald-50"
-                                    iconColor="text-emerald-600"
+                                    iconBg="bg-success-light"
+                                    iconColor="text-success"
                                     title={t('lbl_total_sales')}
                                     subtitle={t('msg_all_your_sales')}
                                     value={income.total_sales || 0}
                                     symbol={symbol}
-                                    valueColor="text-emerald-700"
+                                    valueColor="text-success"
                                 />
                                 <CalcStep
                                     step={2}
@@ -557,25 +557,25 @@ const ProfitLossReportPage = () => {
                                 <CalcStep
                                     step={6}
                                     icon={Receipt}
-                                    iconBg="bg-red-50"
-                                    iconColor="text-red-500"
+                                    iconBg="bg-danger-light"
+                                    iconColor="text-danger"
                                     title={t('lbl_expenses')}
                                     subtitle={t('msg_expense_examples')}
                                     value={expenses.total || 0}
                                     symbol={symbol}
-                                    valueColor="text-red-600"
+                                    valueColor="text-danger"
                                     operation="-"
                                 />
                                 <CalcStep
                                     step={7}
                                     icon={isProfit ? TrendingUp : ArrowDown}
-                                    iconBg={isProfit ? 'bg-emerald-50' : 'bg-red-50'}
-                                    iconColor={isProfit ? 'text-emerald-600' : 'text-red-500'}
+                                    iconBg={isProfit ? 'bg-success-light' : 'bg-danger-light'}
+                                    iconColor={isProfit ? 'text-success' : 'text-danger'}
                                     title={t('lbl_business_profit')}
                                     subtitle={t('msg_this_is_what_you_keep')}
                                     value={businessProfit.amount || 0}
                                     symbol={symbol}
-                                    valueColor={isProfit ? 'text-emerald-700' : 'text-red-600'}
+                                    valueColor={isProfit ? 'text-success' : 'text-danger'}
                                     operation="="
                                 />
                             </div>
@@ -587,7 +587,7 @@ const ProfitLossReportPage = () => {
                             <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
                                 <div className="border-b border-gray-100 px-5 py-4">
                                     <div className="flex items-center gap-2">
-                                        <CircleDollarSign className="h-5 w-5 text-emerald-600" />
+                                        <CircleDollarSign className="h-5 w-5 text-success" />
                                         <h3 className="text-sm font-semibold text-gray-800">{t('lbl_income_details')}</h3>
                                     </div>
                                 </div>
@@ -602,19 +602,19 @@ const ProfitLossReportPage = () => {
                                     </div>
                                     <div className="flex items-center justify-between py-2.5">
                                         <span className="text-sm text-gray-600">{t('lbl_sales_returns')}</span>
-                                        <span className="font-semibold text-orange-600">−{formatCurrency(income.sales_returns)}</span>
+                                        <span className="font-semibold text-warning">−{formatCurrency(income.sales_returns)}</span>
                                     </div>
                                     <div className="flex items-center justify-between py-2.5">
                                         <span className="text-sm text-gray-600">{t('lbl_discounts_given')}</span>
-                                        <span className="font-semibold text-orange-600">−{formatCurrency(income.total_discount)}</span>
+                                        <span className="font-semibold text-warning">−{formatCurrency(income.total_discount)}</span>
                                     </div>
                                     <div className="flex items-center justify-between py-2.5">
                                         <span className="text-sm text-gray-600">{t('lbl_tax_collected')}</span>
                                         <span className="font-semibold text-gray-900">{formatCurrency(income.total_tax)}</span>
                                     </div>
-                                    <div className="mt-2 flex items-center justify-between rounded-lg bg-emerald-50 px-3 py-3">
-                                        <span className="text-sm font-semibold text-emerald-700">{t('lbl_net_sales_you_earned')}</span>
-                                        <span className="text-lg font-bold text-emerald-700">{formatCurrency(income.net_sales)}</span>
+                                    <div className="mt-2 flex items-center justify-between rounded-lg bg-success-light px-3 py-3">
+                                        <span className="text-sm font-semibold text-success">{t('lbl_net_sales_you_earned')}</span>
+                                        <span className="text-lg font-bold text-success">{formatCurrency(income.net_sales)}</span>
                                     </div>
                                 </div>
                             </div>
@@ -623,7 +623,7 @@ const ProfitLossReportPage = () => {
                             <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
                                 <div className="border-b border-gray-100 px-5 py-4">
                                     <div className="flex items-center gap-2">
-                                        <Wallet className="h-5 w-5 text-orange-600" />
+                                        <Wallet className="h-5 w-5 text-warning" />
                                         <h3 className="text-sm font-semibold text-gray-800">{t('lbl_costs_expenses')}</h3>
                                     </div>
                                 </div>
@@ -633,16 +633,16 @@ const ProfitLossReportPage = () => {
                                             <span className="text-sm text-gray-600">{t('lbl_product_cost')}</span>
                                             <p className="text-[11px] text-gray-400">{t('msg_purchase_price_items').replace('{count}', formatNumber(cost.total_items_sold || 0))}</p>
                                         </div>
-                                        <span className="font-semibold text-orange-700">{formatCurrency(cost.cost_of_goods_sold)}</span>
+                                        <span className="font-semibold text-warning">{formatCurrency(cost.cost_of_goods_sold)}</span>
                                     </div>
-                                    <div className="flex items-center justify-between rounded-lg bg-violet-50 px-3 py-2.5">
+                                    <div className="flex items-center justify-between rounded-lg bg-info-light px-3 py-2.5">
                                         <div>
-                                            <span className="text-sm font-semibold text-violet-700">{t('lbl_product_profit')}</span>
-                                            <p className="text-[11px] text-violet-500">{t('msg_sales_minus_product_cost')}</p>
+                                            <span className="text-sm font-semibold text-info">{t('lbl_product_profit')}</span>
+                                            <p className="text-[11px] text-info">{t('msg_sales_minus_product_cost')}</p>
                                         </div>
                                         <div className="text-right">
-                                            <span className="text-lg font-bold text-violet-700">{formatCurrency(productProfit.amount)}</span>
-                                            <p className="text-[11px] text-violet-500">{formatNumber(productProfit.margin || 0)}% margin</p>
+                                            <span className="text-lg font-bold text-info">{formatCurrency(productProfit.amount)}</span>
+                                            <p className="text-[11px] text-info">{formatNumber(productProfit.margin || 0)}% margin</p>
                                         </div>
                                     </div>
                                     <div className="pt-2.5">
@@ -652,16 +652,16 @@ const ProfitLossReportPage = () => {
                                                 {expenses.breakdown.map((cat: any, idx: number) => (
                                                     <div key={idx} className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2">
                                                         <span className="text-sm text-gray-600">{cat.category}</span>
-                                                        <span className="font-semibold text-red-600">{formatCurrency(cat.amount)}</span>
+                                                        <span className="font-semibold text-danger">{formatCurrency(cat.amount)}</span>
                                                     </div>
                                                 ))}
                                             </div>
                                         ) : (
                                             <div className="rounded-lg bg-gray-50 px-3 py-2 text-center text-xs text-gray-400">{t('msg_no_expenses_recorded')}</div>
                                         )}
-                                        <div className="mt-2 flex items-center justify-between rounded-lg bg-red-50 px-3 py-3">
-                                            <span className="text-sm font-semibold text-red-600">{t('lbl_total_expenses')}</span>
-                                            <span className="text-lg font-bold text-red-600">{formatCurrency(expenses.total)}</span>
+                                        <div className="mt-2 flex items-center justify-between rounded-lg bg-danger-light px-3 py-3">
+                                            <span className="text-sm font-semibold text-danger">{t('lbl_total_expenses')}</span>
+                                            <span className="text-lg font-bold text-danger">{formatCurrency(expenses.total)}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -671,7 +671,7 @@ const ProfitLossReportPage = () => {
                         {/* ━━━ Final Banner ━━━ */}
                         <div
                             className={`overflow-hidden rounded-lg border-2 ${
-                                isProfit ? 'border-emerald-200 bg-gradient-to-r from-emerald-600 to-green-600' : 'border-red-200 bg-gradient-to-r from-red-600 to-rose-600'
+                                isProfit ? 'border-success bg-gradient-to-r from-emerald-600 to-green-600' : 'border-danger bg-gradient-to-r from-red-600 to-rose-600'
                             } p-6 text-white shadow-lg`}
                         >
                             <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between">

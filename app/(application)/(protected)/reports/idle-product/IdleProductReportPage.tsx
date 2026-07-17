@@ -199,7 +199,7 @@ const IdleProductReportPage = () => {
                         <span className="font-bold text-gray-900">
                             {formatNumber(v)} {t('lbl_units')}
                         </span>
-                        <span className="mt-1 text-[10px] font-semibold uppercase tracking-wider text-rose-600">
+                        <span className="mt-1 text-[10px] font-semibold uppercase tracking-wider text-danger">
                             {t('lbl_value')}: {formatCurrency(r.stock_value)}
                         </span>
                     </div>
@@ -233,9 +233,9 @@ const IdleProductReportPage = () => {
                 sortable: true,
                 render: (v: any) => {
                     const d = Number(v);
-                    let i = 'bg-amber-100 text-warning border-amber-200';
-                    if (d > 180) i = 'bg-rose-100 text-danger border-rose-200';
-                    else if (d > 90) i = 'bg-orange-100 text-orange-700 border-orange-200';
+                    let i = 'bg-warning-light text-warning border-warning';
+                    if (d > 180) i = 'bg-danger-light text-danger border-danger';
+                    else if (d > 90) i = 'bg-warning-light text-warning border-warning';
                     return (
                         <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-black uppercase tracking-widest ${i}`}>
                             <Timer className="h-3 w-3" />
@@ -268,10 +268,10 @@ const IdleProductReportPage = () => {
                     <IdleProductReportFilter onFilterChange={handleFilterChange} />
                 </div>
                 {isError && !reportData?.data && (
-                    <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-8 text-center dark:border-red-900/40 dark:bg-red-950/20">
-                        <AlertTriangle className="mx-auto h-10 w-10 text-red-500" />
-                        <p className="mt-3 font-semibold text-red-700 dark:text-red-400">{t('msg_failed_load_report_try_again')}</p>
-                        <button type="button" onClick={() => getIdleProductReport(queryParams)} className="mt-4 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700">
+                    <div className="mb-6 rounded-lg border border-danger bg-danger-light p-8 text-center dark:border-red-900/40 dark:bg-red-950/20">
+                        <AlertTriangle className="mx-auto h-10 w-10 text-danger" />
+                        <p className="mt-3 font-semibold text-danger dark:text-danger">{t('msg_failed_load_report_try_again')}</p>
+                        <button type="button" onClick={() => getIdleProductReport(queryParams)} className="mt-4 rounded-lg bg-danger px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700">
                             {t('btn_retry')}
                         </button>
                     </div>

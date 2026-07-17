@@ -139,10 +139,10 @@ const CustomerDueReportPage = () => {
     );
 
     const followUpBadgeClass = (status?: string) => {
-        if (status === 'promise_overdue') return 'bg-red-100 text-red-800';
-        if (status === 'due_today' || status === 'reminder_due') return 'bg-amber-100 text-amber-800';
-        if (status === 'scheduled') return 'bg-blue-100 text-blue-800';
-        if (status === 'paid') return 'bg-emerald-100 text-emerald-800';
+        if (status === 'promise_overdue') return 'bg-danger-light text-danger';
+        if (status === 'due_today' || status === 'reminder_due') return 'bg-warning-light text-warning';
+        if (status === 'scheduled') return 'bg-info-light text-info';
+        if (status === 'paid') return 'bg-success-light text-success';
         return 'bg-gray-100 text-gray-700';
     };
 
@@ -342,7 +342,7 @@ const CustomerDueReportPage = () => {
                 ),
             },
             { key: 'total_due', label: t('lbl_total_due'), sortable: true, render: (v: any) => <span className="font-semibold text-gray-900">{formatCurrency(v)}</span> },
-            { key: 'paid', label: t('lbl_paid'), sortable: true, render: (v: any) => <span className="font-semibold text-emerald-600">{formatCurrency(v)}</span> },
+            { key: 'paid', label: t('lbl_paid'), sortable: true, render: (v: any) => <span className="font-semibold text-success">{formatCurrency(v)}</span> },
             { key: 'remaining', label: t('lbl_remaining_due'), sortable: true, render: (v: any) => <span className="font-bold text-danger">{formatCurrency(v)}</span> },
             {
                 key: 'aging_bucket',
@@ -350,7 +350,7 @@ const CustomerDueReportPage = () => {
                 render: (value: any, row: any) => (
                     <span
                         className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                            row.age_days > 30 ? 'bg-red-100 text-red-800' : row.age_days > 15 ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'
+                            row.age_days > 30 ? 'bg-danger-light text-danger' : row.age_days > 15 ? 'bg-warning-light text-warning' : 'bg-info-light text-info'
                         }`}
                     >
                         {value} {t('lbl_days')}
@@ -364,7 +364,7 @@ const CustomerDueReportPage = () => {
                 render: (value: any) => (
                     <span
                         className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                            value === 'paid' ? 'bg-emerald-100 text-emerald-800' : value === 'partial' ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'
+                            value === 'paid' ? 'bg-success-light text-success' : value === 'partial' ? 'bg-warning-light text-warning' : 'bg-danger-light text-danger'
                         }`}
                     >
                         {value}
@@ -515,10 +515,10 @@ const CustomerDueReportPage = () => {
                             </p>
                         </div>
                         <div className="space-y-4 p-5">
-                            <div className="rounded-lg bg-red-50 p-3">
+                            <div className="rounded-lg bg-danger-light p-3">
                                 <div className="flex justify-between text-sm">
                                     <span className="text-gray-600">{t('lbl_total_due')}</span>
-                                    <span className="font-bold text-red-600">{formatCurrency(paymentModal.due.remaining)}</span>
+                                    <span className="font-bold text-danger">{formatCurrency(paymentModal.due.remaining)}</span>
                                 </div>
                             </div>
                             <label className="block">
@@ -570,10 +570,10 @@ const CustomerDueReportPage = () => {
                             </p>
                         </div>
                         <div className="space-y-4 p-5">
-                            <div className="grid gap-3 rounded-lg bg-red-50 p-3 text-sm sm:grid-cols-2">
+                            <div className="grid gap-3 rounded-lg bg-danger-light p-3 text-sm sm:grid-cols-2">
                                 <div>
                                     <span className="text-gray-600">{t('lbl_remaining_due')}</span>
-                                    <div className="font-bold text-red-600">{formatCurrency(followUpModal.remaining)}</div>
+                                    <div className="font-bold text-danger">{formatCurrency(followUpModal.remaining)}</div>
                                 </div>
                                 <div className="flex gap-2 sm:justify-end">
                                     {followUpModal.phone && (

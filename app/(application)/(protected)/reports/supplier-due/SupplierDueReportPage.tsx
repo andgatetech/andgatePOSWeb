@@ -256,9 +256,9 @@ const SupplierDueReportPage = () => {
                 render: (v: any) => {
                     const s = v?.toLowerCase();
                     let c = 'bg-gray-100 text-gray-800';
-                    if (s === 'paid') c = 'bg-green-100 text-green-800';
-                    else if (s === 'partial') c = 'bg-yellow-100 text-yellow-800';
-                    else if (s === 'pending') c = 'bg-red-100 text-red-800';
+                    if (s === 'paid') c = 'bg-success-light text-success';
+                    else if (s === 'partial') c = 'bg-warning-light text-warning';
+                    else if (s === 'pending') c = 'bg-danger-light text-danger';
                     return <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${c}`}>{v}</span>;
                 },
             },
@@ -340,10 +340,10 @@ const SupplierDueReportPage = () => {
                             </p>
                         </div>
                         <div className="space-y-4 p-5">
-                            <div className="rounded-lg bg-red-50 p-3">
+                            <div className="rounded-lg bg-danger-light p-3">
                                 <div className="flex justify-between text-sm">
                                     <span className="text-gray-600">{t('lbl_total_due')}</span>
-                                    <span className="font-bold text-red-600">{formatCurrency(paymentModal.due.due)}</span>
+                                    <span className="font-bold text-danger">{formatCurrency(paymentModal.due.due)}</span>
                                 </div>
                             </div>
                             <label className="block">

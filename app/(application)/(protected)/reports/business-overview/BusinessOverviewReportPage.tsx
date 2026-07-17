@@ -105,8 +105,8 @@ const BusinessOverviewReportPage = () => {
             },
             { key: 'total_orders', label: t('lbl_orders'), render: (v: any) => formatNumber(v || 0) },
             { key: 'net_sales', label: t('lbl_net_sales'), render: (v: any) => <span className="font-semibold text-gray-900">{formatCurrency(v)}</span> },
-            { key: 'collected', label: t('lbl_collected'), render: (v: any) => <span className="font-semibold text-emerald-700">{formatCurrency(v)}</span> },
-            { key: 'due', label: t('lbl_due'), render: (v: any) => <span className={Number(v) > 0 ? 'font-semibold text-red-600' : 'text-gray-500'}>{formatCurrency(v)}</span> },
+            { key: 'collected', label: t('lbl_collected'), render: (v: any) => <span className="font-semibold text-success">{formatCurrency(v)}</span> },
+            { key: 'due', label: t('lbl_due'), render: (v: any) => <span className={Number(v) > 0 ? 'font-semibold text-danger' : 'text-gray-500'}>{formatCurrency(v)}</span> },
             { key: 'cogs', label: t('lbl_cogs'), render: (v: any) => formatCurrency(v) },
             { key: 'expenses', label: t('lbl_expenses'), render: (v: any) => formatCurrency(v) },
             {
@@ -114,7 +114,7 @@ const BusinessOverviewReportPage = () => {
                 label: t('lbl_business_profit'),
                 render: (v: any, row: any) => (
                     <div className="flex flex-col">
-                        <span className={Number(v) >= 0 ? 'font-bold text-emerald-700' : 'font-bold text-red-600'}>{formatCurrency(v)}</span>
+                        <span className={Number(v) >= 0 ? 'font-bold text-success' : 'font-bold text-danger'}>{formatCurrency(v)}</span>
                         <span className="text-xs text-gray-500">{row.profit_margin}%</span>
                     </div>
                 ),

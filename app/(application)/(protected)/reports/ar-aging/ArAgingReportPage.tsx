@@ -35,10 +35,10 @@ const BucketBadge = ({ value, variant }: { value: number; variant: 'green' | 'ye
     const { formatCurrency } = useCurrency();
     if (!value) return <span className="text-gray-300">—</span>;
     const colors = {
-        green: 'bg-green-50 text-green-700',
-        yellow: 'bg-yellow-50 text-yellow-700',
-        orange: 'bg-orange-50 text-orange-700',
-        red: 'bg-red-50 text-red-700',
+        green: 'bg-success-light text-success',
+        yellow: 'bg-warning-light text-warning',
+        orange: 'bg-warning-light text-warning',
+        red: 'bg-danger-light text-danger',
     };
     return <span className={`rounded-md px-2 py-0.5 text-xs font-semibold ${colors[variant]}`}>{formatCurrency(value)}</span>;
 };
@@ -178,10 +178,10 @@ const ArAgingReportPage = () => {
                     {buckets.map((b) => {
                         const val = summary[b.key as keyof AgingSummary] as number;
                         const colors = {
-                            green: 'border-green-200 bg-green-50 text-green-700',
-                            yellow: 'border-yellow-200 bg-yellow-50 text-yellow-700',
-                            orange: 'border-orange-200 bg-orange-50 text-orange-700',
-                            red: 'border-red-200 bg-red-50 text-red-700',
+                            green: 'border-success bg-success-light text-success',
+                            yellow: 'border-warning bg-warning-light text-warning',
+                            orange: 'border-warning bg-warning-light text-warning',
+                            red: 'border-danger bg-danger-light text-danger',
                         };
                         return (
                             <div key={b.key} className={`rounded-lg border p-3 ${colors[b.variant]}`}>
@@ -248,8 +248,8 @@ const ArAgingReportPage = () => {
                                     <BucketBadge value={Number(row.bucket_91_plus)} variant="red" />
                                 </td>
                                 <td className="px-4 py-3 text-right text-gray-600">{formatCurrency(row.total_due)}</td>
-                                <td className="px-4 py-3 text-right text-green-600">{formatCurrency(row.total_paid)}</td>
-                                <td className="px-4 py-3 text-right font-bold text-red-600">{formatCurrency(row.total_remaining)}</td>
+                                <td className="px-4 py-3 text-right text-success">{formatCurrency(row.total_paid)}</td>
+                                <td className="px-4 py-3 text-right font-bold text-danger">{formatCurrency(row.total_remaining)}</td>
                             </tr>
                         ))}
                     </tbody>
@@ -257,13 +257,13 @@ const ArAgingReportPage = () => {
                         <tfoot>
                             <tr className="border-t-2 border-gray-200 bg-gray-50 font-bold">
                                 <td className="px-4 py-3 text-xs uppercase tracking-wider text-gray-500">{t('lbl_totals')}</td>
-                                <td className="px-4 py-3 text-right text-green-700">{formatCurrency(summary.bucket_0_30)}</td>
-                                <td className="px-4 py-3 text-right text-yellow-700">{formatCurrency(summary.bucket_31_60)}</td>
-                                <td className="px-4 py-3 text-right text-orange-700">{formatCurrency(summary.bucket_61_90)}</td>
-                                <td className="px-4 py-3 text-right text-red-700">{formatCurrency(summary.bucket_91_plus)}</td>
+                                <td className="px-4 py-3 text-right text-success">{formatCurrency(summary.bucket_0_30)}</td>
+                                <td className="px-4 py-3 text-right text-warning">{formatCurrency(summary.bucket_31_60)}</td>
+                                <td className="px-4 py-3 text-right text-warning">{formatCurrency(summary.bucket_61_90)}</td>
+                                <td className="px-4 py-3 text-right text-danger">{formatCurrency(summary.bucket_91_plus)}</td>
                                 <td className="px-4 py-3 text-right text-gray-700">—</td>
                                 <td className="px-4 py-3 text-right text-gray-700">—</td>
-                                <td className="px-4 py-3 text-right text-red-700">{formatCurrency(summary.total_remaining)}</td>
+                                <td className="px-4 py-3 text-right text-danger">{formatCurrency(summary.total_remaining)}</td>
                             </tr>
                         </tfoot>
                     )}

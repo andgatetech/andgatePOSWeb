@@ -9,9 +9,9 @@ import { AlertTriangle, PackageCheck, TrendingUp } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 const CONFIDENCE_COLORS: Record<string, string> = {
-    high: 'bg-green-100 text-green-700',
-    medium: 'bg-amber-100 text-amber-700',
-    low: 'bg-red-100 text-red-700',
+    high: 'bg-success-light text-success',
+    medium: 'bg-warning-light text-warning',
+    low: 'bg-danger-light text-danger',
 };
 
 const PERIOD_MAP: Record<string, number> = {
@@ -75,9 +75,9 @@ const DemandForecastPage = () => {
             sortable: false,
             render: (_value: any, row: any) =>
                 row.will_stockout_in_window ? (
-                    <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">{t('lbl_at_risk')}</span>
+                    <span className="rounded-full bg-danger-light px-2 py-0.5 text-xs font-semibold text-danger">{t('lbl_at_risk')}</span>
                 ) : (
-                    <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-700">{t('lbl_safe')}</span>
+                    <span className="rounded-full bg-success-light px-2 py-0.5 text-xs font-semibold text-success">{t('lbl_safe')}</span>
                 ),
         },
         {
@@ -141,16 +141,16 @@ const DemandForecastPage = () => {
                     <p className="text-xs font-semibold uppercase text-slate-500">{t('lbl_total_items')}</p>
                     <p className="mt-1 text-2xl font-bold text-slate-900">{summary.total_products || forecasts.length}</p>
                 </div>
-                <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-                    <p className="text-xs font-semibold uppercase text-red-600">{t('lbl_stockout_risk')}</p>
-                    <p className="mt-1 flex items-center gap-2 text-2xl font-bold text-red-700">
+                <div className="rounded-lg border border-danger bg-danger-light p-4">
+                    <p className="text-xs font-semibold uppercase text-danger">{t('lbl_stockout_risk')}</p>
+                    <p className="mt-1 flex items-center gap-2 text-2xl font-bold text-danger">
                         <AlertTriangle className="h-5 w-5" />
                         {summary.stockout_risk || 0}
                     </p>
                 </div>
-                <div className="rounded-lg border border-green-200 bg-green-50 p-4">
-                    <p className="text-xs font-semibold uppercase text-green-700">{t('lbl_safe')}</p>
-                    <p className="mt-1 flex items-center gap-2 text-2xl font-bold text-green-800">
+                <div className="rounded-lg border border-success bg-success-light p-4">
+                    <p className="text-xs font-semibold uppercase text-success">{t('lbl_safe')}</p>
+                    <p className="mt-1 flex items-center gap-2 text-2xl font-bold text-success">
                         <PackageCheck className="h-5 w-5" />
                         {(summary.total_products || forecasts.length) - (summary.stockout_risk || 0)}
                     </p>
@@ -158,10 +158,10 @@ const DemandForecastPage = () => {
             </div>
 
             {isError && !data?.data && (
-                <div className="rounded-lg border border-red-200 bg-red-50 p-8 text-center dark:border-red-900/40 dark:bg-red-950/20">
-                    <AlertTriangle className="mx-auto h-10 w-10 text-red-500" />
-                    <p className="mt-3 font-semibold text-red-700 dark:text-red-400">{t('msg_failed_load_report_try_again')}</p>
-                    <button type="button" onClick={() => refetch()} className="mt-4 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700">
+                <div className="rounded-lg border border-danger bg-danger-light p-8 text-center dark:border-red-900/40 dark:bg-red-950/20">
+                    <AlertTriangle className="mx-auto h-10 w-10 text-danger" />
+                    <p className="mt-3 font-semibold text-danger dark:text-danger">{t('msg_failed_load_report_try_again')}</p>
+                    <button type="button" onClick={() => refetch()} className="mt-4 rounded-lg bg-danger px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700">
                         {t('btn_retry')}
                     </button>
                 </div>

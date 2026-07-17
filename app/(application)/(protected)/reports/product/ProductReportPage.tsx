@@ -240,7 +240,7 @@ const ProductReportPage = () => {
                 sortable: true,
                 render: (v: any) => (
                     <div className="flex items-center gap-1.5">
-                        <BarChart3 className="h-3.5 w-3.5 text-blue-400" />
+                        <BarChart3 className="h-3.5 w-3.5 text-info" />
                         <span className="text-sm text-gray-700">{v || 0}</span>
                     </div>
                 ),
@@ -299,7 +299,7 @@ const ProductReportPage = () => {
                 sortable: true,
                 render: (v: any) => {
                     const rate = Number(v || 0);
-                    const colorClass = rate > 15 ? 'text-danger bg-red-100' : rate > 5 ? 'text-warning bg-yellow-100' : 'text-success bg-green-100';
+                    const colorClass = rate > 15 ? 'text-danger bg-danger-light' : rate > 5 ? 'text-warning bg-warning-light' : 'text-success bg-success-light';
                     return <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-bold ${colorClass}`}>{rate.toFixed(2)}%</span>;
                 },
             },
@@ -331,10 +331,10 @@ const ProductReportPage = () => {
                     <BasicReportFilter onFilterChange={handleFilterChange} placeholder={t('placeholder_search_products_sku_category')} />
                 </div>
                 {isError && !reportData?.data && (
-                    <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-8 text-center dark:border-red-900/40 dark:bg-red-950/20">
-                        <AlertTriangle className="mx-auto h-10 w-10 text-red-500" />
-                        <p className="mt-3 font-semibold text-red-700 dark:text-red-400">{t('msg_failed_load_report_try_again')}</p>
-                        <button type="button" onClick={() => getProductReport(queryParams)} className="mt-4 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700">
+                    <div className="mb-6 rounded-lg border border-danger bg-danger-light p-8 text-center dark:border-red-900/40 dark:bg-red-950/20">
+                        <AlertTriangle className="mx-auto h-10 w-10 text-danger" />
+                        <p className="mt-3 font-semibold text-danger dark:text-danger">{t('msg_failed_load_report_try_again')}</p>
+                        <button type="button" onClick={() => getProductReport(queryParams)} className="mt-4 rounded-lg bg-danger px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700">
                             {t('btn_retry')}
                         </button>
                     </div>

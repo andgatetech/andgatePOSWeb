@@ -167,7 +167,7 @@ const OrderReturnsReportPage = () => {
                 render: (_: any, row: any) => (
                     <div className="flex items-center gap-1.5">
                         <FileText className="h-3.5 w-3.5 text-gray-400" />
-                        <span className="font-medium text-blue-600">{row.order?.invoice || 'N/A'}</span>
+                        <span className="font-medium text-info">{row.order?.invoice || 'N/A'}</span>
                     </div>
                 ),
             },
@@ -193,7 +193,7 @@ const OrderReturnsReportPage = () => {
                     return (
                         <span
                             className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
-                                isReturn ? 'bg-orange-100 text-orange-800' : 'bg-blue-100 text-blue-800'
+                                isReturn ? 'bg-warning-light text-warning' : 'bg-info-light text-info'
                             }`}
                         >
                             {isReturn ? <RefreshCw className="h-3 w-3" /> : <ArrowLeftRight className="h-3 w-3" />}
@@ -220,9 +220,10 @@ const OrderReturnsReportPage = () => {
                 render: (value: any) => {
                     const status = value?.toLowerCase() || '';
                     const config: Record<string, { bg: string; text: string }> = {
-                        completed: { bg: 'bg-green-100', text: 'text-green-800' },
-                        partial: { bg: 'bg-yellow-100', text: 'text-yellow-800' },
-                        pending: { bg: 'bg-blue-100', text: 'text-blue-800' },
+                        completed: { bg: 'bg-success-light', text: 'text-success' },
+                        refunded: { bg: 'bg-success-light', text: 'text-success' },
+                        partial: { bg: 'bg-warning-light', text: 'text-warning' },
+                        pending: { bg: 'bg-info-light', text: 'text-info' },
                     };
                     const { bg, text } = config[status] || { bg: 'bg-gray-100', text: 'text-gray-800' };
 
@@ -328,10 +329,10 @@ const OrderReturnsReportPage = () => {
 
     if (isError && !reportData?.data) {
         return (
-            <div className="rounded-lg border border-red-200 bg-red-50 p-8 text-center dark:border-red-900/40 dark:bg-red-950/20">
-                <AlertTriangle className="mx-auto h-10 w-10 text-red-500" />
-                <p className="mt-3 font-semibold text-red-700 dark:text-red-400">{t('msg_failed_load_report_try_again')}</p>
-                <button type="button" onClick={() => getOrderReturnsReport(queryParams)} className="mt-4 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700">
+            <div className="rounded-lg border border-danger bg-danger-light p-8 text-center dark:border-red-900/40 dark:bg-red-950/20">
+                <AlertTriangle className="mx-auto h-10 w-10 text-danger" />
+                <p className="mt-3 font-semibold text-danger dark:text-danger">{t('msg_failed_load_report_try_again')}</p>
+                <button type="button" onClick={() => getOrderReturnsReport(queryParams)} className="mt-4 rounded-lg bg-danger px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700">
                     {t('btn_retry')}
                 </button>
             </div>
