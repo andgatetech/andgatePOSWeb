@@ -457,13 +457,13 @@ const ProfitLossReportPage = () => {
                             />
                             <SummaryCard
                                 icon={Package}
-                                iconBg="bg-orange-50"
-                                iconColor="text-orange-600"
+                                iconBg="bg-danger-light"
+                                iconColor="text-danger"
                                 label={t('msg_what_you_paid_for_products_sold')}
                                 sublabel={t('lbl_products_cost')}
                                 value={summary.products_cost || 0}
                                 symbol={symbol}
-                                valueColor="text-orange-700"
+                                valueColor="text-danger"
                             />
                             <SummaryCard
                                 icon={Receipt}
@@ -509,49 +509,49 @@ const ProfitLossReportPage = () => {
                                 <CalcStep
                                     step={2}
                                     icon={ArrowDown}
-                                    iconBg="bg-orange-50"
-                                    iconColor="text-orange-500"
+                                    iconBg="bg-danger-light"
+                                    iconColor="text-danger"
                                     title={t('lbl_returns_discounts')}
                                     subtitle={t('msg_returned_items_discounts')}
                                     value={(income.sales_returns || 0) + (income.total_discount || 0)}
                                     symbol={symbol}
-                                    valueColor="text-orange-600"
+                                    valueColor="text-danger"
                                     operation="-"
                                 />
                                 <CalcStep
                                     step={3}
                                     icon={Banknote}
-                                    iconBg="bg-blue-50"
-                                    iconColor="text-blue-600"
+                                    iconBg="bg-info-light"
+                                    iconColor="text-info"
                                     title={t('lbl_net_sales')}
                                     subtitle={t('msg_what_you_actually_earned')}
                                     value={income.net_sales || 0}
                                     symbol={symbol}
-                                    valueColor="text-blue-700"
+                                    valueColor="text-info"
                                     operation="="
                                 />
                                 <CalcStep
                                     step={4}
                                     icon={Package}
-                                    iconBg="bg-orange-50"
-                                    iconColor="text-orange-600"
+                                    iconBg="bg-danger-light"
+                                    iconColor="text-danger"
                                     title={t('lbl_product_cost')}
                                     subtitle={t('msg_purchase_price_items_sold').replace('{count}', formatNumber(cost.total_items_sold || 0))}
                                     value={cost.cost_of_goods_sold || 0}
                                     symbol={symbol}
-                                    valueColor="text-orange-700"
+                                    valueColor="text-danger"
                                     operation="-"
                                 />
                                 <CalcStep
                                     step={5}
                                     icon={TrendingUp}
-                                    iconBg="bg-violet-50"
-                                    iconColor="text-violet-600"
+                                    iconBg="bg-info-light"
+                                    iconColor="text-info"
                                     title={t('lbl_product_profit')}
                                     subtitle={t('msg_margin_percent').replace('{percent}', formatNumber(productProfit.margin || 0))}
                                     value={productProfit.amount || 0}
                                     symbol={symbol}
-                                    valueColor="text-violet-700"
+                                    valueColor="text-info"
                                     operation="="
                                 />
                                 <CalcStep

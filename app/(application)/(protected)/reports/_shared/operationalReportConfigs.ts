@@ -31,10 +31,10 @@ export const operationalReportConfigs = {
         useReportMutation: useGetCashClosingReportMutation,
         defaultSort: 'created_at',
         summaryFields: [
-            { key: 'records', label: 'lbl_closings', type: 'number' },
-            { key: 'expected_cash', label: 'lbl_expected_cash', type: 'money' },
-            { key: 'actual_cash', label: 'lbl_counted_cash', type: 'money' },
-            { key: 'difference', label: 'lbl_difference', type: 'money' },
+            { key: 'records', label: 'lbl_closings', type: 'number', role: 'neutral' },
+            { key: 'expected_cash', label: 'lbl_expected_cash', type: 'money', role: 'neutral' },
+            { key: 'actual_cash', label: 'lbl_counted_cash', type: 'money', role: 'neutral' },
+            { key: 'difference', label: 'lbl_difference', type: 'money', role: 'insight' },
         ],
         fields: [
             { key: 'store_name', label: 'lbl_store', sortable: true },
@@ -60,9 +60,9 @@ export const operationalReportConfigs = {
         useReportMutation: useGetPaymentSummaryReportMutation,
         defaultSort: 'total_amount',
         summaryFields: [
-            { key: 'methods', label: 'lbl_rows', type: 'number' },
-            { key: 'transaction_count', label: 'lbl_transactions', type: 'number' },
-            { key: 'total_amount', label: 'lbl_total_amount', type: 'money' },
+            { key: 'methods', label: 'lbl_rows', type: 'number', role: 'neutral' },
+            { key: 'transaction_count', label: 'lbl_transactions', type: 'number', role: 'neutral' },
+            { key: 'total_amount', label: 'lbl_total_amount', type: 'money', role: 'revenue' },
         ],
         fields: [
             { key: 'store_name', label: 'lbl_store', sortable: true },
@@ -80,11 +80,11 @@ export const operationalReportConfigs = {
         useReportMutation: useGetEmployeeSalesReportMutation,
         defaultSort: 'gross_sales',
         summaryFields: [
-            { key: 'employees', label: 'lbl_employees', type: 'number' },
-            { key: 'orders', label: 'lbl_orders', type: 'number' },
-            { key: 'gross_sales', label: 'lbl_gross_sales', type: 'money' },
-            { key: 'amount_collected', label: 'lbl_collected', type: 'money' },
-            { key: 'discount_amount', label: 'lbl_discount', type: 'money' },
+            { key: 'employees', label: 'lbl_employees', type: 'number', role: 'neutral' },
+            { key: 'orders', label: 'lbl_orders', type: 'number', role: 'neutral' },
+            { key: 'gross_sales', label: 'lbl_gross_sales', type: 'money', role: 'revenue' },
+            { key: 'amount_collected', label: 'lbl_collected', type: 'money', role: 'revenue' },
+            { key: 'discount_amount', label: 'lbl_discount', type: 'money', role: 'cost' },
         ],
         fields: [
             { key: 'store_name', label: 'lbl_store', sortable: true },
@@ -104,9 +104,9 @@ export const operationalReportConfigs = {
         useReportMutation: useGetStockMovementReportMutation,
         defaultSort: 'created_at',
         summaryFields: [
-            { key: 'movements', label: 'lbl_movements', type: 'number' },
-            { key: 'total_quantity', label: 'lbl_quantity', type: 'number' },
-            { key: 'total_amount', label: 'lbl_amount', type: 'money' },
+            { key: 'movements', label: 'lbl_movements', type: 'number', role: 'neutral' },
+            { key: 'total_quantity', label: 'lbl_quantity', type: 'number', role: 'neutral' },
+            { key: 'total_amount', label: 'lbl_amount', type: 'money', role: 'insight' },
         ],
         fields: [
             { key: 'store_name', label: 'lbl_store', sortable: true },
@@ -129,9 +129,9 @@ export const operationalReportConfigs = {
         useReportMutation: useGetDiscountReportMutation,
         defaultSort: 'created_at',
         summaryFields: [
-            { key: 'orders', label: 'lbl_orders', type: 'number' },
-            { key: 'discount_amount', label: 'lbl_discount', type: 'money' },
-            { key: 'gross_sales', label: 'lbl_gross_sales', type: 'money' },
+            { key: 'orders', label: 'lbl_orders', type: 'number', role: 'neutral' },
+            { key: 'discount_amount', label: 'lbl_discount', type: 'money', role: 'cost' },
+            { key: 'gross_sales', label: 'lbl_gross_sales', type: 'money', role: 'revenue' },
         ],
         fields: [
             { key: 'store_name', label: 'lbl_store', sortable: true },
@@ -152,10 +152,10 @@ export const operationalReportConfigs = {
         useReportMutation: useGetCustomerStatementReportMutation,
         defaultSort: 'created_at',
         summaryFields: [
-            { key: 'entries', label: 'lbl_entries', type: 'number' },
-            { key: 'debit', label: 'lbl_due', type: 'money' },
-            { key: 'credit', label: 'lbl_paid', type: 'money' },
-            { key: 'balance', label: 'lbl_balance', type: 'money' },
+            { key: 'entries', label: 'lbl_entries', type: 'number', role: 'neutral' },
+            { key: 'debit', label: 'lbl_due', type: 'money', role: 'warning' },
+            { key: 'credit', label: 'lbl_paid', type: 'money', role: 'revenue' },
+            { key: 'balance', label: 'lbl_balance', type: 'money', role: 'insight' },
         ],
         fields: [
             { key: 'store_name', label: 'lbl_store', sortable: true },
@@ -176,10 +176,10 @@ export const operationalReportConfigs = {
         useReportMutation: useGetSupplierStatementReportMutation,
         defaultSort: 'created_at',
         summaryFields: [
-            { key: 'entries', label: 'lbl_entries', type: 'number' },
-            { key: 'debit', label: 'lbl_purchase', type: 'money' },
-            { key: 'credit', label: 'lbl_paid', type: 'money' },
-            { key: 'balance', label: 'lbl_balance', type: 'money' },
+            { key: 'entries', label: 'lbl_entries', type: 'number', role: 'neutral' },
+            { key: 'debit', label: 'lbl_purchase', type: 'money', role: 'cost' },
+            { key: 'credit', label: 'lbl_paid', type: 'money', role: 'cost' },
+            { key: 'balance', label: 'lbl_balance', type: 'money', role: 'insight' },
         ],
         fields: [
             { key: 'store_name', label: 'lbl_store', sortable: true },
@@ -200,9 +200,9 @@ export const operationalReportConfigs = {
         useReportMutation: useGetTransferLedgerReportMutation,
         defaultSort: 'created_at',
         summaryFields: [
-            { key: 'transfers', label: 'lbl_transfers', type: 'number' },
-            { key: 'items', label: 'lbl_items', type: 'number' },
-            { key: 'quantity', label: 'lbl_quantity', type: 'number' },
+            { key: 'transfers', label: 'lbl_transfers', type: 'number', role: 'neutral' },
+            { key: 'items', label: 'lbl_items', type: 'number', role: 'neutral' },
+            { key: 'quantity', label: 'lbl_quantity', type: 'number', role: 'neutral' },
         ],
         fields: [
             { key: 'from_store', label: 'lbl_from_store' },
@@ -223,7 +223,7 @@ export const operationalReportConfigs = {
         icon: 'audit',
         useReportMutation: useGetAuditActivityReportMutation,
         defaultSort: 'created_at',
-        summaryFields: [{ key: 'events', label: 'lbl_events', type: 'number' }],
+        summaryFields: [{ key: 'events', label: 'lbl_events', type: 'number', role: 'neutral' }],
         fields: [
             { key: 'store_name', label: 'lbl_store', sortable: true },
             { key: 'actor_name', label: 'lbl_user' },

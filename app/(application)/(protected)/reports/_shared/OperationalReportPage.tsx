@@ -1,7 +1,7 @@
 'use client';
 
 import ReportExportToolbar, { ExportColumn } from '@/app/(application)/(protected)/reports/_shared/ReportExportToolbar';
-import ReportSummaryCard from '@/app/(application)/(protected)/reports/_shared/ReportSummaryCard';
+import ReportSummaryCard, { SummaryRole } from '@/app/(application)/(protected)/reports/_shared/ReportSummaryCard';
 import DateColumn from '@/components/common/DateColumn';
 import ReusableTable from '@/components/common/ReusableTable';
 import BasicReportFilter from '@/components/filters/reports/BasicReportFilter';
@@ -20,6 +20,8 @@ export interface OperationalReportField {
     type?: FieldType;
     sortable?: boolean;
     width?: number;
+    /** Summary-card color meaning. Only read for entries in `summaryFields`; defaults to neutral. */
+    role?: SummaryRole;
 }
 
 interface OperationalReportPageProps {
@@ -32,6 +34,14 @@ interface OperationalReportPageProps {
     summaryFields: OperationalReportField[];
     defaultSort?: string;
 }
+
+const ROLE_ICON_COLOR: Record<SummaryRole, string> = {
+    revenue: 'text-success',
+    cost: 'text-danger',
+    neutral: 'text-primary',
+    insight: 'text-info',
+    warning: 'text-warning',
+};
 
 const iconMap = {
     cash: Banknote,
@@ -121,21 +131,23 @@ const OperationalReportPage: React.FC<OperationalReportPageProps> = ({ title, de
 
     const summaryItems = useMemo(
         () =>
-            summaryFields.map((field, index) => ({
-                label: t(field.label),
-                value: formatValue(summary[field.key], field.type),
-                icon:
-                    index % 3 === 0 ? (
-                        <Icon className="h-4 w-4 text-blue-600" />
-                    ) : index % 3 === 1 ? (
-                        <ClipboardList className="h-4 w-4 text-emerald-600" />
-                    ) : (
-                        <Banknote className="h-4 w-4 text-purple-600" />
-                    ),
-                bgColor: index % 3 === 0 ? 'bg-blue-500' : index % 3 === 1 ? 'bg-emerald-500' : 'bg-purple-500',
-                lightBg: index % 3 === 0 ? 'bg-blue-50' : index % 3 === 1 ? 'bg-emerald-50' : 'bg-purple-50',
-                textColor: index % 3 === 0 ? 'text-blue-600' : index % 3 === 1 ? 'text-emerald-600' : 'text-purple-600',
-            })),
+            summaryFields.map((field, index) => {
+                const role: SummaryRole = field.role || 'neutral';
+                const iconColor = ROLE_ICON_COLOR[role];
+                return {
+                    label: t(field.label),
+                    value: formatValue(summary[field.key], field.type),
+                    role,
+                    icon:
+                        index % 3 === 0 ? (
+                            <Icon className={`h-4 w-4 ${iconColor}`} />
+                        ) : index % 3 === 1 ? (
+                            <ClipboardList className={`h-4 w-4 ${iconColor}`} />
+                        ) : (
+                            <Banknote className={`h-4 w-4 ${iconColor}`} />
+                        ),
+                };
+            }),
         [Icon, formatValue, summary, summaryFields, t]
     );
 
