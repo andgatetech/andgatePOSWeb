@@ -568,29 +568,29 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
             'stock.reports',
             'fiscal.compliance.view',
         ],
+        // Sections and items below are ordered by minimum package tier that grants
+        // access (Starter first, then SME Growth, then Professional/Enterprise) —
+        // so a section/item lower in this list always requires an equal-or-higher
+        // plan than the one above it. See SubscriptionSeeder.php for the grants.
         subMenu: [
-            // Sales & Revenue Reports
+            // Sales & Revenue Reports — Starter: Sales Report, Invoices. SME Growth+: rest.
             {
                 label: 'Sales & Revenue',
                 requiredPermissions: ['reports.sales', 'reports.transaction'],
                 subMenu: [
-                    { label: 'Business Overview', href: '/reports/business-overview', requiredPermissions: ['reports.sales', 'reports.profit-loss'], requiredFeature: 'reports.profit-loss' },
                     { label: 'Sales Report', href: '/reports/sales', requiredPermissions: ['reports.sales'], requiredFeature: 'reports.sales' },
+                    { label: 'Invoices', href: '/reports/invoice', requiredPermissions: ['reports.invoice'], requiredFeature: 'reports.invoice' },
+                    { label: 'Business Overview', href: '/reports/business-overview', requiredPermissions: ['reports.sales', 'reports.profit-loss'], requiredFeature: 'reports.profit-loss' },
+                    { label: 'Smart Summary', href: '/reports/smart-summary', requiredPermissions: ['reports.summary'], requiredFeature: 'reports.summary' },
                     { label: 'Order Returns', href: '/reports/order-returns', requiredPermissions: ['reports.order-returns'], requiredFeature: 'reports.order-returns' },
                     { label: 'Transactions', href: '/reports/transaction', requiredPermissions: ['reports.transaction'], requiredFeature: 'reports.transaction' },
                     { label: 'Payment Mode Summary', href: '/reports/payment-summary', requiredPermissions: ['reports.transaction'], requiredFeature: 'reports.transaction' },
                     { label: 'Employee Sales', href: '/reports/employee-sales', requiredPermissions: ['reports.operations.employee-sales'], requiredFeature: 'reports.operations.employee-sales' },
                     { label: 'Discount Report', href: '/reports/discount', requiredPermissions: ['reports.operations.discount'], requiredFeature: 'reports.operations.discount' },
-                    { label: 'Invoices', href: '/reports/invoice', requiredPermissions: ['reports.invoice'], requiredFeature: 'reports.invoice' },
                     { label: 'Sales Items', href: '/reports/sales-items', requiredPermissions: ['reports.sales-items'], requiredFeature: 'reports.sales-items' },
                 ],
             },
-            {
-                label: 'lbl_fiscal_compliance',
-                requiredPermissions: ['fiscal.compliance.view'],
-                subMenu: [{ label: 'lbl_compliance_center', href: '/fiscal-compliance', requiredPermissions: ['fiscal.compliance.view'] }],
-            },
-            // Customer Reports
+            // Customer Reports — Starter: Customer Report. SME Growth+: Due & Statement.
             {
                 label: 'Customer Reports',
                 requiredPermissions: ['reports.sales'],
@@ -605,7 +605,45 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                     },
                 ],
             },
-            // Purchase & Supplier Reports
+            // Inventory Reports — Starter: Stock/Movement/Transfer/Adjustments. SME
+            // Growth: Idle Products, Product Report. Professional+: Threshold Intelligence.
+            {
+                label: 'Inventory Reports',
+                requiredPermissions: ['stock.reports', 'stock.adjustments', 'reports.inventory', 'reports.low-stock'],
+                subMenu: [
+                    { label: 'Stock Report', href: '/reports/stock', requiredPermissions: ['stock.reports'], requiredFeature: 'stock.reports' },
+                    { label: 'Low Stock', href: '/reports/low-stock', requiredPermissions: ['reports.low-stock'], requiredFeature: 'reports.low-stock' },
+                    { label: 'Stock Movement Ledger', href: '/reports/stock-movement', requiredPermissions: ['stock.reports'], requiredFeature: 'stock.reports' },
+                    { label: 'Transfer Ledger', href: '/reports/transfer-ledger', requiredPermissions: ['stock.reports'], requiredFeature: 'stock.reports' },
+                    { label: 'Adjustments', href: '/reports/adjustment', requiredPermissions: ['stock.adjustments'], requiredFeature: 'stock.adjustments' },
+                    { label: 'Idle Products', href: '/reports/idle-product', requiredPermissions: ['reports.inventory'], requiredFeature: 'reports.inventory' },
+                    { label: 'Product Report', href: '/reports/product', requiredPermissions: ['reports.inventory'], requiredFeature: 'reports.inventory' },
+                    {
+                        label: 'Threshold Intelligence',
+                        href: '/reports/threshold-intelligence',
+                        requiredPermissions: ['reports.threshold-intelligence'],
+                        requiredFeature: 'reports.threshold-intelligence',
+                    },
+                ],
+            },
+            // AI Insights — Professional+ only. Smart Summary moved out (Phase 3
+            // packaging audit, 2026-07-17): its backend route is gated by the plain
+            // 'reports.summary' permission, same as the Daily Sales Summary — it's the
+            // same daily/weekly rollup data, not a distinct predictive capability, so
+            // filing it here next to genuinely AI-driven siblings misrepresented it and
+            // made this group look broken (1 of 4 unlocked) for every Starter/SME Growth
+            // user. The other three are real predictive models, kept here, Professional+.
+            {
+                label: 'AI Insights',
+                icon: React.createElement(BrainCircuit),
+                requiredPermissions: ['reports.reorder-suggestions'],
+                subMenu: [
+                    { label: 'Reorder Suggestions', href: '/reports/reorder-suggestions', requiredPermissions: ['reports.reorder-suggestions'], requiredFeature: 'reports.reorder-suggestions' },
+                    { label: 'Anomaly Detection', href: '/reports/anomalies', requiredPermissions: ['reports.anomalies'], requiredFeature: 'reports.anomalies' },
+                    { label: 'Demand Forecast', href: '/reports/demand-forecast', requiredPermissions: ['reports.demand-forecast'], requiredFeature: 'reports.demand-forecast' },
+                ],
+            },
+            // Purchase & Supplier Reports — all SME Growth+ (purchasing group).
             {
                 label: 'Purchase & Supplier',
                 requiredPermissions: ['reports.purchase'],
@@ -618,27 +656,8 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                     { label: 'Supplier Statement', href: '/reports/supplier-statement', requiredPermissions: ['reports.purchase'], requiredFeature: 'reports.purchase' },
                 ],
             },
-            // Inventory Reports
-            {
-                label: 'Inventory Reports',
-                requiredPermissions: ['stock.reports', 'stock.adjustments', 'reports.inventory', 'reports.low-stock'],
-                subMenu: [
-                    { label: 'Stock Report', href: '/reports/stock', requiredPermissions: ['stock.reports'], requiredFeature: 'stock.reports' },
-                    { label: 'Low Stock', href: '/reports/low-stock', requiredPermissions: ['reports.low-stock'], requiredFeature: 'reports.low-stock' },
-                    {
-                        label: 'Threshold Intelligence',
-                        href: '/reports/threshold-intelligence',
-                        requiredPermissions: ['reports.threshold-intelligence'],
-                        requiredFeature: 'reports.threshold-intelligence',
-                    },
-                    { label: 'Stock Movement Ledger', href: '/reports/stock-movement', requiredPermissions: ['stock.reports'], requiredFeature: 'stock.reports' },
-                    { label: 'Transfer Ledger', href: '/reports/transfer-ledger', requiredPermissions: ['stock.reports'], requiredFeature: 'stock.reports' },
-                    { label: 'Idle Products', href: '/reports/idle-product', requiredPermissions: ['reports.inventory'], requiredFeature: 'reports.inventory' },
-                    { label: 'Adjustments', href: '/reports/adjustment', requiredPermissions: ['stock.adjustments'], requiredFeature: 'stock.adjustments' },
-                    { label: 'Product Report', href: '/reports/product', requiredPermissions: ['reports.inventory'], requiredFeature: 'reports.inventory' },
-                ],
-            },
-            // Financial Reports
+            // Financial Reports — SME Growth+: Profit & Loss, Expense, Tax, Cash
+            // Closing. Professional+: Audit Activity.
             {
                 label: 'Financial Reports',
                 requiredPermissions: ['reports.profit-loss', 'reports.expense', 'reports.tax', 'reports.sales'],
@@ -650,17 +669,11 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                     { label: 'Audit Activity', href: '/reports/audit-activity', requiredPermissions: ['reports.operations.audit-activity'], requiredFeature: 'reports.operations.audit-activity' },
                 ],
             },
-            // AI Insights
+            // Fiscal Compliance — Professional+ only (advanced group).
             {
-                label: 'AI Insights',
-                icon: React.createElement(BrainCircuit),
-                requiredPermissions: ['reports.sales'],
-                subMenu: [
-                    { label: 'Reorder Suggestions', href: '/reports/reorder-suggestions', requiredPermissions: ['reports.reorder-suggestions'], requiredFeature: 'reports.reorder-suggestions' },
-                    { label: 'Anomaly Detection', href: '/reports/anomalies', requiredPermissions: ['reports.anomalies'], requiredFeature: 'reports.anomalies' },
-                    { label: 'Demand Forecast', href: '/reports/demand-forecast', requiredPermissions: ['reports.demand-forecast'], requiredFeature: 'reports.demand-forecast' },
-                    { label: 'Smart Summary', href: '/reports/smart-summary', requiredPermissions: ['reports.summary'], requiredFeature: 'reports.summary' },
-                ],
+                label: 'lbl_fiscal_compliance',
+                requiredPermissions: ['fiscal.compliance.view'],
+                subMenu: [{ label: 'lbl_compliance_center', href: '/fiscal-compliance', requiredPermissions: ['fiscal.compliance.view'] }],
             },
         ],
     },

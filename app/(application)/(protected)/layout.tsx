@@ -1,5 +1,6 @@
 'use client';
 import CriticalBanner from '@/app/(application)/(protected)/notifications/components/CriticalBanner';
+import TrialCliffBanner from '@/app/(application)/(protected)/notifications/components/TrialCliffBanner';
 import Footer from '@/components/layouts/footer';
 import Header from '@/components/layouts/header';
 import MainContainer from '@/components/layouts/main-container';
@@ -31,6 +32,7 @@ function ProtectedLayoutInner({ children }: { children: React.ReactNode }) {
                     <Sidebar />
                     <div className="main-content flex min-h-screen flex-col">
                         <Header />
+                        <TrialCliffBanner />
                         <CriticalBanner />
                         <div className="px-3 py-4 pb-20 sm:px-4 lg:px-6 lg:pb-4">
                             <SubscriptionGate>

@@ -4,10 +4,16 @@ import { FormEvent, ReactNode, useMemo, useState } from 'react';
 import Image from 'next/image';
 import Swal from 'sweetalert2';
 import Link from 'next/link';
-import { Check, CreditCard, FileText, PackageCheck, Star } from 'lucide-react';
+import { Check, CreditCard, FileText, PackageCheck, PlusCircle, Star } from 'lucide-react';
 import { getTranslation } from '@/i18n';
 import { useGetPlansQuery } from '@/store/features/plans/plansApi';
-import { useGetManualPaymentSummaryQuery, useGetManualPaymentsQuery, useSubmitManualPaymentMutation } from '@/store/features/manualPayments/manualPaymentsApi';
+import {
+    useGetAddonCatalogQuery,
+    useGetManualPaymentSummaryQuery,
+    useGetManualPaymentsQuery,
+    useSubmitAddonPaymentMutation,
+    useSubmitManualPaymentMutation,
+} from '@/store/features/manualPayments/manualPaymentsApi';
 
 const methods = [
     { value: 'bkash', label: 'bKash' },
@@ -43,6 +49,43 @@ export default function ManualPaymentPanel({ notice }: { notice?: ReactNode }) {
     });
     const [receipt, setReceipt] = useState<File | null>(null);
     const [packageTab, setPackageTab] = useState<'current' | 'available'>('current');
+    const { data: addonCatalogData } = useGetAddonCatalogQuery();
+    const [submitAddonPayment, { isLoading: isAddonSubmitting }] = useSubmitAddonPaymentMutation();
+    const addons = useMemo(() => addonCatalogData?.data || [], [addonCatalogData?.data]);
+    const [addonForm, setAddonForm] = useState({
+        addon_slug: '',
+        addon_quantity: '1',
+        payment_method: 'bkash',
+        sender_account: '',
+        transaction_id: '',
+        amount: '',
+        payment_date: new Date().toISOString().slice(0, 16),
+        customer_note: '',
+    });
+    const [addonReceipt, setAddonReceipt] = useState<File | null>(null);
+    const selectedAddon = useMemo(() => addons.find((a) => a.slug === addonForm.addon_slug), [addons, addonForm.addon_slug]);
+    const addonExpectedAmount = selectedAddon ? Math.max(0, Math.round(Number(selectedAddon.monthly_price) * Math.max(1, Number(addonForm.addon_quantity) || 1))) : 0;
+    const updateAddonForm = (key: string, value: string) => setAddonForm((prev) => ({ ...prev, [key]: value }));
+    const chooseAddon = (slug: string) => {
+        setAddonForm((prev) => ({ ...prev, addon_slug: slug, addon_quantity: '1' }));
+        document.getElementById('addon-payment-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    const handleAddonSubmit = async (event: FormEvent) => {
+        event.preventDefault();
+        const body = new FormData();
+        Object.entries(addonForm).forEach(([key, value]) => {
+            if (value) body.append(key, value);
+        });
+        if (addonReceipt) body.append('receipt', addonReceipt);
+
+        try {
+            await submitAddonPayment(body).unwrap();
+            await Swal.fire(t('manual_payments_submitted_title'), t('manual_payments_submitted_msg'), 'success');
+            setAddonForm((prev) => ({ ...prev, addon_slug: '', transaction_id: '', amount: '', customer_note: '' }));
+        } catch (error: any) {
+            await Swal.fire(t('manual_payments_not_submitted'), error?.data?.message || t('manual_payments_check_details'), 'error');
+        }
+    };
     const latest = summaryData?.data.latest_payment;
     const subscription = summaryData?.data.subscription;
     const payments = paymentsData?.data?.data || paymentsData?.data || [];
@@ -208,6 +251,98 @@ export default function ManualPaymentPanel({ notice }: { notice?: ReactNode }) {
                     </div>
                 )}
             </section>
+
+            {addons.length > 0 && (
+                <section className="panel">
+                    <div className="flex items-center gap-2">
+                        <div className="rounded-md bg-primary/10 p-2 text-primary"><PlusCircle className="h-5 w-5" /></div>
+                        <div>
+                            <h2 className="text-sm font-semibold text-gray-900 dark:text-white">{t('manual_payments_addons_title')}</h2>
+                            <p className="mt-0.5 text-xs text-gray-500">{t('manual_payments_addons_subtitle')}</p>
+                        </div>
+                    </div>
+                    <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        {addons.map((addon) => (
+                            <div key={addon.slug} className={`flex flex-col rounded-lg border p-4 ${addon.eligible ? 'border-white-light dark:border-[#17263c]' : 'border-white-light bg-gray-50 opacity-60 dark:border-[#17263c] dark:bg-gray-800/40'}`}>
+                                <div className="flex items-center justify-between">
+                                    <h3 className="font-semibold text-gray-900 dark:text-white">{addon.label_en}</h3>
+                                    {addon.active_quantity > 0 && (
+                                        <span className="rounded-full bg-success-light px-2 py-0.5 text-xs font-semibold text-success">
+                                            {t('manual_payments_addons_active')}: {addon.active_quantity}
+                                        </span>
+                                    )}
+                                </div>
+                                <p className="mt-1 text-lg font-bold text-primary">
+                                    ৳ {Number(addon.monthly_price).toLocaleString('en-US')}
+                                    <span className="text-xs font-normal text-gray-500"> /{t('manual_payments_monthly')}</span>
+                                </p>
+                                {!addon.eligible ? (
+                                    <p className="mt-3 text-xs text-gray-500">{t('manual_payments_addons_ineligible')}</p>
+                                ) : addon.type !== 'quota' && addon.active_quantity > 0 ? (
+                                    <p className="mt-3 text-xs font-semibold text-success">{t('manual_payments_addons_already_active')}</p>
+                                ) : (
+                                    <button
+                                        type="button"
+                                        onClick={() => chooseAddon(addon.slug)}
+                                        className={`mt-3 rounded-md px-3 py-2 text-sm font-semibold ${addonForm.addon_slug === addon.slug ? 'bg-primary text-white' : 'border border-primary text-primary hover:bg-primary/10'}`}
+                                    >
+                                        {addonForm.addon_slug === addon.slug ? t('manual_payments_selected') : t('manual_payments_addons_buy')}
+                                    </button>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </section>
+            )}
+
+            {addonForm.addon_slug && (
+                <form id="addon-payment-form" onSubmit={handleAddonSubmit} className="panel space-y-4">
+                    <div className="flex items-center gap-2">
+                        <div className="rounded-md bg-primary/10 p-2 text-primary"><CreditCard className="h-5 w-5" /></div>
+                        <h2 className="text-sm font-semibold text-gray-900 dark:text-white">{t('manual_payments_addons_submit')}: {selectedAddon?.label_en}</h2>
+                    </div>
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        {selectedAddon?.type === 'quota' && (
+                            <label className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                                {t('manual_payments_addons_quantity')}
+                                <input required value={addonForm.addon_quantity} onChange={(e) => updateAddonForm('addon_quantity', e.target.value)} type="number" min={1} max={20} className="form-input mt-1" />
+                            </label>
+                        )}
+                        <div className="rounded-md border border-primary/20 bg-primary/10 p-3 text-sm font-semibold text-primary">
+                            {t('manual_payments_expected_amount')}: <strong>৳ {addonExpectedAmount.toLocaleString('en-US')}</strong>
+                        </div>
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                            {t('manual_payments_payment_method')}
+                            <select value={addonForm.payment_method} onChange={(e) => updateAddonForm('payment_method', e.target.value)} className="form-select mt-1">
+                                {methods.map((method) => <option key={method.value} value={method.value}>{methodLabels[method.value] || method.label}</option>)}
+                            </select>
+                        </label>
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                            {t('manual_payments_sender_account')}
+                            <input value={addonForm.sender_account} onChange={(e) => updateAddonForm('sender_account', e.target.value)} className="form-input mt-1" placeholder={t('manual_payments_optional')} />
+                        </label>
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                            {t('manual_payments_transaction_id')}
+                            <input value={addonForm.transaction_id} onChange={(e) => updateAddonForm('transaction_id', e.target.value)} className="form-input mt-1" placeholder={t('manual_payments_optional')} />
+                        </label>
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                            {t('manual_payments_paid_amount')}
+                            <input required value={addonForm.amount} onChange={(e) => updateAddonForm('amount', e.target.value)} type="number" min={1} className="form-input mt-1" />
+                        </label>
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                            {t('manual_payments_payment_datetime')}
+                            <input required value={addonForm.payment_date} onChange={(e) => updateAddonForm('payment_date', e.target.value)} type="datetime-local" className="form-input mt-1" />
+                        </label>
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                            {t('manual_payments_receipt')} <span className="text-xs font-normal text-gray-400">({t('manual_payments_optional')})</span>
+                            <input onChange={(e) => setAddonReceipt(e.target.files?.[0] || null)} type="file" accept=".jpg,.jpeg,.png,.webp,.pdf" className="form-input mt-1" />
+                        </label>
+                    </div>
+                    <button disabled={isAddonSubmitting} className="btn btn-primary disabled:opacity-60">
+                        {isAddonSubmitting ? t('manual_payments_submitting') : t('manual_payments_addons_submit')}
+                    </button>
+                </form>
+            )}
 
             <form id="manual-payment-form" onSubmit={handleSubmit} className="panel space-y-4">
                 <div className="flex items-center gap-2">

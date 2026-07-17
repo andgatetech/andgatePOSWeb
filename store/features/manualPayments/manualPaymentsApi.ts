@@ -10,6 +10,18 @@ export interface ManualPaymentSummary {
     providers: Record<string, string>;
 }
 
+export interface AddonCatalogItem {
+    slug: string;
+    label_en: string;
+    label_bn: string;
+    monthly_price: number;
+    min_plan_tier: number;
+    type: 'quota' | 'permission_grant' | 'flag';
+    grants?: string[];
+    eligible: boolean;
+    active_quantity: number;
+}
+
 export const manualPaymentsApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         getManualPaymentSummary: builder.query<{ success: boolean; data: ManualPaymentSummary }, void>({
@@ -28,6 +40,18 @@ export const manualPaymentsApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['ManualPayments'],
         }),
+        getAddonCatalog: builder.query<{ success: boolean; data: AddonCatalogItem[] }, void>({
+            query: () => ({ url: '/manual-payments/addons', method: 'GET' }),
+            providesTags: ['ManualPayments'],
+        }),
+        submitAddonPayment: builder.mutation<any, FormData>({
+            query: (body) => ({
+                url: '/manual-payments/addons',
+                method: 'POST',
+                body,
+            }),
+            invalidatesTags: ['ManualPayments'],
+        }),
     }),
 });
 
@@ -35,4 +59,6 @@ export const {
     useGetManualPaymentSummaryQuery,
     useGetManualPaymentsQuery,
     useSubmitManualPaymentMutation,
+    useGetAddonCatalogQuery,
+    useSubmitAddonPaymentMutation,
 } = manualPaymentsApi;
