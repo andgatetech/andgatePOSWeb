@@ -16,6 +16,12 @@ const normalizeSessions = (response: any) => {
     return Array.isArray(payload) ? payload : [];
 };
 
+// Stable reference so the `|| EMPTY_ITEMS` fallback below doesn't hand the
+// useSelector a new array every render — a fresh `[]` literal each time makes
+// the selectedItems dependency "change" every render even when the underlying
+// store data hasn't, which set off an infinite effect/setState loop below.
+const EMPTY_ITEMS: any[] = [];
+
 export default function StockCountPage() {
     const { t } = getTranslation();
     const { formatNumber } = useCurrency();
@@ -26,7 +32,7 @@ export default function StockCountPage() {
     const [submitError, setSubmitError] = useState('');
     const [createStockCount, { isLoading: isCreating }] = useCreateStockCountMutation();
     const [approveStockCount, { isLoading: isApproving }] = useApproveStockCountMutation();
-    const selectedItems = useSelector((state: RootState) => (currentStoreId && state.stockAdjustment.itemsByStore ? state.stockAdjustment.itemsByStore[currentStoreId] || [] : []));
+    const selectedItems = useSelector((state: RootState) => (currentStoreId && state.stockAdjustment.itemsByStore ? state.stockAdjustment.itemsByStore[currentStoreId] || EMPTY_ITEMS : EMPTY_ITEMS));
     const { data: countsResponse, refetch } = useGetStockCountsQuery({ store_id: currentStoreId, per_page: 10 }, { skip: !currentStoreId });
 
     useEffect(() => {

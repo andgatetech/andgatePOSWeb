@@ -122,7 +122,7 @@ const shouldShowMessage = (message: string, errorType: string, lang: 'en' | 'bn'
 };
 
 const SubscriptionError: React.FC<SubscriptionErrorProps> = ({ errorType, message, details }) => {
-    const { i18n } = getTranslation();
+    const { t, i18n } = getTranslation();
     const lang = i18n.language as 'en' | 'bn';
     const displayNumber = (value: string | number) => convertNumberByLanguage(value, lang);
     const config = errorConfigs[errorType] || errorConfigs.subscription_required;
