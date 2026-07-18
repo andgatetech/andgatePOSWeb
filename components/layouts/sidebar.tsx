@@ -391,7 +391,6 @@ const Sidebar = () => {
                         const parentActive = route.subMenu ? isParentActive(route) : false;
                         const isOpen = currentMenu === route.label;
                         const directActive = !route.subMenu && !!route.href && isActiveRoute(route.href);
-                        const hasLockedChildren = !!route.subMenu?.some((sub) => sub.lockedByFeature || sub.subMenu?.some((nested) => nested.lockedByFeature));
 
                         return (
                             <div key={route.label} className="mb-0.5">
@@ -419,7 +418,6 @@ const Sidebar = () => {
                                                 <span>{t(route.label)}</span>
                                             </div>
                                             <div className="flex items-center gap-2">
-                                                {hasLockedChildren && <Ban className="h-3.5 w-3.5 flex-shrink-0 text-orange-300" />}
                                                 <ChevronDown className={`h-3.5 w-3.5 flex-shrink-0 transition-transform duration-200 ${
                                                     isOpen ? 'rotate-180' : ''
                                                 } text-white`} />

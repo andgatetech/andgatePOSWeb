@@ -346,7 +346,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
             case 'purchase':
                 return currentStoreId && state.purchaseOrder.ordersByStore ? state.purchaseOrder.ordersByStore[currentStoreId]?.items || [] : [];
             case 'transfer':
-                return currentStoreId && state.stockTransferDraft.itemsByStore ? state.stockTransferDraft.itemsByStore[currentStoreId] || [] : [];
+                return currentStoreId && state.stockTransferDraft?.itemsByStore ? state.stockTransferDraft.itemsByStore[currentStoreId] || [] : [];
             case 'pos':
             default:
                 return currentStoreId && state.invoice.itemsByStore ? state.invoice.itemsByStore[currentStoreId] || [] : [];
