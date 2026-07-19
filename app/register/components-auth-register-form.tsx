@@ -1,7 +1,6 @@
 'use client';
 
 import { useTranslation } from '@/components/i18n/TranslationProvider';
-import SearchableStoreType from '@/components/common/SearchableStoreType';
 import { AUTH_TOKEN_EXPIRES_AT_COOKIE, AUTH_TOKEN_EXPIRES_AT_KEY, getCookieMaxAgeFromExpiry, getLoginTokenExpiresAt, isTokenExpired, setAuthCookie } from '@/lib/auth-session';
 import { buildAttribution } from '@/lib/attribution';
 import { createMarketingEventId, trackEvent } from '@/lib/analytics';
@@ -314,6 +313,7 @@ const ComponentsAuthRegisterForm = ({ defaultSource = 'website_registration', de
                 <div className="relative text-white-dark">
                     <input
                         id="Phone"
+                        required
                         onChange={(e) => updateCredential('phone', e.target.value)}
                         type="tel"
                         placeholder={t('register-page.form.phone_placeholder')}
@@ -340,11 +340,6 @@ const ComponentsAuthRegisterForm = ({ defaultSource = 'website_registration', de
                         <IconBuilding size={18} />
                     </span>
                 </div>
-            </div>
-
-            <div>
-                <label htmlFor="StoreType">{t('lbl_store_type')}</label>
-                <SearchableStoreType value={credentials.store_type} onChange={(val) => updateCredential('store_type', val)} />
             </div>
 
             <div>
