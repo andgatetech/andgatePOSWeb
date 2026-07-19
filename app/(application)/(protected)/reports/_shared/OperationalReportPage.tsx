@@ -218,7 +218,7 @@ const OperationalReportPage: React.FC<OperationalReportPageProps> = ({ title, de
                 summary={exportSummary}
                 filterSummary={filterSummary}
                 fileName={fileName}
-                getExportData={fetchAllDataForExport}
+                fetchAllData={fetchAllDataForExport}
             />
 
             <BasicReportFilter
