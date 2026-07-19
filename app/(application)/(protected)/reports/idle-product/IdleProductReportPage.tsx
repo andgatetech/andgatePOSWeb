@@ -114,9 +114,9 @@ const IdleProductReportPage = () => {
 
     const exportSummary = useMemo(
         () => [
-            { label: 'lbl_idle_items', value: summary.total_idle_items || 0 },
-            { label: 'lbl_trapped_capital', value: formatCurrency(summary.total_idle_value) },
-            { label: 'lbl_date', value: new Date().toISOString() },
+            { label: t('lbl_idle_items'), value: summary.total_idle_items || 0 },
+            { label: t('lbl_trapped_capital'), value: formatCurrency(summary.total_idle_value) },
+            { label: t('lbl_date'), value: new Date().toISOString() },
         ],
         [summary, formatCurrency]
     );

@@ -141,10 +141,10 @@ const PurchaseReportPage = () => {
     // Export summary
     const exportSummary = useMemo(
         () => [
-            { label: 'report_total_sales', value: summary.total_purchase_orders || 0 },
-            { label: 'lbl_total_value', value: formatCurrency(summary.total_purchase_value) },
-            { label: 'lbl_amount_paid', value: formatCurrency(summary.total_amount_paid) },
-            { label: 'lbl_due', value: formatCurrency(summary.total_amount_due) },
+            { label: t('report_total_sales'), value: summary.total_purchase_orders || 0 },
+            { label: t('lbl_total_value'), value: formatCurrency(summary.total_purchase_value) },
+            { label: t('lbl_amount_paid'), value: formatCurrency(summary.total_amount_paid) },
+            { label: t('lbl_due'), value: formatCurrency(summary.total_amount_due) },
         ],
         [summary, formatCurrency]
     );

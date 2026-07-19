@@ -315,10 +315,10 @@ const OrderReturnsReportPage = () => {
 
     const exportSummary = useMemo(
         () => [
-            { label: 'lbl_total_returns', value: summary.total_returns || 0 },
-            { label: 'lbl_returns', value: summary.total_returns_only || 0 },
-            { label: 'lbl_exchanges', value: summary.total_exchanges || 0 },
-            { label: 'lbl_return', value: formatCurrency(summary.total_return_amount) },
+            { label: t('lbl_total_returns'), value: summary.total_returns || 0 },
+            { label: t('lbl_returns'), value: summary.total_returns_only || 0 },
+            { label: t('lbl_exchanges'), value: summary.total_exchanges || 0 },
+            { label: t('lbl_return'), value: formatCurrency(summary.total_return_amount) },
         ],
         [summary, formatCurrency]
     );

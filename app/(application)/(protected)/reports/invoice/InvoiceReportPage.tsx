@@ -113,9 +113,9 @@ const InvoiceReportPage = () => {
 
     const exportSummary = useMemo(
         () => [
-            { label: 'lbl_total_invoices', value: summary.total_invoices || 0 },
-            { label: 'lbl_total', value: formatCurrency(summary.total_amount) },
-            { label: 'lbl_due', value: formatCurrency(summary.total_due) },
+            { label: t('lbl_total_invoices'), value: summary.total_invoices || 0 },
+            { label: t('lbl_total'), value: formatCurrency(summary.total_amount) },
+            { label: t('lbl_due'), value: formatCurrency(summary.total_due) },
         ],
         [summary, formatCurrency]
     );

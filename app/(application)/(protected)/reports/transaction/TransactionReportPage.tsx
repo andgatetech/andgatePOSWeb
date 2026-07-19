@@ -116,13 +116,13 @@ const TransactionReportPage = () => {
 
     const exportSummary = useMemo(
         () => [
-            { label: 'lbl_transactions', value: summary.total_transactions || 0 },
-            { label: 'lbl_sales_transactions', value: summary.total_sales_transactions || 0 },
-            { label: 'lbl_sales_amount', value: formatCurrency(summary.total_sales_amount) },
-            { label: 'lbl_refund_transactions', value: summary.total_refund_transactions || 0 },
-            { label: 'lbl_refund_amount', value: formatCurrency(summary.total_refund_amount) },
-            { label: 'lbl_net_amount', value: formatCurrency(summary.net_amount) },
-            { label: 'lbl_average', value: formatCurrency(summary.average_transaction) },
+            { label: t('lbl_transactions'), value: summary.total_transactions || 0 },
+            { label: t('lbl_sales_transactions'), value: summary.total_sales_transactions || 0 },
+            { label: t('lbl_sales_amount'), value: formatCurrency(summary.total_sales_amount) },
+            { label: t('lbl_refund_transactions'), value: summary.total_refund_transactions || 0 },
+            { label: t('lbl_refund_amount'), value: formatCurrency(summary.total_refund_amount) },
+            { label: t('lbl_net_amount'), value: formatCurrency(summary.net_amount) },
+            { label: t('lbl_average'), value: formatCurrency(summary.average_transaction) },
         ],
         [summary, formatCurrency]
     );

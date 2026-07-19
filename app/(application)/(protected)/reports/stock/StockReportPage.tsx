@@ -113,10 +113,10 @@ const StockReportPage = () => {
 
     const exportSummary = useMemo(
         () => [
-            { label: 'order_items', value: summary.total_items || 0 },
-            { label: 'lbl_qty', value: formatNumber(summary.total_quantity || 0) },
-            { label: 'lbl_returned_stock', value: formatNumber(summary.quantity_returned_to_stock || 0) },
-            { label: 'lbl_stock_value', value: formatCurrency(summary.total_stock_value) },
+            { label: t('order_items'), value: summary.total_items || 0 },
+            { label: t('lbl_qty'), value: formatNumber(summary.total_quantity || 0) },
+            { label: t('lbl_returned_stock'), value: formatNumber(summary.quantity_returned_to_stock || 0) },
+            { label: t('lbl_stock_value'), value: formatCurrency(summary.total_stock_value) },
         ],
         [summary, formatCurrency, formatNumber]
     );

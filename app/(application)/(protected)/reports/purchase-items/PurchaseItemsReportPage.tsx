@@ -112,9 +112,9 @@ const PurchaseItemsReportPage = () => {
 
     const exportSummary = useMemo(
         () => [
-            { label: 'lbl_unique_items', value: summary.total_items || 0 },
-            { label: 'lbl_qty', value: summary.total_quantity || 0 },
-            { label: 'lbl_total', value: formatCurrency(summary.total_amount) },
+            { label: t('lbl_unique_items'), value: summary.total_items || 0 },
+            { label: t('lbl_qty'), value: summary.total_quantity || 0 },
+            { label: t('lbl_total'), value: formatCurrency(summary.total_amount) },
         ],
         [summary, formatCurrency]
     );

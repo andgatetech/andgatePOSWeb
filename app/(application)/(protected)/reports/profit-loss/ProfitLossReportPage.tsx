@@ -327,9 +327,9 @@ const ProfitLossReportPage = () => {
 
     const exportSummary = useMemo(
         () => [
-            { label: 'lbl_you_earned', value: formatCurrency(summary.you_earned) },
-            { label: 'lbl_you_keep', value: formatCurrency(summary.you_keep) },
-            { label: 'lbl_margin', value: `${formatNumber(businessProfit.margin || 0)}%` },
+            { label: t('lbl_you_earned'), value: formatCurrency(summary.you_earned) },
+            { label: t('lbl_you_keep'), value: formatCurrency(summary.you_keep) },
+            { label: t('lbl_margin'), value: `${formatNumber(businessProfit.margin || 0)}%` },
         ],
         [summary, businessProfit, formatCurrency, formatNumber]
     );

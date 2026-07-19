@@ -115,10 +115,10 @@ const SalesItemsReportPage = () => {
 
     const exportSummary = useMemo(
         () => [
-            { label: 'lbl_unique_items', value: summary.total_items || 0 },
-            { label: 'lbl_qty_sold', value: summary.total_sold_qty || 0 },
-            { label: 'lbl_sales_amount', value: formatCurrency(summary.total_sold_amount) },
-            { label: 'lbl_profit', value: formatCurrency(summary.total_profit) },
+            { label: t('lbl_unique_items'), value: summary.total_items || 0 },
+            { label: t('lbl_qty_sold'), value: summary.total_sold_qty || 0 },
+            { label: t('lbl_sales_amount'), value: formatCurrency(summary.total_sold_amount) },
+            { label: t('lbl_profit'), value: formatCurrency(summary.total_profit) },
         ],
         [summary, formatCurrency]
     );

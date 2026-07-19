@@ -152,9 +152,9 @@ const LowStockReportPage = () => {
 
     const exportSummary = useMemo(
         () => [
-            { label: 'lbl_low_stock_items', value: summary.total_low_stock_items || 0 },
-            { label: 'lbl_out_of_stock_items', value: summary.out_of_stock_items || 0 },
-            { label: 'lbl_total_items', value: summary.total_items_tracked || 0 },
+            { label: t('lbl_low_stock_items'), value: summary.total_low_stock_items || 0 },
+            { label: t('lbl_out_of_stock_items'), value: summary.out_of_stock_items || 0 },
+            { label: t('lbl_total_items'), value: summary.total_items_tracked || 0 },
         ],
         [summary]
     );

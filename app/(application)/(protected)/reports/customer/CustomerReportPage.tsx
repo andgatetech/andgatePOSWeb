@@ -125,12 +125,12 @@ const CustomerReportPage = () => {
 
     const exportSummary = useMemo(
         () => [
-            { label: 'customer_title', value: summary.total_customers || 0 },
-            { label: 'lbl_total', value: formatCurrency(summary.total_amount) },
-            { label: 'lbl_return', value: formatCurrency(summary.total_returned) },
-            { label: 'lbl_net_purchase', value: formatCurrency(summary.net_purchase_value) },
-            { label: 'lbl_return_rate', value: `${Number(summary.return_rate || 0).toFixed(2)}%` },
-            { label: 'lbl_due', value: formatCurrency(summary.total_due) },
+            { label: t('customer_title'), value: summary.total_customers || 0 },
+            { label: t('lbl_total'), value: formatCurrency(summary.total_amount) },
+            { label: t('lbl_return'), value: formatCurrency(summary.total_returned) },
+            { label: t('lbl_net_purchase'), value: formatCurrency(summary.net_purchase_value) },
+            { label: t('lbl_return_rate'), value: `${Number(summary.return_rate || 0).toFixed(2)}%` },
+            { label: t('lbl_due'), value: formatCurrency(summary.total_due) },
         ],
         [summary, formatCurrency]
     );

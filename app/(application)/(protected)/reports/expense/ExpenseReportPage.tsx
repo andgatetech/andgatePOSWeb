@@ -112,9 +112,9 @@ const ExpenseReportPage = () => {
 
     const exportSummary = useMemo(
         () => [
-            { label: 'lbl_records', value: summary.expense_count || 0 },
-            { label: 'lbl_total', value: formatCurrency(summary.total_expenses) },
-            { label: 'lbl_average', value: formatCurrency(summary.average_expense) },
+            { label: t('lbl_records'), value: summary.expense_count || 0 },
+            { label: t('lbl_total'), value: formatCurrency(summary.total_expenses) },
+            { label: t('lbl_average'), value: formatCurrency(summary.average_expense) },
         ],
         [summary, formatCurrency]
     );

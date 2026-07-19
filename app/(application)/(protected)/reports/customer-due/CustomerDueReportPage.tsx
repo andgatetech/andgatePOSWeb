@@ -419,8 +419,8 @@ const CustomerDueReportPage = () => {
                 data={exportRows}
                 columns={exportColumns}
                 summary={[
-                    { label: 'lbl_customers_with_due', value: summary.total_customers_with_due || 0 },
-                    { label: 'lbl_remaining_due', value: formatCurrency(summary.total_remaining) },
+                    { label: t('lbl_customers_with_due'), value: summary.total_customers_with_due || 0 },
+                    { label: t('lbl_remaining_due'), value: formatCurrency(summary.total_remaining) },
                 ]}
                 filterSummary={{ storeName: selectedStoreName, customFilters: [], dateRange: { type: 'none' } }}
                 fileName="customer_due_report"

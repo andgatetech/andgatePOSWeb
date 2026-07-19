@@ -355,10 +355,10 @@ const SalesReportPage = () => {
     // Summary for export
     const exportSummary = useMemo(
         () => [
-            { label: 'report_total_sales', value: summary.total_orders || 0 },
-            { label: 'lbl_gross_sales', value: formatCurrency(summary.total_sales) },
-            { label: 'lbl_collection', value: formatCurrency(summary.total_amount_paid) },
-            { label: 'status_outstanding', value: formatCurrency(summary.total_due_amount) },
+            { label: t('report_total_sales'), value: summary.total_orders || 0 },
+            { label: t('lbl_gross_sales'), value: formatCurrency(summary.total_sales) },
+            { label: t('lbl_collection'), value: formatCurrency(summary.total_amount_paid) },
+            { label: t('status_outstanding'), value: formatCurrency(summary.total_due_amount) },
         ],
         [summary, formatCurrency]
     );

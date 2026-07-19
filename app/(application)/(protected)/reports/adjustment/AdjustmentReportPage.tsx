@@ -122,8 +122,8 @@ const AdjustmentReportPage = () => {
 
     const exportSummary = useMemo(
         () => [
-            { label: 'report_adjustment_title', value: summary.total_adjustments || 0 },
-            { label: 'lbl_net_change', value: `${summary.net_change >= 0 ? '+' : ''}${formatNumber(summary.net_change || 0)}` },
+            { label: t('report_adjustment_title'), value: summary.total_adjustments || 0 },
+            { label: t('lbl_net_change'), value: `${summary.net_change >= 0 ? '+' : ''}${formatNumber(summary.net_change || 0)}` },
         ],
         [summary]
     );

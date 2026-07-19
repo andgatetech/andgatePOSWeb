@@ -113,9 +113,9 @@ const SupplierReportPage = () => {
 
     const exportSummary = useMemo(
         () => [
-            { label: 'report_total_sales', value: formatNumber(summary.total_orders || 0) },
-            { label: 'lbl_total', value: formatCurrency(summary.total_amount) },
-            { label: 'lbl_due', value: formatCurrency(summary.total_due) },
+            { label: t('report_total_sales'), value: formatNumber(summary.total_orders || 0) },
+            { label: t('lbl_total'), value: formatCurrency(summary.total_amount) },
+            { label: t('lbl_due'), value: formatCurrency(summary.total_due) },
         ],
         [summary, formatCurrency, formatNumber]
     );

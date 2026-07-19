@@ -122,8 +122,8 @@ const SupplierDueReportPage = () => {
 
     const exportSummary = useMemo(
         () => [
-            { label: 'lbl_orders_with_due', value: summary.total_orders_with_due || 0 },
-            { label: 'lbl_due', value: formatCurrency(summary.total_due) },
+            { label: t('lbl_orders_with_due'), value: summary.total_orders_with_due || 0 },
+            { label: t('lbl_due'), value: formatCurrency(summary.total_due) },
         ],
         [summary, formatCurrency]
     );

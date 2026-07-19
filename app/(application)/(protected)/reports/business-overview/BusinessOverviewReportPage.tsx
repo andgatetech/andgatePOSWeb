@@ -155,9 +155,9 @@ const BusinessOverviewReportPage = () => {
                 data={stores}
                 columns={exportColumns}
                 summary={[
-                    { label: 'lbl_net_sales', value: formatCurrency(summary.net_sales) },
-                    { label: 'lbl_business_profit', value: formatCurrency(summary.business_profit) },
-                    { label: 'lbl_inventory_value', value: formatCurrency(summary.inventory_value) },
+                    { label: t('lbl_net_sales'), value: formatCurrency(summary.net_sales) },
+                    { label: t('lbl_business_profit'), value: formatCurrency(summary.business_profit) },
+                    { label: t('lbl_inventory_value'), value: formatCurrency(summary.inventory_value) },
                 ]}
                 filterSummary={{
                     storeName: selectedStoreName,

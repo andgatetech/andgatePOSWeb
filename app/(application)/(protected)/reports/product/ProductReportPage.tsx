@@ -116,14 +116,14 @@ const ProductReportPage = () => {
 
     const exportSummary = useMemo(
         () => [
-            { label: 'product_title', value: summary.total_products || 0 },
-            { label: 'lbl_qty_sold', value: summary.total_ordered || 0 },
-            { label: 'lbl_qty_returned', value: summary.total_returned || 0 },
-            { label: 'lbl_net_qty', value: summary.net_quantity_sold || 0 },
-            { label: 'lbl_gross_revenue', value: formatCurrency(summary.total_revenue) },
-            { label: 'lbl_return', value: formatCurrency(summary.total_return_amount) },
-            { label: 'lbl_revenue', value: formatCurrency(summary.net_revenue) },
-            { label: 'lbl_return_rate', value: `${Number(summary.return_rate || 0).toFixed(2)}%` },
+            { label: t('product_title'), value: summary.total_products || 0 },
+            { label: t('lbl_qty_sold'), value: summary.total_ordered || 0 },
+            { label: t('lbl_qty_returned'), value: summary.total_returned || 0 },
+            { label: t('lbl_net_qty'), value: summary.net_quantity_sold || 0 },
+            { label: t('lbl_gross_revenue'), value: formatCurrency(summary.total_revenue) },
+            { label: t('lbl_return'), value: formatCurrency(summary.total_return_amount) },
+            { label: t('lbl_revenue'), value: formatCurrency(summary.net_revenue) },
+            { label: t('lbl_return_rate'), value: `${Number(summary.return_rate || 0).toFixed(2)}%` },
         ],
         [summary, formatCurrency]
     );
