@@ -15,6 +15,7 @@ import { toggleSidebar } from '@/store/themeConfigSlice';
 import { useGetUnreadCountQuery } from '@/store/features/notification/notificationApi';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
 import { useGetStoreQuery } from '@/store/features/store/storeApi';
+import { useGetDashboardOnboardingQuery } from '@/store/features/dashboard/dashboad';
 import { useFeatureAccess } from '@/hooks/useFeatureAccess';
 import PwaInstallGuide from '@/components/custom/PwaInstallGuide';
 
@@ -95,11 +96,19 @@ const Sidebar = () => {
     };
 
     const { accessibleFeatures } = useFeatureAccess();
+    const { data: onboardingData } = useGetDashboardOnboardingQuery(
+        { store_id: currentStoreId },
+        { skip: !currentStoreId }
+    ) as { data?: { data?: { is_complete?: boolean } } };
+    const onboardingComplete = Boolean(onboardingData?.data?.is_complete);
     const allMenuRoutes = useMemo(
         () => buildMenuFromPermissions(user?.permissions || [], user?.role, accessibleFeatures),
         [user, accessibleFeatures]
     );
-    const menuRoutes = useMemo(() => allMenuRoutes.filter((r) => r.label !== 'Feedback'), [allMenuRoutes]);
+    const menuRoutes = useMemo(
+        () => allMenuRoutes.filter((r) => r.label !== 'Feedback' && !(r.label === 'Getting Started' && onboardingComplete)),
+        [allMenuRoutes, onboardingComplete]
+    );
 
     // Auto-open parent that contains the active route on navigation
     useEffect(() => {

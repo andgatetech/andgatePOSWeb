@@ -114,7 +114,7 @@ export default function OnboardingChecklist() {
         ? 'dashboard_resume_onboarding'
         : 'dashboard_open_onboarding';
 
-    if (dismissed || (workflowComplete && payload?.is_complete) || (!isLoading && steps.length === 0 && workflowComplete)) {
+    if (dismissed || payload?.is_complete || (!isLoading && steps.length === 0 && workflowComplete)) {
         return null;
     }
 
