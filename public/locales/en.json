@@ -2262,6 +2262,7 @@
   "lbl_ledger": "Ledger",
   "lbl_payment_type": "Payment Type",
   "lbl_details": "Details",
+  "lbl_additional_details": "Additional Details",
   "lbl_expense_id": "Expense ID",
   "lbl_expense_details": "Expense Details",
   "lbl_expense_information": "Expense Information",

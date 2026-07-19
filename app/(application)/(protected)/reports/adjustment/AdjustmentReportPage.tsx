@@ -89,21 +89,30 @@ const AdjustmentReportPage = () => {
         return formatNumber(val, 2);
     }, []);
 
+    // Core: what changed, by how much, why, and who/when — the audit essentials.
     const exportColumns: ExportColumn[] = useMemo(
         () => [
             { key: 'reference_no', label: t('lbl_reference'), width: 12 },
             { key: 'product_name', label: t('lbl_product'), width: 18 },
-            { key: 'sku', label: t('lbl_sku'), width: 14 },
             { key: 'store_name', label: t('lbl_store'), width: 12 },
             { key: 'adjustment_quantity', label: t('lbl_quantity'), width: 8, format: (v, r) => `${r.direction === 'increase' ? '+' : '-'}${v}` },
+            { key: 'reason', label: t('lbl_type'), width: 14 },
+            { key: 'adjusted_by_name', label: t('lbl_adjusted_by'), width: 12 },
+            { key: 'adjusted_at', label: t('lbl_date'), width: 14, format: (v) => v || '' },
+        ],
+        [t, formatPrice]
+    );
+
+    // Detail: price-before/after breakdown, SKU, and notes — still fully
+    // exported, kept in a secondary table so the primary one stays readable.
+    const exportDetailColumns: ExportColumn[] = useMemo(
+        () => [
+            { key: 'sku', label: t('lbl_sku'), width: 14 },
             { key: 'previous_purchase_price', label: t('lbl_prev_purchase_price'), width: 10, format: (v) => formatPrice(v) },
             { key: 'adjusted_purchase_price', label: t('lbl_adj_purchase_price'), width: 10, format: (v) => formatPrice(v) },
             { key: 'previous_selling_price', label: t('lbl_prev_selling_price'), width: 10, format: (v) => formatPrice(v) },
             { key: 'adjusted_selling_price', label: t('lbl_adj_selling_price'), width: 10, format: (v) => formatPrice(v) },
-            { key: 'reason', label: t('lbl_type'), width: 14 },
             { key: 'notes', label: t('lbl_notes'), width: 16, format: (v) => v || '' },
-            { key: 'adjusted_by_name', label: t('lbl_adjusted_by'), width: 12 },
-            { key: 'adjusted_at', label: t('lbl_date'), width: 14, format: (v) => v || '' },
         ],
         [t, formatPrice]
     );
@@ -299,6 +308,8 @@ const AdjustmentReportPage = () => {
                     iconBgClass="bg-[#046ca9]"
                     data={adjustments}
                     columns={exportColumns}
+                    detailColumns={exportDetailColumns}
+                    detailTitle={t('lbl_additional_details')}
                     summary={exportSummary}
                     filterSummary={filterSummary}
                     fileName="adjustment_report"

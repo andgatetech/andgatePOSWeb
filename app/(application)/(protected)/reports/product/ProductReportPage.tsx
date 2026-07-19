@@ -84,20 +84,29 @@ const ProductReportPage = () => {
         }
     }, [apiParams, currentStoreId, sortField, sortDirection, products, getProductReportForExport]);
 
+    // Core: which product, current stock, how much sold, revenue, and return rate.
     const exportColumns: ExportColumn[] = useMemo(
         () => [
             { key: 'product_name', label: t('lbl_product'), width: 25 },
             { key: 'sku', label: t('lbl_sku'), width: 12 },
-            { key: 'category', label: t('lbl_category'), width: 15 },
-            { key: 'brand', label: t('brand_title'), width: 12 },
             { key: 'qty', label: t('lbl_stock'), width: 10 },
             { key: 'total_ordered', label: t('lbl_sold'), width: 10 },
-            { key: 'quantity_returned', label: t('status_returned'), width: 10 },
-            { key: 'net_quantity_sold', label: t('lbl_net_qty'), width: 10 },
             { key: 'revenue', label: t('lbl_gross_revenue'), width: 15, format: (v) => formatCurrency(v) },
-            { key: 'return_amount', label: t('lbl_return'), width: 15, format: (v) => formatCurrency(v) },
             { key: 'net_revenue', label: t('lbl_revenue'), width: 15, format: (v) => formatCurrency(v) },
             { key: 'return_rate', label: t('lbl_return_rate'), width: 12, format: (v) => `${Number(v || 0).toFixed(2)}%` },
+        ],
+        [t, formatCurrency]
+    );
+
+    // Detail: category/brand identification and the returns breakdown — still
+    // fully exported, kept in a secondary table so the primary one stays readable.
+    const exportDetailColumns: ExportColumn[] = useMemo(
+        () => [
+            { key: 'category', label: t('lbl_category'), width: 15 },
+            { key: 'brand', label: t('brand_title'), width: 12 },
+            { key: 'quantity_returned', label: t('status_returned'), width: 10 },
+            { key: 'net_quantity_sold', label: t('lbl_net_qty'), width: 10 },
+            { key: 'return_amount', label: t('lbl_return'), width: 15, format: (v) => formatCurrency(v) },
         ],
         [t, formatCurrency]
     );
@@ -321,6 +330,8 @@ const ProductReportPage = () => {
                     iconBgClass="bg-[#046ca9]"
                     data={products}
                     columns={exportColumns}
+                    detailColumns={exportDetailColumns}
+                    detailTitle={t('lbl_additional_details')}
                     summary={exportSummary}
                     filterSummary={filterSummary}
                     fileName="product_report"

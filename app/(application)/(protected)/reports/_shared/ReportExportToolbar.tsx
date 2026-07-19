@@ -160,6 +160,12 @@ export interface ReportExportToolbarProps {
     };
     fileName?: string;
     fetchAllData?: () => Promise<any[]>;
+    /** Secondary, less-critical columns for wide reports — rendered as their own
+     * table below the main one instead of cramming everything into one row, so
+     * the primary table stays wide enough per column to read comfortably. All
+     * data is still exported, just split across two tables instead of one. */
+    detailColumns?: ExportColumn[];
+    detailTitle?: string;
 }
 
 const parseSafeDate = (dateStr: string): Date => {
@@ -190,7 +196,7 @@ const reportExportErrorMessage = (action: ExportAction, t: (key: string) => stri
     return t('msg_export_failed');
 };
 
-const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({ reportTitle, reportDescription, reportIcon, data, columns, summary = [], filterSummary, fileName, fetchAllData }) => {
+const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({ reportTitle, reportDescription, reportIcon, data, columns, summary = [], filterSummary, fileName, fetchAllData, detailColumns, detailTitle }) => {
     const { t, i18n } = getTranslation();
     const { currentStore } = useCurrentStore();
     const { code, symbol } = useCurrency();
@@ -332,9 +338,10 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({ reportTitle, 
 
             const totalWeight = Math.max(
                 columns.reduce((s, c) => s + (c.width || 10), 0),
+                (detailColumns || []).reduce((s, c) => s + (c.width || 10), 0),
                 1
             );
-            const isLandscape = columns.length > 5 || totalWeight > 70;
+            const isLandscape = Math.max(columns.length, detailColumns?.length || 0) > 5 || totalWeight > 70;
             const pageW = isLandscape ? 841.89 : 595.28;
             const marginPts = isLandscape ? 18 : 28;
             const usableW = pageW - marginPts * 2;
@@ -362,68 +369,80 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({ reportTitle, 
             // Never shrink below a genuinely print-readable size — a wide report gets
             // narrower columns and taller (multi-line) rows instead of illegible text.
             const MIN_READABLE_FONT = 6.5;
-            const fontSize = Math.max(
-                MIN_READABLE_FONT,
-                columns.length > 14 ? 4.6 : columns.length > 12 ? 5 : columns.length > 10 ? 5.5 : columns.length > 8 ? 6.25 : 7.25
-            );
-            const cellPadding = columns.length > 10 ? 1.4 : columns.length > 8 ? 2 : 2.5;
 
-            const rawWidths = columns.map((c) => Math.max(c.width || 10, isNumeric(c) ? 8 : 10));
-            const rawTotal = rawWidths.reduce((sum, width) => sum + width, 0);
-            const colWidths = rawWidths.map((width) => Math.floor((width / rawTotal) * usableW * 100) / 100);
-            const widthDiff = usableW - colWidths.reduce((sum, width) => sum + width, 0);
-            colWidths[colWidths.length - 1] = Math.max(12, colWidths[colWidths.length - 1] + widthDiff);
-
-            const tableText = (value: string, maxLength: number): string => breakLongPdfWords(san(clampPdfText(value, maxLength)), columns.length > 10 ? 10 : 14);
-
-            // Header row
-            const headerRow = columns.map((col) => ({
-                text: tableText(col.label, 28),
-                bold: true,
-                color: '#ffffff',
-                fontSize,
-                alignment: isNumeric(col) ? 'right' : 'center',
-                noWrap: false,
-            }));
-
-            // Data rows
-            const bodyRows = exportData.map((row, idx) =>
-                columns.map((col) => {
-                    if (col.key === 'serial' || col.label === '#') return { text: String(idx + 1), alignment: 'center', fontSize };
-                    const raw = row[col.key];
-                    const txt = col.format ? col.format(raw, row) : String(raw ?? '');
-                    return {
-                        text: tableText(txt, isNumeric(col) ? 26 : 70),
-                        alignment: isNumeric(col) ? 'right' : 'left',
-                        fontSize,
-                        noWrap: false,
-                    };
-                })
-            );
-
-            // Totals row
-            const totals = getTotals(exportData);
-            const hasTotals = Object.keys(totals).length > 0;
-            if (hasTotals) {
-                bodyRows.push(
-                    columns.map((col, idx) => ({
-                        text: tableText(
-                            idx === 0
-                                ? tDoc('lbl_total').toUpperCase()
-                                : col.key === 'serial' || col.label === '#'
-                                ? ''
-                                : totals[col.label] !== undefined
-                                ? totals[col.label].toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-                                : '',
-                            28
-                        ),
-                        bold: true,
-                        alignment: isNumeric(col) ? 'right' : 'left',
-                        fontSize: fontSize + 1,
-                        noWrap: false,
-                    })) as any
+            // Builds one table's header/body/widths/font — called once for the main
+            // (core) columns and again for detailColumns when present, so a wide
+            // report is split into two comfortably-sized tables instead of one
+            // cramped one. Each table is sized off its OWN column count, so
+            // splitting genuinely buys back readable font size, not just fewer columns.
+            const buildTableBlock = (cols: ExportColumn[]) => {
+                const blockFontSize = Math.max(
+                    MIN_READABLE_FONT,
+                    cols.length > 14 ? 4.6 : cols.length > 12 ? 5 : cols.length > 10 ? 5.5 : cols.length > 8 ? 6.25 : 7.25
                 );
-            }
+                const blockCellPadding = cols.length > 10 ? 1.4 : cols.length > 8 ? 2 : 2.5;
+
+                const rawWidths = cols.map((c) => Math.max(c.width || 10, isNumeric(c) ? 8 : 10));
+                const rawTotal = rawWidths.reduce((sum, width) => sum + width, 0);
+                const widths = rawWidths.map((width) => Math.floor((width / rawTotal) * usableW * 100) / 100);
+                const widthDiff = usableW - widths.reduce((sum, width) => sum + width, 0);
+                widths[widths.length - 1] = Math.max(12, widths[widths.length - 1] + widthDiff);
+
+                const blockTableText = (value: string, maxLength: number): string =>
+                    breakLongPdfWords(san(clampPdfText(value, maxLength)), cols.length > 10 ? 10 : 14);
+
+                const header = cols.map((col) => ({
+                    text: blockTableText(col.label, 28),
+                    bold: true,
+                    color: '#ffffff',
+                    fontSize: blockFontSize,
+                    alignment: isNumeric(col) ? 'right' : 'center',
+                    noWrap: false,
+                }));
+
+                const body = exportData.map((row, idx) =>
+                    cols.map((col) => {
+                        if (col.key === 'serial' || col.label === '#') return { text: String(idx + 1), alignment: 'center', fontSize: blockFontSize };
+                        const raw = row[col.key];
+                        const txt = col.format ? col.format(raw, row) : String(raw ?? '');
+                        return {
+                            text: blockTableText(txt, isNumeric(col) ? 26 : 70),
+                            alignment: isNumeric(col) ? 'right' : 'left',
+                            fontSize: blockFontSize,
+                            noWrap: false,
+                        };
+                    })
+                );
+
+                const blockTotals = getTotals(exportData);
+                const blockHasTotals = Object.keys(blockTotals).length > 0;
+                if (blockHasTotals) {
+                    body.push(
+                        cols.map((col, idx) => ({
+                            text: blockTableText(
+                                idx === 0
+                                    ? tDoc('lbl_total').toUpperCase()
+                                    : col.key === 'serial' || col.label === '#'
+                                    ? ''
+                                    : blockTotals[col.label] !== undefined
+                                    ? blockTotals[col.label].toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                                    : '',
+                                28
+                            ),
+                            bold: true,
+                            alignment: isNumeric(col) ? 'right' : 'left',
+                            fontSize: blockFontSize + 1,
+                            noWrap: false,
+                        })) as any
+                    );
+                }
+
+                return { fontSize: blockFontSize, cellPadding: blockCellPadding, widths, header, body, hasTotals: blockHasTotals };
+            };
+
+            const mainTable = buildTableBlock(columns);
+            const detailTable = detailColumns?.length ? buildTableBlock(detailColumns) : null;
+            const fontSize = mainTable.fontSize;
 
             const summaryText = summary.map((s) => `${san(String(s.label))}: ${san(String(s.value))}`).join('   |   ');
             const filtersText = filterSummary?.customFilters?.length ? filterSummary.customFilters.map((f) => `${san(f.label)}: ${san(f.value)}`).join(' | ') : '';
@@ -469,12 +488,12 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({ reportTitle, 
                     },
                     // Summary
                     ...(summary.length > 0 ? [{ text: summaryText, fontSize: 8, color: '#3c3c3c', margin: [0, 0, 0, 8] }] : []),
-                    // Table
+                    // Table (core columns)
                     {
                         table: {
                             headerRows: 1,
-                            widths: colWidths,
-                            body: [headerRow, ...bodyRows],
+                            widths: mainTable.widths,
+                            body: [mainTable.header, ...mainTable.body],
                         },
                         dontBreakRows: true,
                         layout: {
@@ -484,15 +503,52 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({ reportTitle, 
                             vLineColor: () => '#e6e6e6',
                             fillColor: (rowIndex: number, node: any) => {
                                 if (rowIndex === 0) return '#046ca9';
-                                if (hasTotals && rowIndex === node.table.body.length - 1) return '#dce6f5';
+                                if (mainTable.hasTotals && rowIndex === node.table.body.length - 1) return '#dce6f5';
                                 return (rowIndex - 1) % 2 === 0 ? null : '#f8fafc';
                             },
-                            paddingLeft: () => cellPadding,
-                            paddingRight: () => cellPadding,
-                            paddingTop: () => cellPadding + 0.5,
-                            paddingBottom: () => cellPadding + 0.5,
+                            paddingLeft: () => mainTable.cellPadding,
+                            paddingRight: () => mainTable.cellPadding,
+                            paddingTop: () => mainTable.cellPadding + 0.5,
+                            paddingBottom: () => mainTable.cellPadding + 0.5,
                         },
                     },
+                    // Secondary table for less-critical columns on wide reports — same
+                    // rows, kept separate so neither table has to cram too many
+                    // columns into one illegibly-narrow layout.
+                    ...(detailTable
+                        ? [
+                              {
+                                  text: detailTitle ? san(detailTitle) : isBn ? 'অতিরিক্ত তথ্য' : 'Additional Details',
+                                  fontSize: 10,
+                                  bold: true,
+                                  color: '#046ca9',
+                                  margin: [0, 12, 0, 4] as [number, number, number, number],
+                              },
+                              {
+                                  table: {
+                                      headerRows: 1,
+                                      widths: detailTable.widths,
+                                      body: [detailTable.header, ...detailTable.body],
+                                  },
+                                  dontBreakRows: true,
+                                  layout: {
+                                      hLineWidth: () => 0.1,
+                                      vLineWidth: () => 0.1,
+                                      hLineColor: () => '#e6e6e6',
+                                      vLineColor: () => '#e6e6e6',
+                                      fillColor: (rowIndex: number, node: any) => {
+                                          if (rowIndex === 0) return '#046ca9';
+                                          if (detailTable.hasTotals && rowIndex === node.table.body.length - 1) return '#dce6f5';
+                                          return (rowIndex - 1) % 2 === 0 ? null : '#f8fafc';
+                                      },
+                                      paddingLeft: () => detailTable.cellPadding,
+                                      paddingRight: () => detailTable.cellPadding,
+                                      paddingTop: () => detailTable.cellPadding + 0.5,
+                                      paddingBottom: () => detailTable.cellPadding + 0.5,
+                                  },
+                              },
+                          ]
+                        : []),
                 ],
                 footer: (currentPage: number, pageCount: number) => ({
                     columns: [

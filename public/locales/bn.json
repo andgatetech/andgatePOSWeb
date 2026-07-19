@@ -2119,6 +2119,7 @@
   "lbl_ledger": "লেজার",
   "lbl_payment_type": "পেমেন্ট ধরন",
   "lbl_details": "বিবরণ",
+  "lbl_additional_details": "অতিরিক্ত তথ্য",
   "lbl_expense_id": "খরচ আইডি",
   "lbl_expense_details": "খরচের বিবরণ",
   "lbl_expense_information": "খরচের তথ্য",

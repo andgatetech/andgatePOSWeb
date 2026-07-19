@@ -90,21 +90,30 @@ const CustomerReportPage = () => {
         }
     }, [apiParams, currentStoreId, sortField, sortDirection, customers, getCustomerReportForExport]);
 
+    // Core: who they are, what they owe, current status — the at-a-glance columns.
     const exportColumns: ExportColumn[] = useMemo(
         () => [
             { key: 'reference', label: t('lbl_id'), width: 12 },
             { key: 'customer', label: t('lbl_name'), width: 20 },
             { key: 'phone', label: t('lbl_phone'), width: 15 },
-            { key: 'email', label: t('lbl_email'), width: 20 },
             { key: 'total_orders', label: t('lbl_order'), width: 8 },
             { key: 'amount', label: t('lbl_total'), width: 12, format: (v) => formatCurrency(v) },
-            { key: 'paid', label: t('lbl_paid'), width: 12, format: (v) => formatCurrency(v) },
             { key: 'due', label: t('lbl_due'), width: 12, format: (v) => formatCurrency(v) },
+            { key: 'status', label: t('lbl_status'), width: 10 },
+        ],
+        [t, formatCurrency]
+    );
+
+    // Detail: email + returns/payment breakdown — still fully exported, kept
+    // in a secondary table so the primary one stays wide enough per column.
+    const exportDetailColumns: ExportColumn[] = useMemo(
+        () => [
+            { key: 'email', label: t('lbl_email'), width: 20 },
+            { key: 'paid', label: t('lbl_paid'), width: 12, format: (v) => formatCurrency(v) },
             { key: 'total_returns', label: t('lbl_return'), width: 8 },
             { key: 'total_return_amount', label: t('lbl_return'), width: 12, format: (v) => formatCurrency(v) },
             { key: 'net_purchase_value', label: t('lbl_net_purchase'), width: 12, format: (v) => formatCurrency(v) },
             { key: 'return_rate', label: t('lbl_return_rate'), width: 10, format: (v) => `${Number(v || 0).toFixed(2)}%` },
-            { key: 'status', label: t('lbl_status'), width: 10 },
         ],
         [t, formatCurrency]
     );
@@ -314,6 +323,8 @@ const CustomerReportPage = () => {
                     iconBgClass="bg-[#046ca9]"
                     data={customers}
                     columns={exportColumns}
+                    detailColumns={exportDetailColumns}
+                    detailTitle={t('lbl_additional_details')}
                     summary={exportSummary}
                     filterSummary={filterSummary}
                     fileName="customer_report"

@@ -125,20 +125,30 @@ const BusinessOverviewReportPage = () => {
         [formatCurrency, formatNumber, t]
     );
 
+    // Core: the numbers an owner checks first (identity, top-line, bottom-line, cash owed).
     const exportColumns: ExportColumn[] = useMemo(
         () => [
             { key: 'store_name', label: t('lbl_store'), width: 24 },
             { key: 'total_orders', label: t('lbl_orders'), width: 12 },
-            { key: 'items_sold', label: t('lbl_items_sold'), width: 12 },
             { key: 'gross_sales', label: t('lbl_gross_sales'), width: 15, format: (v) => formatCurrency(v) },
-            { key: 'returns', label: t('lbl_returns'), width: 15, format: (v) => formatCurrency(v) },
             { key: 'net_sales', label: t('lbl_net_sales'), width: 15, format: (v) => formatCurrency(v) },
-            { key: 'collected', label: t('lbl_collected'), width: 15, format: (v) => formatCurrency(v) },
             { key: 'due', label: t('lbl_due'), width: 15, format: (v) => formatCurrency(v) },
-            { key: 'cogs', label: t('lbl_cogs'), width: 15, format: (v) => formatCurrency(v) },
-            { key: 'expenses', label: t('lbl_expenses'), width: 15, format: (v) => formatCurrency(v) },
             { key: 'business_profit', label: t('lbl_business_profit'), width: 15, format: (v) => formatCurrency(v) },
             { key: 'profit_margin', label: t('lbl_profit_margin'), width: 12, format: (v) => `${v}%` },
+        ],
+        [formatCurrency, t]
+    );
+
+    // Detail: secondary accounting/ops figures — still fully exported, just kept
+    // out of the primary table so it stays wide enough per column to read
+    // comfortably instead of cramming 14 columns into one row.
+    const exportDetailColumns: ExportColumn[] = useMemo(
+        () => [
+            { key: 'items_sold', label: t('lbl_items_sold'), width: 12 },
+            { key: 'returns', label: t('lbl_returns'), width: 15, format: (v) => formatCurrency(v) },
+            { key: 'collected', label: t('lbl_collected'), width: 15, format: (v) => formatCurrency(v) },
+            { key: 'cogs', label: t('lbl_cogs'), width: 15, format: (v) => formatCurrency(v) },
+            { key: 'expenses', label: t('lbl_expenses'), width: 15, format: (v) => formatCurrency(v) },
             { key: 'inventory_value', label: t('lbl_inventory_value'), width: 15, format: (v) => formatCurrency(v) },
             { key: 'low_stock_items', label: t('lbl_low_stock_items'), width: 12 },
         ],
@@ -154,6 +164,8 @@ const BusinessOverviewReportPage = () => {
                 iconBgClass="bg-[#046ca9]"
                 data={stores}
                 columns={exportColumns}
+                detailColumns={exportDetailColumns}
+                detailTitle={t('lbl_additional_details')}
                 summary={[
                     { label: t('lbl_net_sales'), value: formatCurrency(summary.net_sales) },
                     { label: t('lbl_business_profit'), value: formatCurrency(summary.business_profit) },
