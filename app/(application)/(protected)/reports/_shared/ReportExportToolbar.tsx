@@ -14,7 +14,7 @@ import { useSelector } from 'react-redux';
 import * as XLSX from 'xlsx';
 
 // Module-level cache — pdfMake 0.3 is a singleton; we track Bengali font state here
-const _rptPdf: { pm: any; bnLoaded: boolean } = { pm: null, bnLoaded: false };
+const _rptPdf: { pm: any; bnLoaded: boolean; logoDataUrl: string | null } = { pm: null, bnLoaded: false, logoDataUrl: null };
 let _rptPdfPromise: Promise<void> | null = null;
 
 const _ensureRptPdf = (): Promise<void> => {
@@ -60,6 +60,18 @@ const _ensureRptPdf = (): Promise<void> => {
                 }
             } catch {
                 // PDF export still works in English fallback mode if Bengali fonts cannot be fetched.
+            }
+
+            if (!_rptPdf.logoDataUrl) {
+                try {
+                    const logoRes = await fetch('/images/andgatebos-icon-square.png');
+                    if (logoRes.ok) {
+                        const logoB64 = await logoRes.blob().then(blobToBase64);
+                        _rptPdf.logoDataUrl = `data:image/png;base64,${logoB64}`;
+                    }
+                } catch {
+                    // PDF export still works without the logo if it cannot be fetched.
+                }
             }
         } catch (error) {
             _rptPdf.pm = null;
@@ -347,7 +359,13 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({ reportTitle, 
 
             const isNumeric = (col: ExportColumn) => ['amount', 'price', 'total', 'tax', 'discount', 'subtotal', 'due', 'paid'].some((k) => col.key.includes(k) || col.label.toLowerCase().includes(k));
 
-            const fontSize = columns.length > 14 ? 4.6 : columns.length > 12 ? 5 : columns.length > 10 ? 5.5 : columns.length > 8 ? 6.25 : 7.25;
+            // Never shrink below a genuinely print-readable size — a wide report gets
+            // narrower columns and taller (multi-line) rows instead of illegible text.
+            const MIN_READABLE_FONT = 6.5;
+            const fontSize = Math.max(
+                MIN_READABLE_FONT,
+                columns.length > 14 ? 4.6 : columns.length > 12 ? 5 : columns.length > 10 ? 5.5 : columns.length > 8 ? 6.25 : 7.25
+            );
             const cellPadding = columns.length > 10 ? 1.4 : columns.length > 8 ? 2 : 2.5;
 
             const rawWidths = columns.map((c) => Math.max(c.width || 10, isNumeric(c) ? 8 : 10));
@@ -414,10 +432,12 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({ reportTitle, 
                 pageOrientation: isLandscape ? 'landscape' : 'portrait',
                 pageSize: 'A4',
                 pageMargins: [marginPts, marginPts, marginPts, marginPts + 15],
+                images: _rptPdf.logoDataUrl ? { logo: _rptPdf.logoDataUrl } : undefined,
                 content: [
                     // === Header ===
                     {
                         columns: [
+                            ...(_rptPdf.logoDataUrl ? [{ image: 'logo', width: 30, height: 30, margin: [0, 0, 8, 0] }] : []),
                             {
                                 stack: [
                                     { text: san(storeDetails.name), fontSize: 14, bold: true, color: '#1e1e1e', margin: [0, 0, 0, 3] },
@@ -430,7 +450,7 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({ reportTitle, 
                             },
                             {
                                 stack: [
-                                    { text: san(reportTitle), fontSize: 12, bold: true, color: '#3b82f6', alignment: 'right' },
+                                    { text: san(reportTitle), fontSize: 12, bold: true, color: '#046ca9', alignment: 'right' },
                                     { text: `${tDoc('lbl_period')}: ${pdfDateText}`, fontSize: 8, color: '#666666', alignment: 'right' },
                                     { text: `${tDoc('lbl_store')}: ${san(storeDisplayText)}`, fontSize: 8, color: '#666666', alignment: 'right' },
                                     { text: `${tDoc('lbl_generated')}: ${format(new Date(), 'dd MMM yyyy, HH:mm')}`, fontSize: 8, color: '#666666', alignment: 'right' },
@@ -463,7 +483,7 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({ reportTitle, 
                             hLineColor: () => '#e6e6e6',
                             vLineColor: () => '#e6e6e6',
                             fillColor: (rowIndex: number, node: any) => {
-                                if (rowIndex === 0) return '#3b82f6';
+                                if (rowIndex === 0) return '#046ca9';
                                 if (hasTotals && rowIndex === node.table.body.length - 1) return '#dce6f5';
                                 return (rowIndex - 1) % 2 === 0 ? null : '#f8fafc';
                             },
@@ -477,6 +497,7 @@ const ReportExportToolbar: React.FC<ReportExportToolbarProps> = ({ reportTitle, 
                 footer: (currentPage: number, pageCount: number) => ({
                     columns: [
                         { text: `${san(storeDetails.name)} - ${san(reportTitle)}`, margin: [marginPts, 5, 0, 0], fontSize: 7, color: '#999999' },
+                        { text: 'Powered by AndgateBOS', alignment: 'center', margin: [0, 5, 0, 0], fontSize: 7, color: '#999999' },
                         { text: `${tDoc('lbl_page')} ${currentPage} ${tDoc('lbl_of')} ${pageCount}`, alignment: 'right', margin: [0, 5, marginPts, 0], fontSize: 7, color: '#999999' },
                     ],
                 }),
