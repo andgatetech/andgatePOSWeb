@@ -36,6 +36,7 @@ export interface Item {
     tax_rate?: number; // Tax rate percentage from backend
     tax_included?: boolean; // Whether tax is included in the price (0=excluded, 1=included)
     unit?: string; // Product unit (piece, kg, etc.)
+    unitFactor?: number; // Base stock units per 1 selected unit
     isWholesale?: boolean; // Whether wholesale price is used
 
     // Serial & Warranty Support

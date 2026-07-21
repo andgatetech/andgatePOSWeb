@@ -786,7 +786,10 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         if (!item) return;
 
         const newIsWholesale = !item.isWholesale;
-        const newRate = newIsWholesale ? item.wholesalePrice || item.regularPrice || item.rate : item.regularPrice || item.rate;
+        const factor = Number(item.unitFactor || 1);
+        const baseRegular = Number(item.regularPrice || item.rate) || 0;
+        const baseWholesale = Number(item.wholesalePrice || item.regularPrice || item.rate) || baseRegular;
+        const newRate = (newIsWholesale ? baseWholesale : baseRegular) * factor;
 
         if (!currentStoreId) return;
         if (reduxSlice === 'orderReturn') {
@@ -916,16 +919,26 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         }
     };
 
-    // Switch a cart line's sell unit (e.g. Ton -> CFT). Stock deduction/conversion
-    // math happens server-side at order creation; this just updates what's charged/shown.
-    const handleUnitChange = (itemId: number, unit: string) => {
+    // Switch a cart line's sell unit (e.g. Ton -> CFT). Keep UI totals aligned with
+    // backend source-of-truth pricing: display unit price = base unit price * factor.
+    const handleUnitChange = (itemId: number, unit: string, factor: number) => {
         const item = invoiceItems.find((line) => line.id === itemId);
         if (!item || !currentStoreId || reduxSlice === 'orderReturn') return;
+        const nextFactor = Number(factor || 1);
+        const baseRegular = Number(item.regularPrice || item.rate) || 0;
+        const baseWholesale = Number(item.wholesalePrice || item.regularPrice || item.rate) || baseRegular;
+        const nextRate = (item.isWholesale ? baseWholesale : baseRegular) * nextFactor;
 
         dispatch(
             updateItemRedux({
                 storeId: currentStoreId,
-                item: { ...item, unit },
+                item: {
+                    ...item,
+                    unit,
+                    unitFactor: nextFactor,
+                    rate: nextRate,
+                    amount: item.quantity * nextRate,
+                },
             })
         );
     };

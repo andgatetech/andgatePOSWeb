@@ -41,6 +41,7 @@ export interface ReturnItem {
     tax_rate?: number;
     tax_included?: boolean;
     unit?: string;
+    unitFactor?: number;
     serials?: Serial[];
     warranty?: Warranty | null;
     has_serial?: boolean;
@@ -72,6 +73,7 @@ export interface ExchangeItem {
     tax_rate?: number;
     tax_included?: boolean;
     unit?: string;
+    unitFactor?: number;
     isWholesale?: boolean;
     serials?: Serial[];
     warranty?: Warranty | null;

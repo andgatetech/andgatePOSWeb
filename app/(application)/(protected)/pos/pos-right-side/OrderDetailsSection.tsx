@@ -68,7 +68,7 @@ interface OrderDetailsSectionProps {
     onQuantityBlur: (itemId: number) => void;
     onUnitPriceChange: (itemId: number, value: string) => void;
     onUnitPriceBlur: (itemId: number) => void;
-    onUnitChange?: (itemId: number, unit: string) => void;
+    onUnitChange?: (itemId: number, unit: string, factor: number) => void;
     onRemoveItem: (itemId: number) => void;
     onItemWholesaleToggle: (itemId: number) => void;
     isReturnMode?: boolean;
@@ -370,7 +370,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                             {isReturnMode && item.isReturnItem ? (
                                                 <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600">{displayUnit(item.unit)}</span>
                                             ) : onUnitChange ? (
-                                                <LineItemUnitSelect stockId={item.stockId} unit={item.unit} onChange={(unit) => onUnitChange(item.id, unit)} />
+                                                <LineItemUnitSelect stockId={item.stockId} unit={item.unit} onChange={(unit, factor) => onUnitChange(item.id, unit, factor)} />
                                             ) : (
                                                 <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600">{displayUnit(item.unit)}</span>
                                             )}

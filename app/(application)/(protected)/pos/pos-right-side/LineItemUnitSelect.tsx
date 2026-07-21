@@ -4,7 +4,7 @@ import { useGetUnitConversionsQuery } from '@/store/features/ProductStock/unitCo
 interface LineItemUnitSelectProps {
     stockId?: number;
     unit?: string;
-    onChange: (unit: string) => void;
+    onChange: (unit: string, factor: number) => void;
 }
 
 /**
@@ -15,7 +15,7 @@ interface LineItemUnitSelectProps {
 const LineItemUnitSelect: React.FC<LineItemUnitSelectProps> = ({ stockId, unit, onChange }) => {
     const { t } = getTranslation();
     const { data } = useGetUnitConversionsQuery(stockId as number, { skip: !stockId });
-    const options: { unit: string }[] = data?.data || [];
+    const options: { unit: string; factor?: number }[] = data?.data || [];
     const displayUnit = (u?: string) => (u && u.toLowerCase() !== 'piece' ? u : t('lbl_piece'));
 
     if (!stockId || options.length <= 1) {
@@ -25,7 +25,10 @@ const LineItemUnitSelect: React.FC<LineItemUnitSelectProps> = ({ stockId, unit, 
     return (
         <select
             value={unit || options[0]?.unit || ''}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={(e) => {
+                const selected = options.find((o) => o.unit === e.target.value);
+                onChange(e.target.value, Number(selected?.factor || 1));
+            }}
             className="rounded-full border border-gray-300 bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 focus:border-primary focus:ring-1 focus:ring-primary"
         >
             {options.map((o) => (

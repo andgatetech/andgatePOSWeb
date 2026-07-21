@@ -492,6 +492,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                 tax_rate: primaryStock?.tax_rate ? parseFloat(primaryStock.tax_rate) : (currentStore?.default_tax_rate ? parseFloat(String(currentStore.default_tax_rate)) : 0),
                 tax_included: primaryStock?.tax_included === true || (currentStore?.prices_include_tax === true || currentStore?.prices_include_tax === 1),
                 unit: primaryStock?.unit || product.unit || 'piece',
+                unitFactor: 1,
                 isWholesale: false,
                 // Serial & Warranty support
                 has_serial: product.has_serial || false,
@@ -646,6 +647,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                 tax_rate: variant.tax_rate ? parseFloat(variant.tax_rate) : (currentStore?.default_tax_rate ? parseFloat(String(currentStore.default_tax_rate)) : 0),
                 tax_included: variant.tax_included === true || (currentStore?.prices_include_tax === true || currentStore?.prices_include_tax === 1),
                 unit: variant.unit || 'piece',
+                unitFactor: 1,
                 isWholesale: useWholesale,
                 // Serial & Warranty support - use variant-specific warranty
                 has_serial: variantProduct.has_serial || false,
@@ -744,6 +746,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                     tax_rate: serialStock.tax_rate ? parseFloat(serialStock.tax_rate) : (currentStore?.default_tax_rate ? parseFloat(String(currentStore.default_tax_rate)) : 0),
                     tax_included: serialStock.tax_included === true || (currentStore?.prices_include_tax === true || currentStore?.prices_include_tax === 1),
                     unit: serialStock.unit || 'piece',
+                    unitFactor: 1,
                     isWholesale: false,
                     // Serial & Warranty data
                     has_serial: true,
