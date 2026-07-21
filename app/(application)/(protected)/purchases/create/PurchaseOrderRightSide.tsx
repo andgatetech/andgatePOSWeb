@@ -149,7 +149,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
 
     const unitOptions = (item: any) => {
         const options = Array.isArray(item.availableUnits) ? item.availableUnits : [];
-        const normalized = options.length > 0 ? options : [{ unit: item.unit || defaultUnit, factor: item.unitFactor || 1 }];
+        const normalized = [...options, { unit: item.unit || defaultUnit, factor: item.unitFactor || 1 }];
         const seen = new Set<string>();
         return normalized.filter((option: any) => {
             const key = String(option.unit || '').trim().toLowerCase();
@@ -614,7 +614,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                                         className="w-28 rounded-md border border-gray-200 px-2 py-1.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary"
                                                         value={item.unit || defaultUnit}
                                                         onChange={(e) => {
-                                                            const selected = unitOptions(item).find((option: any) => option.unit === e.target.value);
+                                                            const selected = unitOptions(item).find((option: any) => String(option.unit).toLowerCase() === e.target.value.toLowerCase());
                                                             handleUnitChange(item.id, e.target.value, Number(selected?.factor || 1));
                                                         }}
                                                     >
@@ -678,7 +678,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                                     className="w-full rounded-md border border-gray-200 px-2 py-1.5 text-sm focus:border-primary"
                                                     value={item.unit || defaultUnit}
                                                     onChange={(e) => {
-                                                        const selected = unitOptions(item).find((option: any) => option.unit === e.target.value);
+                                                        const selected = unitOptions(item).find((option: any) => String(option.unit).toLowerCase() === e.target.value.toLowerCase());
                                                         handleUnitChange(item.id, e.target.value, Number(selected?.factor || 1));
                                                     }}
                                                 >

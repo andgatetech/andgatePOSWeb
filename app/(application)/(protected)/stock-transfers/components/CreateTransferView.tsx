@@ -15,6 +15,18 @@ import { ArrowRight, Loader2, Package, Store, Trash2, Truck } from 'lucide-react
 import { useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
+const unitOptionsFor = (item: any) => {
+    const seen = new Set<string>();
+    return [...(Array.isArray(item.availableUnits) ? item.availableUnits : []), { unit: item.unit || '', factor: item.unitFactor || 1 }]
+        .filter((option: any) => option?.unit)
+        .filter((option: any) => {
+            const key = String(option.unit).trim().toLowerCase();
+            if (!key || seen.has(key)) return false;
+            seen.add(key);
+            return true;
+        });
+};
+
 export default function CreateTransferView({ onCreated }: { onCreated: () => void }) {
     const { t } = useTranslation();
     const dispatch = useDispatch();
@@ -189,7 +201,7 @@ export default function CreateTransferView({ onCreated }: { onCreated: () => voi
                                 <tbody className="divide-y divide-gray-100">
                                     {draftItems.map((item: any) => {
                                         const available = Number(item.PlaceholderQuantity ?? 0);
-                                        const unitOptions = Array.isArray(item.availableUnits) && item.availableUnits.length > 0 ? item.availableUnits : [{ unit: item.unit, factor: item.unitFactor || 1 }];
+                                        const unitOptions = unitOptionsFor(item);
                                         const displayAvailable = Number(item.unitFactor || 1) > 0 ? available / Number(item.unitFactor || 1) : available;
                                         return (
                                             <tr key={item.id} className="hover:bg-gray-50">

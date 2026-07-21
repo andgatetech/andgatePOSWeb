@@ -82,25 +82,34 @@ const EditPurchaseDraftPage = () => {
 
         // Load items into Redux
         if (draft.items && draft.items.length > 0) {
-            const items = draft.items.map((item: any) => ({
-                id: item.id,
-                productId: item.product_id || undefined,
-                productStockId: item.product_stock_id || undefined,
-                itemType: item.item_type === 'existing' ? 'existing' : 'new',
-                title: item.product_name,
-                description: item.product_description || '',
-                unit: item.unit || undefined,
-                quantity: item.quantity_ordered,
-                purchasePrice: item.purchase_price || 0,
-                basePurchasePrice: item.purchase_price || 0,
-                unitFactor: 1,
-                availableUnits: item.available_units || [],
-                taxRate: 0,
-                taxIncluded: false,
-                inputVatCreditable: false,
-                amount: 0,
-                status: 'ordered',
-            }));
+            const items = draft.items.map((item: any) => {
+                const availableUnits = Array.isArray(item.available_units) ? item.available_units : [];
+                const selectedUnit = item.unit || availableUnits[0]?.unit;
+                const selectedFactor = Number(
+                    availableUnits.find((unit: any) => String(unit.unit).toLowerCase() === String(selectedUnit).toLowerCase())?.factor || 1
+                );
+                const purchasePrice = Number(item.purchase_price || 0);
+
+                return {
+                    id: item.id,
+                    productId: item.product_id || undefined,
+                    productStockId: item.product_stock_id || undefined,
+                    itemType: item.item_type === 'existing' ? 'existing' : 'new',
+                    title: item.product_name,
+                    description: item.product_description || '',
+                    unit: selectedUnit || undefined,
+                    quantity: item.quantity_ordered,
+                    purchasePrice,
+                    basePurchasePrice: selectedFactor > 0 ? purchasePrice / selectedFactor : purchasePrice,
+                    unitFactor: selectedFactor,
+                    availableUnits,
+                    taxRate: 0,
+                    taxIncluded: false,
+                    inputVatCreditable: false,
+                    amount: 0,
+                    status: 'ordered',
+                };
+            });
 
             dispatch(setItemsRedux({ storeId: currentStoreId, items }));
         }

@@ -21,6 +21,18 @@ type DraftRow = {
     dirty: boolean;
 };
 
+const thresholdUnitOptions = (item: ThresholdItem, unit?: string) => {
+    const seen = new Set<string>();
+    return [...(item.available_units || []), { unit: unit || item.display_unit || item.unit || '', factor: 1 }]
+        .filter((option) => option?.unit)
+        .filter((option) => {
+            const key = String(option.unit).trim().toLowerCase();
+            if (!key || seen.has(key)) return false;
+            seen.add(key);
+            return true;
+        });
+};
+
 export default function StockThresholdsPage() {
     const { t } = getTranslation();
     const { currentStoreId } = useCurrentStore();
@@ -228,8 +240,9 @@ export default function StockThresholdsPage() {
                             ) : items.map((item, index) => {
                                 const draft = getDraft(item);
                                 const isDirty = draft.dirty;
-                                const unitOptions = item.available_units?.length ? item.available_units : [{ unit: item.unit || item.display_unit || '', factor: 1 }].filter((option) => option.unit);
-                                const selectedUnit = draft.unit || item.display_unit || item.unit || unitOptions[0]?.unit;
+                                const initialUnit = draft.unit || item.display_unit || item.unit;
+                                const unitOptions = thresholdUnitOptions(item, initialUnit);
+                                const selectedUnit = initialUnit || unitOptions[0]?.unit;
                                 const selectedFactor = Number(unitOptions.find((u: any) => String(u.unit).toLowerCase() === String(selectedUnit).toLowerCase())?.factor || 1);
                                 const displayQuantity = selectedFactor > 0 ? Number(item.quantity) / selectedFactor : Number(item.quantity);
                                 const displayCategoryThreshold = selectedFactor > 0 ? Number(item.category_threshold || 0) / selectedFactor : Number(item.category_threshold || 0);
@@ -283,9 +296,12 @@ export default function StockThresholdsPage() {
                                                     value={selectedUnit}
                                                     onChange={(e) => {
                                                         const next = unitOptions.find((u: any) => String(u.unit).toLowerCase() === e.target.value.toLowerCase());
+                                                        const currentFactor = selectedFactor > 0 ? selectedFactor : 1;
+                                                        const baseDraftQuantity = Number(draft.low_stock_quantity || 0) * currentFactor;
+                                                        const nextFactor = Number(next?.factor || 1);
                                                         setDraft(item.stock_id, {
                                                             unit: next?.unit || e.target.value,
-                                                            low_stock_quantity: Number(item.low_stock_quantity || 0) / Number(next?.factor || 1),
+                                                            low_stock_quantity: nextFactor > 0 ? baseDraftQuantity / nextFactor : baseDraftQuantity,
                                                         });
                                                     }}
                                                     className="ml-2 rounded-lg border border-gray-200 bg-white px-2 py-1.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30"

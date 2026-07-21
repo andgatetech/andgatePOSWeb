@@ -52,6 +52,11 @@ interface PosLeftSideProps {
     enableOfflinePrefetch?: boolean;
 }
 
+const unitFactorFor = (unit?: string, availableUnits?: { unit: string; factor?: number }[]) => {
+    if (!unit || !Array.isArray(availableUnits)) return 1;
+    return Number(availableUnits.find((option) => String(option.unit).toLowerCase() === String(unit).toLowerCase())?.factor || 1);
+};
+
 const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelection = false, mobileButtonConfig, reduxSlice = 'pos', enableOfflinePrefetch = true }) => {
     const { t } = getTranslation();
     const { formatNumber } = useCurrency();
@@ -473,6 +478,8 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
             const regularPrice = parseFloat(primaryStock?.price || product.price || 0);
             const wholesalePrice = parseFloat(primaryStock?.wholesale_price || 0);
             const productPurchasePrice = parseFloat(primaryStock?.purchase_price || 0);
+            const productUnit = primaryStock?.unit || product.unit || undefined;
+            const productAvailableUnits = primaryStock?.available_units || [];
 
             const uniqueId = Date.now() + Math.floor(Math.random() * 1000);
             const itemToAdd = {
@@ -491,9 +498,9 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                 PlaceholderQuantity: totalQuantity,
                 tax_rate: primaryStock?.tax_rate ? parseFloat(primaryStock.tax_rate) : (currentStore?.default_tax_rate ? parseFloat(String(currentStore.default_tax_rate)) : 0),
                 tax_included: primaryStock?.tax_included === true || (currentStore?.prices_include_tax === true || currentStore?.prices_include_tax === 1),
-                unit: primaryStock?.unit || product.unit || undefined,
-                unitFactor: 1,
-                availableUnits: primaryStock?.available_units || [],
+                unit: productUnit,
+                unitFactor: unitFactorFor(productUnit, productAvailableUnits),
+                availableUnits: productAvailableUnits,
                 isWholesale: false,
                 // Serial & Warranty support
                 has_serial: product.has_serial || false,
@@ -603,6 +610,8 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
             const wholesalePrice = parseFloat(variant.wholesale_price);
             const variantPurchasePrice = parseFloat(variant.purchase_price || 0);
             const price = useWholesale ? wholesalePrice : regularPrice;
+            const variantUnit = variant.unit || undefined;
+            const variantAvailableUnits = variant.available_units || [];
 
             // Check stock limit for this specific variant - only in POS mode
             const currentQuantityInCart = reduxItems
@@ -648,9 +657,9 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                 PlaceholderQuantity: parseFloat(variant.quantity),
                 tax_rate: variant.tax_rate ? parseFloat(variant.tax_rate) : (currentStore?.default_tax_rate ? parseFloat(String(currentStore.default_tax_rate)) : 0),
                 tax_included: variant.tax_included === true || (currentStore?.prices_include_tax === true || currentStore?.prices_include_tax === 1),
-                unit: variant.unit || undefined,
-                unitFactor: 1,
-                availableUnits: variant.available_units || [],
+                unit: variantUnit,
+                unitFactor: unitFactorFor(variantUnit, variantAvailableUnits),
+                availableUnits: variantAvailableUnits,
                 isWholesale: useWholesale,
                 // Serial & Warranty support - use variant-specific warranty
                 has_serial: variantProduct.has_serial || false,
@@ -728,6 +737,8 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                 const regularPrice = parseFloat(serialStock.price);
                 const wholesalePrice = parseFloat(serialStock.wholesale_price || regularPrice);
                 const serialPurchasePrice = parseFloat(serialStock.purchase_price || 0);
+                const serialUnit = serialStock.unit || undefined;
+                const serialAvailableUnits = serialStock.available_units || [];
 
                 // Ensure unique ID by adding index offset to prevent collisions
                 const uniqueId = baseTimestamp + index;
@@ -749,9 +760,9 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                     PlaceholderQuantity: 1, // Each serial is unique
                     tax_rate: serialStock.tax_rate ? parseFloat(serialStock.tax_rate) : (currentStore?.default_tax_rate ? parseFloat(String(currentStore.default_tax_rate)) : 0),
                     tax_included: serialStock.tax_included === true || (currentStore?.prices_include_tax === true || currentStore?.prices_include_tax === 1),
-                    unit: serialStock.unit || undefined,
-                    unitFactor: 1,
-                    availableUnits: serialStock.available_units || [],
+                    unit: serialUnit,
+                    unitFactor: unitFactorFor(serialUnit, serialAvailableUnits),
+                    availableUnits: serialAvailableUnits,
                     isWholesale: false,
                     // Serial & Warranty data
                     has_serial: true,

@@ -24,6 +24,18 @@ interface AdjustmentItemProps {
     onUpdateUnit: (itemId: number, unit: string, factor: number) => void;
 }
 
+const unitOptionsFor = (item: any) => {
+    const seen = new Set<string>();
+    return [...(Array.isArray(item.availableUnits) ? item.availableUnits : []), { unit: item.unit || '', factor: item.unitFactor || 1 }]
+        .filter((option: any) => option?.unit)
+        .filter((option: any) => {
+            const key = String(option.unit).trim().toLowerCase();
+            if (!key || seen.has(key)) return false;
+            seen.add(key);
+            return true;
+        });
+};
+
 /**
  * AdjustmentItem Component
  * Individual product item with adjustment controls
@@ -42,7 +54,7 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
     const reason = adjustment?.reason || '';
     const notes = adjustment?.notes || '';
     const serialAdjustments = adjustment?.serialAdjustments || [];
-    const unitOptions = Array.isArray(item.availableUnits) && item.availableUnits.length > 0 ? item.availableUnits : [{ unit: item.unit || '', factor: item.unitFactor || 1 }].filter((option) => option.unit);
+    const unitOptions = unitOptionsFor(item);
     const selectedFactor = Number(item.unitFactor || unitOptions.find((u: any) => String(u.unit).toLowerCase() === String(item.unit).toLowerCase())?.factor || 1);
     const currentStockBase = Number(item.PlaceholderQuantity ?? item.quantity ?? 0);
     const currentStock = selectedFactor > 0 ? currentStockBase / selectedFactor : currentStockBase;
