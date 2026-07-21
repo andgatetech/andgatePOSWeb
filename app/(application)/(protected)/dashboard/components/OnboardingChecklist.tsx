@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { ElementType } from 'react';
 import { getTranslation } from '@/i18n';
-import { useGetDashboardOnboardingQuery, useGetOnboardingWorkflowQuery } from '@/store/features/dashboard/dashboad';
+import { useGetDashboardOnboardingQuery, useGetOnboardingWorkflowQuery, useUpdateOnboardingWorkflowMutation } from '@/store/features/dashboard/dashboad';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import {
     ArrowRight,
@@ -98,6 +98,7 @@ export default function OnboardingChecklist() {
         { store_id: currentStoreId },
         { skip: !currentStoreId }
     ) as any;
+    const [saveWorkflow] = useUpdateOnboardingWorkflowMutation();
 
     useEffect(() => {
         setDismissed(localStorage.getItem(storageKey) === '1');
@@ -109,18 +110,28 @@ export default function OnboardingChecklist() {
     const progress = payload?.progress_percent || 0;
     const workflow = workflowData?.data;
     const workflowComplete = workflow?.status === 'completed';
+    const workflowDismissed = workflow?.status === 'dismissed';
     const workflowHref = workflowComplete ? '/dashboard' : '/onboarding';
     const workflowActionKey = workflow?.current_step && workflow.current_step !== 'welcome'
         ? 'dashboard_resume_onboarding'
         : 'dashboard_open_onboarding';
 
-    if (dismissed || payload?.is_complete || (!isLoading && steps.length === 0 && workflowComplete)) {
+    if (dismissed || workflowComplete || workflowDismissed || payload?.is_complete) {
         return null;
     }
 
     const handleDismiss = () => {
         localStorage.setItem(storageKey, '1');
         setDismissed(true);
+        if (currentStoreId) {
+            saveWorkflow({
+                store_id: currentStoreId,
+                status: 'dismissed',
+                current_step: workflow?.current_step || 'welcome',
+                completed_steps: workflow?.completed_steps || [],
+                draft: workflow?.draft || {},
+            }).catch(() => {});
+        }
     };
 
     return (

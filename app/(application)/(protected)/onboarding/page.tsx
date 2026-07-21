@@ -94,8 +94,10 @@ export default function OnboardingPage() {
     const [currentStep, setCurrentStep] = useState(0);
     const [draft, setDraft] = useState<Draft>(DEFAULT_DRAFT);
     const [completedStepIds, setCompletedStepIds] = useState<string[]>([]);
+    const [isCompleting, setIsCompleting] = useState(false);
     const hydratedStoreRef = useRef<string | number | null>(null);
     const viewedStepRef = useRef<string | null>(null);
+    const completingRef = useRef(false);
 
     const storageKey = `andgatebos_onboarding_draft_${currentStoreId || 'default'}`;
     const { data, isLoading } = useGetDashboardOnboardingQuery(
@@ -202,6 +204,11 @@ export default function OnboardingPage() {
 
         const workflow = workflowData?.data;
         if (workflow?.draft) {
+            if (workflow.status === 'completed' || workflow.status === 'dismissed') {
+                router.replace('/dashboard');
+                hydratedStoreRef.current = storeKey;
+                return;
+            }
             const nextDraft = { ...DEFAULT_DRAFT, ...workflow.draft };
             setDraft(nextDraft);
             setCompletedStepIds(Array.isArray(workflow.completed_steps) ? workflow.completed_steps : []);
@@ -226,7 +233,7 @@ export default function OnboardingPage() {
         }
         trackGTMEvent('onboarding_started', { store_id: currentStoreId });
         hydratedStoreRef.current = storeKey;
-    }, [currentStoreId, storageKey, workflowData]);
+    }, [currentStoreId, router, storageKey, workflowData]);
 
     useEffect(() => {
         if (!active?.id || viewedStepRef.current === active.id) return;
@@ -249,6 +256,7 @@ export default function OnboardingPage() {
         }
         if (!currentStoreId) return;
         const timer = window.setTimeout(() => {
+            if (completingRef.current) return;
             saveWorkflow({
                 store_id: currentStoreId,
                 business_status: draft.status,
@@ -263,7 +271,7 @@ export default function OnboardingPage() {
                 .catch(() => toast.error(t('onboarding_save_failed'), { id: 'onboarding-save-error' }));
         }, 450);
         return () => window.clearTimeout(timer);
-    }, [currentStep, currentStoreId, draft, saveWorkflow, stepIds, storageKey, workflowCompleted]);
+    }, [currentStep, currentStoreId, draft, saveWorkflow, stepIds, storageKey, t, workflowCompleted]);
 
     const markStepComplete = (stepId = active?.id) => {
         if (!stepId) return;
@@ -283,10 +291,32 @@ export default function OnboardingPage() {
         setCurrentStep((value) => Math.min(value + 1, steps.length - 1));
     };
     const goBack = () => setCurrentStep((value) => Math.max(value - 1, 0));
-    const primaryAction = () => {
+    const primaryAction = async () => {
+        const nextCompleted = Array.from(new Set([...workflowCompleted, active.id]));
         markStepComplete();
         if (currentStep === steps.length - 1) {
-            router.push('/dashboard');
+            if (currentStoreId) {
+                completingRef.current = true;
+                setIsCompleting(true);
+                try {
+                    await saveWorkflow({
+                        store_id: currentStoreId,
+                        business_status: draft.status,
+                        business_category: draft.category,
+                        current_step: 'launch',
+                        draft,
+                        completed_steps: nextCompleted,
+                        status: 'completed',
+                    }).unwrap();
+                    localStorage.removeItem(storageKey);
+                } catch {
+                    toast.error(t('onboarding_save_failed'), { id: 'onboarding-save-error' });
+                    completingRef.current = false;
+                    setIsCompleting(false);
+                    return;
+                }
+            }
+            router.replace('/dashboard');
             return;
         }
         setCurrentStep((value) => Math.min(value + 1, steps.length - 1));
@@ -506,7 +536,7 @@ export default function OnboardingPage() {
                                     <ArrowRight className="h-4 w-4" />
                                 </Link>
                             )}
-                            <button type="button" onClick={primaryAction} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-[#046ca9] px-4 text-sm font-semibold text-white hover:bg-[#034d79]">
+                            <button type="button" onClick={primaryAction} disabled={isCompleting} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-[#046ca9] px-4 text-sm font-semibold text-white hover:bg-[#034d79] disabled:cursor-not-allowed disabled:opacity-70">
                                 {currentStep === steps.length - 1 ? t('onboarding_open_dashboard') : t('onboarding_save_next')}
                                 <ArrowRight className="h-4 w-4" />
                             </button>
