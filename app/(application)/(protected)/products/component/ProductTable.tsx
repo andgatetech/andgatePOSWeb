@@ -532,7 +532,7 @@ const ProductTable = () => {
                                                                     : Number(product.quantity) || 0}
                                                             </span>
                                                             <div className="text-sm font-bold text-gray-500">
-                                                                {product.unit || (product.stocks && product.stocks.length > 0 ? product.stocks[0].unit : 'N/A')}
+                                                                {product.stocks && product.stocks.length > 0 ? product.stocks[0].unit || product.unit || 'N/A' : product.unit || 'N/A'}
                                                             </div>
                                                         </div>
                                                         <span

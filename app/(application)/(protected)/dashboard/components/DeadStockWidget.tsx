@@ -12,6 +12,7 @@ interface DeadStockProduct {
     product_name: string;
     sku: string;
     quantity: number;
+    unit?: string;
     stock_value: number;
     last_sold_at: string | null;
     days_since_sale: number | null;
@@ -61,7 +62,7 @@ export default function DeadStockWidget() {
                         <div className="min-w-0">
                             <p className="truncate text-sm font-semibold text-gray-900">{product.product_name}</p>
                             <p className="text-xs text-gray-500">
-                                {product.sku} &middot; {product.quantity} {t('lbl_units')}
+                                {product.sku} &middot; {product.quantity} {product.unit || t('lbl_units')}
                             </p>
                         </div>
                         <div className="shrink-0 text-right">

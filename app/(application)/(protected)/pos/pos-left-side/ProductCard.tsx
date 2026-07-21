@@ -29,6 +29,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
     const totalQuantity =
         product.stocks?.reduce((sum: number, stock: any) => sum + parseFloat(stock.quantity || '0'), 0) || 0;
+    const stockUnits = Array.from(new Set((product.stocks || []).map((stock: any) => stock.unit || product.unit).filter(Boolean)));
+    const stockUnitLabel = stockUnits.length === 1 ? stockUnits[0] : product.unit;
     const isUnavailable = product.available === false || (mode === 'pos' && totalQuantity <= 0);
 
     const stockStatus =
@@ -169,7 +171,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                                 : 'bg-red-50 text-red-500'
                         }`}
                     >
-                        {formatNumber(totalQuantity)}
+                        {formatNumber(totalQuantity)}{stockUnitLabel ? ` ${stockUnitLabel}` : ''}
                     </span>
                 </div>
             </div>

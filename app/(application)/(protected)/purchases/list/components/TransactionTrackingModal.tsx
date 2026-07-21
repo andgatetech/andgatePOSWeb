@@ -226,13 +226,13 @@ const TransactionTrackingModal: React.FC<TransactionTrackingModalProps> = ({ isO
                                                     <div className="flex justify-between text-sm">
                                                         <span className="text-gray-600">{t('lbl_ordered')}:</span>
                                                         <span className="font-bold text-gray-900">
-                                                            {item.quantity_ordered} {t('lbl_units')}
+                                                            {item.quantity_ordered} {item.unit || t('lbl_units')}
                                                         </span>
                                                     </div>
                                                     <div className="flex justify-between text-sm">
                                                         <span className="text-gray-600">{t('lbl_received')}:</span>
                                                         <span className={`font-bold ${item.quantity_received > 0 ? 'text-green-600' : 'text-orange-600'}`}>
-                                                            {item.quantity_received} {t('lbl_units')}
+                                                            {item.quantity_received} {item.unit || t('lbl_units')}
                                                         </span>
                                                     </div>
                                                     <div className="flex justify-between text-sm">

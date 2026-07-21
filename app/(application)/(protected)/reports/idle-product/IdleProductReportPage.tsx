@@ -118,7 +118,7 @@ const IdleProductReportPage = () => {
             { label: t('lbl_trapped_capital'), value: formatCurrency(summary.total_idle_value) },
             { label: t('lbl_date'), value: new Date().toISOString() },
         ],
-        [summary, formatCurrency]
+        [summary, formatCurrency, t]
     );
 
     const summaryItems = useMemo(
@@ -197,7 +197,7 @@ const IdleProductReportPage = () => {
                 render: (v: any, r: any) => (
                     <div className="flex flex-col">
                         <span className="font-bold text-gray-900">
-                            {formatNumber(v)} {t('lbl_units')}
+                            {formatNumber(v)} {r.unit || t('lbl_units')}
                         </span>
                         <span className="mt-1 text-[10px] font-semibold uppercase tracking-wider text-danger">
                             {t('lbl_value')}: {formatCurrency(r.stock_value)}

@@ -31,6 +31,7 @@ export interface Stock {
     price: string | number;
     wholesale_price: string | number;
     unit?: string;
+    available_units?: { unit: string; factor?: number }[];
     tax_rate?: string | number;
     tax_included?: boolean;
     is_variant?: boolean;

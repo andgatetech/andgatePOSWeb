@@ -29,6 +29,8 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
 
     const totalStock = product.stocks?.reduce((sum: number, stock: any) => sum + (stock.quantity || 0), 0) || 0;
     const hasVariants = product.stocks && product.stocks.length > 0 && product.stocks.some((s: any) => s.is_variant);
+    const stockUnits = Array.from(new Set((product.stocks || []).map((stock: any) => stock.unit || product.unit).filter(Boolean)));
+    const stockUnitLabel = stockUnits.length === 1 ? stockUnits[0] : product.unit;
 
     // Get primary stock for display
     const primaryStock = product.stocks && product.stocks.length > 0 ? product.stocks[0] : null;
@@ -181,7 +183,7 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                                                         </div>
                                                         <div>
                                                             <p className="mb-0.5 text-[10px] font-medium uppercase tracking-wide text-gray-400">{t('lbl_total_stock')}</p>
-                                                            <p className="text-base font-semibold text-gray-700">{totalStock} {t('lbl_units')}</p>
+                                                            <p className="text-base font-semibold text-gray-700">{totalStock} {stockUnitLabel || t('lbl_units')}</p>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -229,7 +231,7 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                                                 <div className="rounded-lg bg-gray-50 p-3">
                                                     <p className="mb-0.5 text-[10px] font-medium uppercase tracking-wide text-gray-400">{t('lbl_total_stock')}</p>
                                                     <p className="text-sm font-medium text-gray-900">
-                                                        {totalStock} {primaryStock?.unit || product.unit || 'unit'}(s)
+                                                        {totalStock} {stockUnitLabel || primaryStock?.unit || product.unit || t('lbl_units')}
                                                     </p>
                                                 </div>
                                                 <div className="rounded-lg bg-gray-50 p-3">
@@ -301,7 +303,7 @@ export default function ImageShowModal({ isOpen, onClose, product }: ImageShowMo
                                                                     </td>
                                                                     <td className="px-4 py-3 text-sm font-medium text-gray-900">{formatCurrency(stock.price)}</td>
                                                                     <td className="px-4 py-3 text-sm text-gray-700">{stock.quantity}</td>
-                                                                    <td className="px-4 py-3 text-sm text-gray-700">{stock.unit}</td>
+                                                                    <td className="px-4 py-3 text-sm text-gray-700">{stock.unit || product.unit || 'N/A'}</td>
                                                                     {hasVariants && (
                                                                         <td className="px-4 py-3 text-sm text-gray-700">
                                                                             {stock.images && stock.images.length > 0 ? (
