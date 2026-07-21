@@ -206,12 +206,11 @@ const ComponentsDashboardSales = () => {
             </div>
 
             {DASHBOARD_GROUPS.map((group) => {
+                if (group.key === 'start' && onboardingComplete) return null;
+
                 const groupWidgets = visibleWidgets.filter((widget: any) => group.widgets.includes(widget.key));
                 if (groupWidgets.length === 0) return null;
                 const Icon = group.icon;
-                const isStartDone = group.key === 'start' && onboardingComplete;
-                const titleKey = isStartDone ? 'dashboard_group_start_title_done' : group.titleKey;
-                const descKey = isStartDone ? 'dashboard_group_start_desc_done' : group.descKey;
 
                 return (
                     <section key={group.key} className="space-y-3">
@@ -220,8 +219,8 @@ const ComponentsDashboardSales = () => {
                                 <Icon className="h-4 w-4" />
                             </span>
                             <div className="min-w-0">
-                                <h2 className="text-base font-bold text-gray-900 dark:text-white">{t(titleKey)}</h2>
-                                <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">{t(descKey)}</p>
+                                <h2 className="text-base font-bold text-gray-900 dark:text-white">{t(group.titleKey)}</h2>
+                                <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">{t(group.descKey)}</p>
                             </div>
                         </div>
 
