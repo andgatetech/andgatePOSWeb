@@ -170,7 +170,7 @@ const orderReturnSlice = createSlice({
                         originalQuantity: returnableQuantity,
                         returnQuantity: 0, // Start with 0 return quantity
                         amount: 0,
-                        unit: item.unit || 'Piece',
+                        unit: item.unit || undefined,
                         tax_rate: parseFloat(item.tax || 0),
                         tax_included: item.tax_included || false,
                         has_serial: false,

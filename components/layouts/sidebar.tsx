@@ -138,6 +138,10 @@ const Sidebar = () => {
         return `/subscription?${params.toString()}`;
     };
 
+    const hasLockedFeature = (item: MenuItem): boolean => (
+        Boolean(item.lockedByFeature) || Boolean(item.subMenu?.some(hasLockedFeature))
+    );
+
     const renderSubMenuItems = (items: MenuItem[], depth = 0): ReactNode => (
         items.map((item) => {
             if (item.href) {
@@ -166,16 +170,23 @@ const Sidebar = () => {
             }
 
             if (item.subMenu) {
+                const groupHasLockedFeature = hasLockedFeature(item);
                 return (
                     <div key={`${item.label}-${depth}`} className={depth === 0 ? 'mt-4 first:mt-1' : 'mt-3 first:mt-2'}>
                         <div className={`mb-1.5 flex items-center gap-2 rounded-md px-2 py-1 ${
                             depth === 0 ? 'bg-white/[0.12]' : 'bg-white/[0.07]'
                         }`}>
-                            <p className={`font-bold uppercase tracking-widest ${
+                            <p className={`min-w-0 truncate font-bold uppercase tracking-widest ${
                                 depth === 0 ? 'text-[10px] text-[#f8d36a]' : 'text-[9px] text-white/70'
                             }`}>
                                 {t(item.label)}
                             </p>
+                            {groupHasLockedFeature && (
+                                <Ban
+                                    className="h-3 w-3 flex-shrink-0 text-orange-300"
+                                    aria-label={t('msg_feature_not_in_plan')}
+                                />
+                            )}
                             <div className={`h-px flex-1 ${depth === 0 ? 'bg-[#f8d36a]/40' : 'bg-white/20'}`} />
                         </div>
                         <div className={depth > 0 ? 'pl-2' : undefined}>
@@ -400,6 +411,7 @@ const Sidebar = () => {
                         const parentActive = route.subMenu ? isParentActive(route) : false;
                         const isOpen = currentMenu === route.label;
                         const directActive = !route.subMenu && !!route.href && isActiveRoute(route.href);
+                        const parentHasLockedFeature = route.subMenu ? hasLockedFeature(route) : false;
 
                         return (
                             <div key={route.label} className="mb-0.5">
@@ -427,6 +439,12 @@ const Sidebar = () => {
                                                 <span>{t(route.label)}</span>
                                             </div>
                                             <div className="flex items-center gap-2">
+                                                {parentHasLockedFeature && (
+                                                    <Ban
+                                                        className="h-3.5 w-3.5 flex-shrink-0 text-orange-300"
+                                                        aria-label={t('msg_feature_not_in_plan')}
+                                                    />
+                                                )}
                                                 <ChevronDown className={`h-3.5 w-3.5 flex-shrink-0 transition-transform duration-200 ${
                                                     isOpen ? 'rotate-180' : ''
                                                 } text-white`} />

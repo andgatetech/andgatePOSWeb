@@ -1102,7 +1102,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                 stock_id: item.stockId,
                 quantity: item.quantity,
                 unit_price: item.rate,
-                unit: item.unit || 'piece',
+                unit: item.unit || undefined,
                 discount: 0,
                 serial_ids: item.has_serial && item.serials?.length ? item.serials.map((serial: any) => serial.id) : undefined,
             })),
@@ -1492,7 +1492,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                         stock_id: item.stockId, // Include stock_id for variants
                         quantity: item.quantity,
                         unit_price: item.rate,
-                        unit: item.unit || 'piece',
+                        unit: item.unit || undefined,
                         discount: 0,
                         tax: item.tax_rate || 0,
                         tax_included: item.tax_included || false,
@@ -1616,7 +1616,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                             quantity: item.quantity,
                             unit_price: item.rate,
                             price: item.rate,
-                            unit: item.unit || 'piece',
+                            unit: item.unit || undefined,
                             subtotal: item.amount || item.rate * item.quantity,
                             tax: item.tax_rate || 0,
                             tax_included: item.tax_included || false,
@@ -1762,7 +1762,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                 stock_id: item.stockId,
                 quantity: item.quantity,
                 unit_price: item.rate,
-                unit: item.unit || 'piece',
+                unit: item.unit || undefined,
             })),
         };
 
@@ -1778,7 +1778,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                     stock_id: item.stockId,
                     quantity: item.quantity,
                     unit_price: item.rate,
-                    unit: item.unit || 'piece',
+                    unit: item.unit || undefined,
                 })),
             }).unwrap();
             setLoading(false);
