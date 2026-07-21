@@ -8,6 +8,7 @@ interface PurchaseItem {
     title: string; // Product name
     description?: string;
     purchasePrice: number; // Purchase price per unit
+    basePurchasePrice?: number; // Purchase price in stock base unit
     taxRate?: number;
     taxIncluded?: boolean;
     inputVatCreditable?: boolean;
@@ -16,6 +17,8 @@ interface PurchaseItem {
     amount: number; // purchasePrice * quantity
     availableStock?: number; // Current available stock quantity
     unit?: string; // Product unit (piece, kg, etc.)
+    unitFactor?: number; // Base stock units per 1 selected unit
+    availableUnits?: { unit: string; factor?: number }[];
     variantInfo?: Record<string, string>; // Variant attributes for new products (e.g., {Color: "Red", Size: "XL"})
     variantData?: Record<string, string>; // Existing product variant data
     sku?: string; // SKU for existing products
@@ -173,6 +176,22 @@ const purchaseOrderSlice = createSlice({
             const item = order.items.find((i) => i.id === id);
             if (item && purchasePrice >= 0) {
                 item.purchasePrice = purchasePrice;
+                item.basePurchasePrice = purchasePrice / Number(item.unitFactor || 1);
+                item.amount = calculatePurchaseItemTotal(item);
+                order.grandTotal = order.items.reduce((total, i) => total + calculatePurchaseItemTotal(i), 0);
+            }
+        },
+
+        updateItemUnitRedux(state, action: PayloadAction<{ storeId: number; id: number; unit: string; factor: number }>) {
+            const { storeId, id, unit, factor } = action.payload;
+            const order = getStoreOrder(state, storeId);
+            const item = order.items.find((i) => i.id === id);
+            if (item && factor > 0) {
+                const basePurchasePrice = Number(item.basePurchasePrice ?? (Number(item.purchasePrice || 0) / Number(item.unitFactor || 1)));
+                item.unit = unit;
+                item.unitFactor = factor;
+                item.basePurchasePrice = basePurchasePrice;
+                item.purchasePrice = basePurchasePrice * factor;
                 item.amount = calculatePurchaseItemTotal(item);
                 order.grandTotal = order.items.reduce((total, i) => total + calculatePurchaseItemTotal(i), 0);
             }
@@ -301,6 +320,7 @@ export const {
     clearItemsRedux,
     updateItemQuantityRedux,
     updateItemPurchasePriceRedux,
+    updateItemUnitRedux,
     updateItemVatRedux,
     updateItemReceivedQuantityRedux,
     setSupplierRedux,

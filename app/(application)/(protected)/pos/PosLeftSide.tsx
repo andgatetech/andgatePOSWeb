@@ -534,6 +534,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                                 itemType: 'existing',
                                 productStockId: primaryStock?.id,
                                 purchasePrice: productPurchasePrice,
+                                basePurchasePrice: productPurchasePrice,
                                 amount: productPurchasePrice * 1,
                                 variantData: {},
                             },
@@ -690,6 +691,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                                 itemType: 'existing',
                                 productStockId: variant.id,
                                 purchasePrice: variantPurchasePrice,
+                                basePurchasePrice: variantPurchasePrice,
                                 amount: variantPurchasePrice * quantity,
                             },
                         })
@@ -788,6 +790,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                                     itemType: 'existing',
                                     productStockId: serialStock?.id,
                                     purchasePrice: serialPurchasePrice,
+                                    basePurchasePrice: serialPurchasePrice,
                                     amount: serialPurchasePrice * 1,
                                 },
                             })

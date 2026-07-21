@@ -11,7 +11,7 @@ import {
     addItemRedux, clearItemsRedux, removeItemRedux, resetPurchaseOrderRedux,
     setNotesRedux, setPurchaseTypeRedux, setSupplierDetailsRedux,
     setVatEvidenceRedux,
-    updateItemPurchasePriceRedux, updateItemQuantityRedux,
+    updateItemPurchasePriceRedux, updateItemQuantityRedux, updateItemUnitRedux,
     updateItemVatRedux,
 } from '@/store/features/PurchaseOrder/PurchaseOrderSlice';
 import { useGetSuppliersQuery } from '@/store/features/supplier/supplierApi';
@@ -142,6 +142,23 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
         dispatch(updateItemPurchasePriceRedux({ storeId: currentStoreId, id: itemId, purchasePrice: parseFloat(value) || 0 }));
     };
 
+    const handleUnitChange = (itemId: number, unit: string, factor: number) => {
+        if (!currentStoreId) return;
+        dispatch(updateItemUnitRedux({ storeId: currentStoreId, id: itemId, unit, factor }));
+    };
+
+    const unitOptions = (item: any) => {
+        const options = Array.isArray(item.availableUnits) ? item.availableUnits : [];
+        const normalized = options.length > 0 ? options : [{ unit: item.unit || defaultUnit, factor: item.unitFactor || 1 }];
+        const seen = new Set<string>();
+        return normalized.filter((option: any) => {
+            const key = String(option.unit || '').trim().toLowerCase();
+            if (!key || seen.has(key)) return false;
+            seen.add(key);
+            return true;
+        });
+    };
+
     const handleItemVatChange = (itemId: number, field: 'taxRate' | 'taxIncluded' | 'inputVatCreditable', value: number | boolean) => {
         if (!currentStoreId) return;
         dispatch(updateItemVatRedux({ storeId: currentStoreId, id: itemId, [field]: value }));
@@ -193,7 +210,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
             notes: notes || '',
             items: purchaseItems.map((item: any) => {
                 if (item.itemType === 'existing' && item.productId) {
-                    const d: any = { product_id: item.productId, quantity_ordered: item.quantity, purchase_price: item.purchasePrice, tax_rate: item.taxRate || 0, tax_included: !!item.taxIncluded, input_vat_creditable: !!item.inputVatCreditable };
+                    const d: any = { product_id: item.productId, unit: item.unit || defaultUnit, quantity_ordered: item.quantity, purchase_price: item.purchasePrice, tax_rate: item.taxRate || 0, tax_included: !!item.taxIncluded, input_vat_creditable: !!item.inputVatCreditable };
                     if (item.productStockId) d.product_stock_id = item.productStockId;
                     return d;
                 }
@@ -218,6 +235,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
         if (item.itemType === 'existing' && item.productId) {
             const d: any = {
                 product_id: item.productId,
+                unit: item.unit || defaultUnit,
                 quantity_ordered: item.quantity,
                 quantity_received: purchaseIntent === 'quick' ? item.quantity : 0,
                 purchase_price: item.purchasePrice || 0,
@@ -556,6 +574,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                         <th className="px-4 py-3 text-left">#</th>
                                         <th className="px-4 py-3 text-left">{t('lbl_product')}</th>
                                         <th className="px-4 py-3 text-center w-20">{t('lbl_qty')}</th>
+                                        <th className="px-4 py-3 text-left w-28">{t('lbl_unit')}</th>
                                         <th className="px-4 py-3 text-right w-28">{t('lbl_price')}</th>
                                         <th className="px-4 py-3 text-right w-28">{t('lbl_vat_percent')}</th>
                                         <th className="px-4 py-3 text-right w-28">{t('lbl_total')}</th>
@@ -588,6 +607,22 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                                 <input type="number" min="1" className="w-16 rounded-md border border-gray-200 px-2 py-1.5 text-center text-sm focus:border-primary focus:ring-1 focus:ring-primary"
                                                     value={item.quantity === 0 ? '' : item.quantity}
                                                     onChange={(e) => handleQuantityChange(item.id, e.target.value)} />
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                {item.itemType === 'existing' && unitOptions(item).length > 1 ? (
+                                                    <select
+                                                        className="w-28 rounded-md border border-gray-200 px-2 py-1.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary"
+                                                        value={item.unit || defaultUnit}
+                                                        onChange={(e) => {
+                                                            const selected = unitOptions(item).find((option: any) => option.unit === e.target.value);
+                                                            handleUnitChange(item.id, e.target.value, Number(selected?.factor || 1));
+                                                        }}
+                                                    >
+                                                        {unitOptions(item).map((option: any) => <option key={option.unit} value={option.unit}>{option.unit}</option>)}
+                                                    </select>
+                                                ) : (
+                                                    <span className="inline-flex rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600">{item.unit || defaultUnit}</span>
+                                                )}
                                             </td>
                                             <td className="px-4 py-3 text-right">
                                                 <input type="number" min="0" step="any" className="w-24 rounded-md border border-gray-200 px-2 py-1.5 text-right text-sm focus:border-primary focus:ring-1 focus:ring-primary"
@@ -635,6 +670,23 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                         <div>
                                             <label className="mb-0.5 block text-[10px] text-gray-400">{t('lbl_qty')}</label>
                                             <input type="number" min="1" className="w-full rounded-md border border-gray-200 px-2 py-1.5 text-sm focus:border-primary" value={item.quantity || ''} onChange={(e) => handleQuantityChange(item.id, e.target.value)} />
+                                        </div>
+                                        <div>
+                                            <label className="mb-0.5 block text-[10px] text-gray-400">{t('lbl_unit')}</label>
+                                            {item.itemType === 'existing' && unitOptions(item).length > 1 ? (
+                                                <select
+                                                    className="w-full rounded-md border border-gray-200 px-2 py-1.5 text-sm focus:border-primary"
+                                                    value={item.unit || defaultUnit}
+                                                    onChange={(e) => {
+                                                        const selected = unitOptions(item).find((option: any) => option.unit === e.target.value);
+                                                        handleUnitChange(item.id, e.target.value, Number(selected?.factor || 1));
+                                                    }}
+                                                >
+                                                    {unitOptions(item).map((option: any) => <option key={option.unit} value={option.unit}>{option.unit}</option>)}
+                                                </select>
+                                            ) : (
+                                                <span className="inline-flex min-h-[34px] w-full items-center rounded-md bg-gray-100 px-2 text-sm font-medium text-gray-600">{item.unit || defaultUnit}</span>
+                                            )}
                                         </div>
                                         <div>
                                             <label className="mb-0.5 block text-[10px] text-gray-400">{t('lbl_price')}</label>
