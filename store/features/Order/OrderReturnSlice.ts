@@ -74,6 +74,7 @@ export interface ExchangeItem {
     tax_included?: boolean;
     unit?: string;
     unitFactor?: number;
+    availableUnits?: { unit: string; factor?: number }[];
     isWholesale?: boolean;
     serials?: Serial[];
     warranty?: Warranty | null;

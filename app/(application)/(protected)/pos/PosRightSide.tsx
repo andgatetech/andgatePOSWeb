@@ -923,24 +923,25 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
     // backend source-of-truth pricing: display unit price = base unit price * factor.
     const handleUnitChange = (itemId: number, unit: string, factor: number) => {
         const item = invoiceItems.find((line) => line.id === itemId);
-        if (!item || !currentStoreId || reduxSlice === 'orderReturn') return;
+        if (!item || !currentStoreId || (reduxSlice === 'orderReturn' && (item as any).isReturnItem)) return;
         const nextFactor = Number(factor || 1);
         const baseRegular = Number(item.regularPrice || item.rate) || 0;
         const baseWholesale = Number(item.wholesalePrice || item.regularPrice || item.rate) || baseRegular;
         const nextRate = (item.isWholesale ? baseWholesale : baseRegular) * nextFactor;
 
-        dispatch(
-            updateItemRedux({
-                storeId: currentStoreId,
-                item: {
-                    ...item,
-                    unit,
-                    unitFactor: nextFactor,
-                    rate: nextRate,
-                    amount: item.quantity * nextRate,
-                },
-            })
-        );
+        const updatedItem = {
+            ...item,
+            unit,
+            unitFactor: nextFactor,
+            rate: nextRate,
+            amount: item.quantity * nextRate,
+        };
+
+        if (reduxSlice === 'orderReturn') {
+            dispatch(updateExchangeItem({ storeId: currentStoreId, item: updatedItem }));
+        } else {
+            dispatch(updateItemRedux({ storeId: currentStoreId, item: updatedItem }));
+        }
     };
 
     const handleUnitPriceChange = (itemId: number, value: string) => {
@@ -1761,6 +1762,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                 stock_id: item.stockId,
                 quantity: item.quantity,
                 unit_price: item.rate,
+                unit: item.unit || 'piece',
             })),
         };
 
@@ -1776,6 +1778,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                     stock_id: item.stockId,
                     quantity: item.quantity,
                     unit_price: item.rate,
+                    unit: item.unit || 'piece',
                 })),
             }).unwrap();
             setLoading(false);

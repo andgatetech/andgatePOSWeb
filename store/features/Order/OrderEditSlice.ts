@@ -40,6 +40,7 @@ export interface Item {
     discount?: number; // Item-level discount
     unit?: string; // Product unit (piece, kg, etc.)
     unitFactor?: number; // Base stock units per 1 selected unit
+    availableUnits?: { unit: string; factor?: number }[];
     isWholesale?: boolean; // Whether wholesale price is used
     isOriginalItem?: boolean; // Track if item is from original order (for action determination)
 

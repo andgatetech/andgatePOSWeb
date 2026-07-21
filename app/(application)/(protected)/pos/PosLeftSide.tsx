@@ -493,6 +493,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                 tax_included: primaryStock?.tax_included === true || (currentStore?.prices_include_tax === true || currentStore?.prices_include_tax === 1),
                 unit: primaryStock?.unit || product.unit || 'piece',
                 unitFactor: 1,
+                availableUnits: primaryStock?.available_units || [],
                 isWholesale: false,
                 // Serial & Warranty support
                 has_serial: product.has_serial || false,
@@ -648,6 +649,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                 tax_included: variant.tax_included === true || (currentStore?.prices_include_tax === true || currentStore?.prices_include_tax === 1),
                 unit: variant.unit || 'piece',
                 unitFactor: 1,
+                availableUnits: variant.available_units || [],
                 isWholesale: useWholesale,
                 // Serial & Warranty support - use variant-specific warranty
                 has_serial: variantProduct.has_serial || false,
@@ -747,6 +749,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                     tax_included: serialStock.tax_included === true || (currentStore?.prices_include_tax === true || currentStore?.prices_include_tax === 1),
                     unit: serialStock.unit || 'piece',
                     unitFactor: 1,
+                    availableUnits: serialStock.available_units || [],
                     isWholesale: false,
                     // Serial & Warranty data
                     has_serial: true,

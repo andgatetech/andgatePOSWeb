@@ -37,6 +37,7 @@ export interface Item {
     tax_included?: boolean; // Whether tax is included in the price (0=excluded, 1=included)
     unit?: string; // Product unit (piece, kg, etc.)
     unitFactor?: number; // Base stock units per 1 selected unit
+    availableUnits?: { unit: string; factor?: number }[];
     isWholesale?: boolean; // Whether wholesale price is used
 
     // Serial & Warranty Support

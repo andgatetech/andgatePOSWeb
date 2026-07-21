@@ -41,6 +41,7 @@ interface InvoiceItem {
     tax_rate?: number;
     tax_included?: boolean;
     unit?: string;
+    availableUnits?: { unit: string; factor?: number }[];
     description?: string;
     isWholesale?: boolean;
     serials?: Serial[];
@@ -370,7 +371,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                             {isReturnMode && item.isReturnItem ? (
                                                 <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600">{displayUnit(item.unit)}</span>
                                             ) : onUnitChange ? (
-                                                <LineItemUnitSelect stockId={item.stockId} unit={item.unit} onChange={(unit, factor) => onUnitChange(item.id, unit, factor)} />
+                                                <LineItemUnitSelect stockId={item.stockId} unit={item.unit} availableUnits={item.availableUnits} onChange={(unit, factor) => onUnitChange(item.id, unit, factor)} />
                                             ) : (
                                                 <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600">{displayUnit(item.unit)}</span>
                                             )}

@@ -4,6 +4,7 @@ import { useGetUnitConversionsQuery } from '@/store/features/ProductStock/unitCo
 interface LineItemUnitSelectProps {
     stockId?: number;
     unit?: string;
+    availableUnits?: { unit: string; factor?: number }[];
     onChange: (unit: string, factor: number) => void;
 }
 
@@ -12,10 +13,15 @@ interface LineItemUnitSelectProps {
  * stays a plain badge exactly like before — the dropdown only appears once a product has
  * alternate units configured (e.g. stock kept in Ton, also sellable by CFT or Truck).
  */
-const LineItemUnitSelect: React.FC<LineItemUnitSelectProps> = ({ stockId, unit, onChange }) => {
+const LineItemUnitSelect: React.FC<LineItemUnitSelectProps> = ({ stockId, unit, availableUnits = [], onChange }) => {
     const { t } = getTranslation();
     const { data } = useGetUnitConversionsQuery(stockId as number, { skip: !stockId });
-    const options: { unit: string; factor?: number }[] = data?.data || [];
+    const options: { unit: string; factor?: number }[] = [...(data?.data || []), ...availableUnits].reduce((acc: { unit: string; factor?: number }[], option) => {
+        if (option?.unit && !acc.some((existing) => existing.unit.toLowerCase() === option.unit.toLowerCase())) {
+            acc.push(option);
+        }
+        return acc;
+    }, []);
     const displayUnit = (u?: string) => (u && u.toLowerCase() !== 'piece' ? u : t('lbl_piece'));
 
     if (!stockId || options.length <= 1) {

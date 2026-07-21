@@ -128,7 +128,7 @@ const StockReportPage = () => {
             { label: t('lbl_returned_stock'), value: formatNumber(summary.quantity_returned_to_stock || 0) },
             { label: t('lbl_stock_value'), value: formatCurrency(summary.total_stock_value) },
         ],
-        [summary, formatCurrency, formatNumber]
+        [summary, formatCurrency, formatNumber, t]
     );
 
     const summaryItems = useMemo(
