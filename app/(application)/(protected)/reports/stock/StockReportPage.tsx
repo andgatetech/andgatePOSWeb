@@ -21,6 +21,7 @@ const StockReportPage = () => {
     const [itemsPerPage, setItemsPerPage] = useState(15);
     const [sortField, setSortField] = useState('quantity');
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+    const [displayUnit, setDisplayUnit] = useState('');
 
     const [getStockReport, { data: reportData, isLoading, isError }] = useGetStockReportMutation();
     const [getStockReportForExport] = useGetStockReportMutation();
@@ -30,8 +31,9 @@ const StockReportPage = () => {
     const queryParams = useMemo(() => {
         const params: Record<string, any> = { page: currentPage, per_page: itemsPerPage, sort_field: sortField, sort_direction: sortDirection, ...apiParams };
         if (!params.store_id && !params.store_ids && currentStoreId) params.store_id = currentStoreId;
+        if (displayUnit) params.display_unit = displayUnit;
         return params;
-    }, [apiParams, currentStoreId, currentPage, itemsPerPage, sortField, sortDirection]);
+    }, [apiParams, currentStoreId, currentPage, itemsPerPage, sortField, sortDirection, displayUnit]);
 
     // Reset lastQueryParams when store changes to force API recall
     useEffect(() => {
@@ -50,6 +52,14 @@ const StockReportPage = () => {
     const stocks = useMemo(() => reportData?.data?.stocks || [], [reportData]);
     const summary = useMemo(() => reportData?.data?.summary || {}, [reportData]);
     const pagination = useMemo(() => reportData?.data?.pagination || {}, [reportData]);
+
+    // Distinct units across the loaded rows' configured alternates (e.g. Ton, CFT, Truck),
+    // so "view stock as ___" only offers units that actually apply to something on this page.
+    const availableDisplayUnits = useMemo(() => {
+        const names = new Set<string>();
+        stocks.forEach((row: any) => (row.available_units || []).forEach((u: any) => names.add(u.unit)));
+        return Array.from(names);
+    }, [stocks]);
 
     const handleFilterChange = useCallback((n: Record<string, any>) => {
         setApiParams(n);
@@ -190,9 +200,14 @@ const StockReportPage = () => {
                     let c = 'text-gray-900';
                     if (isOut) c = 'text-danger';
                     else if (isLow) c = 'text-warning';
+                    const shown = r.display_quantity ?? v;
+                    const shownUnit = r.display_unit || r.unit;
                     return (
                         <div className="flex items-center gap-2">
-                            <span className={`font-bold ${c}`}>{v}</span>
+                            <span className={`font-bold ${c}`}>
+                                {shown}
+                                {shownUnit && <span className="ml-1 text-xs font-normal text-gray-500">{shownUnit}</span>}
+                            </span>
                             {isLow && !isOut && <AlertTriangle className="h-4 w-4 text-warning" />}
                             {isOut && <XCircle className="h-4 w-4 text-danger" />}
                         </div>
@@ -257,8 +272,25 @@ const StockReportPage = () => {
                 />
                 <ReportSummaryCard items={summaryItems} />
 
-                <div className="mb-6">
+                <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
                     <StockReportFilter onFilterChange={handleFilterChange} />
+                    {availableDisplayUnits.length > 0 && (
+                        <div>
+                            <label className="mb-1 block text-xs font-medium text-gray-600">{t('lbl_view_stock_as')}</label>
+                            <select
+                                value={displayUnit}
+                                onChange={(e) => setDisplayUnit(e.target.value)}
+                                className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary"
+                            >
+                                <option value="">{t('lbl_default_unit')}</option>
+                                {availableDisplayUnits.map((u) => (
+                                    <option key={u} value={u}>
+                                        {u}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
                 </div>
                 <ReusableTable
                     data={stocks}

@@ -916,6 +916,20 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         }
     };
 
+    // Switch a cart line's sell unit (e.g. Ton -> CFT). Stock deduction/conversion
+    // math happens server-side at order creation; this just updates what's charged/shown.
+    const handleUnitChange = (itemId: number, unit: string) => {
+        const item = invoiceItems.find((line) => line.id === itemId);
+        if (!item || !currentStoreId || reduxSlice === 'orderReturn') return;
+
+        dispatch(
+            updateItemRedux({
+                storeId: currentStoreId,
+                item: { ...item, unit },
+            })
+        );
+    };
+
     const handleUnitPriceChange = (itemId: number, value: string) => {
         const item = invoiceItems.find((line) => line.id === itemId);
         if (!item) return;
@@ -2228,6 +2242,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                     onQuantityBlur={handleQuantityBlur}
                     onUnitPriceChange={handleUnitPriceChange}
                     onUnitPriceBlur={handleUnitPriceBlur}
+                    onUnitChange={handleUnitChange}
                     onRemoveItem={handleRemoveItem}
                     onItemWholesaleToggle={handleItemWholesaleToggle}
                     isReturnMode={isReturnMode}

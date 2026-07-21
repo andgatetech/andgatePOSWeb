@@ -6,6 +6,7 @@ import { ChevronDown, ChevronUp, Copy, Image as ImageIcon, Package, Plus, Trash2
 import Image from 'next/image';
 import React, { useState } from 'react';
 import ImageUploading, { ImageListType } from 'react-images-uploading';
+import UnitConversionsEditor from './UnitConversionsEditor';
 
 export interface ProductAttribute {
     id?: number;
@@ -427,6 +428,13 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                         )}
                                     </div>
                                 </div>
+
+                                {/* Alternate sell/purchase units — only usable once the stock row is persisted */}
+                                {isEditMode && stock.id && (
+                                    <div className="border-t border-gray-100 pt-4">
+                                        <UnitConversionsEditor stockId={stock.id} baseUnit={stock.unit} />
+                                    </div>
+                                )}
 
                                 {/* Tax Section */}
                                 <div>

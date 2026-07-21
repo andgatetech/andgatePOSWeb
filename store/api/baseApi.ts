@@ -119,6 +119,7 @@ export const baseApi = createApi({
         'WarrantyTypes',
         'ProductSerials',
         'ProductWarranties',
+        'ProductStock',
         'PaymentMethods',
         'Dashboard',
         'Plans',

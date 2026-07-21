@@ -3,6 +3,7 @@
 import { getTranslation } from '@/i18n';
 import Link from 'next/link';
 import React from 'react';
+import UnitConversionsEditor from './UnitConversionsEditor';
 
 interface StockTabProps {
     formData: {
@@ -23,9 +24,10 @@ interface StockTabProps {
     onCreateProduct: () => void;
     isCreating: boolean;
     isEditMode?: boolean;
+    stockId?: number;
 }
 
-const StockTab: React.FC<StockTabProps> = ({ formData, handleChange, units, onPrevious, onNext, onCreateProduct, isCreating, isEditMode = false }) => {
+const StockTab: React.FC<StockTabProps> = ({ formData, handleChange, units, onPrevious, onNext, onCreateProduct, isCreating, isEditMode = false, stockId }) => {
     const { t } = getTranslation();
     return (
         <div className="space-y-6">
@@ -197,6 +199,13 @@ const StockTab: React.FC<StockTabProps> = ({ formData, handleChange, units, onPr
                             </p>
                         </div>
                     </div>
+                </div>
+            )}
+
+            {/* Alternate sell/purchase units — only usable once the stock row is persisted */}
+            {isEditMode && stockId && (
+                <div className="border-t border-gray-200 pt-4">
+                    <UnitConversionsEditor stockId={stockId} baseUnit={formData.units} />
                 </div>
             )}
 

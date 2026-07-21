@@ -5,6 +5,7 @@ import { getTranslation } from '@/i18n';
 import { ChevronDown, ChevronUp, Eye, Hash, Shield } from 'lucide-react';
 import { useState } from 'react';
 import ItemPreviewModal from './ItemPreviewModal';
+import LineItemUnitSelect from './LineItemUnitSelect';
 import type { PosFormData } from './types';
 
 interface Serial {
@@ -28,6 +29,7 @@ interface Warranty {
 
 interface InvoiceItem {
     id: number;
+    stockId?: number;
     title: string;
     variantName?: string;
     variantData?: Record<string, string>;
@@ -66,6 +68,7 @@ interface OrderDetailsSectionProps {
     onQuantityBlur: (itemId: number) => void;
     onUnitPriceChange: (itemId: number, value: string) => void;
     onUnitPriceBlur: (itemId: number) => void;
+    onUnitChange?: (itemId: number, unit: string) => void;
     onRemoveItem: (itemId: number) => void;
     onItemWholesaleToggle: (itemId: number) => void;
     isReturnMode?: boolean;
@@ -80,6 +83,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
     onQuantityBlur,
     onUnitPriceChange,
     onUnitPriceBlur,
+    onUnitChange,
     onRemoveItem,
     onItemWholesaleToggle,
     isReturnMode = false,
@@ -363,7 +367,13 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                             </div>
                                         </td>
                                         <td className="px-3 py-2.5 text-center text-sm">
-                                            <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600">{displayUnit(item.unit)}</span>
+                                            {isReturnMode && item.isReturnItem ? (
+                                                <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600">{displayUnit(item.unit)}</span>
+                                            ) : onUnitChange ? (
+                                                <LineItemUnitSelect stockId={item.stockId} unit={item.unit} onChange={(unit) => onUnitChange(item.id, unit)} />
+                                            ) : (
+                                                <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600">{displayUnit(item.unit)}</span>
+                                            )}
                                         </td>
                                         <td className="px-3 py-2.5 text-right text-sm font-medium">
                                             {isReturnMode && item.isReturnItem ? (

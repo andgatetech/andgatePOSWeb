@@ -981,6 +981,7 @@ const ProductEditForm = () => {
                                 onCreateProduct={handleSubmit}
                                 isCreating={updateLoading}
                                 isEditMode={true}
+                                stockId={productStocks[0]?.id}
                             />
                         )}
 
