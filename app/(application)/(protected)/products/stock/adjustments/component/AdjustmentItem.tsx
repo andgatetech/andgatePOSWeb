@@ -21,13 +21,14 @@ interface AdjustmentItemProps {
     onAdjustmentChange: (itemId: number, field: string, value: any) => void;
     onRemove: (itemId: number) => void;
     onUpdateQuantity: (itemId: number, quantity: number) => void;
+    onUpdateUnit: (itemId: number, unit: string, factor: number) => void;
 }
 
 /**
  * AdjustmentItem Component
  * Individual product item with adjustment controls
  */
-const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpdateQuantity }: AdjustmentItemProps) => {
+const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpdateQuantity, onUpdateUnit }: AdjustmentItemProps) => {
     const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
     const { currentStore } = useCurrentStore();
@@ -41,7 +42,10 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
     const reason = adjustment?.reason || '';
     const notes = adjustment?.notes || '';
     const serialAdjustments = adjustment?.serialAdjustments || [];
-    const currentStock = Number(item.PlaceholderQuantity ?? item.quantity ?? 0);
+    const unitOptions = Array.isArray(item.availableUnits) && item.availableUnits.length > 0 ? item.availableUnits : [{ unit: item.unit || 'Piece', factor: item.unitFactor || 1 }];
+    const selectedFactor = Number(item.unitFactor || unitOptions.find((u: any) => String(u.unit).toLowerCase() === String(item.unit).toLowerCase())?.factor || 1);
+    const currentStockBase = Number(item.PlaceholderQuantity ?? item.quantity ?? 0);
+    const currentStock = selectedFactor > 0 ? currentStockBase / selectedFactor : currentStockBase;
 
     // The shopkeeper types what they actually counted on the shelf, not a delta —
     // direction/quantity (what the save payload and backend still expect) are derived
@@ -52,7 +56,7 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
     const hasDiscrepancy = delta !== 0;
 
     const updateCountedQuantity = (nextCounted: number) => {
-        const clean = Number.isFinite(nextCounted) ? Math.max(0, Math.floor(nextCounted)) : currentStock;
+        const clean = Number.isFinite(nextCounted) ? Math.max(0, nextCounted) : currentStock;
         const nextDelta = clean - currentStock;
         onAdjustmentChange(item.id, 'adjustmentType', nextDelta >= 0 ? 'increase' : 'decrease');
         onAdjustmentChange(item.id, 'adjustmentQuantity', Math.abs(nextDelta));
@@ -96,7 +100,7 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
                         <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-gray-600">
                             {item.sku && <span className="rounded-md bg-gray-100 px-2 py-1 font-medium">SKU: {item.sku}</span>}
                             <span className="rounded-md bg-[#eef7fc] px-2 py-1 font-medium text-[#034d79]">
-                                {t('stock_adjustment_current_stock')}: {currentStock}
+                                {t('stock_adjustment_current_stock')}: {Number(currentStock.toFixed(4))}
                             </span>
                             {item.unit && (
                                 <span className="rounded-md bg-gray-100 px-2 py-1 font-medium">
@@ -193,6 +197,20 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
                     <div className="space-y-3">
                         <div className="flex flex-wrap items-center gap-3">
                             <label className="text-sm font-medium text-gray-700">{t('stock_adjustment_counted_quantity')} *</label>
+                            {unitOptions.length > 1 && (
+                                <select
+                                    value={item.unit || unitOptions[0]?.unit || ''}
+                                    onChange={(e) => {
+                                        const next = unitOptions.find((u: any) => String(u.unit).toLowerCase() === e.target.value.toLowerCase());
+                                        if (next) onUpdateUnit(item.id, next.unit, Number(next.factor || 1));
+                                    }}
+                                    className="h-11 rounded-lg border border-gray-300 bg-white px-3 text-sm font-medium text-gray-900 focus:border-primary focus:ring-2 focus:ring-primary"
+                                >
+                                    {unitOptions.map((u: any) => (
+                                        <option key={u.unit} value={u.unit}>{u.unit}</option>
+                                    ))}
+                                </select>
+                            )}
                             <div className="flex items-stretch gap-2">
                                 <button
                                     type="button"
@@ -203,8 +221,9 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
                                 </button>
                                 <input
                                     type="number"
-                                    inputMode="numeric"
+                                    inputMode="decimal"
                                     min="0"
+                                    step="0.0001"
                                     value={countedQuantity}
                                     onChange={(e) => updateCountedQuantity(e.target.value === '' ? 0 : Number(e.target.value))}
                                     className={`h-11 w-24 min-w-0 rounded-lg border bg-white px-2 text-center text-lg font-semibold focus:ring-2 ${

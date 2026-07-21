@@ -18,6 +18,7 @@ interface UnitConversionRow {
 interface UnitConversionsEditorProps {
     stockId: number;
     baseUnit: string;
+    units: any[];
 }
 
 /**
@@ -25,7 +26,7 @@ interface UnitConversionsEditorProps {
  * Ton, also sold by CFT or Truck) declare the conversion factor between them.
  * Only usable once the stock row is persisted (has a real id) — see VariantsTab.tsx.
  */
-const UnitConversionsEditor: React.FC<UnitConversionsEditorProps> = ({ stockId, baseUnit }) => {
+const UnitConversionsEditor: React.FC<UnitConversionsEditorProps> = ({ stockId, baseUnit, units }) => {
     const { t } = getTranslation();
     const { data, isLoading } = useGetUnitConversionsQuery(stockId);
     const [createUnitConversion, { isLoading: isSaving }] = useCreateUnitConversionMutation();
@@ -37,6 +38,11 @@ const UnitConversionsEditor: React.FC<UnitConversionsEditorProps> = ({ stockId, 
 
     const rows: UnitConversionRow[] = data?.data || [];
     const alternates = rows.filter((r) => r.id !== null);
+    const existingUnitNames = new Set(rows.map((row) => row.unit?.trim().toLowerCase()).filter(Boolean));
+    const selectableUnits = units
+        .filter((unit: any) => unit?.is_active !== false)
+        .filter((unit: any) => unit?.name && unit.name.trim().toLowerCase() !== baseUnit?.trim().toLowerCase())
+        .filter((unit: any) => !existingUnitNames.has(unit.name.trim().toLowerCase()));
 
     const handleAdd = async () => {
         setError(null);
@@ -99,13 +105,18 @@ const UnitConversionsEditor: React.FC<UnitConversionsEditorProps> = ({ stockId, 
             <div className="flex flex-wrap items-end gap-2">
                 <div>
                     <label className="mb-1 block text-xs font-medium text-gray-600">{t('lbl_alternate_unit_name')}</label>
-                    <input
-                        type="text"
+                    <select
                         value={newUnitName}
                         onChange={(e) => setNewUnitName(e.target.value)}
-                        placeholder={t('placeholder_unit_name')}
-                        className="w-32 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#cde2ef] focus:ring-2 focus:ring-purple-500"
-                    />
+                        className="w-36 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#cde2ef] focus:ring-2 focus:ring-purple-500"
+                    >
+                        <option value="">{t('lbl_unit')}</option>
+                        {selectableUnits.map((unit: any) => (
+                            <option key={unit.id ?? unit.name} value={unit.name}>
+                                {unit.name}
+                            </option>
+                        ))}
+                    </select>
                 </div>
                 <div>
                     <label className="mb-1 block text-xs font-medium text-gray-600">

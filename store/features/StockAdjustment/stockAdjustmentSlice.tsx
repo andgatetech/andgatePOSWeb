@@ -11,6 +11,8 @@ export interface StockAdjustmentItem {
     PlaceholderQuantity?: number;
     rate?: number;
     unit?: string;
+    unitFactor?: number;
+    availableUnits?: { unit: string; factor?: number }[];
     variantName?: string;
     variantData?: Record<string, string>;
     has_serial?: boolean;
@@ -77,6 +79,14 @@ const stockAdjustmentSlice = createSlice({
                 if (item) item.quantity = quantity;
             }
         },
+        updateStockItemUnit: (state, action: PayloadAction<{ storeId: number; id: number; unit: string; factor: number }>) => {
+            const { storeId, id, unit, factor } = action.payload;
+            const item = state.itemsByStore?.[storeId]?.find((i) => i.id === id);
+            if (item) {
+                item.unit = unit;
+                item.unitFactor = factor;
+            }
+        },
         clearStockItems: (state, action: PayloadAction<number>) => {
             const storeId = action.payload;
             if (!state.itemsByStore) state.itemsByStore = {};
@@ -116,6 +126,7 @@ export const {
     addStockItem,
     removeStockItem,
     updateStockItemQuantity,
+    updateStockItemUnit,
     clearStockItems,
     clearAllStockItems,
     setAdjustmentConfig,

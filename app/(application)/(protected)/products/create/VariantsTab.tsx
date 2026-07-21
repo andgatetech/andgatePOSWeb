@@ -433,7 +433,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                 {/* Alternate sell/purchase units — only usable once the stock row is persisted */}
                                 {isEditMode && stock.id ? (
                                     <div className="border-t border-gray-100 pt-4">
-                                        <UnitConversionsEditor stockId={stock.id} baseUnit={stock.unit} />
+                                        <UnitConversionsEditor stockId={stock.id} baseUnit={stock.unit} units={units} />
                                     </div>
                                 ) : (
                                     <div className="rounded-lg border border-sky-200 bg-sky-50 p-4 text-sm text-sky-900">

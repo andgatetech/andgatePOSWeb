@@ -16,6 +16,7 @@ import { showToast } from '@/lib/toast';
 
 type DraftRow = {
     low_stock_quantity: number;
+    unit?: string;
     suppress_low_stock: boolean;
     dirty: boolean;
 };
@@ -68,7 +69,8 @@ export default function StockThresholdsPage() {
 
     const getDraft = (item: ThresholdItem): DraftRow =>
         drafts[item.stock_id] ?? {
-            low_stock_quantity: item.low_stock_quantity,
+            low_stock_quantity: item.display_low_stock_quantity ?? item.low_stock_quantity,
+            unit: item.display_unit || item.unit,
             suppress_low_stock: item.suppress_low_stock,
             dirty: false,
         };
@@ -76,7 +78,7 @@ export default function StockThresholdsPage() {
     const setDraft = useCallback((stockId: number, patch: Partial<DraftRow>) => {
         setDrafts((prev) => ({
             ...prev,
-            [stockId]: { ...(prev[stockId] ?? { low_stock_quantity: 0, suppress_low_stock: false }), ...patch, dirty: true },
+            [stockId]: { ...(prev[stockId] ?? { low_stock_quantity: 0, unit: undefined, suppress_low_stock: false }), ...patch, dirty: true },
         }));
     }, []);
 
@@ -97,6 +99,7 @@ export default function StockThresholdsPage() {
             const payload = dirtyIds.map((id) => ({
                 stock_id: id,
                 low_stock_quantity: drafts[id].low_stock_quantity,
+                unit: drafts[id].unit,
                 suppress_low_stock: drafts[id].suppress_low_stock,
             }));
             await bulkUpdate({ store_id: currentStoreId, items: payload }).unwrap();
@@ -225,9 +228,14 @@ export default function StockThresholdsPage() {
                             ) : items.map((item, index) => {
                                 const draft = getDraft(item);
                                 const isDirty = draft.dirty;
+                                const unitOptions = item.available_units?.length ? item.available_units : [{ unit: item.unit || item.display_unit || 'Piece', factor: 1 }];
+                                const selectedUnit = draft.unit || item.display_unit || item.unit || unitOptions[0]?.unit;
+                                const selectedFactor = Number(unitOptions.find((u: any) => String(u.unit).toLowerCase() === String(selectedUnit).toLowerCase())?.factor || 1);
+                                const displayQuantity = selectedFactor > 0 ? Number(item.quantity) / selectedFactor : Number(item.quantity);
+                                const displayCategoryThreshold = selectedFactor > 0 ? Number(item.category_threshold || 0) / selectedFactor : Number(item.category_threshold || 0);
                                 const effThreshold = draft.low_stock_quantity > 0
                                     ? draft.low_stock_quantity
-                                    : item.category_threshold;
+                                    : displayCategoryThreshold;
 
                                 return (
                                     <tr
@@ -250,13 +258,13 @@ export default function StockThresholdsPage() {
                                         </td>
 
                                         {/* In Stock */}
-                                        <td className={`px-4 py-3 text-right tabular-nums ${urgencyColor(effThreshold, item.quantity)}`}>
-                                            {formatNumber(item.quantity)}
+                                        <td className={`px-4 py-3 text-right tabular-nums ${urgencyColor(effThreshold, displayQuantity)}`}>
+                                            {formatNumber(displayQuantity)} <span className="text-xs text-gray-400">{selectedUnit}</span>
                                         </td>
 
                                         {/* Category Default */}
                                         <td className="px-4 py-3 text-right tabular-nums text-gray-400">
-                                            {item.category_threshold > 0 ? formatNumber(item.category_threshold) : '—'}
+                                            {displayCategoryThreshold > 0 ? formatNumber(displayCategoryThreshold) : '—'}
                                         </td>
 
                                         {/* Threshold input */}
@@ -264,12 +272,29 @@ export default function StockThresholdsPage() {
                                             <input
                                                 type="number"
                                                 min={0}
-                                                step={1}
+                                                step={0.0001}
                                                 value={draft.low_stock_quantity === 0 ? '' : draft.low_stock_quantity}
-                                                placeholder={item.category_threshold > 0 ? String(item.category_threshold) : '0'}
+                                                placeholder={displayCategoryThreshold > 0 ? String(Number(displayCategoryThreshold.toFixed(4))) : '0'}
                                                 onChange={(e) => handleThresholdChange(item, e.target.value)}
                                                 className="w-24 rounded-lg border border-gray-200 bg-white px-2 py-1.5 text-right text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30"
                                             />
+                                            {unitOptions.length > 1 && (
+                                                <select
+                                                    value={selectedUnit}
+                                                    onChange={(e) => {
+                                                        const next = unitOptions.find((u: any) => String(u.unit).toLowerCase() === e.target.value.toLowerCase());
+                                                        setDraft(item.stock_id, {
+                                                            unit: next?.unit || e.target.value,
+                                                            low_stock_quantity: Number(item.low_stock_quantity || 0) / Number(next?.factor || 1),
+                                                        });
+                                                    }}
+                                                    className="ml-2 rounded-lg border border-gray-200 bg-white px-2 py-1.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30"
+                                                >
+                                                    {unitOptions.map((u: any) => (
+                                                        <option key={u.unit} value={u.unit}>{u.unit}</option>
+                                                    ))}
+                                                </select>
+                                            )}
                                         </td>
 
                                         {/* Suppress toggle */}

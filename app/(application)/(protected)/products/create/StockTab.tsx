@@ -205,7 +205,7 @@ const StockTab: React.FC<StockTabProps> = ({ formData, handleChange, units, onPr
             {/* Alternate sell/purchase units — only usable once the stock row is persisted */}
             {isEditMode && stockId ? (
                 <div className="border-t border-gray-200 pt-4">
-                    <UnitConversionsEditor stockId={stockId} baseUnit={formData.units} />
+                    <UnitConversionsEditor stockId={stockId} baseUnit={formData.units} units={units} />
                 </div>
             ) : (
                 <div className="rounded-lg border border-sky-200 bg-sky-50 p-4 text-sm text-sky-900">

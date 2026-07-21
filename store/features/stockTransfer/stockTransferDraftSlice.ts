@@ -10,6 +10,8 @@ export interface StockTransferDraftItem {
     quantity: number;
     PlaceholderQuantity?: number;
     unit?: string;
+    unitFactor?: number;
+    availableUnits?: { unit: string; factor?: number }[];
     variantName?: string;
     variantData?: Record<string, string>;
 }
@@ -44,6 +46,14 @@ const stockTransferDraftSlice = createSlice({
             const item = state.itemsByStore[storeId]?.find((i) => i.id === id);
             if (item) item.quantity = quantity;
         },
+        updateTransferItemUnit: (state, action: PayloadAction<{ storeId: number; id: number; unit: string; factor: number }>) => {
+            const { storeId, id, unit, factor } = action.payload;
+            const item = state.itemsByStore[storeId]?.find((i) => i.id === id);
+            if (item) {
+                item.unit = unit;
+                item.unitFactor = factor;
+            }
+        },
         clearTransferItems: (state, action: PayloadAction<number>) => {
             state.itemsByStore[action.payload] = [];
         },
@@ -54,6 +64,7 @@ export const {
     addTransferItem,
     removeTransferItem,
     updateTransferItemQuantity,
+    updateTransferItemUnit,
     clearTransferItems,
 } = stockTransferDraftSlice.actions;
 

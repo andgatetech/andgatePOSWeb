@@ -8,6 +8,7 @@ import {
     clearTransferItems,
     removeTransferItem,
     updateTransferItemQuantity,
+    updateTransferItemUnit,
 } from '@/store/features/stockTransfer/stockTransferDraftSlice';
 import { useCreateStockTransferMutation } from '@/store/features/stockTransfer/stockTransferApi';
 import { ArrowRight, Loader2, Package, Store, Trash2, Truck } from 'lucide-react';
@@ -36,9 +37,18 @@ export default function CreateTransferView({ onCreated }: { onCreated: () => voi
     const updateQuantity = (id: number, quantity: number) => {
         if (!currentStoreId) return;
         const item = draftItems.find((draft: any) => draft.id === id);
-        const available = Number(item?.PlaceholderQuantity ?? item?.quantity ?? 0);
+        const factor = Number(item?.unitFactor || 1);
+        const available = factor > 0 ? Number(item?.PlaceholderQuantity ?? item?.quantity ?? 0) / factor : Number(item?.PlaceholderQuantity ?? item?.quantity ?? 0);
         const valid = Math.max(1, Math.min(Number.isFinite(quantity) ? quantity : 1, available || 1));
         dispatch(updateTransferItemQuantity({ storeId: currentStoreId, id, quantity: valid }));
+    };
+
+    const updateUnit = (id: number, unit: string) => {
+        if (!currentStoreId) return;
+        const item = draftItems.find((draft: any) => draft.id === id);
+        const next = (item?.availableUnits || []).find((u: any) => String(u.unit).toLowerCase() === unit.toLowerCase());
+        if (!next) return;
+        dispatch(updateTransferItemUnit({ storeId: currentStoreId, id, unit: next.unit, factor: Number(next.factor || 1) }));
     };
 
     const removeItem = (id: number) => {
@@ -59,7 +69,7 @@ export default function CreateTransferView({ onCreated }: { onCreated: () => voi
 
         const invalid = draftItems.filter((item: any) => {
             const available = Number(item.PlaceholderQuantity ?? 0);
-            return Number(item.quantity) < 1 || Number(item.quantity) > available || !item.stockId;
+            return Number(item.quantity) < 1 || (Number(item.quantity) * Number(item.unitFactor || 1)) > available || !item.stockId;
         });
         if (invalid.length > 0) return showMessage(t('transfer_check_quantities'), 'error');
 
@@ -72,6 +82,7 @@ export default function CreateTransferView({ onCreated }: { onCreated: () => voi
                     product_id: item.productId,
                     product_stock_id: item.stockId,
                     quantity: item.quantity,
+                    unit: item.unit,
                 })),
             }).unwrap();
 
@@ -178,22 +189,40 @@ export default function CreateTransferView({ onCreated }: { onCreated: () => voi
                                 <tbody className="divide-y divide-gray-100">
                                     {draftItems.map((item: any) => {
                                         const available = Number(item.PlaceholderQuantity ?? 0);
+                                        const unitOptions = Array.isArray(item.availableUnits) && item.availableUnits.length > 0 ? item.availableUnits : [{ unit: item.unit, factor: item.unitFactor || 1 }];
+                                        const displayAvailable = Number(item.unitFactor || 1) > 0 ? available / Number(item.unitFactor || 1) : available;
                                         return (
                                             <tr key={item.id} className="hover:bg-gray-50">
                                                 <td className="px-3 py-3">
                                                     <p className="font-medium text-gray-900">{item.variantName ? `${item.title || item.name} / ${item.variantName}` : (item.title || item.name)}</p>
                                                     <p className="text-xs text-gray-500">{item.sku ? `SKU: ${item.sku}` : ''}</p>
                                                 </td>
-                                                <td className="px-3 py-3 text-gray-600">{available} {item.unit}</td>
+                                                <td className="px-3 py-3 text-gray-600">{Number(displayAvailable.toFixed(4))} {item.unit}</td>
                                                 <td className="px-3 py-3">
-                                                    <input
-                                                        type="number"
-                                                        min={1}
-                                                        max={available}
-                                                        value={item.quantity}
-                                                        onChange={(e) => updateQuantity(item.id, Number(e.target.value))}
-                                                        className="w-24 rounded-lg border border-[#d7e6f2] px-2 py-1.5 text-sm outline-none focus:border-[#046ca9] focus:ring-2 focus:ring-[#046ca9]/10"
-                                                    />
+                                                    <div className="flex items-center gap-2">
+                                                        <input
+                                                            type="number"
+                                                            min={1}
+                                                            step="0.0001"
+                                                            max={displayAvailable}
+                                                            value={item.quantity}
+                                                            onChange={(e) => updateQuantity(item.id, Number(e.target.value))}
+                                                            className="w-24 rounded-lg border border-[#d7e6f2] px-2 py-1.5 text-sm outline-none focus:border-[#046ca9] focus:ring-2 focus:ring-[#046ca9]/10"
+                                                        />
+                                                        {unitOptions.length > 1 ? (
+                                                            <select
+                                                                value={item.unit || unitOptions[0]?.unit || ''}
+                                                                onChange={(e) => updateUnit(item.id, e.target.value)}
+                                                                className="rounded-lg border border-[#d7e6f2] bg-white px-2 py-1.5 text-sm outline-none focus:border-[#046ca9] focus:ring-2 focus:ring-[#046ca9]/10"
+                                                            >
+                                                                {unitOptions.map((u: any) => (
+                                                                    <option key={u.unit} value={u.unit}>{u.unit}</option>
+                                                                ))}
+                                                            </select>
+                                                        ) : (
+                                                            <span className="text-xs font-medium text-gray-500">{item.unit}</span>
+                                                        )}
+                                                    </div>
                                                 </td>
                                                 <td className="px-3 py-3 text-right">
                                                     <button

@@ -10,6 +10,12 @@ export interface ThresholdItem {
     sku: string | null;
     quantity: number;
     low_stock_quantity: number;
+    unit?: string;
+    available_units?: { unit: string; factor?: number }[];
+    display_unit?: string;
+    display_quantity?: number;
+    display_low_stock_quantity?: number;
+    display_effective_threshold?: number;
     suppress_low_stock: boolean;
     store_id: number;
     effective_threshold: number;
@@ -31,6 +37,7 @@ export interface BulkUpdatePayload {
     items: {
         stock_id: number;
         low_stock_quantity?: number;
+        unit?: string;
         suppress_low_stock?: boolean;
     }[];
 }

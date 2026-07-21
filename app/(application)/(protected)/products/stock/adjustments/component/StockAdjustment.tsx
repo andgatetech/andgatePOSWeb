@@ -13,6 +13,7 @@ import {
     setAdjustmentConfig,
     setGlobalConfig,
     updateStockItemQuantity,
+    updateStockItemUnit,
 } from '@/store/features/StockAdjustment/stockAdjustmentSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { closeReservedPdfWindow, reservePdfWindow } from '@/lib/pdf-mobile-download';
@@ -60,6 +61,11 @@ const StockAdjustment = () => {
     const handleUpdateQuantity = (itemId: number, newQuantity: number) => {
         if (newQuantity < 1 || !currentStoreId) return;
         dispatch(updateStockItemQuantity({ storeId: currentStoreId, id: itemId, quantity: newQuantity }));
+    };
+
+    const handleUpdateUnit = (itemId: number, unit: string, factor: number) => {
+        if (!currentStoreId) return;
+        dispatch(updateStockItemUnit({ storeId: currentStoreId, id: itemId, unit, factor }));
     };
 
     // Clear all adjustments
@@ -110,7 +116,7 @@ const StockAdjustment = () => {
             if (item.has_serial) return false;
             const adj = getAdjustment(item.id);
             const currentStock = Number(item.PlaceholderQuantity ?? item.quantity ?? 0);
-            return adj?.adjustmentType === 'decrease' && adj.adjustmentQuantity > currentStock;
+            return adj?.adjustmentType === 'decrease' && (adj.adjustmentQuantity * Number(item.unitFactor || 1)) > currentStock;
         });
 
         if (overDecreaseProducts.length > 0) {
@@ -162,6 +168,7 @@ const StockAdjustment = () => {
                     product_stock_id: item.stockId,
                     direction: adj.adjustmentType,
                     quantity: adj.adjustmentQuantity,
+                    unit: item.unit,
                     notes: adj.notes || globalConfig.notes || null,
                 };
                 if (reasonValue && !isNaN(Number(reasonValue))) {
@@ -273,14 +280,15 @@ const StockAdjustment = () => {
                         </div>
 
                         {cartItems.map((item) => (
-                            <AdjustmentItem
+                        <AdjustmentItem
                                 key={item.id}
                                 item={item}
                                 adjustment={getAdjustment(item.id)}
                                 onAdjustmentChange={handleAdjustmentChange}
                                 onRemove={handleRemoveItem}
-                                onUpdateQuantity={handleUpdateQuantity}
-                            />
+                            onUpdateQuantity={handleUpdateQuantity}
+                            onUpdateUnit={handleUpdateUnit}
+                        />
                         ))}
 
                         <GlobalSettings
