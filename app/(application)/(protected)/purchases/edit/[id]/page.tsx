@@ -89,7 +89,7 @@ const EditPurchaseDraftPage = () => {
                 itemType: item.item_type === 'existing' ? 'existing' : 'new',
                 title: item.product_name,
                 description: item.product_description || '',
-                unit: item.unit || 'piece',
+                unit: item.unit || undefined,
                 quantity: item.quantity_ordered,
                 purchasePrice: item.purchase_price || 0,
                 basePurchasePrice: item.purchase_price || 0,

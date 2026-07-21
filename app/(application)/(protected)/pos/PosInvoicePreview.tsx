@@ -750,7 +750,7 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
                         keptTableBody.push([
                             { text: formatNumber(index + 1), alignment: 'center' },
                             { text: product.title },
-                            { text: formatNumber(product.quantity), alignment: 'center' },
+                            { text: `${formatNumber(product.quantity)} ${product.unit || t('lbl_pcs')}`, alignment: 'center' },
                             { text: formatCurrencyPDF(product.price), alignment: 'right' },
                             { text: formatCurrencyPDF(product.amount), alignment: 'right', bold: true },
                         ]);
@@ -788,7 +788,7 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
                         returnedTableBody.push([
                             { text: formatNumber(index + 1), alignment: 'center' },
                             { text: product.title },
-                            { text: `-${formatNumber(product.quantity)}`, alignment: 'center' },
+                            { text: `-${formatNumber(product.quantity)} ${product.unit || t('lbl_pcs')}`, alignment: 'center' },
                             { text: formatCurrencyPDF(product.price), alignment: 'right' },
                             { text: `-${formatCurrencyPDF(product.amount)}`, alignment: 'right', bold: true, color: '#dc2626' },
                         ]);
@@ -826,7 +826,7 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
                         exchangeTableBody.push([
                             { text: formatNumber(index + 1), alignment: 'center' },
                             { text: product.title },
-                            { text: formatNumber(product.quantity), alignment: 'center' },
+                            { text: `${formatNumber(product.quantity)} ${product.unit || t('lbl_pcs')}`, alignment: 'center' },
                             { text: formatCurrencyPDF(product.price), alignment: 'right' },
                             { text: formatCurrencyPDF(product.amount), alignment: 'right', bold: true },
                         ]);

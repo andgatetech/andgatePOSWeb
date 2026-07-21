@@ -61,6 +61,12 @@ const initialState: InvoiceState = {
     itemsByStore: {},
 };
 
+const availableDisplayQuantity = (item: Item): number | undefined => {
+    if (!item.PlaceholderQuantity) return undefined;
+    const factor = Number(item.unitFactor || 1);
+    return factor > 0 ? Number(item.PlaceholderQuantity) / factor : Number(item.PlaceholderQuantity);
+};
+
 const invoiceSlice = createSlice({
     name: 'invoice',
     initialState,
@@ -105,9 +111,10 @@ const invoiceSlice = createSlice({
                     const existingItem = storeItems[existingItemIndex];
                     const newQuantity = existingItem.quantity + item.quantity;
 
-                    // Respect available stock limit if PlaceholderQuantity exists
-                    if (existingItem.PlaceholderQuantity && newQuantity > existingItem.PlaceholderQuantity) {
-                        existingItem.quantity = existingItem.PlaceholderQuantity;
+                    // PlaceholderQuantity is stored in stock base unit; cart quantity is in selected display unit.
+                    const maxDisplayQuantity = availableDisplayQuantity(existingItem);
+                    if (maxDisplayQuantity !== undefined && newQuantity > maxDisplayQuantity) {
+                        existingItem.quantity = maxDisplayQuantity;
                     } else {
                         existingItem.quantity = newQuantity;
                     }

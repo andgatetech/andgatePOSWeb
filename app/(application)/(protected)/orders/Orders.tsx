@@ -510,7 +510,7 @@ const Orders = () => {
                                                   .join(', ')
                                             : item.variant_name || item.variant?.name || item.variantName,
                                         quantity: item.quantity,
-                                        unit: item.unit || t('lbl_pcs'),
+                                        unit: item.unit,
                                         price: item.unit_price || item.price,
                                         amount: item.subtotal || item.amount || item.total,
                                         tax_rate: item.tax_rate,

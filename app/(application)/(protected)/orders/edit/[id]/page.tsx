@@ -49,7 +49,7 @@ const OrderEditPage = () => {
                 order.items?.map((item: any, index: number) => {
                     const productId = item.product?.id || item.product_id;
                     const availableUnits = item.stock?.available_units || [];
-                    const selectedUnit = item.unit || item.stock?.unit || 'Piece';
+                    const selectedUnit = item.unit || item.stock?.unit || availableUnits[0]?.unit || '';
                     const selectedFactor = Number(availableUnits.find((unit: any) => String(unit.unit).toLowerCase() === String(selectedUnit).toLowerCase())?.factor || 1);
                     const baseRegularPrice = Number(item.stock?.price || 0) || (selectedFactor ? parseFloat(item.unit_price) / selectedFactor : parseFloat(item.unit_price));
                     const baseWholesalePrice = Number(item.stock?.wholesale_price || 0) || baseRegularPrice;

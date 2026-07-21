@@ -228,7 +228,7 @@ export default function StockThresholdsPage() {
                             ) : items.map((item, index) => {
                                 const draft = getDraft(item);
                                 const isDirty = draft.dirty;
-                                const unitOptions = item.available_units?.length ? item.available_units : [{ unit: item.unit || item.display_unit || 'Piece', factor: 1 }];
+                                const unitOptions = item.available_units?.length ? item.available_units : [{ unit: item.unit || item.display_unit || '', factor: 1 }].filter((option) => option.unit);
                                 const selectedUnit = draft.unit || item.display_unit || item.unit || unitOptions[0]?.unit;
                                 const selectedFactor = Number(unitOptions.find((u: any) => String(u.unit).toLowerCase() === String(selectedUnit).toLowerCase())?.factor || 1);
                                 const displayQuantity = selectedFactor > 0 ? Number(item.quantity) / selectedFactor : Number(item.quantity);

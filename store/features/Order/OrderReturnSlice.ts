@@ -115,6 +115,12 @@ const initialState: OrderReturnState = {
     sessionsByStore: {},
 };
 
+const availableExchangeQuantity = (item: ExchangeItem): number | undefined => {
+    if (!item.PlaceholderQuantity) return undefined;
+    const factor = Number(item.unitFactor || 1);
+    return factor > 0 ? Number(item.PlaceholderQuantity) / factor : Number(item.PlaceholderQuantity);
+};
+
 // Helper to get or create session
 const getStoreSession = (state: OrderReturnState, storeId: number): OrderReturnSession => {
     if (!state.sessionsByStore) {
@@ -227,8 +233,9 @@ const orderReturnSlice = createSlice({
                     const existing = session.exchangeItems[existingIndex];
                     const newQty = existing.quantity + item.quantity;
 
-                    if (existing.PlaceholderQuantity && newQty > existing.PlaceholderQuantity) {
-                        existing.quantity = existing.PlaceholderQuantity;
+                    const maxDisplayQuantity = availableExchangeQuantity(existing);
+                    if (maxDisplayQuantity !== undefined && newQty > maxDisplayQuantity) {
+                        existing.quantity = maxDisplayQuantity;
                     } else {
                         existing.quantity = newQty;
                     }
@@ -284,8 +291,9 @@ const orderReturnSlice = createSlice({
                 if (existingIndex !== -1) {
                     const existing = session.exchangeItems[existingIndex];
                     const newQty = existing.quantity + item.quantity;
-                    if (existing.PlaceholderQuantity && newQty > existing.PlaceholderQuantity) {
-                        existing.quantity = existing.PlaceholderQuantity;
+                    const maxDisplayQuantity = availableExchangeQuantity(existing);
+                    if (maxDisplayQuantity !== undefined && newQty > maxDisplayQuantity) {
+                        existing.quantity = maxDisplayQuantity;
                     } else {
                         existing.quantity = newQty;
                     }

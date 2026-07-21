@@ -56,7 +56,7 @@ const ReceiveItemsModal: React.FC<ReceiveItemsModalProps> = ({ isOpen, purchaseO
                 tax_rate: parseFloat(item.tax_rate) || 0,
                 tax_included: item.tax_included || false,
                 low_stock_quantity: parseFloat(item.low_stock_quantity) || 5,
-                unit: item.unit || 'piece',
+                unit: item.unit || undefined,
                 batch_no: item.batch_no || '',
                 expiry_date: item.expiry_date || '',
             }));

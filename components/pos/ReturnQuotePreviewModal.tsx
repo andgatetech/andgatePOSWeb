@@ -33,6 +33,7 @@ export default function ReturnQuotePreviewModal({
     const isEven = totals.direction === 'even' || Number(totals.net_amount || 0) === 0;
 
     const fmt = (n: number) => formatCurrency(n);
+    const qtyWithUnit = (item: any, quantity: any) => `x${quantity ?? 0}${item.unit ? ` ${item.unit}` : ''}`;
 
     return (
         <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
@@ -63,7 +64,7 @@ export default function ReturnQuotePreviewModal({
                                     <div key={i} className="flex justify-between text-sm">
                                         <span className="text-gray-700 dark:text-gray-300">
                                             {item.product_name ?? item.name ?? `Item #${i + 1}`}
-                                            <span className="ml-1 text-xs text-gray-400">×{item.quantity_returned ?? item.quantity}</span>
+                                            <span className="ml-1 text-xs text-gray-400">{qtyWithUnit(item, item.quantity_returned ?? item.quantity)}</span>
                                         </span>
                                         <span className="font-semibold text-danger">
                                             -{fmt(item.subtotal ?? item.total ?? 0)}
@@ -85,7 +86,7 @@ export default function ReturnQuotePreviewModal({
                                     <div key={i} className="flex justify-between text-sm">
                                         <span className="text-gray-700 dark:text-gray-300">
                                             {item.product_name ?? item.name ?? `Item #${i + 1}`}
-                                            <span className="ml-1 text-xs text-gray-400">×{item.quantity}</span>
+                                            <span className="ml-1 text-xs text-gray-400">{qtyWithUnit(item, item.quantity)}</span>
                                         </span>
                                         <span className="font-semibold text-success">
                                             +{fmt(item.subtotal ?? item.total ?? 0)}

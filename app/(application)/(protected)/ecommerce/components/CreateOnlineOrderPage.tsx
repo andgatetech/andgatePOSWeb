@@ -14,6 +14,7 @@ interface CartItem {
     sku: string;
     price: number;
     quantity: number;
+    unit?: string;
 }
 
 interface ProductOption {
@@ -22,6 +23,7 @@ interface ProductOption {
     sku: string;
     price: number;
     available: number;
+    unit?: string;
     store_id: number;
     category?: string;
     brand?: string;
@@ -83,6 +85,7 @@ const CreateOnlineOrderPage = () => {
                 sku: p.primary_stock?.sku ?? '',
                 price: parseFloat(p.primary_stock?.price ?? 0),
                 available: parseFloat(p.primary_stock?.quantity ?? 0) || 0,
+                unit: p.primary_stock?.unit,
                 store_id: p.store_id,
                 category: p.category?.name,
                 brand: p.brand?.name,
@@ -113,6 +116,7 @@ const CreateOnlineOrderPage = () => {
                     product_name: product.product_name,
                     sku: product.sku,
                     price: product.price,
+                    unit: product.unit,
                     quantity: 1,
                 },
             ];
@@ -180,6 +184,7 @@ const CreateOnlineOrderPage = () => {
                 items: items.map((i) => ({
                     stock_id: i.stock_id,
                     quantity: i.quantity,
+                    unit: i.unit,
                 })),
                 payment_method: paymentMethod,
                 source_id: parseInt(sourceId, 10),
@@ -458,7 +463,7 @@ const CreateOnlineOrderPage = () => {
                                         <div className="min-w-0 flex-1">
                                             <p className="truncate text-sm font-medium text-gray-800">{item.product_name}</p>
                                             <p className="text-xs text-gray-400">
-                                                ৳{item.price.toLocaleString()} × {item.quantity}
+                                                ৳{item.price.toLocaleString()} × {item.quantity}{item.unit ? ` ${item.unit}` : ''}
                                             </p>
                                         </div>
                                         <div className="flex items-center gap-2">
@@ -466,7 +471,7 @@ const CreateOnlineOrderPage = () => {
                                                 <button type="button" onClick={() => updateQuantity(item.stock_id, item.quantity - 1)} className="rounded p-0.5 text-gray-400 hover:bg-gray-100">
                                                     <Minus className="h-3.5 w-3.5" />
                                                 </button>
-                                                <span className="w-6 text-center text-sm font-medium text-gray-700">{item.quantity}</span>
+                                                <span className="min-w-6 text-center text-sm font-medium text-gray-700">{item.quantity}{item.unit ? ` ${item.unit}` : ''}</span>
                                                 <button type="button" onClick={() => updateQuantity(item.stock_id, item.quantity + 1)} className="rounded p-0.5 text-gray-400 hover:bg-gray-100">
                                                     <Plus className="h-3.5 w-3.5" />
                                                 </button>

@@ -41,6 +41,7 @@ interface InvoiceItem {
     tax_rate?: number;
     tax_included?: boolean;
     unit?: string;
+    unitFactor?: number;
     availableUnits?: { unit: string; factor?: number }[];
     description?: string;
     isWholesale?: boolean;
@@ -94,6 +95,12 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
     const [previewItem, setPreviewItem] = useState<InvoiceItem | null>(null);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
     const displayUnit = (unit?: string) => (unit && unit.toLowerCase() !== 'piece' ? unit : t('lbl_piece'));
+    const displayMaxQuantity = (item: InvoiceItem): number => {
+        const baseQuantity = Number(item.PlaceholderQuantity || 0);
+        if (!baseQuantity) return 9999;
+        const factor = Number(item.unitFactor || 1);
+        return baseQuantity / (factor > 0 ? factor : 1);
+    };
     const returnableItemsCount = invoiceItems.filter((item) => item.isReturnItem).length;
     const selectedReturnItemsCount = invoiceItems.filter((item) => item.isReturnItem && Number(item.returnQuantity ?? item.quantity ?? 0) > 0).length;
 
@@ -175,6 +182,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                 const soldQty = Number(item.soldQuantity ?? item.originalQuantity ?? 0);
                                 const isFullyReturned = isReturnMode && item.isReturnItem && selectedReturnQty > 0 && selectedReturnQty >= originalQty;
                                 const isPartiallyReturned = isReturnMode && item.isReturnItem && selectedReturnQty > 0 && selectedReturnQty < originalQty;
+                                const maxQty = item.isReturnItem ? (item.originalQuantity || displayMaxQuantity(item)) : displayMaxQuantity(item);
 
                                 return (
                                     <tr
@@ -305,7 +313,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                                                     isFullyReturned ? 'bg-amber-50' : ''
                                                                 }`}
                                                                 min={0}
-                                                                max={item.originalQuantity || item.PlaceholderQuantity || 9999}
+                                                                max={maxQty}
                                                                 value={item.quantity === 0 ? '0' : item.quantity}
                                                                 onChange={(e) => onQuantityChange(item.id, e.target.value)}
                                                                 onBlur={() => onQuantityBlur(item.id)}
@@ -313,10 +321,10 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                                             <button
                                                                 type="button"
                                                                 onClick={() =>
-                                                                    onQuantityChange(item.id, Math.min(item.originalQuantity || item.PlaceholderQuantity || 9999, item.quantity + 1).toString())
+                                                                    onQuantityChange(item.id, Math.min(maxQty, item.quantity + 1).toString())
                                                                 }
                                                                 className="flex h-7 w-7 items-center justify-center rounded-r border border-gray-300 bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
-                                                                disabled={item.quantity >= (item.originalQuantity || item.PlaceholderQuantity || 9999)}
+                                                                disabled={item.quantity >= maxQty}
                                                             >
                                                                 +
                                                             </button>
@@ -334,7 +342,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                                                 item.quantity === 0 ? 'border-yellow-400' : ''
                                                             }`}
                                                             min={0}
-                                                            max={item.PlaceholderQuantity || 9999}
+                                                            max={maxQty}
                                                             value={item.quantity === 0 ? '' : item.quantity}
                                                             onChange={(e) => onQuantityChange(item.id, e.target.value)}
                                                             onBlur={() => onQuantityBlur(item.id)}
@@ -344,7 +352,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                                                 type="button"
                                                                 onClick={() => onQuantityChange(item.id, (item.quantity + 1).toString())}
                                                                 className="flex h-1/2 w-6 items-center justify-center border-b border-gray-300 bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
-                                                                disabled={item.quantity >= (item.PlaceholderQuantity || 9999)}
+                                                                disabled={item.quantity >= maxQty}
                                                             >
                                                                 <ChevronUp className="h-3 w-3" />
                                                             </button>
@@ -479,6 +487,7 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                         const soldQty = Number(item.soldQuantity ?? item.originalQuantity ?? 0);
                         const isFullyReturned = isReturnMode && item.isReturnItem && selectedReturnQty > 0 && selectedReturnQty >= originalQty;
                         const isPartiallyReturned = isReturnMode && item.isReturnItem && selectedReturnQty > 0 && selectedReturnQty < originalQty;
+                        const maxQty = item.isReturnItem ? (item.originalQuantity || displayMaxQuantity(item)) : displayMaxQuantity(item);
 
                         return (
                             <div
@@ -610,10 +619,10 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                                         onChange={(e) => onQuantityChange(item.id, e.target.value)}
                                                         onBlur={() => onQuantityBlur(item.id)}
                                                         min="0"
-                                                        max={item.PlaceholderQuantity || 9999}
+                                                        max={maxQty}
                                                     />
                                                     <div className="absolute right-0 top-0 flex h-full flex-col border-l border-gray-300">
-                                                        <button type="button" onClick={() => onQuantityChange(item.id, (item.quantity + 1).toString())} className="flex h-1/2 w-5 items-center justify-center border-b border-gray-300 bg-gray-50 hover:bg-gray-100" disabled={item.quantity >= (item.PlaceholderQuantity || 9999)}>
+                                                        <button type="button" onClick={() => onQuantityChange(item.id, Math.min(maxQty, item.quantity + 1).toString())} className="flex h-1/2 w-5 items-center justify-center border-b border-gray-300 bg-gray-50 hover:bg-gray-100" disabled={item.quantity >= maxQty}>
                                                             <ChevronUp className="h-2.5 w-2.5" />
                                                         </button>
                                                         <button type="button" onClick={() => onQuantityChange(item.id, Math.max(0, item.quantity - 1).toString())} className="flex h-1/2 w-5 items-center justify-center bg-gray-50 hover:bg-gray-100" disabled={item.quantity <= 0}>

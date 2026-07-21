@@ -842,8 +842,13 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
 
         if (Number.isNaN(newQuantity) || newQuantity < 0) return;
 
-        if (item.PlaceholderQuantity && newQuantity > item.PlaceholderQuantity) {
-            showMessage(`${t('msg_max_qty')} ${formatNumber(item.PlaceholderQuantity)}`, 'error');
+        const itemUnitFactor = Number((item as any).unitFactor || 1);
+        const maxDisplayQuantity = item.PlaceholderQuantity
+            ? Number(item.PlaceholderQuantity) / (itemUnitFactor > 0 ? itemUnitFactor : 1)
+            : undefined;
+
+        if (maxDisplayQuantity !== undefined && newQuantity > maxDisplayQuantity) {
+            showMessage(`${t('msg_max_qty')} ${formatNumber(maxDisplayQuantity)} ${getDisplayUnit(item.unit)}`, 'error');
             return;
         }
 

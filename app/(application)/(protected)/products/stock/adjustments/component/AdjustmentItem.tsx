@@ -42,7 +42,7 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
     const reason = adjustment?.reason || '';
     const notes = adjustment?.notes || '';
     const serialAdjustments = adjustment?.serialAdjustments || [];
-    const unitOptions = Array.isArray(item.availableUnits) && item.availableUnits.length > 0 ? item.availableUnits : [{ unit: item.unit || 'Piece', factor: item.unitFactor || 1 }];
+    const unitOptions = Array.isArray(item.availableUnits) && item.availableUnits.length > 0 ? item.availableUnits : [{ unit: item.unit || '', factor: item.unitFactor || 1 }].filter((option) => option.unit);
     const selectedFactor = Number(item.unitFactor || unitOptions.find((u: any) => String(u.unit).toLowerCase() === String(item.unit).toLowerCase())?.factor || 1);
     const currentStockBase = Number(item.PlaceholderQuantity ?? item.quantity ?? 0);
     const currentStock = selectedFactor > 0 ? currentStockBase / selectedFactor : currentStockBase;

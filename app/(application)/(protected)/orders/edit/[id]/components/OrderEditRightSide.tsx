@@ -464,8 +464,13 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
 
         if (Number.isNaN(newQuantity) || newQuantity < 0) return;
 
-        if (item.PlaceholderQuantity && newQuantity > item.PlaceholderQuantity) {
-            showMessage(t('msg_max_qty', { qty: item.PlaceholderQuantity }), 'error');
+        const unitFactor = Number(item.unitFactor || 1);
+        const maxDisplayQuantity = item.PlaceholderQuantity
+            ? Number(item.PlaceholderQuantity) / (unitFactor > 0 ? unitFactor : 1)
+            : undefined;
+
+        if (maxDisplayQuantity !== undefined && newQuantity > maxDisplayQuantity) {
+            showMessage(t('msg_max_qty', { qty: maxDisplayQuantity }), 'error');
             return;
         }
 
@@ -816,7 +821,7 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
                         amount: parseFloat(item.subtotal),
                         tax_rate: parseFloat(item.tax || 0),
                         tax_included: item.tax_included || false,
-                        unit: item.unit || 'piece',
+                        unit: item.unit || undefined,
                     })) || [],
                 totals: {
                     subtotal: parseFloat(response.data.financial?.total || response.data.total || 0),
@@ -933,7 +938,7 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
                 amount: item.rate * item.quantity,
                 tax_rate: item.tax_rate,
                 tax_included: item.tax_included,
-                unit: item.unit || 'piece',
+                unit: item.unit || undefined,
                 variantName: item.variantName,
                 variantData: item.variantData,
                 has_serial: item.has_serial || false,
