@@ -622,6 +622,8 @@ const ProductCreateForm = () => {
             }
 
             const result = await createProduct(fd).unwrap();
+            const createdProductId = result?.data?.id || result?.id;
+            const conversionSetupTab = formData.has_attributes ? 'variants' : 'stock';
 
             // Reset form
             setFormData({
@@ -661,7 +663,9 @@ const ProductCreateForm = () => {
 
             // showSuccessDialog(title, text, confirmButtonText, showCancelButton, cancelButtonText)
             showSuccessDialog(t('msg_success'), t('product_created'), t('btn_view'), true, t('btn_create')).then((result) => {
-                if (result.isConfirmed) {
+                if (result.isConfirmed && createdProductId) {
+                    router.push(`/products/edit/${createdProductId}?tab=${conversionSetupTab}&unitSetup=1`);
+                } else if (result.isConfirmed) {
                     router.push('/products');
                 }
             });
@@ -809,7 +813,7 @@ const ProductCreateForm = () => {
                         )}
 
                         {activeTab === 'pricing' && (
-                            <PricingTab formData={formData} handleChange={handleChange} onPrevious={handlePrevious} onNext={handleNext} onCreateProduct={handleSubmit} isCreating={createLoading} />
+                            <PricingTab formData={formData} handleChange={handleChange} units={units} onPrevious={handlePrevious} onNext={handleNext} onCreateProduct={handleSubmit} isCreating={createLoading} />
                         )}
 
                         {activeTab === 'stock' && (

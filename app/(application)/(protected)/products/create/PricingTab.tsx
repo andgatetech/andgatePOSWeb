@@ -9,8 +9,10 @@ interface PricingTabProps {
         purchase_price: string;
         price: string;
         wholesale_price: string;
+        units: string;
     };
     handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void;
+    units: any[];
     onPrevious: () => void;
     onNext: () => void;
     onCreateProduct: () => void;
@@ -18,7 +20,7 @@ interface PricingTabProps {
     isEditMode?: boolean;
 }
 
-const PricingTab: React.FC<PricingTabProps> = ({ formData, handleChange, onPrevious, onNext, onCreateProduct, isCreating, isEditMode = false }) => {
+const PricingTab: React.FC<PricingTabProps> = ({ formData, handleChange, units, onPrevious, onNext, onCreateProduct, isCreating, isEditMode = false }) => {
     const { t } = getTranslation();
     const { symbol, formatCurrency } = useCurrency();
     return (
@@ -26,7 +28,34 @@ const PricingTab: React.FC<PricingTabProps> = ({ formData, handleChange, onPrevi
             <h3 className="text-lg font-semibold text-gray-900">{t('lbl_price')}</h3>
             <p className="text-sm text-gray-600">{t('msg_pricing_tab_help')}</p>
 
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            <div className="rounded-lg border border-sky-200 bg-sky-50 p-4 text-sm text-sky-900">
+                <p className="font-semibold">{t('lbl_price_base_unit_title')}</p>
+                <p className="mt-1 leading-5">{t('hint_price_base_unit')}</p>
+            </div>
+
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
+                <div>
+                    <label htmlFor="units" className="mb-2 block text-sm font-medium text-gray-700">
+                        {t('lbl_price_unit')} <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                        id="units"
+                        name="units"
+                        value={formData.units}
+                        onChange={handleChange}
+                        className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-gray-500"
+                    >
+                        <option value="">{t('lbl_unit')}</option>
+                        <option value="Piece">{t('lbl_piece_default')}</option>
+                        {units.map((unit: any) => (
+                            <option key={unit.id} value={unit.name}>
+                                {unit.name}
+                            </option>
+                        ))}
+                    </select>
+                    <p className="mt-1 text-xs text-gray-500">{t('hint_price_unit')}</p>
+                </div>
+
                 {/* Purchase Price */}
                 <div>
                     <label htmlFor="purchase_price" className="mb-2 block text-sm font-medium text-gray-700">
@@ -51,7 +80,7 @@ const PricingTab: React.FC<PricingTabProps> = ({ formData, handleChange, onPrevi
                             className="w-full rounded-lg border border-gray-300 bg-gray-50 py-3 pl-8 pr-4 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-gray-500"
                         />
                     </div>
-                    <p className="mt-1 text-xs text-gray-500">{t('lbl_purchase_price_hint')}</p>
+                    <p className="mt-1 text-xs text-gray-500">{t('lbl_purchase_price_hint')} {formData.units ? t('hint_per_selected_unit', { unit: formData.units }) : ''}</p>
                 </div>
 
                 {/* Selling Price */}
@@ -78,7 +107,7 @@ const PricingTab: React.FC<PricingTabProps> = ({ formData, handleChange, onPrevi
                             className="w-full rounded-lg border border-gray-300 bg-gray-50 py-3 pl-8 pr-4 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-gray-500"
                         />
                     </div>
-                    <p className="mt-1 text-xs text-gray-500">{t('lbl_selling_price_hint')}</p>
+                    <p className="mt-1 text-xs text-gray-500">{t('lbl_selling_price_hint')} {formData.units ? t('hint_per_selected_unit', { unit: formData.units }) : ''}</p>
                 </div>
 
                 {/* Wholesale Price */}
@@ -105,7 +134,7 @@ const PricingTab: React.FC<PricingTabProps> = ({ formData, handleChange, onPrevi
                             className="w-full rounded-lg border border-gray-300 bg-gray-50 py-3 pl-8 pr-4 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-gray-500"
                         />
                     </div>
-                    <p className="mt-1 text-xs text-gray-500">{t('lbl_wholesale_price_hint')}</p>
+                    <p className="mt-1 text-xs text-gray-500">{t('lbl_wholesale_price_hint')} {formData.units ? t('hint_per_selected_unit', { unit: formData.units }) : ''}</p>
                 </div>
             </div>
 

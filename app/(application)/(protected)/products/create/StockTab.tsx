@@ -203,9 +203,14 @@ const StockTab: React.FC<StockTabProps> = ({ formData, handleChange, units, onPr
             )}
 
             {/* Alternate sell/purchase units — only usable once the stock row is persisted */}
-            {isEditMode && stockId && (
+            {isEditMode && stockId ? (
                 <div className="border-t border-gray-200 pt-4">
                     <UnitConversionsEditor stockId={stockId} baseUnit={formData.units} />
+                </div>
+            ) : (
+                <div className="rounded-lg border border-sky-200 bg-sky-50 p-4 text-sm text-sky-900">
+                    <p className="font-semibold">{t('lbl_alternate_units')}</p>
+                    <p className="mt-1 leading-5">{t('hint_unit_conversion_after_save')}</p>
                 </div>
             )}
 

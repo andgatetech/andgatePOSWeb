@@ -48,6 +48,11 @@ const OrderEditPage = () => {
             const transformedItems =
                 order.items?.map((item: any, index: number) => {
                     const productId = item.product?.id || item.product_id;
+                    const availableUnits = item.stock?.available_units || [];
+                    const selectedUnit = item.unit || item.stock?.unit || 'Piece';
+                    const selectedFactor = Number(availableUnits.find((unit: any) => String(unit.unit).toLowerCase() === String(selectedUnit).toLowerCase())?.factor || 1);
+                    const baseRegularPrice = Number(item.stock?.price || 0) || (selectedFactor ? parseFloat(item.unit_price) / selectedFactor : parseFloat(item.unit_price));
+                    const baseWholesalePrice = Number(item.stock?.wholesale_price || 0) || baseRegularPrice;
                     // Use negative IDs for UI, but store original item.id for update action
                     const uniqueId = -(index + 1);
 
@@ -61,11 +66,13 @@ const OrderEditPage = () => {
                         sku: item.sku || '',
                         barcode: item.barcode || null,
                         rate: parseFloat(item.unit_price),
-                        regularPrice: parseFloat(item.unit_price),
-                        wholesalePrice: parseFloat(item.unit_price),
+                        regularPrice: baseRegularPrice,
+                        wholesalePrice: baseWholesalePrice,
                         quantity: item.quantity,
                         amount: parseFloat(item.subtotal),
-                        unit: item.unit || 'Piece',
+                        unit: selectedUnit,
+                        unitFactor: selectedFactor,
+                        availableUnits,
                         tax_rate: parseFloat(item.tax || 0),
                         tax_included: item.tax_included || false,
                         discount: parseFloat(item.discount || 0),

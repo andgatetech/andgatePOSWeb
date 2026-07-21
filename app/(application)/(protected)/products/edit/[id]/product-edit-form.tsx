@@ -13,7 +13,7 @@ import { useGetStoreAttributesQuery } from '@/store/features/attribute/attribute
 import { useGetBrandsQuery } from '@/store/features/brand/brandApi';
 import { useGetCategoryQuery } from '@/store/features/category/categoryApi';
 import { Store } from 'lucide-react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import AttributesTab, { ProductAttribute } from '../../create/AttributesTab';
 import BasicInfoTab from '../../create/BasicInfoTab';
@@ -46,6 +46,7 @@ type ProductWarrantyState = {
 const ProductEditForm = () => {
     const { t } = getTranslation();
     const params = useParams();
+    const searchParams = useSearchParams();
     const productId = params.id as string;
     const maxNumber = 10;
     const [images, setImages] = useState<any>([]);
@@ -101,6 +102,7 @@ const ProductEditForm = () => {
     // Product Warranties State
     const [productWarranties, setProductWarranties] = useState<ProductWarrantyState[]>([]);
     const [originalSnapshot, setOriginalSnapshot] = useState<any>(null);
+    const unitSetupMode = searchParams.get('unitSetup') === '1';
 
     const [formData, setFormData] = useState({
         category_id: '',
@@ -131,6 +133,13 @@ const ProductEditForm = () => {
         purchase_date: '',
         expiry_date: '',
     });
+
+    useEffect(() => {
+        const requestedTab = searchParams.get('tab');
+        if (requestedTab) {
+            setActiveTab(requestedTab);
+        }
+    }, [searchParams]);
 
     // Populate form data when product is loaded
     useEffect(() => {
@@ -925,6 +934,12 @@ const ProductEditForm = () => {
 
                 {/* Tab Content */}
                 <div className="rounded-xl bg-white p-6 shadow-sm">
+                    {unitSetupMode && (activeTab === 'stock' || activeTab === 'variants') && (
+                        <div className="mb-4 rounded-lg border border-sky-200 bg-sky-50 p-4 text-sm text-sky-900">
+                            <p className="font-semibold">{t('lbl_alternate_units')}</p>
+                            <p className="mt-1 leading-5">{t('hint_unit_conversion_setup_after_create')}</p>
+                        </div>
+                    )}
                     <form
                         onSubmit={(e) => {
                             e.preventDefault();
@@ -963,6 +978,7 @@ const ProductEditForm = () => {
                             <PricingTab
                                 formData={formData}
                                 handleChange={handleChange}
+                                units={units}
                                 onPrevious={handlePrevious}
                                 onNext={handleNext}
                                 onCreateProduct={handleSubmit}

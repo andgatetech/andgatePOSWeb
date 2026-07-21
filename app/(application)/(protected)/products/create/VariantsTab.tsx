@@ -290,7 +290,27 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                 {/* Pricing Section */}
                                 <div>
                                     <h5 className="mb-3 text-sm font-semibold text-gray-900">{t('lbl_pricing_section')}</h5>
-                                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                                        <div>
+                                            <label className="mb-1.5 block text-sm font-medium text-gray-700">
+                                                {t('lbl_price_unit')} <span className="text-red-500">*</span>
+                                            </label>
+                                            <select
+                                                value={stock.unit}
+                                                onChange={(e) => handleVariantChange(index, 'unit', e.target.value)}
+                                                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-[#cde2ef] focus:ring-2 focus:ring-purple-500"
+                                            >
+                                                <option value="">{t('placeholder_select_unit')}</option>
+                                                <option value="Piece">{t('lbl_piece_default')}</option>
+                                                {units.map((unit: any) => (
+                                                    <option key={unit.id} value={unit.name}>
+                                                        {unit.name}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            <p className="mt-1 text-xs text-gray-500">{t('hint_price_unit')}</p>
+                                        </div>
+
                                         <div>
                                             <label className="mb-1.5 block text-sm font-medium text-gray-700">
                                                 {t('lbl_selling_price')} <span className="text-red-500">*</span>
@@ -342,7 +362,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                 {/* Stock Section */}
                                 <div>
                                     <h5 className="mb-3 text-sm font-semibold text-gray-900">{t('lbl_stock_inventory')}</h5>
-                                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                                         <div>
                                             <label className="mb-1.5 block text-sm font-medium text-gray-700">
                                                 {t('lbl_quantity_required')} <span className="text-red-500">*</span>
@@ -354,25 +374,6 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                                 placeholder="0"
                                                 className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-[#cde2ef] focus:ring-2 focus:ring-purple-500"
                                             />
-                                        </div>
-
-                                        <div>
-                                            <label className="mb-1.5 block text-sm font-medium text-gray-700">
-                                                {t('lbl_unit_required')} <span className="text-red-500">*</span>
-                                            </label>
-                                            <select
-                                                value={stock.unit}
-                                                onChange={(e) => handleVariantChange(index, 'unit', e.target.value)}
-                                                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-[#cde2ef] focus:ring-2 focus:ring-purple-500"
-                                            >
-                                                <option value="">{t('placeholder_select_unit')}</option>
-                                                <option value="Piece">{t('lbl_piece_default')}</option>
-                                                {units.map((unit: any) => (
-                                                    <option key={unit.id} value={unit.name}>
-                                                        {unit.name}
-                                                    </option>
-                                                ))}
-                                            </select>
                                         </div>
 
                                         <div>
@@ -430,9 +431,14 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                 </div>
 
                                 {/* Alternate sell/purchase units — only usable once the stock row is persisted */}
-                                {isEditMode && stock.id && (
+                                {isEditMode && stock.id ? (
                                     <div className="border-t border-gray-100 pt-4">
                                         <UnitConversionsEditor stockId={stock.id} baseUnit={stock.unit} />
+                                    </div>
+                                ) : (
+                                    <div className="rounded-lg border border-sky-200 bg-sky-50 p-4 text-sm text-sky-900">
+                                        <p className="font-semibold">{t('lbl_alternate_units')}</p>
+                                        <p className="mt-1 leading-5">{t('hint_unit_conversion_after_save')}</p>
                                     </div>
                                 )}
 

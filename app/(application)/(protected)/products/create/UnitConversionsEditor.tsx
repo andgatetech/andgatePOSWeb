@@ -68,6 +68,9 @@ const UnitConversionsEditor: React.FC<UnitConversionsEditorProps> = ({ stockId, 
         <div>
             <h5 className="mb-1 text-sm font-semibold text-gray-900">{t('lbl_alternate_units')}</h5>
             <p className="mb-3 text-xs text-gray-500">{t('hint_alternate_units')}</p>
+            <div className="mb-3 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs leading-5 text-emerald-800">
+                {t('hint_unit_conversion_no_price')}
+            </div>
 
             {isLoading ? (
                 <div className="text-xs text-gray-400">{t('lbl_loading')}</div>
@@ -95,7 +98,7 @@ const UnitConversionsEditor: React.FC<UnitConversionsEditorProps> = ({ stockId, 
 
             <div className="flex flex-wrap items-end gap-2">
                 <div>
-                    <label className="mb-1 block text-xs font-medium text-gray-600">{t('lbl_unit_name')}</label>
+                    <label className="mb-1 block text-xs font-medium text-gray-600">{t('lbl_alternate_unit_name')}</label>
                     <input
                         type="text"
                         value={newUnitName}
@@ -106,7 +109,7 @@ const UnitConversionsEditor: React.FC<UnitConversionsEditorProps> = ({ stockId, 
                 </div>
                 <div>
                     <label className="mb-1 block text-xs font-medium text-gray-600">
-                        1 {t('lbl_unit_name')} = ? {baseUnit || t('lbl_base_unit')}
+                        {t('lbl_conversion_factor')} ({t('lbl_no_price')})
                     </label>
                     <input
                         type="number"

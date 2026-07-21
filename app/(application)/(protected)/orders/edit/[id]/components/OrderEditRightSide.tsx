@@ -408,7 +408,10 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
         if (!item) return;
 
         const newIsWholesale = !item.isWholesale;
-        const newRate = newIsWholesale ? item.wholesalePrice || item.regularPrice || item.rate : item.regularPrice || item.rate;
+        const factor = Number(item.unitFactor || 1);
+        const baseRegular = Number(item.regularPrice || item.rate) || 0;
+        const baseWholesale = Number(item.wholesalePrice || item.regularPrice || item.rate) || baseRegular;
+        const newRate = (newIsWholesale ? baseWholesale : baseRegular) * factor;
 
         if (!currentStoreId) return;
         dispatch(
@@ -419,6 +422,29 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
                     isWholesale: newIsWholesale,
                     rate: newRate,
                     amount: item.quantity * newRate,
+                },
+            })
+        );
+    };
+
+    const handleUnitChange = (itemId: number, unit: string, factor: number) => {
+        const item = invoiceItems.find((line) => line.id === itemId);
+        if (!item || !currentStoreId) return;
+
+        const nextFactor = Number(factor || 1);
+        const baseRegular = Number(item.regularPrice || item.rate) || 0;
+        const baseWholesale = Number(item.wholesalePrice || item.regularPrice || item.rate) || baseRegular;
+        const nextRate = (item.isWholesale ? baseWholesale : baseRegular) * nextFactor;
+
+        dispatch(
+            updateItemRedux({
+                storeId: currentStoreId,
+                item: {
+                    ...item,
+                    unit,
+                    unitFactor: nextFactor,
+                    rate: nextRate,
+                    amount: item.quantity * nextRate,
                 },
             })
         );
@@ -700,6 +726,7 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
                     const isModified =
                         originalItem.quantity !== item.quantity ||
                         parseFloat(originalItem.unit_price) !== item.rate ||
+                        (originalItem.unit || '') !== (item.unit || '') ||
                         (originalItem.discount || 0) !== (item.discount || 0) ||
                         (originalItem.tax || 0) !== (item.tax_rate || 0) ||
                         originalItem.tax_included !== item.tax_included;
@@ -977,6 +1004,7 @@ const OrderEditRightSide: React.FC<OrderEditRightSideProps> = ({ orderId, origin
                     onQuantityBlur={handleQuantityBlur}
                     onUnitPriceChange={handleUnitPriceChange}
                     onUnitPriceBlur={handleUnitPriceBlur}
+                    onUnitChange={handleUnitChange}
                     onRemoveItem={handleRemoveItem}
                     onItemWholesaleToggle={handleItemWholesaleToggle}
                 />
