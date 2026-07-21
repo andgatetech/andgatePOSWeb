@@ -129,8 +129,17 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
     const hasRegisteredCustomer = !isWalkInCustomer && (!!selectedCustomer || !!formData.customerName?.trim());
 
     const getAvailablePaymentStatuses = () => {
-        const baseStatuses = paymentStatusOptions.length > 0 ? paymentStatusOptions : defaultStatuses;
-        const mappedStatuses = baseStatuses.map((s: any) => ({
+        const baseStatuses = paymentStatusOptions.length > 0 ? paymentStatusOptions : [];
+        const mergedStatuses = [...baseStatuses];
+
+        defaultStatuses.forEach((fallback) => {
+            const exists = mergedStatuses.some((status: any) => (status.value || status.status_name)?.toLowerCase() === fallback.value);
+            if (!exists) {
+                mergedStatuses.push(fallback);
+            }
+        });
+
+        const mappedStatuses = mergedStatuses.map((s: any) => ({
             ...s,
             value: s.value || s.status_name?.toLowerCase(),
             label: s.status_name || s.label,
