@@ -3,8 +3,9 @@
 import { getTranslation } from '@/i18n';
 import { compressImage, fileToDataUrl } from '@/lib/image-compress';
 import { resolveStorageUrl } from '@/lib/image-url';
+import { Camera } from 'lucide-react';
 import Image from 'next/image';
-import React from 'react';
+import React, { useRef } from 'react';
 import ImageUploading, { ImageListType } from 'react-images-uploading';
 
 interface ImagesTabProps {
@@ -20,6 +21,22 @@ interface ImagesTabProps {
 
 const ImagesTab: React.FC<ImagesTabProps> = ({ images, setImages, maxNumber, onPrevious, onNext, onCreateProduct, isCreating, isEditMode = false }) => {
     const { t } = getTranslation();
+    const cameraInputRef = useRef<HTMLInputElement>(null);
+
+    // Rear camera ('environment') — these are photos of physical products, not selfies.
+    // A separate input from the gallery picker so both stay available as distinct,
+    // explicit options rather than however a single <input accept="image/*"> happens
+    // to be interpreted by a given mobile browser/OS.
+    const handleCameraCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        e.target.value = ''; // allow capturing the same shot again immediately
+        if (!file || images.length >= maxNumber) return;
+
+        const compressed = await compressImage(file);
+        const dataURL = await fileToDataUrl(compressed);
+        setImages((prev) => [...prev, { file: compressed, dataURL }] as never[]);
+    };
+
     const onChange = async (imageList: ImageListType, addUpdateIndex: number[] | undefined) => {
         // Build updated image list, preserving IDs where appropriate
         const updatedImageList = await Promise.all(
@@ -85,20 +102,33 @@ const ImagesTab: React.FC<ImagesTabProps> = ({ images, setImages, maxNumber, onP
             <ImageUploading multiple value={images} onChange={onChange} maxNumber={maxNumber}>
                 {({ imageList, onImageUpload, onImageRemove, onImageUpdate }) => (
                     <div className="space-y-4">
-                        <div className="flex w-full items-center justify-center">
+                        <div className="flex w-full flex-col gap-3 sm:flex-row">
                             <button
                                 type="button"
                                 onClick={onImageUpload}
-                                className="group flex h-40 w-full flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 transition-all duration-200 hover:border-blue-400 hover:bg-blue-50"
+                                className="group flex h-40 flex-1 flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 transition-all duration-200 hover:border-blue-400 hover:bg-blue-50"
                             >
                                 <div className="flex flex-col items-center justify-center">
                                     <svg className="mb-3 h-12 w-12 text-gray-400 transition-colors group-hover:text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                     </svg>
-                                    <p className="mb-1 text-base font-semibold text-gray-700 group-hover:text-gray-600">{t('lbl_click_upload_drag_drop')}</p>
+                                    <p className="mb-1 text-base font-semibold text-gray-700 group-hover:text-gray-600">{t('lbl_choose_from_gallery')}</p>
                                     <p className="text-sm text-gray-500">{t('lbl_image_formats_hint')} (Max {maxNumber} images)</p>
                                 </div>
                             </button>
+
+                            <button
+                                type="button"
+                                onClick={() => cameraInputRef.current?.click()}
+                                className="group flex h-40 flex-1 flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 transition-all duration-200 hover:border-blue-400 hover:bg-blue-50"
+                            >
+                                <div className="flex flex-col items-center justify-center">
+                                    <Camera className="mb-3 h-12 w-12 text-gray-400 transition-colors group-hover:text-blue-500" />
+                                    <p className="mb-1 text-base font-semibold text-gray-700 group-hover:text-gray-600">{t('lbl_take_photo')}</p>
+                                    <p className="text-sm text-gray-500">{t('lbl_use_device_camera')}</p>
+                                </div>
+                            </button>
+                            <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handleCameraCapture} className="hidden" />
                         </div>
 
                         {imageList.length > 0 && (
