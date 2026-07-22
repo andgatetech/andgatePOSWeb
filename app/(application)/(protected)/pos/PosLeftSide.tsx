@@ -57,6 +57,11 @@ const unitFactorFor = (unit?: string, availableUnits?: { unit: string; factor?: 
     return Number(availableUnits.find((option) => String(option.unit).toLowerCase() === String(unit).toLowerCase())?.factor || 1);
 };
 
+const availableUnitsFor = (stock?: any) => {
+    const units = stock?.available_units || stock?.availableUnits || [];
+    return Array.isArray(units) ? units : [];
+};
+
 const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelection = false, mobileButtonConfig, reduxSlice = 'pos', enableOfflinePrefetch = true }) => {
     const { t } = getTranslation();
     const { formatNumber } = useCurrency();
@@ -479,7 +484,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
             const wholesalePrice = parseFloat(primaryStock?.wholesale_price || 0);
             const productPurchasePrice = parseFloat(primaryStock?.purchase_price || 0);
             const productUnit = primaryStock?.unit || product.unit || undefined;
-            const productAvailableUnits = primaryStock?.available_units || [];
+            const productAvailableUnits = availableUnitsFor(primaryStock);
 
             const uniqueId = Date.now() + Math.floor(Math.random() * 1000);
             const itemToAdd = {
@@ -611,7 +616,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
             const variantPurchasePrice = parseFloat(variant.purchase_price || 0);
             const price = useWholesale ? wholesalePrice : regularPrice;
             const variantUnit = variant.unit || undefined;
-            const variantAvailableUnits = variant.available_units || [];
+            const variantAvailableUnits = availableUnitsFor(variant);
 
             // Check stock limit for this specific variant - only in POS mode
             const currentQuantityInCart = reduxItems
@@ -738,7 +743,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                 const wholesalePrice = parseFloat(serialStock.wholesale_price || regularPrice);
                 const serialPurchasePrice = parseFloat(serialStock.purchase_price || 0);
                 const serialUnit = serialStock.unit || undefined;
-                const serialAvailableUnits = serialStock.available_units || [];
+                const serialAvailableUnits = availableUnitsFor(serialStock);
 
                 // Ensure unique ID by adding index offset to prevent collisions
                 const uniqueId = baseTimestamp + index;

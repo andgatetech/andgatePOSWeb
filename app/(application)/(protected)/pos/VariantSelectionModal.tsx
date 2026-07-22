@@ -106,6 +106,12 @@ export default function VariantSelectionModal({ isOpen, onClose, product, onSele
                                             // In POS mode, check both available and quantity. In other modes, allow all variants.
                                             const isAvailable = mode === 'pos' ? stock.available === 'yes' && stock.quantity > 0 : true;
                                             const imageSrc = resolveProductImageUrl(stock.images?.[0]) || productImageSrc;
+                                            const availableUnits = Array.isArray(stock.available_units)
+                                                ? stock.available_units
+                                                : (Array.isArray(stock.availableUnits) ? stock.availableUnits : []);
+                                            const alternateUnits = availableUnits
+                                                .map((option: any) => option.unit)
+                                                .filter((unit: string) => unit && String(unit).toLowerCase() !== String(stock.unit || '').toLowerCase());
 
                                             // Find warranty for this variant
                                             const variantWarranty = product.warranties?.find((w: any) => w.product_stock_id === stock.id);
@@ -174,6 +180,16 @@ export default function VariantSelectionModal({ isOpen, onClose, product, onSele
                                                             <span className="rounded-full bg-orange-100 px-2 py-0.5 text-xs font-medium text-orange-700">{t('status_low_stock')}</span>
                                                         )}
                                                     </div>
+
+                                                    {alternateUnits.length > 0 && (
+                                                        <div className="mb-3 flex flex-wrap gap-1.5">
+                                                            {alternateUnits.slice(0, 4).map((unit: string) => (
+                                                                <span key={unit} className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">
+                                                                    {unit}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    )}
 
                                                     {/* Warranty Badge */}
                                                     {variantWarranty && (

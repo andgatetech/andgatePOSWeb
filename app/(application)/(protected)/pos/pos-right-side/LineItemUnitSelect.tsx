@@ -29,10 +29,11 @@ const LineItemUnitSelect: React.FC<LineItemUnitSelectProps> = ({ stockId, unit, 
     const { t } = getTranslation();
     const { data } = useGetUnitConversionsQuery(stockId as number, { skip: !stockId });
     const currentFactor = availableUnits.find((option) => option.unit.toLowerCase() === String(unit || '').toLowerCase())?.factor;
-    const options = normalizeUnitOptions([...(data?.data || []), ...availableUnits], unit, currentFactor);
+    const responseOptions = Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []);
+    const options = normalizeUnitOptions([...responseOptions, ...availableUnits], unit, currentFactor);
     const displayUnit = (u?: string) => (u && u.toLowerCase() !== 'piece' ? u : t('lbl_piece'));
 
-    if (!stockId || options.length <= 1) {
+    if (options.length <= 1) {
         return <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600">{displayUnit(unit)}</span>;
     }
 

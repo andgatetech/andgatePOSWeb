@@ -31,6 +31,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
         product.stocks?.reduce((sum: number, stock: any) => sum + parseFloat(stock.quantity || '0'), 0) || 0;
     const stockUnits = Array.from(new Set((product.stocks || []).map((stock: any) => stock.unit || product.unit).filter(Boolean)));
     const stockUnitLabel = stockUnits.length === 1 ? stockUnits[0] : product.unit;
+    const alternateUnits = Array.from(new Set((product.stocks || [])
+        .flatMap((stock: any) => stock.available_units || stock.availableUnits || [])
+        .map((option: any) => option.unit)
+        .filter((unit: string) => unit && unit !== stockUnitLabel)));
     const isUnavailable = product.available === false || (mode === 'pos' && totalQuantity <= 0);
 
     const stockStatus =
@@ -174,6 +178,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
                         {formatNumber(totalQuantity)}{stockUnitLabel ? ` ${stockUnitLabel}` : ''}
                     </span>
                 </div>
+                {alternateUnits.length > 0 && (
+                    <p className="mt-1 truncate text-[9px] font-medium text-gray-400">
+                        {alternateUnits.slice(0, 3).join(' / ')}
+                    </p>
+                )}
             </div>
         </div>
     );
