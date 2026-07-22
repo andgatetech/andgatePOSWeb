@@ -546,7 +546,7 @@ const Sidebar = () => {
             })()}
 
             {/* PWA Install Prompt */}
-            {pwa.isInstallable && !pwa.isInstalled && (
+            {pwa.isReady && (
                 <div className="flex-shrink-0 border-t border-white/[0.06] px-3 py-3">
                     <button
                         onClick={() => {

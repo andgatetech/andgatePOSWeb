@@ -14,12 +14,11 @@ interface Props {
 
 // ── Main button ───────────────────────────────────────────────────────────────
 const InstallAppButton = ({ variant = 'hero', className = '' }: Props) => {
-    const { isInstallable, isInstalled, isIOS, hasNativePrompt, install } = usePWAInstall();
+    const { isReady, isIOS, hasNativePrompt, install } = usePWAInstall();
     const [showInstallGuide, setShowInstallGuide] = useState(false);
     const [installing, setInstalling]     = useState(false);
 
-    // Don't render if not installable or already installed
-    if (!isInstallable || isInstalled) return null;
+    if (!isReady) return null;
 
     const handleClick = async () => {
         if (isIOS) {
