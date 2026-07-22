@@ -636,7 +636,13 @@ const OrderDetailsSection: React.FC<OrderDetailsSectionProps> = ({
                                         {/* Unit */}
                                         <div>
                                             <p className="mb-1 font-medium text-gray-500">{t('lbl_unit')}</p>
-                                            <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 font-medium text-gray-600">{item.unit || '—'}</span>
+                                            {isReturnMode && item.isReturnItem ? (
+                                                <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 font-medium text-gray-600">{item.unit || '—'}</span>
+                                            ) : onUnitChange ? (
+                                                <LineItemUnitSelect stockId={item.stockId} unit={item.unit} availableUnits={item.availableUnits} onChange={(unit, factor) => onUnitChange(item.id, unit, factor)} />
+                                            ) : (
+                                                <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 font-medium text-gray-600">{item.unit || '—'}</span>
+                                            )}
                                         </div>
 
                                         {/* Rate */}
