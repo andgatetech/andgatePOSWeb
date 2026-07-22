@@ -105,7 +105,9 @@ const rootReducer = combineReducers({
     [affiliateAdminApi.reducerPath]: affiliateAdminApi.reducer,
 });
 
-const persistedReducer = persistReducer(persistConfig, rootReducer);
+// Explicit generic: authTokenTransform's callbacks are typed `any`, which otherwise
+// collapses persistReducer's inference and makes RootState resolve to `any` everywhere.
+const persistedReducer = persistReducer<ReturnType<typeof rootReducer>>(persistConfig, rootReducer);
 
 // --- store ---
 export const store = configureStore({

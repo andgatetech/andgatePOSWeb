@@ -7,6 +7,9 @@ const productStockApi = baseApi.injectEndpoints({
                 url: `/stock-report`,
                 params,
             }),
+            // No tags previously — the report never refetched after a sale, purchase
+            // receipt, adjustment, or transfer changed stock (all of which invalidate 'Products').
+            providesTags: ['Products'],
         }),
     }),
 });

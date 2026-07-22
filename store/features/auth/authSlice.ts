@@ -65,6 +65,11 @@ export interface Store {
     payment_methods?: PaymentMethod[];
     payment_statuses?: PaymentStatus[];
     return_reasons?: ReturnReason[];
+    tax_type?: string;
+    tax_label?: string;
+    tax_registration_number?: string | null;
+    default_tax_rate?: number;
+    prices_include_tax?: boolean;
 }
 
 export interface SubscriptionItem {

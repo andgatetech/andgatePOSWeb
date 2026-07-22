@@ -63,10 +63,19 @@ export const usePWAInstall = (): PWAInstallState => {
 
     const install = async () => {
         if (!promptEvent) return;
-        await promptEvent.prompt();
-        const { outcome } = await promptEvent.userChoice;
-        if (outcome === 'accepted') {
-            setIsInstalled(true);
+        try {
+            await promptEvent.prompt();
+            const { outcome } = await promptEvent.userChoice;
+            if (outcome === 'accepted') {
+                setIsInstalled(true);
+            }
+        } catch (err) {
+            // The prompt can reject if it's stale (already used) or the browser
+            // revoked it — never let this surface as an unhandled rejection to
+            // callers that fire-and-forget install(), and never leave a caller's
+            // "installing" state stuck because the await above threw.
+            console.error('[usePWAInstall] install prompt failed:', err);
+        } finally {
             setPromptEvent(null);
         }
     };

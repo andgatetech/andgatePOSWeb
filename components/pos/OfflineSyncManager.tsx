@@ -34,7 +34,13 @@ export default function OfflineSyncManager() {
     const isOnline = useOnlineStatus();
     const [createOrder] = useCreateOrderMutation();
 
-    const { queue, isSyncing } = useSelector((state: RootState) => state.offlineOrders);
+    // Explicit return-type annotation (not `as`) works around RootState currently
+    // resolving to `any` in this codebase (see store/index.tsx — persistReducer's
+    // generic collapses when authTokenTransform's `any`-typed params are involved),
+    // which otherwise makes every field read from this selector implicitly `any`/`unknown`.
+    const { queue, isSyncing } = useSelector(
+        (state: RootState): { queue: OfflineOrder[]; isSyncing: boolean } => state.offlineOrders
+    );
 
     const pendingOrders = queue.filter((o) => o.status === 'pending');
     const failedOrders = queue.filter((o) => o.status === 'failed');

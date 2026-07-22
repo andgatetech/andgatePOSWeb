@@ -149,8 +149,27 @@ export async function saveOfflineOrders(orders: OfflineOrder[]) {
     });
 }
 
-export function getOfflineOrders() {
-    return getAllFromStore<OfflineOrder>(STORES.OFFLINE_ORDERS);
+const VALID_OFFLINE_ORDER_STATUSES = new Set<OfflineOrder['status']>(['pending', 'syncing', 'failed', 'synced']);
+
+// Defensive read: a stored record can be malformed from a partial write, a crashed
+// tab, or schema drift between app versions (localId is IndexedDB's keyPath so it can
+// never be missing, but payload/status are plain fields with no such guarantee).
+// Drop records with no payload (nothing to sync) and reset any unrecognized status
+// back to 'pending' — otherwise such a record matches none of the UI's status filters
+// and becomes an invisible zombie that's stuck in storage and never synced.
+export async function getOfflineOrders(): Promise<OfflineOrder[]> {
+    const rawOrders = await getAllFromStore<OfflineOrder>(STORES.OFFLINE_ORDERS);
+    return rawOrders.filter((order) => {
+        if (!order || !order.payload) {
+            console.error('[offlineDb] Dropping corrupt offline order record (missing payload):', order);
+            return false;
+        }
+        if (!VALID_OFFLINE_ORDER_STATUSES.has(order.status)) {
+            console.warn('[offlineDb] Offline order has unrecognized status, resetting to pending for retry:', order.localId, order.status);
+            order.status = 'pending';
+        }
+        return true;
+    });
 }
 
 export async function updateOfflineOrderStatus(

@@ -34,7 +34,8 @@ export const stockTransferApi = baseApi.injectEndpoints({
                 method: 'POST',
                 body,
             }),
-            invalidatesTags: ['StockTransfer'],
+            // Ship moves quantity out of the source store's stock, so product/stock views must refetch too.
+            invalidatesTags: ['StockTransfer', 'Products'],
         }),
         receiveStockTransfer: builder.mutation({
             query: ({ id, ...body }: { id: number; store_id: number }) => ({
@@ -42,7 +43,8 @@ export const stockTransferApi = baseApi.injectEndpoints({
                 method: 'POST',
                 body,
             }),
-            invalidatesTags: ['StockTransfer'],
+            // Receive adds quantity into the destination store's stock, so product/stock views must refetch too.
+            invalidatesTags: ['StockTransfer', 'Products'],
         }),
         cancelStockTransfer: builder.mutation({
             query: ({ id, ...body }: { id: number; store_id: number }) => ({
@@ -50,7 +52,8 @@ export const stockTransferApi = baseApi.injectEndpoints({
                 method: 'POST',
                 body,
             }),
-            invalidatesTags: ['StockTransfer'],
+            // Cancelling a shipped transfer releases/restores reserved stock.
+            invalidatesTags: ['StockTransfer', 'Products'],
         }),
     }),
 });

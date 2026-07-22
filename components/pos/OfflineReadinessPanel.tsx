@@ -3,6 +3,7 @@
 import { getTranslation } from '@/i18n';
 import { getStorageEstimate, getStoragePersisted } from '@/lib/offline/offlineDb';
 import type { RootState } from '@/store';
+import type { OfflineOrder } from '@/store/features/offline/offlineOrdersSlice';
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 import { AlertTriangle, CheckCircle, CloudOff, Database, HardDrive, RefreshCw, ShieldCheck, ShoppingCart, WifiOff, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
@@ -43,7 +44,11 @@ export default function OfflineReadinessPanel({
 }: OfflineReadinessPanelProps) {
     const { t } = getTranslation();
     const isOnline = useOnlineStatus();
-    const { queue } = useSelector((state: RootState) => state.offlineOrders);
+    // Explicit return-type annotation works around RootState resolving to `any`
+    // in this codebase (see store/index.tsx); see OfflineSyncManager.tsx for detail.
+    const { queue } = useSelector(
+        (state: RootState): { queue: OfflineOrder[] } => state.offlineOrders
+    );
     const [storage, setStorage] = useState<StorageInfo | null>(null);
     const [isStoragePersistent, setIsStoragePersistent] = useState<boolean | null>(null);
     const [animating, setAnimating] = useState(false);
