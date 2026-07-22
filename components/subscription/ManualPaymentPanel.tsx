@@ -6,6 +6,7 @@ import Swal from 'sweetalert2';
 import Link from 'next/link';
 import { Check, CreditCard, FileText, PackageCheck, PlusCircle, Star } from 'lucide-react';
 import { getTranslation } from '@/i18n';
+import { compressImage } from '@/lib/image-compress';
 import { useGetPlansQuery } from '@/store/features/plans/plansApi';
 import {
     useGetAddonCatalogQuery,
@@ -335,7 +336,15 @@ export default function ManualPaymentPanel({ notice }: { notice?: ReactNode }) {
                         </label>
                         <label className="text-sm font-medium text-gray-700 dark:text-gray-200">
                             {t('manual_payments_receipt')} <span className="text-xs font-normal text-gray-400">({t('manual_payments_optional')})</span>
-                            <input onChange={(e) => setAddonReceipt(e.target.files?.[0] || null)} type="file" accept=".jpg,.jpeg,.png,.webp,.pdf" className="form-input mt-1" />
+                            <input
+                                onChange={async (e) => {
+                                    const file = e.target.files?.[0];
+                                    setAddonReceipt(file ? await compressImage(file, { maxDimension: 1600 }) : null);
+                                }}
+                                type="file"
+                                accept=".jpg,.jpeg,.png,.webp,.pdf"
+                                className="form-input mt-1"
+                            />
                         </label>
                     </div>
                     <button disabled={isAddonSubmitting} className="btn btn-primary disabled:opacity-60">
@@ -428,7 +437,15 @@ export default function ManualPaymentPanel({ notice }: { notice?: ReactNode }) {
                     </label>
                     <label className="text-sm font-medium text-gray-700 dark:text-gray-200">
                         {t('manual_payments_receipt')} <span className="text-xs font-normal text-gray-400">({t('manual_payments_optional')})</span>
-                        <input onChange={(e) => setReceipt(e.target.files?.[0] || null)} type="file" accept=".jpg,.jpeg,.png,.webp,.pdf" className="form-input mt-1" />
+                        <input
+                            onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                setReceipt(file ? await compressImage(file, { maxDimension: 1600 }) : null);
+                            }}
+                            type="file"
+                            accept=".jpg,.jpeg,.png,.webp,.pdf"
+                            className="form-input mt-1"
+                        />
                     </label>
                     <div className="rounded-md border border-primary/20 bg-primary/10 p-3 text-sm font-semibold text-primary">
                         {t('manual_payments_expected_amount')}: <strong>৳ {expectedAmount.toLocaleString('en-US')}</strong>

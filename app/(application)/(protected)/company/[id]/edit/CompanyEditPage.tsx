@@ -2,6 +2,7 @@
 
 import { getTranslation } from '@/i18n';
 import { unwrapApiData } from '@/lib/api-response';
+import { compressImage } from '@/lib/image-compress';
 import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useGetCompanyQuery, useUpdateCompanyMutation } from '@/store/features/company/companyApi';
 import { ArrowLeft, Building2, FileText } from 'lucide-react';
@@ -244,7 +245,10 @@ export default function CompanyEditPage() {
                             <input
                                 type="file"
                                 accept="image/*"
-                                onChange={(e) => setFormLogo(e.target.files?.[0] ?? null)}
+                                onChange={async (e) => {
+                                    const file = e.target.files?.[0];
+                                    setFormLogo(file ? await compressImage(file, { maxDimension: 800 }) : null);
+                                }}
                                 className="w-full text-sm text-gray-600 file:mr-3 file:rounded-lg file:border-0 file:bg-[#046ca9]/10 file:px-3 file:py-2 file:text-sm file:font-medium file:text-[#046ca9] hover:file:bg-[#046ca9]/20"
                             />
                         </div>

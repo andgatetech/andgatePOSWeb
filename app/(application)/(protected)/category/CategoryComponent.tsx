@@ -6,6 +6,7 @@ import Dropdown from '@/components/dropdown';
 import CategoryFilter from '@/components/filters/CategoryFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
+import { compressImage } from '@/lib/image-compress';
 import Loader from '@/lib/Loader';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useCreateCategoryMutation, useDeleteCategoryMutation, useGetCategoryQuery, useUpdateCategoryMutation } from '@/store/features/category/categoryApi';
@@ -98,15 +99,16 @@ const CategoryComponent = () => {
         setCurrentPage(1);
     }, []);
 
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            setFormData({ ...formData, image: file });
+            const compressed = await compressImage(file, { maxDimension: 800 });
+            setFormData({ ...formData, image: compressed });
             const reader = new FileReader();
             reader.onloadend = () => {
                 setImagePreview(reader.result as string);
             };
-            reader.readAsDataURL(file);
+            reader.readAsDataURL(compressed);
         }
     };
 

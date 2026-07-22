@@ -5,6 +5,7 @@ import ReusableTable, { TableAction, TableColumn } from '@/components/common/Reu
 import BrandFilter from '@/components/filters/BrandFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
+import { compressImage } from '@/lib/image-compress';
 import Loader from '@/lib/Loader';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useCreateBrandMutation, useDeleteBrandMutation, useGetBrandsQuery, useUpdateBrandMutation } from '@/store/features/brand/brandApi';
@@ -40,15 +41,16 @@ const BrandModal = ({ showModal, modalType, selectedBrand, onClose, onSubmit, lo
         }
     }, [showModal, modalType, selectedBrand]);
 
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            setFormData({ ...formData, image: file });
+            const compressed = await compressImage(file, { maxDimension: 800 });
+            setFormData({ ...formData, image: compressed });
             const reader = new FileReader();
             reader.onloadend = () => {
                 setImagePreview(reader.result as string);
             };
-            reader.readAsDataURL(file);
+            reader.readAsDataURL(compressed);
         }
     };
 

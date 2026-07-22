@@ -3,6 +3,7 @@
 import RichTextEditor from '@/components/common/RichTextEditor';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
+import { compressImage } from '@/lib/image-compress';
 import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useCreateCategoryMutation } from '@/store/features/category/categoryApi';
 import { ArrowLeft, FolderOpen, Store, X } from 'lucide-react';
@@ -21,11 +22,12 @@ const CreateCategoryPage = () => {
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [errors, setErrors] = useState<Record<string, string>>({});
 
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
-        setFormData((prev) => ({ ...prev, image: file }));
-        setImagePreview(URL.createObjectURL(file));
+        const compressed = await compressImage(file, { maxDimension: 800 });
+        setFormData((prev) => ({ ...prev, image: compressed }));
+        setImagePreview(URL.createObjectURL(compressed));
     };
 
     const removeImage = () => {

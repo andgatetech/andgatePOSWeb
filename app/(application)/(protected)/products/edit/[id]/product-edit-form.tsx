@@ -706,7 +706,7 @@ const ProductEditForm = () => {
                         showErrorDialog(t('msg_invalid_image'), `${t('lbl_variant')} ${index + 1}, ${t('lbl_image')} ${imgIndex + 1}: ${t('msg_only_jpg_png_webp_allowed')}`);
                         throw new Error('Invalid image type');
                     }
-                    if (img.file.size > 2 * 1024 * 1024) {
+                    if (img.file.size > 15 * 1024 * 1024) {
                         showErrorDialog(t('msg_file_too_large'), `${t('lbl_variant')} ${index + 1}, ${t('lbl_image')} ${imgIndex + 1}: ${t('msg_image_max_2mb')}`);
                         throw new Error('Image too large');
                     }
@@ -728,7 +728,7 @@ const ProductEditForm = () => {
                             showErrorDialog(t('msg_invalid_image'), `${t('lbl_image')} ${i + 1}: ${t('msg_only_jpg_png_webp_allowed')}`);
                             return;
                         }
-                        if (img.file.size > 2 * 1024 * 1024) {
+                        if (img.file.size > 15 * 1024 * 1024) {
                             showErrorDialog(t('msg_file_too_large'), `${t('lbl_image')} ${i + 1}: ${t('msg_image_max_2mb')}`);
                             return;
                         }

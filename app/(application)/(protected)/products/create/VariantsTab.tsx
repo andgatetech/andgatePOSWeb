@@ -2,6 +2,7 @@
 
 import { getTranslation } from '@/i18n';
 import { useCurrency } from '@/hooks/useCurrency';
+import { compressImage, fileToDataUrl } from '@/lib/image-compress';
 import { ChevronDown, ChevronUp, Copy, Image as ImageIcon, Package, Plus, Trash2, X } from 'lucide-react';
 import Image from 'next/image';
 import React, { useState } from 'react';
@@ -150,8 +151,17 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
     };
 
     // Handle variant images
-    const handleVariantImagesChange = (index: number, imageList: ImageListType) => {
-        handleVariantChange(index, 'images', imageList);
+    const handleVariantImagesChange = async (index: number, imageList: ImageListType) => {
+        const compressedList = await Promise.all(
+            imageList.map(async (image: any) => {
+                if (!image.file) return image;
+                const compressedFile = await compressImage(image.file);
+                if (compressedFile === image.file) return image;
+                const data_url = await fileToDataUrl(compressedFile);
+                return { ...image, file: compressedFile, data_url };
+            })
+        );
+        handleVariantChange(index, 'images', compressedList);
     };
 
     // Get variant display name

@@ -2,6 +2,7 @@
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
+import { compressImage } from '@/lib/image-compress';
 import { resolveStorageUrl } from '@/lib/image-url';
 import { showMessage } from '@/lib/toast';
 import { useGetEmployeeDocumentQuery, useUploadEmployeeDocumentMutation } from '@/store/features/hr/employeeDocumentApi';
@@ -27,8 +28,12 @@ export default function EmployeeDocumentsPage() {
 
     const handleUpload = async (field: 'nid_front' | 'nid_back' | 'photo' | 'contract', file: File) => {
         if (!selectedUserId) return;
+        // NID scans keep a higher dimension cap than a headshot — the number must stay legible.
+        // No-op for 'contract' (application/pdf, not an image).
+        const isNid = field === 'nid_front' || field === 'nid_back';
+        const compressed = await compressImage(file, { maxDimension: isNid ? 2000 : 800 });
         const formData = new FormData();
-        formData.append(field, file);
+        formData.append(field, compressed);
         if (nidNumber) formData.append('nid_number', nidNumber);
         formData.append('store_id', String(currentStoreId));
         try {

@@ -3,6 +3,7 @@
 import RichTextEditor from '@/components/common/RichTextEditor';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
+import { compressImage } from '@/lib/image-compress';
 import { useCreateFeedbackMutation } from '@/store/features/feedback/feedbackApi';
 import { TextInput } from '@mantine/core';
 import { AlertCircle, ArrowLeft, Bug, CheckCircle, Eye, File, FileImage, Heart, Lightbulb, Loader2, MessageSquare, Send, Star, Store, Target, ThumbsUp, Upload, X, Zap } from 'lucide-react';
@@ -98,8 +99,9 @@ const FeedbackPage = () => {
         handleFilesAdd(files);
     };
 
-    const handleFilesAdd = (files) => {
-        const validFiles = files.filter((file) => {
+    const handleFilesAdd = async (files) => {
+        const candidates = await Promise.all(files.map((file) => compressImage(file, { maxDimension: 1600 })));
+        const validFiles = candidates.filter((file) => {
             if (file.size > 5 * 1024 * 1024) {
                 alert(`File ${file.name} is too large. Maximum size is 5MB.`);
                 return false;

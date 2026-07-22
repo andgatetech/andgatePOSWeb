@@ -1,6 +1,7 @@
 'use client';
 
 import { getTranslation } from '@/i18n';
+import { compressImage, fileToDataUrl } from '@/lib/image-compress';
 import { resolveStorageUrl } from '@/lib/image-url';
 import Image from 'next/image';
 import React from 'react';
@@ -19,28 +20,40 @@ interface ImagesTabProps {
 
 const ImagesTab: React.FC<ImagesTabProps> = ({ images, setImages, maxNumber, onPrevious, onNext, onCreateProduct, isCreating, isEditMode = false }) => {
     const { t } = getTranslation();
-    const onChange = (imageList: ImageListType, addUpdateIndex: number[] | undefined) => {
+    const onChange = async (imageList: ImageListType, addUpdateIndex: number[] | undefined) => {
         // Build updated image list, preserving IDs where appropriate
-        const updatedImageList = imageList.map((newImage, index) => {
-            const existingImage = images[index];
+        const updatedImageList = await Promise.all(
+            imageList.map(async (newImage, index) => {
+                const existingImage = images[index];
 
-            // Check if this index was updated (replaced) or if it's a new image
-            const wasUpdated = addUpdateIndex?.includes(index);
+                // Check if this index was updated (replaced) or if it's a new image
+                const wasUpdated = addUpdateIndex?.includes(index);
 
-            // If the image exists at this index and wasn't updated, preserve everything including ID
-            if (existingImage && !wasUpdated) {
-                // Check if the dataURL matches (unchanged)
-                if (newImage.dataURL === existingImage.dataURL) {
-                    return {
-                        ...newImage,
-                        id: existingImage.id, // Preserve the database ID
-                    };
+                // If the image exists at this index and wasn't updated, preserve everything including ID
+                if (existingImage && !wasUpdated) {
+                    // Check if the dataURL matches (unchanged)
+                    if (newImage.dataURL === existingImage.dataURL) {
+                        return {
+                            ...newImage,
+                            id: existingImage.id, // Preserve the database ID
+                        };
+                    }
                 }
-            }
 
-            // If this was an update or new addition, return without ID (it's a new file)
-            return newImage;
-        });
+                // New or replaced image — downscale oversized phone-camera photos before
+                // they're held in memory/state for the rest of the create/edit flow.
+                if (newImage.file) {
+                    const compressed = await compressImage(newImage.file);
+                    if (compressed !== newImage.file) {
+                        const dataURL = await fileToDataUrl(compressed);
+                        return { ...newImage, file: compressed, dataURL };
+                    }
+                }
+
+                // If this was an update or new addition, return without ID (it's a new file)
+                return newImage;
+            })
+        );
 
         setImages(updatedImageList as never[]);
     };

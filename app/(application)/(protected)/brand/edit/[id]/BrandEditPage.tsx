@@ -3,6 +3,7 @@
 import RichTextEditor from '@/components/common/RichTextEditor';
 import { getTranslation } from '@/i18n';
 import { unwrapApiData } from '@/lib/api-response';
+import { compressImage } from '@/lib/image-compress';
 import Loader from '@/lib/Loader';
 import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useGetBrandQuery, useUpdateBrandMutation } from '@/store/features/brand/brandApi';
@@ -33,13 +34,14 @@ export default function BrandEditPage() {
         setImagePreview(brand.image_url || null);
     }, [data]);
 
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
-        setFormImage(file);
+        const compressed = await compressImage(file, { maxDimension: 800 });
+        setFormImage(compressed);
         const reader = new FileReader();
         reader.onloadend = () => setImagePreview(reader.result as string);
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(compressed);
     };
 
     const clearImage = () => {

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
+import { compressImage } from '@/lib/image-compress';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useCreateProductAttributeMutation, useDeleteProductAttributeMutation, useUpdateProductAttributeMutation } from '@/store/features/attribute/attribute';
 import {
@@ -1347,24 +1348,26 @@ const StoreSetting = () => {
         }
     };
 
-    const handleLogoChange = (e: any) => {
+    const handleLogoChange = async (e: any) => {
         const file = e.target.files?.[0];
         if (file) {
             if (!file.type.startsWith('image/')) {
                 showErrorDialog(t('msg_error'), t('msg_invalid_image_file'));
                 return;
             }
-            if (file.size > 2 * 1024 * 1024) {
+
+            const compressed = await compressImage(file, { maxDimension: 800 });
+            if (compressed.size > 5 * 1024 * 1024) {
                 showErrorDialog(t('msg_error'), t('msg_image_too_large'));
                 return;
             }
 
-            setLogoFile(file);
+            setLogoFile(compressed);
             const reader = new FileReader();
             reader.onloadend = () => {
                 setLogoPreview(reader.result);
             };
-            reader.readAsDataURL(file);
+            reader.readAsDataURL(compressed);
         }
     };
 
