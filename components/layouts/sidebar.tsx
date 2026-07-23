@@ -7,7 +7,8 @@ import AnimateHeight from 'react-animate-height';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { getTranslation } from '@/i18n';
-import { buildMenuFromPermissions, type MenuItem } from '@/lib/menu-builder';
+import { useDashboardExperience } from '@/hooks/useDashboardExperience';
+import { buildMenuFromPermissions, pinEssentialsForSimpleMode, type MenuItem } from '@/lib/menu-builder';
 import { RootState, persistor } from '@/store';
 import { setCurrentStore, setPermissions, type Store } from '@/store/features/auth/authSlice';
 import { useLazyGetStorePermissionsQuery } from '@/store/features/auth/authApi';
@@ -105,10 +106,16 @@ const Sidebar = () => {
         () => buildMenuFromPermissions(user?.permissions || [], user?.role, accessibleFeatures),
         [user, accessibleFeatures]
     );
-    const menuRoutes = useMemo(
-        () => allMenuRoutes.filter((r) => r.label !== 'Feedback' && !(r.label === 'Getting Started' && onboardingComplete)),
-        [allMenuRoutes, onboardingComplete]
-    );
+    // Same per-owner preference as the dashboard's DashboardExperienceToggle —
+    // staff roles keep their role-scoped menu as-is (that's an access boundary,
+    // not a density preference), only business_admin can pin-to-essentials.
+    const [savedExperience] = useDashboardExperience();
+    const isSimpleMode = user?.role === 'business_admin' && savedExperience === 'simple';
+
+    const menuRoutes = useMemo(() => {
+        const filtered = allMenuRoutes.filter((r) => r.label !== 'Feedback' && !(r.label === 'Getting Started' && onboardingComplete));
+        return isSimpleMode ? pinEssentialsForSimpleMode(filtered) : filtered;
+    }, [allMenuRoutes, onboardingComplete, isSimpleMode]);
 
     // Auto-open parent that contains the active route on navigation
     useEffect(() => {

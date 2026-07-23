@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { useDashboardExperience } from '@/hooks/useDashboardExperience';
 import { getTranslation } from '@/i18n';
 import { RootState } from '@/store';
 import { SIMPLIFICATION_FLAGS } from '@/lib/simplification-flags';
@@ -15,6 +16,7 @@ import Analytics from './Analytics';
 import BusinessHealthScore from './BusinessHealthScore';
 import CashPositionWidget from './CashPositionWidget';
 import CustomerDueSnapshot from './CustomerDueSnapshot';
+import DashboardExperienceToggle from './DashboardExperienceToggle';
 import DashboardSections from './DashboardSections';
 import DeadStockWidget from './DeadStockWidget';
 import OnboardingChecklist from './OnboardingChecklist';
@@ -50,6 +52,10 @@ const DEFAULT_WIDGETS = [
 ];
 
 const DASHBOARD_WIDGETS_BY_EXPERIENCE: Record<string, string[]> = {
+    // Opt-in, self-selected by the account owner (see DashboardExperienceToggle) —
+    // today's status and the daily tasks (sell, add stock, collect due), nothing
+    // analytical. Everything else is still one tap away via Business Reports.
+    simple: ['onboarding', 'alerts', 'summary', 'quick_actions', 'cash_position', 'customer_due', 'sections'],
     cashier: ['onboarding', 'alerts', 'summary', 'quick_actions', 'cash_position', 'customer_due', 'sections', 'section_four'],
     accountant: ['onboarding', 'alerts', 'summary', 'cash_position', 'customer_due', 'supplier_due', 'section_four', 'profit_expense'],
     manager: ['onboarding', 'alerts', 'summary', 'quick_actions', 'cash_position', 'business_health', 'customer_due', 'supplier_due', 'sections', 'dead_stock', 'section_five', 'top_customers'],
@@ -135,6 +141,7 @@ const widgetComponents: Record<string, React.ReactNode> = {
 const ComponentsDashboardSales = () => {
     const { t } = getTranslation();
     const { currentStore, currentStoreId } = useCurrentStore();
+    const [savedExperience, setSavedExperience] = useDashboardExperience();
     const user = useSelector((state: RootState) => state.auth.user);
     const subscription = user?.subscription_user;
     const subscriptionExpired = !subscription || ['expired', 'blocked', 'hold'].includes(String(subscription.status || '').toLowerCase());
@@ -151,9 +158,16 @@ const ComponentsDashboardSales = () => {
     ) as { data?: { data?: { is_complete?: boolean } } };
     const onboardingComplete = Boolean(onboardingData?.data?.is_complete);
 
+    // Only the account owner gets the self-service toggle. Staff roles (cashier/
+    // manager/accountant) have their widget set reduced as an access boundary,
+    // not a density preference — letting them opt into 'owner' would leak
+    // financial widgets past that boundary, so their resolved role always wins.
+    const isOwnerRole = user?.role === 'business_admin';
+    const roleExperience = SIMPLIFICATION_FLAGS.roleDashboard ? resolveDashboardExperience(user) : 'owner';
+    const experience = isOwnerRole ? (savedExperience ?? roleExperience) : roleExperience;
+
     const widgets = useMemo(() => {
         const saved = layoutData?.data?.layout?.widgets;
-        const experience = SIMPLIFICATION_FLAGS.roleDashboard ? resolveDashboardExperience(user) : 'owner';
         const allowedKeys = new Set(DASHBOARD_WIDGETS_BY_EXPERIENCE[experience]);
         const roleDefaults = DEFAULT_WIDGETS.filter((widget) => allowedKeys.has(widget.key));
 
@@ -166,7 +180,7 @@ const ComponentsDashboardSales = () => {
             return [...saved, ...missing].filter((w: any) => allowedKeys.has(w.key));
         }
         return roleDefaults;
-    }, [layoutData, canCustomize, user]);
+    }, [layoutData, canCustomize, experience]);
 
     if (subscriptionExpired) {
         return <ManualPaymentsPage />;
@@ -177,7 +191,10 @@ const ComponentsDashboardSales = () => {
         .sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
 
     const renderWidget = (widget: any) => {
-        const component = widgetComponents[widget.key];
+        // Summary alone is 12 cards, well past the "4-6 cards" simple-mode target —
+        // can't drive it from the static widgetComponents map since that has no
+        // access to the current experience tier.
+        const component = widget.key === 'summary' ? <Summary compact={experience === 'simple'} /> : widgetComponents[widget.key];
         if (!component) return null;
 
         if (widget.key === 'section_five' || widget.key === 'top_customers') {
@@ -194,7 +211,7 @@ const ComponentsDashboardSales = () => {
     return (
         <div className="space-y-7">
             {/* ── HEADER ── */}
-            <div className="flex items-start justify-between gap-4">
+            <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
                     <h1 className="text-2xl font-bold text-gray-900 dark:text-white sm:text-3xl">
                         {t('dashboard_welcome_back')}, {user?.name || t('lbl_user')}
@@ -203,6 +220,7 @@ const ComponentsDashboardSales = () => {
                         {currentStore?.store_name || t('lbl_store')} &middot; {t('dashboard_store_activity')} {t('lbl_today')}
                     </p>
                 </div>
+                {isOwnerRole && <DashboardExperienceToggle value={experience as 'simple' | 'owner'} onChange={setSavedExperience} />}
             </div>
 
             {DASHBOARD_GROUPS.map((group) => {

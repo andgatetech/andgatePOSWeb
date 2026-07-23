@@ -11,6 +11,7 @@ import {
     Home,
     Layers,
     MessagesSquare,
+    MoreHorizontal,
     Package,
     Receipt,
     Settings,
@@ -1014,6 +1015,24 @@ function filterMenuItem(item: MenuItem, userPermissions: string[] | undefined, u
  *   would otherwise allow them.
  * @returns Filtered menu items array
  */
+// Further reduction on top of simplifyMenuForDailyUse — opt-in, same
+// per-owner preference as DashboardExperienceToggle (see useDashboardExperience).
+// Pins what a brand-new seller touches daily; everything else (Purchases, Money,
+// Reports, Team, Online Store, Settings, ...) is still there, just under "More".
+const SIMPLE_MODE_ESSENTIAL_LABELS = ['Dashboard', 'Getting Started', 'Sell', 'Orders', 'Products & Stock', 'Customers'];
+
+export function pinEssentialsForSimpleMode(items: MenuItem[]): MenuItem[] {
+    const essentials = SIMPLE_MODE_ESSENTIAL_LABELS
+        .map((label) => findMenu(items, label))
+        .filter((item): item is MenuItem => Boolean(item));
+    const essentialLabels = new Set(essentials.map((item) => item.label));
+    const rest = items.filter((item) => !essentialLabels.has(item.label));
+
+    const more = compactGroup('More', React.createElement(MoreHorizontal), rest);
+
+    return [...essentials.map(cloneMenuItem), ...(more ? [more] : [])];
+}
+
 export function buildMenuFromPermissions(userPermissions: string[] | undefined, userRole?: string, accessibleFeatures?: string[]): MenuItem[] {
     const filteredItems = ALL_MENU_ITEMS
         .map((item) => filterMenuItem(item, userPermissions, userRole, accessibleFeatures))

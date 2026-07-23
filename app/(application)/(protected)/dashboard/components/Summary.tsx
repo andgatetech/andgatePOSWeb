@@ -281,7 +281,14 @@ const FilterDropdown = ({ selectedPeriod, onPeriodChange, customStartDate, custo
 
 // ─── Main Summary Component ──────────────────────────────────────────────────
 
-export default function Summary() {
+interface SummaryProps {
+    // Simple-mode: today's sales, margin, receivable, purchase — the 4 numbers
+    // a brand-new seller actually acts on daily. Rows 2-3 (returns, tax, discount,
+    // items sold, ...) are still there for anyone who switches to Full view.
+    compact?: boolean;
+}
+
+export default function Summary({ compact = false }: SummaryProps = {}) {
     const { t } = getTranslation();
     const { currentStoreId } = useCurrentStore();
     const periodOptions: PeriodOption[] = [
@@ -524,19 +531,23 @@ export default function Summary() {
                 ))}
             </div>
 
-            {/* Row 2 — Colorful (Sales Return, Business Profit, Total Expenses−, Product Profit) */}
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                {row2Cards.map((card, i) => (
-                    <ColorfulCard key={i} {...card} />
-                ))}
-            </div>
+            {!compact && (
+                <>
+                    {/* Row 2 — Colorful (Sales Return, Business Profit, Total Expenses−, Product Profit) */}
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                        {row2Cards.map((card, i) => (
+                            <ColorfulCard key={i} {...card} />
+                        ))}
+                    </div>
 
-            {/* Row 3 — White (Discount, Tax, Orders, Items Sold) */}
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                {row3Cards.map((card, i) => (
-                    <WhiteCard key={i} {...card} />
-                ))}
-            </div>
+                    {/* Row 3 — White (Discount, Tax, Orders, Items Sold) */}
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                        {row3Cards.map((card, i) => (
+                            <WhiteCard key={i} {...card} />
+                        ))}
+                    </div>
+                </>
+            )}
         </div>
     );
 }

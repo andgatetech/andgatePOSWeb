@@ -74,6 +74,15 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
     const { t } = getTranslation();
     const { isPharmacy } = useStoreType();
     const descriptionTextLength = formData.description.replace(/<[^>]*>?/gm, '').trim().length;
+    const hasAnyExtraTracking = formData.has_warranty || formData.has_serial || formData.has_batch || formData.has_expiry;
+    // Collapsed by default — most products need none of these. Auto-expand when
+    // editing a product that already has one on. A plain useState initializer
+    // would miss this: in edit mode, formData starts empty and only fills in
+    // once the existing product loads, after this component has already mounted.
+    const [showExtraOptions, setShowExtraOptions] = React.useState(hasAnyExtraTracking);
+    React.useEffect(() => {
+        if (hasAnyExtraTracking) setShowExtraOptions(true);
+    }, [hasAnyExtraTracking]);
 
     return (
         <div className="space-y-6">
@@ -501,6 +510,28 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                     </label>
                 </div>
 
+                <div className="mt-4 border-t border-slate-200 pt-4">
+                    <button
+                        type="button"
+                        onClick={() => setShowExtraOptions((prev) => !prev)}
+                        className="flex w-full items-center justify-between gap-2 text-left"
+                    >
+                        <span>
+                            <span className="block text-sm font-semibold text-gray-900">{t('lbl_extra_options_if_needed')}</span>
+                            <span className="block text-xs text-gray-500">{t('lbl_extra_options_if_needed_desc')}</span>
+                        </span>
+                        <svg
+                            className={`h-5 w-5 flex-shrink-0 text-gray-400 transition-transform ${showExtraOptions ? 'rotate-180' : ''}`}
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                </div>
+
+                {showExtraOptions && (
                 <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
                     {/* Has Warranty */}
                     <label className="flex cursor-pointer items-start gap-3 rounded-lg border-2 border-gray-200 bg-white p-4 transition-all hover:border-gray-300 hover:shadow-sm">
@@ -630,6 +661,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                         </div>
                     </label>
                 </div>
+                )}
             </div>
 
             {/* Navigation Buttons */}
