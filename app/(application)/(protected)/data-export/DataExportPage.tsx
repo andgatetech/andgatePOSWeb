@@ -13,11 +13,15 @@ import {
     useRestoreStoreBackupMutation,
 } from '@/store/features/exportJobs/exportJobsApi';
 import { RootState } from '@/store';
+import { apiBaseUrl } from '@/lib/api-url';
 import { AlertTriangle, Clock, Database, Download, FileArchive, FileDown, HardDrive, RefreshCw, RotateCcw, Trash2 } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || '';
+// Same-origin, proxied path (see lib/api-url.ts) — a direct NEXT_PUBLIC_API_BASE_URL
+// fetch here would be cross-origin in production and exposed to CORS failures the
+// rest of the app avoids by going through the Next.js rewrite proxy.
+const API_BASE = apiBaseUrl();
 
 const ExportTypeCard = ({ icon, title, desc, onExport, onQueue, isQueuing, isDownloading }: {
     icon: React.ReactNode;
@@ -123,7 +127,7 @@ const DataExportPage = () => {
         try {
             const params = new URLSearchParams();
             if (currentStoreId) params.set('store_id', String(currentStoreId));
-            await fetchBlobDownload(`${API_BASE}/api/export/${type}?${params.toString()}`, `${type}.csv`);
+            await fetchBlobDownload(`${API_BASE}/export/${type}?${params.toString()}`, `${type}.csv`);
         } catch {
             showErrorDialog(t('export_queue_failed_title'), t('export_queue_failed_desc'));
         } finally {
@@ -158,7 +162,7 @@ const DataExportPage = () => {
         try {
             const extension = job.type === 'full_backup' ? 'json' : 'csv';
             const accept = job.type === 'full_backup' ? 'application/json' : 'text/csv';
-            await fetchBlobDownload(`${API_BASE}/api/export/jobs/${job.id}/download`, `export-job-${job.id}.${extension}`, accept);
+            await fetchBlobDownload(`${API_BASE}/export/jobs/${job.id}/download`, `export-job-${job.id}.${extension}`, accept);
         } catch {
             showErrorDialog(t('export_download_failed_title'), t('export_download_failed_desc'));
         }

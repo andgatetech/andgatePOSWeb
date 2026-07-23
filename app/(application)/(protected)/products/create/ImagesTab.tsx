@@ -128,7 +128,10 @@ const ImagesTab: React.FC<ImagesTabProps> = ({ images, setImages, maxNumber, onP
                                     <p className="text-sm text-gray-500">{t('lbl_use_device_camera')}</p>
                                 </div>
                             </button>
-                            <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handleCameraCapture} className="hidden" />
+                            {/* sr-only, not `hidden`/display:none — iOS Safari can silently no-op a
+                                programmatic .click() on a display:none capture input; this stays
+                                technically visible (off-screen) so the native camera sheet reliably opens. */}
+                            <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handleCameraCapture} className="sr-only" />
                         </div>
 
                         {imageList.length > 0 && (

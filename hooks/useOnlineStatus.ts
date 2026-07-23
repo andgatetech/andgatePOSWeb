@@ -1,8 +1,14 @@
 'use client';
 
+import { apiBaseUrl } from '@/lib/api-url';
 import { useEffect, useRef, useState } from 'react';
 
-const PING_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL ?? ''}/api/ping`;
+// Same-origin, proxied path — matches how every other API call in this app reaches
+// the backend (see lib/api-url.ts). A direct cross-origin URL here (the previous
+// behavior) is exposed to CORS/network failures the rest of the app never hits via
+// the proxy, so the ping could report "offline" while the app was otherwise fully
+// functional — permanently stuck showing the offline banner and blocking sync.
+const PING_URL = `${apiBaseUrl()}/ping`;
 const PING_INTERVAL_MS = 30_000;
 const PING_TIMEOUT_MS = 10_000; // 10s — tolerates slow 3G connections
 

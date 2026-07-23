@@ -3,8 +3,12 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { getTranslation } from '@/i18n';
+import { apiBaseUrl } from '@/lib/api-url';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8080';
+// Same-origin, proxied path (see lib/api-url.ts) — a direct NEXT_PUBLIC_API_BASE_URL
+// fetch here would be cross-origin in production and exposed to CORS failures the
+// rest of the app avoids by going through the Next.js rewrite proxy.
+const API_BASE = apiBaseUrl();
 
 const PROVIDER_LABELS: Record<string, string> = {
     bkash: 'bKash',
@@ -43,7 +47,7 @@ export default function PayPage() {
     useEffect(() => {
         if (!token) return;
 
-        fetch(`${API_BASE}/api/pay/${token}`)
+        fetch(`${API_BASE}/pay/${token}`)
             .then(async (res) => {
                 const json = await res.json();
                 if (!res.ok || !json.success) {
@@ -72,7 +76,7 @@ export default function PayPage() {
         setError(null);
 
         try {
-            const res = await fetch(`${API_BASE}/api/pay/${token}`, {
+            const res = await fetch(`${API_BASE}/pay/${token}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
