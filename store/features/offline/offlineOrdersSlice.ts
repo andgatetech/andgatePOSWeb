@@ -3,6 +3,12 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 export interface OfflineOrder {
     localId: string;
     storeId: number;
+    // Whoever was logged in when this was queued. Logout never clears this
+    // IndexedDB queue (it can hold a real unsynced sale), so on a shared
+    // device a second account's login must not sync a first account's order
+    // under its own token — that's exactly what threw "Unauthorized store
+    // access" (the store_id is valid, just not for the CURRENT user).
+    userId?: number | string;
     localInvoice?: string;
     payload: any;
     queuedAt: string;

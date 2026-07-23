@@ -41,6 +41,7 @@ export default function OfflineSyncManager() {
     const { queue, isSyncing } = useSelector(
         (state: RootState): { queue: OfflineOrder[]; isSyncing: boolean } => state.offlineOrders
     );
+    const currentUserId = useSelector((state: RootState) => state.auth.user?.id);
 
     const pendingOrders = queue.filter((o) => o.status === 'pending');
     const failedOrders = queue.filter((o) => o.status === 'failed');
@@ -111,8 +112,16 @@ export default function OfflineSyncManager() {
         const queueById = new Map(queue.map((o) => [o.localId, o]));
         durableQueue.forEach((o) => queueById.set(o.localId, o));
         const mergedQueue = Array.from(queueById.values());
+        // Logout never clears this IndexedDB queue (see header.tsx) — on a shared
+        // device, an order queued under a previous login must not sync under the
+        // current one's token: the store_id is valid, just not for this user,
+        // which the backend correctly rejects as "Unauthorized store access".
+        // Older queued orders with no userId predate this fix — still synced,
+        // since there's no way to tell whose they were.
         const ordersToSync = mergedQueue.filter(
-            (o) => o.status === 'pending' || o.status === 'failed' || o.status === 'syncing'
+            (o) =>
+                (o.status === 'pending' || o.status === 'failed' || o.status === 'syncing') &&
+                (o.userId == null || o.userId === currentUserId)
         );
         dispatch(setOfflineOrders(mergedQueue));
 

@@ -97,6 +97,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
 
     // Select items based on reduxSlice
     // Select raw data from Redux
+    const currentUserId = useSelector((state: RootState) => state.auth.user?.id);
     const returnItemsData = useSelector((state: RootState) => selectReturnItems(currentStoreId)(state));
     const exchangeItemsData = useSelector((state: RootState) => selectExchangeItems(currentStoreId)(state));
     const returnReasonData = useSelector((state: RootState) => selectReturnReason(currentStoreId)(state));
@@ -1579,6 +1580,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                 const offlineOrder = {
                     localId,
                     storeId: currentStoreId!,
+                    userId: currentUserId,
                     localInvoice,
                     payload: {
                         ...orderData,

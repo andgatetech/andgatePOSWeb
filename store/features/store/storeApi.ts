@@ -76,7 +76,13 @@ const StoreApi = baseApi.injectEndpoints({
                     body: formData,
                 };
             },
-            invalidatesTags: ['Stores'],
+            // Renaming/deactivating a unit here never touched a 'ProductStock' tag
+            // before, so any already-fetched unit-conversion data (POS cart's unit
+            // dropdown, the product-edit conversions editor, stock report) kept
+            // showing the pre-rename name until an unrelated refetch happened —
+            // reported as "renamed CFT to SF, still shows CFT everywhere".
+            invalidatesTags: (result, error, { updateData }) =>
+                updateData?.pos_units ? ['Stores', 'ProductStock'] : ['Stores'],
         }),
 
         //  Get specific store by ID (calls your getStore backend function)
