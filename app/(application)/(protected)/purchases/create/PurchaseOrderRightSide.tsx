@@ -33,7 +33,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
     const { t } = getTranslation();
     const dispatch = useDispatch();
     const { formatCurrency } = useCurrency();
-    const { currentStoreId } = useCurrentStore();
+    const { currentStoreId, currentStore } = useCurrentStore();
     const router = useRouter();
 
     const storeOrder = useSelector((state: RootState) => (currentStoreId && state.purchaseOrder.ordersByStore ? state.purchaseOrder.ordersByStore[currentStoreId] : null));
@@ -64,6 +64,35 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
     const [paymentAmount, setPaymentAmount] = useState(0);
     const [paymentMethod, setPaymentMethod] = useState('cash');
     const searchInputRef = useRef<HTMLInputElement>(null);
+
+    // Store's real active payment methods (Cash, Card, bKash, Nagad, Rocket, custom, ...)
+    // — was previously a hardcoded cash/bank/mobile_banking dropdown that couldn't show
+    // any method the store actually has configured beyond one generic "Mobile Banking"
+    // bucket (2026-07-25).
+    const activePaymentMethods = useMemo(() => {
+        const methods = Array.isArray(currentStore?.payment_methods) ? (currentStore as any).payment_methods : [];
+        const active = methods.filter((m: any) => {
+            const status = m?.is_active;
+            if (status === undefined || status === null) return true;
+            if (typeof status === 'boolean') return status;
+            if (typeof status === 'number') return status === 1;
+            if (typeof status === 'string') return ['1', 'true'].includes(status.toLowerCase());
+            return true;
+        });
+        return active.length > 0 ? active : [{ id: 'cash', payment_method_name: 'Cash' }];
+    }, [currentStore]);
+
+    // paymentMethod defaults to the lowercase literal 'cash', which won't exact-match a
+    // real configured method name like "Cash" — sync to the actual list once it loads,
+    // preferring an exact Cash match, mirroring the expense-create form's same pattern.
+    useEffect(() => {
+        const isDefaultUnset = paymentMethod === 'cash' && !activePaymentMethods.some((m: any) => m.payment_method_name === 'cash');
+        if (!isDefaultUnset) return;
+        const cashMethod = activePaymentMethods.find((m: any) => String(m.payment_method_name).toLowerCase() === 'cash');
+        setPaymentMethod(cashMethod?.payment_method_name || activePaymentMethods[0]?.payment_method_name || 'cash');
+        // Only re-sync when the store's method list actually changes.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [activePaymentMethods]);
 
     const isMobileView = propIsMobileView !== undefined ? propIsMobileView : false;
     const showMobileCart = propShowMobileCart !== undefined ? propShowMobileCart : false;
@@ -479,9 +508,11 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
                                     placeholder={t('lbl_amount')}
                                 />
                                 <select className="form-select" value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
-                                    <option value="cash">{t('lbl_cash')}</option>
-                                    <option value="bank">{t('lbl_bank')}</option>
-                                    <option value="mobile_banking">{t('lbl_mobile_banking')}</option>
+                                    {activePaymentMethods.map((method: any) => (
+                                        <option key={method.id} value={method.payment_method_name}>
+                                            {method.payment_method_name}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
                         </div>

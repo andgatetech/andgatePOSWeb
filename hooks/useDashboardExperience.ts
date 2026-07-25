@@ -14,19 +14,27 @@ const CHANGE_EVENT = 'andgatepos:dashboard-experience-change';
 const readStored = (): DashboardExperience | null => {
     try {
         const stored = localStorage.getItem(STORAGE_KEY);
-        return stored === 'simple' || stored === 'owner' ? stored : null;
+        if (stored === 'simple' || stored === 'owner') return stored;
+        // 2026-07-25: default flipped to 'simple' for everyone — the full dashboard
+        // was the reported source of "hard to use" complaints, and Simple Mode
+        // (6-item menu) already existed but was invisible opt-in-only, so almost no
+        // one who needed it ever found it. Anyone who explicitly picked 'owner'
+        // still keeps that choice (the branch above already returns it first) —
+        // this only changes the answer for accounts that never chose either way.
+        return 'simple';
     } catch {
-        return null;
+        return 'simple';
     }
 };
 
 /**
- * Per-device, opt-in override for how much of the dashboard shows. Deliberately
- * local-only (no backend call): the existing dashboard-layout save/load API
- * (analytics.dashboard_widgets permission) is gated behind the paid Analytics &
- * BI subscription feature server-side — reusing it here would 403 for exactly
- * the basic/new accounts this toggle is for. Returns null when the user hasn't
- * chosen yet, so callers can fall back to today's unchanged default.
+ * Per-device override for how much of the dashboard shows, defaulting to
+ * 'simple' for every account until they explicitly switch to 'owner' (see
+ * DashboardExperienceToggle). Deliberately local-only (no backend call): the
+ * existing dashboard-layout save/load API (analytics.dashboard_widgets
+ * permission) is gated behind the paid Analytics & BI subscription feature
+ * server-side — reusing it here would 403 for exactly the basic/new accounts
+ * this toggle is for.
  */
 export function useDashboardExperience(): [DashboardExperience | null, (value: DashboardExperience | null) => void] {
     const [value, setValue] = useState<DashboardExperience | null>(null);
