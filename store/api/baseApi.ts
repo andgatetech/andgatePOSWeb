@@ -56,6 +56,14 @@ const baseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> =
         && !window.location.pathname.includes('/manual-payments')
         && !window.location.pathname.includes('/dashboard')
         && !window.location.pathname.includes('/ecommerce')
+        // 2026-07-25: expense-create loads Chart of Accounts (Professional+) for an
+        // OPTIONAL category dropdown — ExpenseCreatePage already renders fine without
+        // it (coaAccounts.length > 0 && ...) and coa_account_id isn't required on
+        // submit. That non-essential background call was hard-navigating Starter
+        // users away from the expense form before they could even see it, for a
+        // feature the form doesn't actually need. Same class of problem already
+        // fixed for /dashboard and /ecommerce above.
+        && !window.location.pathname.includes('/expenses')
     ) {
         const params = new URLSearchParams();
         params.set('error_type', errorType);
