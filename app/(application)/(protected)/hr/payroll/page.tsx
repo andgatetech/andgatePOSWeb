@@ -2,15 +2,16 @@
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
-import { showMessage } from '@/lib/toast';
+import { showConfirmDialog, showMessage } from '@/lib/toast';
 import {
     useGetPayrollCyclesQuery,
     useCreatePayrollCycleMutation,
+    useDeletePayrollCycleMutation,
     useGetPayrollCycleQuery,
     useGeneratePayrollEntriesMutation,
     usePayPayrollCycleMutation,
 } from '@/store/features/hr/payrollApi';
-import { Banknote, Calculator, CheckCircle2, Plus, Wallet } from 'lucide-react';
+import { Banknote, Calculator, CheckCircle2, Plus, Trash2, Wallet } from 'lucide-react';
 import { useState } from 'react';
 
 const formatCycleDate = (value: string) => {
@@ -37,6 +38,7 @@ export default function PayrollPage() {
     const [createCycle] = useCreatePayrollCycleMutation();
     const [generateEntries, { isLoading: generating }] = useGeneratePayrollEntriesMutation();
     const [payCycle, { isLoading: paying }] = usePayPayrollCycleMutation();
+    const [deleteCycle] = useDeletePayrollCycleMutation();
 
     const cycles = cyclesData?.data?.cycles || [];
     const cycle = cycleData?.data?.cycle;
@@ -51,6 +53,20 @@ export default function PayrollPage() {
             setSelectedCycleId(res?.data?.cycle?.id);
             refetchCycles();
             showMessage(t('payroll_cycle_created'), 'success');
+        } catch {
+            showMessage(t('msg_error_generic'), 'error');
+        }
+    };
+
+    const handleDeleteCycle = async (cycleId: number) => {
+        if (!currentStoreId) return;
+        const confirmed = await showConfirmDialog(t('msg_are_you_sure'), t('payroll_delete_confirm'));
+        if (!confirmed) return;
+        try {
+            await deleteCycle({ cycleId, store_id: currentStoreId }).unwrap();
+            if (selectedCycleId === cycleId) setSelectedCycleId(null);
+            refetchCycles();
+            showMessage(t('payroll_deleted'), 'success');
         } catch {
             showMessage(t('msg_error_generic'), 'error');
         }
@@ -115,22 +131,32 @@ export default function PayrollPage() {
                     ) : (
                         <div className="space-y-2">
                             {cycles.map((c: any) => (
-                                <button
+                                <div
                                     key={c.id}
-                                    onClick={() => setSelectedCycleId(c.id)}
-                                    className={`w-full rounded-lg border px-3 py-2.5 text-left text-sm transition-all ${
+                                    className={`group w-full rounded-lg border px-3 py-2.5 text-left text-sm transition-all ${
                                         selectedCycleId === c.id ? 'border-primary bg-primary/5' : 'border-gray-100 hover:bg-gray-50'
                                     }`}
                                 >
-                                    <div className="flex items-center justify-between">
-                                        <span className="font-medium text-gray-900">{formatCycleDate(c.period_start)} → {formatCycleDate(c.period_end)}</span>
-                                        <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
-                                            c.status === 'paid' ? 'bg-emerald-100 text-emerald-700' :
-                                            c.status === 'processing' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'
-                                        }`}>{c.status}</span>
-                                    </div>
-                                    <p className="mt-0.5 text-xs text-gray-400">{c.entries_count ?? 0} {t('payroll_staff_count')}</p>
-                                </button>
+                                    <button onClick={() => setSelectedCycleId(c.id)} className="w-full text-left">
+                                        <div className="flex items-center justify-between">
+                                            <span className="font-medium text-gray-900">{formatCycleDate(c.period_start)} → {formatCycleDate(c.period_end)}</span>
+                                            <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
+                                                c.status === 'paid' ? 'bg-emerald-100 text-emerald-700' :
+                                                c.status === 'processing' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'
+                                            }`}>{c.status}</span>
+                                        </div>
+                                        <p className="mt-0.5 text-xs text-gray-400">{c.entries_count ?? 0} {t('payroll_staff_count')}</p>
+                                    </button>
+                                    {c.status === 'draft' && (
+                                        <button
+                                            onClick={() => handleDeleteCycle(c.id)}
+                                            className="mt-1.5 flex items-center gap-1 text-xs font-medium text-gray-400 opacity-0 hover:text-red-600 group-hover:opacity-100"
+                                            title={t('btn_delete')}
+                                        >
+                                            <Trash2 className="h-3.5 w-3.5" /> {t('btn_delete')}
+                                        </button>
+                                    )}
+                                </div>
                             ))}
                         </div>
                     )}

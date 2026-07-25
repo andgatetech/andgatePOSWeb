@@ -78,6 +78,14 @@ export const businessOsApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['BusinessOS'],
         }),
+        deleteBusinessTask: builder.mutation({
+            query: ({ id, store_id }: { id: number; store_id: number }) => ({
+                url: `/business-os/tasks/${id}`,
+                method: 'DELETE',
+                params: { store_id },
+            }),
+            invalidatesTags: ['BusinessOS'],
+        }),
         createPettyCashRequest: builder.mutation({
             query: (body) => ({
                 url: '/business-os/petty-cash',
@@ -127,6 +135,7 @@ export const {
     useUpdateAttendanceDeviceMutation,
     useCreateBusinessTaskMutation,
     useUpdateBusinessTaskMutation,
+    useDeleteBusinessTaskMutation,
     useCreatePettyCashRequestMutation,
     useUpdatePettyCashRequestMutation,
     useCreateServiceJobMutation,

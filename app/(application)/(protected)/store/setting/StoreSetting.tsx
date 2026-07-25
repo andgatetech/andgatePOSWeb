@@ -36,6 +36,7 @@ import { AlertCircle, CheckCircle, Clock, CreditCard, Loader2, Package, Save, Se
 import MobileStoreSettingFAB from './MobileStoreSettingFAB';
 import StoreSettingTabs from './StoreSettingTabs';
 import AdjustmentReasonsTab from './tabs/AdjustmentReasonsTab';
+import ProductStockTypesTab from './tabs/ProductStockTypesTab';
 import AttributesTab from './tabs/AttributesTab';
 import BasicInfoTab from './tabs/BasicInfoTab';
 import BrandingTab from './tabs/BrandingTab';
@@ -90,6 +91,7 @@ const VALID_SETTING_TABS = [
     'paymentstatus',
     'warranty',
     'adjustment',
+    'adjustmenttype',
     'returnreasons',
     'loyalty',
     'branding',
@@ -1680,6 +1682,8 @@ const StoreSetting = () => {
                         setMessage={setMessage}
                     />
                 );
+            case 'adjustmenttype':
+                return <ProductStockTypesTab storeId={storeId} />;
             case 'returnreasons':
                 return (
                     <OrderReturnReasonsTab

@@ -18,7 +18,15 @@ export const employeeDocumentApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['EmployeeDocument'],
         }),
+        deleteEmployeeDocument: builder.mutation({
+            query: ({ userId, store_id }: { userId: number; store_id: number }) => ({
+                url: `/employee-documents/${userId}`,
+                method: 'DELETE',
+                params: { store_id },
+            }),
+            invalidatesTags: ['EmployeeDocument'],
+        }),
     }),
 });
 
-export const { useGetEmployeeDocumentQuery, useUploadEmployeeDocumentMutation } = employeeDocumentApi;
+export const { useGetEmployeeDocumentQuery, useUploadEmployeeDocumentMutation, useDeleteEmployeeDocumentMutation } = employeeDocumentApi;

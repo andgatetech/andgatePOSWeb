@@ -3,15 +3,17 @@
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
-import { useGetBusinessOsQuery } from '@/store/features/businessOs/businessOsApi';
-import { Banknote, BriefcaseBusiness, CalendarCheck, CheckCircle2, ClipboardList, Clock, Receipt, Wrench } from 'lucide-react';
+import { showConfirmDialog, showMessage } from '@/lib/toast';
+import { useDeleteBusinessTaskMutation, useGetBusinessOsQuery } from '@/store/features/businessOs/businessOsApi';
+import { Banknote, BriefcaseBusiness, CalendarCheck, CheckCircle2, ClipboardList, Clock, Receipt, Trash2, Wrench } from 'lucide-react';
 import Link from 'next/link';
 
 export default function BusinessOsPage() {
     const { t } = getTranslation();
     const { currentStoreId } = useCurrentStore();
     const { formatCurrency } = useCurrency();
-    const { data } = useGetBusinessOsQuery({ store_id: currentStoreId }, { skip: !currentStoreId });
+    const { data, refetch } = useGetBusinessOsQuery({ store_id: currentStoreId }, { skip: !currentStoreId });
+    const [deleteTask] = useDeleteBusinessTaskMutation();
     const bos = data?.data || {};
 
     const pendingClosings = (bos.closings || []).filter((i: any) => i.status === 'submitted').length;
@@ -28,6 +30,19 @@ export default function BusinessOsPage() {
 
     const lastClosings = (bos.closings || []).slice(0, 5);
     const recentTasks = (bos.tasks || []).filter((i: any) => i.status === 'open').slice(0, 5);
+
+    const handleDeleteTask = async (id: number) => {
+        if (!currentStoreId) return;
+        const confirmed = await showConfirmDialog(t('msg_are_you_sure'), t('bos_task_delete_confirm'));
+        if (!confirmed) return;
+        try {
+            await deleteTask({ id, store_id: currentStoreId }).unwrap();
+            refetch();
+            showMessage(t('bos_task_deleted'), 'success');
+        } catch {
+            showMessage(t('msg_error_generic'), 'error');
+        }
+    };
 
     return (
         <div className="space-y-5 p-4 sm:p-6">
@@ -115,9 +130,16 @@ export default function BusinessOsPage() {
                         ) : (
                             <div className="space-y-1.5">
                                 {recentTasks.map((task: any) => (
-                                    <div key={task.id} className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-gray-50">
+                                    <div key={task.id} className="group flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-gray-50">
                                         <Clock className="h-3.5 w-3.5 flex-shrink-0 text-amber-500" />
-                                        <span className="truncate text-gray-700">{task.title}</span>
+                                        <span className="flex-1 truncate text-gray-700">{task.title}</span>
+                                        <button
+                                            onClick={() => handleDeleteTask(task.id)}
+                                            className="flex-shrink-0 rounded p-1 text-gray-300 opacity-0 hover:bg-gray-100 hover:text-red-600 group-hover:opacity-100"
+                                            title={t('btn_delete')}
+                                        >
+                                            <Trash2 className="h-3.5 w-3.5" />
+                                        </button>
                                     </div>
                                 ))}
                             </div>

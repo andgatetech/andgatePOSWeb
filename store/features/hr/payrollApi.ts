@@ -38,6 +38,14 @@ export const payrollApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['Payroll', 'SalaryAdvance', 'CashDrawer'],
         }),
+        deletePayrollCycle: builder.mutation({
+            query: ({ cycleId, store_id }: { cycleId: number; store_id: number }) => ({
+                url: `/payroll/cycles/${cycleId}`,
+                method: 'DELETE',
+                params: { store_id },
+            }),
+            invalidatesTags: ['Payroll'],
+        }),
     }),
 });
 
@@ -47,4 +55,5 @@ export const {
     useGetPayrollCycleQuery,
     useGeneratePayrollEntriesMutation,
     usePayPayrollCycleMutation,
+    useDeletePayrollCycleMutation,
 } = payrollApi;

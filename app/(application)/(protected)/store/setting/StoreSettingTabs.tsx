@@ -42,6 +42,7 @@ const StoreSettingTabs: React.FC<StoreSettingTabsProps> = ({ activeTab, onTabCha
                 { id: 'units', label: t('lbl_units'), icon: Package, description: t('store_tab_desc_units') },
                 { id: 'attributes', label: t('store_attributes_title'), icon: Tag, description: t('store_tab_desc_attributes') },
                 { id: 'adjustment', label: t('lbl_adjustment_reasons'), icon: ListChecks, description: t('store_tab_desc_adjustment') },
+                { id: 'adjustmenttype', label: t('lbl_adjustment_types'), icon: Boxes, description: t('store_tab_desc_adjustment_type') },
             ],
         },
         {

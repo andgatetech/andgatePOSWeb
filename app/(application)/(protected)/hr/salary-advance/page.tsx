@@ -2,15 +2,16 @@
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
-import { showMessage } from '@/lib/toast';
+import { showConfirmDialog, showMessage } from '@/lib/toast';
 import {
     useApproveSalaryAdvanceMutation,
     useCreateSalaryAdvanceMutation,
+    useDeleteSalaryAdvanceMutation,
     useGetSalaryAdvancesQuery,
     useRejectSalaryAdvanceMutation,
 } from '@/store/features/hr/salaryAdvanceApi';
 import { useGetStaffMemberQuery } from '@/store/features/store/storeApi';
-import { CheckCircle2, HandCoins, Plus, XCircle } from 'lucide-react';
+import { CheckCircle2, HandCoins, Plus, Trash2, XCircle } from 'lucide-react';
 import { useState } from 'react';
 
 export default function SalaryAdvancePage() {
@@ -27,6 +28,7 @@ export default function SalaryAdvancePage() {
     const [createAdvance] = useCreateSalaryAdvanceMutation();
     const [approveAdvance] = useApproveSalaryAdvanceMutation();
     const [rejectAdvance] = useRejectSalaryAdvanceMutation();
+    const [deleteAdvance] = useDeleteSalaryAdvanceMutation();
 
     const advances = data?.data?.advances || [];
     const members = membersData?.data?.data || membersData?.data || [];
@@ -59,6 +61,19 @@ export default function SalaryAdvancePage() {
             await rejectAdvance({ id, store_id: currentStoreId }).unwrap();
             refetch();
             showMessage(t('advance_rejected'), 'success');
+        } catch {
+            showMessage(t('msg_error_generic'), 'error');
+        }
+    };
+
+    const handleDelete = async (id: number) => {
+        if (!currentStoreId) return;
+        const confirmed = await showConfirmDialog(t('msg_are_you_sure'), t('advance_delete_confirm'));
+        if (!confirmed) return;
+        try {
+            await deleteAdvance({ id, store_id: currentStoreId }).unwrap();
+            refetch();
+            showMessage(t('advance_deleted'), 'success');
         } catch {
             showMessage(t('msg_error_generic'), 'error');
         }
@@ -129,6 +144,9 @@ export default function SalaryAdvancePage() {
                                         </button>
                                         <button onClick={() => handleReject(adv.id)} className="rounded-lg p-1.5 text-red-600 hover:bg-red-50" title={t('advance_reject')}>
                                             <XCircle className="h-4 w-4" />
+                                        </button>
+                                        <button onClick={() => handleDelete(adv.id)} className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600" title={t('btn_delete')}>
+                                            <Trash2 className="h-4 w-4" />
                                         </button>
                                     </>
                                 )}

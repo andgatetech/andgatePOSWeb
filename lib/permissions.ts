@@ -298,6 +298,9 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     '/feedbacks': ['feedbacks.index'],
     '/feedbacks/create-feedback': ['feedbacks.create'],
 
+    // ── Support Tickets ────────────────────────────────────────
+    '/support': ['feedbacks.index'],
+
     // ── Stock Transfers (business_admin bypass, or manager/staff with stock-transfer permission) ────────
     '/stock-transfers': ['stock-transfer.view', 'stock-transfer.manage'],
 

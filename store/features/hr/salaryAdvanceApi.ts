@@ -34,6 +34,14 @@ export const salaryAdvanceApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['SalaryAdvance'],
         }),
+        deleteSalaryAdvance: builder.mutation({
+            query: ({ id, store_id }: { id: number; store_id: number }) => ({
+                url: `/salary-advances/${id}`,
+                method: 'DELETE',
+                params: { store_id },
+            }),
+            invalidatesTags: ['SalaryAdvance'],
+        }),
     }),
 });
 
@@ -42,4 +50,5 @@ export const {
     useCreateSalaryAdvanceMutation,
     useApproveSalaryAdvanceMutation,
     useRejectSalaryAdvanceMutation,
+    useDeleteSalaryAdvanceMutation,
 } = salaryAdvanceApi;

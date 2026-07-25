@@ -1,6 +1,6 @@
 'use client';
 
-import { Camera, Clock, Coins, CreditCard, Flag, Gift, ListChecks, Package, RotateCcw, Settings, Shield, Smartphone, Store, Tag, X } from 'lucide-react';
+import { Boxes, Camera, Clock, Coins, CreditCard, Flag, Gift, ListChecks, Package, RotateCcw, Settings, Shield, Smartphone, Store, Tag, X } from 'lucide-react';
 import Image from 'next/image';
 import React, { useState } from 'react';
 import { getTranslation } from '@/i18n';
@@ -30,6 +30,7 @@ const MobileStoreSettingFAB: React.FC<MobileStoreSettingFABProps> = ({ activeTab
                 { id: 'units', label: t('lbl_units'), icon: Package },
                 { id: 'attributes', label: t('store_attributes_title'), icon: Tag },
                 { id: 'adjustment', label: t('lbl_adjustments'), icon: ListChecks },
+                { id: 'adjustmenttype', label: t('lbl_adjustment_types'), icon: Boxes },
             ],
         },
         {

@@ -4,10 +4,10 @@ import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import { compressImage } from '@/lib/image-compress';
 import { resolveStorageUrl } from '@/lib/image-url';
-import { showMessage } from '@/lib/toast';
-import { useGetEmployeeDocumentQuery, useUploadEmployeeDocumentMutation } from '@/store/features/hr/employeeDocumentApi';
+import { showConfirmDialog, showMessage } from '@/lib/toast';
+import { useDeleteEmployeeDocumentMutation, useGetEmployeeDocumentQuery, useUploadEmployeeDocumentMutation } from '@/store/features/hr/employeeDocumentApi';
 import { useGetStaffMemberQuery } from '@/store/features/store/storeApi';
-import { FileText, IdCard, Image as ImageIcon, UserSquare } from 'lucide-react';
+import { FileText, IdCard, Image as ImageIcon, Trash2, UserSquare } from 'lucide-react';
 import { useState } from 'react';
 
 export default function EmployeeDocumentsPage() {
@@ -22,6 +22,7 @@ export default function EmployeeDocumentsPage() {
         { skip: !selectedUserId || !currentStoreId }
     );
     const [upload, { isLoading: uploading }] = useUploadEmployeeDocumentMutation();
+    const [deleteDocument] = useDeleteEmployeeDocumentMutation();
 
     const members = membersData?.data?.data || membersData?.data || [];
     const document = docData?.data?.document;
@@ -45,6 +46,19 @@ export default function EmployeeDocumentsPage() {
         }
     };
 
+    const handleDeleteDocuments = async () => {
+        if (!selectedUserId || !currentStoreId) return;
+        const confirmed = await showConfirmDialog(t('msg_are_you_sure'), t('document_delete_confirm'));
+        if (!confirmed) return;
+        try {
+            await deleteDocument({ userId: selectedUserId, store_id: currentStoreId }).unwrap();
+            refetch();
+            showMessage(t('document_deleted'), 'success');
+        } catch {
+            showMessage(t('msg_error_generic'), 'error');
+        }
+    };
+
     return (
         <div className="space-y-5 p-4 sm:p-6">
             <div className="flex items-center gap-3">
@@ -57,14 +71,24 @@ export default function EmployeeDocumentsPage() {
                 </div>
             </div>
 
-            <select
-                className="w-full max-w-sm rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-primary"
-                value={selectedUserId ?? ''}
-                onChange={(e) => setSelectedUserId(e.target.value ? Number(e.target.value) : null)}
-            >
-                <option value="">{t('document_select_staff')}</option>
-                {members.map((m: any) => <option key={m.id} value={m.id}>{m.name}</option>)}
-            </select>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <select
+                    className="w-full max-w-sm rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-primary"
+                    value={selectedUserId ?? ''}
+                    onChange={(e) => setSelectedUserId(e.target.value ? Number(e.target.value) : null)}
+                >
+                    <option value="">{t('document_select_staff')}</option>
+                    {members.map((m: any) => <option key={m.id} value={m.id}>{m.name}</option>)}
+                </select>
+                {selectedUserId && document && (
+                    <button
+                        onClick={handleDeleteDocuments}
+                        className="flex w-fit items-center gap-1.5 rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-50"
+                    >
+                        <Trash2 className="h-3.5 w-3.5" /> {t('document_remove_all')}
+                    </button>
+                )}
+            </div>
 
             {selectedUserId && (
                 <div className="grid gap-4 sm:grid-cols-2">

@@ -906,6 +906,11 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                 href: '/feedbacks',
                 requiredPermissions: ['feedbacks.index'],
             },
+            {
+                label: 'Support Tickets',
+                href: '/support',
+                requiredPermissions: ['feedbacks.index'],
+            },
         ],
     },
     {

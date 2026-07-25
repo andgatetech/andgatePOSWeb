@@ -30,6 +30,14 @@ export const festivalBonusApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['FestivalBonus', 'CashDrawer'],
         }),
+        deleteFestivalBonusRun: builder.mutation({
+            query: ({ runId, store_id }: { runId: number; store_id: number }) => ({
+                url: `/festival-bonus/runs/${runId}`,
+                method: 'DELETE',
+                params: { store_id },
+            }),
+            invalidatesTags: ['FestivalBonus'],
+        }),
     }),
 });
 
@@ -38,4 +46,5 @@ export const {
     useCreateFestivalBonusRunMutation,
     useGetFestivalBonusRunQuery,
     usePayFestivalBonusRunMutation,
+    useDeleteFestivalBonusRunMutation,
 } = festivalBonusApi;

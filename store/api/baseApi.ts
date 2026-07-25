@@ -147,6 +147,8 @@ export const baseApi = createApi({
         'AiReports',
         'StockThresholds',
         'Stock',
+        'AdjustmentTypes',
+        'SupportTicket',
         'AffiliateMembers',
         'AffiliateLedger',
         'AffiliatePayouts',

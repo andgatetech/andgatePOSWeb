@@ -2,14 +2,15 @@
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
-import { showMessage } from '@/lib/toast';
+import { showConfirmDialog, showMessage } from '@/lib/toast';
 import {
     useCreateFestivalBonusRunMutation,
+    useDeleteFestivalBonusRunMutation,
     useGetFestivalBonusRunQuery,
     useGetFestivalBonusRunsQuery,
     usePayFestivalBonusRunMutation,
 } from '@/store/features/hr/festivalBonusApi';
-import { Banknote, CheckCircle2, Gift, Plus } from 'lucide-react';
+import { Banknote, CheckCircle2, Gift, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
 export default function FestivalBonusPage() {
@@ -28,6 +29,7 @@ export default function FestivalBonusPage() {
     );
     const [createRun] = useCreateFestivalBonusRunMutation();
     const [payRun, { isLoading: paying }] = usePayFestivalBonusRunMutation();
+    const [deleteRun] = useDeleteFestivalBonusRunMutation();
 
     const runs = runsData?.data?.runs || [];
     const run = runData?.data?.run;
@@ -42,6 +44,20 @@ export default function FestivalBonusPage() {
             setSelectedRunId(res?.data?.run?.id);
             refetchRuns();
             showMessage(t('bonus_run_created'), 'success');
+        } catch {
+            showMessage(t('msg_error_generic'), 'error');
+        }
+    };
+
+    const handleDeleteRun = async (runId: number) => {
+        if (!currentStoreId) return;
+        const confirmed = await showConfirmDialog(t('msg_are_you_sure'), t('bonus_delete_confirm'));
+        if (!confirmed) return;
+        try {
+            await deleteRun({ runId, store_id: currentStoreId }).unwrap();
+            if (selectedRunId === runId) setSelectedRunId(null);
+            refetchRuns();
+            showMessage(t('bonus_deleted'), 'success');
         } catch {
             showMessage(t('msg_error_generic'), 'error');
         }
@@ -94,19 +110,29 @@ export default function FestivalBonusPage() {
                     ) : (
                         <div className="space-y-2">
                             {runs.map((r: any) => (
-                                <button
+                                <div
                                     key={r.id}
-                                    onClick={() => setSelectedRunId(r.id)}
-                                    className={`w-full rounded-lg border px-3 py-2.5 text-left text-sm transition-all ${
+                                    className={`group w-full rounded-lg border px-3 py-2.5 text-left text-sm transition-all ${
                                         selectedRunId === r.id ? 'border-primary bg-primary/5' : 'border-gray-100 hover:bg-gray-50'
                                     }`}
                                 >
-                                    <div className="flex items-center justify-between">
-                                        <span className="font-medium text-gray-900">{r.title}</span>
-                                        <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${r.status === 'paid' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600'}`}>{r.status}</span>
-                                    </div>
-                                    <p className="mt-0.5 text-xs text-gray-400">{r.percentage}% · {r.entries_count ?? 0} {t('payroll_staff_count')}</p>
-                                </button>
+                                    <button onClick={() => setSelectedRunId(r.id)} className="w-full text-left">
+                                        <div className="flex items-center justify-between">
+                                            <span className="font-medium text-gray-900">{r.title}</span>
+                                            <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${r.status === 'paid' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600'}`}>{r.status}</span>
+                                        </div>
+                                        <p className="mt-0.5 text-xs text-gray-400">{r.percentage}% · {r.entries_count ?? 0} {t('payroll_staff_count')}</p>
+                                    </button>
+                                    {r.status !== 'paid' && (
+                                        <button
+                                            onClick={() => handleDeleteRun(r.id)}
+                                            className="mt-1.5 flex items-center gap-1 text-xs font-medium text-gray-400 opacity-0 hover:text-red-600 group-hover:opacity-100"
+                                            title={t('btn_delete')}
+                                        >
+                                            <Trash2 className="h-3.5 w-3.5" /> {t('btn_delete')}
+                                        </button>
+                                    )}
+                                </div>
                             ))}
                         </div>
                     )}

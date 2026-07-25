@@ -46,6 +46,14 @@ export const leaveApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['Leave'],
         }),
+        deleteLeaveRequest: builder.mutation({
+            query: ({ id, store_id }: { id: number; store_id: number }) => ({
+                url: `/leave/requests/${id}`,
+                method: 'DELETE',
+                params: { store_id },
+            }),
+            invalidatesTags: ['Leave'],
+        }),
     }),
 });
 
@@ -56,4 +64,5 @@ export const {
     useCreateLeaveRequestMutation,
     useApproveLeaveRequestMutation,
     useRejectLeaveRequestMutation,
+    useDeleteLeaveRequestMutation,
 } = leaveApi;

@@ -2,10 +2,11 @@
 
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
-import { showMessage } from '@/lib/toast';
+import { showConfirmDialog, showMessage } from '@/lib/toast';
 import {
     useApproveLeaveRequestMutation,
     useCreateLeaveRequestMutation,
+    useDeleteLeaveRequestMutation,
     useGetLeaveRequestsQuery,
     useGetLeaveTypesQuery,
     useRejectLeaveRequestMutation,
@@ -42,6 +43,7 @@ export default function LeavePage() {
     const [createRequest] = useCreateLeaveRequestMutation();
     const [approveRequest] = useApproveLeaveRequestMutation();
     const [rejectRequest] = useRejectLeaveRequestMutation();
+    const [deleteRequest] = useDeleteLeaveRequestMutation();
     const [createHoliday] = useCreateHolidayMutation();
     const [deleteHoliday] = useDeleteHolidayMutation();
 
@@ -86,6 +88,19 @@ export default function LeavePage() {
             await rejectRequest({ id, store_id: currentStoreId }).unwrap();
             refetchRequests();
             showMessage(t('leave_rejected'), 'success');
+        } catch {
+            showMessage(t('msg_error_generic'), 'error');
+        }
+    };
+
+    const handleDeleteRequest = async (id: number) => {
+        if (!currentStoreId) return;
+        const confirmed = await showConfirmDialog(t('msg_are_you_sure'), t('leave_delete_confirm'));
+        if (!confirmed) return;
+        try {
+            await deleteRequest({ id, store_id: currentStoreId }).unwrap();
+            refetchRequests();
+            showMessage(t('leave_deleted'), 'success');
         } catch {
             showMessage(t('msg_error_generic'), 'error');
         }
@@ -200,6 +215,9 @@ export default function LeavePage() {
                                                 </button>
                                                 <button onClick={() => handleReject(req.id)} className="rounded-lg p-1.5 text-red-600 hover:bg-red-50" title={t('advance_reject')}>
                                                     <XCircle className="h-4 w-4" />
+                                                </button>
+                                                <button onClick={() => handleDeleteRequest(req.id)} className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600" title={t('btn_delete')}>
+                                                    <Trash2 className="h-4 w-4" />
                                                 </button>
                                             </>
                                         )}
