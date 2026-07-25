@@ -40,6 +40,13 @@ export const getCookieMaxAgeFromExpiry = (expiresAt?: string | null): number => 
     return Math.max(0, Math.floor((expiryTime - Date.now()) / 1000));
 };
 
+export const getAuthCookie = (name: string): string | null => {
+    if (typeof document === 'undefined') return null;
+
+    const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+    return match ? decodeAuthCookieValue(match[1]) : null;
+};
+
 export const setAuthCookie = (name: string, value: string, maxAge: number) => {
     if (typeof document === 'undefined') return;
 

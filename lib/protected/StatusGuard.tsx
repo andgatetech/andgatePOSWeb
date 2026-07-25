@@ -1,5 +1,5 @@
 'use client';
-import { clearAuthCookies, clearAuthLocalStorage, isTokenExpired } from '@/lib/auth-session';
+import { AUTH_TOKEN_EXPIRES_AT_COOKIE, clearAuthCookies, clearAuthLocalStorage, getAuthCookie, isTokenExpired } from '@/lib/auth-session';
 import Loading from '@/app/loading';
 import { RootState, persistor } from '@/store';
 import { logout as logoutAction } from '@/store/features/auth/authSlice';
@@ -70,6 +70,24 @@ export default function StatusGuard({ children }: StatusGuardProps) {
         }
 
         if (!isAuthenticated || !user) {
+            // Redux may not have rehydrated from redux-persist yet even though
+            // PersistBootstrapGate already let rendering proceed — its own bootstrap
+            // wait has a timeout and can give up before a slow rehydration actually
+            // finishes (2026-07-25 fix). The login flow writes the auth cookie
+            // synchronously with no rehydration delay, so a present, unexpired cookie
+            // here means "Redux is still catching up," not "genuinely logged out" —
+            // wait a bounded grace window instead of immediately wiping a valid
+            // session. If Redux still hasn't caught up once the window elapses,
+            // fail safe to the original behavior.
+            const cookieToken = getAuthCookie('token');
+            const cookieExpiresAt = getAuthCookie(AUTH_TOKEN_EXPIRES_AT_COOKIE);
+            const cookieLooksValid = Boolean(cookieToken) && !isTokenExpired(cookieExpiresAt);
+
+            if (cookieLooksValid) {
+                const graceTimeout = window.setTimeout(clearExpiredSession, 3000);
+                return () => window.clearTimeout(graceTimeout);
+            }
+
             clearExpiredSession();
             return;
         }
