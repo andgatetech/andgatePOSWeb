@@ -1,4 +1,5 @@
 'use client';
+import QuotaBanner from '@/components/common/QuotaBanner';
 import SubscriptionError from '@/components/common/SubscriptionError';
 import StoreFilter from '@/components/filters/StoreFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
@@ -204,6 +205,8 @@ const StoreComponent = () => {
                     {t('store_create_new')}
                 </button>
             </div>
+
+            <QuotaBanner quotaSlug="stores.create" resourceLabel={t('quota_resource_stores')} />
 
             <div className="rounded-xl border border-sky-100 bg-white p-4 shadow-sm">
                 <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

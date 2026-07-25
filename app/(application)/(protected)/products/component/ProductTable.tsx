@@ -4,6 +4,7 @@ import ImageShowModal from '@/app/(application)/(protected)/products/component/I
 import Dropdown from '@/components/dropdown';
 import ProductFilter from '@/components/filters/ProductFilter';
 import IconEye from '@/components/icon/icon-eye';
+import QuotaBanner from '@/components/common/QuotaBanner';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
@@ -347,6 +348,8 @@ const ProductTable = () => {
                     {t('product_add')}
                 </Link>
             </div>
+
+            <QuotaBanner quotaSlug="products.create" resourceLabel={t('quota_resource_products')} />
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">

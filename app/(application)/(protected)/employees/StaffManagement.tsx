@@ -1,4 +1,5 @@
 'use client';
+import QuotaBanner from '@/components/common/QuotaBanner';
 import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
 import StaffFilter from '@/components/filters/StaffFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
@@ -226,6 +227,8 @@ const StaffManagement = () => {
                     {t('employee_add')}
                 </button>
             </div>
+
+            <QuotaBanner quotaSlug="users.create" resourceLabel={t('quota_resource_staff')} />
 
             {/* Filter Bar */}
             <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">

@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 interface SubscriptionErrorProps {
-    errorType: 'no_active_subscription' | 'feature_unavailable' | 'feature_not_in_plan' | 'limit_reached' | 'subscription_required' | 'expired' | 'no_subscription' | 'subscription_expired' | 'quota_exhausted';
+    errorType: 'no_active_subscription' | 'feature_unavailable' | 'feature_not_in_plan' | 'limit_reached' | 'subscription_required' | 'expired' | 'no_subscription' | 'subscription_expired' | 'subscription_expired_grace' | 'quota_exhausted';
     message: string;
     details?: {
         limit?: number;
@@ -82,6 +82,16 @@ const errorConfigs: Record<string, any> = {
         iconColor: 'text-red-600',
         bgColor: 'bg-red-50',
     },
+    // Read-only grace period (2026-07-25): you can still browse, only writes are
+    // blocked — distinct copy from subscription_expired so this doesn't read as
+    // "everything is locked" when it isn't yet.
+    subscription_expired_grace: {
+        icon: Clock,
+        title: { en: 'Subscription Expired — Renew to Keep Editing', bn: 'সাবস্ক্রিপশন মেয়াদ শেষ — সম্পাদনা চালিয়ে যেতে রিনিউ করুন' },
+        subtitle: { en: 'You can still view your data. Renew now to keep making changes.', bn: 'আপনি এখনও আপনার ডেটা দেখতে পারবেন। পরিবর্তন করতে চালিয়ে যেতে এখনই রিনিউ করুন।' },
+        iconColor: 'text-warning',
+        bgColor: 'bg-amber-50',
+    },
 };
 
 const localizeText = (value: string | Record<string, string>, lang: 'en' | 'bn') => (typeof value === 'string' ? value : value[lang] || value.en);
@@ -108,6 +118,10 @@ const localizeSubscriptionMessage = (message: string, errorType: string, lang: '
 
     if (errorType === 'subscription_expired' || errorType === 'expired') {
         return 'আপনার সাবস্ক্রিপশনের মেয়াদ শেষ হয়েছে। চালিয়ে যেতে রিনিউ করুন।';
+    }
+
+    if (errorType === 'subscription_expired_grace') {
+        return 'আপনার সাবস্ক্রিপশনের মেয়াদ শেষ হয়েছে। আপনি এখনও ডেটা দেখতে পারবেন — পরিবর্তন করতে এখনই রিনিউ করুন।';
     }
 
     return message;

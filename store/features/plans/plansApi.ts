@@ -40,6 +40,14 @@ export interface PlansResponse {
     data: Plan[];
 }
 
+export interface QuotaStatus {
+    limit: number | null;
+    used: number;
+    remaining: number | null;
+    percent_used: number | null;
+    approaching_limit: boolean;
+}
+
 export interface AccessibleFeaturesResponse {
     success: boolean;
     message: string;
@@ -54,6 +62,7 @@ export interface AccessibleFeaturesResponse {
             billing_cycle: string;
             expire_date: string | null;
             quota_remaining: Record<string, number | null>;
+            quota_status: Record<string, QuotaStatus>;
         } | null;
     };
 }

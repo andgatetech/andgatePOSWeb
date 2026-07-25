@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useGetAccessibleFeaturesQuery } from '@/store/features/plans/plansApi';
+import { useGetAccessibleFeaturesQuery, QuotaStatus } from '@/store/features/plans/plansApi';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 
@@ -13,6 +13,7 @@ interface FeatureAccessResult {
     planTier: number;
     subscriptionStatus: string | null;
     quotaRemaining: Record<string, number | null>;
+    quotaStatus: Record<string, QuotaStatus>;
     /** All feature slugs the account's plan includes, or undefined while loading. */
     accessibleFeatures: string[] | undefined;
 }
@@ -34,6 +35,7 @@ export function useFeatureAccess(featureSlug?: string): FeatureAccessResult {
                 planTier: 0,
                 subscriptionStatus: fallbackStatus,
                 quotaRemaining: {},
+                quotaStatus: {},
                 accessibleFeatures: undefined,
             };
         }
@@ -51,6 +53,7 @@ export function useFeatureAccess(featureSlug?: string): FeatureAccessResult {
             planTier: plan?.tier ?? 0,
             subscriptionStatus: plan?.status ?? fallbackStatus,
             quotaRemaining: plan?.quota_remaining ?? {},
+            quotaStatus: plan?.quota_status ?? {},
             accessibleFeatures: features,
         };
     }, [data, isLoading, featureSlug, fallbackPlanName, fallbackStatus]);
@@ -72,4 +75,15 @@ export function useQuotaRemaining(quotaSlug: string): {
     }
 
     return { remaining: value, isUnlimited: false };
+}
+
+/** Full quota status (limit/used/percent/approaching) for a live-quota slug — see QuotaBanner. */
+export function useQuotaStatus(quotaSlug: string): QuotaStatus | null {
+    const { quotaStatus, isLoading } = useFeatureAccess();
+
+    if (isLoading) {
+        return null;
+    }
+
+    return quotaStatus[quotaSlug] ?? null;
 }
