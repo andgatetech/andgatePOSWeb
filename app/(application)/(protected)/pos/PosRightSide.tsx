@@ -136,6 +136,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
     const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const quoteRequestSeqRef = useRef(0);
     const isSubmittingRef = useRef(false);
+    const saleIdempotencyRef = useRef<{ fingerprint: string; key: string } | null>(null);
     const lastAutoPaidAmountRef = useRef(0);
 
     const [customerSearch, setCustomerSearch] = useState('');
@@ -1655,7 +1656,18 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
 
             try {
                 setLoading(true);
-                const response = await createOrder(orderData).unwrap();
+                const payloadFingerprint = JSON.stringify(orderData);
+                if (saleIdempotencyRef.current?.fingerprint !== payloadFingerprint) {
+                    saleIdempotencyRef.current = {
+                        fingerprint: payloadFingerprint,
+                        key: `web-${crypto.randomUUID()}`,
+                    };
+                }
+                const response = await createOrder({
+                    ...orderData,
+                    idempotency_key: saleIdempotencyRef.current.key,
+                }).unwrap();
+                saleIdempotencyRef.current = null;
                 setQuotePreview(null);
                 clearHeldCart();
                 setOrderResponse(response);
