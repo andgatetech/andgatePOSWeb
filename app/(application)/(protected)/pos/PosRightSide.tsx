@@ -136,7 +136,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
     const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const quoteRequestSeqRef = useRef(0);
     const isSubmittingRef = useRef(false);
-    const saleIdempotencyRef = useRef<{ fingerprint: string; key: string } | null>(null);
+    const saleIdempotencyRef = useRef<{ fingerprint: string; key: string; payload: Record<string, any> } | null>(null);
     const lastAutoPaidAmountRef = useRef(0);
 
     const [customerSearch, setCustomerSearch] = useState('');
@@ -1528,7 +1528,23 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                 }),
             };
 
-            if (formData.customerId === 'walk-in') {
+            // Fingerprint the user's sale intent before customer creation. If the
+            // order request later fails ambiguously, retry the exact finalized
+            // customer-bearing payload and key instead of recreating a customer.
+            const submissionFingerprint = JSON.stringify({
+                order: orderData,
+                customer: {
+                    id: formData.customerId || null,
+                    name: formData.customerName?.trim() || null,
+                    phone: formData.customerPhone?.trim() || null,
+                    email: formData.customerEmail?.trim() || null,
+                },
+            });
+            const retainedSale = saleIdempotencyRef.current?.fingerprint === submissionFingerprint ? saleIdempotencyRef.current : null;
+
+            if (retainedSale) {
+                Object.assign(orderData, retainedSale.payload);
+            } else if (formData.customerId === 'walk-in') {
                 orderData.customer_id = null;
                 orderData.is_walk_in = true;
             } else if (formData.customerId && formData.customerId !== 'walk-in') {
@@ -1583,22 +1599,25 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                 const localId = `OFFLINE-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
                 const localInvoice = generateLocalInvoiceNumber();
                 const deviceId = getDeviceId();
+                const queuedPayload = retainedSale
+                    ? { ...retainedSale.payload, idempotency_key: retainedSale.key }
+                    : {
+                          ...orderData,
+                          // Sanitize: empty string fails nullable|email validation on API routes
+                          customer_email: orderData.customer_email || null,
+                          // Non-cash paid: send 0 so backend normalizes to fresh grand_total (avoids amount mismatch 422)
+                          amount_paid: orderData.payment_status === 'paid' && orderData.payment_method?.toLowerCase() !== 'cash' ? 0 : orderData.amount_paid,
+                          local_order_id: localId,
+                          idempotency_key: localId,
+                          device_id: deviceId,
+                          offline_created_at: new Date().toISOString(),
+                      };
                 const offlineOrder = {
                     localId,
                     storeId: currentStoreId!,
                     userId: currentUserId,
                     localInvoice,
-                    payload: {
-                        ...orderData,
-                        // Sanitize: empty string fails nullable|email validation on API routes
-                        customer_email: orderData.customer_email || null,
-                        // Non-cash paid: send 0 so backend normalizes to fresh grand_total (avoids amount mismatch 422)
-                        amount_paid: orderData.payment_status === 'paid' && orderData.payment_method?.toLowerCase() !== 'cash' ? 0 : orderData.amount_paid,
-                        local_order_id: localId,
-                        idempotency_key: localId,
-                        device_id: deviceId,
-                        offline_created_at: new Date().toISOString(),
-                    },
+                    payload: queuedPayload,
                     queuedAt: new Date().toISOString(),
                     status: 'pending' as const,
                     retryCount: 0,
@@ -1661,17 +1680,15 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
 
             try {
                 setLoading(true);
-                const payloadFingerprint = JSON.stringify(orderData);
-                if (saleIdempotencyRef.current?.fingerprint !== payloadFingerprint) {
+                if (!retainedSale) {
                     saleIdempotencyRef.current = {
-                        fingerprint: payloadFingerprint,
+                        fingerprint: submissionFingerprint,
                         key: `web-${crypto.randomUUID()}`,
+                        payload: { ...orderData },
                     };
                 }
-                const response = await createOrder({
-                    ...orderData,
-                    idempotency_key: saleIdempotencyRef.current.key,
-                }).unwrap();
+                const finalizedSale = saleIdempotencyRef.current!;
+                const response = await createOrder({ ...finalizedSale.payload, idempotency_key: finalizedSale.key }).unwrap();
                 saleIdempotencyRef.current = null;
                 setQuotePreview(null);
                 clearHeldCart();
