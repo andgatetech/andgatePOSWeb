@@ -40,6 +40,12 @@ const OrderEditPage = () => {
     // Load order data into Redux when fetched
     useEffect(() => {
         if (order && currentStoreId) {
+            const isDraft = String(order.status || '').trim().toLowerCase() === 'draft';
+            if (!isDraft) {
+                setIsLoadingOrder(false);
+                return;
+            }
+
             // Store original order data
             dispatch(setOrderData({ storeId: currentStoreId, orderId: order.id, order }));
 
@@ -128,6 +134,20 @@ const OrderEditPage = () => {
                     <h1 className="text-2xl font-bold text-red-600">{t('msg_failed_load_order')}</h1>
                     <p className="mt-2 text-gray-600">{t('msg_try_again_later')}</p>
                     <Link href="/orders" className="mt-4 inline-block rounded-lg bg-primary px-6 py-2 text-white hover:bg-primary/90">
+                        {t('btn_back_to_orders')}
+                    </Link>
+                </div>
+            </div>
+        );
+    }
+
+    if (String(order?.status || '').trim().toLowerCase() !== 'draft') {
+        return (
+            <div className="flex min-h-screen items-center justify-center bg-[#f6f8fb] px-4">
+                <div className="max-w-lg rounded-xl border border-amber-200 bg-white p-8 text-center shadow-sm">
+                    <h1 className="text-xl font-bold text-gray-900">This sale cannot be edited directly</h1>
+                    <p className="mt-3 text-sm text-gray-600">Completed financial records are immutable. Use the audited return or exchange workflow to correct this sale.</p>
+                    <Link href="/orders" className="mt-6 inline-block rounded-lg bg-primary px-6 py-2 text-white hover:bg-primary/90">
                         {t('btn_back_to_orders')}
                     </Link>
                 </div>

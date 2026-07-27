@@ -1100,6 +1100,8 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             customer_id: typeof formData.customerId === 'number' ? formData.customerId : undefined,
             payment_method: formData.isSplitPayment ? 'Split' : formData.paymentMethod,
             payment_status: formData.paymentStatus,
+            ...(formData.isSplitPayment ? { payments: formData.splitPayments } : {}),
+            ...(formData.couponCode ? { coupon_code: formData.couponCode } : {}),
             discount: calculateDiscount() + calculateMembershipDiscount(),
             points_to_redeem: selectedCustomer && formData.usePoints ? formData.pointsToUse : 0,
             balance_to_redeem: selectedCustomer && formData.useBalance ? formData.balanceToUse : 0,
@@ -1120,12 +1122,15 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         formData.amountPaid,
         formData.balanceToUse,
         formData.customerId,
+        formData.couponCode,
         formData.discount,
+        formData.isSplitPayment,
         formData.membershipDiscount,
         formData.partialPaymentAmount,
         formData.paymentMethod,
         formData.paymentStatus,
         formData.pointsToUse,
+        formData.splitPayments,
         formData.useBalance,
         formData.usePoints,
         invoiceItems,
@@ -1141,9 +1146,9 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
     const backendTax = Number(quoteTotals?.tax ?? calculateTax());
     const backendDiscount = Number(quoteTotals?.discount ?? frontendDiscount);
     const backendGrandTotal = Number(quoteTotals?.grand_total ?? frontendGrandTotal);
-    const displaySubtotal = frontendSubtotal || backendSubtotal;
-    const displayDiscount = frontendDiscount || backendDiscount;
-    const displayGrandTotal = frontendGrandTotal || backendGrandTotal;
+    const displaySubtotal = quoteTotals ? backendSubtotal : frontendSubtotal;
+    const displayDiscount = quoteTotals ? backendDiscount : frontendDiscount;
+    const displayGrandTotal = quoteTotals ? backendGrandTotal : frontendGrandTotal;
     const backendPointsDiscount = Number(quoteTotals?.loyalty_points_value ?? (formData.usePoints ? formData.pointsToUse : 0));
     const backendBalanceDiscount = Number(quoteTotals?.account_balance_redeemed ?? (formData.useBalance ? formData.balanceToUse : 0));
     const membershipDiscountAmount = calculateMembershipDiscount();
