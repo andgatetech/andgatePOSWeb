@@ -593,6 +593,10 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
         if (matchedProduct) {
             addToCart(matchedProduct);
             setSearchTerm(''); // Clear search after adding
+        } else if (products.length === 1) {
+            // Auto-add if the search returned exactly ONE product, even if barcode/SKU didn't match perfectly.
+            addToCart(products[0]);
+            setSearchTerm('');
         }
     }, [products, searchTerm, isLoading, addToCart]);
 
