@@ -6,9 +6,12 @@ import { useCurrentStore } from '@/hooks/useCurrentStore';
 import Loader from '@/lib/Loader';
 import { normalizePaymentStatus } from '@/lib/paymentConstants';
 import { escapePrintHtml, printInWindow } from '@/lib/printUtil';
-import { useGetAllOrdersQuery } from '@/store/features/Order/Order';
+import { useGetAllOrdersQuery, useDeleteOrderMutation } from '@/store/features/Order/Order';
+import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
+import { Dialog, Transition } from '@headlessui/react';
+import { Fragment } from 'react';
 import { getTranslation } from '@/i18n';
-import { ShoppingBag } from 'lucide-react';
+import { ShoppingBag, AlertTriangle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -32,6 +35,11 @@ const Orders = () => {
     const [selectedOrder, setSelectedOrder] = useState<any>(null);
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
     const [showInvoicePreview, setShowInvoicePreview] = useState(false);
+    
+    // Delete state
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [orderToDelete, setOrderToDelete] = useState<any>(null);
+    const [deleteOrder, { isLoading: isDeleting }] = useDeleteOrderMutation();
 
     // Build query parameters
     const queryParams = useMemo(() => {
@@ -133,6 +141,28 @@ const Orders = () => {
         setSelectedOrder(order);
         setShowInvoicePreview(true);
     }, []);
+
+    // Handle delete request
+    const handleDeleteRequest = useCallback((order: any) => {
+        setOrderToDelete(order);
+        setIsDeleteModalOpen(true);
+    }, []);
+
+    // Confirm delete
+    const handleConfirmDelete = async () => {
+        if (!orderToDelete || !currentStoreId) return;
+
+        try {
+            await deleteOrder({ id: orderToDelete.id, store_id: currentStoreId }).unwrap();
+            showSuccessDialog(t('order_void_success') || 'Order voided successfully');
+            setIsDeleteModalOpen(false);
+            setOrderToDelete(null);
+            // Re-fetch to update stats, though RTK Query handles cache invalidation
+        } catch (error: any) {
+            console.error('Failed to void order:', error);
+            showErrorDialog(error?.data?.message || t('order_void_error') || 'Failed to void order');
+        }
+    };
 
     // Handle thermal receipt print (direct print without modal)
     const handleThermalReceiptPrint = useCallback((order: any) => {
@@ -489,6 +519,7 @@ const Orders = () => {
                     onViewDetails={handleViewDetails}
                     onOpenInvoicePreview={handleOpenInvoicePreview}
                     onThermalReceiptPrint={handleThermalReceiptPrint}
+                    onDeleteRequest={handleDeleteRequest}
                 />
 
                 {/* Order Details Modal */}
@@ -537,6 +568,66 @@ const Orders = () => {
                         </div>
                     </div>
                 )}
+
+                {/* Delete Confirmation Modal */}
+                <Transition appear show={isDeleteModalOpen} as={Fragment}>
+                    <Dialog as="div" className="relative z-50" onClose={() => !isDeleting && setIsDeleteModalOpen(false)}>
+                        <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0" enterTo="opacity-100" leave="ease-in duration-200" leaveFrom="opacity-100" leaveTo="opacity-0">
+                            <div className="fixed inset-0 bg-black/25 backdrop-blur-sm" />
+                        </Transition.Child>
+
+                        <div className="fixed inset-0 overflow-y-auto">
+                            <div className="flex min-h-full items-center justify-center p-4 text-center">
+                                <Transition.Child
+                                    as={Fragment}
+                                    enter="ease-out duration-300"
+                                    enterFrom="opacity-0 scale-95"
+                                    enterTo="opacity-100 scale-100"
+                                    leave="ease-in duration-200"
+                                    leaveFrom="opacity-100 scale-100"
+                                    leaveTo="opacity-0 scale-95"
+                                >
+                                    <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                                        <div className="flex items-center gap-4">
+                                            <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:h-10 sm:w-10">
+                                                <AlertTriangle className="h-6 w-6 text-red-600" aria-hidden="true" />
+                                            </div>
+                                            <div>
+                                                <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
+                                                    {t('order_void_confirm_title') || 'Void Order'}
+                                                </Dialog.Title>
+                                                <div className="mt-2">
+                                                    <p className="text-sm text-gray-500">
+                                                        {t('order_void_confirm_desc') || `Are you sure you want to void this order (${orderToDelete?.invoice || orderToDelete?.id})? This action will reverse stock, payments, points, and cannot be undone.`}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="mt-6 flex justify-end gap-3">
+                                            <button
+                                                type="button"
+                                                className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50"
+                                                onClick={() => setIsDeleteModalOpen(false)}
+                                                disabled={isDeleting}
+                                            >
+                                                {t('btn_cancel')}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="inline-flex justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50"
+                                                onClick={handleConfirmDelete}
+                                                disabled={isDeleting}
+                                            >
+                                                {isDeleting ? t('btn_processing') || 'Processing...' : t('btn_void_order') || 'Void Order'}
+                                            </button>
+                                        </div>
+                                    </Dialog.Panel>
+                                </Transition.Child>
+                            </div>
+                        </div>
+                    </Dialog>
+                </Transition>
         </div>
     );
 };

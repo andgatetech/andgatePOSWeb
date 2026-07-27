@@ -45,6 +45,15 @@ const OrderApi = baseApi.injectEndpoints({
             invalidatesTags: (result, error, { id }) => [{ type: 'Orders', id }, 'Orders', 'Products', 'ProductSerials', 'Transactions', { type: 'Customers', id: 'LIST' }],
         }),
 
+        deleteOrder: builder.mutation({
+            query: ({ id, store_id }: { id: number; store_id: number }) => ({
+                url: `/orders/${id}`,
+                method: 'DELETE',
+                params: { store_id },
+            }),
+            invalidatesTags: ['Orders', 'Products', 'ProductSerials', 'Transactions', { type: 'Customers', id: 'LIST' }],
+        }),
+
         // Order Return endpoints
         createOrderReturn: builder.mutation({
             query: (returnData: any) => ({
@@ -81,6 +90,7 @@ export const {
     useGetOrderByIdQuery,
     useLazyGetOrderByIdQuery,
     useUpdateOrderMutation,
+    useDeleteOrderMutation,
     useCreateOrderReturnMutation,
     useGetAllOrderReturnsQuery,
     useGetOrderReturnByIdQuery,
