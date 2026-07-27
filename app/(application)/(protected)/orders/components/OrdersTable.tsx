@@ -188,7 +188,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
                 onClick: (order: any) => router.push(`/orders/edit/${order.id}`),
                 className: 'text-gray-700',
                 icon: <Edit className="h-4 w-4" />,
-                hidden: (order: any) => order.status === 'fully_returned',
+                hidden: (order: any) => order.status !== 'draft',
             },
             {
                 label: t('order_action_invoice'),
