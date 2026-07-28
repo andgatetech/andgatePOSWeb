@@ -5,6 +5,7 @@ import PaymentStatusBadge from '@/components/payment/PaymentStatusBadge';
 import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { canVoidOrder } from '@/lib/orderDeletion';
 import { setReturnOrderId } from '@/store/features/Order/OrderReturnSlice';
 import { Download, Edit, Eye, RotateCcw, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -31,9 +32,10 @@ interface OrdersTableProps {
     onOpenInvoicePreview: (order: any) => void;
     onThermalReceiptPrint: (order: any) => void;
     onDeleteRequest: (order: any) => void;
+    showDelete: boolean;
 }
 
-const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination, sorting, onViewDetails, onOpenInvoicePreview, onThermalReceiptPrint, onDeleteRequest }) => {
+const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination, sorting, onViewDetails, onOpenInvoicePreview, onThermalReceiptPrint, onDeleteRequest, showDelete }) => {
     const { t } = getTranslation();
     const router = useRouter();
     const { formatCurrency, formatNumber } = useCurrency();
@@ -229,23 +231,14 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
                 },
             },
             {
-                label: t('order_action_void') || 'Void',
+                label: t('order_action_void') || 'Void & Reverse',
                 onClick: onDeleteRequest,
                 className: 'text-danger',
                 icon: <Trash2 className="h-4 w-4" />,
-                hidden: (order: any) => {
-                    // Cannot void an order that has any returns processed
-                    if (order.status === 'fully_returned') return true;
-                    if (order.return_status === 'full' || order.return_status === 'partial') return true;
-                    // Check if it has returns explicitly (array)
-                    if (Array.isArray(order.returns) && order.returns.length > 0) return true;
-                    // For backward compatibility / different data structures
-                    if (order.has_returns) return true;
-                    return false;
-                },
+                hidden: (order: any) => !showDelete || !canVoidOrder(order),
             },
         ],
-        [t, router, onViewDetails, onOpenInvoicePreview, onThermalReceiptPrint, onDeleteRequest, currentStoreId, dispatch]
+        [t, router, onViewDetails, onOpenInvoicePreview, onThermalReceiptPrint, onDeleteRequest, currentStoreId, dispatch, showDelete]
     );
 
     return (

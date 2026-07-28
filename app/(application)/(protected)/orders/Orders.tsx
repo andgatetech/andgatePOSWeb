@@ -5,6 +5,7 @@ import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import Loader from '@/lib/Loader';
 import { normalizePaymentStatus } from '@/lib/paymentConstants';
+import { canManageOrderDeletion, canVoidOrder } from '@/lib/orderDeletion';
 import { escapePrintHtml, printInWindow } from '@/lib/printUtil';
 import { useGetAllOrdersQuery, useDeleteOrderMutation } from '@/store/features/Order/Order';
 import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
@@ -144,13 +145,14 @@ const Orders = () => {
 
     // Handle delete request
     const handleDeleteRequest = useCallback((order: any) => {
+        if (!canVoidOrder(order)) return;
         setOrderToDelete(order);
         setIsDeleteModalOpen(true);
     }, []);
 
     // Confirm delete
     const handleConfirmDelete = async () => {
-        if (!orderToDelete || !currentStoreId) return;
+        if (!orderToDelete || !currentStoreId || !canVoidOrder(orderToDelete)) return;
 
         try {
             await deleteOrder({ id: orderToDelete.id, store_id: currentStoreId }).unwrap();
@@ -520,6 +522,7 @@ const Orders = () => {
                     onOpenInvoicePreview={handleOpenInvoicePreview}
                     onThermalReceiptPrint={handleThermalReceiptPrint}
                     onDeleteRequest={handleDeleteRequest}
+                    showDelete={canManageOrderDeletion(currentUser)}
                 />
 
                 {/* Order Details Modal */}
@@ -594,11 +597,11 @@ const Orders = () => {
                                             </div>
                                             <div>
                                                 <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
-                                                    {t('order_void_confirm_title') || 'Void Order'}
+                                                    {t('order_void_confirm_title') || 'Void & Reverse Order'}
                                                 </Dialog.Title>
                                                 <div className="mt-2">
                                                     <p className="text-sm text-gray-500">
-                                                        {t('order_void_confirm_desc') || `Are you sure you want to void this order (${orderToDelete?.invoice || orderToDelete?.id})? This action will reverse stock, payments, points, and cannot be undone.`}
+                                                        {t('order_void_confirm_desc') || `Void and reverse order ${orderToDelete?.invoice || orderToDelete?.id}? Sold stock, payments and due balances, accounting entries, VAT, loyalty points, and coupon usage will be reversed. The original order and audit trail remain available. Orders with returns cannot be voided.`}
                                                     </p>
                                                 </div>
                                             </div>
@@ -619,7 +622,7 @@ const Orders = () => {
                                                 onClick={handleConfirmDelete}
                                                 disabled={isDeleting}
                                             >
-                                                {isDeleting ? t('btn_processing') || 'Processing...' : t('btn_void_order') || 'Void Order'}
+                                                {isDeleting ? t('btn_processing') || 'Processing...' : t('btn_void_order') || 'Void & Reverse'}
                                             </button>
                                         </div>
                                     </Dialog.Panel>
