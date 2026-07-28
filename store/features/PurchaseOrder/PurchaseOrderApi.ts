@@ -145,7 +145,7 @@ const PurchaseOrderApi = baseApi.injectEndpoints({
         // Void received or paid Purchase Order and reverse its financial/inventory effects
         voidPurchaseOrder: builder.mutation({
             query: ({ id, ...data }) => ({
-                url: `/purchase-order/${id}/void`,
+                url: `/purchase-order/${id}/delete-and-reverse`,
                 method: 'POST',
                 body: data,
             }),
