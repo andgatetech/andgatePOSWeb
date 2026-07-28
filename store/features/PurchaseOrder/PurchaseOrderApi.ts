@@ -133,13 +133,23 @@ const PurchaseOrderApi = baseApi.injectEndpoints({
             invalidatesTags: ['PurchaseOrders', 'Products', 'Orders'],
         }),
 
-        // Delete Purchase Order
+        // Delete unreceived and unpaid Purchase Order
         deletePurchaseOrder: builder.mutation({
             query: (id: number | string) => ({
                 url: `/purchase-order/${id}`,
                 method: 'DELETE',
             }),
-            invalidatesTags: ['PurchaseOrders', 'Products', 'Orders'],
+            invalidatesTags: ['PurchaseDues', 'PurchaseOrders', 'Products', 'Orders'],
+        }),
+
+        // Void received or paid Purchase Order and reverse its financial/inventory effects
+        voidPurchaseOrder: builder.mutation({
+            query: ({ id, ...data }) => ({
+                url: `/purchase-order/${id}/void`,
+                method: 'POST',
+                body: data,
+            }),
+            invalidatesTags: ['PurchaseDues', 'PurchaseOrders', 'Products', 'Orders', 'PurchaseReturns'],
         }),
 
         // ========== PHASE 4: PAYMENT MANAGEMENT ==========
@@ -232,6 +242,7 @@ export const {
     useEditPurchaseOrderQuery,
     useUpdatePurchaseOrderMutation,
     useDeletePurchaseOrderMutation,
+    useVoidPurchaseOrderMutation,
 
     // Payment endpoints
     useMakePartialPaymentMutation,

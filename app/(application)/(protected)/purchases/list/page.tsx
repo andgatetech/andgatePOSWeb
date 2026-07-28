@@ -9,6 +9,7 @@ import UniversalFilter from '@/components/common/UniversalFilter';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
+import { getPurchaseOrderDeletionAction, canManagePurchaseOrderDeletion } from '@/lib/purchaseOrderDeletion';
 import { escapePrintHtml, printInWindow } from '@/lib/printUtil';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import type { RootState } from '@/store';
@@ -16,11 +17,12 @@ import {
     useClearFullDueMutation,
     useConvertDraftToPurchaseOrderMutation,
     useDeletePurchaseDraftMutation,
+    useDeletePurchaseOrderMutation,
     useGetPurchaseDraftsQuery,
     useGetPurchaseOrdersQuery,
     useMakePartialPaymentMutation,
+    useVoidPurchaseOrderMutation,
 } from '@/store/features/PurchaseOrder/PurchaseOrderApi';
-import { useDeletePurchaseDueMutation } from '@/store/features/purchaseDue/purchaseDue';
 import Swal from 'sweetalert2';
 import { FileText, Package, Plus, ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
@@ -62,6 +64,7 @@ const PurchaseOrderListPage = () => {
     const [receiptTransaction, setReceiptTransaction] = useState<any>(null);
     const [receiptPurchaseOrder, setReceiptPurchaseOrder] = useState<any>(null);
 
+    const currentUser = useSelector((state: RootState) => state.auth.user);
     const paymentMethods = useSelector((state: RootState) => state.auth.currentStore?.payment_methods || []);
     const activePaymentMethods = paymentMethods.filter((pm: any) => pm.is_active);
 
@@ -116,7 +119,8 @@ const PurchaseOrderListPage = () => {
     const [deleteDraft] = useDeletePurchaseDraftMutation();
     const [makePartialPayment, { isLoading: isPaymentLoading }] = useMakePartialPaymentMutation();
     const [clearFullDue, { isLoading: isClearingDue }] = useClearFullDueMutation();
-    const [deletePurchaseDue] = useDeletePurchaseDueMutation();
+    const [deletePurchaseOrder] = useDeletePurchaseOrderMutation();
+    const [voidPurchaseOrder] = useVoidPurchaseOrderMutation();
 
     // ─── Data extraction ───
     const drafts = draftsResponse?.data?.items || [];
@@ -323,40 +327,43 @@ const PurchaseOrderListPage = () => {
         }
     };
 
-    const handleDeleteOrder = async (due: any) => {
-        if (due.payment_status !== 'pending' || due.status !== 'ordered') {
-            Swal.fire({
-                title: t('msg_delete_not_possible'),
-                html: `<p class="mb-3">${t('msg_po_cannot_be_deleted')}</p>
-                    <div class="text-left bg-gray-50 p-4 rounded-lg">
-                        <p class="text-sm text-gray-700 mb-2"><strong>${t('msg_delete_allowed_when')}</strong></p>
-                        <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
-                            <li>${t('lbl_payment_status')}: <strong class="text-red-600">${t('lbl_status_pending')}</strong></li>
-                            <li>${t('lbl_order_status')}: <strong class="text-blue-600">${t('lbl_status_ordered')}</strong></li>
-                        </ul>
-                    </div>`,
-                icon: 'error',
-                confirmButtonText: t('btn_ok'),
-                confirmButtonColor: '#dc2626',
-            });
+    const handleDeleteOrder = async (order: any) => {
+        const deletionAction = getPurchaseOrderDeletionAction(order);
+        if (!deletionAction) return;
+
+        if (deletionAction === 'void') {
+            const isConfirmed = await showConfirmDialog(
+                t('purchase_reverse_confirm_title'),
+                `<p>${t('purchase_reverse_confirm_desc')}</p><p class="mt-3"><strong>${order.invoice_number}</strong></p>`,
+                t('purchase_action_reverse_order'),
+                t('btn_cancel'),
+                false
+            );
+            if (!isConfirmed) return;
+
+            try {
+                await voidPurchaseOrder({ id: order.id, store_id: currentStoreId }).unwrap();
+                showSuccessDialog(t('msg_success'), t('purchase_reverse_success'));
+            } catch (err: any) {
+                showErrorDialog(t('msg_error'), err?.data?.message || t('msg_failed_to_delete_po'));
+            }
             return;
         }
-        const result = await Swal.fire({
-            title: t('msg_delete_po_confirm'),
-            html: `<p>${t('msg_are_you_sure_delete_po')} <strong>${due.invoice_number}</strong>?</p>`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#dc2626',
-            cancelButtonColor: '#6b7280',
-            confirmButtonText: t('btn_yes_delete'),
-            cancelButtonText: t('btn_cancel'),
-        });
-        if (!result.isConfirmed) return;
+
+        const isConfirmed = await showConfirmDialog(
+            t('msg_delete_po_confirm'),
+            `<p>${t('msg_are_you_sure_delete_po')} <strong>${order.invoice_number}</strong>?</p>`,
+            t('btn_yes_delete'),
+            t('btn_cancel'),
+            false
+        );
+        if (!isConfirmed) return;
+
         try {
-            await deletePurchaseDue(due.id).unwrap();
-            Swal.fire({ title: t('msg_deleted'), text: t('msg_po_deleted_successfully'), icon: 'success', timer: 2000, showConfirmButton: false });
+            await deletePurchaseOrder(order.id).unwrap();
+            showSuccessDialog(t('msg_success'), t('msg_po_deleted_successfully'));
         } catch (err: any) {
-            Swal.fire(t('msg_error'), err?.data?.message || t('msg_failed_to_delete_po'), 'error');
+            showErrorDialog(t('msg_error'), err?.data?.message || t('msg_failed_to_delete_po'));
         }
     };
 
@@ -554,7 +561,7 @@ const PurchaseOrderListPage = () => {
                             onDelete={handleDeleteOrder}
                             onReturn={handleReturn}
                             showReceive
-                            showDelete
+                            showDelete={canManagePurchaseOrderDeletion(currentUser)}
                             showReturn
                         />
                     </div>

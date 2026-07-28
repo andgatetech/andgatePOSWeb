@@ -4,6 +4,7 @@ import DateColumn from '@/components/common/DateColumn';
 import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
 import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
+import { getPurchaseOrderDeletionAction } from '@/lib/purchaseOrderDeletion';
 import { CheckCircle2, Clock, CreditCard, Eye, PackageCheck, Printer, RotateCcw, Trash2, Truck } from 'lucide-react';
 import { useMemo } from 'react';
 
@@ -59,7 +60,6 @@ const getRemainingQuantity = (order: any) =>
 const canReceiveMore = (order: any) => !['received', 'cancelled', 'completed'].includes(order.status) && getRemainingQuantity(order) > 0;
 const hasSupplierDue = (order: any) => parseFloat(order.amount_due || 0) > 0 && order.payment_status !== 'paid';
 const canReturnItems = (order: any) => ['received', 'partially_received'].includes(order.status);
-const canDeleteOrder = (order: any) => order.status === 'ordered' && ['pending', 'unpaid'].includes(order.payment_status) && getRemainingQuantity(order) > 0;
 
 const PurchaseOrdersTable: React.FC<PurchaseOrdersTableProps> = ({
     orders,
@@ -242,13 +242,22 @@ const PurchaseOrdersTable: React.FC<PurchaseOrdersTableProps> = ({
         }
 
         if (showDelete) {
-            actions.push({
-                label: t('purchase_action_delete_order'),
-                icon: <Trash2 className="h-4 w-4" />,
-                className: 'text-danger',
-                hidden: (order) => !canDeleteOrder(order),
-                onClick: onDelete,
-            });
+            actions.push(
+                {
+                    label: t('purchase_action_delete_order'),
+                    icon: <Trash2 className="h-4 w-4" />,
+                    className: 'text-danger',
+                    hidden: (order) => getPurchaseOrderDeletionAction(order) !== 'delete',
+                    onClick: onDelete,
+                },
+                {
+                    label: t('purchase_action_reverse_order'),
+                    icon: <RotateCcw className="h-4 w-4" />,
+                    className: 'text-danger',
+                    hidden: (order) => getPurchaseOrderDeletionAction(order) !== 'void',
+                    onClick: onDelete,
+                }
+            );
         }
 
         return actions;
