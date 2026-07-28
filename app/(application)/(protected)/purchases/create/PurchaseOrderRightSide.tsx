@@ -4,6 +4,7 @@ import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { showConfirmDialog, showErrorDialog, showMessage, showSuccessDialog } from '@/lib/toast';
+import { normalizeSupplierList } from '@/lib/normalizeSupplierList';
 import type { RootState } from '@/store';
 import { useGetUnitsQuery } from '@/store/features/Product/productApi';
 import { useCompletePurchaseFlowMutation, useCreatePurchaseDraftMutation, useUpdatePurchaseDraftMutation } from '@/store/features/PurchaseOrder/PurchaseOrderApi';
@@ -105,7 +106,7 @@ const PurchaseOrderRightSide: React.FC<PurchaseOrderRightSideProps> = ({ draftId
         { store_id: currentStoreId, search: supplierSearch || undefined, per_page: 10 },
         { skip: !currentStoreId }
     );
-    const suppliers: any[] = useMemo(() => suppliersResponse?.data?.data || suppliersResponse?.data || [], [suppliersResponse]);
+    const suppliers: any[] = useMemo(() => normalizeSupplierList(suppliersResponse?.data), [suppliersResponse]);
 
     const { data: unitsResponse } = useGetUnitsQuery({ store_id: currentStoreId }, { skip: !currentStoreId });
     const units: any[] = unitsResponse?.data || [];
