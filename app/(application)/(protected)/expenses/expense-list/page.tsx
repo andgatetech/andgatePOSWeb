@@ -4,10 +4,13 @@ import ExpenseFilter from '@/components/filters/ExpenseFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
-import { useDeleteExpenseMutation, useGetExpensesQuery } from '@/store/features/expense/expenseApi';
+import { useVoidAndReverseExpenseMutation, useGetExpensesQuery } from '@/store/features/expense/expenseApi';
+import { canManageExpenseVoid, canVoidExpense } from '@/lib/expenseVoidReversal';
+import { RootState } from '@/store';
 import { Plus, Receipt } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
+import { useSelector } from 'react-redux';
 import ExpensesTable from './components/ExpensesTable';
 import ViewExpenseModal from './components/ViewExpenseModal';
 
@@ -15,6 +18,8 @@ const ExpenseListPage = () => {
     const { t } = getTranslation();
     const router = useRouter();
     const { currentStoreId } = useCurrentStore();
+    const user = useSelector((state: RootState) => state.auth.user);
+    const canManageVoid = canManageExpenseVoid(user);
 
     const [filterParams, setFilterParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
@@ -36,7 +41,7 @@ const ExpenseListPage = () => {
     const { data: expensesResponse, isLoading } = useGetExpensesQuery(queryParams, {
         skip: !filterParams.store_id && !filterParams.store_ids,
     });
-    const [deleteExpense] = useDeleteExpenseMutation();
+    const [voidExpense] = useVoidAndReverseExpenseMutation();
 
     const expenses = expensesResponse?.data?.items || expensesResponse?.data?.data || [];
     const pagination = expensesResponse?.data?.pagination || expensesResponse?.data?.meta || {
@@ -69,23 +74,31 @@ const ExpenseListPage = () => {
         router.push(`/expenses/edit/${expense.id}`);
     }, [router]);
 
-    const handleDelete = useCallback(async (expense: any) => {
+    const handleVoid = useCallback(async (expense: any) => {
+        if (!canManageVoid || !canVoidExpense(expense)) return;
+
+        const reason = window.prompt(t('expense_void_reason_prompt'))?.trim();
+        if (!reason) {
+            showErrorDialog(t('msg_error'), t('expense_void_reason_required'));
+            return;
+        }
+
         const confirmed = await showConfirmDialog(
-            t('msg_delete_expense_confirm'),
-            `${t('msg_are_you_sure_delete_expense')} "${expense.title}"?`,
-            t('btn_yes_delete_it'),
+            t('expense_void_confirm_title'),
+            `${t('expense_void_confirm_effects')} ${t('expense_void_confirm_audit')}`,
+            t('btn_void_and_reverse'),
             t('btn_cancel'),
             false
         );
-        if (confirmed) {
-            try {
-                await deleteExpense(expense.id).unwrap();
-                showSuccessDialog(t('msg_deleted'), t('msg_expense_deleted'));
-            } catch (error: any) {
-                showErrorDialog(t('msg_error'), error?.data?.message || t('msg_failed_delete_expense'));
-            }
+        if (!confirmed) return;
+
+        try {
+            await voidExpense({ expenseId: expense.id, reason, storeId: currentStoreId || expense.store_id }).unwrap();
+            showSuccessDialog(t('msg_success'), t('expense_void_success'));
+        } catch (error: any) {
+            showErrorDialog(t('msg_error'), error?.data?.message || t('expense_void_failed'));
         }
-    }, [deleteExpense, t]);
+    }, [canManageVoid, currentStoreId, t, voidExpense]);
 
     return (
         <div className="space-y-6">
@@ -136,7 +149,8 @@ const ExpenseListPage = () => {
                 }}
                 onViewDetails={handleViewDetails}
                 onEdit={handleEdit}
-                onDelete={handleDelete}
+                onVoid={handleVoid}
+                canVoid={canManageVoid}
             />
 
             <ViewExpenseModal expense={selectedExpense} isOpen={isViewModalOpen} onClose={() => setIsViewModalOpen(false)} />

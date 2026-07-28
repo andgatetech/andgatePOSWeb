@@ -7877,5 +7877,13 @@
   "msg_mfs_account_deleted": "MFS অ্যাকাউন্ট মুছে ফেলা হয়েছে",
   "msg_failed_create_mfs_account": "MFS অ্যাকাউন্ট যোগ করা যায়নি",
   "msg_failed_update_mfs_account": "MFS অ্যাকাউন্ট আপডেট করা যায়নি",
-  "msg_failed_delete_mfs_account": "MFS অ্যাকাউন্ট মুছতে ব্যর্থ"
+  "msg_failed_delete_mfs_account": "MFS অ্যাকাউন্ট মুছতে ব্যর্থ",
+  "btn_void_and_reverse": "বাতিল ও রিভার্স করুন",
+  "expense_void_reason_prompt": "এই খরচটি কেন বাতিল করছেন? কারণটি অডিট ট্রেইলে সংরক্ষিত হবে।",
+  "expense_void_reason_required": "বাতিলের কারণ আবশ্যক।",
+  "expense_void_confirm_title": "এই খরচটি বাতিল ও রিভার্স করবেন?",
+  "expense_void_confirm_effects": "মূল খরচটি সংরক্ষিত থাকবে। বিপরীত এন্ট্রি খরচের হিসাব এবং মূল ক্যাশ, ব্যাংক বা মোবাইল ফাইন্যান্সিয়াল সার্ভিসের প্রভাব রিভার্স করবে।",
+  "expense_void_confirm_audit": "আপনার কারণ, নাম ও সময় অডিট ট্রেইলে স্থায়ীভাবে সংরক্ষিত হবে।",
+  "expense_void_success": "খরচ বাতিল ও রিভার্স সফল হয়েছে।",
+  "expense_void_failed": "খরচ বাতিল ও রিভার্স করা যায়নি।"
 }

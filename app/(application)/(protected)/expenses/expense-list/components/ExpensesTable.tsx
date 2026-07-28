@@ -4,7 +4,7 @@ import DateColumn from '@/components/common/DateColumn';
 import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
 import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
-import { CreditCard, Edit, Eye, Receipt, Trash2 } from 'lucide-react';
+import { CreditCard, Edit, Eye, Receipt, RotateCcw } from 'lucide-react';
 import { useMemo } from 'react';
 
 interface ExpensesTableProps {
@@ -25,10 +25,11 @@ interface ExpensesTableProps {
     };
     onViewDetails: (expense: any) => void;
     onEdit: (expense: any) => void;
-    onDelete: (expense: any) => void;
+    onVoid: (expense: any) => void;
+    canVoid: boolean;
 }
 
-const ExpensesTable: React.FC<ExpensesTableProps> = ({ expenses, isLoading, pagination, sorting, onViewDetails, onEdit, onDelete }) => {
+const ExpensesTable: React.FC<ExpensesTableProps> = ({ expenses, isLoading, pagination, sorting, onViewDetails, onEdit, onVoid, canVoid }) => {
     const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
     const PAYMENT_TYPE_CONFIG: Record<string, { label: string; color: string; bgColor: string }> = {
@@ -123,14 +124,14 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({ expenses, isLoading, pagi
                 className: 'text-gray-700',
                 icon: <Edit className="h-4 w-4" />,
             },
-            {
-                label: t('btn_delete'),
-                onClick: onDelete,
+            ...(canVoid ? [{
+                label: t('btn_void_and_reverse'),
+                onClick: onVoid,
                 className: 'text-danger',
-                icon: <Trash2 className="h-4 w-4" />,
-            },
+                icon: <RotateCcw className="h-4 w-4" />,
+            }] : []),
         ],
-        [onViewDetails, onEdit, onDelete]
+        [onViewDetails, onEdit, onVoid, canVoid, t]
     );
 
     return (

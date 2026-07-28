@@ -40,6 +40,14 @@ export const expenseApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['Expenses'],
         }),
+        voidAndReverseExpense: builder.mutation({
+            query: ({ expenseId, reason, storeId }) => ({
+                url: `/expenses/${expenseId}/void-and-reverse`,
+                method: 'POST',
+                body: { reason, store_id: storeId },
+            }),
+            invalidatesTags: ['Expenses'],
+        }),
         getSingleExpense: builder.query({
             query: (expenseId) => ({
                 url: `/expenses/${expenseId}`,
@@ -50,4 +58,4 @@ export const expenseApi = baseApi.injectEndpoints({
     }),
 });
 
-export const { useGetExpensesQuery, useCreateExpenseMutation, useUpdateExpenseMutation, useDeleteExpenseMutation, useGetSingleExpenseQuery } = expenseApi;
+export const { useGetExpensesQuery, useCreateExpenseMutation, useUpdateExpenseMutation, useDeleteExpenseMutation, useVoidAndReverseExpenseMutation, useGetSingleExpenseQuery } = expenseApi;
