@@ -7885,5 +7885,14 @@
   "expense_void_confirm_effects": "The original expense is retained. A compensating entry reverses its expense account and original cash, bank, or mobile-financial-service impact.",
   "expense_void_confirm_audit": "Your reason, name, and time are permanently recorded in the audit trail.",
   "expense_void_success": "Expense voided and reversed successfully.",
-  "expense_void_failed": "Could not void and reverse this expense."
+  "expense_void_failed": "Could not void and reverse this expense.",
+  "income_void_reason_prompt": "Why are you voiding this income entry? This reason is saved in the audit trail.",
+  "income_void_reason_required": "A void reason is required.",
+  "income_void_confirm_title": "Void and reverse this income entry?",
+  "income_void_confirm_effects": "The original income is retained. A compensating journal reverses its revenue and original cash, bank, or mobile-financial-service impact.",
+  "income_void_confirm_audit": "Your reason, name, and time are permanently recorded in the audit trail.",
+  "income_void_success": "Income entry voided and reversed successfully.",
+  "income_void_failed": "Could not void and reverse this income entry.",
+  "btn_void_and_reverse": "Void & Reverse",
+  "lbl_voided": "Voided"
 }

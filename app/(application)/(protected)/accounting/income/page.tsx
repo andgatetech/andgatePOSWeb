@@ -5,10 +5,13 @@ import { getTranslation } from '@/i18n';
 import Loader from '@/lib/Loader';
 import { closeReservedPdfWindow, isMobilePdfDownloadRisk, reservePdfWindow } from '@/lib/pdf-mobile-download';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
+import { canManageIncomeVoid, canVoidIncome } from '@/lib/incomeVoidReversal';
 import enLocale from '@/public/locales/en.json';
-import { useCreateIncomeMutation, useDeleteIncomeMutation, useGetIncomeQuery } from '@/store/features/accounting/accountingApi';
-import { FileText, Loader2, Plus, Printer, Trash2 } from 'lucide-react';
+import { useCreateIncomeMutation, useGetIncomeQuery, useVoidAndReverseIncomeMutation } from '@/store/features/accounting/accountingApi';
+import { RootState } from '@/store';
+import { FileText, Loader2, Plus, Printer, RotateCcw } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { buildHeaderRow, buildPdfFooter, buildPdfHeader, buildTableLayout, clampPdfText, computeColumnWidths, ensureAccountingPdf, outputPdf, PdfColumnDef, sanText } from '../_shared/AccountingPdf';
 
 const paymentMethods = ['cash', 'bank', 'bkash', 'nagad', 'rocket'];
@@ -26,6 +29,8 @@ type ExportAction = 'print' | 'pdf';
 const IncomePage = () => {
     const { t, i18n } = getTranslation();
     const { currentStoreId, currentStore } = useCurrentStore();
+    const user = useSelector((state: RootState) => state.auth.user);
+    const canManageVoid = canManageIncomeVoid(user);
 
     const today = new Date().toISOString().split('T')[0];
     const firstOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
@@ -46,7 +51,7 @@ const IncomePage = () => {
     const { data, isLoading } = useGetIncomeQuery({ store_id: currentStoreId, from, to, page, per_page: 15 }, { skip: !currentStoreId });
 
     const [createIncome, { isLoading: creating }] = useCreateIncomeMutation();
-    const [deleteIncome] = useDeleteIncomeMutation();
+    const [voidAndReverseIncome] = useVoidAndReverseIncomeMutation();
 
     const items: any[] = useMemo(() => data?.data?.data ?? [], [data]);
     const lastPage = data?.data?.last_page ?? 1;
@@ -89,14 +94,28 @@ const IncomePage = () => {
         }
     };
 
-    const handleDelete = async (id: number) => {
-        const confirmed = await showConfirmDialog(t('msg_delete_confirm'), t('lbl_delete'));
+    const handleVoidAndReverse = async (income: any) => {
+        if (!canManageVoid || !canVoidIncome(income)) return;
+
+        const reason = window.prompt(t('income_void_reason_prompt'))?.trim();
+        if (!reason) {
+            showErrorDialog(t('msg_error'), t('income_void_reason_required'));
+            return;
+        }
+
+        const confirmed = await showConfirmDialog(
+            t('income_void_confirm_title'),
+            `${t('income_void_confirm_effects')} ${t('income_void_confirm_audit')}`,
+            t('btn_void_and_reverse'),
+            t('btn_cancel'),
+            false
+        );
         if (!confirmed) return;
         try {
-            await deleteIncome(id).unwrap();
-            showSuccessDialog(t('msg_deleted'));
-        } catch {
-            showErrorDialog(t('msg_error_generic'));
+            await voidAndReverseIncome({ incomeId: income.id, reason, storeId: currentStoreId || income.store_id }).unwrap();
+            showSuccessDialog(t('msg_success'), t('income_void_success'));
+        } catch (error: any) {
+            showErrorDialog(t('msg_error'), error?.data?.message || t('income_void_failed'));
         }
     };
 
@@ -346,9 +365,18 @@ const IncomePage = () => {
                                         <td className="px-4 py-3 text-xs text-gray-500 dark:text-gray-400">{entry.user_name}</td>
                                         <td className="px-4 py-3 text-right font-semibold text-success">৳{Number(entry.amount).toLocaleString()}</td>
                                         <td className="px-4 py-3 text-center">
-                                            <button onClick={() => handleDelete(entry.id)} className="rounded-lg p-1.5 text-danger hover:bg-danger/10">
-                                                <Trash2 className="h-3.5 w-3.5" />
-                                            </button>
+                                            {canManageVoid && canVoidIncome(entry) ? (
+                                                <button
+                                                    onClick={() => handleVoidAndReverse(entry)}
+                                                    className="inline-flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-medium text-danger hover:bg-danger/10"
+                                                    title={t('btn_void_and_reverse')}
+                                                >
+                                                    <RotateCcw className="h-3.5 w-3.5" />
+                                                    {t('btn_void_and_reverse')}
+                                                </button>
+                                            ) : entry.status === 'voided' ? (
+                                                <span className="text-xs font-medium text-gray-400">{t('lbl_voided')}</span>
+                                            ) : null}
                                         </td>
                                     </tr>
                                 ))}

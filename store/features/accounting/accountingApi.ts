@@ -41,8 +41,12 @@ export const accountingApi = baseApi.injectEndpoints({
             query: (body) => ({ url: '/accounting/income', method: 'POST', body }),
             invalidatesTags: ['AccountingIncome', 'AccountingCashBook', 'AccountingJournals'],
         }),
-        deleteIncome: builder.mutation({
-            query: (id) => ({ url: `/accounting/income/${id}`, method: 'DELETE' }),
+        voidAndReverseIncome: builder.mutation({
+            query: ({ incomeId, reason, storeId }) => ({
+                url: `/accounting/income/${incomeId}/void-and-reverse`,
+                method: 'POST',
+                body: { reason, store_id: storeId },
+            }),
             invalidatesTags: ['AccountingIncome', 'AccountingCashBook', 'AccountingJournals'],
         }),
 
@@ -75,7 +79,7 @@ export const {
     useGetCashBookQuery,
     useGetIncomeQuery,
     useCreateIncomeMutation,
-    useDeleteIncomeMutation,
+    useVoidAndReverseIncomeMutation,
     useGetProfitAndLossQuery,
     useGetBalanceSheetQuery,
     useGetTrialBalanceQuery,
