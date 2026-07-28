@@ -1,6 +1,6 @@
 'use client';
 import { getTranslation } from '@/i18n';
-import { Camera, Search, X } from 'lucide-react';
+import { Camera, Search, X, Barcode, ScanBarcode } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 
 interface SearchBarProps {
@@ -103,9 +103,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
                             : 'border-gray-200 bg-white text-gray-500 hover:border-purple-300 hover:text-purple-600'
                     }`}
                 >
-                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h1M4 10h1M4 14h1M4 18h1M8 4v16M12 4v16M16 6h1M16 10h1M16 14h1M16 18h1M20 4v16" />
-                    </svg>
+                    <Barcode className="h-5 w-5" />
                 </button>
 
                 {/* Camera scanner toggle */}
@@ -118,7 +116,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
                             : 'border-gray-200 bg-white text-gray-500 hover:border-green-300 hover:text-green-600'
                     }`}
                 >
-                    <Camera className="h-5 w-5" />
+                    <ScanBarcode className="h-5 w-5" />
                 </button>
             </div>
 
