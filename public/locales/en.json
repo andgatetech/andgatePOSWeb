@@ -7893,6 +7893,13 @@
   "income_void_confirm_audit": "Your reason, name, and time are permanently recorded in the audit trail.",
   "income_void_success": "Income entry voided and reversed successfully.",
   "income_void_failed": "Could not void and reverse this income entry.",
+  "bank_transaction_void_reason_prompt": "Why are you voiding this bank transaction? This reason is saved in the audit trail.",
+  "bank_transaction_void_reason_required": "A void reason is required.",
+  "bank_transaction_void_confirm_title": "Void and reverse this bank transaction?",
+  "bank_transaction_void_confirm_effects": "The original bank transaction is retained. A compensating bank transaction and balanced journal reverse the original account effect.",
+  "bank_transaction_void_confirm_audit": "Your reason, name, and time are permanently recorded in the audit trail.",
+  "bank_transaction_void_success": "Bank transaction voided and reversed successfully.",
+  "bank_transaction_void_failed": "Could not void and reverse this bank transaction.",
   "btn_void_and_reverse": "Void & Reverse",
   "lbl_voided": "Voided"
 }

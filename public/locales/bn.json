@@ -7893,6 +7893,13 @@
   "income_void_confirm_audit": "আপনার কারণ, নাম ও সময় অডিট ট্রেইলে স্থায়ীভাবে সংরক্ষিত হবে।",
   "income_void_success": "আয়ের এন্ট্রি বাতিল ও রিভার্স সফল হয়েছে।",
   "income_void_failed": "আয়ের এন্ট্রি বাতিল ও রিভার্স করা যায়নি।",
+  "bank_transaction_void_reason_prompt": "এই ব্যাংক লেনদেনটি কেন বাতিল করছেন? কারণটি অডিট ট্রেইলে সংরক্ষিত হবে।",
+  "bank_transaction_void_reason_required": "বাতিলের কারণ আবশ্যক।",
+  "bank_transaction_void_confirm_title": "এই ব্যাংক লেনদেনটি বাতিল ও রিভার্স করবেন?",
+  "bank_transaction_void_confirm_effects": "মূল ব্যাংক লেনদেনটি সংরক্ষিত থাকবে। বিপরীত ব্যাংক লেনদেন এবং ব্যালান্সড জার্নাল মূল হিসাবের প্রভাব রিভার্স করবে।",
+  "bank_transaction_void_confirm_audit": "আপনার কারণ, নাম ও সময় অডিট ট্রেইলে স্থায়ীভাবে সংরক্ষিত হবে।",
+  "bank_transaction_void_success": "ব্যাংক লেনদেন বাতিল ও রিভার্স সফল হয়েছে।",
+  "bank_transaction_void_failed": "ব্যাংক লেনদেন বাতিল ও রিভার্স করা যায়নি।",
   "btn_void_and_reverse": "বাতিল ও রিভার্স",
   "lbl_voided": "বাতিল হয়েছে"
 }

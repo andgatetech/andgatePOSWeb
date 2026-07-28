@@ -5,6 +5,9 @@ import { useParams, useRouter } from 'next/navigation';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
+import { canManageBankTransactionVoid, canVoidBankTransaction } from '@/lib/bankTransactionVoidReversal';
+import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
+import { RootState } from '@/store';
 import {
     useGetBankAccountByIdQuery,
     useGetBankAccountsQuery,
@@ -12,9 +15,10 @@ import {
     useCreateBankTransactionMutation,
     useUpdateBankTransactionMutation,
     useReconcileBankTransactionMutation,
-    useDeleteBankTransactionMutation,
+    useVoidAndReverseBankTransactionMutation,
 } from '@/store/features/bank/bankApi';
-import { ArrowLeft, CheckCircle2, Pencil, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Pencil, Plus, RotateCcw } from 'lucide-react';
+import { useSelector } from 'react-redux';
 
 const TRANSACTION_TYPES = [
     { value: 'deposit', label: 'Deposit', sign: 1 },
@@ -27,6 +31,7 @@ const STATUS_BADGES: Record<string, string> = {
     pending: 'bg-gray-100 text-gray-700',
     cleared: 'bg-blue-100 text-blue-700',
     reconciled: 'bg-green-100 text-green-700',
+    voided: 'bg-orange-100 text-orange-700',
 };
 
 const emptyForm = {
@@ -46,6 +51,8 @@ export default function BankAccountDetailPage() {
     const { id } = useParams();
     const { formatCurrency } = useCurrency();
     const { currentStoreId } = useCurrentStore();
+    const user = useSelector((state: RootState) => state.auth.user);
+    const canManageVoid = canManageBankTransactionVoid(user);
     const accountId = Number(id);
 
     const { data: accountData } = useGetBankAccountByIdQuery(accountId, { skip: !accountId });
@@ -55,7 +62,7 @@ export default function BankAccountDetailPage() {
     const [createTx, { isLoading: creating }] = useCreateBankTransactionMutation();
     const [updateTx, { isLoading: updating }] = useUpdateBankTransactionMutation();
     const [reconcileTx, { isLoading: reconciling }] = useReconcileBankTransactionMutation();
-    const [deleteTx] = useDeleteBankTransactionMutation();
+    const [voidAndReverseTx, { isLoading: voiding }] = useVoidAndReverseBankTransactionMutation();
 
     const [modalOpen, setModalOpen] = useState(false);
     const [reconcileModal, setReconcileModal] = useState<any>(null);
@@ -133,13 +140,27 @@ export default function BankAccountDetailPage() {
         }
     };
 
-    const handleDelete = async (txId: number) => {
-        if (!confirm(t('msg_confirm_delete'))) return;
+    const handleVoidAndReverse = async (tx: any) => {
+        if (!canManageVoid || !canVoidBankTransaction(tx)) return;
+        const reason = window.prompt(t('bank_transaction_void_reason_prompt'))?.trim();
+        if (!reason) {
+            showErrorDialog(t('msg_error'), t('bank_transaction_void_reason_required'));
+            return;
+        }
+        const confirmed = await showConfirmDialog(
+            t('bank_transaction_void_confirm_title'),
+            `${t('bank_transaction_void_confirm_effects')} ${t('bank_transaction_void_confirm_audit')}`,
+            t('btn_void_and_reverse'),
+            t('btn_cancel'),
+            false,
+        );
+        if (!confirmed) return;
         try {
-            await deleteTx(txId).unwrap();
+            await voidAndReverseTx({ id: tx.id, reason, storeId: currentStoreId || tx.store_id }).unwrap();
+            showSuccessDialog(t('msg_success'), t('bank_transaction_void_success'));
             refetchTx();
-        } catch (e) {
-            // handled by RTK
+        } catch (error: any) {
+            showErrorDialog(t('msg_error'), error?.data?.message || t('bank_transaction_void_failed'));
         }
     };
 
@@ -234,9 +255,16 @@ export default function BankAccountDetailPage() {
                                                 <button onClick={() => openEdit(tx)} className="rounded p-1.5 text-gray-500 hover:bg-gray-100">
                                                     <Pencil className="h-4 w-4" />
                                                 </button>
-                                                <button onClick={() => handleDelete(tx.id)} className="rounded p-1.5 text-danger hover:bg-red-50">
-                                                    <Trash2 className="h-4 w-4" />
-                                                </button>
+                                                {canManageVoid && canVoidBankTransaction(tx) && (
+                                                    <button
+                                                        onClick={() => handleVoidAndReverse(tx)}
+                                                        disabled={voiding}
+                                                        className="rounded p-1.5 text-orange-600 hover:bg-orange-50 disabled:opacity-50"
+                                                        title={t('btn_void_and_reverse')}
+                                                    >
+                                                        <RotateCcw className="h-4 w-4" />
+                                                    </button>
+                                                )}
                                             </div>
                                         </td>
                                     </tr>

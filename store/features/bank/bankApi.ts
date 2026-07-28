@@ -72,10 +72,11 @@ const BankApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['BankTransactions', 'BankAccounts'],
         }),
-        deleteBankTransaction: builder.mutation({
-            query: (id: number | string) => ({
-                url: `/bank-transactions/${id}`,
-                method: 'DELETE',
+        voidAndReverseBankTransaction: builder.mutation({
+            query: ({ id, reason, storeId }: any) => ({
+                url: `/bank-transactions/${id}/void-and-reverse`,
+                method: 'POST',
+                body: { reason, store_id: storeId },
             }),
             invalidatesTags: ['BankTransactions', 'BankAccounts'],
         }),
@@ -92,5 +93,5 @@ export const {
     useCreateBankTransactionMutation,
     useUpdateBankTransactionMutation,
     useReconcileBankTransactionMutation,
-    useDeleteBankTransactionMutation,
+    useVoidAndReverseBankTransactionMutation,
 } = BankApi;
