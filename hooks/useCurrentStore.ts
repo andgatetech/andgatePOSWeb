@@ -16,6 +16,8 @@ export const useCurrentStore = () => {
     const userStores = useMemo(
         () => (user?.stores || []).filter(
             (store: Store, idx: number, stores: Store[]) =>
+                (store.is_active === true || store.is_active === 1 || store.is_active === '1') &&
+                !store.store_disabled &&
                 stores.findIndex((candidate: Store) => Number(candidate.id) === Number(store.id)) === idx
         ),
         [user?.stores]

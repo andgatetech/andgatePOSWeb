@@ -7,7 +7,8 @@ import { getTranslation } from '@/i18n';
 import useSubscriptionError from '@/hooks/useSubscriptionError';
 import Loader from '@/lib/Loader';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
-import { useCreateTaxProfileMutation, useDeleteStoreMutation, useGetStoreQuery, useGetTaxProfilesQuery, useUpdateTaxProfileMutation } from '@/store/features/store/storeApi';
+import { useArchiveStoreMutation, useCreateTaxProfileMutation, useGetStoreQuery, useGetTaxProfilesQuery, useUpdateTaxProfileMutation } from '@/store/features/store/storeApi';
+import { useSelector } from 'react-redux';
 import { removeStore } from '@/store/features/auth/authSlice';
 import { Plus, Store } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -45,7 +46,9 @@ const StoreComponent = () => {
 
     // Table State & Logic
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
-    const [deleteStore] = useDeleteStoreMutation();
+    const [archiveStore] = useArchiveStoreMutation();
+    const permissions = useSelector((state: any) => state.auth?.user?.permissions || []);
+    const canArchiveStores = permissions.includes('stores.archive');
     const { data: taxProfileData, refetch: refetchTaxProfiles } = useGetTaxProfilesQuery(currentStoreId ? { store_id: currentStoreId, only_active: true } : (undefined as any), { skip: !currentStoreId });
     const [createTaxProfile, { isLoading: isCreatingTaxProfile }] = useCreateTaxProfileMutation();
     const [updateTaxProfile, { isLoading: isUpdatingTaxProfile }] = useUpdateTaxProfileMutation();
@@ -109,16 +112,16 @@ const StoreComponent = () => {
         }
     };
 
-    const handleDeleteStore = async (store: any) => {
-        const confirmed = await showConfirmDialog(t('msg_are_you_sure'), `${t('msg_delete_store_confirm')} "${store.store_name}"? ${t('msg_cannot_be_undone')}`);
+    const handleArchiveStore = async (store: any) => {
+        const confirmed = await showConfirmDialog(t('btn_archive_store'), `${t('msg_archive_store_confirm')} "${store.store_name}"`);
 
         if (confirmed) {
             try {
-                await deleteStore(store.id).unwrap();
+                await archiveStore({ storeId: store.id }).unwrap();
                 dispatch(removeStore(store.id));
                 showSuccessDialog(t('msg_deleted'), t('msg_store_deleted'));
-            } catch (error) {
-                showErrorDialog(t('msg_error'), t('msg_failed_delete_store'));
+            } catch (error: any) {
+                showErrorDialog(t('msg_error'), error?.data?.message || t('msg_failed_delete_store'));
             }
         }
     };
@@ -253,7 +256,8 @@ const StoreComponent = () => {
             <StoresTable
                 stores={paginatedStores}
                 isLoading={isLoadingStore}
-                onDelete={handleDeleteStore}
+                onArchive={handleArchiveStore}
+                canArchive={canArchiveStores}
                 pagination={{
                     currentPage,
                     totalPages,

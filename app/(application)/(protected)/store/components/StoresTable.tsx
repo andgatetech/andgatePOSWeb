@@ -2,7 +2,7 @@
 
 import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
 import { convertNumberByLanguage } from '@/components/custom/convertNumberByLanguage';
-import { Building2, Clock, Coins, CreditCard, MapPin, Package, Phone, Settings, Store, Trash2 } from 'lucide-react';
+import { Archive, Building2, Clock, Coins, CreditCard, MapPin, Package, Phone, Settings, Store } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
@@ -24,10 +24,11 @@ interface StoresTableProps {
         direction: 'asc' | 'desc';
         onSort: (field: string) => void;
     };
-    onDelete: (store: any) => void;
+    onArchive: (store: any) => void;
+    canArchive: boolean;
 }
 
-const StoresTable: React.FC<StoresTableProps> = ({ stores, isLoading, pagination, sorting, onDelete }) => {
+const StoresTable: React.FC<StoresTableProps> = ({ stores, isLoading, pagination, sorting, onArchive, canArchive }) => {
     const { t, i18n } = getTranslation();
     const displayNumber = (value: string | number) => convertNumberByLanguage(value, i18n.language);
     const router = useRouter();
@@ -206,14 +207,14 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, isLoading, pagination
                 className: 'text-gray-700',
                 icon: <Settings className="h-4 w-4" />,
             },
-            {
-                label: t('btn_delete'),
-                onClick: onDelete,
+            ...(canArchive ? [{
+                label: t('btn_archive_store'),
+                onClick: onArchive,
                 className: 'text-danger',
-                icon: <Trash2 className="h-4 w-4" />,
-            },
+                icon: <Archive className="h-4 w-4" />,
+            }] : []),
         ],
-        [t, onDelete, router]
+        [t, onArchive, canArchive, router]
     );
 
     return (

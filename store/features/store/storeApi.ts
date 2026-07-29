@@ -245,7 +245,18 @@ const StoreApi = baseApi.injectEndpoints({
             invalidatesTags: ['User'],
         }),
 
-        //  Delete store
+        // Archive keeps tenancy, reporting and audit data. Physical deletion is a
+        // separate owner-only endpoint and intentionally not the legacy action.
+        archiveStore: builder.mutation({
+            query: ({ storeId, archive_reason }: { storeId: number; archive_reason?: string }) => ({
+                url: `/store/${storeId}/archive`, method: 'PATCH', body: { archive_reason },
+            }),
+            invalidatesTags: ['Stores', 'User'],
+        }),
+        safeDeleteStore: builder.mutation({
+            query: (storeId: number) => ({ url: `/store/${storeId}/safe-delete`, method: 'POST' }),
+            invalidatesTags: ['Stores', 'User'],
+        }),
         deleteStore: builder.mutation({
             query: (storeId: number) => ({
                 url: `/store/${storeId}`,
@@ -428,6 +439,8 @@ export const {
     useGetStaffMemberQuery,
     useStaffRegisterMutation,
     useStaffUpdateMutation,
+    useArchiveStoreMutation,
+    useSafeDeleteStoreMutation,
     useDeleteStoreMutation,
 
     useCreateStoreMutation, // ← New hook for store registration
