@@ -55,10 +55,19 @@ const supplierApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['Suppliers'],
         }),
-        deleteSupplier: builder.mutation({
-            query: (id) => ({
-                url: `/suppliers/${id}`,
-                method: 'DELETE',
+        archiveSupplier: builder.mutation({
+            query: ({ supplierId, storeId }) => ({
+                url: `/suppliers/${supplierId}/archive`,
+                method: 'PATCH',
+                params: storeId ? { store_id: storeId } : undefined,
+            }),
+            invalidatesTags: ['Suppliers'],
+        }),
+        safeDeleteSupplier: builder.mutation({
+            query: ({ supplierId, storeId }) => ({
+                url: `/suppliers/${supplierId}/safe-delete`,
+                method: 'POST',
+                params: storeId ? { store_id: storeId } : undefined,
             }),
             invalidatesTags: ['Suppliers'],
         }),
@@ -73,5 +82,6 @@ export const {
     useUpdateSupplierPurchaseMutation,
     useLoginSupplierMutation,
     useUpdateSupplierMutation,
-    useDeleteSupplierMutation,
+    useArchiveSupplierMutation,
+    useSafeDeleteSupplierMutation,
 } = supplierApi;

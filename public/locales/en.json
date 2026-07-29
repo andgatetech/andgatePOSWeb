@@ -7950,5 +7950,14 @@
   "customer_receipt_void_reason": "Reason for void",
   "customer_receipt_void_reason_hint": "Explain why this receipt must be voided.",
   "customer_receipt_void_success": "Customer receipt voided and reversed successfully.",
-  "customer_receipt_void_failed": "Could not void and reverse this customer receipt."
+  "customer_receipt_void_failed": "Could not void and reverse this customer receipt.",
+  "counterparty_archive_reason": "Archive this record? It will be hidden from new sales and purchases while all history stays linked.",
+  "counterparty_archive_action": "Archive",
+  "counterparty_error_archive": "Could not archive this record.",
+  "counterparty_delete_title": "Permanently delete unused record?",
+  "counterparty_delete_reason": "Delete is only allowed when there is no order, purchase, payment, return, due, ledger, loyalty, or balance history.",
+  "counterparty_delete_action": "Delete permanently",
+  "counterparty_delete_blocked": "This record has history or a balance and must be archived instead.",
+  "customer_archived": "Customer archived; history was preserved.",
+  "supplier_archived": "Supplier archived; history was preserved."
 }

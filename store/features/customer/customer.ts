@@ -102,13 +102,23 @@ const CustomerApi = baseApi.injectEndpoints({
                 { type: 'Customers', id: 'LIST' },
             ],
         }),
-        // ✅ Delete customer mutation to invalidate store customers list
-        deleteCustomer: builder.mutation({
-            query: (customerId) => ({
-                url: `/customers/${customerId}`,
-                method: 'DELETE',
+        archiveCustomer: builder.mutation({
+            query: ({ customerId, storeId }) => ({
+                url: `/customers/${customerId}/archive`,
+                method: 'PATCH',
+                params: storeId ? { store_id: storeId } : undefined,
             }),
-            invalidatesTags: (result, error, customerId) => [
+            invalidatesTags: [{ type: 'Customers', id: 'LIST' }],
+        }),
+        // Permanent deletion is deliberately separate from archive and is only
+        // accepted by the API for an unused, zero-balance customer.
+        safeDeleteCustomer: builder.mutation({
+            query: ({ customerId, storeId }) => ({
+                url: `/customers/${customerId}/safe-delete`,
+                method: 'POST',
+                params: storeId ? { store_id: storeId } : undefined,
+            }),
+            invalidatesTags: (result, error, { customerId }) => [
                 { type: 'Customers', id: customerId },
                 { type: 'Customers', id: 'LIST' },
             ],
@@ -146,7 +156,8 @@ export const {
     useGetStoreCustomersQuery,
     useGetStoreCustomersListQuery,
     useUpdateCustomerMutation,
-    useDeleteCustomerMutation,
+    useArchiveCustomerMutation,
+    useSafeDeleteCustomerMutation,
     useGetSingleCustomerQuery,
     useGetCustomerPointTransactionsQuery,
 } = CustomerApi;

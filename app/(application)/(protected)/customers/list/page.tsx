@@ -5,7 +5,7 @@ import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import Loader from '@/lib/Loader';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
-import { useDeleteCustomerMutation, useGetStoreCustomersListQuery } from '@/store/features/customer/customer';
+import { useArchiveCustomerMutation, useGetStoreCustomersListQuery, useSafeDeleteCustomerMutation } from '@/store/features/customer/customer';
 import { Plus, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
@@ -36,7 +36,8 @@ const CustomersPage = () => {
     const { data: customersResponse, isLoading } = useGetStoreCustomersListQuery(queryParams, {
         skip: !filterParams.store_id && !filterParams.store_ids, // Skip until store_id is available from filter
     });
-    const [deleteCustomer] = useDeleteCustomerMutation();
+    const [archiveCustomer] = useArchiveCustomerMutation();
+    const [safeDeleteCustomer] = useSafeDeleteCustomerMutation();
 
     const customers = customersResponse?.data?.items || [];
     const pagination = customersResponse?.data?.pagination || {
@@ -77,20 +78,34 @@ const CustomersPage = () => {
         [router]
     );
 
-    const handleDelete = useCallback(
+    const handleArchive = useCallback(
         async (customer: any) => {
-            const confirmed = await showConfirmDialog(t('msg_confirm_delete_title'), t('msg_confirm_delete_text'), t('msg_confirm_delete_btn'), t('btn_cancel'), false);
+            const confirmed = await showConfirmDialog(t('master_data_archive_title'), t('counterparty_archive_reason'), t('master_data_archive_action'), t('btn_cancel'), false);
 
             if (confirmed) {
                 try {
-                    await deleteCustomer(customer.id).unwrap();
-                    showSuccessDialog(t('msg_success'), t('customer_deleted'));
+                    await archiveCustomer({ customerId: customer.id, storeId: customer.store_id || currentStoreId }).unwrap();
+                    showSuccessDialog(t('msg_success'), t('customer_archived'));
                 } catch (error: any) {
-                    showErrorDialog(t('msg_error'), error?.data?.message || t('customer_error_delete'));
+                    showErrorDialog(t('msg_error'), error?.data?.message || t('counterparty_error_archive'));
                 }
             }
         },
-        [deleteCustomer, t]
+        [archiveCustomer, currentStoreId, t]
+    );
+
+    const handleSafeDelete = useCallback(
+        async (customer: any) => {
+            const confirmed = await showConfirmDialog(t('counterparty_delete_title'), t('counterparty_delete_reason'), t('counterparty_delete_action'), t('btn_cancel'), false);
+            if (!confirmed) return;
+            try {
+                await safeDeleteCustomer({ customerId: customer.id, storeId: customer.store_id || currentStoreId }).unwrap();
+                showSuccessDialog(t('msg_success'), t('customer_deleted'));
+            } catch (error: any) {
+                showErrorDialog(t('msg_error'), error?.data?.message || t('counterparty_delete_blocked'));
+            }
+        },
+        [currentStoreId, safeDeleteCustomer, t]
     );
 
     const handleAddNew = () => {
@@ -147,7 +162,8 @@ const CustomersPage = () => {
                     }}
                     onViewDetails={handleViewDetails}
                     onEdit={handleEdit}
-                    onDelete={handleDelete}
+                    onArchive={handleArchive}
+                    onSafeDelete={handleSafeDelete}
                 />
         </div>
     );

@@ -3,7 +3,7 @@
 import DateColumn from '@/components/common/DateColumn';
 import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
 import { getTranslation } from '@/i18n';
-import { Edit, Eye, Package, Trash2 } from 'lucide-react';
+import { Archive, Edit, Eye, Package, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 
@@ -25,10 +25,11 @@ interface SuppliersTableProps {
     };
     onViewDetails: (supplier: any) => void;
     onEdit: (supplier: any) => void;
-    onDelete: (supplier: any) => void;
+    onArchive: (supplier: any) => void;
+    onSafeDelete: (supplier: any) => void;
 }
 
-const SuppliersTable: React.FC<SuppliersTableProps> = ({ suppliers, isLoading, pagination, sorting, onViewDetails, onEdit, onDelete }) => {
+const SuppliersTable: React.FC<SuppliersTableProps> = ({ suppliers, isLoading, pagination, sorting, onViewDetails, onEdit, onArchive, onSafeDelete }) => {
     const { t } = getTranslation();
     const router = useRouter();
 
@@ -136,13 +137,19 @@ const SuppliersTable: React.FC<SuppliersTableProps> = ({ suppliers, isLoading, p
                 icon: <Edit className="h-4 w-4" />,
             },
             {
-                label: t('supplier_action_delete'),
-                onClick: onDelete,
+                label: t('counterparty_archive_action'),
+                onClick: onArchive,
+                className: 'text-amber-700',
+                icon: <Archive className="h-4 w-4" />,
+            },
+            {
+                label: t('counterparty_delete_action'),
+                onClick: onSafeDelete,
                 className: 'text-danger',
                 icon: <Trash2 className="h-4 w-4" />,
             },
         ],
-        [onViewDetails, onEdit, onDelete]
+        [onViewDetails, onEdit, onArchive, onSafeDelete, t]
     );
 
     return (

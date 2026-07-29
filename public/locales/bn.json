@@ -7950,5 +7950,14 @@
   "customer_receipt_void_reason": "বাতিলের কারণ",
   "customer_receipt_void_reason_hint": "কেন এই রসিদটি বাতিল করতে হবে তা লিখুন।",
   "customer_receipt_void_success": "গ্রাহকের রসিদ বাতিল ও রিভার্স সফল হয়েছে।",
-  "customer_receipt_void_failed": "গ্রাহকের রসিদ বাতিল ও রিভার্স করা যায়নি।"
+  "customer_receipt_void_failed": "গ্রাহকের রসিদ বাতিল ও রিভার্স করা যায়নি।",
+  "counterparty_archive_reason": "এই রেকর্ডটি আর্কাইভ করবেন? নতুন বিক্রয় ও ক্রয়ে এটি দেখা যাবে না, তবে সব ইতিহাস সংযুক্ত থাকবে।",
+  "counterparty_archive_action": "আর্কাইভ",
+  "counterparty_error_archive": "এই রেকর্ডটি আর্কাইভ করা যায়নি।",
+  "counterparty_delete_title": "অব্যবহৃত রেকর্ড স্থায়ীভাবে মুছবেন?",
+  "counterparty_delete_reason": "অর্ডার, ক্রয়, পেমেন্ট, রিটার্ন, বাকি, লেজার, লয়্যালটি বা ব্যালেন্সের কোনো ইতিহাস না থাকলেই কেবল মুছতে পারবেন।",
+  "counterparty_delete_action": "স্থায়ীভাবে মুছুন",
+  "counterparty_delete_blocked": "এই রেকর্ডে ইতিহাস বা ব্যালেন্স আছে; তাই আর্কাইভ করতে হবে।",
+  "customer_archived": "গ্রাহক আর্কাইভ করা হয়েছে; ইতিহাস সংরক্ষিত আছে।",
+  "supplier_archived": "সাপ্লায়ার আর্কাইভ করা হয়েছে; ইতিহাস সংরক্ষিত আছে।"
 }

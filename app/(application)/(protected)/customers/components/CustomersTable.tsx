@@ -4,7 +4,7 @@ import DateColumn from '@/components/common/DateColumn';
 import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
 import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
-import { Edit, Eye, Trash2, Users } from 'lucide-react';
+import { Archive, Edit, Eye, Trash2, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 
@@ -26,10 +26,11 @@ interface CustomersTableProps {
     };
     onViewDetails: (customer: any) => void;
     onEdit: (customer: any) => void;
-    onDelete: (customer: any) => void;
+    onArchive: (customer: any) => void;
+    onSafeDelete: (customer: any) => void;
 }
 
-const CustomersTable: React.FC<CustomersTableProps> = ({ customers, isLoading, pagination, sorting, onViewDetails, onEdit, onDelete }) => {
+const CustomersTable: React.FC<CustomersTableProps> = ({ customers, isLoading, pagination, sorting, onViewDetails, onEdit, onArchive, onSafeDelete }) => {
     const { t } = getTranslation();
     const router = useRouter();
     const { formatCurrency } = useCurrency();
@@ -153,13 +154,19 @@ const CustomersTable: React.FC<CustomersTableProps> = ({ customers, isLoading, p
                 icon: <Edit className="h-4 w-4" />,
             },
             {
-                label: t('customer_action_delete'),
-                onClick: onDelete,
+                label: t('counterparty_archive_action'),
+                onClick: onArchive,
+                className: 'text-amber-700',
+                icon: <Archive className="h-4 w-4" />,
+            },
+            {
+                label: t('counterparty_delete_action'),
+                onClick: onSafeDelete,
                 className: 'text-danger',
                 icon: <Trash2 className="h-4 w-4" />,
             },
         ],
-        [onViewDetails, onEdit, onDelete]
+        [onViewDetails, onEdit, onArchive, onSafeDelete, t]
     );
 
     return (

@@ -5,7 +5,7 @@ import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import Loader from '@/lib/Loader';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
-import { useDeleteSupplierMutation, useGetSuppliersQuery } from '@/store/features/supplier/supplierApi';
+import { useArchiveSupplierMutation, useGetSuppliersQuery, useSafeDeleteSupplierMutation } from '@/store/features/supplier/supplierApi';
 import { Plus, Truck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
@@ -36,7 +36,8 @@ const SuppliersPage = () => {
     const { data: suppliersResponse, isLoading } = useGetSuppliersQuery(queryParams, {
         skip: !filterParams.store_id && !filterParams.store_ids, // Skip until store_id is available from filter
     });
-    const [deleteSupplier] = useDeleteSupplierMutation();
+    const [archiveSupplier] = useArchiveSupplierMutation();
+    const [safeDeleteSupplier] = useSafeDeleteSupplierMutation();
 
     const suppliers = suppliersResponse?.data?.items || [];
     const pagination = suppliersResponse?.data?.pagination || {
@@ -77,20 +78,34 @@ const SuppliersPage = () => {
         [router]
     );
 
-    const handleDelete = useCallback(
+    const handleArchive = useCallback(
         async (supplier: any) => {
-            const confirmed = await showConfirmDialog(t('msg_confirm_delete_title'), t('supplier_delete_confirm'), t('msg_confirm_delete_btn'), t('btn_cancel'), false);
+            const confirmed = await showConfirmDialog(t('master_data_archive_title'), t('counterparty_archive_reason'), t('master_data_archive_action'), t('btn_cancel'), false);
 
             if (confirmed) {
                 try {
-                    await deleteSupplier(supplier.id).unwrap();
-                    showSuccessDialog(t('msg_success'), t('supplier_deleted'));
+                    await archiveSupplier({ supplierId: supplier.id, storeId: supplier.store_id || currentStoreId }).unwrap();
+                    showSuccessDialog(t('msg_success'), t('supplier_archived'));
                 } catch (error: any) {
-                    showErrorDialog(t('msg_error'), error?.data?.message || t('supplier_error_delete'));
+                    showErrorDialog(t('msg_error'), error?.data?.message || t('counterparty_error_archive'));
                 }
             }
         },
-        [deleteSupplier, t]
+        [archiveSupplier, currentStoreId, t]
+    );
+
+    const handleSafeDelete = useCallback(
+        async (supplier: any) => {
+            const confirmed = await showConfirmDialog(t('counterparty_delete_title'), t('counterparty_delete_reason'), t('counterparty_delete_action'), t('btn_cancel'), false);
+            if (!confirmed) return;
+            try {
+                await safeDeleteSupplier({ supplierId: supplier.id, storeId: supplier.store_id || currentStoreId }).unwrap();
+                showSuccessDialog(t('msg_success'), t('supplier_deleted'));
+            } catch (error: any) {
+                showErrorDialog(t('msg_error'), error?.data?.message || t('counterparty_delete_blocked'));
+            }
+        },
+        [currentStoreId, safeDeleteSupplier, t]
     );
 
     const handleAddNew = () => {
@@ -147,7 +162,8 @@ const SuppliersPage = () => {
                     }}
                     onViewDetails={handleViewDetails}
                     onEdit={handleEdit}
-                    onDelete={handleDelete}
+                    onArchive={handleArchive}
+                    onSafeDelete={handleSafeDelete}
                 />
         </div>
     );
