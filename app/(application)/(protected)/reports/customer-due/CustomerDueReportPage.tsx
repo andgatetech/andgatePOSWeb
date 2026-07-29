@@ -7,11 +7,14 @@ import ReusableTable from '@/components/common/ReusableTable';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
+import { hasAnyPermission } from '@/lib/permissions';
 import { escapePrintHtml, printInWindow } from '@/lib/printUtil';
-import { useClearCustomerDueMutation, useCollectCustomerDuePaymentMutation, useGetCustomerDuesQuery, useUpdateCustomerDueFollowUpMutation } from '@/store/features/customerDue/customerDueApi';
+import { RootState } from '@/store';
+import { useClearCustomerDueMutation, useCollectCustomerDuePaymentMutation, useGetCustomerDuesQuery, useLazyGetCustomerDueByIdQuery, useUpdateCustomerDueFollowUpMutation, useVoidCustomerDuePaymentMutation } from '@/store/features/customerDue/customerDueApi';
 import PaymentLinkModal from '@/app/(application)/(protected)/customers/components/PaymentLinkModal';
-import { AlertCircle, Bell, CalendarClock, CheckCircle2, Clock, CreditCard, FileText, Link2, MessageCircle, Phone, Receipt, Search, Users, Wallet } from 'lucide-react';
+import { AlertCircle, Bell, CalendarClock, CheckCircle2, Clock, CreditCard, FileText, Link2, MessageCircle, Phone, Receipt, RotateCcw, Search, Users, Wallet, X } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
+import { useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 
 const paymentMethods = ['cash', 'bkash', 'nagad', 'rocket', 'card', 'bank'];
@@ -50,6 +53,10 @@ const CustomerDueReportPage = () => {
     const [paymentAmount, setPaymentAmount] = useState('');
     const [paymentMethod, setPaymentMethod] = useState('cash');
     const [paymentNote, setPaymentNote] = useState('');
+    const [receiptHistory, setReceiptHistory] = useState<any | null>(null);
+    const [voidReason, setVoidReason] = useState('');
+    const user = useSelector((state: RootState) => state.auth.user);
+    const canVoidReceipts = hasAnyPermission(user, ['customer-payments.reverse']);
 
     const queryParams = useMemo(() => {
         const params: Record<string, any> = {
@@ -70,6 +77,8 @@ const CustomerDueReportPage = () => {
     const [collectPayment, { isLoading: isCollecting }] = useCollectCustomerDuePaymentMutation();
     const [clearDue, { isLoading: isClearing }] = useClearCustomerDueMutation();
     const [updateFollowUp, { isLoading: isUpdatingFollowUp }] = useUpdateCustomerDueFollowUpMutation();
+    const [getCustomerDueById, { isFetching: isLoadingReceipts }] = useLazyGetCustomerDueByIdQuery();
+    const [voidCustomerDuePayment, { isLoading: isVoidingReceipt }] = useVoidCustomerDuePaymentMutation();
     const { data: exportData } = useGetCustomerDuesQuery({ ...queryParams, export: true }, { skip: !currentStoreId });
 
     const dues = useMemo(() => reportData?.data?.dues || [], [reportData]);
@@ -144,6 +153,30 @@ const CustomerDueReportPage = () => {
         if (status === 'scheduled') return 'bg-info-light text-info';
         if (status === 'paid') return 'bg-success-light text-success';
         return 'bg-gray-100 text-gray-700';
+    };
+
+    const openReceiptHistory = useCallback(async (due: any) => {
+        try {
+            const result = await getCustomerDueById(due.id).unwrap();
+            setReceiptHistory(result?.data?.due || null);
+            setVoidReason('');
+        } catch (error: any) {
+            Swal.fire(t('msg_error'), error?.data?.message || t('customer_receipt_history_failed'), 'error');
+        }
+    }, [getCustomerDueById, t]);
+
+    const voidReceipt = async (payment: any) => {
+        if (!receiptHistory || !currentStoreId || !voidReason.trim()) return;
+        try {
+            await voidCustomerDuePayment({ paymentId: payment.id, store_id: currentStoreId, reason: voidReason.trim() }).unwrap();
+            Swal.fire(t('msg_success'), t('customer_receipt_void_success'), 'success');
+            setVoidReason('');
+            const result = await getCustomerDueById(receiptHistory.id).unwrap();
+            setReceiptHistory(result?.data?.due || null);
+            refetch();
+        } catch (error: any) {
+            Swal.fire(t('msg_error'), error?.data?.message || t('customer_receipt_void_failed'), 'error');
+        }
     };
 
     const printReceipt = useCallback(
@@ -405,8 +438,14 @@ const CustomerDueReportPage = () => {
                 onClick: (row: any) => openPaymentModal('full', row),
                 hidden: (row: any) => Number(row.remaining || 0) <= 0,
             },
+            {
+                label: t('btn_receipt_history'),
+                icon: <Receipt className="h-4 w-4" />,
+                className: 'text-primary',
+                onClick: (row: any) => openReceiptHistory(row),
+            },
         ],
-        [t]
+        [t, openReceiptHistory]
     );
 
     return (
@@ -504,6 +543,40 @@ const CustomerDueReportPage = () => {
                 sorting={{ field: sortField, direction: sortDirection, onSort: handleSort }}
                 emptyState={{ icon: <FileText className="mx-auto h-16 w-16" />, title: t('report_no_dues_found'), description: t('report_dues_up_to_date') }}
             />
+
+            {receiptHistory && (
+                <div className="fixed inset-0 z-[125] flex items-center justify-center bg-black/50 p-4" role="dialog" aria-modal="true" aria-labelledby="receipt-history-title">
+                    <div className="w-full max-w-2xl rounded-lg bg-white shadow-lg">
+                        <div className="flex items-start justify-between border-b border-gray-200 p-5">
+                            <div>
+                                <h2 id="receipt-history-title" className="text-lg font-bold text-gray-900">{t('customer_receipt_history')}</h2>
+                                <p className="mt-1 text-sm text-gray-500">{receiptHistory.customer} · {receiptHistory.phone || '-'}</p>
+                            </div>
+                            <button type="button" aria-label={t('btn_close')} onClick={() => setReceiptHistory(null)} className="rounded p-1 text-gray-500 hover:bg-gray-100"><X className="h-5 w-5" /></button>
+                        </div>
+                        <div className="max-h-[60vh] space-y-3 overflow-y-auto p-5">
+                            {isLoadingReceipts ? <p className="text-sm text-gray-500">{t('lbl_loading')}</p> : (receiptHistory.payments || []).map((payment: any) => (
+                                <div key={payment.id} className="rounded-lg border border-gray-200 p-4">
+                                    <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+                                        <div>
+                                            <p className="font-semibold text-gray-900">{payment.reference_no || `#${payment.id}`}</p>
+                                            <p className="text-sm text-gray-500">{payment.payment_method} · {payment.payment_date} · {formatCurrency(payment.paid_amount)}</p>
+                                            {payment.void_reason && <p className="mt-1 text-xs text-gray-500">{payment.void_reason}</p>}
+                                        </div>
+                                        {payment.status === 'voided' || payment.reversal_payment_id ? <span className="rounded bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-600">{t('lbl_voided')}</span> : canVoidReceipts && (
+                                            <button type="button" onClick={() => voidReceipt(payment)} disabled={!voidReason.trim() || isVoidingReceipt} className="btn btn-outline-danger inline-flex items-center gap-2">
+                                                <RotateCcw className="h-4 w-4" />{isVoidingReceipt ? t('lbl_processing') : t('btn_void_and_reverse')}
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                            {!isLoadingReceipts && !(receiptHistory.payments || []).length && <p className="text-sm text-gray-500">{t('msg_no_transactions_recorded')}</p>}
+                            {canVoidReceipts && <label className="block"><span className="mb-1 block text-sm font-semibold text-gray-700">{t('customer_receipt_void_reason')}</span><textarea value={voidReason} onChange={(e) => setVoidReason(e.target.value)} rows={3} className="form-textarea w-full" placeholder={t('customer_receipt_void_reason_hint')} /></label>}
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {paymentModal && (
                 <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/50 p-4">

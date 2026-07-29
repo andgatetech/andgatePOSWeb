@@ -7915,5 +7915,12 @@
   "bank_transaction_void_success": "ব্যাংক লেনদেন বাতিল ও রিভার্স সফল হয়েছে।",
   "bank_transaction_void_failed": "ব্যাংক লেনদেন বাতিল ও রিভার্স করা যায়নি।",
   "btn_void_and_reverse": "বাতিল ও রিভার্স",
-  "lbl_voided": "বাতিল হয়েছে"
+  "lbl_voided": "বাতিল হয়েছে",
+  "btn_receipt_history": "রসিদের ইতিহাস",
+  "customer_receipt_history": "গ্রাহক রসিদের ইতিহাস",
+  "customer_receipt_history_failed": "গ্রাহকের রসিদ লোড করা যায়নি।",
+  "customer_receipt_void_reason": "বাতিলের কারণ",
+  "customer_receipt_void_reason_hint": "কেন এই রসিদটি বাতিল করতে হবে তা লিখুন।",
+  "customer_receipt_void_success": "গ্রাহকের রসিদ বাতিল ও রিভার্স সফল হয়েছে।",
+  "customer_receipt_void_failed": "গ্রাহকের রসিদ বাতিল ও রিভার্স করা যায়নি।"
 }

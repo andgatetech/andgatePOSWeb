@@ -99,6 +99,7 @@ const CustomerDueApi = baseApi.injectEndpoints({
 export const {
     useGetCustomerDuesQuery,
     useGetCustomerDueByIdQuery,
+    useLazyGetCustomerDueByIdQuery,
     useCollectCustomerDuePaymentMutation,
     useVoidCustomerDuePaymentMutation,
     useClearCustomerDueMutation,

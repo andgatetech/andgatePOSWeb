@@ -7915,5 +7915,12 @@
   "bank_transaction_void_success": "Bank transaction voided and reversed successfully.",
   "bank_transaction_void_failed": "Could not void and reverse this bank transaction.",
   "btn_void_and_reverse": "Void & Reverse",
-  "lbl_voided": "Voided"
+  "lbl_voided": "Voided",
+  "btn_receipt_history": "Receipt history",
+  "customer_receipt_history": "Customer receipt history",
+  "customer_receipt_history_failed": "Could not load customer receipts.",
+  "customer_receipt_void_reason": "Reason for void",
+  "customer_receipt_void_reason_hint": "Explain why this receipt must be voided.",
+  "customer_receipt_void_success": "Customer receipt voided and reversed successfully.",
+  "customer_receipt_void_failed": "Could not void and reverse this customer receipt."
 }
