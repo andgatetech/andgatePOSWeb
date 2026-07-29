@@ -183,6 +183,12 @@ const PurchaseOrderApi = baseApi.injectEndpoints({
             invalidatesTags: ['PurchaseOrders', 'Products', 'Orders'],
         }),
 
+        voidSupplierPayment: builder.mutation({
+            query: ({ id, paymentId, reason, store_id }: { id: number | string; paymentId: number | string; reason: string; store_id?: number | string }) => ({
+                url: `/purchase-order/${id}/payments/${paymentId}/void-and-reverse`, method: 'POST', body: { reason, store_id },
+            }),
+            invalidatesTags: ['PurchaseOrders', 'Orders'],
+        }),
         // WAC dry-run preview (no DB writes)
         receivePurchaseOrderPreview: builder.mutation({
             query: ({ id, ...data }) => ({
@@ -247,6 +253,7 @@ export const {
     // Payment endpoints
     useMakePartialPaymentMutation,
     useClearFullDueMutation,
+    useVoidSupplierPaymentMutation,
 
     // Receive preview
     useReceivePurchaseOrderPreviewMutation,

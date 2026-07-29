@@ -31,6 +31,12 @@ const CustomerDueApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['Orders'],
         }),
+        voidCustomerDuePayment: builder.mutation({
+            query: ({ paymentId, reason, store_id }: { paymentId: number | string; reason: string; store_id?: number | string }) => ({
+                url: `/customer-dues/payments/${paymentId}/void-and-reverse`, method: 'POST', body: { reason, store_id },
+            }),
+            invalidatesTags: ['Orders'],
+        }),
         clearCustomerDue: builder.mutation({
             query: ({ id, ...data }) => ({
                 url: `/customer-dues/${id}/clear`,
@@ -94,6 +100,7 @@ export const {
     useGetCustomerDuesQuery,
     useGetCustomerDueByIdQuery,
     useCollectCustomerDuePaymentMutation,
+    useVoidCustomerDuePaymentMutation,
     useClearCustomerDueMutation,
     useUpdateCustomerDueFollowUpMutation,
     useGetCustomerDuePaymentLinksQuery,

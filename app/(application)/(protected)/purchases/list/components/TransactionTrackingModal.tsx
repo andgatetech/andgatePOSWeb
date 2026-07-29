@@ -3,7 +3,8 @@
 import DateColumn from '@/components/common/DateColumn';
 import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
-import { AlertCircle, Building2, Calendar, CheckCircle, Clock, CreditCard, FileText, Package, Receipt, ShoppingCart, Wallet, X } from 'lucide-react';
+import { useVoidSupplierPaymentMutation } from '@/store/features/PurchaseOrder/PurchaseOrderApi';
+import { AlertCircle, Building2, Calendar, CheckCircle, Clock, CreditCard, FileText, Package, Receipt, RotateCcw, ShoppingCart, Wallet, X } from 'lucide-react';
 import type React from 'react';
 import { useState } from 'react';
 import PaymentReceipt from './PaymentReceipt';
@@ -18,6 +19,19 @@ const TransactionTrackingModal: React.FC<TransactionTrackingModalProps> = ({ isO
     const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
     const [selectedTransaction, setSelectedTransaction] = useState<any>(null);
+    const [voidSupplierPayment, { isLoading: isVoiding }] = useVoidSupplierPaymentMutation();
+
+    const voidPayment = async (transaction: any) => {
+        if (transaction.status === 'voided' || transaction.reverses_payment_id || !window.confirm(t('payment_void_confirm') || 'Void and reverse this payment? The original remains in the audit trail.')) return;
+        const reason = window.prompt(t('payment_void_reason') || 'Reason for void (required)');
+        if (!reason?.trim()) return;
+        try {
+            await voidSupplierPayment({ id: purchaseOrder.id, paymentId: transaction.id, reason: reason.trim(), store_id: purchaseOrder.store_id }).unwrap();
+            window.location.reload();
+        } catch (error: any) {
+            window.alert(error?.data?.message || t('payment_void_failed') || 'Payment could not be voided.');
+        }
+    };
 
     if (!isOpen || !purchaseOrder) return null;
 
@@ -177,7 +191,14 @@ const TransactionTrackingModal: React.FC<TransactionTrackingModalProps> = ({ isO
                                                                 </div>
                                                             </div>
                                                             <button
-                                                                onClick={() => setSelectedTransaction(transaction)}
+                                                                onClick={() => voidPayment(transaction)}
+                                                                disabled={isVoiding || transaction.status === 'voided' || transaction.reverses_payment_id}
+                                                                className="flex items-center justify-center gap-2 rounded-lg border border-danger px-3 py-2 text-sm font-medium text-danger disabled:opacity-50"
+                                                            >
+                                                                <RotateCcw className="h-4 w-4" />
+                                                                {transaction.status === 'voided' ? (t('payment_voided') || 'Voided') : (t('btn_void_and_reverse') || 'Void & reverse')}
+                                                            </button>
+                                                            <button
                                                                 className="flex items-center justify-center gap-2 rounded-lg bg-[#046ca9] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#046ca9]/90"
                                                             >
                                                                 <Receipt className="h-4 w-4" />
