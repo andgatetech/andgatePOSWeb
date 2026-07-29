@@ -25,6 +25,7 @@ interface PaymentMethodsTabProps {
     cancelEditingPaymentMethod: () => void;
     handleUpdatePaymentMethod: (id: number) => void;
     handleDeletePaymentMethod: (id: number, name: string) => void;
+    handleSafeDeletePaymentMethod: (id: number, name: string) => void;
     handleTogglePaymentMethodActive: (id: number, isActive: boolean) => void;
 }
 
@@ -41,6 +42,7 @@ const PaymentMethodsTab: React.FC<PaymentMethodsTabProps> = ({
     cancelEditingPaymentMethod,
     handleUpdatePaymentMethod,
     handleDeletePaymentMethod,
+    handleSafeDeletePaymentMethod,
     handleTogglePaymentMethodActive,
 }) => {
     const { t, i18n } = getTranslation();
@@ -175,7 +177,11 @@ const PaymentMethodsTab: React.FC<PaymentMethodsTabProps> = ({
                                                         autoFocus
                                                     />
                                                 ) : (
-                                                    <span className="text-sm font-medium text-gray-900">{method.payment_method_name}</span>
+                                                    <div className="flex flex-wrap items-center gap-2">
+                                                        <span className="text-sm font-medium text-gray-900">{method.payment_method_name}</span>
+                                                        {method.is_system && <span className="rounded bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">{t('lbl_system')}</span>}
+                                                        {!activeValue && <span className="rounded bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700">{t('lbl_archived')}</span>}
+                                                    </div>
                                                 )}
                                             </td>
                                             <td className="px-4 py-3 align-top">
@@ -261,14 +267,26 @@ const PaymentMethodsTab: React.FC<PaymentMethodsTabProps> = ({
                                                                         {t('btn_edit_method')}
                                                                     </button>
                                                                 </li>
-                                                                <li className="border-t">
-                                                                    <button
-                                                                        onClick={() => handleDeletePaymentMethod(method.id, method.payment_method_name)}
-                                                                        className="w-full cursor-pointer px-4 py-2 text-left font-medium text-red-500 hover:bg-red-50"
-                                                                    >
-                                                                        {t('btn_delete_method')}
-                                                                    </button>
-                                                                </li>
+                                                                {!method.is_system && activeValue && (
+                                                                    <li className="border-t">
+                                                                        <button
+                                                                            onClick={() => handleDeletePaymentMethod(method.id, method.payment_method_name)}
+                                                                            className="w-full cursor-pointer px-4 py-2 text-left font-medium text-amber-700 hover:bg-amber-50"
+                                                                        >
+                                                                            {t('btn_archive_method')}
+                                                                        </button>
+                                                                    </li>
+                                                                )}
+                                                                {!method.is_system && (
+                                                                    <li className="border-t">
+                                                                        <button
+                                                                            onClick={() => handleSafeDeletePaymentMethod(method.id, method.payment_method_name)}
+                                                                            className="w-full cursor-pointer px-4 py-2 text-left font-medium text-red-500 hover:bg-red-50"
+                                                                        >
+                                                                            {t('btn_safe_delete_method')}
+                                                                        </button>
+                                                                    </li>
+                                                                )}
                                                             </ul>
                                                         </Dropdown>
                                                     </div>

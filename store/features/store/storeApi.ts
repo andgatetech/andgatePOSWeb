@@ -184,6 +184,18 @@ const StoreApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: (result, error, arg) => [{ type: 'PaymentMethods', id: arg.data?.store_id }],
         }),
+        archivePaymentMethod: builder.mutation({
+            query: ({ id, store_id, archive_reason }: { id: number; store_id: number; archive_reason?: string }) => ({
+                url: `/store/payment-methods/${id}/archive`, method: 'PATCH', body: { store_id, archive_reason },
+            }),
+            invalidatesTags: (result, error, arg) => [{ type: 'PaymentMethods', id: arg.store_id }, 'Stores'],
+        }),
+        safeDeletePaymentMethod: builder.mutation({
+            query: ({ id, store_id }: { id: number; store_id: number }) => ({
+                url: `/store/payment-methods/${id}/safe-delete`, method: 'POST', body: { store_id },
+            }),
+            invalidatesTags: (result, error, arg) => [{ type: 'PaymentMethods', id: arg.store_id }, 'Stores'],
+        }),
         deletePaymentMethod: builder.mutation({
             query: ({ id, store_id }: { id: number; store_id: number }) => ({
                 url: `/store/payment-methods/${id}`,
@@ -413,6 +425,8 @@ export const {
     useGetPaymentMethodsQuery,
     useCreatePaymentMethodMutation,
     useUpdatePaymentMethodMutation,
+    useArchivePaymentMethodMutation,
+    useSafeDeletePaymentMethodMutation,
     useDeletePaymentMethodMutation,
     useCreateAdjustmentReasonMutation,
     useUpdateAdjustmentReasonMutation,

@@ -13,10 +13,11 @@ import {
     useCreateOrderReturnReasonMutation,
     useCreatePaymentMethodMutation,
     useCreatePaymentStatusMutation,
+    useArchivePaymentMethodMutation,
+    useSafeDeletePaymentMethodMutation,
     useDeleteAdjustmentReasonMutation,
     useDeleteCurrencyMutation,
     useDeleteOrderReturnReasonMutation,
-    useDeletePaymentMethodMutation,
     useDeletePaymentStatusMutation,
     useGetStoreQuery,
     useUpdateAdjustmentReasonMutation,
@@ -237,7 +238,8 @@ const StoreSetting = () => {
     const [deleteAttribute] = useDeleteProductAttributeMutation();
     const [createPaymentMethod] = useCreatePaymentMethodMutation();
     const [updatePaymentMethodMutation] = useUpdatePaymentMethodMutation();
-    const [deletePaymentMethodMutation] = useDeletePaymentMethodMutation();
+    const [archivePaymentMethodMutation] = useArchivePaymentMethodMutation();
+    const [safeDeletePaymentMethodMutation] = useSafeDeletePaymentMethodMutation();
     const [createAdjustmentReason] = useCreateAdjustmentReasonMutation();
     const [updateAdjustmentReason] = useUpdateAdjustmentReasonMutation();
     const [deleteAdjustmentReason] = useDeleteAdjustmentReasonMutation();
@@ -657,26 +659,31 @@ const StoreSetting = () => {
             showErrorDialog(t('msg_error'), t('msg_no_valid_store'));
             return;
         }
-
-        const confirmed = await showConfirmDialog(
-            t('msg_delete_payment_method_title'),
-            `${t('msg_confirm_delete_name')} "${name}"? ${t('msg_cannot_be_undone')}`,
-            t('btn_yes_delete'),
-            t('btn_cancel')
-        );
-
+        const confirmed = await showConfirmDialog(t('msg_archive_payment_method_title'), `${t('msg_archive_payment_method_confirm')} "${name}"?`, t('btn_archive_method'), t('btn_cancel'));
         if (!confirmed) return;
-
         try {
-            await deletePaymentMethodMutation({ id, store_id: storeId }).unwrap();
-            showSuccessDialog(t('msg_deleted'), t('msg_payment_method_deleted'));
-            if (editingPaymentMethodId === id) {
-                cancelEditingPaymentMethod();
-            }
+            await archivePaymentMethodMutation({ id, store_id: storeId }).unwrap();
+            showSuccessDialog(t('msg_archived'), t('msg_payment_method_archived'));
+            if (editingPaymentMethodId === id) cancelEditingPaymentMethod();
             await refetchStore();
         } catch (error: any) {
-            const errorMessage = error?.data?.message || t('msg_failed_delete_payment_method');
-            showErrorDialog(t('msg_delete_failed'), errorMessage);
+            showErrorDialog(t('msg_archive_failed'), error?.data?.message || t('msg_failed_archive_payment_method'));
+        }
+    };
+
+    const handleSafeDeletePaymentMethod = async (id: number, name: string) => {
+        if (!storeId || typeof storeId !== 'number') {
+            showErrorDialog(t('msg_error'), t('msg_no_valid_store'));
+            return;
+        }
+        const confirmed = await showConfirmDialog(t('msg_delete_payment_method_title'), `${t('msg_confirm_delete_name')} "${name}"? ${t('msg_cannot_be_undone')}`, t('btn_yes_delete'), t('btn_cancel'));
+        if (!confirmed) return;
+        try {
+            await safeDeletePaymentMethodMutation({ id, store_id: storeId }).unwrap();
+            showSuccessDialog(t('msg_deleted'), t('msg_payment_method_deleted'));
+            await refetchStore();
+        } catch (error: any) {
+            showErrorDialog(t('msg_delete_failed'), error?.data?.message || t('msg_failed_delete_payment_method'));
         }
     };
 
@@ -1595,6 +1602,7 @@ const StoreSetting = () => {
                         cancelEditingPaymentMethod={cancelEditingPaymentMethod}
                         handleUpdatePaymentMethod={handleUpdatePaymentMethod}
                         handleDeletePaymentMethod={handleDeletePaymentMethod}
+                        handleSafeDeletePaymentMethod={handleSafeDeletePaymentMethod}
                         handleTogglePaymentMethodActive={handleTogglePaymentMethodActive}
                     />
                 );
