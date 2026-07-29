@@ -6,9 +6,11 @@ import Loader from '@/lib/Loader';
 import { closeReservedPdfWindow, isMobilePdfDownloadRisk, reservePdfWindow } from '@/lib/pdf-mobile-download';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import enLocale from '@/public/locales/en.json';
-import { useCreateAccountMutation, useGetAccountsQuery, useSeedDefaultAccountsMutation, useUpdateAccountMutation } from '@/store/features/accounting/accountingApi';
-import { Edit2, FileText, Loader2, Plus, Printer, RefreshCw, Shield } from 'lucide-react';
+import { RootState } from '@/store';
+import { useArchiveAccountMutation, useCreateAccountMutation, useGetAccountsQuery, useSafeDeleteAccountMutation, useSeedDefaultAccountsMutation, useUpdateAccountMutation } from '@/store/features/accounting/accountingApi';
+import { Archive, Edit2, FileText, Loader2, Plus, Printer, RefreshCw, Shield, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { buildHeaderRow, buildPdfFooter, buildPdfHeader, buildTableLayout, clampPdfText, computeColumnWidths, ensureAccountingPdf, outputPdf, PdfColumnDef, sanText } from '../_shared/AccountingPdf';
 
 const ACCOUNT_TYPES = ['asset', 'liability', 'equity', 'revenue', 'cogs', 'expense'] as const;
@@ -35,8 +37,16 @@ const emptyForm = {
 const ChartOfAccountsPage = () => {
     const { t, i18n } = getTranslation();
     const { currentStoreId, currentStore } = useCurrentStore();
+    const user = useSelector((state: RootState) => state.auth.user);
+    const isBusinessAdmin = user?.role === 'business_admin';
+    const canCreateAccounts = isBusinessAdmin || user?.permissions?.includes('accounting.accounts.create') === true;
+    const canEditAccounts = isBusinessAdmin || user?.permissions?.includes('accounting.accounts.edit') === true;
+    const canArchiveAccounts = isBusinessAdmin || user?.permissions?.includes('accounting.accounts.archive') === true;
+    const canDeleteAccounts = isBusinessAdmin || user?.permissions?.includes('accounting.accounts.delete') === true;
+    const canManageAnyAccount = canEditAccounts || canArchiveAccounts || canDeleteAccounts;
 
     const [filterType, setFilterType] = useState('');
+    const [showArchived, setShowArchived] = useState(false);
     const [showForm, setShowForm] = useState(false);
     const [editingId, setEditingId] = useState<number | null>(null);
     const [form, setForm] = useState(emptyForm);
@@ -48,10 +58,12 @@ const ChartOfAccountsPage = () => {
         ensureAccountingPdf();
     }, []);
 
-    const { data, isLoading, refetch } = useGetAccountsQuery({ store_id: currentStoreId, type: filterType || undefined }, { skip: !currentStoreId });
+    const { data, isLoading, refetch } = useGetAccountsQuery({ store_id: currentStoreId, type: filterType || undefined, ...(showArchived ? { include_archived: true } : {}) }, { skip: !currentStoreId });
 
     const [createAccount, { isLoading: creating }] = useCreateAccountMutation();
     const [updateAccount, { isLoading: updating }] = useUpdateAccountMutation();
+    const [archiveAccount, { isLoading: archiving }] = useArchiveAccountMutation();
+    const [safeDeleteAccount, { isLoading: deleting }] = useSafeDeleteAccountMutation();
     const [seedDefaults, { isLoading: seeding }] = useSeedDefaultAccountsMutation();
 
     const accounts: any[] = data?.data ?? [];
@@ -102,6 +114,30 @@ const ChartOfAccountsPage = () => {
             setShowForm(false);
         } catch {
             showErrorDialog(t('msg_error_generic'));
+        }
+    };
+
+    const handleArchive = async (account: any) => {
+        const confirmed = await showConfirmDialog(t('coa_archive_confirm'), t('lbl_archive'));
+        if (!confirmed) return;
+        try {
+            await archiveAccount({ id: account.id, store_id: currentStoreId, reason: t('coa_archive_reason') }).unwrap();
+            showSuccessDialog(t('coa_archived'));
+            refetch();
+        } catch {
+            showErrorDialog(t('coa_lifecycle_rejected'));
+        }
+    };
+
+    const handleSafeDelete = async (account: any) => {
+        const confirmed = await showConfirmDialog(t('coa_safe_delete_confirm'), t('coa_safe_delete'));
+        if (!confirmed) return;
+        try {
+            await safeDeleteAccount({ id: account.id, store_id: currentStoreId }).unwrap();
+            showSuccessDialog(t('coa_deleted'));
+            refetch();
+        } catch {
+            showErrorDialog(t('coa_lifecycle_rejected'));
         }
     };
 
@@ -257,17 +293,28 @@ const ChartOfAccountsPage = () => {
                 </div>
                 <div className="flex flex-wrap gap-2">
                     <button
-                        onClick={handleSeedDefaults}
-                        disabled={seeding}
+                        onClick={() => setShowArchived((value) => !value)}
                         className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
                     >
-                        <RefreshCw className={`h-4 w-4 ${seeding ? 'animate-spin' : ''}`} />
-                        {t('lbl_seed_defaults')}
+                        <Archive className="h-4 w-4" />
+                        {showArchived ? t('coa_hide_archived') : t('coa_show_archived')}
                     </button>
-                    <button onClick={openCreate} className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-1.5 text-sm text-white hover:opacity-90">
-                        <Plus className="h-4 w-4" />
-                        {t('lbl_add_account')}
-                    </button>
+                    {canCreateAccounts && (
+                        <>
+                            <button
+                                onClick={handleSeedDefaults}
+                                disabled={seeding}
+                                className="flex items-center gap-1.5 rounded-lg border border-primary px-3 py-1.5 text-sm text-primary hover:bg-primary/5 disabled:opacity-60"
+                            >
+                                <RefreshCw className={`h-4 w-4 ${seeding ? 'animate-spin' : ''}`} />
+                                {t('lbl_seed_defaults')}
+                            </button>
+                            <button onClick={openCreate} className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-1.5 text-sm text-white hover:opacity-90">
+                                <Plus className="h-4 w-4" />
+                                {t('lbl_add_account')}
+                            </button>
+                        </>
+                    )}
                     {accounts.length > 0 && (
                         <>
                             <button
@@ -335,7 +382,7 @@ const ChartOfAccountsPage = () => {
                                                 <th className="px-4 py-2.5 text-left">{t('lbl_subtype')}</th>
                                                 <th className="px-4 py-2.5 text-left">{t('lbl_normal_balance')}</th>
                                                 <th className="px-4 py-2.5 text-center">{t('lbl_system')}</th>
-                                                <th className="px-4 py-2.5 text-center">{t('lbl_actions')}</th>
+                                                {canManageAnyAccount && <th className="px-4 py-2.5 text-center">{t('lbl_actions')}</th>}
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
@@ -345,6 +392,7 @@ const ChartOfAccountsPage = () => {
                                                     <td className="px-4 py-3 text-gray-800 dark:text-gray-100">
                                                         {a.name}
                                                         {a.name_bn && <span className="ml-2 text-xs text-gray-400">{a.name_bn}</span>}
+                                                        {!a.is_active && <span className="ml-2 rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-800">{t('lbl_archive')}</span>}
                                                     </td>
                                                     <td className="px-4 py-3 text-xs text-gray-500 dark:text-gray-400">{a.subtype ?? '—'}</td>
                                                     <td className="px-4 py-3">
@@ -353,13 +401,27 @@ const ChartOfAccountsPage = () => {
                                                         </span>
                                                     </td>
                                                     <td className="px-4 py-3 text-center">{a.is_system && <Shield className="mx-auto h-3.5 w-3.5 text-gray-400" />}</td>
-                                                    <td className="px-4 py-3 text-center">
+                                                    {canManageAnyAccount && <td className="px-4 py-3 text-center">
                                                         {!a.is_system && (
-                                                            <button onClick={() => openEdit(a)} className="rounded-lg p-1.5 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                                                <Edit2 className="h-3.5 w-3.5" />
-                                                            </button>
+                                                            <div className="flex justify-center gap-1">
+                                                                {a.is_active && canEditAccounts && (
+                                                                    <button onClick={() => openEdit(a)} className="rounded-lg p-1.5 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700" title={t('lbl_edit_account')}>
+                                                                        <Edit2 className="h-3.5 w-3.5" />
+                                                                    </button>
+                                                                )}
+                                                                {a.is_active && canArchiveAccounts && (
+                                                                    <button disabled={archiving} onClick={() => handleArchive(a)} className="rounded-lg p-1.5 text-orange-600 hover:bg-orange-50 disabled:opacity-50" title={t('lbl_archive')}>
+                                                                        <Archive className="h-3.5 w-3.5" />
+                                                                    </button>
+                                                                )}
+                                                                {canDeleteAccounts && (
+                                                                    <button disabled={deleting} onClick={() => handleSafeDelete(a)} className="rounded-lg p-1.5 text-danger hover:bg-red-50 disabled:opacity-50" title={t('coa_safe_delete')}>
+                                                                        <Trash2 className="h-3.5 w-3.5" />
+                                                                    </button>
+                                                                )}
+                                                            </div>
                                                         )}
-                                                    </td>
+                                                    </td>}
                                                 </tr>
                                             ))}
                                         </tbody>

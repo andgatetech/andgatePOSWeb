@@ -15,6 +15,14 @@ export const accountingApi = baseApi.injectEndpoints({
             query: ({ id, ...body }) => ({ url: `/accounting/accounts/${id}`, method: 'PUT', body }),
             invalidatesTags: ['AccountingCOA'],
         }),
+        archiveAccount: builder.mutation({
+            query: ({ id, ...body }) => ({ url: `/accounting/accounts/${id}/archive`, method: 'PATCH', body }),
+            invalidatesTags: ['AccountingCOA'],
+        }),
+        safeDeleteAccount: builder.mutation({
+            query: ({ id, ...body }) => ({ url: `/accounting/accounts/${id}/safe-delete`, method: 'DELETE', body }),
+            invalidatesTags: ['AccountingCOA'],
+        }),
         seedDefaultAccounts: builder.mutation({
             query: (body) => ({ url: '/accounting/accounts/seed-defaults', method: 'POST', body }),
             invalidatesTags: ['AccountingCOA'],
@@ -74,6 +82,8 @@ export const {
     useGetAccountsQuery,
     useCreateAccountMutation,
     useUpdateAccountMutation,
+    useArchiveAccountMutation,
+    useSafeDeleteAccountMutation,
     useSeedDefaultAccountsMutation,
     useGetJournalsQuery,
     useGetCashBookQuery,
