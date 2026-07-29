@@ -45,6 +45,7 @@ import OrderReturnReasonsTab from './tabs/OrderReturnReasonsTab';
 import PaymentMethodsTab, { PaymentMethodForm } from './tabs/PaymentMethodsTab';
 import PaymentStatusTab, { PaymentStatusForm } from './tabs/PaymentStatusTab';
 import StoreStatusTab from './tabs/StoreStatusTab';
+import TaxProfilesTab from './tabs/TaxProfilesTab';
 import UnitsTab from './tabs/UnitsTab';
 import WarrantyTypesTab from './tabs/WarrantyTypesTab';
 
@@ -1545,6 +1546,8 @@ const StoreSetting = () => {
         switch (activeTab) {
             case 'basic':
                 return <BasicInfoTab formData={formData} handleInputChange={handleInputChange} />;
+            case 'taxprofiles':
+                return <TaxProfilesTab storeId={storeId} permissions={storeData?.data?.permissions || []} isBusinessAdmin={storeData?.data?.store?.role_in_store === 'business_admin'} />;
             case 'hours':
                 return (
                     <OperatingHoursTab

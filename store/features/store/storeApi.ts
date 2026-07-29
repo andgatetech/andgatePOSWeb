@@ -400,6 +400,15 @@ const StoreApi = baseApi.injectEndpoints({
             invalidatesTags: (result, error, arg) => [{ type: 'Stores', id: `tax-${arg.data?.store_id}` }],
         }),
 
+        archiveTaxProfile: builder.mutation({
+            query: ({ id, store_id, archive_reason }: { id: number; store_id?: number; archive_reason?: string }) => ({ url: `/store/tax-profiles/${id}/archive`, method: 'PATCH', body: { store_id, archive_reason } }),
+            invalidatesTags: ['Stores'],
+        }),
+        safeDeleteTaxProfile: builder.mutation({
+            query: ({ id, store_id }: { id: number; store_id?: number }) => ({ url: `/store/tax-profiles/${id}/safe-delete`, method: 'POST', body: { store_id } }),
+            invalidatesTags: ['Stores'],
+        }),
+
         // Get store logo as base64
         getStoreLogo: builder.query({
             query: (storeId: number) => ({
@@ -444,4 +453,6 @@ export const {
     useGetTaxProfilesQuery,
     useCreateTaxProfileMutation,
     useUpdateTaxProfileMutation,
+    useArchiveTaxProfileMutation,
+    useSafeDeleteTaxProfileMutation,
 } = StoreApi;
