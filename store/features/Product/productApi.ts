@@ -36,10 +36,10 @@ const ProductApi = baseApi.injectEndpoints({
             providesTags: ['Products', 'Orders'],
         }),
 
-        deleteProduct: builder.mutation({
+        archiveProduct: builder.mutation({
             query: (id) => ({
-                url: `/products/${id}`,
-                method: 'DELETE',
+                url: `/products/${id}/archive`,
+                method: 'PATCH',
             }),
             invalidatesTags: ['Products', 'Orders'],
         }),
@@ -227,7 +227,7 @@ export const {
     useGetSingleProductQuery,
     useLazyGetSingleProductQuery,
     useUpdateProductMutation,
-    useDeleteProductMutation,
+    useArchiveProductMutation,
     useUpdateAvailabilityMutation,
     useGenerateBarCodesMutation,
     useGenerateQRCodesMutation,

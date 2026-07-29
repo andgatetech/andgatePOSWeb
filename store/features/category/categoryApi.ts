@@ -56,10 +56,10 @@ const CategoryApi = baseApi.injectEndpoints({
         }),
 
         // Delete category
-        deleteCategory: builder.mutation({
+        archiveCategory: builder.mutation({
             query: (id: number) => ({
-                url: `/categories/${id}`,
-                method: 'DELETE',
+                url: `/categories/${id}/archive`,
+                method: 'PATCH',
             }),
             invalidatesTags: ['Categories'],
         }),
@@ -82,4 +82,4 @@ const CategoryApi = baseApi.injectEndpoints({
     }),
 });
 
-export const { useCreateCategoryMutation, useUpdateCategoryMutation, useDeleteCategoryMutation, useGetCategoryQuery, useGetCategoryByIdQuery } = CategoryApi;
+export const { useCreateCategoryMutation, useUpdateCategoryMutation, useArchiveCategoryMutation, useGetCategoryQuery, useGetCategoryByIdQuery } = CategoryApi;

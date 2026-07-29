@@ -11,7 +11,7 @@ import { getTranslation } from '@/i18n';
 import Loader from '@/lib/Loader';
 import { resolveProductImageUrl } from '@/lib/image-url';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
-import { useDeleteProductMutation, useGetAllProductsQuery, useUpdateAvailabilityMutation } from '@/store/features/Product/productApi';
+import { useArchiveProductMutation, useGetAllProductsQuery, useUpdateAvailabilityMutation } from '@/store/features/Product/productApi';
 import { AlertCircle, CheckCircle, ChevronDown, ChevronUp, MoreVertical, Package, Tag, XCircle } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -174,7 +174,7 @@ const ProductTable = () => {
     // Categories are now handled by ProductFilter component
 
     const [updateAvailability] = useUpdateAvailabilityMutation();
-    const [deleteProduct] = useDeleteProductMutation();
+    const [archiveProduct] = useArchiveProductMutation();
 
     // Reset filter when current store changes from sidebar
     useEffect(() => {
@@ -189,11 +189,11 @@ const ProductTable = () => {
         [] // Remove dependency to prevent infinite re-renders
     );
 
-    const handleDeleteProduct = async (productId: number) => {
+    const handleArchiveProduct = async (productId: number) => {
         const confirmed = await showConfirmDialog(
-            t('msg_confirm_delete_title'),
-            t('msg_confirm_delete_text'),
-            t('msg_confirm_delete_btn'),
+            t('master_data_archive_title'),
+            t('product_archive_reason'),
+            t('master_data_archive_action'),
             t('btn_cancel'),
             false // Don't show toast on confirm
         );
@@ -203,10 +203,10 @@ const ProductTable = () => {
         }
 
         try {
-            await deleteProduct(productId).unwrap();
-            showSuccessDialog(t('msg_success'), t('product_deleted'));
+            await archiveProduct(productId).unwrap();
+            showSuccessDialog(t('msg_success'), t('product_archived'));
         } catch (error) {
-            showErrorDialog(t('msg_error'), t('product_error_delete'));
+            showErrorDialog(t('msg_error'), t('product_error_archive'));
         }
     };
 
@@ -653,10 +653,10 @@ const ProductTable = () => {
                                                         </li>
                                                         <li className="border-t">
                                                             <button
-                                                                onClick={() => handleDeleteProduct(product.id)}
-                                                                className="w-full cursor-pointer px-4 py-2 text-left font-medium text-red-500 hover:bg-red-50"
+                                                                onClick={() => handleArchiveProduct(product.id)}
+                                                                className="w-full cursor-pointer px-4 py-2 text-left font-medium text-amber-600 hover:bg-amber-50"
                                                             >
-                                                                {t('product_action_delete')}
+                                                                {t('master_data_archive_action')}
                                                             </button>
                                                         </li>
                                                     </ul>

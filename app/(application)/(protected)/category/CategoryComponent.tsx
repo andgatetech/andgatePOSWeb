@@ -9,7 +9,7 @@ import { getTranslation } from '@/i18n';
 import { compressImage } from '@/lib/image-compress';
 import Loader from '@/lib/Loader';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
-import { useCreateCategoryMutation, useDeleteCategoryMutation, useGetCategoryQuery, useUpdateCategoryMutation } from '@/store/features/category/categoryApi';
+import { useArchiveCategoryMutation, useCreateCategoryMutation, useGetCategoryQuery, useUpdateCategoryMutation } from '@/store/features/category/categoryApi';
 import { Edit, Eye, ImageIcon, Layers, Plus, Save, Trash2, Upload, X } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -48,7 +48,7 @@ const CategoryComponent = () => {
     const { data: categoriesResponse, error, isLoading } = useGetCategoryQuery(queryParams, { refetchOnMountOrArgChange: 30 });
     const [createCategory] = useCreateCategoryMutation();
     const [updateCategory] = useUpdateCategoryMutation();
-    const [deleteCategory] = useDeleteCategoryMutation();
+    const [archiveCategory] = useArchiveCategoryMutation();
 
     const [showModal, setShowModal] = useState(false);
     const [modalType, setModalType] = useState('create'); // 'create', 'edit', 'view'
@@ -177,21 +177,21 @@ const CategoryComponent = () => {
         }
     };
 
-    const handleDelete = useCallback(
+    const handleArchive = useCallback(
         async (id: number) => {
-            const confirmed = await showConfirmDialog(t('msg_confirm_delete_title'), t('msg_confirm_delete_text'), t('msg_confirm_delete_btn'), t('btn_cancel'), false);
+            const confirmed = await showConfirmDialog(t('master_data_archive_title'), t('category_archive_reason'), t('master_data_archive_action'), t('btn_cancel'), false);
 
             if (confirmed) {
                 try {
-                    await deleteCategory(id).unwrap();
-                    showSuccessDialog(t('msg_success'), t('category_deleted'));
+                    await archiveCategory(id).unwrap();
+                    showSuccessDialog(t('msg_success'), t('category_archived'));
                 } catch (error) {
-                    console.error('Error deleting category:', error);
-                    showErrorDialog(t('msg_error'), t('category_error_delete'));
+                    console.error('Error archiving category:', error);
+                    showErrorDialog(t('msg_error'), t('category_error_archive'));
                 }
             }
         },
-        [deleteCategory]
+        [archiveCategory, t]
     );
 
     // Define table columns
@@ -273,11 +273,11 @@ const CategoryComponent = () => {
                                 </li>
                                 <li className="border-t">
                                     <button
-                                        onClick={() => handleDelete(category.id)}
-                                        className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm font-medium text-danger transition-colors hover:bg-red-50"
+                                        onClick={() => handleArchive(category.id)}
+                                        className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm font-medium text-amber-700 transition-colors hover:bg-amber-50"
                                     >
                                         <Trash2 className="h-4 w-4" />
-                                        {t('category_action_delete')}
+                                        {t('master_data_archive_action')}
                                     </button>
                                 </li>
                             </ul>
@@ -285,7 +285,7 @@ const CategoryComponent = () => {
                     </div>
                 ),
             })),
-        [categories, handleDelete]
+        [categories, handleArchive, router, t]
     );
 
     // Add Actions column
