@@ -16,6 +16,8 @@ import {
     useArchivePaymentMethodMutation,
     useSafeDeletePaymentMethodMutation,
     useDeleteAdjustmentReasonMutation,
+    useArchiveAdjustmentReasonMutation,
+    useSafeDeleteAdjustmentReasonMutation,
     useDeleteCurrencyMutation,
     useDeleteOrderReturnReasonMutation,
     useDeletePaymentStatusMutation,
@@ -245,6 +247,8 @@ const StoreSetting = () => {
     const [createAdjustmentReason] = useCreateAdjustmentReasonMutation();
     const [updateAdjustmentReason] = useUpdateAdjustmentReasonMutation();
     const [deleteAdjustmentReason] = useDeleteAdjustmentReasonMutation();
+    const [archiveAdjustmentReason] = useArchiveAdjustmentReasonMutation();
+    const [safeDeleteAdjustmentReason] = useSafeDeleteAdjustmentReasonMutation();
 
     // Order Return Reasons CRUD mutations
     const [createOrderReturnReason] = useCreateOrderReturnReasonMutation();
@@ -782,30 +786,29 @@ const StoreSetting = () => {
         }
     };
 
-    const handleDeleteAdjustmentReason = async (id: number, name: string) => {
-        if (!storeId || typeof storeId !== 'number') {
-            showErrorDialog(t('msg_error'), t('msg_no_valid_store'));
-            return;
-        }
-
-        const confirmed = await showConfirmDialog(
-            t('msg_delete_adjustment_reason_title'),
-            `${t('msg_confirm_delete_name')} "${name}"? ${t('msg_cannot_be_undone')}`,
-            t('btn_yes_delete'),
-            t('btn_cancel')
-        );
-
+    const handleArchiveAdjustmentReason = async (id: number, name: string) => {
+        if (!storeId || typeof storeId !== 'number') { showErrorDialog(t('msg_error'), t('msg_no_valid_store')); return; }
+        const confirmed = await showConfirmDialog(t('adjustment_reason_archive_action'), `${t('adjustment_reason_history_retained')} "${name}"?`, t('adjustment_reason_archive_action'), t('btn_cancel'));
         if (!confirmed) return;
-
         try {
-            await deleteAdjustmentReason(id).unwrap();
+            await archiveAdjustmentReason({ id, store_id: storeId, archive_reason: t('adjustment_reason_archive_note') }).unwrap();
+            showSuccessDialog(t('msg_archived'), t('adjustment_reason_archived'));
+            await refetchStore();
+        } catch (error: any) { showErrorDialog(t('msg_archive_failed'), error?.data?.message || t('adjustment_reason_lifecycle_failed')); }
+    };
+
+    const handleSafeDeleteAdjustmentReason = async (id: number, name: string) => {
+        if (!storeId || typeof storeId !== 'number') { showErrorDialog(t('msg_error'), t('msg_no_valid_store')); return; }
+        const confirmed = await showConfirmDialog(t('adjustment_reason_safe_delete_action'), `${t('adjustment_reason_safe_delete_confirm')} "${name}"?`, t('adjustment_reason_safe_delete_action'), t('btn_cancel'));
+        if (!confirmed) return;
+        try {
+            await safeDeleteAdjustmentReason({ id, store_id: storeId }).unwrap();
             showSuccessDialog(t('msg_deleted'), t('msg_adjustment_reason_deleted'));
             await refetchStore();
-        } catch (error: any) {
-            const errorMessage = error?.data?.message || t('msg_failed_delete_adjustment_reason');
-            showErrorDialog(t('msg_delete_failed'), errorMessage);
-        }
+        } catch (error: any) { showErrorDialog(t('msg_delete_failed'), error?.data?.message || t('adjustment_reason_lifecycle_failed')); }
     };
+
+    const handleDeleteAdjustmentReason = handleArchiveAdjustmentReason;
 
     const handleToggleAdjustmentReasonActive = async (id: number, isActive: boolean) => {
         if (!storeId || typeof storeId !== 'number') {
@@ -819,6 +822,11 @@ const StoreSetting = () => {
             return;
         }
 
+        if (!isActive) {
+            await handleArchiveAdjustmentReason(id, reason.name);
+            return;
+        }
+
         try {
             await updateAdjustmentReason({
                 id,
@@ -826,7 +834,7 @@ const StoreSetting = () => {
                     store_id: storeId,
                     name: reason.name,
                     description: typeof reason.description === 'string' && reason.description.trim().length ? reason.description.trim() : null,
-                    is_active: isActive ? 1 : 0,
+                    is_active: 1,
                 },
             }).unwrap();
 
@@ -1664,6 +1672,10 @@ const StoreSetting = () => {
                         handleCreateAdjustmentReason={handleCreateAdjustmentReason}
                         handleUpdateAdjustmentReason={handleUpdateAdjustmentReason}
                         handleDeleteAdjustmentReason={handleDeleteAdjustmentReason}
+                        handleArchiveAdjustmentReason={handleArchiveAdjustmentReason}
+                        handleSafeDeleteAdjustmentReason={handleSafeDeleteAdjustmentReason}
+                        permissions={storeData?.data?.permissions || []}
+                        isBusinessAdmin={storeData?.data?.store?.role_in_store === 'business_admin'}
                         handleToggleAdjustmentReasonActive={handleToggleAdjustmentReasonActive}
                         setMessage={setMessage}
                     />

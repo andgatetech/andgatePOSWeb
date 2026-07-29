@@ -303,11 +303,16 @@ const StoreApi = baseApi.injectEndpoints({
             invalidatesTags: ['Stores'],
         }),
         deleteAdjustmentReason: builder.mutation({
-            query: (id: number) => ({
-                url: `/product-adjustment-reasons/${id}`,
-                method: 'DELETE',
-            }),
-
+            // Legacy DELETE now archives; safe physical deletion has its own explicit endpoint.
+            query: (id: number) => ({ url: `/product-adjustment-reasons/${id}`, method: 'DELETE' }),
+            invalidatesTags: ['Stores'],
+        }),
+        archiveAdjustmentReason: builder.mutation({
+            query: ({ id, store_id, archive_reason }: { id: number; store_id: number; archive_reason?: string }) => ({ url: `/product-adjustment-reasons/${id}/archive`, method: 'PATCH', body: { store_id, archive_reason } }),
+            invalidatesTags: ['Stores'],
+        }),
+        safeDeleteAdjustmentReason: builder.mutation({
+            query: ({ id, store_id }: { id: number; store_id: number }) => ({ url: `/product-adjustment-reasons/${id}/safe-delete`, method: 'POST', body: { store_id } }),
             invalidatesTags: ['Stores'],
         }),
 
@@ -453,6 +458,8 @@ export const {
     useCreateAdjustmentReasonMutation,
     useUpdateAdjustmentReasonMutation,
     useDeleteAdjustmentReasonMutation,
+    useArchiveAdjustmentReasonMutation,
+    useSafeDeleteAdjustmentReasonMutation,
     useCreateOrderReturnReasonMutation,
     useUpdateOrderReturnReasonMutation,
     useDeleteOrderReturnReasonMutation,

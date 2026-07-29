@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import { getTranslation } from '@/i18n';
 import { formatLocalizedNumber } from '@/lib/localized-number';
 import Dropdown from './Dropdown';
+import AdjustmentReasonLifecycleControls from './AdjustmentReasonLifecycleControls';
 
 interface AdjustmentReason {
     id?: number;
@@ -24,6 +25,10 @@ interface AdjustmentReasonsTabProps {
     handleCreateAdjustmentReason: () => void;
     handleUpdateAdjustmentReason: (id: number, name: string, description: string) => void;
     handleDeleteAdjustmentReason: (id: number, name: string) => void;
+    handleArchiveAdjustmentReason: (id: number, name: string) => void;
+    handleSafeDeleteAdjustmentReason: (id: number, name: string) => void;
+    permissions?: string[];
+    isBusinessAdmin?: boolean;
     handleToggleAdjustmentReasonActive: (id: number, isActive: boolean) => void;
     setMessage: (message: { type: string; text: string }) => void;
 }
@@ -39,6 +44,10 @@ const AdjustmentReasonsTab: React.FC<AdjustmentReasonsTabProps> = ({
     handleCreateAdjustmentReason,
     handleUpdateAdjustmentReason,
     handleDeleteAdjustmentReason,
+    handleArchiveAdjustmentReason,
+    handleSafeDeleteAdjustmentReason,
+    permissions = [],
+    isBusinessAdmin = false,
     handleToggleAdjustmentReasonActive,
     setMessage,
 }) => {
@@ -47,6 +56,8 @@ const AdjustmentReasonsTab: React.FC<AdjustmentReasonsTabProps> = ({
     const [editingReasonId, setEditingReasonId] = useState<number | null>(null);
     const [editingReasonName, setEditingReasonName] = useState('');
     const [editingReasonDescription, setEditingReasonDescription] = useState('');
+    const canArchive = isBusinessAdmin || permissions.includes('adjustment-reasons.archive');
+    const canSafeDelete = isBusinessAdmin || permissions.includes('adjustment-reasons.delete');
 
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
@@ -221,17 +232,8 @@ const AdjustmentReasonsTab: React.FC<AdjustmentReasonsTabProps> = ({
                                                                     {t('btn_edit_reason')}
                                                                 </button>
                                                             </li>
-                                                            <li className="border-t">
-                                                                <button
-                                                                    onClick={() => {
-                                                                        if (reason.id) {
-                                                                            handleDeleteAdjustmentReason(reason.id, reason.name);
-                                                                        }
-                                                                    }}
-                                                                    className="w-full cursor-pointer px-4 py-2 text-left font-medium text-red-500 hover:bg-red-50"
-                                                                >
-                                                                    {t('btn_delete_reason')}
-                                                                </button>
+                                                            <li className="border-t px-3 py-2">
+                                                                {reason.id && <AdjustmentReasonLifecycleControls reason={reason} canArchive={canArchive} canSafeDelete={canSafeDelete} onArchive={() => handleArchiveAdjustmentReason(reason.id!, reason.name)} onSafeDelete={() => handleSafeDeleteAdjustmentReason(reason.id!, reason.name)} />}
                                                             </li>
                                                         </ul>
                                                     </Dropdown>
