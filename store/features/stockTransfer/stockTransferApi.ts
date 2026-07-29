@@ -52,7 +52,14 @@ export const stockTransferApi = baseApi.injectEndpoints({
                 method: 'POST',
                 body,
             }),
-            // Cancelling a shipped transfer releases/restores reserved stock.
+            invalidatesTags: ['StockTransfer', 'Products'],
+        }),
+        voidAndReverseStockTransfer: builder.mutation({
+            query: ({ id, ...body }: { id: number; store_id: number; reason: string }) => ({
+                url: `/stock-transfers/${id}/void-and-reverse`,
+                method: 'POST',
+                body,
+            }),
             invalidatesTags: ['StockTransfer', 'Products'],
         }),
     }),
@@ -65,4 +72,5 @@ export const {
     useShipStockTransferMutation,
     useReceiveStockTransferMutation,
     useCancelStockTransferMutation,
+    useVoidAndReverseStockTransferMutation,
 } = stockTransferApi;

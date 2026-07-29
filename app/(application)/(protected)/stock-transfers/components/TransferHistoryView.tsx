@@ -9,9 +9,12 @@ import {
     useGetStockTransfersQuery,
     useReceiveStockTransferMutation,
     useShipStockTransferMutation,
+    useVoidAndReverseStockTransferMutation,
 } from '@/store/features/stockTransfer/stockTransferApi';
-import { ArrowRight, CheckCircle2, ClipboardList, PackageCheck, Plus, Send, XCircle } from 'lucide-react';
+import type { RootState } from '@/store';
+import { AlertTriangle, ArrowRight, CheckCircle2, ClipboardList, PackageCheck, Plus, Send, XCircle } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { useSelector } from 'react-redux';
 
 type Tab = 'all' | 'outgoing' | 'incoming';
 
@@ -34,6 +37,7 @@ export default function TransferHistoryView({ onCreateNew }: { onCreateNew: () =
     const { currentStoreId } = useCurrentStore();
     const [tab, setTab] = useState<Tab>('all');
     const [selectedTransferId, setSelectedTransferId] = useState<number | null>(null);
+    const user = useSelector((state: RootState) => state.auth.user);
 
     const { data: transfersData, isLoading: transfersLoading, refetch: refetchList } = useGetStockTransfersQuery(
         { store_id: Number(currentStoreId), direction: tab === 'all' ? undefined : tab },
@@ -46,6 +50,8 @@ export default function TransferHistoryView({ onCreateNew }: { onCreateNew: () =
     const [shipTransfer] = useShipStockTransferMutation();
     const [receiveTransfer] = useReceiveStockTransferMutation();
     const [cancelTransfer] = useCancelStockTransferMutation();
+    const [voidAndReverse, { isLoading: isVoiding }] = useVoidAndReverseStockTransferMutation();
+    const canVoid = user?.role === 'business_admin' || user?.permissions?.includes('stock-transfer.void');
 
     const transfers = useMemo(() => {
         const data = transfersData?.data;
@@ -86,6 +92,18 @@ export default function TransferHistoryView({ onCreateNew }: { onCreateNew: () =
             showMessage(t('transfer_cancelled'), 'success');
         } catch (err: any) {
             showMessage(err?.data?.message || t('msg_error_generic'), 'error');
+        }
+    };
+
+    const handleVoid = async (tr: any) => {
+        const effect = tr.status === 'received' ? t('transfer_void_effect_received') : tr.status === 'shipped' ? t('transfer_void_effect_shipped') : t('transfer_void_effect_pending');
+        const reason = window.prompt(`${t('transfer_void_reason')}\n${effect}`)?.trim();
+        if (!reason) return showMessage(t('transfer_void_reason_required'), 'error');
+        try {
+            await voidAndReverse({ id: tr.id, store_id: Number(currentStoreId), reason }).unwrap();
+            refetchDetail(); refetchList(); showMessage(t('transfer_void_success'), 'success');
+        } catch (err: any) {
+            showMessage(err?.data?.detail || err?.data?.message || t('transfer_void_blocked'), 'error');
         }
     };
 
@@ -204,6 +222,11 @@ export default function TransferHistoryView({ onCreateNew }: { onCreateNew: () =
                                             <CheckCircle2 className="h-3.5 w-3.5" /> {t('transfer_received_label')}
                                         </span>
                                     )}
+                                    {canVoid && ['pending', 'shipped', 'received'].includes(transfer.status) && Number(transfer.to_store_id) === Number(currentStoreId) && (
+                                        <button disabled={isVoiding} onClick={() => handleVoid(transfer)} className="flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-100 disabled:opacity-50">
+                                            <AlertTriangle className="h-3.5 w-3.5" /> {isVoiding ? t('btn_processing') : t('transfer_void')}
+                                        </button>
+                                    )}
                                 </div>
                             </div>
 
@@ -223,6 +246,7 @@ export default function TransferHistoryView({ onCreateNew }: { onCreateNew: () =
                             </div>
 
                             {transfer.note && <p className="rounded-lg bg-gray-50 px-3 py-2 text-xs text-gray-500">{transfer.note}</p>}
+                            {transfer.voided_at && <div className="rounded-lg border border-red-100 bg-red-50 px-3 py-2 text-xs text-red-800"><strong>{t('transfer_void_audit')}</strong> {formatTransferDateTime(transfer.voided_at)} · {transfer.void_reason} {transfer.reversal_transfer_id ? `· #${transfer.reversal_transfer_id}` : ''}</div>}
 
                             <div className="overflow-hidden rounded-lg border border-gray-100">
                                 <table className="w-full text-sm">
