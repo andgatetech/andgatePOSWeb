@@ -42,6 +42,14 @@ export const cashDrawerApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['CashDrawer'],
         }),
+        reverseDrawerMovement: builder.mutation({
+            query: ({ drawerId, movementId, ...body }: { drawerId: number; movementId: number; store_id: number; reason: string }) => ({
+                url: `/drawers/${drawerId}/movements/${movementId}/void-and-reverse`,
+                method: 'POST',
+                body,
+            }),
+            invalidatesTags: ['CashDrawer'],
+        }),
         closeDrawer: builder.mutation({
             query: ({ drawerId, ...body }: { drawerId: number; store_id: number; actual_cash: number; note?: string }) => ({
                 url: `/drawers/${drawerId}/close`,
@@ -60,5 +68,6 @@ export const {
     useGetDrawerSessionsQuery,
     useOpenDrawerMutation,
     useRecordDrawerMovementMutation,
+    useReverseDrawerMovementMutation,
     useCloseDrawerMutation,
 } = cashDrawerApi;

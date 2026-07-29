@@ -130,6 +130,7 @@ export const PERMISSION_MENU_MAP: Record<string, string[]> = {
     'cash-drawer.open': [],
     'cash-drawer.close': [],
     'cash-drawer.movement.create': [],
+    'cash-drawer.movement.reverse': [],
     'cash-drawer.manage': [],
 };
 
