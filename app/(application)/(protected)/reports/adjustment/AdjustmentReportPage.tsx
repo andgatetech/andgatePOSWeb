@@ -9,8 +9,12 @@ import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
 import { useGetStockAdjustmentReportMutation } from '@/store/features/reports/reportApi';
+import { useVoidAndReverseStockAdjustmentMutation } from '@/store/features/Product/productApi';
+import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
+import type { RootState } from '@/store';
 import { AlertTriangle, ArrowDown, ArrowDownUp, ArrowUp, DollarSign, FileText, Hash, Info, Package, Store, TrendingUp, User } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useSelector } from 'react-redux';
 
 const AdjustmentReportPage = () => {
     const { t } = getTranslation();
@@ -24,6 +28,24 @@ const AdjustmentReportPage = () => {
 
     const [getStockAdjustmentReport, { data: reportData, isLoading, isError }] = useGetStockAdjustmentReportMutation();
     const [getStockAdjustmentReportForExport] = useGetStockAdjustmentReportMutation();
+    const [voidAndReverse, { isLoading: isVoiding }] = useVoidAndReverseStockAdjustmentMutation();
+    const user = useSelector((state: RootState) => state.auth.user);
+    const canVoid = user?.role === 'business_admin' || user?.permissions?.includes('stock.adjustments.void');
+
+    const handleVoid = useCallback(async (adjustment: any) => {
+        const impact = adjustment.direction === 'increase'
+            ? t('stock_adjustment_void_impact_decrease')
+            : t('stock_adjustment_void_impact_increase');
+        const reason = window.prompt(`${t('stock_adjustment_void_reason')}\n${impact}`);
+        if (!reason?.trim()) return;
+        try {
+            await voidAndReverse({ id: adjustment.id, reason: reason.trim() }).unwrap();
+            showSuccessDialog(t('stock_adjustment_void_success_title'), t('stock_adjustment_void_success_desc'));
+            getStockAdjustmentReport({ store_id: currentStoreId ?? undefined });
+        } catch (error: any) {
+            showErrorDialog(t('stock_adjustment_void_failed_title'), error?.data?.detail || t('stock_adjustment_void_blocked'));
+        }
+    }, [currentStoreId, getStockAdjustmentReport, t, voidAndReverse]);
 
     const lastQueryParams = useRef<string>('');
 
@@ -289,13 +311,24 @@ const AdjustmentReportPage = () => {
                 ),
             },
             {
+                key: 'void_status',
+                label: t('stock_adjustment_void_status'),
+                render: (_v: any, r: any) => r.status === 'voided' ? (
+                    <span className="text-xs text-danger">{t('stock_adjustment_voided_audit', { actor: r.voided_by_name || '-', reason: r.void_reason || '-' })}</span>
+                ) : canVoid && r.source_type === 'manual_quantity' ? (
+                    <button type="button" disabled={isVoiding} onClick={() => handleVoid(r)} className="rounded bg-danger px-2 py-1 text-xs font-semibold text-white disabled:opacity-50">
+                        {t('stock_adjustment_void_action')}
+                    </button>
+                ) : <span className="text-xs text-gray-400">{t('stock_adjustment_void_not_available')}</span>,
+            },
+            {
                 key: 'adjusted_at',
                 label: t('lbl_date'),
                 sortable: true,
                 render: (v) => <DateColumn date={v} />,
             },
         ],
-        [t, renderPriceChange]
+        [canVoid, handleVoid, isVoiding, t, renderPriceChange]
     );
 
     return (

@@ -185,6 +185,14 @@ const ProductApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['Products', 'Orders'],
         }),
+        voidAndReverseStockAdjustment: builder.mutation({
+            query: ({ id, reason }: { id: number; reason: string }) => ({
+                url: `/product-adjustments/${id}/void-and-reverse`,
+                method: 'POST',
+                body: { reason },
+            }),
+            invalidatesTags: ['Products', 'Orders'],
+        }),
         getStockCounts: builder.query({
             query: (params = {}) => ({
                 url: '/stock-counts',
@@ -230,6 +238,7 @@ export const {
     useCreateStockAdjustmentMutation,
     useUpdateSerialStatusMutation,
     useCreateBatchAdjustmentMutation,
+    useVoidAndReverseStockAdjustmentMutation,
     useGetStockCountsQuery,
     useCreateStockCountMutation,
     useApproveStockCountMutation,
