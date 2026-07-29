@@ -182,9 +182,13 @@ export default function BankAccountDetailPage() {
                         </p>
                     </div>
                 </div>
-                <button onClick={openCreate} className="btn btn-primary inline-flex items-center gap-2">
-                    <Plus className="h-4 w-4" /> {t('lbl_add_transaction')}
-                </button>
+                {account.is_active ? (
+                    <button onClick={openCreate} className="btn btn-primary inline-flex items-center gap-2">
+                        <Plus className="h-4 w-4" /> {t('lbl_add_transaction')}
+                    </button>
+                ) : (
+                    <span className="rounded bg-orange-100 px-3 py-2 text-sm font-medium text-orange-800">{t('bank_account_archived_read_only')}</span>
+                )}
             </div>
 
             <div className="grid gap-4 md:grid-cols-4">

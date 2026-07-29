@@ -7959,5 +7959,12 @@
   "counterparty_delete_action": "Delete permanently",
   "counterparty_delete_blocked": "This record has history or a balance and must be archived instead.",
   "customer_archived": "Customer archived; history was preserved.",
-  "supplier_archived": "Supplier archived; history was preserved."
+  "supplier_archived": "Supplier archived; history was preserved.",
+  "bank_account_archive_action": "Archive account",
+  "bank_account_safe_delete_action": "Permanently delete unused account",
+  "bank_account_archive_reason": "Archive this bank account? New postings, transfers and payment selections will be blocked while balances, reconciliations, journals and history remain available.",
+  "bank_account_safe_delete_reason": "Permanently delete this unused zero-balance bank account? Accounts with any history, journal, reconciliation or balance are blocked and must be archived.",
+  "bank_account_show_archived": "Show archived",
+  "bank_account_hide_archived": "Hide archived",
+  "bank_account_archived_read_only": "Archived account — historical details only"
 }

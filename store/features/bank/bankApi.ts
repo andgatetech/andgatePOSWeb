@@ -33,11 +33,12 @@ const BankApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['BankAccounts'],
         }),
-        deleteBankAccount: builder.mutation({
-            query: (id: number | string) => ({
-                url: `/bank-accounts/${id}`,
-                method: 'DELETE',
-            }),
+        archiveBankAccount: builder.mutation({
+            query: ({ id, ...data }: any) => ({ url: `/bank-accounts/${id}/archive`, method: 'PATCH', body: data }),
+            invalidatesTags: ['BankAccounts'],
+        }),
+        safeDeleteBankAccount: builder.mutation({
+            query: ({ id, ...data }: any) => ({ url: `/bank-accounts/${id}/safe-delete`, method: 'DELETE', body: data }),
             invalidatesTags: ['BankAccounts'],
         }),
         getBankTransactions: builder.query({
@@ -88,7 +89,8 @@ export const {
     useGetBankAccountByIdQuery,
     useCreateBankAccountMutation,
     useUpdateBankAccountMutation,
-    useDeleteBankAccountMutation,
+    useArchiveBankAccountMutation,
+    useSafeDeleteBankAccountMutation,
     useGetBankTransactionsQuery,
     useCreateBankTransactionMutation,
     useUpdateBankTransactionMutation,

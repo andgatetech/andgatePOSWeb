@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
-import { useGetBankAccountsQuery, useCreateBankAccountMutation, useUpdateBankAccountMutation, useDeleteBankAccountMutation } from '@/store/features/bank/bankApi';
-import { Building2, Pencil, Plus, Trash2 } from 'lucide-react';
+import { useGetBankAccountsQuery, useCreateBankAccountMutation, useUpdateBankAccountMutation, useArchiveBankAccountMutation, useSafeDeleteBankAccountMutation } from '@/store/features/bank/bankApi';
+import { Archive, Building2, Pencil, Plus, Trash2 } from 'lucide-react';
 
 const ACCOUNT_TYPES = [
     { value: 'current', label: 'Current' },
@@ -32,10 +32,12 @@ export default function BankAccountsPage() {
     const router = useRouter();
     const { formatCurrency } = useCurrency();
     const { currentStoreId } = useCurrentStore();
-    const { data, isLoading, refetch } = useGetBankAccountsQuery({ store_id: currentStoreId }, { skip: !currentStoreId });
+    const [showArchived, setShowArchived] = useState(false);
+    const { data, isLoading, refetch } = useGetBankAccountsQuery({ store_id: currentStoreId, ...(showArchived ? { include_archived: true } : {}) }, { skip: !currentStoreId });
     const [createAccount, { isLoading: creating }] = useCreateBankAccountMutation();
     const [updateAccount, { isLoading: updating }] = useUpdateBankAccountMutation();
-    const [deleteAccount] = useDeleteBankAccountMutation();
+    const [archiveAccount] = useArchiveBankAccountMutation();
+    const [safeDeleteAccount] = useSafeDeleteBankAccountMutation();
 
     const [modalOpen, setModalOpen] = useState(false);
     const [editingId, setEditingId] = useState<number | null>(null);
@@ -86,13 +88,23 @@ export default function BankAccountsPage() {
         }
     };
 
-    const handleDelete = async (id: number) => {
-        if (!confirm(t('msg_confirm_delete'))) return;
+    const handleArchive = async (id: number) => {
+        if (!confirm(t('bank_account_archive_reason'))) return;
         try {
-            await deleteAccount(id).unwrap();
+            await archiveAccount({ id, store_id: currentStoreId }).unwrap();
             refetch();
         } catch (e) {
             // handled by RTK
+        }
+    };
+
+    const handleSafeDelete = async (id: number) => {
+        if (!confirm(t('bank_account_safe_delete_reason'))) return;
+        try {
+            await safeDeleteAccount({ id, store_id: currentStoreId }).unwrap();
+            refetch();
+        } catch (e) {
+            // Referenced accounts are intentionally rejected by the backend.
         }
     };
 
@@ -103,9 +115,14 @@ export default function BankAccountsPage() {
                     <h1 className="text-xl font-bold text-gray-900">{t('lbl_bank_accounts')}</h1>
                     <p className="text-sm text-gray-500">{t('lbl_bank_accounts_desc')}</p>
                 </div>
-                <button onClick={openCreate} className="btn btn-primary inline-flex items-center gap-2">
-                    <Plus className="h-4 w-4" /> {t('lbl_add_bank_account')}
-                </button>
+                <div className="flex items-center gap-2">
+                    <button onClick={() => setShowArchived(!showArchived)} className="btn btn-outline-secondary text-sm">
+                        {showArchived ? t('bank_account_hide_archived') : t('bank_account_show_archived')}
+                    </button>
+                    <button onClick={openCreate} className="btn btn-primary inline-flex items-center gap-2">
+                        <Plus className="h-4 w-4" /> {t('lbl_add_bank_account')}
+                    </button>
+                </div>
             </div>
 
             {isLoading ? (
@@ -142,11 +159,16 @@ export default function BankAccountsPage() {
                                         <Pencil className="h-4 w-4" />
                                     </button>
                                     <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleDelete(account.id);
-                                        }}
+                                        onClick={(e) => { e.stopPropagation(); handleArchive(account.id); }}
+                                        className="rounded p-1.5 text-orange-600 hover:bg-orange-50"
+                                        title={t('bank_account_archive_action')}
+                                    >
+                                        <Archive className="h-4 w-4" />
+                                    </button>
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); handleSafeDelete(account.id); }}
                                         className="rounded p-1.5 text-danger hover:bg-red-50"
+                                        title={t('bank_account_safe_delete_action')}
                                     >
                                         <Trash2 className="h-4 w-4" />
                                     </button>
