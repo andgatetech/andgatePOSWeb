@@ -179,6 +179,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 <link rel="icon" type="image/png" sizes="512x512" href="/icon-512x512.png" />
                 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
                 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+            </head>
+            <body suppressHydrationWarning>
                 {process.env.NODE_ENV === 'development' && (
                     <Script id="dev-service-worker-cleanup" strategy="beforeInteractive">
                         {`
@@ -210,8 +212,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                         `}
                     </Script>
                 )}
-            </head>
-            <body suppressHydrationWarning>
                 {/* GTM noscript fallback — required by Google, goes right after <body> */}
                 {process.env.NEXT_PUBLIC_GTM_ID && (
                     <noscript>
