@@ -243,9 +243,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                             var guardMs = 30000;
                             try {
                                 var currentUrl = new URL(window.location.href);
-                                if (currentUrl.searchParams.has('cache-recovered') || currentUrl.searchParams.has('storage-guard')) {
+                                var hasParam = currentUrl.searchParams.has('cache-recovered') || 
+                                               currentUrl.searchParams.has('storage-guard') || 
+                                               currentUrl.searchParams.has('force-refresh');
+                                if (hasParam) {
                                     currentUrl.searchParams.delete('cache-recovered');
                                     currentUrl.searchParams.delete('storage-guard');
+                                    currentUrl.searchParams.delete('force-refresh');
                                     window.history.replaceState(window.history.state, '', currentUrl.pathname + currentUrl.search + currentUrl.hash);
                                 }
                             } catch (e) {}
@@ -259,8 +263,24 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                             }
                             function reloadOnce() {
                                 if (recentlyReloaded()) return;
-                                try { sessionStorage.setItem(key, String(Date.now())); } catch (e) { return; }
-                                window.location.reload();
+                                try { sessionStorage.setItem(key, String(Date.now())); } catch (e) {}
+                                
+                                if ('serviceWorker' in navigator) {
+                                    navigator.serviceWorker.getRegistrations().then(function(regs) {
+                                        regs.forEach(function(reg) { reg.unregister(); });
+                                    }).catch(function(){});
+                                }
+                                if ('caches' in window) {
+                                    caches.keys().then(function(keys) {
+                                        keys.forEach(function(k) { caches.delete(k); });
+                                    }).catch(function(){});
+                                }
+                                
+                                setTimeout(function() {
+                                    var url = new URL(window.location.href);
+                                    url.searchParams.set('force-refresh', Date.now());
+                                    window.location.replace(url.toString());
+                                }, 100);
                             }
                             window.addEventListener('error', function (event) {
                                 var target = event && event.target;

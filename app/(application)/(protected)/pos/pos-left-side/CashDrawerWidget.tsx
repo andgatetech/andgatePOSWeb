@@ -2,7 +2,7 @@
 
 import { Dialog, Transition } from '@headlessui/react';
 import { Banknote, Lock, Unlock } from 'lucide-react';
-import { Fragment, useEffect, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { getTranslation } from '@/i18n';
 import { useCurrency } from '@/hooks/useCurrency';
@@ -32,25 +32,32 @@ const CashDrawerWidget = () => {
     const [movementNote, setMovementNote] = useState('');
 
     const { data: drawersData } = useGetDrawersQuery(currentStoreId ? { store_id: currentStoreId } : undefined, { skip: !currentStoreId });
-    const [createDrawer] = useCreateDrawerMutation();
+    const [createDrawer, { isLoading: isCreatingDrawer }] = useCreateDrawerMutation();
     const [openDrawer, { isLoading: isOpening }] = useOpenDrawerMutation();
     const [closeDrawer, { isLoading: isClosing }] = useCloseDrawerMutation();
     const [recordMovement, { isLoading: isRecordingMovement }] = useRecordDrawerMovementMutation();
 
     const drawers = drawersData?.data?.drawers ?? [];
     const drawer = drawers[0];
+    
+    // Make sure we don't query a stale drawer from a previous store
+    const isValidDrawer = drawer && Number(drawer.store_id) === Number(currentStoreId);
 
     const { data: sessionData, refetch: refetchSession } = useGetCurrentDrawerSessionQuery(
-        drawer && currentStoreId ? { drawerId: drawer.id, store_id: currentStoreId } : (undefined as any),
-        { skip: !drawer || !currentStoreId, pollingInterval: 60000 }
+        isValidDrawer ? { drawerId: drawer.id, store_id: currentStoreId } : (undefined as any),
+        { skip: !isValidDrawer, pollingInterval: 60000 }
     );
 
     const session = sessionData?.data?.session ?? null;
     const runningTotal = session?.running_total ?? null;
 
+    // Keep track of which stores we've attempted to auto-provision to avoid infinite loops
+    const provisionAttempted = useRef<Record<number, boolean>>({});
+
     // Auto-provision a default drawer for stores that don't have one yet.
     useEffect(() => {
-        if (currentStoreId && drawersData && drawers.length === 0) {
+        if (currentStoreId && drawersData && drawers.length === 0 && !provisionAttempted.current[currentStoreId]) {
+            provisionAttempted.current[currentStoreId] = true;
             createDrawer({ store_id: currentStoreId, name: 'Main Drawer' })
                 .unwrap()
                 .then(() => {
