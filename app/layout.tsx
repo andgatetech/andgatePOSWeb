@@ -265,22 +265,20 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                                 if (recentlyReloaded()) return;
                                 try { sessionStorage.setItem(key, String(Date.now())); } catch (e) {}
                                 
-                                if ('serviceWorker' in navigator) {
-                                    navigator.serviceWorker.getRegistrations().then(function(regs) {
-                                        regs.forEach(function(reg) { reg.unregister(); });
-                                    }).catch(function(){});
-                                }
-                                if ('caches' in window) {
-                                    caches.keys().then(function(keys) {
-                                        keys.forEach(function(k) { caches.delete(k); });
-                                    }).catch(function(){});
-                                }
-                                
-                                setTimeout(function() {
+                                Promise.all([
+                                    'serviceWorker' in navigator ? navigator.serviceWorker.getRegistrations().then(function(regs) {
+                                        return Promise.all(regs.map(function(reg) { return reg.unregister(); }));
+                                    }).catch(function(){}) : Promise.resolve(),
+                                    'caches' in window ? caches.keys().then(function(keys) {
+                                        return Promise.all(keys.map(function(k) { return caches.delete(k); }));
+                                    }).catch(function(){}) : Promise.resolve()
+                                ]).then(function() {
                                     var url = new URL(window.location.href);
                                     url.searchParams.set('force-refresh', Date.now());
                                     window.location.replace(url.toString());
-                                }, 100);
+                                }).catch(function() {
+                                    window.location.reload();
+                                });
                             }
                             window.addEventListener('error', function (event) {
                                 var target = event && event.target;

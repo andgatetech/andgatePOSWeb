@@ -1,4 +1,5 @@
 const RECOVERY_KEY = 'andgatepos-error-cache-recovered';
+const RECOVERY_GUARD_MS = 30000;
 
 const safeSessionStorageGet = (key: string): string | null => {
     try {
@@ -35,9 +36,13 @@ export const recoverFromStaleClientCache = async (): Promise<boolean> => {
     if (typeof window === 'undefined') return false;
     const url = new URL(window.location.href);
     if (url.searchParams.has('cache-recovered') || url.searchParams.has('storage-guard')) return false;
-    if (safeSessionStorageGet(RECOVERY_KEY) === 'true') return false;
+    
+    const lastRecovered = Number(safeSessionStorageGet(RECOVERY_KEY) || 0);
+    if (Date.now() - lastRecovered < RECOVERY_GUARD_MS) {
+        return false;
+    }
 
-    const hasRecoveryGuard = safeSessionStorageSet(RECOVERY_KEY, 'true');
+    const hasRecoveryGuard = safeSessionStorageSet(RECOVERY_KEY, Date.now().toString());
 
     try {
         await clearStaleClientCache();
