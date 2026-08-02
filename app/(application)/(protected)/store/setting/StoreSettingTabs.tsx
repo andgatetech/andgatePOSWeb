@@ -1,6 +1,6 @@
 'use client';
 
-import { Camera, Clock, Coins, CreditCard, Flag, Gift, ListChecks, Package, Receipt, RotateCcw, Settings as SettingsIcon, Shield, Smartphone, Store, Tag } from 'lucide-react';
+import { Camera, Clock, Coins, CreditCard, Flag, Gift, ListChecks, Package, Receipt, RotateCcw, Settings as SettingsIcon, Shield, Smartphone, Store, Tag, Globe } from 'lucide-react';
 import React from 'react';
 import { getTranslation } from '@/i18n';
 
@@ -53,6 +53,7 @@ const StoreSettingTabs: React.FC<StoreSettingTabsProps> = ({ activeTab, onTabCha
                 { id: 'currency', label: t('store_currency_title'), icon: Coins, description: t('store_tab_desc_currency') },
                 { id: 'paymentstatus', label: t('order_payment_status'), icon: Flag, description: t('store_tab_desc_payment_status') },
                 { id: 'taxprofiles', label: 'VAT / Tax', icon: Receipt, description: 'VAT/tax profile lifecycle' },
+                { id: 'ordersources', label: 'Order Sources', icon: Globe, description: 'Manage online order sources' },
             ],
         },
         {

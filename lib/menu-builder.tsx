@@ -846,6 +846,12 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
                 requiredFeature: 'ecommerce.manage',
             },
             {
+                label: 'Create Order',
+                href: '/ecommerce/orders/create',
+                requiredPermissions: ['orders.edit'],
+                requiredFeature: 'ecommerce.manage',
+            },
+            {
                 label: 'COD Reconciliation',
                 href: '/ecommerce/cod-reconciliation',
                 requiredPermissions: ['orders.index'],

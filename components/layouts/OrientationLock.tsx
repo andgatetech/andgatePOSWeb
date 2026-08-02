@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getTranslation } from '@/i18n';
+import { useTranslation } from '@/components/i18n/TranslationProvider';
 
 /**
  * Three-layer portrait enforcement:
@@ -13,7 +13,7 @@ import { getTranslation } from '@/i18n';
  *    Tablets (iPad landscape height ~768px) are NOT blocked.
  */
 const OrientationLock = () => {
-    const { t } = getTranslation();
+    const { t } = useTranslation();
     const [showOverlay, setShowOverlay] = useState(false);
 
     useEffect(() => {

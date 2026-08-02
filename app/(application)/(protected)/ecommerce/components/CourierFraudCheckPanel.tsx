@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { AlertTriangle, CheckCircle2, Loader2, RefreshCw, ShieldCheck } from 'lucide-react';
 
 import { getTranslation } from '@/i18n';
-import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
+import { showToast } from '@/lib/toast';
 import { cn } from '@/lib/utils';
 import { useRunCourierFraudCheckMutation, useRunStoreOrderFraudCheckMutation } from '@/store/features/ecommerce/ecommerceManagementApi';
 import { formatApiError } from './ecommerceUtils';
@@ -57,7 +57,7 @@ const CourierFraudCheckPanel = ({ storeId, storeOrderId, defaultPhone = '', titl
 
     const handleRunCheck = async () => {
         if (!canRun) {
-            showErrorDialog(t('ecommerce_fraud_missing_data'), storeOrderId ? t('ecommerce_fraud_order_not_ready') : t('ecommerce_fraud_select_store_phone'));
+            showToast.error(storeOrderId ? t('ecommerce_fraud_order_not_ready') : t('ecommerce_fraud_select_store_phone'));
             return;
         }
 
@@ -71,9 +71,9 @@ const CourierFraudCheckPanel = ({ storeId, storeOrderId, defaultPhone = '', titl
                 : await runManualCheck({ store_id: Number(storeId), phone: phone.trim(), ...body }).unwrap();
             const payload = resolveCheckPayload(response);
             setResult(payload);
-            showSuccessDialog(t('ecommerce_fraud_check_complete'), t('ecommerce_fraud_risk_level', { level: String(payload?.risk_level || 'unknown').toUpperCase() }));
+            showToast.success(t('ecommerce_fraud_risk_level', { level: String(payload?.risk_level || 'unknown').toUpperCase() }));
         } catch (error) {
-            showErrorDialog(t('ecommerce_fraud_check_failed'), formatApiError(error));
+            showToast.error(formatApiError(error));
         }
     };
 

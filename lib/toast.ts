@@ -1,4 +1,5 @@
 import Swal from 'sweetalert2';
+import toast from 'react-hot-toast';
 
 /**
  * Reusable message notification utility using SweetAlert2
@@ -30,25 +31,54 @@ export const showMessage = (msg = '', type: 'success' | 'error' | 'warning' | 'i
 };
 
 /**
- * Lightweight, non-blocking corner toast for quick/trivial actions
- * (e.g. inline table saves) that don't warrant a full modal click-to-dismiss.
+ * Modern non-blocking top toast powered by react-hot-toast (matching /pos UI)
  * @param msg - Message to display
- * @param type - Type of message: 'success', 'error', 'warning', or 'info'
+ * @param type - Type of message: 'success' | 'error' | 'warning' | 'info'
  */
 export const showToast = (msg = '', type: 'success' | 'error' | 'warning' | 'info' = 'success') => {
-    Swal.fire({
-        icon: type,
-        title: msg,
-        toast: true,
-        position: 'top-end',
-        showConfirmButton: false,
-        timer: 3000,
-        timerProgressBar: true,
-        customClass: {
-            popup: `swal2-${type}-popup`,
-            icon: `swal2-${type}-icon`,
-        },
-    });
+    const bgColors: Record<string, string> = {
+        success: '#10b981',
+        error: '#ef4444',
+        warning: '#f59e0b',
+        info: '#3b82f6',
+    };
+    const color = bgColors[type] || '#10b981';
+
+    if (type === 'error') {
+        toast.error(msg, {
+            duration: 3000,
+            position: 'top-center',
+            style: {
+                background: color,
+                color: '#fff',
+                padding: '16px',
+                borderRadius: '8px',
+                fontWeight: '500',
+                fontSize: '14px',
+            },
+            iconTheme: {
+                primary: '#fff',
+                secondary: color,
+            },
+        });
+    } else {
+        toast.success(msg, {
+            duration: 2000,
+            position: 'top-center',
+            style: {
+                background: color,
+                color: '#fff',
+                padding: '16px',
+                borderRadius: '8px',
+                fontWeight: '500',
+                fontSize: '14px',
+            },
+            iconTheme: {
+                primary: '#fff',
+                secondary: color,
+            },
+        });
+    }
 };
 
 /**

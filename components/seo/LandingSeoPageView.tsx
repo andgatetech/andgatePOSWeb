@@ -1,7 +1,7 @@
 'use client';
 
 import MainLayout from '@/components/layouts/MainLayout';
-import { getTranslation } from '@/i18n';
+import { useTranslation } from '@/components/i18n/TranslationProvider';
 import { landingPages, type LandingPage } from '@/lib/landing-pages';
 import { ArrowRight, BadgeCheck, BarChart3, CheckCircle2, ClipboardList, HelpCircle, PackageCheck, Receipt, SearchCheck, Store, WalletCards } from 'lucide-react';
 import Image from 'next/image';
@@ -170,7 +170,7 @@ type Props = {
 };
 
 export default function LandingSeoPageView({ page, locale }: Props) {
-    const { i18n } = getTranslation();
+    const { i18n } = useTranslation();
     const isBn = locale ? locale === 'bn' : i18n.language === 'bn';
     const bnCopy = landingCopyBn[page.slug];
     const content = isBn && bnCopy ? bnCopy : page;

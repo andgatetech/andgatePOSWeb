@@ -1,14 +1,14 @@
 'use client';
 
 import MainLayout from '@/components/layouts/MainLayout';
-import { getTranslation } from '@/i18n';
+import { useTranslation } from '@/components/i18n/TranslationProvider';
 import { landingPages } from '@/lib/landing-pages';
 import { ArrowRight, SearchCheck } from 'lucide-react';
 import Link from 'next/link';
 import { landingCopyBn } from './LandingSeoPageView';
 
 export default function LandingIndexPageView() {
-    const { i18n } = getTranslation();
+    const { i18n } = useTranslation();
     const isBn = i18n.language === 'bn';
 
     return (

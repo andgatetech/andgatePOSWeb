@@ -1,7 +1,7 @@
 'use client';
 
 import MainLayout from '@/components/layouts/MainLayout';
-import { getTranslation } from '@/i18n';
+import { useTranslation } from '@/components/i18n/TranslationProvider';
 import { highIntentPages, type HighIntentSeoPage } from '@/lib/high-intent-pages';
 import { getAppUrl } from '@/lib/seo-config';
 import { ArrowRight, CheckCircle2, HelpCircle, Layers, Scale, SearchCheck, Star, Store } from 'lucide-react';
@@ -13,7 +13,7 @@ type Props = {
 };
 
 export default function HighIntentSeoPageView({ page, locale }: Props) {
-    const { i18n } = getTranslation();
+    const { i18n } = useTranslation();
     const isBn = locale ? locale === 'bn' : i18n.language === 'bn';
     const content = isBn ? page.bn : page;
     const baseUrl = getAppUrl();

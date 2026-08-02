@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import AnimateHeight from 'react-animate-height';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { getTranslation } from '@/i18n';
+import { useTranslation } from '@/components/i18n/TranslationProvider';
 import { useDashboardExperience } from '@/hooks/useDashboardExperience';
 import { buildMenuFromPermissions, pinEssentialsForSimpleMode, type MenuItem } from '@/lib/menu-builder';
 import { RootState, persistor } from '@/store';
@@ -26,7 +26,7 @@ import IconCaretsDown from '../icon/icon-carets-down';
 
 const Sidebar = () => {
     const dispatch = useDispatch();
-    const { t } = getTranslation();
+    const { t } = useTranslation();
     const pathname = usePathname();
     const router = useRouter();
     const [currentMenu, setCurrentMenu] = useState<string>('');

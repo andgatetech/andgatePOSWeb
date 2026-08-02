@@ -1,8 +1,8 @@
 'use client';
-import { getTranslation } from '@/i18n';
+import { useTranslation } from '@/components/i18n/TranslationProvider';
 
 export default function WhatsAppFloat() {
-    const { t } = getTranslation();
+    const { t } = useTranslation();
     const phone = '8801577303608';
     const message = 'হ্যালো! আমি AndgateBOS সম্পর্কে জানতে চাই।';
     const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;

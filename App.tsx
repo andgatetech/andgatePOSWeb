@@ -1,5 +1,6 @@
 'use client';
 import GlobalDigitLocalizer from '@/components/i18n/GlobalDigitLocalizer';
+import { Toaster } from 'react-hot-toast';
 
 import type { RootState } from '@/store';
 import { toggleAnimation, toggleLayout, toggleMenu, toggleNavbar, toggleRTL, toggleSemidark, toggleTheme } from '@/store/themeConfigSlice';
@@ -37,6 +38,7 @@ function App({ children }: PropsWithChildren) {
             } main-section relative font-nunito text-sm font-normal antialiased`}
         >
             <GlobalDigitLocalizer />
+            <Toaster position="top-center" reverseOrder={false} />
             {children}
         </div>
     );

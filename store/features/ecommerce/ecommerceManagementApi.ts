@@ -268,6 +268,33 @@ const ecommerceManagementApi = baseApi.injectEndpoints({
                 method: 'GET',
                 params,
             }),
+            providesTags: ['OnlineOrderSources'],
+        }),
+
+        createOnlineOrderSource: builder.mutation({
+            query: (body) => ({
+                url: '/ecommerce/management/online-order-sources',
+                method: 'POST',
+                body,
+            }),
+            invalidatesTags: ['OnlineOrderSources'],
+        }),
+
+        updateOnlineOrderSource: builder.mutation({
+            query: ({ id, ...body }) => ({
+                url: `/ecommerce/management/online-order-sources/${id}`,
+                method: 'PUT',
+                body,
+            }),
+            invalidatesTags: ['OnlineOrderSources'],
+        }),
+
+        deleteOnlineOrderSource: builder.mutation({
+            query: (id) => ({
+                url: `/ecommerce/management/online-order-sources/${id}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['OnlineOrderSources'],
         }),
 
         createOnlineOrder: builder.mutation({
@@ -298,6 +325,10 @@ export const {
     useGetPathaoCitiesQuery,
     useGetPathaoZonesQuery,
     useGetPathaoAreasQuery,
+    useGetOnlineOrderSourcesQuery,
+    useCreateOnlineOrderSourceMutation,
+    useUpdateOnlineOrderSourceMutation,
+    useDeleteOnlineOrderSourceMutation,
     useLazyGetRedxAreasQuery,
     useGetRedxPickupStoresQuery,
     useRunCourierFraudCheckMutation,
@@ -309,6 +340,5 @@ export const {
     useCreateCourierShipmentMutation,
     useBulkCreateCourierShipmentsMutation,
     useRefreshCourierStatusMutation,
-    useGetOnlineOrderSourcesQuery,
     useCreateOnlineOrderMutation,
 } = ecommerceManagementApi;

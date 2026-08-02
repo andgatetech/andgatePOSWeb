@@ -1,5 +1,5 @@
 'use client';
-import { getTranslation } from '@/i18n';
+import { useTranslation } from '@/components/i18n/TranslationProvider';
 import { Menu, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -17,7 +17,7 @@ interface MainLayoutProps {
 export default function MainLayout({ children }: MainLayoutProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isStandalonePwa, setIsStandalonePwa] = useState(false);
-    const { t } = getTranslation();
+    const { t } = useTranslation();
 
     useEffect(() => {
         setIsStandalonePwa(window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true);

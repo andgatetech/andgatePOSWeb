@@ -1,7 +1,7 @@
 'use client';
 import Dropdown from '@/components/dropdown';
 import IconCaretDown from '@/components/icon/icon-caret-down';
-import { getTranslation } from '@/i18n';
+import { useTranslation } from '@/components/i18n/TranslationProvider';
 import { RootState } from '@/store';
 import Image from 'next/image';
 import { useSelector } from 'react-redux';
@@ -19,7 +19,7 @@ const LANG_FLAG: Record<string, string> = {
 const flagFor = (code: string) => LANG_FLAG[code] ?? code.toUpperCase();
 
 const LanguageDropdown = ({ className = '', variant = 'light' }: LanguageDropdownProps) => {
-    const { i18n } = getTranslation();
+    const { i18n } = useTranslation();
 
     const isRtl = useSelector((state: RootState) => state.themeConfig.rtlClass) === 'rtl';
     const themeConfig = useSelector((state: RootState) => state.themeConfig);

@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { getTranslation } from '@/i18n';
+import { getServerTranslation } from '@/i18n';
 import MainLayout from '@/components/layouts/MainLayout';
 import { CreditCard, GitCompare, Home, Mail, MessageCircle } from 'lucide-react';
 
@@ -8,8 +8,8 @@ export const metadata: Metadata = {
     title: 'Error 404',
 };
 
-const NotFound = () => {
-    const { t } = getTranslation();
+const NotFound = async () => {
+    const { t } = await getServerTranslation();
 
     const popularLinks = [
         { label: t('layout.nav.home'), href: '/', icon: Home },

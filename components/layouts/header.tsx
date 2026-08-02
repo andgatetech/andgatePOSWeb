@@ -17,7 +17,7 @@ import { resetToggleSidebar, toggleSidebar } from '@/store/themeConfigSlice';
 import { Maximize, Menu, Minimize, ShoppingCart } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { getTranslation } from '@/i18n';
+import { useTranslation } from '@/components/i18n/TranslationProvider';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -31,7 +31,7 @@ const safeSessionStorageClear = () => {
 };
 
 const Header = () => {
-    const { t } = getTranslation();
+    const { t } = useTranslation();
     const pathname = usePathname();
     const dispatch = useDispatch();
     const router = useRouter();

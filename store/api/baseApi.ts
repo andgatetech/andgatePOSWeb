@@ -171,6 +171,7 @@ export const baseApi = createApi({
         'CustomReports',
         'ScheduledReports',
         'DashboardLayout',
+        'OnlineOrderSources',
     ],
     endpoints: () => ({}),
 });

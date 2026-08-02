@@ -48,6 +48,7 @@ import StoreStatusTab from './tabs/StoreStatusTab';
 import TaxProfilesTab from './tabs/TaxProfilesTab';
 import UnitsTab from './tabs/UnitsTab';
 import WarrantyTypesTab from './tabs/WarrantyTypesTab';
+import OnlineOrderSourcesTab from './tabs/OnlineOrderSourcesTab';
 
 const createEmptyPaymentMethodForm = (): PaymentMethodForm => ({
     payment_method_name: '',
@@ -1691,6 +1692,8 @@ const StoreSetting = () => {
                 return <BrandingTab storeData={storeData} logoFile={logoFile} logoPreview={logoPreview} handleLogoChange={handleLogoChange} clearLogo={clearLogo} />;
             case 'status':
                 return <StoreStatusTab active={storeData?.data?.store?.is_active} formData={formData} handleInputChange={handleInputChange} />;
+            case 'ordersources':
+                return <OnlineOrderSourcesTab />;
             default:
                 return <BasicInfoTab formData={formData} handleInputChange={handleInputChange} />;
         }

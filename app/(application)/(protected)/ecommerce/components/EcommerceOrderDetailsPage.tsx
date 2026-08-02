@@ -1,8 +1,10 @@
 'use client';
-import { useEffect, useMemo, useState, type ButtonHTMLAttributes, type ElementType, type HTMLAttributes, type ReactNode } from 'react';
+import { resolveProductImageUrl } from '@/lib/image-url';
 import {
+    AlertTriangle,
     ArrowLeft,
     Banknote,
+    Boxes,
     CalendarClock,
     CheckCircle2,
     Circle,
@@ -10,8 +12,10 @@ import {
     Download,
     FileText,
     Globe2,
-    Loader2,
+    HelpCircle,
     ListChecks,
+    Loader2,
+    Lock,
     Mail,
     MapPin,
     Package,
@@ -24,14 +28,16 @@ import {
     Truck,
     User,
 } from 'lucide-react';
+import Image from 'next/image';
+import { useEffect, useMemo, useState, type ButtonHTMLAttributes, type ElementType, type HTMLAttributes, type ReactNode } from 'react';
 
-import Loader from '@/lib/Loader';
-import { getTranslation } from '@/i18n';
-import { closeReservedPdfWindow, reservePdfWindow } from '@/lib/pdf-mobile-download';
-import { cn } from '@/lib/utils';
-import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
+import { getTranslation } from '@/i18n';
+import Loader from '@/lib/Loader';
+import { closeReservedPdfWindow, reservePdfWindow } from '@/lib/pdf-mobile-download';
+import { showToast } from '@/lib/toast';
+import { cn } from '@/lib/utils';
 import {
     useCalculateCourierPriceMutation,
     useCreateCourierShipmentMutation,
@@ -47,9 +53,8 @@ import {
 } from '@/store/features/ecommerce/ecommerceManagementApi';
 import { useGetStoreLogoQuery } from '@/store/features/store/storeApi';
 import { useParams, useRouter } from 'next/navigation';
-import { generateOrderInvoicePDF, reserveInvoicePrintWindow, type InvoicePayload } from './generate-order-invoice-pdf';
-import { StatusBadge } from './EcommerceBadges';
 import CourierFraudCheckPanel from './CourierFraudCheckPanel';
+import { StatusBadge } from './EcommerceBadges';
 import {
     ECOMMERCE_ORDER_STATUSES,
     ECOMMERCE_ORDER_TIMESTAMPS,
@@ -62,6 +67,7 @@ import {
     getEcommerceStatusLabel,
     normalizeEcommerceOrderStatus,
 } from './ecommerceUtils';
+import { generateOrderInvoicePDF, reserveInvoicePrintWindow, type InvoicePayload } from './generate-order-invoice-pdf';
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
@@ -223,18 +229,24 @@ function WorkflowGuide({ status, paymentStatus, hasCourier }: { status: OrderSta
         },
         {
             number: '3',
+            title: t('ecommerce_detail_items'),
+            description: t('ecommerce_detail_workflow_items_desc'),
+            value: <Badge variant="outline">{t('ecommerce_detail_review')}</Badge>,
+        },
+        {
+            number: '4',
             title: t('ecommerce_detail_fulfillment'),
             description: t('ecommerce_detail_workflow_fulfillment_desc'),
             value: <StatusBadge status={status} />,
         },
         {
-            number: '4',
+            number: '5',
             title: t('ecommerce_detail_payment'),
             description: t('ecommerce_detail_workflow_payment_desc'),
             value: <StatusBadge status={paymentStatus} />,
         },
         {
-            number: '5',
+            number: '6',
             title: t('ecommerce_detail_courier_parcel'),
             description: t('ecommerce_detail_workflow_courier_desc'),
             value: (
@@ -242,12 +254,6 @@ function WorkflowGuide({ status, paymentStatus, hasCourier }: { status: OrderSta
                     {hasCourier ? t('ecommerce_detail_parcel_created') : t('ecommerce_detail_parcel_pending')}
                 </Badge>
             ),
-        },
-        {
-            number: '6',
-            title: t('ecommerce_detail_items'),
-            description: t('ecommerce_detail_workflow_items_desc'),
-            value: <Badge variant="outline">{t('ecommerce_detail_review')}</Badge>,
         },
     ];
 
@@ -272,7 +278,7 @@ function WorkflowGuide({ status, paymentStatus, hasCourier }: { status: OrderSta
                                 <p className="mt-1 text-xs leading-5 text-slate-500">{step.description}</p>
                             </div>
                         </div>
-                        <div className="mt-3 pl-10">{step.value}</div>
+                        <div className="mt-3 flex items-center">{step.value}</div>
                     </div>
                 ))}
             </CardContent>
@@ -280,7 +286,7 @@ function WorkflowGuide({ status, paymentStatus, hasCourier }: { status: OrderSta
     );
 }
 
-const getItemAvailableQty = (item: any): number | null => {
+const getItemAvailableQty = (item: any, stockReservations?: any[]): number | null => {
     const candidates = [
         item?.available_qty,
         item?.available_quantity,
@@ -294,71 +300,241 @@ const getItemAvailableQty = (item: any): number | null => {
     ];
 
     const found = candidates.find((value) => value !== undefined && value !== null && value !== '');
-    if (found === undefined) return null;
-    const numeric = Number(found);
-    return Number.isFinite(numeric) ? numeric : null;
+    if (found !== undefined) {
+        const numeric = Number(found);
+        if (Number.isFinite(numeric)) return numeric;
+    }
+
+    if (Array.isArray(stockReservations)) {
+        const reservation = stockReservations.find(
+            (res) => (Number(res?.product_stock_id) === Number(item?.stock_id) || Number(res?.product_stock_id) === Number(item?.id)) && res?.status === 'reserved'
+        );
+        if (reservation && Number(reservation?.quantity) > 0) {
+            return Number(reservation.quantity);
+        }
+    }
+
+    return null;
 };
 
-function StockReadinessPanel({ items }: { items: any[] }) {
+const formatSlugToTitle = (slug?: string) => {
+    if (!slug) return '';
+    const cleaned = slug.replace(/-\d+$/, '');
+    return cleaned
+        .split('-')
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+};
+
+const resolveItemDisplayName = (item: any) => {
+    const name = item?.product_name || item?.product?.product_name || item?.product?.name;
+    if (name && name.toLowerCase() !== 'product' && name !== 'N/A') return name;
+    if (item?.slug) return formatSlugToTitle(item.slug);
+    return name || getEcommerceFallbackText();
+};
+
+function StockReadinessPanel({ items, stockReservations }: { items: any[]; stockReservations?: any[] }) {
     const { t } = getTranslation();
     const rows = useMemo(
         () =>
             items.map((item) => {
                 const requested = Number(item?.quantity || 0);
-                const available = getItemAvailableQty(item);
+                const isReserved =
+                    Array.isArray(stockReservations) &&
+                    stockReservations.some((res) => (Number(res?.product_stock_id) === Number(item?.stock_id) || Number(res?.product_stock_id) === Number(item?.id)) && res?.status === 'reserved');
+                const reservation = isReserved
+                    ? stockReservations.find((res) => (Number(res?.product_stock_id) === Number(item?.stock_id) || Number(res?.product_stock_id) === Number(item?.id)) && res?.status === 'reserved')
+                    : null;
+                const available = getItemAvailableQty(item, stockReservations);
                 const status = available === null ? 'unknown' : available >= requested ? 'ready' : 'short';
-                return { item, requested, available, status };
+                return { item, requested, available, status, isReserved, reservation };
             }),
-        [items]
+        [items, stockReservations]
     );
     const shortCount = rows.filter((row) => row.status === 'short').length;
     const unknownCount = rows.filter((row) => row.status === 'unknown').length;
     const readyCount = rows.filter((row) => row.status === 'ready').length;
-
-    const tone = shortCount > 0 ? 'border-red-200 bg-red-50 text-red-900' : unknownCount > 0 ? 'border-amber-200 bg-amber-50 text-amber-900' : 'border-emerald-200 bg-emerald-50 text-emerald-900';
+    const reservedCount = rows.filter((row) => row.isReserved).length;
 
     return (
-        <Card className="order-2">
-            <CardHeader className="p-5">
-                <SectionTitle icon={Package} title={`2. ${t('ecommerce_detail_stock_check')}`} description={t('ecommerce_detail_stock_check_desc')} />
-            </CardHeader>
-            <CardContent className="border-t border-slate-100 p-5">
-                <div className={cn('mb-4 rounded-md border px-4 py-3 text-sm', tone)}>
-                    <p className="font-semibold">
-                        {shortCount > 0 ? t('ecommerce_detail_stock_short_title') : unknownCount > 0 ? t('ecommerce_detail_stock_unknown_title') : t('ecommerce_detail_stock_ready_title')}
-                    </p>
-                    <p className="mt-1 leading-5">{t('ecommerce_detail_stock_summary', { ready: readyCount, short: shortCount, unknown: unknownCount })}</p>
+        <Card className="animate-slide-up overflow-hidden">
+            <CardHeader className="flex-row items-start justify-between gap-4 p-5">
+                <SectionTitle icon={Boxes} title={`2. ${t('ecommerce_detail_stock_check')}`} description={t('ecommerce_detail_stock_check_desc')} />
+                <div className="flex items-center gap-2">
+                    {shortCount === 0 && unknownCount === 0 ? (
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                            {reservedCount === rows.length ? '100% Reserved & Ready' : '100% Stock Ready'}
+                        </span>
+                    ) : shortCount > 0 ? (
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-red-200 bg-red-50 px-3 py-1 text-xs font-semibold text-red-700">
+                            <AlertTriangle className="h-3.5 w-3.5 text-red-600" />
+                            {shortCount} {shortCount === 1 ? 'Item Short' : 'Items Short'}
+                        </span>
+                    ) : (
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
+                            <HelpCircle className="h-3.5 w-3.5 text-amber-600" />
+                            Untracked Items
+                        </span>
+                    )}
                 </div>
-                <div className="overflow-x-auto">
-                    <table className="w-full min-w-[620px] text-sm">
+            </CardHeader>
+            <CardContent className="border-t border-slate-100 p-0">
+                <div className="p-5">
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                        <div className="flex items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50/70 p-3.5">
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
+                                <CheckCircle2 className="h-5 w-5" />
+                            </div>
+                            <div className="min-w-0">
+                                <div className="text-xs font-semibold uppercase tracking-wider text-emerald-800">
+                                    {reservedCount > 0 ? `Ready / Reserved (${readyCount})` : `Ready (${readyCount})`}
+                                </div>
+                                <div className="text-xs text-emerald-700">{readyCount === rows.length ? 'All ordered items secured' : `${readyCount} of ${rows.length} items ready`}</div>
+                            </div>
+                        </div>
+
+                        <div
+                            className={cn(
+                                'flex items-center gap-3 rounded-lg border p-3.5 transition-colors',
+                                shortCount > 0 ? 'border-red-200 bg-red-50/80 text-red-900' : 'border-slate-200 bg-slate-50 text-slate-600'
+                            )}
+                        >
+                            <div className={cn('flex h-9 w-9 shrink-0 items-center justify-center rounded-lg', shortCount > 0 ? 'bg-red-100 text-red-700' : 'bg-slate-200 text-slate-500')}>
+                                <AlertTriangle className="h-5 w-5" />
+                            </div>
+                            <div className="min-w-0">
+                                <div className={cn('text-xs font-semibold uppercase tracking-wider', shortCount > 0 ? 'text-red-800' : 'text-slate-700')}>Shortage ({shortCount})</div>
+                                <div className="text-xs text-slate-500">{shortCount > 0 ? 'Requires stock before shipping' : 'No shortage detected'}</div>
+                            </div>
+                        </div>
+
+                        <div
+                            className={cn(
+                                'flex items-center gap-3 rounded-lg border p-3.5 transition-colors',
+                                unknownCount > 0 ? 'border-amber-200 bg-amber-50/80 text-amber-900' : 'border-slate-200 bg-slate-50 text-slate-600'
+                            )}
+                        >
+                            <div className={cn('flex h-9 w-9 shrink-0 items-center justify-center rounded-lg', unknownCount > 0 ? 'bg-amber-100 text-amber-700' : 'bg-slate-200 text-slate-500')}>
+                                <HelpCircle className="h-5 w-5" />
+                            </div>
+                            <div className="min-w-0">
+                                <div className={cn('text-xs font-semibold uppercase tracking-wider', unknownCount > 0 ? 'text-amber-800' : 'text-slate-700')}>Untracked ({unknownCount})</div>
+                                <div className="text-xs text-slate-500">{unknownCount > 0 ? 'Verify physical store stock' : 'All stock tracked'}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="overflow-x-auto border-t border-slate-200">
+                    <table className="w-full min-w-[760px] text-sm">
                         <thead className="bg-slate-50 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                            <tr>
-                                <th className="px-4 py-3">{t('ecommerce_detail_product')}</th>
-                                <th className="px-4 py-3 text-right">{t('lbl_ordered')}</th>
-                                <th className="px-4 py-3 text-right">{t('lbl_available')}</th>
-                                <th className="px-4 py-3 text-right">{t('lbl_status')}</th>
+                            <tr className="border-b border-slate-200">
+                                <th className="px-5 py-3">{t('ecommerce_detail_product')}</th>
+                                <th className="px-5 py-3 text-center">{t('lbl_ordered')}</th>
+                                <th className="px-5 py-3">{t('lbl_available')} / Stock Details</th>
+                                <th className="px-5 py-3 text-right">{t('lbl_status')}</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
-                            {rows.map(({ item, requested, available, status }) => (
-                                <tr key={item.id || item.stock_id || item.product_id}>
-                                    <td className="px-4 py-3 font-semibold text-slate-900">{item.product_name || item?.product?.product_name || item?.product?.name || getEcommerceFallbackText()}</td>
-                                    <td className="px-4 py-3 text-right">{requested}</td>
-                                    <td className="px-4 py-3 text-right">{available === null ? t('lbl_unknown') : available}</td>
-                                    <td className="px-4 py-3 text-right">
-                                        <span
-                                            className={cn(
-                                                'inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold',
-                                                status === 'short' && 'bg-red-100 text-red-700',
-                                                status === 'unknown' && 'bg-amber-100 text-amber-700',
-                                                status === 'ready' && 'bg-emerald-100 text-emerald-700'
+                            {rows.map(({ item, requested, available, status, isReserved, reservation }) => {
+                                const rawImage =
+                                    item?.images?.[0]?.url ||
+                                    item?.images?.[0]?.image_path ||
+                                    item?.images?.[0] ||
+                                    item?.image ||
+                                    item?.product?.images?.[0]?.url ||
+                                    item?.product?.images?.[0]?.image_path ||
+                                    item?.product?.images?.[0] ||
+                                    item?.product?.image_path ||
+                                    item?.product?.image;
+                                const itemImage = resolveProductImageUrl(rawImage);
+                                const displayName = resolveItemDisplayName(item);
+                                const sku = item.sku || item?.product?.sku;
+
+                                return (
+                                    <tr key={item.id || item.stock_id || item.product_id} className="transition hover:bg-[#046ca9]/5">
+                                        <td className="px-5 py-4">
+                                            <div className="flex items-center gap-3">
+                                                {itemImage ? (
+                                                    <Image
+                                                        src={itemImage}
+                                                        alt={displayName}
+                                                        width={40}
+                                                        height={40}
+                                                        className="h-10 w-10 shrink-0 rounded-md border border-slate-200 bg-slate-50 object-cover"
+                                                        unoptimized
+                                                    />
+                                                ) : (
+                                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-slate-200 bg-slate-100 text-slate-400">
+                                                        <Package className="h-5 w-5" />
+                                                    </div>
+                                                )}
+                                                <div className="min-w-0">
+                                                    <div className="font-semibold text-slate-950">{displayName}</div>
+                                                    <div className="mt-0.5 flex flex-wrap items-center gap-2">
+                                                        {sku && <span className="font-mono text-[11px] text-slate-500">SKU: {sku}</span>}
+                                                        {formatVariantText(item.variant_data) && (
+                                                            <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[11px] text-slate-600">{formatVariantText(item.variant_data)}</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+
+                                        <td className="px-5 py-4 text-center">
+                                            <span className="inline-flex items-center rounded-md bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-800">
+                                                {requested} {requested === 1 ? 'pc' : 'pcs'}
+                                            </span>
+                                        </td>
+
+                                        <td className="px-5 py-4">
+                                            {isReserved ? (
+                                                <div className="flex items-center gap-1.5 text-xs text-emerald-800">
+                                                    <Lock className="h-3.5 w-3.5 shrink-0 text-emerald-600" />
+                                                    <span className="font-medium">
+                                                        {available} {available === 1 ? 'pc' : 'pcs'} Reserved
+                                                    </span>
+                                                    <span className="text-[11px] text-emerald-600">(Locked on order placement)</span>
+                                                </div>
+                                            ) : available !== null ? (
+                                                <div className="text-xs text-slate-700">
+                                                    <span className="font-semibold">
+                                                        {available} {available === 1 ? 'pc' : 'pcs'}
+                                                    </span>{' '}
+                                                    in warehouse stock
+                                                </div>
+                                            ) : (
+                                                <div className="text-xs text-amber-700">
+                                                    <span>Stock not tracked in system</span>
+                                                </div>
                                             )}
-                                        >
-                                            {status === 'short' ? t('ecommerce_detail_stock_short') : status === 'unknown' ? t('lbl_unknown') : t('ecommerce_detail_stock_ready')}
-                                        </span>
-                                    </td>
-                                </tr>
-                            ))}
+                                        </td>
+
+                                        <td className="px-5 py-4 text-right">
+                                            <span
+                                                className={cn(
+                                                    'inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold',
+                                                    status === 'short' && 'border border-red-200 bg-red-100 text-red-700',
+                                                    status === 'unknown' && 'border border-amber-200 bg-amber-100 text-amber-800',
+                                                    status === 'ready' && 'border border-emerald-200 bg-emerald-100 text-emerald-800'
+                                                )}
+                                            >
+                                                {status === 'ready' && <CheckCircle2 className="h-3 w-3" />}
+                                                {status === 'short' && <AlertTriangle className="h-3 w-3" />}
+                                                {status === 'unknown' && <HelpCircle className="h-3 w-3" />}
+                                                {status === 'short'
+                                                    ? `Short by ${Math.max(0, requested - (available || 0))}`
+                                                    : status === 'unknown'
+                                                    ? 'Manual check'
+                                                    : isReserved
+                                                    ? 'Ready (Reserved)'
+                                                    : t('ecommerce_detail_stock_ready')}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
                         </tbody>
                     </table>
                 </div>
@@ -574,10 +750,11 @@ const EcommerceOrderDetailsPage = () => {
     const customer = order?.customer || order?.ecommerce_customer || parentOrder?.customer || parentOrder?.ecommerce_customer || {};
     const shipping = order?.shipping_address || parentOrder?.shipping_address || {};
     const itemsSubtotal = useMemo(() => items.reduce((sum: number, item: any) => sum + Number(item?.subtotal || 0), 0), [items]);
+    const stockReservations = useMemo(() => (Array.isArray(order?.stock_reservations) ? order.stock_reservations : []), [order]);
     const storeItemsSubtotal = Number(order?.store_items_subtotal ?? order?.subtotal ?? itemsSubtotal ?? 0);
-    const storeOrderAmount = Number(order?.store_order_amount ?? storeItemsSubtotal ?? 0);
     const storeShippingFee = Number(order?.store_shipping_fee ?? order?.shipping_fee ?? 0);
-    const storeTotal = Number(order?.store_total ?? order?.total ?? storeItemsSubtotal ?? 0);
+    const storeTotal = Number(order?.store_order_total ?? order?.store_total ?? order?.total ?? storeItemsSubtotal + storeShippingFee);
+    const storeOrderAmount = Number(order?.store_order_total ?? order?.store_order_amount ?? storeTotal);
     const courierStoreId = Number(order?.store_id || order?.store?.id || currentStoreId || 0);
     const { data: courierCredentialsData } = useGetCourierCredentialsQuery({ store_id: courierStoreId }, { skip: !courierStoreId });
     const courierCredentials = useMemo(() => {
@@ -607,14 +784,14 @@ const EcommerceOrderDetailsPage = () => {
     const stockReadiness = useMemo(() => {
         const rows = items.map((item: any) => {
             const requested = Number(item?.quantity || 0);
-            const available = getItemAvailableQty(item);
+            const available = getItemAvailableQty(item, stockReservations);
             return { requested, available };
         });
         return {
             short: rows.filter((row) => row.available !== null && row.available < row.requested).length,
             unknown: rows.filter((row) => row.available === null).length,
         };
-    }, [items]);
+    }, [items, stockReservations]);
     const paymentMethod = order?.payment_method || order?.latest_payment_method || primaryTransaction?.payment_method;
     const paymentStatus = order?.payment_status || order?.latest_payment_status || primaryTransaction?.payment_status;
     const matchedStore = useMemo(() => {
@@ -709,7 +886,7 @@ const EcommerceOrderDetailsPage = () => {
         if (!order?.id) return;
 
         if (status === 'confirmed' && stockReadiness.short > 0) {
-            showErrorDialog(t('ecommerce_detail_stock_short_title'), t('ecommerce_detail_stock_short_block_confirm'));
+            showToast.error(t('ecommerce_detail_stock_short_block_confirm'));
             return;
         }
 
@@ -720,9 +897,9 @@ const EcommerceOrderDetailsPage = () => {
 
         try {
             await updateOrderStatus({ id: order.id, status }).unwrap();
-            showSuccessDialog(t('success'), t('ecommerce_detail_status_updated', { status: getEcommerceStatusLabel(status) }));
+            showToast.success(t('ecommerce_detail_status_updated', { status: getEcommerceStatusLabel(status) }));
         } catch (updateError) {
-            showErrorDialog(t('error'), formatApiError(updateError));
+            showToast.error(formatApiError(updateError));
         }
     };
 
@@ -737,9 +914,9 @@ const EcommerceOrderDetailsPage = () => {
                 amount: paymentAmount === '' ? 0 : Number(paymentAmount),
                 payment_note: paymentNote,
             }).unwrap();
-            showSuccessDialog(t('success'), t('ecommerce_detail_payment_updated', { status: getEcommerceStatusLabel(paymentStatusForm) }));
+            showToast.success(t('ecommerce_detail_payment_updated', { status: getEcommerceStatusLabel(paymentStatusForm) }));
         } catch (updateError) {
-            showErrorDialog(t('error'), formatApiError(updateError));
+            showToast.error(formatApiError(updateError));
         }
     };
 
@@ -770,7 +947,7 @@ const EcommerceOrderDetailsPage = () => {
         try {
             await searchRedxAreas(params).unwrap();
         } catch (areaError) {
-            showErrorDialog(t('error'), formatApiError(areaError));
+            showToast.error(formatApiError(areaError));
         }
     };
 
@@ -855,12 +1032,9 @@ const EcommerceOrderDetailsPage = () => {
             const response = await calculateCourierPrice({ id: order.id, ...courierPricePayload() }).unwrap();
             const payload = response?.data || response;
             const price = payload?.data?.final_price ?? payload?.deliveryCharge ?? payload?.final_price ?? payload?.price;
-            showSuccessDialog(
-                t('ecommerce_detail_courier_charge'),
-                price !== undefined ? t('ecommerce_detail_estimated_charge', { amount: formatCurrency(Number(price)) }) : t('ecommerce_detail_courier_charge_returned')
-            );
+            showToast.success(price !== undefined ? t('ecommerce_detail_estimated_charge', { amount: formatCurrency(Number(price)) }) : t('ecommerce_detail_courier_charge_returned'));
         } catch (priceError) {
-            showErrorDialog(t('ecommerce_detail_price_failed'), formatApiError(priceError));
+            showToast.error(formatApiError(priceError));
         }
     };
 
@@ -870,11 +1044,11 @@ const EcommerceOrderDetailsPage = () => {
         // Validate required fields before API call
         if (courierProvider === 'redx') {
             if (!courierForm.delivery_area?.trim() || !courierForm.delivery_area_id?.trim()) {
-                showErrorDialog(t('ecommerce_detail_validation_error'), t('ecommerce_detail_redx_area_required'));
+                showToast.error(t('ecommerce_detail_redx_area_required'));
                 return;
             }
             if (!courierForm.pickup_store_id?.trim()) {
-                showErrorDialog(t('ecommerce_detail_validation_error'), t('ecommerce_detail_redx_pickup_required'));
+                showToast.error(t('ecommerce_detail_redx_pickup_required'));
                 return;
             }
         }
@@ -883,9 +1057,9 @@ const EcommerceOrderDetailsPage = () => {
             const payload = response?.data || response;
             const consignment = payload?.consignment_id || payload?.data?.consignment_id;
             setIsCourierConfirmOpen(false);
-            showSuccessDialog(t('ecommerce_detail_parcel_created'), consignment ? t('ecommerce_detail_parcel_created_with_consignment', { consignment }) : t('ecommerce_detail_parcel_created_desc'));
+            showToast.success(consignment ? t('ecommerce_detail_parcel_created_with_consignment', { consignment }) : t('ecommerce_detail_parcel_created_desc'));
         } catch (createError) {
-            showErrorDialog(t('ecommerce_detail_create_failed'), formatApiError(createError));
+            showToast.error(formatApiError(createError));
         }
     };
 
@@ -895,12 +1069,9 @@ const EcommerceOrderDetailsPage = () => {
             const response = await refreshCourierStatus({ id: order.id, provider: latestCourier.provider }).unwrap();
             const providerResponse = response?.data?.provider_response || response?.provider_response;
             const refreshedStatus = providerResponse?.data?.order_status_slug || providerResponse?.data?.order_status || response?.data?.shipment?.courier_status;
-            showSuccessDialog(
-                t('ecommerce_detail_status_refreshed'),
-                refreshedStatus ? t('ecommerce_detail_courier_status_now', { status: refreshedStatus }) : t('ecommerce_detail_courier_status_updated')
-            );
+            showToast.success(refreshedStatus ? t('ecommerce_detail_courier_status_now', { status: refreshedStatus }) : t('ecommerce_detail_courier_status_updated'));
         } catch (statusError) {
-            showErrorDialog(t('ecommerce_detail_status_failed'), formatApiError(statusError));
+            showToast.error(formatApiError(statusError));
         }
     };
 
@@ -916,7 +1087,7 @@ const EcommerceOrderDetailsPage = () => {
                 phone: customer?.mobile_number || customer?.phone,
             },
             items: items.map((item: any) => ({
-                title: item.product_name || item?.product?.product_name || item?.product?.name || getEcommerceFallbackText(),
+                title: resolveItemDisplayName(item),
                 variantName: formatVariantText(item.variant_data),
                 quantity: Number(item.quantity || 0),
                 unit: 'Pcs',
@@ -948,7 +1119,7 @@ const EcommerceOrderDetailsPage = () => {
                 setIsDownloading(true);
                 await generateOrderInvoicePDF(invoicePayload, null, { action: 'print' });
             } catch (e) {
-                showErrorDialog(t('msg_print_popup_blocked'), t('msg_print_popup_blocked_desc'));
+                showToast.error(t('msg_print_popup_blocked_desc'));
             } finally {
                 setIsDownloading(false);
             }
@@ -959,7 +1130,7 @@ const EcommerceOrderDetailsPage = () => {
             await generateOrderInvoicePDF(invoicePayload, printWindow, { action: 'print' });
         } catch (e) {
             closeReservedPdfWindow(printWindow);
-            showErrorDialog(t('error'), formatApiError(e, t('ecommerce_detail_print_invoice_failed')));
+            showToast.error(formatApiError(e, t('ecommerce_detail_print_invoice_failed')));
         } finally {
             setIsDownloading(false);
         }
@@ -973,7 +1144,7 @@ const EcommerceOrderDetailsPage = () => {
             await generateOrderInvoicePDF(invoicePayload, mobilePdfWindow);
         } catch (e) {
             closeReservedPdfWindow(mobilePdfWindow);
-            showErrorDialog(t('error'), formatApiError(e, t('ecommerce_detail_generate_invoice_failed')));
+            showToast.error(formatApiError(e, t('ecommerce_detail_generate_invoice_failed')));
         } finally {
             setIsDownloading(false);
         }
@@ -1136,11 +1307,21 @@ const EcommerceOrderDetailsPage = () => {
 
             <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_390px]">
                 <main className="flex flex-col gap-5">
-                    <Card className="order-5">
-                        <CardHeader className="flex-row items-center justify-between p-5">
+                    <CourierFraudCheckPanel
+                        storeId={courierStoreId || null}
+                        storeOrderId={order?.id || orderId}
+                        defaultPhone={customerPhone}
+                        title={`1. ${t('ecommerce_detail_order_fraud_check')}`}
+                        description={t('ecommerce_detail_order_fraud_check_desc')}
+                    />
+
+                    <StockReadinessPanel items={items} stockReservations={stockReservations} />
+
+                    <Card className="animate-slide-up overflow-hidden">
+                        <CardHeader className="flex-row items-start justify-between gap-4 p-5">
                             <SectionTitle
                                 icon={ShoppingBag}
-                                title={`5. ${t('ecommerce_detail_items_count', { count: items.length })}`}
+                                title={`3. ${t('ecommerce_detail_items_count', { count: items.length })}`}
                                 description={t('ecommerce_detail_items_desc', { count: totalQty })}
                             />
                             <span className="text-sm font-semibold text-slate-900">{formatCurrency(storeItemsSubtotal)}</span>
@@ -1158,22 +1339,52 @@ const EcommerceOrderDetailsPage = () => {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-100">
-                                        {items.map((item: any) => (
-                                            <tr key={item.id} className="transition hover:bg-[#046ca9]/5">
-                                                <td className="px-5 py-4">
-                                                    <div className="font-semibold text-slate-950">
-                                                        {item.product_name || item?.product?.product_name || item?.product?.name || getEcommerceFallbackText()}
-                                                    </div>
-                                                    {formatVariantText(item.variant_data) && <div className="mt-1 text-xs text-slate-500">{formatVariantText(item.variant_data)}</div>}
-                                                </td>
-                                                <td className="px-5 py-4">
-                                                    <span className="font-mono text-xs text-slate-600">{item.sku || item?.product?.sku || getEcommerceFallbackText()}</span>
-                                                </td>
-                                                <td className="px-5 py-4 text-center font-semibold text-slate-900">{item.quantity}</td>
-                                                <td className="px-5 py-4 text-right text-slate-700">{formatCurrency(item.unit_price)}</td>
-                                                <td className="px-5 py-4 text-right font-semibold text-slate-950">{formatCurrency(item.subtotal)}</td>
-                                            </tr>
-                                        ))}
+                                        {items.map((item: any) => {
+                                            const rawImage =
+                                                item?.images?.[0]?.url ||
+                                                item?.images?.[0]?.image_path ||
+                                                item?.images?.[0] ||
+                                                item?.image ||
+                                                item?.product?.images?.[0]?.url ||
+                                                item?.product?.images?.[0]?.image_path ||
+                                                item?.product?.images?.[0] ||
+                                                item?.product?.image_path ||
+                                                item?.product?.image;
+                                            const itemImage = resolveProductImageUrl(rawImage);
+                                            const productName = resolveItemDisplayName(item);
+                                            return (
+                                                <tr key={item.id} className="transition hover:bg-[#046ca9]/5">
+                                                    <td className="px-5 py-4">
+                                                        <div className="flex items-center gap-3">
+                                                            {itemImage ? (
+                                                                <Image
+                                                                    src={itemImage}
+                                                                    alt={productName}
+                                                                    width={40}
+                                                                    height={40}
+                                                                    className="h-10 w-10 flex-shrink-0 rounded-md border border-slate-200 bg-slate-50 object-cover"
+                                                                    unoptimized
+                                                                />
+                                                            ) : (
+                                                                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-md border border-slate-200 bg-slate-100 text-slate-400">
+                                                                    <Package className="h-5 w-5" />
+                                                                </div>
+                                                            )}
+                                                            <div className="min-w-0">
+                                                                <div className="font-semibold text-slate-950">{productName}</div>
+                                                                {formatVariantText(item.variant_data) && <div className="mt-0.5 text-xs text-slate-500">{formatVariantText(item.variant_data)}</div>}
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-5 py-4">
+                                                        <span className="font-mono text-xs text-slate-600">{item.sku || item?.product?.sku || getEcommerceFallbackText()}</span>
+                                                    </td>
+                                                    <td className="px-5 py-4 text-center font-semibold text-slate-900">{item.quantity}</td>
+                                                    <td className="px-5 py-4 text-right text-slate-700">{formatCurrency(item.unit_price)}</td>
+                                                    <td className="px-5 py-4 text-right font-semibold text-slate-950">{formatCurrency(item.subtotal)}</td>
+                                                </tr>
+                                            );
+                                        })}
                                     </tbody>
                                     <tfoot className="bg-slate-50">
                                         <tr>
@@ -1188,21 +1399,9 @@ const EcommerceOrderDetailsPage = () => {
                         </CardContent>
                     </Card>
 
-                    <div className="order-1">
-                        <CourierFraudCheckPanel
-                            storeId={courierStoreId || null}
-                            storeOrderId={order?.id || orderId}
-                            defaultPhone={customerPhone}
-                            title={`1. ${t('ecommerce_detail_order_fraud_check')}`}
-                            description={t('ecommerce_detail_order_fraud_check_desc')}
-                        />
-                    </div>
-
-                    <StockReadinessPanel items={items} />
-
-                    <Card className="order-2 animate-slide-up">
+                    <Card className="animate-slide-up">
                         <CardHeader className="flex-row items-start justify-between gap-4 p-5">
-                            <SectionTitle icon={Truck} title={`3. ${t('ecommerce_detail_fulfillment')}`} description={t('ecommerce_detail_fulfillment_desc')} />
+                            <SectionTitle icon={Truck} title={`4. ${t('ecommerce_detail_fulfillment')}`} description={t('ecommerce_detail_fulfillment_desc')} />
                             <div className="flex flex-col gap-2 sm:flex-row">
                                 <select value={status} onChange={(event) => setStatus(event.target.value as OrderStatus)} className={cn(controlClass, 'sm:w-[180px]')}>
                                     {ECOMMERCE_ORDER_STATUSES.map((item) => (
@@ -1250,9 +1449,9 @@ const EcommerceOrderDetailsPage = () => {
                         </CardContent>
                     </Card>
 
-                    <Card className="order-3">
+                    <Card className="animate-slide-up">
                         <CardHeader className="p-5">
-                            <SectionTitle icon={CreditCard} title={`3. ${t('ecommerce_detail_payment')}`} description={t('ecommerce_detail_payment_desc')} />
+                            <SectionTitle icon={CreditCard} title={`5. ${t('ecommerce_detail_payment')}`} description={t('ecommerce_detail_payment_desc')} />
                         </CardHeader>
                         <CardContent className="grid grid-cols-1 gap-4 border-t border-slate-100 p-5 md:grid-cols-4">
                             <InputLabel label={t('lbl_status')}>
@@ -1301,9 +1500,9 @@ const EcommerceOrderDetailsPage = () => {
                         </CardContent>
                     </Card>
 
-                    <Card className="order-4">
+                    <Card className="animate-slide-up">
                         <CardHeader className="flex-row items-start justify-between gap-4 p-5">
-                            <SectionTitle icon={Package} title={`4. ${t('ecommerce_detail_courier_parcel')}`} description={t('ecommerce_detail_courier_parcel_desc')} />
+                            <SectionTitle icon={Package} title={`6. ${t('ecommerce_detail_courier_parcel')}`} description={t('ecommerce_detail_courier_parcel_desc')} />
                             {latestCourier && (
                                 <Badge variant="secondary" className="capitalize">
                                     {latestCourier.provider} {latestCourier.courier_status || latestCourier.tracking_code || latestCourier.consignment_id}

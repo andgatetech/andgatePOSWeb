@@ -1,7 +1,7 @@
 'use client';
 
 import { convertNumberByLanguage } from '@/components/custom/convertNumberByLanguage';
-import { getTranslation } from '@/i18n';
+import { useTranslation } from '@/components/i18n/TranslationProvider';
 import { trackEvent } from '@/lib/analytics';
 import {
     applyDiscount,
@@ -38,7 +38,7 @@ interface PricingPlansGridProps {
 }
 
 export default function PricingPlansGrid({ showComparison = true, registerHref = '/register' }: PricingPlansGridProps) {
-    const { t, i18n } = getTranslation();
+    const { t, i18n } = useTranslation();
     const lang = i18n.language as 'en' | 'bn';
     const { data, isLoading, isError } = useGetPlansQuery();
     const plans = filterActivePlans(data?.data ?? []);
