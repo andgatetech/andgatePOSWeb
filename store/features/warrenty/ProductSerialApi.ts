@@ -69,6 +69,7 @@ const ProductSerialApi = baseApi.injectEndpoints({
             invalidatesTags: ['ProductSerials', 'Orders'],
         }),
     }),
+    overrideExisting: true,
 });
 
 export const {

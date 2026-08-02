@@ -42,7 +42,7 @@ export const stockApi = baseApi.injectEndpoints({
             providesTags: ['Stock'],
         }),
     }),
-    overrideExisting: false,
+    overrideExisting: true,
 });
 
 export const { useGetStockSummaryQuery, useGetStockMovementQuery, useGetStockCategoryWiseQuery, useGetStockAnalysisQuery } = stockApi;

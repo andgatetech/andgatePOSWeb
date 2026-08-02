@@ -80,6 +80,7 @@ const CategoryApi = baseApi.injectEndpoints({
             providesTags: (_result, _error, id) => [{ type: 'Categories', id }],
         }),
     }),
+    overrideExisting: true,
 });
 
 export const { useCreateCategoryMutation, useUpdateCategoryMutation, useArchiveCategoryMutation, useGetCategoryQuery, useGetCategoryByIdQuery } = CategoryApi;

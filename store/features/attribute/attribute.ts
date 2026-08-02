@@ -102,6 +102,7 @@ const ProductAttributeApi = baseApi.injectEndpoints({
             invalidatesTags: ['ProductAttributeValues'],
         }),
     }),
+    overrideExisting: true,
 });
 
 export const {

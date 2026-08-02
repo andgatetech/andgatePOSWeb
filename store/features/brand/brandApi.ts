@@ -81,7 +81,7 @@ export const brandApi = baseApi.injectEndpoints({
             providesTags: [{ type: 'Brand', id: 'COUNT' }],
         }),
     }),
-    overrideExisting: false,
+    overrideExisting: true,
 });
 
 export const {

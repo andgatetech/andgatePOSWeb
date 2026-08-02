@@ -76,6 +76,7 @@ const ProductWarrantyApi = baseApi.injectEndpoints({
             invalidatesTags: ['ProductWarranties', 'Products'],
         }),
     }),
+    overrideExisting: true,
 });
 
 export const {

@@ -115,6 +115,7 @@ const WarrantyTypeApi = baseApi.injectEndpoints({
             invalidatesTags: ['WarrantyTypes', 'Stores'],
         }),
     }),
+    overrideExisting: true,
 });
 
 export const { useGetWarrantyTypesQuery, useGetWarrantyTypeQuery, useCreateWarrantyTypeMutation, useUpdateWarrantyTypeMutation, useDeleteWarrantyTypeMutation } = WarrantyTypeApi;

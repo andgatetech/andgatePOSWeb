@@ -218,6 +218,7 @@ const ProductApi = baseApi.injectEndpoints({
             invalidatesTags: ['Products', 'Orders'],
         }),
     }),
+    overrideExisting: true,
 });
 
 export const {

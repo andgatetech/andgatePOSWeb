@@ -306,6 +306,7 @@ const ecommerceManagementApi = baseApi.injectEndpoints({
             invalidatesTags: [{ type: 'EcommerceManagement', id: 'ORDERS' }],
         }),
     }),
+    overrideExisting: true,
 });
 
 export const {
