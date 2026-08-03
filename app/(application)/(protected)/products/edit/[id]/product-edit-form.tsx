@@ -671,7 +671,7 @@ const ProductEditForm = () => {
                     fd.append(`stocks[${index}][barcode]`, normalizeValue(stock.barcode));
                 }
                 fd.append(`stocks[${index}][price]`, normalizeValue(stock.price));
-                fd.append(`stocks[${index}][purchase_price]`, normalizeValue(stock.purchase_price));
+                fd.append(`stocks[${index}][purchase_price]`, normalizeValue(stock.purchase_price) || '0');
                 fd.append(`stocks[${index}][wholesale_price]`, normalizeValue(stock.wholesale_price || '0'));
                 fd.append(`stocks[${index}][quantity]`, normalizeValue(stock.quantity));
                 fd.append(`stocks[${index}][low_stock_quantity]`, normalizeValue(stock.low_stock_quantity || '0'));

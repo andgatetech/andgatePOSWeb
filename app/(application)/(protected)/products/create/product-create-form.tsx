@@ -366,7 +366,9 @@ const ProductCreateForm = () => {
                     setActiveTab('variants');
                     return;
                 }
-                if (!stock.purchase_price || parseFloat(stock.purchase_price) <= 0) {
+                const rawStockPurchasePrice = stock.purchase_price !== undefined && stock.purchase_price !== null ? String(stock.purchase_price).trim() : '';
+                const parsedStockPurchasePrice = rawStockPurchasePrice !== '' ? parseFloat(rawStockPurchasePrice) : 0;
+                if (isNaN(parsedStockPurchasePrice) || parsedStockPurchasePrice < 0) {
                     showErrorDialog(t('msg_error'), `${variantName}: ${t('msg_enter_purchase_price')}`);
                     setActiveTab('variants');
                     return;
@@ -405,7 +407,9 @@ const ProductCreateForm = () => {
             setActiveTab('pricing');
             return;
         }
-        if (!formData.purchase_price || parseFloat(formData.purchase_price) <= 0) {
+        const rawFormPurchasePrice = formData.purchase_price !== undefined && formData.purchase_price !== null ? String(formData.purchase_price).trim() : '';
+        const parsedFormPurchasePrice = rawFormPurchasePrice !== '' ? parseFloat(rawFormPurchasePrice) : 0;
+        if (isNaN(parsedFormPurchasePrice) || parsedFormPurchasePrice < 0) {
             showErrorDialog(t('msg_error'), t('msg_enter_purchase_price'));
             setActiveTab('pricing');
             return;
@@ -424,7 +428,7 @@ const ProductCreateForm = () => {
         // Auto-create single stock entry from formData
         const singleStock: ProductStock = {
             price: formData.price,
-            purchase_price: formData.purchase_price,
+            purchase_price: rawFormPurchasePrice !== '' ? formData.purchase_price : '0',
             wholesale_price: formData.wholesale_price || '0',
             quantity: formData.quantity,
             low_stock_quantity: formData.low_stock_quantity || '0',
@@ -507,7 +511,7 @@ const ProductCreateForm = () => {
                 }
 
                 fd.append(`stocks[${index}][price]`, String(stock.price));
-                fd.append(`stocks[${index}][purchase_price]`, String(stock.purchase_price));
+                fd.append(`stocks[${index}][purchase_price]`, String(stock.purchase_price !== '' && stock.purchase_price !== undefined && stock.purchase_price !== null ? stock.purchase_price : '0'));
                 fd.append(`stocks[${index}][wholesale_price]`, stock.wholesale_price || '0');
                 fd.append(`stocks[${index}][quantity]`, String(stock.quantity));
                 fd.append(`stocks[${index}][low_stock_quantity]`, stock.low_stock_quantity || '0');

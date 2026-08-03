@@ -153,18 +153,8 @@ export default function CreateEcommerceOrderPage() {
         }
     }, [sources, selectedSourceId]);
 
-    // Existing customers for auto-lookup
-    const { data: customersData } = useGetStoreCustomersQuery(
-        { store_id: currentStoreId },
-        { skip: !currentStoreId }
-    );
-
-    const existingCustomers = useMemo(() => {
-        const d = customersData as any;
-        if (Array.isArray(d?.data)) return d.data;
-        if (Array.isArray(d?.data?.items)) return d.data.items;
-        return [];
-    }, [customersData]);
+    // Selected eCommerce customer
+    const [selectedCustomerId, setSelectedCustomerId] = useState<number | string | null>(null);
 
     // Create Order Mutation
     const [createOnlineOrder] = useCreateOnlineOrderMutation();
@@ -395,6 +385,8 @@ export default function CreateEcommerceOrderPage() {
                             setCustomerPhone={setCustomerPhone}
                             customerEmail={customerEmail}
                             setCustomerEmail={setCustomerEmail}
+                            selectedCustomerId={selectedCustomerId}
+                            setSelectedCustomerId={setSelectedCustomerId}
                             selectedDistrictId={selectedDistrictId}
                             setSelectedDistrictId={setSelectedDistrictId}
                             selectedZoneId={selectedZoneId}
@@ -409,7 +401,6 @@ export default function CreateEcommerceOrderPage() {
                             isZonesLoading={isLoadingZones}
                             areas={areas}
                             isAreasLoading={isLoadingAreas}
-                            existingCustomers={existingCustomers}
                             shippingFee={shippingFee}
                             setShippingFee={setShippingFee}
                             selectedDeliveryPreset={selectedDeliveryPreset}
@@ -418,6 +409,7 @@ export default function CreateEcommerceOrderPage() {
                             setIsCustomShipping={setIsCustomShipping}
                             customShippingFeeInput={customShippingFeeInput}
                             setCustomShippingFeeInput={setCustomShippingFeeInput}
+                            storeId={currentStoreId}
                         />
 
                         {/* 4. Order Source & Payment Details */}

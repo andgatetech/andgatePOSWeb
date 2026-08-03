@@ -57,7 +57,8 @@ const hasRoutePermissionFromContext = (context: PermissionContext, route: string
         return true;
     }
 
-    const requiredPermissions = ROUTE_PERMISSIONS[route];
+    const routeKey = findMatchingRouteKey(route);
+    const requiredPermissions = routeKey ? ROUTE_PERMISSIONS[routeKey] : undefined;
 
     if (!requiredPermissions || requiredPermissions.length === 0) {
         return true;
@@ -285,6 +286,7 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     // ── Ecommerce Management ──────────────────────────────────
     '/ecommerce/stores': ['ecommerce.manage', 'stores.view'],
     '/ecommerce/orders': ['ecommerce.manage', 'orders.index'],
+    '/ecommerce/customers': ['ecommerce.manage', 'orders.index'],
     '/ecommerce/cod-reconciliation': ['ecommerce.manage', 'orders.index'],
     '/ecommerce/products': ['ecommerce.manage', 'products.index'],
     '/ecommerce/carts': ['ecommerce.manage', 'orders.view'],

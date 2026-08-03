@@ -303,7 +303,24 @@ const ecommerceManagementApi = baseApi.injectEndpoints({
                 method: 'POST',
                 body,
             }),
-            invalidatesTags: [{ type: 'EcommerceManagement', id: 'ORDERS' }],
+            invalidatesTags: [{ type: 'EcommerceManagement', id: 'ORDERS' }, { type: 'EcommerceManagement', id: 'CUSTOMERS' }],
+        }),
+
+        getEcommerceCustomers: builder.query({
+            query: (params = {}) => ({
+                url: '/ecommerce/management/customers',
+                method: 'GET',
+                params,
+            }),
+            providesTags: [{ type: 'EcommerceManagement', id: 'CUSTOMERS' }],
+        }),
+
+        getEcommerceCustomer: builder.query({
+            query: (id: number | string) => ({
+                url: `/ecommerce/management/customers/${id}`,
+                method: 'GET',
+            }),
+            providesTags: (_result, _error, id) => [{ type: 'EcommerceManagement', id: `CUSTOMER-${id}` }],
         }),
     }),
     overrideExisting: true,
@@ -342,4 +359,8 @@ export const {
     useBulkCreateCourierShipmentsMutation,
     useRefreshCourierStatusMutation,
     useCreateOnlineOrderMutation,
+    useGetEcommerceCustomersQuery,
+    useLazyGetEcommerceCustomersQuery,
+    useGetEcommerceCustomerQuery,
+    useLazyGetEcommerceCustomerQuery,
 } = ecommerceManagementApi;

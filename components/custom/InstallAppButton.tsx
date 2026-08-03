@@ -26,6 +26,7 @@ const InstallAppButton = ({ variant = 'hero', className = '' }: Props) => {
             return;
         }
         if (!hasNativePrompt) {
+            window.location.href = '/apps';
             return;
         }
         setInstalling(true);

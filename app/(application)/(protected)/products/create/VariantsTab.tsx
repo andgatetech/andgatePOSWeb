@@ -339,7 +339,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
 
                                         <div>
                                             <label className="mb-1.5 block text-sm font-medium text-gray-700">
-                                                {t('lbl_purchase_price')} <span className="text-red-500">*</span>
+                                                {t('lbl_purchase_price')}
                                             </label>
                                             <div className="relative">
                                                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">{symbol}</span>

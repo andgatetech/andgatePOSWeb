@@ -2,31 +2,71 @@
 
 import { useEffect, useState } from 'react';
 
-interface BeforeInstallPromptEvent extends Event {
+export interface BeforeInstallPromptEvent extends Event {
     prompt(): Promise<void>;
-    userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+    userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform?: string }>;
 }
 
 export interface PWAInstallState {
-    isReady:       boolean;
+    isReady: boolean;
     isInstallable: boolean;
-    isInstalled:   boolean;
-    isIOS:         boolean;
+    isInstalled: boolean;
+    isIOS: boolean;
+    isAndroid: boolean;
+    isWindows: boolean;
+    isMac: boolean;
+    isChrome: boolean;
+    isEdge: boolean;
+    isSafari: boolean;
+    isFirefox: boolean;
+    platformName: string;
+    browserName: string;
     hasNativePrompt: boolean;
-    install(): Promise<void>;
+    install(): Promise<boolean>;
+}
+
+// Module-level caching so the prompt event is preserved across Next.js client-side navigations
+let globalPromptEvent: BeforeInstallPromptEvent | null = null;
+const promptSubscribers = new Set<(event: BeforeInstallPromptEvent | null) => void>();
+const installSubscribers = new Set<() => void>();
+
+if (typeof window !== 'undefined') {
+    window.addEventListener('beforeinstallprompt', (e: Event) => {
+        e.preventDefault();
+        globalPromptEvent = e as BeforeInstallPromptEvent;
+        promptSubscribers.forEach((cb) => cb(globalPromptEvent));
+    });
+
+    window.addEventListener('appinstalled', () => {
+        globalPromptEvent = null;
+        promptSubscribers.forEach((cb) => cb(null));
+        installSubscribers.forEach((cb) => cb());
+    });
 }
 
 export const usePWAInstall = (): PWAInstallState => {
-    const [promptEvent, setPromptEvent] = useState<BeforeInstallPromptEvent | null>(null);
-    const [isReady, setIsReady]           = useState(false);
-    const [isInstalled, setIsInstalled]   = useState(false);
-    const [isIOS, setIsIOS]               = useState(false);
+    const [promptEvent, setPromptEvent] = useState<BeforeInstallPromptEvent | null>(globalPromptEvent);
+    const [isReady, setIsReady] = useState(false);
+    const [isInstalled, setIsInstalled] = useState(false);
+    const [isIOS, setIsIOS] = useState(false);
+    const [isAndroid, setIsAndroid] = useState(false);
+    const [isWindows, setIsWindows] = useState(false);
+    const [isMac, setIsMac] = useState(false);
+    const [isChrome, setIsChrome] = useState(false);
+    const [isEdge, setIsEdge] = useState(false);
+    const [isSafari, setIsSafari] = useState(false);
+    const [isFirefox, setIsFirefox] = useState(false);
+    const [platformName, setPlatformName] = useState('Unknown Device');
+    const [browserName, setBrowserName] = useState('Browser');
 
     useEffect(() => {
-        // Running in standalone (already installed)
+        if (typeof window === 'undefined') return;
+
+        // Check if running in standalone (already installed)
         const standalone =
             window.matchMedia('(display-mode: standalone)').matches ||
-            (window.navigator as any).standalone === true;
+            (window.navigator as any).standalone === true ||
+            document.referrer.includes('android-app://');
 
         if (standalone) {
             setIsInstalled(true);
@@ -34,58 +74,107 @@ export const usePWAInstall = (): PWAInstallState => {
             return;
         }
 
-        // iOS/iPadOS Safari doesn't fire beforeinstallprompt. Modern iPadOS
-        // often reports as Mac, so also detect touch-enabled Mac user agents.
+        const ua = navigator.userAgent || '';
+
+        // Platform detection
         const ios =
-            (/iphone|ipad|ipod/i.test(navigator.userAgent) ||
-                (navigator.userAgent.includes('Mac') && navigator.maxTouchPoints > 1)) &&
+            (/iphone|ipad|ipod/i.test(ua) ||
+                (ua.includes('Mac') && navigator.maxTouchPoints > 1)) &&
             !(window as any).MSStream;
+        const android = /android/i.test(ua);
+        const windows = /windows/i.test(ua);
+        const mac = /macintosh|mac os x/i.test(ua) && !ios;
+
+        // Browser detection
+        const edge = /edg/i.test(ua);
+        const chrome = /chrome|crios/i.test(ua) && !edge && !/opr|opera/i.test(ua);
+        const safari = /safari/i.test(ua) && !chrome && !edge && !/crios|fxios|opr/i.test(ua);
+        const firefox = /firefox|fxios/i.test(ua);
+
         setIsIOS(ios);
+        setIsAndroid(android);
+        setIsWindows(windows);
+        setIsMac(mac);
+        setIsChrome(chrome);
+        setIsEdge(edge);
+        setIsSafari(safari);
+        setIsFirefox(firefox);
+
+        let pName = 'Desktop';
+        if (ios) pName = 'iOS';
+        else if (android) pName = 'Android';
+        else if (windows) pName = 'Windows';
+        else if (mac) pName = 'macOS';
+        setPlatformName(pName);
+
+        let bName = 'Browser';
+        if (edge) bName = 'Microsoft Edge';
+        else if (chrome) bName = 'Google Chrome';
+        else if (safari) bName = 'Safari';
+        else if (firefox) bName = 'Firefox';
+        setBrowserName(bName);
+
+        if (globalPromptEvent) {
+            setPromptEvent(globalPromptEvent);
+        }
+
         setIsReady(true);
 
-        const onPrompt = (e: Event) => {
-            e.preventDefault();
-            setPromptEvent(e as BeforeInstallPromptEvent);
+        const handlePromptUpdate = (evt: BeforeInstallPromptEvent | null) => {
+            setPromptEvent(evt);
         };
-        const onInstalled = () => {
+        const handleInstalled = () => {
             setIsInstalled(true);
             setPromptEvent(null);
         };
 
-        window.addEventListener('beforeinstallprompt', onPrompt);
-        window.addEventListener('appinstalled', onInstalled);
+        promptSubscribers.add(handlePromptUpdate);
+        installSubscribers.add(handleInstalled);
 
         return () => {
-            window.removeEventListener('beforeinstallprompt', onPrompt);
-            window.removeEventListener('appinstalled', onInstalled);
+            promptSubscribers.delete(handlePromptUpdate);
+            installSubscribers.delete(handleInstalled);
         };
     }, []);
 
-    const install = async () => {
-        if (!promptEvent) return;
+    const install = async (): Promise<boolean> => {
+        const targetPrompt = promptEvent || globalPromptEvent;
+        if (!targetPrompt) return false;
         try {
-            await promptEvent.prompt();
-            const { outcome } = await promptEvent.userChoice;
+            await targetPrompt.prompt();
+            const { outcome } = await targetPrompt.userChoice;
             if (outcome === 'accepted') {
                 setIsInstalled(true);
+                globalPromptEvent = null;
+                setPromptEvent(null);
+                return true;
             }
+            return false;
         } catch (err) {
-            // The prompt can reject if it's stale (already used) or the browser
-            // revoked it — never let this surface as an unhandled rejection to
-            // callers that fire-and-forget install(), and never leave a caller's
-            // "installing" state stuck because the await above threw.
             console.error('[usePWAInstall] install prompt failed:', err);
+            return false;
         } finally {
+            globalPromptEvent = null;
             setPromptEvent(null);
         }
     };
 
     return {
         isReady,
-        isInstallable:   isReady && !isInstalled && (isIOS || !!promptEvent),
+        isInstallable: isReady && !isInstalled && (isIOS || !!promptEvent || !!globalPromptEvent),
         isInstalled,
         isIOS,
-        hasNativePrompt: !!promptEvent,
+        isAndroid,
+        isWindows,
+        isMac,
+        isChrome,
+        isEdge,
+        isSafari,
+        isFirefox,
+        platformName,
+        browserName,
+        hasNativePrompt: !!promptEvent || !!globalPromptEvent,
         install,
     };
 };
+

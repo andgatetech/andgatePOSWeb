@@ -21,6 +21,7 @@ const Footer = () => {
     const productLinks = [
         { label: t('footer.nav.features'), href: '/#features' },
         { label: t('footer.nav.pricing'), href: '/pricing' },
+        { label: t('footer.nav.install_app') || 'ইনস্টল অ্যাপ (Apps)', href: '/apps' },
         { label: t('footer.nav.overview'), href: '/#overview' },
         { label: t('footer.nav.training'), href: '/training' },
         { label: t('footer.nav.promotion') || 'বিশেষ অফার', href: '/promotion/pos' },

@@ -19,6 +19,7 @@ const withPWA = require('@ducanh2912/next-pwa').default({
             { url: '/dashboard', revision: null },
             { url: '/pos', revision: null },
             { url: '/offline', revision: null },
+            { url: '/apps', revision: null },
         ],
         runtimeCaching: [
             {
@@ -267,6 +268,31 @@ const nextConfig = {
                 // it's a layout preference, not an analytics/report view.
                 source: '/analytics/dashboard-widgets',
                 destination: '/store/dashboard-widgets',
+                permanent: true,
+            },
+            {
+                source: '/app',
+                destination: '/apps',
+                permanent: true,
+            },
+            {
+                source: '/install',
+                destination: '/apps',
+                permanent: true,
+            },
+            {
+                source: '/download',
+                destination: '/apps',
+                permanent: true,
+            },
+            {
+                source: '/downloads',
+                destination: '/apps',
+                permanent: true,
+            },
+            {
+                source: '/get-app',
+                destination: '/apps',
                 permanent: true,
             },
         ];

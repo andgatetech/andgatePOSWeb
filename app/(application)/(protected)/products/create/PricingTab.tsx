@@ -59,7 +59,7 @@ const PricingTab: React.FC<PricingTabProps> = ({ formData, handleChange, units, 
                 {/* Purchase Price */}
                 <div>
                     <label htmlFor="purchase_price" className="mb-2 block text-sm font-medium text-gray-700">
-                        {t('lbl_purchase_price')} <span className="text-red-500">*</span>
+                        {t('lbl_purchase_price')}
                     </label>
                     <div className="relative">
                         <span className="absolute left-3 top-1/2 -translate-y-1/2 font-medium text-gray-500">{symbol}</span>
@@ -139,7 +139,7 @@ const PricingTab: React.FC<PricingTabProps> = ({ formData, handleChange, units, 
             </div>
 
             {/* Profit Margin Display */}
-            {formData.price && formData.purchase_price && parseFloat(formData.price) > 0 && parseFloat(formData.purchase_price) > 0 && (
+            {formData.price && parseFloat(formData.price) > 0 && formData.purchase_price !== '' && !isNaN(parseFloat(formData.purchase_price)) && parseFloat(formData.purchase_price) >= 0 && (
                 <div className="rounded-lg border border-gray-200 bg-gray-100 p-4">
                     <div className="flex items-center justify-between">
                         <div>
