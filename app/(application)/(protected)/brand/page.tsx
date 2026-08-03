@@ -8,7 +8,9 @@ import { getTranslation } from '@/i18n';
 import { compressImage } from '@/lib/image-compress';
 import Loader from '@/lib/Loader';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
-import { useCreateBrandMutation, useDeleteBrandMutation, useGetBrandsQuery, useUpdateBrandMutation } from '@/store/features/brand/brandApi';
+import { useCreateBrandMutation, useArchiveBrandMutation, useGetBrandsQuery, useUpdateBrandMutation } from '@/store/features/brand/brandApi';
+import type { RootState } from '@/store';
+import { useSelector } from 'react-redux';
 import { Edit, Eye, Image as ImageIcon, Plus, Save, Store, Trash2, Upload, X } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -244,6 +246,8 @@ const BrandManagement = () => {
     const { t } = getTranslation();
     const router = useRouter();
     const { currentStoreId, currentStore, userStores } = useCurrentStore();
+    const user = useSelector((state: RootState) => state.auth.user);
+    const canArchive = user?.role === 'business_admin' || user?.permissions?.includes('brands.delete');
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -277,7 +281,7 @@ const BrandManagement = () => {
     const { data: brandsResponse, error, isLoading } = useGetBrandsQuery(queryParams, { refetchOnMountOrArgChange: 30 });
     const [createBrand] = useCreateBrandMutation();
     const [updateBrand] = useUpdateBrandMutation();
-    const [deleteBrand] = useDeleteBrandMutation();
+    const [archiveBrand] = useArchiveBrandMutation();
 
     // Reset filter when current store changes from sidebar
     useEffect(() => {
@@ -371,19 +375,19 @@ const BrandManagement = () => {
 
     const handleDelete = useCallback(
         async (id: number) => {
-            const confirmed = await showConfirmDialog(t('msg_confirm_delete_title'), t('msg_confirm_delete_text'), t('msg_confirm_delete_btn'), t('btn_cancel'), false);
+            const confirmed = await showConfirmDialog(t('master_data_archive_title'), t('product_archive_reason'), t('master_data_archive_action'), t('btn_cancel'), false);
 
             if (confirmed) {
                 try {
-                    await deleteBrand(id).unwrap();
-                    showSuccessDialog(t('msg_success'), t('brand_deleted'));
+                    await archiveBrand({ id }).unwrap();
+                    showSuccessDialog(t('msg_success'), t('master_data_archive_action'));
                 } catch (error) {
                     console.error('Error deleting brand:', error);
                     showErrorDialog(t('msg_error'), t('brand_error_delete'));
                 }
             }
         },
-        [deleteBrand]
+        [archiveBrand, t]
     );
 
     const columns: TableColumn[] = useMemo(
@@ -453,14 +457,14 @@ const BrandManagement = () => {
                 icon: <Edit className="h-4 w-4" />,
                 className: 'text-gray-700 hover:bg-gray-50',
             },
-            {
-                label: t('brand_action_delete'),
-                onClick: (brand) => handleDelete(brand.id),
+            ...(canArchive ? [{
+                label: t('master_data_archive_action'),
+                onClick: (brand: any) => handleDelete(brand.id),
                 icon: <Trash2 className="h-4 w-4" />,
                 className: 'text-danger hover:bg-red-50',
-            },
+            }] : []),
         ],
-        [t, openModal, handleDelete]
+        [t, openModal, handleDelete, canArchive, router]
     );
 
     if (isLoading) {

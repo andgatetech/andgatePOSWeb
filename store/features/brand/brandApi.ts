@@ -44,7 +44,16 @@ export const brandApi = baseApi.injectEndpoints({
             invalidatesTags: (result, error, { id }) => [{ type: 'Brand', id }],
         }),
 
-        // ---------------- Delete Brand ----------------
+        // Archive is the default lifecycle action; permanent removal is explicit.
+        archiveBrand: builder.mutation({
+            query: ({ id, archive_reason }: { id: number; archive_reason?: string }) => ({ url: `/brands/${id}/archive`, method: 'PATCH', body: { archive_reason } }),
+            invalidatesTags: (result, error, { id }) => [{ type: 'Brand', id }, { type: 'Brand', id: 'LIST' }],
+        }),
+        safeDeleteBrand: builder.mutation({
+            query: (id: number) => ({ url: `/brands/${id}/safe-delete`, method: 'POST' }),
+            invalidatesTags: (result, error, id) => [{ type: 'Brand', id }, { type: 'Brand', id: 'LIST' }],
+        }),
+        // Backward-compatible hook name: DELETE now archives on the API.
         deleteBrand: builder.mutation({
             query: (id) => ({
                 url: `/brands/${id}`,
@@ -89,6 +98,8 @@ export const {
     useGetBrandsQuery,
     useGetBrandQuery,
     useUpdateBrandMutation,
+    useArchiveBrandMutation,
+    useSafeDeleteBrandMutation,
     useDeleteBrandMutation,
     useGetBrandCountByStoreQuery,
     useGetTopBrandsByStockQuery,
