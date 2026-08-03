@@ -29,6 +29,7 @@ import {
     useUpdatePaymentStatusMutation,
     useUpdateStoreMutation,
 } from '@/store/features/store/storeApi';
+import { useArchiveUnitMutation } from '@/store/features/master-data-lifecycle/masterDataLifecycleApi';
 import Loader from '@/lib/Loader';
 import { AlertCircle, CheckCircle, Clock, CreditCard, Loader2, Package, Save, Settings, Store, X } from 'lucide-react';
 
@@ -116,6 +117,7 @@ const StoreSetting = () => {
         skip: !storeId,
     });
     const [updateStore, { isLoading: isUpdating }] = useUpdateStoreMutation();
+    const [archiveUnit] = useArchiveUnitMutation();
 
     const [activeTab, setActiveTab] = useState('basic');
     const [formData, setFormData] = useState({
@@ -452,7 +454,12 @@ const StoreSetting = () => {
     };
 
     const handleDeleteUnit = async (id: number, name: string) => {
-        const confirmed = await showConfirmDialog(t('msg_delete_unit_title'), `${t('msg_confirm_delete_name')} "${name}"? ${t('msg_cannot_be_undone')}`, t('btn_yes_delete'), t('btn_cancel'));
+        const confirmed = await showConfirmDialog(
+            t('master_data_archive_title'),
+            `${t('master_data_archived_history_preserved')} "${name}"?`,
+            t('master_data_archive_action'),
+            t('btn_cancel')
+        );
 
         if (!confirmed) return;
 
@@ -462,20 +469,16 @@ const StoreSetting = () => {
         }
 
         try {
-            // Get current units and filter out the deleted one
-            const currentUnits = storeData?.data?.store?.units || [];
-            const unitsToSend = currentUnits.filter((u: any) => u.id !== id).map((u: any) => ({ id: u.id, name: u.name, is_active: u.is_active }));
+            // Removal is an explicit lifecycle archive, not a destructive full-sync.
+            await archiveUnit({ id, archive_reason: 'Removed from store settings' }).unwrap();
 
-            await updateStore({
-                updateData: { pos_units: unitsToSend, sync_units: true },
-                storeId: storeId,
-            }).unwrap();
-
-            showSuccessDialog(t('msg_deleted'), t('msg_unit_deleted'));
+            showSuccessDialog(t('msg_archived'), t('master_data_archived_history_preserved'));
         } catch (error: any) {
-            console.error('Delete unit error:', error);
-            const errorMessage = error?.data?.message || t('msg_failed_delete_unit');
-            showErrorDialog(t('msg_delete_failed'), errorMessage);
+            console.error('Archive unit error:', error);
+            const errorMessage = error?.status === 403
+                ? t('master_data_archive_permission_required')
+                : error?.data?.message || t('msg_failed_delete_unit');
+            showErrorDialog(t('msg_archive_failed'), errorMessage);
         }
     };
 
