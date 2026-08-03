@@ -2,7 +2,7 @@
 
 import DateColumn from '@/components/common/DateColumn';
 import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
-import { BookOpen, Edit, Eye, Trash2 } from 'lucide-react';
+import { BookOpen, Eye } from 'lucide-react';
 import { useMemo } from 'react';
 import { getTranslation } from '@/i18n';
 
@@ -23,11 +23,9 @@ interface LedgersTableProps {
         onSort: (field: string) => void;
     };
     onViewDetails: (ledger: any) => void;
-    onEdit: (ledger: any) => void;
-    onDelete: (ledger: any) => void;
 }
 
-const LedgersTable: React.FC<LedgersTableProps> = ({ ledgers, isLoading, pagination, sorting, onViewDetails, onEdit, onDelete }) => {
+const LedgersTable: React.FC<LedgersTableProps> = ({ ledgers, isLoading, pagination, sorting, onViewDetails }) => {
     const { t } = getTranslation();
     const columns: TableColumn[] = useMemo(
         () => [
@@ -114,20 +112,8 @@ const LedgersTable: React.FC<LedgersTableProps> = ({ ledgers, isLoading, paginat
                 className: 'text-gray-700',
                 icon: <Eye className="h-4 w-4" />,
             },
-            {
-                label: t('btn_edit'),
-                onClick: onEdit,
-                className: 'text-gray-700',
-                icon: <Edit className="h-4 w-4" />,
-            },
-            {
-                label: t('btn_delete'),
-                onClick: onDelete,
-                className: 'text-danger',
-                icon: <Trash2 className="h-4 w-4" />,
-            },
         ],
-        [onViewDetails, onEdit, onDelete]
+        [onViewDetails, t]
     );
 
     return (

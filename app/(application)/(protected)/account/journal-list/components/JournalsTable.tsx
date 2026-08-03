@@ -4,7 +4,7 @@ import DateColumn from '@/components/common/DateColumn';
 import ReusableTable, { TableAction, TableColumn } from '@/components/common/ReusableTable';
 import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
-import { BookOpen, Edit, Eye, Trash2 } from 'lucide-react';
+import { BookOpen, Eye } from 'lucide-react';
 import { useMemo } from 'react';
 
 interface JournalsTableProps {
@@ -24,11 +24,9 @@ interface JournalsTableProps {
         onSort: (field: string) => void;
     };
     onViewDetails: (journal: any) => void;
-    onEdit: (journal: any) => void;
-    onDelete: (journal: any) => void;
 }
 
-const JournalsTable: React.FC<JournalsTableProps> = ({ journals, isLoading, pagination, sorting, onViewDetails, onEdit, onDelete }) => {
+const JournalsTable: React.FC<JournalsTableProps> = ({ journals, isLoading, pagination, sorting, onViewDetails }) => {
     const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
 
@@ -83,11 +81,7 @@ const JournalsTable: React.FC<JournalsTableProps> = ({ journals, isLoading, pagi
                 sortable: true,
                 render: (value) => {
                     const balance = parseFloat(value || '0');
-                    return (
-                        <span className={`text-sm font-semibold ${balance >= 0 ? 'text-success' : 'text-danger'}`}>
-                            {formatCurrency(value)}
-                        </span>
-                    );
+                    return <span className={`text-sm font-semibold ${balance >= 0 ? 'text-success' : 'text-danger'}`}>{formatCurrency(value)}</span>;
                 },
             },
             {
@@ -118,20 +112,8 @@ const JournalsTable: React.FC<JournalsTableProps> = ({ journals, isLoading, pagi
                 className: 'text-gray-700',
                 icon: <Eye className="h-4 w-4" />,
             },
-            {
-                label: t('btn_edit'),
-                onClick: onEdit,
-                className: 'text-gray-700',
-                icon: <Edit className="h-4 w-4" />,
-            },
-            {
-                label: t('btn_delete'),
-                onClick: onDelete,
-                className: 'text-danger',
-                icon: <Trash2 className="h-4 w-4" />,
-            },
         ],
-        [onViewDetails, onEdit, onDelete]
+        [onViewDetails, t]
     );
 
     return (

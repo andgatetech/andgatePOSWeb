@@ -48,15 +48,6 @@ export const journalApi = baseApi.injectEndpoints({
             providesTags: ['Journal'],
         }),
 
-        // 2️⃣ Create a new journal
-        createJournal: builder.mutation({
-            query: (data) => ({
-                url: '/journals',
-                method: 'POST',
-                body: data,
-            }),
-            invalidatesTags: ['Journal'],
-        }),
         getSingleJournals: builder.query({
             query: (id) => ({
                 url: `/journals/${id}`,
@@ -64,22 +55,7 @@ export const journalApi = baseApi.injectEndpoints({
             }),
             providesTags: ['Journal'],
         }),
-        updateJournal: builder.mutation({
-            query: ({ journalId, data }) => ({
-                url: `/journals/${journalId}`,
-                method: 'PUT',
-                body: data,
-            }),
-            invalidatesTags: ['Journal'],
-        }),
-        deleteJournal: builder.mutation({
-            query: (id) => ({
-                url: `/journals/${id}`,
-                method: 'DELETE',
-            }),
-            invalidatesTags: ['Journal'],
-        }),
     }),
 });
 
-export const { useGetJournalsQuery, useCreateJournalMutation, useGetSingleJournalsQuery, useUpdateJournalMutation, useDeleteJournalMutation } = journalApi;
+export const { useGetJournalsQuery, useGetSingleJournalsQuery } = journalApi;

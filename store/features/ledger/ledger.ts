@@ -40,16 +40,6 @@ export const ledgerApi = baseApi.injectEndpoints({
             providesTags: ['Ledger'],
         }),
 
-        // 2️⃣ Create a new ledger
-        createLedger: builder.mutation({
-            query: (data) => ({
-                url: '/ledgers',
-                method: 'POST',
-                body: data,
-            }),
-            invalidatesTags: ['Ledger'],
-        }),
-
         // 3️⃣ Get ledger journals
         getLedgerJournals: builder.query({
             query: ({ ledgerId, params }) => ({
@@ -60,16 +50,6 @@ export const ledgerApi = baseApi.injectEndpoints({
             providesTags: ['Journal'],
         }),
 
-        // 4️⃣ Update ledger
-        updateLedger: builder.mutation({
-            query: ({ ledgerId, data }) => ({
-                url: `/ledgers/${ledgerId}`,
-                method: 'PUT',
-                body: data,
-            }),
-            invalidatesTags: ['Ledger'],
-        }),
-
         // 5️⃣ Show single ledger
         showLedger: builder.query({
             query: (ledgerId) => ({
@@ -78,16 +58,7 @@ export const ledgerApi = baseApi.injectEndpoints({
             }),
             providesTags: ['Ledger'],
         }),
-
-        // 6️⃣ Delete a ledger by ID
-        deleteLedger: builder.mutation({
-            query: (ledgerId) => ({
-                url: `/ledgers/${ledgerId}`,
-                method: 'DELETE',
-            }),
-            invalidatesTags: ['Ledger'],
-        }),
     }),
 });
 
-export const { useGetLedgersQuery, useCreateLedgerMutation, useGetLedgerJournalsQuery, useDeleteLedgerMutation, useUpdateLedgerMutation, useShowLedgerQuery } = ledgerApi;
+export const { useGetLedgersQuery, useGetLedgerJournalsQuery, useShowLedgerQuery } = ledgerApi;

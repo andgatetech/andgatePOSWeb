@@ -9,10 +9,9 @@ interface ViewLedgerModalProps {
     ledger: any;
     isOpen: boolean;
     onClose: () => void;
-    onEdit: () => void;
 }
 
-const ViewLedgerModal: React.FC<ViewLedgerModalProps> = ({ ledger, isOpen, onClose, onEdit }) => {
+const ViewLedgerModal: React.FC<ViewLedgerModalProps> = ({ ledger, isOpen, onClose }) => {
     const { t } = getTranslation();
     useEffect(() => {
         const handleEscape = (e: KeyboardEvent) => {
@@ -82,9 +81,6 @@ const ViewLedgerModal: React.FC<ViewLedgerModalProps> = ({ ledger, isOpen, onClo
                 <div className="flex gap-2 px-6 pb-6 pt-3">
                     <button onClick={onClose} className="h-9 flex-1 rounded-md border border-gray-300 text-sm font-medium hover:bg-gray-50">
                         {t('btn_close')}
-                    </button>
-                    <button onClick={onEdit} className="h-9 flex-1 rounded-md bg-black text-sm font-medium text-white hover:bg-gray-800">
-                        {t('btn_edit')}
                     </button>
                 </div>
             </div>

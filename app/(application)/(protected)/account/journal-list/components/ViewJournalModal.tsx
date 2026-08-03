@@ -10,10 +10,9 @@ interface ViewJournalModalProps {
     journal: any;
     isOpen: boolean;
     onClose: () => void;
-    onEdit?: () => void;
 }
 
-const ViewJournalModal: React.FC<ViewJournalModalProps> = ({ journal, isOpen, onClose, onEdit }) => {
+const ViewJournalModal: React.FC<ViewJournalModalProps> = ({ journal, isOpen, onClose }) => {
     const { t } = getTranslation();
     const { formatCurrency } = useCurrency();
 
@@ -46,7 +45,9 @@ const ViewJournalModal: React.FC<ViewJournalModalProps> = ({ journal, isOpen, on
                 <div className="border-b px-6 py-4">
                     <div className="space-y-1">
                         <div className="flex items-center justify-between">
-                            <h2 className="text-base font-medium">{t('lbl_journal')} #{journal.id}</h2>
+                            <h2 className="text-base font-medium">
+                                {t('lbl_journal')} #{journal.id}
+                            </h2>
                             <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
                                 <X className="h-4 w-4" />
                             </button>
@@ -98,11 +99,6 @@ const ViewJournalModal: React.FC<ViewJournalModalProps> = ({ journal, isOpen, on
                     <button onClick={onClose} className="h-9 flex-1 rounded-md border border-gray-300 text-sm font-medium hover:bg-gray-50">
                         {t('btn_close')}
                     </button>
-                    {onEdit && (
-                        <button onClick={onEdit} className="h-9 flex-1 rounded-md bg-black text-sm font-medium text-white hover:bg-gray-800">
-                            {t('btn_edit')}
-                        </button>
-                    )}
                 </div>
             </div>
         </div>
