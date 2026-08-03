@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import {
     MapPin,
     User,
@@ -164,6 +165,7 @@ export default function EcommerceDeliverySection({
 }: EcommerceDeliverySectionProps) {
     const { isBn } = useTranslation();
     const { formatCurrency, formatNumber } = useCurrency();
+    const router = useRouter();
     const [customerSearch, setCustomerSearch] = useState('');
     const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -325,7 +327,7 @@ export default function EcommerceDeliverySection({
                         {selectedCustomerId ? (
                             <button
                                 type="button"
-                                onClick={() => setIsDrawerOpen(true)}
+                                onClick={() => router.push(`/ecommerce/customers/${selectedCustomerId}`)}
                                 className="flex items-center gap-1.5 h-8 px-3 rounded-lg bg-primary/10 text-primary border border-primary/20 text-xs font-bold hover:bg-primary hover:text-white transition shadow-2xs shrink-0"
                             >
                                 <History className="h-3.5 w-3.5" />
@@ -349,7 +351,7 @@ export default function EcommerceDeliverySection({
                         <div className="flex items-center gap-2">
                             <button
                                 type="button"
-                                onClick={() => setIsDrawerOpen(true)}
+                                onClick={() => router.push(`/ecommerce/customers/${selectedCustomerId}`)}
                                 className="text-xs font-bold text-emerald-800 hover:underline flex items-center gap-1"
                             >
                                 <span>{isBn ? 'বিস্তারিত প্রোফাইল' : 'View Profile'}</span>

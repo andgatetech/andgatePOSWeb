@@ -382,7 +382,7 @@ export default function EcommerceProductCatalog({
 
             {/* Product Grid Area */}
             {isLoading ? (
-                <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 py-6">
+                <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 py-6">
                     {Array.from({ length: 12 }).map((_, i) => (
                         <div key={i} className="animate-pulse rounded-xl border border-slate-100 bg-slate-50 p-2.5 space-y-2">
                             <div className="h-28 w-full rounded-lg bg-slate-200" />
@@ -404,7 +404,7 @@ export default function EcommerceProductCatalog({
                     </p>
                 </div>
             ) : (
-                <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+                <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
                     {products.map((product) => {
                         const stocks = (product.stocks && product.stocks.length > 0)
                             ? product.stocks

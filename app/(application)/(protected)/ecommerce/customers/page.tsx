@@ -84,10 +84,10 @@ export default function EcommerceCustomersPage() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50/50 pb-16 space-y-6">
+        <div className="min-h-screen bg-slate-50/50 pb-16 space-y-6 -mx-3 sm:-mx-4 lg:-mx-6">
             {/* Top Header Banner */}
             <div className="border-b border-slate-200 bg-white shadow-xs">
-                <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
+                <div className="w-full px-4 py-5 sm:px-6">
                     <div className="flex flex-wrap items-center justify-between gap-4">
                         <div>
                             <div className="flex items-center gap-2">
@@ -134,7 +134,7 @@ export default function EcommerceCustomersPage() {
             </div>
 
             {/* Main Content Area */}
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-6">
+            <div className="w-full px-4 sm:px-6 space-y-6">
                 {/* Metric Summary Cards */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                     {/* Total Customers */}

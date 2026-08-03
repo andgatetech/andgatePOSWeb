@@ -317,16 +317,16 @@ export default function CreateEcommerceOrderPage() {
         : undefined;
 
     return (
-        <div className="min-h-screen bg-slate-50/50 text-slate-900 pb-28">
+        <div className="min-h-screen bg-slate-50/50 text-slate-900 pb-28 -mx-3 sm:-mx-4 lg:-mx-6">
             {/* Top Navigation / Sticky Header */}
             <div className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/95 backdrop-blur-md shadow-xs">
-                <div className="w-full flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8 xl:px-10">
+                <div className="w-full flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
                     {/* Left: Back Link & Page Title */}
                     <div className="flex items-center gap-3">
                         <Link
                             href="/ecommerce/orders"
                             className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:border-primary/40 hover:bg-primary/5 hover:text-primary"
-                            title={isBn ? 'অর্ডার তালিকায় ফিরে যান' : 'Back to orders'}
+                            title={isBn ? 'অর্ডার তালিকায় ফিরে যান' : 'Back to orders'}
                         >
                             <ArrowLeft className="h-4 w-4" />
                         </Link>
@@ -358,10 +358,10 @@ export default function CreateEcommerceOrderPage() {
             </div>
 
             {/* Main Content Layout */}
-            <div className="w-full px-4 py-5 sm:px-6 lg:px-8 xl:px-10">
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 xl:grid-cols-12 2xl:grid-cols-12">
+            <div className="w-full px-3 py-5 sm:px-4 lg:px-6">
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
                     {/* Left & Center Main Flow (Up & Down sections) */}
-                    <div className="space-y-6 lg:col-span-8 xl:col-span-8 2xl:col-span-9">
+                    <div className="space-y-6 lg:col-span-9">
                         {/* 1. Product Search & Catalog (POS Left-Side Design) */}
                         <EcommerceProductCatalog
                             onAddToCart={handleAddToCart}
@@ -437,7 +437,7 @@ export default function CreateEcommerceOrderPage() {
                     </div>
 
                     {/* Right Column: Sticky Live Checkout Invoice */}
-                    <div className="lg:col-span-4 xl:col-span-4 2xl:col-span-3">
+                    <div className="lg:col-span-3">
                         <EcommerceInvoiceSummary
                             cart={cart}
                             subtotal={subtotal}

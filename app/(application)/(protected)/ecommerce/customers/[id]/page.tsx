@@ -102,10 +102,10 @@ export default function EcommerceCustomerDetailPage() {
     }
 
     return (
-        <div className="min-h-screen bg-slate-50/50 pb-16 space-y-6">
+        <div className="min-h-screen bg-slate-50/50 pb-16 space-y-6 -mx-3 sm:-mx-4 lg:-mx-6">
             {/* Header with Navigation */}
             <div className="border-b border-slate-200 bg-white shadow-xs sticky top-0 z-20">
-                <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+                <div className="w-full px-4 py-4 sm:px-6">
                     <div className="flex flex-wrap items-center justify-between gap-4">
                         <div className="flex items-center gap-3">
                             <Link
@@ -157,7 +157,7 @@ export default function EcommerceCustomerDetailPage() {
             </div>
 
             {/* Main Content Layout */}
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-6">
+            <div className="w-full px-4 sm:px-6 space-y-6">
                 {/* 1. Customer Overview & Quick Stats Banner */}
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
                     {/* Left: Customer Info Card */}
