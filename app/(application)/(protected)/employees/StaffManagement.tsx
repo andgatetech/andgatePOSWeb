@@ -5,11 +5,13 @@ import StaffFilter from '@/components/filters/StaffFilter';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import Loader from '@/lib/Loader';
-import { showMessage } from '@/lib/toast';
-import { useGetStaffMemberQuery } from '@/store/features/store/storeApi';
+import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
+import { RootState } from '@/store';
+import { useGetStaffMemberQuery, useStaffDeleteMutation } from '@/store/features/store/storeApi';
 import { Mail, Pencil, Plus, Shield, Trash2, User, Users, XCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSelector } from 'react-redux';
 
 interface StaffMember {
     id: number;
@@ -26,6 +28,8 @@ const StaffManagement = () => {
     const { t } = getTranslation();
     const router = useRouter();
     const { currentStoreId, userStores } = useCurrentStore();
+    const currentUser = useSelector((state: RootState) => state.auth.user);
+    const [staffDelete] = useStaffDeleteMutation();
     const [apiParams, setApiParams] = useState<Record<string, any>>({});
 
 
@@ -156,6 +160,29 @@ const StaffManagement = () => {
         },
     ];
 
+    const handleDelete = useCallback(
+        async (row: StaffMember) => {
+            if (row.role_in_store === 'business_admin' || row.id === currentUser?.id || !currentStoreId) return;
+
+            const confirmed = await showConfirmDialog(
+                t('employee_delete_confirm_title'),
+                t('employee_delete_confirm_desc').replace('{name}', row.name),
+                t('btn_delete'),
+                t('btn_cancel'),
+                false
+            );
+            if (!confirmed) return;
+
+            try {
+                await staffDelete({ userId: row.id, store_id: currentStoreId }).unwrap();
+                showSuccessDialog(t('employee_deleted_title'), t('employee_deleted_desc'));
+            } catch (error: any) {
+                showErrorDialog(t('employee_delete_failed_title'), error?.data?.message || t('employee_delete_failed_desc'));
+            }
+        },
+        [staffDelete, currentStoreId, currentUser?.id, t]
+    );
+
     // Define table actions
     const actions: TableAction[] = [
         {
@@ -170,9 +197,8 @@ const StaffManagement = () => {
             label: t('btn_delete'),
             icon: <Trash2 className="h-4 w-4" />,
             className: 'text-danger',
-            onClick: (row) => {
-                showMessage(t('msg_employee_delete_coming_soon'), 'info');
-            },
+            onClick: handleDelete,
+            hidden: (row: StaffMember) => row.role_in_store === 'business_admin' || row.id === currentUser?.id,
         },
     ];
 

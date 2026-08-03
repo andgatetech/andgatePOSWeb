@@ -245,6 +245,17 @@ const StoreApi = baseApi.injectEndpoints({
             invalidatesTags: ['User'],
         }),
 
+        // Removes the staff member from this store only (deletes the pos_user_store
+        // row) — their account and history in other stores/audit logs are untouched.
+        staffDelete: builder.mutation({
+            query: ({ userId, store_id }: { userId: number; store_id: number }) => ({
+                url: `/staff/${userId}`,
+                method: 'DELETE',
+                body: { store_id },
+            }),
+            invalidatesTags: ['User'],
+        }),
+
         // Archive keeps tenancy, reporting and audit data. Physical deletion is a
         // separate owner-only endpoint and intentionally not the legacy action.
         archiveStore: builder.mutation({
@@ -444,6 +455,7 @@ export const {
     useGetStaffMemberQuery,
     useStaffRegisterMutation,
     useStaffUpdateMutation,
+    useStaffDeleteMutation,
     useArchiveStoreMutation,
     useSafeDeleteStoreMutation,
     useDeleteStoreMutation,
