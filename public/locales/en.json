@@ -8041,5 +8041,11 @@
   "install_faq_a2": "No, installing the app on your computer, tablet, or phone is 100% free with your AndgateBOS account.",
   "install_faq_q3": "How do updates work when new features are released?",
   "install_faq_a3": "You do not need to download manual installer files or APKs! The app automatically updates in the background whenever you open it while connected to the internet.",
-  "footer.nav.install_app": "Install App"
+  "footer.nav.install_app": "Install App",
+  "error_boundary_title": "This page couldn't load",
+  "error_boundary_message": "Something went wrong. Reload to try again, clear cache, or go back.",
+  "error_boundary_recovering": "Refreshing app files. This page will reload automatically.",
+  "btn_reload": "Reload",
+  "btn_clear_cache": "Clear Cache",
+  "btn_back": "Back"
 }

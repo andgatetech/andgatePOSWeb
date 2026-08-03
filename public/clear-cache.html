@@ -3,41 +3,83 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>Clear App Cache</title>
+        <title>Clearing Cache - AndgateBOS</title>
         <style>
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
             body {
                 align-items: center;
                 background: #f8fafc;
                 color: #0f172a;
                 display: flex;
-                font-family: Arial, sans-serif;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
                 justify-content: center;
                 min-height: 100vh;
-                margin: 0;
+                padding: 1rem;
             }
-
-            main {
-                max-width: 420px;
-                padding: 24px;
+            .card {
+                background: #ffffff;
+                border: 1px solid #e2e8f0;
+                border-radius: 1.25rem;
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+                max-width: 440px;
+                padding: 2.5rem 2rem;
                 text-align: center;
+                width: 100%;
             }
-
+            .spinner {
+                animation: spin 1s linear infinite;
+                border: 3px solid #e2e8f0;
+                border-radius: 50%;
+                border-top-color: #046ca9;
+                height: 48px;
+                margin: 0 auto 1.5rem;
+                width: 48px;
+            }
+            @keyframes spin {
+                to {
+                    transform: rotate(360deg);
+                }
+            }
             h1 {
-                font-size: 22px;
-                margin: 0 0 12px;
+                color: #0f172a;
+                font-size: 1.25rem;
+                font-weight: 700;
+                margin-bottom: 0.5rem;
             }
-
-            p {
-                color: #475569;
+            .sub {
+                color: #64748b;
+                font-size: 0.875rem;
                 line-height: 1.5;
-                margin: 0;
+                margin-bottom: 1.5rem;
+            }
+            .btn {
+                background-color: #046ca9;
+                border: none;
+                border-radius: 0.75rem;
+                color: #ffffff;
+                cursor: pointer;
+                display: inline-block;
+                font-size: 0.875rem;
+                font-weight: 600;
+                padding: 0.625rem 1.25rem;
+                text-decoration: none;
+                transition: background-color 0.2s;
+            }
+            .btn:hover {
+                background-color: #03588a;
             }
         </style>
     </head>
     <body>
-        <main>
-            <h1>Clearing cache...</h1>
-            <p>The app will reload automatically.</p>
+        <main class="card">
+            <div class="spinner" id="spinner"></div>
+            <h1 id="title">Clearing App Cache...</h1>
+            <p class="sub" id="desc">Cleaning offline cache, service workers, and temporary storage. The app will reload automatically.<br><span style="margin-top:0.35rem;display:inline-block;color:#94a3b8;font-size:0.8rem;">ক্যাশ ও সাময়িক ডাটা পরিষ্কার করা হচ্ছে...</span></p>
+            <a href="/" class="btn" id="homeBtn" style="display:none;">Go to Home</a>
         </main>
         <script>
             (async function () {
@@ -51,9 +93,19 @@
                         const keys = await caches.keys();
                         await Promise.all(keys.map((key) => caches.delete(key)));
                     }
+                } catch (e) {
+                    console.error('Error clearing cache:', e);
                 } finally {
-                    window.location.replace('/?cache-cleared=' + Date.now());
+                    setTimeout(() => {
+                        window.location.replace('/?cache-cleared=' + Date.now());
+                    }, 400);
                 }
+
+                // Show manual button if automatic redirect doesn't trigger within 4s
+                setTimeout(() => {
+                    const btn = document.getElementById('homeBtn');
+                    if (btn) btn.style.display = 'inline-block';
+                }, 4000);
             })();
         </script>
     </body>

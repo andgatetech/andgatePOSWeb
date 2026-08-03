@@ -210,7 +210,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                         type="button"
                         onClick={handleAddVariant}
                         disabled={attributeNames.length === 0}
-                        className="flex items-center justify-center gap-2 rounded-lg bg-[#eef7fc] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#eef7fc] disabled:cursor-not-allowed disabled:opacity-50 sm:px-6 sm:py-3"
+                        className="flex items-center justify-center gap-2 rounded-lg bg-gray-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 sm:px-6 sm:py-3"
                         title={attributeNames.length === 0 ? 'Add attributes first in Attributes tab' : ''}
                     >
                         <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
