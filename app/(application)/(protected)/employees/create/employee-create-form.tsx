@@ -25,6 +25,7 @@ interface FormErrors {
     email?: string;
     password?: string;
     password_confirmation?: string;
+    role?: string;
 }
 
 const EmployeeCreateForm = () => {
@@ -40,10 +41,11 @@ const EmployeeCreateForm = () => {
     const { data: rolesResponse } = useGetRolesQuery({ store_id: currentStoreId }, { skip: !currentStoreId });
     const availableRoles = useMemo(() => {
         const d = rolesResponse as any;
-        if (Array.isArray(d?.data?.roles)) return d.data.roles as { id: number; name: string }[];
-        if (Array.isArray(d?.data?.data)) return d.data.data as { id: number; name: string }[];
-        if (Array.isArray(d?.data)) return d.data as { id: number; name: string }[];
-        return [] as { id: number; name: string }[];
+        type RoleOption = { id: number; name: string; permissions?: { id: number; name: string }[] };
+        if (Array.isArray(d?.data?.roles)) return d.data.roles as RoleOption[];
+        if (Array.isArray(d?.data?.data)) return d.data.data as RoleOption[];
+        if (Array.isArray(d?.data)) return d.data as RoleOption[];
+        return [] as RoleOption[];
     }, [rolesResponse]);
 
     const [formData, setFormData] = useState<FormData>({
@@ -59,6 +61,13 @@ const EmployeeCreateForm = () => {
     const [formErrors, setFormErrors] = useState<FormErrors>({});
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+    // staffRegister still requires a legacy `permissions` array of IDs — derive it
+    // from the selected role so the newer role-based selector actually satisfies it.
+    const selectedRolePermissionIds = useMemo(() => {
+        const role = availableRoles.find((r) => r.id === selectedRoleId);
+        return (role?.permissions ?? []).map((p) => p.id);
+    }, [availableRoles, selectedRoleId]);
 
     const validateForm = () => {
         const errors: FormErrors = {};
@@ -83,6 +92,10 @@ const EmployeeCreateForm = () => {
             errors.password_confirmation = t('msg_passwords_not_match');
         }
 
+        if (!selectedRoleId) {
+            errors.role = t('msg_role_required');
+        }
+
         setFormErrors(errors);
         return Object.keys(errors).length === 0;
     };
@@ -96,14 +109,13 @@ const EmployeeCreateForm = () => {
                 ...formData,
                 store_id: currentStoreId,
                 role: 'staff',
+                permissions: selectedRolePermissionIds,
             }).unwrap();
 
-            // Assign RBAC role if selected
-            if (selectedRoleId) {
-                const newUserId = (result as any)?.data?.id || (result as any)?.data?.user?.id;
-                if (newUserId) {
-                    await assignRole({ roleId: selectedRoleId, user_id: newUserId }).unwrap();
-                }
+            // Assign RBAC role
+            const newUserId = (result as any)?.data?.user?.id || (result as any)?.data?.id;
+            if (newUserId && selectedRoleId) {
+                await assignRole({ roleId: selectedRoleId, user_id: newUserId }).unwrap();
             }
 
             await Swal.fire({
@@ -331,20 +343,31 @@ const EmployeeCreateForm = () => {
 
                                     {/* Role */}
                                     <div>
-                                        <label className="mb-2 block text-sm font-medium text-gray-700">{t('lbl_role')}</label>
+                                        <label className="mb-2 block text-sm font-medium text-gray-700">
+                                            {t('lbl_role')} <span className="text-red-500">*</span>
+                                        </label>
                                         <select
                                             value={selectedRoleId ?? ''}
-                                            onChange={(e) => setSelectedRoleId(e.target.value === '' ? null : Number(e.target.value))}
-                                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
+                                            onChange={(e) => {
+                                                setSelectedRoleId(e.target.value === '' ? null : Number(e.target.value));
+                                                if (formErrors.role) setFormErrors((prev) => ({ ...prev, role: '' }));
+                                            }}
+                                            className={`w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${
+                                                formErrors.role ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-primary focus:ring-primary'
+                                            }`}
                                         >
-                                            <option value="">{t('lbl_no_role')}</option>
+                                            <option value="">{t('lbl_select_role')}</option>
                                             {availableRoles.map((role) => (
                                                 <option key={role.id} value={role.id}>
                                                     {role.name}
                                                 </option>
                                             ))}
                                         </select>
-                                        <p className="mt-1 text-xs text-gray-400">{t('employee_role_desc')}</p>
+                                        {formErrors.role ? (
+                                            <p className="mt-1 text-xs text-red-500">{formErrors.role}</p>
+                                        ) : (
+                                            <p className="mt-1 text-xs text-gray-400">{t('employee_role_desc')}</p>
+                                        )}
                                     </div>
                                 </div>
                             </div>

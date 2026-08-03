@@ -2490,6 +2490,8 @@
   "employee_add_to_team": "Add a new employee to your team",
   "employee_permissions_desc": "Choose what this employee is allowed to do in the system",
   "employee_role_desc": "Assign a role to define this employee's permissions",
+  "lbl_select_role": "Select a role",
+  "msg_role_required": "Please select a role for this employee",
   "employee_business_admin_role_locked": "Role cannot be changed for business owner",
   "permission_no_sidebar": "No sidebar menu — background action only",
   "permission_toggle_hint": "Toggle individual actions or use the Turn All ON / OFF button per module",
