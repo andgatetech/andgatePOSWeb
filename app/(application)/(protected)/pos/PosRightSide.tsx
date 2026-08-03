@@ -290,6 +290,9 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         saveHeldCarts([heldCart, ...existing]);
         dispatch(clearItemsRedux(currentStoreId));
         clearCustomerSelection();
+        lastAutoPaidAmountRef.current = 0;
+        setQuotePreview(null);
+        setQuoteErrorMsg(null);
         setFormData((prev) => ({
             ...prev,
             customerId: 'walk-in',
@@ -1138,14 +1141,14 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         selectedCustomer,
     ]);
 
-    const quoteTotals = !isReturnMode && quotePreview?.totals ? quotePreview.totals : null;
-    const frontendSubtotal = calculateSubtotal();
-    const frontendDiscount = calculateDiscount() + calculateMembershipDiscount() + calculateCouponDiscount();
-    const frontendGrandTotal = calculateTotal();
-    const backendSubtotal = Number(quoteTotals?.total ?? frontendSubtotal);
-    const backendTax = Number(quoteTotals?.tax ?? calculateTax());
-    const backendDiscount = Number(quoteTotals?.discount ?? frontendDiscount);
-    const backendGrandTotal = Number(quoteTotals?.grand_total ?? frontendGrandTotal);
+    const quoteTotals = !isReturnMode && invoiceItems.length > 0 && quotePreview?.totals ? quotePreview.totals : null;
+    const frontendSubtotal = invoiceItems.length > 0 ? calculateSubtotal() : 0;
+    const frontendDiscount = invoiceItems.length > 0 ? calculateDiscount() + calculateMembershipDiscount() + calculateCouponDiscount() : 0;
+    const frontendGrandTotal = invoiceItems.length > 0 ? calculateTotal() : 0;
+    const backendSubtotal = invoiceItems.length > 0 ? Number(quoteTotals?.total ?? frontendSubtotal) : 0;
+    const backendTax = invoiceItems.length > 0 ? Number(quoteTotals?.tax ?? calculateTax()) : 0;
+    const backendDiscount = invoiceItems.length > 0 ? Number(quoteTotals?.discount ?? frontendDiscount) : 0;
+    const backendGrandTotal = invoiceItems.length > 0 ? Number(quoteTotals?.grand_total ?? frontendGrandTotal) : 0;
     const displaySubtotal = quoteTotals ? backendSubtotal : frontendSubtotal;
     const displayDiscount = quoteTotals ? backendDiscount : frontendDiscount;
     const displayGrandTotal = quoteTotals ? backendGrandTotal : frontendGrandTotal;
@@ -1184,6 +1187,23 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
     }, [quoteOrder, quotePayload]);
 
     useEffect(() => {
+        if (invoiceItems.length === 0 || backendGrandTotal <= 0) {
+            lastAutoPaidAmountRef.current = 0;
+            setFormData((prev) => {
+                if (prev.amountPaid === 0 && prev.dueAmount === 0 && prev.changeAmount === 0 && prev.partialPaymentAmount === 0) {
+                    return prev;
+                }
+                return {
+                    ...prev,
+                    dueAmount: 0,
+                    amountPaid: 0,
+                    changeAmount: 0,
+                    partialPaymentAmount: 0,
+                };
+            });
+            return;
+        }
+
         // Update due amount based on payment status and partial payment.
         // "Due" allows an optional amount collected now, same as "Partial" — the remainder is due either way.
         if (formData.paymentStatus === 'due' || formData.paymentStatus === 'partial') {
@@ -1226,6 +1246,16 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
     ]);
 
     useEffect(() => {
+        if (invoiceItems.length === 0 || backendGrandTotal <= 0) {
+            setFormData((prev) => {
+                if (prev.changeAmount === 0) return prev;
+                return {
+                    ...prev,
+                    changeAmount: 0,
+                };
+            });
+            return;
+        }
         const total = backendGrandTotal;
         const change = formData.amountPaid - total;
         setFormData((prev) => ({
@@ -1248,6 +1278,27 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             } else {
                 dispatch(clearItemsRedux(currentStoreId));
             }
+            lastAutoPaidAmountRef.current = 0;
+            setQuotePreview(null);
+            setQuoteErrorMsg(null);
+            setFormData((prev) => ({
+                ...prev,
+                discount: 0,
+                membershipDiscount: 0,
+                usePoints: false,
+                useBalance: false,
+                pointsToUse: 0,
+                balanceToUse: 0,
+                amountPaid: 0,
+                changeAmount: 0,
+                partialPaymentAmount: 0,
+                dueAmount: 0,
+                isSplitPayment: false,
+                splitPayments: [],
+                couponCode: '',
+                couponDiscount: 0,
+                couponId: null,
+            }));
         }
     };
 
@@ -1941,8 +1992,10 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
             });
         }
 
+        lastAutoPaidAmountRef.current = 0;
         setOrderResponse(null);
         setQuotePreview(null);
+        setQuoteErrorMsg(null);
     };
 
     const getPreviewData = () => {

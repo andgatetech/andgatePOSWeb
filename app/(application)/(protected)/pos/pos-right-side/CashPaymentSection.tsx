@@ -43,6 +43,11 @@ const CashPaymentSection: React.FC<CashPaymentSectionProps> = ({ formData, onInp
         return null;
     }
 
+    // Don't show in normal mode if cart is empty or totalPayable <= 0
+    if (!isReturnMode && totalPayable <= 0) {
+        return null;
+    }
+
     // Don't show for due status (no payment at all) - only in normal mode
     if (!isReturnMode && formData.paymentStatus === 'due') {
         return null;
