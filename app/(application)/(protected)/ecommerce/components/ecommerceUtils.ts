@@ -163,7 +163,7 @@ export const getEcommerceRequestedStatusLabel = (value?: 'enable' | 'disable') =
 
 export const getProductName = (row: any) => row?.product_name || row?.name || row?.product?.product_name || row?.product?.name || row?.stock?.product?.product_name || 'N/A';
 
-export const getSku = (row: any) => row?.sku || row?.stock?.sku || row?.product?.sku || row?.stock?.product?.sku || row?.barcode || 'N/A';
+export const getSku = (row: any) => row?.sku || row?.stock?.sku || row?.primary_stock?.sku || row?.product?.sku || row?.stock?.product?.sku || row?.barcode || 'N/A';
 
 export const getCustomerLabel = (row: any) => {
     const customer = row?.customer || row?.ecommerce_customer || row?.parent_order?.customer || row?.parent_order?.ecommerce_customer || row?.order?.customer || row?.order?.ecommerce_customer;

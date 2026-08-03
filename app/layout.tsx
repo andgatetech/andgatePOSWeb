@@ -182,12 +182,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             </head>
             <body suppressHydrationWarning>
                 {process.env.NODE_ENV === 'development' && (
-                    <Script id="dev-service-worker-cleanup" strategy="beforeInteractive">
+                    <Script id="dev-service-worker-cleanup" strategy="afterInteractive">
                         {`
                             (function () {
                                 if (!('serviceWorker' in navigator)) return;
 
-                                window.addEventListener('load', function () {
+                                function cleanup() {
                                     Promise.all([
                                         navigator.serviceWorker.getRegistrations()
                                             .then(function (registrations) {
@@ -207,7 +207,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                                             window.location.reload();
                                         }
                                     }).catch(function () {});
-                                });
+                                }
+
+                                if (document.readyState === 'complete') {
+                                    cleanup();
+                                } else {
+                                    window.addEventListener('load', cleanup);
+                                }
                             })();
                         `}
                     </Script>
@@ -236,7 +242,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                     })();
                 `}
             </Script> */}
-                <Script id="chunk-load-recovery" strategy="beforeInteractive">
+                <Script id="chunk-load-recovery" strategy="afterInteractive">
                     {`
                         (function () {
                             var key = 'andgatebos_chunk_recovery_reloaded_at';

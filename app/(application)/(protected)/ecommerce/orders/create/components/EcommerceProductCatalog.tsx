@@ -144,6 +144,11 @@ export default function EcommerceProductCatalog({
         return {
             ...selectedProductForModal,
             stocks,
+            category_name: selectedProductForModal.category?.name || selectedProductForModal.category_name,
+            brand_name: selectedProductForModal.brand?.name || selectedProductForModal.brand_name,
+            sku: selectedProductForModal.primary_stock?.sku || selectedProductForModal.sku,
+            price: selectedProductForModal.primary_stock?.price ?? selectedProductForModal.price,
+            quantity: selectedProductForModal.primary_stock?.quantity ?? selectedProductForModal.quantity,
         };
     }, [selectedProductForModal]);
 
@@ -530,6 +535,21 @@ export default function EcommerceProductCatalog({
                                     >
                                         {product.product_name}
                                     </p>
+
+                                    {/* Category / SKU subtitle */}
+                                    {(product.category?.name || product.primary_stock?.sku || product.sku) && (
+                                        <div className="mt-0.5 flex items-center gap-1 text-[9.5px] text-slate-400 font-medium truncate">
+                                            {product.category?.name && (
+                                                <span className="truncate">{product.category.name}</span>
+                                            )}
+                                            {product.category?.name && (product.primary_stock?.sku || product.sku) && (
+                                                <span>•</span>
+                                            )}
+                                            {(product.primary_stock?.sku || product.sku) && (
+                                                <span className="font-mono text-[9px]">{product.primary_stock?.sku || product.sku}</span>
+                                            )}
+                                        </div>
+                                    )}
 
                                     <div className="mt-auto flex items-center justify-between pt-1.5">
                                         <span className="text-xs font-extrabold text-primary">
