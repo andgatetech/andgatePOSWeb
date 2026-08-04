@@ -20,7 +20,7 @@ import { useGetDashboardOnboardingQuery } from '@/store/features/dashboard/dashb
 import { useFeatureAccess } from '@/hooks/useFeatureAccess';
 import PwaInstallGuide from '@/components/custom/PwaInstallGuide';
 
-import { AlertTriangle, Ban, ChevronDown, Crown, Search } from 'lucide-react';
+import { AlertTriangle, Ban, ChevronDown, Clock3, Crown, PlusCircle, Search, X } from 'lucide-react';
 import Image from 'next/image';
 import IconCaretsDown from '../icon/icon-carets-down';
 
@@ -34,6 +34,8 @@ const Sidebar = () => {
     const [storeWarning, setStoreWarning] = useState<string | null>(null);
     const [isSwitchingStore, setIsSwitchingStore] = useState(false);
     const [storeSearch, setStoreSearch] = useState('');
+    const [menuSearch, setMenuSearch] = useState('');
+    const [recentHrefs, setRecentHrefs] = useState<string[]>([]);
     const [showInstallGuide, setShowInstallGuide] = useState(false);
     const [fetchStorePermissions] = useLazyGetStorePermissionsQuery();
     const pwa = usePWAInstall();
@@ -143,6 +145,102 @@ const Sidebar = () => {
             params.set('details', JSON.stringify({ feature: featureSlug }));
         }
         return `/subscription?${params.toString()}`;
+    };
+
+    const flatMenuItems = useMemo(() => {
+        const leaves: Array<MenuItem & { parentLabel?: string; searchText: string }> = [];
+        const walk = (items: MenuItem[], parentLabel?: string) => {
+            items.forEach((item) => {
+                const label = t(item.label);
+                const parent = parentLabel ? t(parentLabel) : '';
+                if (item.href) {
+                    leaves.push({
+                        ...item,
+                        parentLabel,
+                        searchText: `${label} ${parent} ${item.href}`.toLowerCase(),
+                    });
+                }
+                if (item.subMenu?.length) {
+                    walk(item.subMenu, item.label);
+                }
+            });
+        };
+        walk(menuRoutes);
+        return leaves;
+    }, [menuRoutes, t]);
+
+    const menuItemsByHref = useMemo(() => new Map(flatMenuItems.map((item) => [item.href, item])), [flatMenuItems]);
+    const normalizedMenuSearch = menuSearch.trim().toLowerCase();
+    const searchResults = useMemo(
+        () => normalizedMenuSearch
+            ? flatMenuItems.filter((item) => item.searchText.includes(normalizedMenuSearch)).slice(0, 12)
+            : [],
+        [flatMenuItems, normalizedMenuSearch]
+    );
+    const quickActionHrefs = ['/pos', '/products/create', '/purchases/create', '/expenses/create'];
+    const quickActions = quickActionHrefs
+        .map((href) => menuItemsByHref.get(href))
+        .filter((item): item is MenuItem & { parentLabel?: string; searchText: string } => Boolean(item))
+        .slice(0, 4);
+    const recentMenuItems = recentHrefs
+        .map((href) => menuItemsByHref.get(href))
+        .filter((item): item is MenuItem & { parentLabel?: string; searchText: string } => Boolean(item))
+        .slice(0, 3);
+
+    useEffect(() => {
+        try {
+            const stored = JSON.parse(localStorage.getItem('andgate_sidebar_recent_hrefs') || '[]');
+            if (Array.isArray(stored)) {
+                setRecentHrefs(stored.filter((href) => typeof href === 'string').slice(0, 6));
+            }
+        } catch {
+            setRecentHrefs([]);
+        }
+    }, []);
+
+    useEffect(() => {
+        const activeItem = flatMenuItems.find((item) => item.href && isActiveRoute(item.href));
+        if (!activeItem?.href || activeItem.lockedByFeature) return;
+
+        setRecentHrefs((previous) => {
+            const next = [activeItem.href!, ...previous.filter((href) => href !== activeItem.href)].slice(0, 6);
+            if (next.length === previous.length && next.every((href, index) => href === previous[index])) {
+                return previous;
+            }
+            try {
+                localStorage.setItem('andgate_sidebar_recent_hrefs', JSON.stringify(next));
+            } catch { /* non-critical */ }
+            return next;
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [pathname, flatMenuItems]);
+
+    const renderUtilityLink = (item: MenuItem & { parentLabel?: string }, compact = false) => {
+        const active = !!item.href && isActiveRoute(item.href);
+        const locked = !!item.lockedByFeature;
+        return (
+            <Link
+                key={`${item.label}-${item.href}`}
+                href={locked ? packageUpgradeHref(item.lockedByFeature) : item.href!}
+                title={locked ? t('msg_feature_not_in_plan') : undefined}
+                className={`flex min-w-0 items-center gap-2 rounded-lg border px-2 py-1.5 text-left transition-colors ${
+                    locked
+                        ? 'border-white/[0.06] bg-white/[0.03] text-white/45 hover:bg-white/[0.05]'
+                        : active
+                        ? 'border-white/20 bg-white/[0.14] text-white'
+                        : 'border-white/[0.08] bg-white/[0.05] text-white hover:bg-white/[0.1]'
+                }`}
+            >
+                <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded bg-white/10">
+                    {compact ? <Clock3 className="h-3 w-3" /> : <PlusCircle className="h-3 w-3" />}
+                </span>
+                <span className="min-w-0 flex-1">
+                    <span className="block truncate text-[12px] font-semibold leading-4">{t(item.label)}</span>
+                    {!compact && item.parentLabel && <span className="block truncate text-[10px] leading-3 text-white/55">{t(item.parentLabel)}</span>}
+                </span>
+                {locked && <Ban className="h-3 w-3 flex-shrink-0 text-orange-300" />}
+            </Link>
+        );
     };
 
     const renderSubMenuItems = (items: MenuItem[], depth = 0): ReactNode => (
@@ -410,7 +508,56 @@ const Sidebar = () => {
             {/* ── Navigation Menu ──────────────────────────────────────── */}
             <div className="custom-scrollbar flex-1 overflow-y-auto">
                 <div className="px-2.5 py-3">
-                    {menuRoutes.map((route) => {
+                    <div className="mb-3 space-y-2">
+                        <div className="flex items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.06] px-2.5 py-2">
+                            <Search className="h-4 w-4 flex-shrink-0 text-white/50" />
+                            <input
+                                value={menuSearch}
+                                onChange={(event) => setMenuSearch(event.target.value)}
+                                placeholder={t('sidebar_search_placeholder')}
+                                className="min-w-0 flex-1 bg-transparent text-[13px] font-medium text-white placeholder:text-white/40 focus:outline-none"
+                            />
+                            {menuSearch && (
+                                <button
+                                    type="button"
+                                    onClick={() => setMenuSearch('')}
+                                    aria-label={t('btn_clear')}
+                                    className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded text-white/55 transition-colors hover:bg-white/10 hover:text-white"
+                                >
+                                    <X className="h-3.5 w-3.5" />
+                                </button>
+                            )}
+                        </div>
+
+                        {!normalizedMenuSearch && quickActions.length > 0 && (
+                            <div className="rounded-xl border border-white/[0.08] bg-[#023f65] p-2">
+                                <p className="mb-1.5 px-1 text-[9px] font-bold uppercase tracking-widest text-white/55">{t('sidebar_quick_actions')}</p>
+                                <div className="grid grid-cols-2 gap-1.5">
+                                    {quickActions.map((item) => renderUtilityLink(item))}
+                                </div>
+                            </div>
+                        )}
+
+                        {!normalizedMenuSearch && recentMenuItems.length > 0 && (
+                            <div className="rounded-xl border border-white/[0.08] bg-white/[0.035] p-2">
+                                <p className="mb-1.5 px-1 text-[9px] font-bold uppercase tracking-widest text-white/50">{t('sidebar_recent')}</p>
+                                <div className="space-y-1.5">
+                                    {recentMenuItems.map((item) => renderUtilityLink(item, true))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {normalizedMenuSearch ? (
+                        <div className="space-y-1.5">
+                            <p className="px-2 text-[9px] font-bold uppercase tracking-widest text-white/45">{t('sidebar_search_results')}</p>
+                            {searchResults.length > 0 ? (
+                                searchResults.map((item) => renderUtilityLink(item, true))
+                            ) : (
+                                <p className="rounded-lg border border-white/[0.08] bg-white/[0.04] px-3 py-3 text-xs text-white/55">{t('sidebar_no_menu_results')}</p>
+                            )}
+                        </div>
+                    ) : menuRoutes.map((route) => {
                         const parentActive = route.subMenu ? isParentActive(route) : false;
                         const isOpen = currentMenu === route.label;
                         const directActive = !route.subMenu && !!route.href && isActiveRoute(route.href);
