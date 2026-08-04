@@ -2,7 +2,7 @@
 
 import SearchableStoreType from '@/components/common/SearchableStoreType';
 import { createMarketingEventId, trackEvent } from '@/lib/analytics';
-import { AUTH_TOKEN_EXPIRES_AT_COOKIE, AUTH_TOKEN_EXPIRES_AT_KEY, getCookieMaxAgeFromExpiry, getLoginTokenExpiresAt, isTokenExpired, setAuthCookie } from '@/lib/auth-session';
+import { AUTH_TOKEN_EXPIRES_AT_COOKIE, AUTH_TOKEN_EXPIRES_AT_KEY, getCookieMaxAgeFromExpiry, getLoginTokenExpiresAt, isTokenExpired, setAuthCookie, setPermissionsCookie } from '@/lib/auth-session';
 import { buildAttribution } from '@/lib/attribution';
 import { getExperimentVariant, getSessionId, getVisitorId } from '@/lib/visitor';
 import { RootState } from '@/store';
@@ -156,17 +156,10 @@ export default function PromoRegisterForm({ defaultSource = 'promotion_pos', def
 
             const validTokenExpiresAt = tokenExpiresAt as string;
             const maxAge = getCookieMaxAgeFromExpiry(validTokenExpiresAt);
-            const encodedPermissions = (() => {
-                try {
-                    return btoa(JSON.stringify(permissions ?? []));
-                } catch {
-                    return btoa('[]');
-                }
-            })();
 
             setAuthCookie('token', token, maxAge);
             setAuthCookie('role', user.role, maxAge);
-            setAuthCookie('permissions', encodedPermissions, maxAge);
+            setPermissionsCookie(permissions ?? [], maxAge);
             setAuthCookie(AUTH_TOKEN_EXPIRES_AT_COOKIE, validTokenExpiresAt, maxAge);
             localStorage.setItem(AUTH_TOKEN_EXPIRES_AT_KEY, validTokenExpiresAt);
             dispatch(login({ user, token, tokenExpiresAt: validTokenExpiresAt, permissions }));

@@ -11,7 +11,7 @@ import { toast } from 'react-toastify';
 
 import IconLockDots from '@/components/icon/icon-lock-dots';
 import IconMail from '@/components/icon/icon-mail';
-import { AUTH_TOKEN_EXPIRES_AT_COOKIE, AUTH_TOKEN_EXPIRES_AT_KEY, AUTH_TOKEN_STORAGE_KEY, clearAuthCookies, clearAuthLocalStorage, getCookieMaxAgeFromExpiry, getLoginTokenExpiresAt, isTokenExpired, setAuthCookie } from '@/lib/auth-session';
+import { AUTH_TOKEN_EXPIRES_AT_COOKIE, AUTH_TOKEN_EXPIRES_AT_KEY, AUTH_TOKEN_STORAGE_KEY, clearAuthCookies, clearAuthLocalStorage, getCookieMaxAgeFromExpiry, getLoginTokenExpiresAt, isTokenExpired, setAuthCookie, setPermissionsCookie } from '@/lib/auth-session';
 import { trackEvent } from '@/lib/analytics';
 import { login } from '@/store/features/auth/authSlice';
 import { persistor } from '@/store';
@@ -129,18 +129,11 @@ const ComponentsAuthLoginForm = forwardRef((props, ref) => {
             const validTokenExpiresAt = tokenExpiresAt as string;
 
             const maxAge = getCookieMaxAgeFromExpiry(validTokenExpiresAt);
-            const encodedPermissions = (() => {
-                try {
-                    return btoa(JSON.stringify(permissions ?? []));
-                } catch (err) {
-                    return btoa('[]');
-                }
-            })();
 
             // Save token + role in cookies
             setAuthCookie('token', token, maxAge);
             setAuthCookie('role', user.role, maxAge);
-            setAuthCookie('permissions', encodedPermissions, maxAge);
+            setPermissionsCookie(permissions ?? [], maxAge);
             setAuthCookie(AUTH_TOKEN_EXPIRES_AT_COOKIE, validTokenExpiresAt, maxAge);
 
             safeLocalStorageSet(AUTH_TOKEN_STORAGE_KEY, token);

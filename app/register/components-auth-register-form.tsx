@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslation } from '@/components/i18n/TranslationProvider';
-import { AUTH_TOKEN_EXPIRES_AT_COOKIE, AUTH_TOKEN_EXPIRES_AT_KEY, getCookieMaxAgeFromExpiry, getLoginTokenExpiresAt, isTokenExpired, setAuthCookie } from '@/lib/auth-session';
+import { AUTH_TOKEN_EXPIRES_AT_COOKIE, AUTH_TOKEN_EXPIRES_AT_KEY, getCookieMaxAgeFromExpiry, getLoginTokenExpiresAt, isTokenExpired, setAuthCookie, setPermissionsCookie } from '@/lib/auth-session';
 import { buildAttribution } from '@/lib/attribution';
 import { createMarketingEventId, trackEvent } from '@/lib/analytics';
 import { getExperimentVariant, getSessionId, getVisitorId } from '@/lib/visitor';
@@ -121,18 +121,11 @@ const ComponentsAuthRegisterForm = ({ defaultSource = 'website_registration', de
             const validTokenExpiresAt = tokenExpiresAt as string;
 
             const maxAge = getCookieMaxAgeFromExpiry(validTokenExpiresAt);
-            const encodedPermissions = (() => {
-                try {
-                    return btoa(JSON.stringify(permissions ?? []));
-                } catch {
-                    return btoa('[]');
-                }
-            })();
 
             // Save token + role in cookies
             setAuthCookie('token', token, maxAge);
             setAuthCookie('role', user.role, maxAge);
-            setAuthCookie('permissions', encodedPermissions, maxAge);
+            setPermissionsCookie(permissions ?? [], maxAge);
             setAuthCookie(AUTH_TOKEN_EXPIRES_AT_COOKIE, validTokenExpiresAt, maxAge);
 
             localStorage.setItem(AUTH_TOKEN_EXPIRES_AT_KEY, validTokenExpiresAt);

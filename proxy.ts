@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { AUTH_TOKEN_EXPIRES_AT_COOKIE, decodeAuthCookieValue, isTokenExpired } from './lib/auth-session';
+import { AUTH_TOKEN_EXPIRES_AT_COOKIE, decodeAuthCookieValue, isTokenExpired, readPermissionsFromCookies } from './lib/auth-session';
 import { canAccessRoute, findMatchingRouteKey, normalizeRoutePath } from './lib/permissions';
 import { landingPages } from './lib/landing-pages';
 import { highIntentPages } from './lib/high-intent-pages';
@@ -8,18 +8,13 @@ const LANGUAGE_COOKIE = 'i18nextLng';
 const LANGUAGE_SOURCE_COOKIE = 'i18nextLngSource';
 const LANGUAGE_MAX_AGE = 60 * 60 * 24 * 365;
 
-const decodePermissionsCookie = (value?: string): string[] => {
-    if (!value) return [];
-    try {
-        const decoded = JSON.parse(atob(decodeAuthCookieValue(value) ?? value));
-        return Array.isArray(decoded) ? decoded : [];
-    } catch {
-        return [];
-    }
-};
+// Permissions are split across permissions, permissions_1, permissions_2, ... (see
+// setPermissionsCookie in lib/auth-session.ts) since a role with most/all permissions
+// overflows a single cookie's ~4096-byte limit, which the browser drops silently.
+const PERMISSIONS_CHUNK_CLEAR_NAMES = Array.from({ length: 25 }, (_, i) => (i === 0 ? 'permissions' : `permissions_${i}`));
 
 const clearAuthCookies = (response: NextResponse) => {
-    ['token', 'role', 'permissions', AUTH_TOKEN_EXPIRES_AT_COOKIE].forEach((name) => {
+    ['token', 'role', ...PERMISSIONS_CHUNK_CLEAR_NAMES, AUTH_TOKEN_EXPIRES_AT_COOKIE].forEach((name) => {
         response.cookies.delete(name);
     });
 
@@ -180,7 +175,7 @@ export function proxy(request: NextRequest) {
 
     // Permission check for protected routes
     const role = request.cookies.get('role')?.value || null;
-    const permissions = decodePermissionsCookie(request.cookies.get('permissions')?.value);
+    const permissions = readPermissionsFromCookies((name) => request.cookies.get(name)?.value);
     const matchedRoute = findMatchingRouteKey(normalizedPath);
     if (!matchedRoute || !canAccessRoute(role, permissions, matchedRoute)) {
         return NextResponse.redirect(new URL('/unauthorized', request.url));
