@@ -81,6 +81,14 @@ const BankApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['BankTransactions', 'BankAccounts'],
         }),
+        correctReconciledBankTransaction: builder.mutation({
+            query: ({ id, reason, storeId }: any) => ({
+                url: `/bank-transactions/${id}/reconciliation-correction`,
+                method: 'POST',
+                body: { reason, store_id: storeId },
+            }),
+            invalidatesTags: ['BankTransactions', 'BankAccounts'],
+        }),
     }),
 });
 
@@ -96,4 +104,5 @@ export const {
     useUpdateBankTransactionMutation,
     useReconcileBankTransactionMutation,
     useVoidAndReverseBankTransactionMutation,
+    useCorrectReconciledBankTransactionMutation,
 } = BankApi;

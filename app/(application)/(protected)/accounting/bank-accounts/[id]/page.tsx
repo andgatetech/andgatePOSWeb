@@ -6,6 +6,7 @@ import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { getTranslation } from '@/i18n';
 import { canManageBankTransactionVoid, canVoidBankTransaction } from '@/lib/bankTransactionVoidReversal';
+import { canCorrectReconciledBankTransaction, canManageBankTransactionCorrection } from '@/lib/bankTransactionReconciliationCorrection';
 import { showConfirmDialog, showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { RootState } from '@/store';
 import {
@@ -15,9 +16,10 @@ import {
     useCreateBankTransactionMutation,
     useUpdateBankTransactionMutation,
     useReconcileBankTransactionMutation,
+    useCorrectReconciledBankTransactionMutation,
     useVoidAndReverseBankTransactionMutation,
 } from '@/store/features/bank/bankApi';
-import { ArrowLeft, CheckCircle2, Pencil, Plus, RotateCcw } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, FilePenLine, Pencil, Plus, RotateCcw } from 'lucide-react';
 import { useSelector } from 'react-redux';
 
 const TRANSACTION_TYPES = [
@@ -53,6 +55,7 @@ export default function BankAccountDetailPage() {
     const { currentStoreId } = useCurrentStore();
     const user = useSelector((state: RootState) => state.auth.user);
     const canManageVoid = canManageBankTransactionVoid(user);
+    const canManageCorrection = canManageBankTransactionCorrection(user);
     const accountId = Number(id);
 
     const { data: accountData } = useGetBankAccountByIdQuery(accountId, { skip: !accountId });
@@ -63,6 +66,7 @@ export default function BankAccountDetailPage() {
     const [updateTx, { isLoading: updating }] = useUpdateBankTransactionMutation();
     const [reconcileTx, { isLoading: reconciling }] = useReconcileBankTransactionMutation();
     const [voidAndReverseTx, { isLoading: voiding }] = useVoidAndReverseBankTransactionMutation();
+    const [correctReconciledTx, { isLoading: correcting }] = useCorrectReconciledBankTransactionMutation();
 
     const [modalOpen, setModalOpen] = useState(false);
     const [reconcileModal, setReconcileModal] = useState<any>(null);
@@ -161,6 +165,30 @@ export default function BankAccountDetailPage() {
             refetchTx();
         } catch (error: any) {
             showErrorDialog(t('msg_error'), error?.data?.message || t('bank_transaction_void_failed'));
+        }
+    };
+
+    const handleReconciliationCorrection = async (tx: any) => {
+        if (!canManageCorrection || !canCorrectReconciledBankTransaction(tx)) return;
+        const reason = window.prompt(t('bank_transaction_correction_reason_prompt'))?.trim();
+        if (!reason) {
+            showErrorDialog(t('msg_error'), t('bank_transaction_correction_reason_required'));
+            return;
+        }
+        const confirmed = await showConfirmDialog(
+            t('bank_transaction_correction_confirm_title'),
+            t('bank_transaction_correction_confirm_effects'),
+            t('btn_correct_reconciled_transaction'),
+            t('btn_cancel'),
+            false,
+        );
+        if (!confirmed) return;
+        try {
+            await correctReconciledTx({ id: tx.id, reason, storeId: currentStoreId || tx.store_id }).unwrap();
+            showSuccessDialog(t('msg_success'), t('bank_transaction_correction_success'));
+            refetchTx();
+        } catch (error: any) {
+            showErrorDialog(t('msg_error'), error?.data?.message || t('bank_transaction_correction_failed'));
         }
     };
 
@@ -267,6 +295,16 @@ export default function BankAccountDetailPage() {
                                                         title={t('btn_void_and_reverse')}
                                                     >
                                                         <RotateCcw className="h-4 w-4" />
+                                                    </button>
+                                                )}
+                                                {canManageCorrection && canCorrectReconciledBankTransaction(tx) && (
+                                                    <button
+                                                        onClick={() => handleReconciliationCorrection(tx)}
+                                                        disabled={correcting}
+                                                        className="rounded p-1.5 text-amber-700 hover:bg-amber-50 disabled:opacity-50"
+                                                        title={t('btn_correct_reconciled_transaction')}
+                                                    >
+                                                        <FilePenLine className="h-4 w-4" />
                                                     </button>
                                                 )}
                                             </div>
