@@ -28,6 +28,7 @@ interface PaymentSummarySectionProps {
     newItemsTotal?: number;
     returnNetAmount?: number;
     onOpenSplitModal?: () => void;
+    cashDrawers?: any[];
 }
 
 // Synthetic event helper so pill buttons can share onInputChange
@@ -97,6 +98,7 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
     newItemsTotal = 0,
     returnNetAmount = 0,
     onOpenSplitModal,
+    cashDrawers = [],
 }) => {
     const { t } = getTranslation();
     const { formatCurrency, formatNumber } = useCurrency();
@@ -240,6 +242,22 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                         <span>{taxAmount > 0 ? t('lbl_subtotal_no_tax') : t('lbl_subtotal')}</span>
                         <span className="font-medium text-gray-700">{formatCurrency(subtotalWithoutTax)}</span>
                     </div>
+                    {(() => {
+                        const hasCash = formData.isSplitPayment
+                            ? formData.splitPayments.some((p) => String(p.payment_type).toLowerCase() === 'cash' && Number(p.amount) > 0)
+                            : formData.paymentMethod.toLowerCase() === 'cash';
+                        const sessions = cashDrawers.flatMap((drawer: any) => (drawer.sessions || []).map((session: any) => ({ ...session, drawerName: drawer.name })));
+                        if (!hasCash) return null;
+                        return (
+                            <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3">
+                                <label className="mb-1 block text-xs font-semibold text-amber-900">{t('pos_cash_drawer_session')}</label>
+                                <select name="drawerSessionId" value={formData.drawerSessionId || ''} onChange={onInputChange} className="w-full rounded-md border border-amber-300 bg-white px-2 py-2 text-sm">
+                                    <option value="">{t('pos_select_cash_drawer_session')}</option>
+                                    {sessions.map((session: any) => <option key={session.id} value={session.id}>{session.drawerName} · #{session.id}</option>)}
+                                </select>
+                            </div>
+                        );
+                    })()}
                     {taxAmount > 0 && (
                         <div className="flex justify-between text-sm text-gray-500">
                             <span>{taxLabel}</span>

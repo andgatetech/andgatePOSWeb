@@ -51,6 +51,7 @@ export interface PosFormData {
     couponCode: string;
     couponDiscount: number;
     couponId: number | null;
+    drawerSessionId?: number | null;
 }
 
 /**

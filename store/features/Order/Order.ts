@@ -19,6 +19,11 @@ const OrderApi = baseApi.injectEndpoints({
             }),
         }),
 
+        getCashDrawers: builder.query({
+            query: (store_id: number) => ({ url: '/drawers', method: 'GET', params: { store_id } }),
+            providesTags: ['Orders'],
+        }),
+
         getAllOrders: builder.query({
             query: (filters = {}) => ({
                 url: '/orders',
@@ -86,6 +91,7 @@ const OrderApi = baseApi.injectEndpoints({
 export const {
     useCreateOrderMutation,
     useQuoteOrderMutation,
+    useGetCashDrawersQuery,
     useGetAllOrdersQuery,
     useGetOrderByIdQuery,
     useLazyGetOrderByIdQuery,

@@ -12,7 +12,7 @@ import { generateLocalInvoiceNumber, getDeviceId } from '@/lib/offline/offlineHe
 import { DEFAULT_PAYMENT_METHOD, getAllowedStatusesForMethod } from '@/lib/paymentConstants';
 import { showConfirmDialog } from '@/lib/toast';
 import type { RootState } from '@/store';
-import { useCreateOrderMutation, useCreateOrderReturnMutation, useQuoteOrderMutation } from '@/store/features/Order/Order';
+import { useCreateOrderMutation, useCreateOrderReturnMutation, useQuoteOrderMutation, useGetCashDrawersQuery } from '@/store/features/Order/Order';
 import { useQuoteOrderReturnMutation } from '@/store/features/Order/orderApi';
 import type { QuoteOrderReturnResult } from '@/store/features/Order/orderApi';
 import { queueOfflineOrder } from '@/store/features/offline/offlineOrdersSlice';
@@ -94,6 +94,8 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
     const isOnline = useOnlineStatus();
 
     const isReturnMode = mode === 'return';
+    const { data: cashDrawersResponse } = useGetCashDrawersQuery(currentStoreId || 0, { skip: !currentStoreId || isReturnMode });
+    const cashDrawers = (cashDrawersResponse as any)?.data?.drawers || (cashDrawersResponse as any)?.drawers || [];
 
     // Select items based on reduxSlice
     // Select raw data from Redux
@@ -177,6 +179,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
         couponCode: '',
         couponDiscount: 0,
         couponId: null,
+        drawerSessionId: null,
     });
     const [showSplitModal, setShowSplitModal] = useState(false);
 
@@ -1298,6 +1301,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                 couponCode: '',
                 couponDiscount: 0,
                 couponId: null,
+                drawerSessionId: null,
             }));
         }
     };
@@ -1535,6 +1539,9 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                 store_id: currentStoreId,
                 payment_status: formData.paymentStatus,
                 ...(formData.isSplitPayment ? { payments: formData.splitPayments, payment_method: 'Split' } : { payment_method: formData.paymentMethod }),
+                ...(!isReturnMode && (formData.isSplitPayment ? formData.splitPayments.some((p) => p.payment_type.toLowerCase() === 'cash') : formData.paymentMethod.toLowerCase() === 'cash')
+                    ? { drawer_session_id: formData.drawerSessionId || undefined }
+                    : {}),
                 tax: orderTax,
                 discount: orderDiscount,
                 total: orderSubtotal,
@@ -1989,6 +1996,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                 couponCode: '',
                 couponDiscount: 0,
                 couponId: null,
+                drawerSessionId: null,
             });
         }
 
@@ -2410,6 +2418,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                     newItemsTotal={newItemsTotal}
                     returnNetAmount={returnNetAmount}
                     onOpenSplitModal={() => setShowSplitModal(true)}
+                    cashDrawers={cashDrawers}
                 />
 
                 <SplitPaymentModal
