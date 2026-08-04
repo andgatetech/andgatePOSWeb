@@ -32,6 +32,10 @@ export const manualPaymentsApi = baseApi.injectEndpoints({
             query: () => ({ url: '/manual-payments', method: 'GET' }),
             providesTags: ['ManualPayments'],
         }),
+        getSubscriptionPaymentHistory: builder.query<any, void>({
+            query: () => ({ url: '/manual-payments/subscription-history', method: 'GET' }),
+            providesTags: ['ManualPayments'],
+        }),
         submitManualPayment: builder.mutation<any, FormData>({
             query: (body) => ({
                 url: '/manual-payments',
@@ -58,6 +62,7 @@ export const manualPaymentsApi = baseApi.injectEndpoints({
 export const {
     useGetManualPaymentSummaryQuery,
     useGetManualPaymentsQuery,
+    useGetSubscriptionPaymentHistoryQuery,
     useSubmitManualPaymentMutation,
     useGetAddonCatalogQuery,
     useSubmitAddonPaymentMutation,
