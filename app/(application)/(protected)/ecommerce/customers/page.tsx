@@ -22,14 +22,14 @@ import {
     ChevronLeft,
     ShieldCheck,
 } from 'lucide-react';
-import { useTranslation } from '@/components/i18n/TranslationProvider';
+import { getTranslation } from '@/i18n';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetEcommerceCustomersQuery } from '@/store/features/ecommerce/ecommerceManagementApi';
 import EcommerceCustomerDrawer from '../orders/create/components/EcommerceCustomerDrawer';
 
 export default function EcommerceCustomersPage() {
-    const { isBn } = useTranslation();
+    const { t } = getTranslation();
     const { formatCurrency, formatNumber } = useCurrency();
     const router = useRouter();
     const { currentStoreId } = useCurrentStore();
@@ -92,21 +92,19 @@ export default function EcommerceCustomersPage() {
                         <div>
                             <div className="flex items-center gap-2">
                                 <span className="text-[11px] font-bold uppercase tracking-wider text-primary">
-                                    {isBn ? 'অনলাইন শপ' : 'eCommerce'}
+                                    {t('ecomm_section_label')}
                                 </span>
                                 <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-700 border border-emerald-200">
                                     <ShieldCheck className="h-3 w-3 text-emerald-500" />
-                                    {isBn ? 'অনলাইন গ্রাহক ডেটাবেজ' : 'Online Store Customers'}
+                                    {t('ecomm_customers_badge')}
                                 </span>
                             </div>
                             <h1 className="mt-1 text-xl sm:text-2xl font-black tracking-tight text-slate-900 flex items-center gap-2.5">
                                 <Users className="h-6 w-6 text-primary" />
-                                <span>{isBn ? 'ই-কমার্স গ্রাহক তালিকা' : 'Ecommerce Customers'}</span>
+                                <span>{t('ecomm_customers_page_title')}</span>
                             </h1>
                             <p className="mt-0.5 text-xs text-slate-500">
-                                {isBn
-                                    ? 'অনলাইন অর্ডারের গ্রাহক প্রোফাইল, মোট অর্ডার ও খরচের বিবরণ দেখুন।'
-                                    : 'Manage ecommerce customers, view purchase history, addresses, and order volume.'}
+                                {t('ecomm_customers_page_subtitle')}
                             </p>
                         </div>
 
@@ -118,7 +116,7 @@ export default function EcommerceCustomersPage() {
                                 className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 shadow-2xs hover:bg-slate-50 transition disabled:opacity-50"
                             >
                                 <RefreshCw className={`h-3.5 w-3.5 ${isFetching ? 'animate-spin text-primary' : 'text-slate-500'}`} />
-                                <span>{isBn ? 'রিফ্রেশ' : 'Refresh'}</span>
+                                <span>{t('ecomm_customers_refresh_btn')}</span>
                             </button>
 
                             <Link
@@ -126,7 +124,7 @@ export default function EcommerceCustomersPage() {
                                 className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-primary/90 transition"
                             >
                                 <PlusCircle className="h-4 w-4" />
-                                <span>{isBn ? 'নতুন অর্ডার তৈরি' : 'Create Order'}</span>
+                                <span>{t('ecomm_customers_create_order_btn')}</span>
                             </Link>
                         </div>
                     </div>
@@ -141,7 +139,7 @@ export default function EcommerceCustomersPage() {
                     <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs transition hover:shadow-md">
                         <div className="flex items-center justify-between">
                             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                {isBn ? 'মোট অনলাইন গ্রাহক' : 'Total Customers'}
+                                {t('ecomm_customers_stat_total')}
                             </span>
                             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
                                 <Users className="h-4 w-4" />
@@ -152,7 +150,7 @@ export default function EcommerceCustomersPage() {
                                 {formatNumber(stats.total_customers)}
                             </span>
                             <span className="text-[11px] font-semibold text-slate-400">
-                                {isBn ? 'নিবন্ধিত অ্যাকাউন্ট' : 'Registered Accounts'}
+                                {t('ecomm_customers_stat_registered')}
                             </span>
                         </div>
                     </div>
@@ -161,7 +159,7 @@ export default function EcommerceCustomersPage() {
                     <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs transition hover:shadow-md">
                         <div className="flex items-center justify-between">
                             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                {isBn ? 'মোট অনলাইন অর্ডার' : 'Total Online Orders'}
+                                {t('ecomm_customers_stat_orders')}
                             </span>
                             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-100 text-sky-600">
                                 <ShoppingBag className="h-4 w-4" />
@@ -172,7 +170,7 @@ export default function EcommerceCustomersPage() {
                                 {formatNumber(stats.total_orders)}
                             </span>
                             <span className="text-[11px] font-semibold text-slate-400">
-                                {isBn ? 'টি অর্ডার সম্পন্ন' : 'Orders Placed'}
+                                {t('ecomm_customers_stat_orders_placed')}
                             </span>
                         </div>
                     </div>
@@ -181,7 +179,7 @@ export default function EcommerceCustomersPage() {
                     <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs transition hover:shadow-md">
                         <div className="flex items-center justify-between">
                             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                {isBn ? 'মোট বিক্রয় / খরচ' : 'Total Order Revenue'}
+                                {t('ecomm_customers_stat_revenue')}
                             </span>
                             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600">
                                 <TrendingUp className="h-4 w-4" />
@@ -192,7 +190,7 @@ export default function EcommerceCustomersPage() {
                                 {formatCurrency(stats.total_spent)}
                             </span>
                             <span className="text-[11px] font-semibold text-slate-400">
-                                {isBn ? 'সর্বমোট আয়' : 'Lifetime Sales'}
+                                {t('ecomm_customers_stat_lifetime')}
                             </span>
                         </div>
                     </div>
@@ -211,14 +209,14 @@ export default function EcommerceCustomersPage() {
                                     setSearchQuery(e.target.value);
                                     setPage(1);
                                 }}
-                                placeholder={isBn ? 'গ্রাহকের নাম, মোবাইল নম্বর, ইমেইল বা ঠিকানা দিয়ে খুঁজুন...' : 'Search by customer name, phone, email or address...'}
+                                placeholder={t('ecomm_customers_search_placeholder')}
                                 className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50/60 pl-9 pr-4 text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:border-primary focus:bg-white focus:outline-none"
                             />
                         </div>
 
                         <div className="mt-3 flex items-center justify-between sm:mt-0 gap-3">
                             <div className="flex items-center gap-1.5 text-xs text-slate-500 font-semibold">
-                                <span>{isBn ? 'প্রতি পেজে:' : 'Show:'}</span>
+                                <span>{t('ecomm_customers_show_label')}:</span>
                                 <select
                                     value={perPage}
                                     onChange={(e) => {
@@ -235,7 +233,7 @@ export default function EcommerceCustomersPage() {
                             </div>
 
                             <span className="text-xs font-semibold text-slate-400">
-                                {isBn ? 'মোট ফলাফল:' : 'Found:'} <strong className="text-slate-800 font-bold">{formatNumber(pagination.total)}</strong>
+                                {t('ecomm_customers_found_label')}: <strong className="text-slate-800 font-bold">{formatNumber(pagination.total)}</strong>
                             </span>
                         </div>
                     </div>
@@ -251,19 +249,19 @@ export default function EcommerceCustomersPage() {
                                             onClick={() => handleSort('name')}
                                             className="flex items-center gap-1 hover:text-slate-900 transition"
                                         >
-                                            <span>{isBn ? 'গ্রাহক পরিচিতি' : 'Customer'}</span>
+                                            <span>{t('ecomm_customers_col_customer')}</span>
                                             <ArrowUpDown className="h-3 w-3" />
                                         </button>
                                     </th>
-                                    <th className="px-4 py-3.5">{isBn ? 'যোগাযোগ' : 'Contact'}</th>
-                                    <th className="px-4 py-3.5">{isBn ? 'ঠিকানা (লোকেশন)' : 'Primary Address'}</th>
+                                    <th className="px-4 py-3.5">{t('ecomm_customers_col_contact')}</th>
+                                    <th className="px-4 py-3.5">{t('ecomm_customers_col_address')}</th>
                                     <th className="px-4 py-3.5 text-center">
                                         <button
                                             type="button"
                                             onClick={() => handleSort('orders_count')}
                                             className="inline-flex items-center gap-1 hover:text-slate-900 transition"
                                         >
-                                            <span>{isBn ? 'অর্ডার সংখ্যা' : 'Orders'}</span>
+                                            <span>{t('ecomm_customers_col_orders')}</span>
                                             <ArrowUpDown className="h-3 w-3" />
                                         </button>
                                     </th>
@@ -273,7 +271,7 @@ export default function EcommerceCustomersPage() {
                                             onClick={() => handleSort('total_spent')}
                                             className="inline-flex items-center gap-1 hover:text-slate-900 transition"
                                         >
-                                            <span>{isBn ? 'মোট খরচ' : 'Total Spent'}</span>
+                                            <span>{t('ecomm_customers_col_spent')}</span>
                                             <ArrowUpDown className="h-3 w-3" />
                                         </button>
                                     </th>
@@ -283,11 +281,11 @@ export default function EcommerceCustomersPage() {
                                             onClick={() => handleSort('created_at')}
                                             className="inline-flex items-center gap-1 hover:text-slate-900 transition"
                                         >
-                                            <span>{isBn ? 'নিবন্ধন তারিখ' : 'Joined'}</span>
+                                            <span>{t('ecomm_customers_col_joined')}</span>
                                             <ArrowUpDown className="h-3 w-3" />
                                         </button>
                                     </th>
-                                    <th className="px-4 py-3.5 text-right">{isBn ? 'অ্যাকশন' : 'Actions'}</th>
+                                    <th className="px-4 py-3.5 text-right">{t('ecomm_customers_col_actions')}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 bg-white">
@@ -296,7 +294,7 @@ export default function EcommerceCustomersPage() {
                                         <td colSpan={7} className="py-16 text-center text-slate-400">
                                             <div className="inline-flex flex-col items-center gap-2">
                                                 <div className="h-7 w-7 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                                                <span className="text-xs font-medium">{isBn ? 'ই-কমার্স গ্রাহক তালিকা লোড হচ্ছে...' : 'Loading ecommerce customers...'}</span>
+                                                <span className="text-xs font-medium">{t('ecomm_customers_loading')}</span>
                                             </div>
                                         </td>
                                     </tr>
@@ -308,12 +306,12 @@ export default function EcommerceCustomersPage() {
                                                     <Users className="h-6 w-6" />
                                                 </div>
                                                 <p className="text-sm font-bold text-slate-700">
-                                                    {isBn ? 'কোন গ্রাহক পাওয়া যায়নি' : 'No Ecommerce Customers Found'}
+                                                    {t('ecomm_customers_empty_title')}
                                                 </p>
                                                 <p className="text-xs text-slate-400 max-w-sm">
                                                     {searchQuery
-                                                        ? (isBn ? 'অনুসন্ধানের সাথে মিলে এমন কোন গ্রাহক নেই।' : 'No customer matches your search query.')
-                                                        : (isBn ? 'অনলাইন স্টোরে অর্ডার সম্পন্ন হলে এখানে গ্রাহকদের তালিকা দেখাবে।' : 'Customers who place online orders will appear here.')}
+                                                        ? t('ecomm_customers_empty_search')
+                                                        : t('ecomm_customers_empty_default')}
                                                 </p>
                                             </div>
                                         </td>
@@ -381,7 +379,7 @@ export default function EcommerceCustomersPage() {
                                                         </div>
                                                     ) : (
                                                         <span className="text-slate-400 italic text-[11px]">
-                                                            {isBn ? 'ঠিকানা যুক্ত নেই' : 'No address saved'}
+                                                            {t('ecomm_customers_no_address')}
                                                         </span>
                                                     )}
                                                 </td>
@@ -413,7 +411,7 @@ export default function EcommerceCustomersPage() {
                                                             type="button"
                                                             onClick={() => setQuickViewCustomerId(cust.id)}
                                                             className="rounded-lg border border-slate-200 bg-white p-1.5 text-slate-600 hover:border-primary hover:text-primary shadow-2xs transition"
-                                                            title={isBn ? 'কুইক প্রিভিউ' : 'Quick Preview'}
+                                                            title={t('ecomm_customers_quick_preview')}
                                                         >
                                                             <Eye className="h-3.5 w-3.5" />
                                                         </button>
@@ -422,7 +420,7 @@ export default function EcommerceCustomersPage() {
                                                             href={`/ecommerce/customers/${cust.id}`}
                                                             className="flex items-center gap-1 rounded-lg bg-primary/10 border border-primary/20 px-2.5 py-1 text-xs font-bold text-primary hover:bg-primary hover:text-white transition shadow-2xs"
                                                         >
-                                                            <span>{isBn ? 'প্রোফাইল ও অর্ডার' : 'View Profile'}</span>
+                                                            <span>{t('ecomm_customers_view_profile')}</span>
                                                             <ChevronRight className="h-3.5 w-3.5" />
                                                         </Link>
                                                     </div>
@@ -439,19 +437,11 @@ export default function EcommerceCustomersPage() {
                     {pagination.total > 0 && (
                         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 px-4 py-3 sm:px-6 bg-slate-50/50 text-xs">
                             <div className="text-slate-500">
-                                {isBn ? (
-                                    <span>
-                                        দেখানো হচ্ছে <strong>{formatNumber(pagination.from || 1)}</strong> থেকে{' '}
-                                        <strong>{formatNumber(pagination.to || pagination.total)}</strong> (মোট{' '}
-                                        <strong>{formatNumber(pagination.total)}</strong> গ্রাহকের মধ্যে)
-                                    </span>
-                                ) : (
-                                    <span>
-                                        Showing <strong>{pagination.from || 1}</strong> to{' '}
-                                        <strong>{pagination.to || pagination.total}</strong> of{' '}
-                                        <strong>{pagination.total}</strong> customers
-                                    </span>
-                                )}
+                                <span>
+                                    {t('ecomm_customers_showing')} <strong>{formatNumber(pagination.from || 1)}</strong> {t('ecomm_customers_to')}{' '}
+                                    <strong>{formatNumber(pagination.to || pagination.total)}</strong> ({t('ecomm_customers_of')}{' '}
+                                    <strong>{formatNumber(pagination.total)}</strong> {t('ecomm_customers_total_suffix')})
+                                </span>
                             </div>
 
                             <div className="flex items-center gap-2">
@@ -462,7 +452,7 @@ export default function EcommerceCustomersPage() {
                                     className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 font-bold text-slate-700 shadow-2xs hover:bg-slate-50 disabled:opacity-40 transition"
                                 >
                                     <ChevronLeft className="h-3.5 w-3.5" />
-                                    <span>{isBn ? 'পূর্ববর্তী' : 'Previous'}</span>
+                                    <span>{t('ecomm_customers_prev')}</span>
                                 </button>
 
                                 <span className="px-2 font-bold text-slate-700">
@@ -475,7 +465,7 @@ export default function EcommerceCustomersPage() {
                                     disabled={page >= (pagination.last_page || 1) || isFetching}
                                     className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 font-bold text-slate-700 shadow-2xs hover:bg-slate-50 disabled:opacity-40 transition"
                                 >
-                                    <span>{isBn ? 'পরবর্তী' : 'Next'}</span>
+                                    <span>{t('ecomm_customers_next')}</span>
                                     <ChevronRight className="h-3.5 w-3.5" />
                                 </button>
                             </div>

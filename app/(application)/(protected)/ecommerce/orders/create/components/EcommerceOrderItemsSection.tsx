@@ -13,7 +13,7 @@ import {
     AlertCircle,
 } from 'lucide-react';
 import { useCurrency } from '@/hooks/useCurrency';
-import { useTranslation } from '@/components/i18n/TranslationProvider';
+import { getTranslation } from '@/i18n';
 import ItemPreviewModal from '@/app/(application)/(protected)/pos/pos-right-side/ItemPreviewModal';
 import type { CartItem } from '../types';
 
@@ -32,7 +32,7 @@ export default function EcommerceOrderItemsSection({
     onRemoveItem,
     onClearCart,
 }: EcommerceOrderItemsSectionProps) {
-    const { isBn } = useTranslation();
+    const { t, isBn } = getTranslation();
     const { formatCurrency, formatNumber } = useCurrency();
     const [previewItem, setPreviewItem] = useState<any>(null);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);

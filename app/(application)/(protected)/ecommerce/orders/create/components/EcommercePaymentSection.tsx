@@ -11,7 +11,7 @@ import {
     FileText,
     MessageSquare,
 } from 'lucide-react';
-import { useTranslation } from '@/components/i18n/TranslationProvider';
+import { getTranslation } from '@/i18n';
 import { useCurrency } from '@/hooks/useCurrency';
 
 interface EcommercePaymentSectionProps {
@@ -66,7 +66,7 @@ export default function EcommercePaymentSection({
     internalNotes,
     setInternalNotes,
 }: EcommercePaymentSectionProps) {
-    const { isBn } = useTranslation();
+    const { t, isBn } = getTranslation();
     const { formatCurrency } = useCurrency();
 
     const paymentMethods = [

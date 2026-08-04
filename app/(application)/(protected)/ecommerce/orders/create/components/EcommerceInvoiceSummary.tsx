@@ -9,7 +9,7 @@ import {
     AlertCircle,
     Loader2,
 } from 'lucide-react';
-import { useTranslation } from '@/components/i18n/TranslationProvider';
+import { getTranslation } from '@/i18n';
 import { useCurrency } from '@/hooks/useCurrency';
 import type { CartItem } from '../types';
 
@@ -58,7 +58,7 @@ export default function EcommerceInvoiceSummary({
     isSubmitting,
     onSubmitOrder,
 }: EcommerceInvoiceSummaryProps) {
-    const { isBn } = useTranslation();
+    const { t, isBn } = getTranslation();
     const { formatCurrency, formatNumber } = useCurrency();
 
     return (

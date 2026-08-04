@@ -16,7 +16,7 @@ import {
 import BarcodeReader from 'react-barcode-reader';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useCurrency } from '@/hooks/useCurrency';
-import { useTranslation } from '@/components/i18n/TranslationProvider';
+import { getTranslation } from '@/i18n';
 import { useGetEcommerceProductsQuery } from '@/store/features/ecommerce/ecommerceManagementApi';
 import { useGetCategoryQuery } from '@/store/features/category/categoryApi';
 import { useGetBrandsQuery } from '@/store/features/brand/brandApi';
@@ -39,7 +39,7 @@ export default function EcommerceProductCatalog({
     onAddToCart,
     cart,
 }: EcommerceProductCatalogProps) {
-    const { isBn } = useTranslation();
+    const { t, isBn } = getTranslation();
     const { formatCurrency, formatNumber } = useCurrency();
     const { currentStoreId } = useCurrentStore();
 

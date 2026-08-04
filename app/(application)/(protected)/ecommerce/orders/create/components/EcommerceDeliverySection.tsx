@@ -19,7 +19,7 @@ import {
     X,
     Sparkles,
 } from 'lucide-react';
-import { useTranslation } from '@/components/i18n/TranslationProvider';
+import { getTranslation } from '@/i18n';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useGetEcommerceCustomersQuery } from '@/store/features/ecommerce/ecommerceManagementApi';
 import type { DeliveryPreset } from '../types';
@@ -163,7 +163,7 @@ export default function EcommerceDeliverySection({
     setCustomShippingFeeInput,
     storeId,
 }: EcommerceDeliverySectionProps) {
-    const { isBn } = useTranslation();
+    const { t, isBn } = getTranslation();
     const { formatCurrency, formatNumber } = useCurrency();
     const router = useRouter();
     const [customerSearch, setCustomerSearch] = useState('');

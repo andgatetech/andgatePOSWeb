@@ -4,7 +4,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { showErrorDialog, showSuccessDialog, showToast } from '@/lib/toast';
-import { useTranslation } from '@/components/i18n/TranslationProvider';
+import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useCurrency } from '@/hooks/useCurrency';
 import {
@@ -33,54 +33,17 @@ import EcommerceDeliverySection, { DELIVERY_PRESETS } from './components/Ecommer
 import EcommercePaymentSection from './components/EcommercePaymentSection';
 import EcommerceInvoiceSummary from './components/EcommerceInvoiceSummary';
 
-// ─── Mobile Step definitions ──────────────────────────────────────────────────
-const STEPS = [
-    {
-        id: 1,
-        key: 'products',
-        label: 'Products',
-        labelBn: 'পণ্য',
-        description: 'Add items',
-        descriptionBn: 'পণ্য যোগ',
-        icon: ShoppingCart,
-    },
-    {
-        id: 2,
-        key: 'delivery',
-        label: 'Delivery',
-        labelBn: 'ডেলিভারি',
-        description: 'Customer & address',
-        descriptionBn: 'গ্রাহক ও ঠিকানা',
-        icon: Truck,
-    },
-    {
-        id: 3,
-        key: 'payment',
-        label: 'Payment',
-        labelBn: 'পেমেন্ট',
-        description: 'Method & discount',
-        descriptionBn: 'পেমেন্ট',
-        icon: CreditCard,
-    },
-    {
-        id: 4,
-        key: 'review',
-        label: 'Review',
-        labelBn: 'পর্যালোচনা',
-        description: 'Confirm & submit',
-        descriptionBn: 'নিশ্চিত করুন',
-        icon: ClipboardCheck,
-    },
-] as const;
-
 // ─── Mobile Step Progress Bar (hidden on lg+) ─────────────────────────────────
-function MobileStepBar({
-    currentStep,
-    isBn,
-}: {
-    currentStep: number;
-    isBn: boolean;
-}) {
+function MobileStepBar({ currentStep }: { currentStep: number }) {
+    const { t } = getTranslation();
+
+    const STEPS = [
+        { id: 1, labelKey: 'ecomm_step1_label', icon: ShoppingCart },
+        { id: 2, labelKey: 'ecomm_step2_label', icon: Truck },
+        { id: 3, labelKey: 'ecomm_step3_label', icon: CreditCard },
+        { id: 4, labelKey: 'ecomm_step4_label', icon: ClipboardCheck },
+    ];
+
     return (
         <div className="lg:hidden w-full bg-white border-b border-slate-100 px-3 py-2.5">
             <div className="flex items-center justify-between">
@@ -111,7 +74,7 @@ function MobileStepBar({
                                         isActive ? 'text-primary' : isCompleted ? 'text-emerald-600' : 'text-slate-400'
                                     }`}
                                 >
-                                    {isBn ? step.labelBn : step.label}
+                                    {t(step.labelKey)}
                                 </p>
                             </div>
                             {idx < STEPS.length - 1 && (
@@ -132,7 +95,7 @@ function MobileStepBar({
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function CreateEcommerceOrderPage() {
     const router = useRouter();
-    const { isBn } = useTranslation();
+    const { t } = getTranslation();
     const { formatCurrency, formatNumber } = useCurrency();
     const { currentStoreId } = useCurrentStore();
 
@@ -276,10 +239,7 @@ export default function CreateEcommerceOrderPage() {
             }
             return [...prev, newItem];
         });
-        showToast(
-            isBn ? `"${newItem.product_name}" অর্ডারে যুক্ত হয়েছে` : `Added "${newItem.product_name}" to order`,
-            'success'
-        );
+        showToast(`"${newItem.product_name}" ${t('ecomm_cart_item_added')}`, 'success');
     };
 
     const handleUpdateQuantity = (stockId: number, newQty: number) => {
@@ -298,7 +258,7 @@ export default function CreateEcommerceOrderPage() {
 
     const handleClearCart = () => {
         if (cart.length === 0) return;
-        if (window.confirm(isBn ? 'আপনি কি নিশ্চিত যে কার্টের সব পণ্য মুছতে চান?' : 'Clear all items from this order?')) {
+        if (window.confirm(t('ecomm_cart_clear_confirm'))) {
             setCart([]);
         }
     };
@@ -306,22 +266,16 @@ export default function CreateEcommerceOrderPage() {
     // ── Mobile Step Navigation ────────────────────────────────────────────────
     const handleNext = () => {
         if (currentStep === 1 && cart.length === 0) {
-            showErrorDialog(
-                isBn ? 'অনুগ্রহ করে অন্তত একটি পণ্য যোগ করুন।' : 'Please add at least one product to the order.'
-            );
+            showErrorDialog(t('ecomm_validation_add_item'));
             return;
         }
         if (currentStep === 2) {
             if (!customerName.trim() || !customerPhone.trim()) {
-                showErrorDialog(
-                    isBn ? 'গ্রাহকের নাম ও মোবাইল নম্বর দেওয়া বাধ্যতামূলক।' : 'Customer Name and Phone are required.'
-                );
+                showErrorDialog(t('ecomm_validation_customer_required'));
                 return;
             }
             if (!addressLine.trim() && selectedDeliveryPreset !== 'store_pickup') {
-                showErrorDialog(
-                    isBn ? 'অনুগ্রহ করে বিস্তারিত ঠিকানা পূরণ করুন।' : 'Address Line is required for delivery.'
-                );
+                showErrorDialog(t('ecomm_validation_address_required'));
                 return;
             }
         }
@@ -340,30 +294,10 @@ export default function CreateEcommerceOrderPage() {
 
     // ── Submit ────────────────────────────────────────────────────────────────
     const handleSubmitOrder = async () => {
-        if (cart.length === 0) {
-            showErrorDialog(
-                isBn ? 'অনুগ্রহ করে অন্তত একটি পণ্য অর্ডারে যোগ করুন।' : 'Please add at least one item to the order.'
-            );
-            return;
-        }
-        if (!customerName.trim() || !customerPhone.trim()) {
-            showErrorDialog(
-                isBn ? 'গ্রাহকের নাম ও মোবাইল নম্বর দেওয়া বাধ্যতামূলক।' : 'Customer Name and Mobile Phone are required.'
-            );
-            return;
-        }
-        if (!selectedDistrictName && selectedDeliveryPreset !== 'store_pickup') {
-            showErrorDialog(
-                isBn ? 'অনুগ্রহ করে জেলা (District) নির্বাচন করুন।' : 'Please select a District for delivery.'
-            );
-            return;
-        }
-        if (!addressLine.trim() && selectedDeliveryPreset !== 'store_pickup') {
-            showErrorDialog(
-                isBn ? 'অনুগ্রহ করে বিস্তারিত ঠিকানা পূরণ করুন।' : 'Address Line is required.'
-            );
-            return;
-        }
+        if (cart.length === 0) { showErrorDialog(t('ecomm_validation_add_item')); return; }
+        if (!customerName.trim() || !customerPhone.trim()) { showErrorDialog(t('ecomm_validation_customer_required')); return; }
+        if (!selectedDistrictName && selectedDeliveryPreset !== 'store_pickup') { showErrorDialog(t('ecomm_validation_district_required')); return; }
+        if (!addressLine.trim() && selectedDeliveryPreset !== 'store_pickup') { showErrorDialog(t('ecomm_validation_address_required')); return; }
 
         setIsSubmitting(true);
         try {
@@ -407,16 +341,14 @@ export default function CreateEcommerceOrderPage() {
             };
 
             await createOnlineOrder(payload).unwrap();
-            await showSuccessDialog(
-                isBn ? 'ই-কমার্স অর্ডার সফলভাবে তৈরি হয়েছে!' : 'eCommerce Order Created Successfully!'
-            );
+            await showSuccessDialog(t('ecomm_order_created_success'));
             router.push('/ecommerce/orders');
         } catch (err: any) {
             const errorMsg =
                 err?.data?.message ||
                 (typeof err?.data?.errors === 'object' ? Object.values(err.data.errors).flat().join(', ') : null) ||
-                (isBn ? 'অর্ডার তৈরি করতে সমস্যা হয়েছে।' : 'Failed to create order. Please try again.');
-            showErrorDialog(isBn ? 'ত্রুটি' : 'Error', errorMsg);
+                t('ecomm_order_create_error');
+            showErrorDialog(t('lbl_error'), errorMsg);
         } finally {
             setIsSubmitting(false);
         }
@@ -425,12 +357,18 @@ export default function CreateEcommerceOrderPage() {
     const selectedSource = sources.find((s: any) => String(s.id) === String(selectedSourceId));
     const selectedPresetObj = DELIVERY_PRESETS.find((p) => p.id === selectedDeliveryPreset);
     const selectedPresetLabel = isCustomShipping
-        ? isBn ? 'কাস্টম চার্জ' : 'Custom Fee'
+        ? t('ecomm_delivery_custom_fee')
         : selectedPresetObj
-        ? isBn ? selectedPresetObj.labelBn : selectedPresetObj.label
+        ? t(`ecomm_delivery_${selectedPresetObj.id}`)
         : undefined;
 
-    // Shared sub-components props (used by both mobile & desktop)
+    // ── Step label for mobile header ──────────────────────────────────────────
+    const stepLabelKeys = ['ecomm_step1_label', 'ecomm_step2_label', 'ecomm_step3_label', 'ecomm_step4_label'] as const;
+    const stepDescKeys = ['ecomm_step1_desc', 'ecomm_step2_desc', 'ecomm_step3_desc', 'ecomm_step4_desc'] as const;
+    const currentStepLabel = t(stepLabelKeys[currentStep - 1]);
+    const currentStepDesc = t(stepDescKeys[currentStep - 1]);
+
+    // Shared props
     const deliverySectionProps = {
         customerName, setCustomerName,
         customerPhone, setCustomerPhone,
@@ -477,83 +415,68 @@ export default function CreateEcommerceOrderPage() {
         onSubmitOrder: handleSubmitOrder,
     };
 
-    const currentStepDef = STEPS.find((s) => s.id === currentStep)!;
-
     // ─────────────────────────────────────────────────────────────────────────
     return (
         <div className="min-h-screen bg-slate-50/50 text-slate-900 -mx-3 sm:-mx-4 lg:-mx-6">
 
-            {/* ══════════════════════════════════════════════════════════════
-                SHARED STICKY HEADER
-                - Mobile: shows current step info
-                - Desktop: shows original title + cart pill
-            ══════════════════════════════════════════════════════════════ */}
+            {/* ── Sticky Header ── */}
             <div className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/95 backdrop-blur-md shadow-xs">
                 <div className="w-full flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
-                    {/* Left: Back Link & Page Title */}
                     <div className="flex items-center gap-3">
                         <Link
                             href="/ecommerce/orders"
                             className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:border-primary/40 hover:bg-primary/5 hover:text-primary"
-                            title={isBn ? 'অর্ডার তালিকায় ফিরে যান' : 'Back to orders'}
+                            title={t('ecomm_nav_back')}
                         >
                             <ArrowLeft className="h-4 w-4" />
                         </Link>
                         <div>
-                            {/* Mobile: show step info */}
+                            {/* Mobile title */}
                             <div className="lg:hidden flex items-center gap-2">
                                 <span className="text-[11px] font-bold uppercase tracking-wider text-primary">
-                                    {isBn ? 'ই-কমার্স অর্ডার' : 'eCommerce Order'}
+                                    {t('ecomm_new_order_label')}
                                 </span>
                                 <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">
-                                    {isBn ? `ধাপ ${currentStep}/${STEPS.length}` : `Step ${currentStep}/${STEPS.length}`}
+                                    {t('ecomm_step_label')} {currentStep}/{4}
                                 </span>
                             </div>
-                            {/* Desktop: show original badge */}
+                            {/* Desktop title */}
                             <div className="hidden lg:flex items-center gap-2">
                                 <span className="text-[11px] font-bold uppercase tracking-wider text-primary">
-                                    {isBn ? 'ই-কমার্স চেকআউট টার্মিনাল' : 'eCommerce Checkout'}
+                                    {t('ecomm_checkout_label')}
                                 </span>
                                 <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700 border border-emerald-200">
                                     <Sparkles className="h-3 w-3 text-emerald-500" />
-                                    {isBn ? 'ম্যানুয়াল অনলাইন অর্ডার' : 'Manual Online Order'}
+                                    {t('ecomm_manual_order_badge')}
                                 </span>
                             </div>
-                            {/* Mobile: step label */}
+                            {/* Mobile step name */}
                             <h1 className="lg:hidden text-sm font-black tracking-tight text-slate-900">
-                                {isBn ? currentStepDef.labelBn : currentStepDef.label}
-                                <span className="text-slate-400 font-normal ml-1 text-xs">
-                                    — {isBn ? currentStepDef.descriptionBn : currentStepDef.description}
-                                </span>
+                                {currentStepLabel}
+                                <span className="text-slate-400 font-normal ml-1 text-xs">— {currentStepDesc}</span>
                             </h1>
-                            {/* Desktop: original title */}
+                            {/* Desktop title */}
                             <h1 className="hidden lg:block text-base sm:text-lg font-black tracking-tight text-slate-900">
-                                {isBn ? 'নতুন অনলাইন অর্ডার তৈরি করুন' : 'Create New Online Order'}
+                                {t('ecomm_create_order_title')}
                             </h1>
                         </div>
                     </div>
 
-                    {/* Cart Status Pill */}
-                    <div className="flex items-center gap-2">
-                        <div className="rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-1.5 text-xs font-bold text-slate-700">
-                            <span className="text-slate-400 font-normal">{isBn ? 'কার্ট:' : 'Cart:'} </span>
-                            <span className="text-primary font-black">{formatNumber(cart.length)}</span>{' '}
-                            {isBn ? 'আইটেম' : 'Items'} (
-                            <span className="text-slate-900">{formatCurrency(subtotal)}</span>)
-                        </div>
+                    {/* Cart Pill */}
+                    <div className="rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-1.5 text-xs font-bold text-slate-700">
+                        <span className="text-slate-400 font-normal">{t('ecomm_cart_label')}: </span>
+                        <span className="text-primary font-black">{formatNumber(cart.length)}</span>{' '}
+                        {t('ecomm_cart_items')} (<span className="text-slate-900">{formatCurrency(subtotal)}</span>)
                     </div>
                 </div>
 
-                {/* Mobile step progress bar (hidden on lg+) */}
-                <MobileStepBar currentStep={currentStep} isBn={isBn} />
+                {/* Mobile step bar */}
+                <MobileStepBar currentStep={currentStep} />
             </div>
 
-            {/* ══════════════════════════════════════════════════════════════
-                DESKTOP LAYOUT (lg+) — original full two-column layout
-            ══════════════════════════════════════════════════════════════ */}
+            {/* ══════════ DESKTOP LAYOUT (lg+) ══════════ */}
             <div className="hidden lg:block w-full px-4 py-5 lg:px-6">
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-                    {/* Left & Center Main Flow */}
                     <div className="space-y-6 lg:col-span-9">
                         <EcommerceProductCatalog onAddToCart={handleAddToCart} cart={cart} />
                         <EcommerceOrderItemsSection
@@ -566,21 +489,14 @@ export default function CreateEcommerceOrderPage() {
                         <EcommerceDeliverySection {...deliverySectionProps} />
                         <EcommercePaymentSection {...paymentSectionProps} />
                     </div>
-
-                    {/* Right Column: Sticky Live Checkout Invoice */}
                     <div className="lg:col-span-3">
                         <EcommerceInvoiceSummary {...invoiceSummaryProps} />
                     </div>
                 </div>
             </div>
 
-            {/* ══════════════════════════════════════════════════════════════
-                MOBILE LAYOUT (below lg) — 4-step wizard
-                Extra bottom padding to clear the fixed nav bar
-            ══════════════════════════════════════════════════════════════ */}
+            {/* ══════════ MOBILE LAYOUT — 4-step wizard ══════════ */}
             <div className="lg:hidden w-full px-3 py-4 sm:px-4 pb-36">
-
-                {/* Step 1 — Products & Cart */}
                 {currentStep === 1 && (
                     <div className="space-y-4">
                         <EcommerceProductCatalog onAddToCart={handleAddToCart} cart={cart} />
@@ -593,30 +509,14 @@ export default function CreateEcommerceOrderPage() {
                         />
                     </div>
                 )}
-
-                {/* Step 2 — Delivery & Customer */}
-                {currentStep === 2 && (
-                    <EcommerceDeliverySection {...deliverySectionProps} />
-                )}
-
-                {/* Step 3 — Payment & Source */}
-                {currentStep === 3 && (
-                    <EcommercePaymentSection {...paymentSectionProps} />
-                )}
-
-                {/* Step 4 — Review & Submit */}
-                {currentStep === 4 && (
-                    <EcommerceInvoiceSummary {...invoiceSummaryProps} />
-                )}
+                {currentStep === 2 && <EcommerceDeliverySection {...deliverySectionProps} />}
+                {currentStep === 3 && <EcommercePaymentSection {...paymentSectionProps} />}
+                {currentStep === 4 && <EcommerceInvoiceSummary {...invoiceSummaryProps} />}
             </div>
 
-            {/* ══════════════════════════════════════════════════════════════
-                MOBILE ONLY — Sticky Bottom Navigation Bar
-                Hidden on lg+ (desktop has its own submit button in the invoice)
-            ══════════════════════════════════════════════════════════════ */}
+            {/* ══════════ MOBILE ONLY — Sticky Bottom Nav ══════════ */}
             <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-slate-200 bg-white/95 backdrop-blur-md px-4 py-3">
                 <div className="flex items-center gap-3 max-w-2xl mx-auto">
-                    {/* Back / Cancel */}
                     {currentStep > 1 ? (
                         <button
                             type="button"
@@ -624,7 +524,7 @@ export default function CreateEcommerceOrderPage() {
                             className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white text-sm font-bold text-slate-700 shadow-xs transition hover:bg-slate-50 hover:border-slate-300 cursor-pointer"
                         >
                             <ArrowLeft className="h-4 w-4" />
-                            {isBn ? 'পিছনে' : 'Back'}
+                            {t('ecomm_nav_back')}
                         </button>
                     ) : (
                         <Link
@@ -632,18 +532,17 @@ export default function CreateEcommerceOrderPage() {
                             className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white text-sm font-bold text-slate-700 shadow-xs transition hover:bg-slate-50 cursor-pointer"
                         >
                             <ArrowLeft className="h-4 w-4" />
-                            {isBn ? 'বাতিল' : 'Cancel'}
+                            {t('ecomm_nav_cancel')}
                         </Link>
                     )}
 
-                    {/* Next Step / Confirm Order */}
                     {currentStep < 4 ? (
                         <button
                             type="button"
                             onClick={handleNext}
                             className="flex h-12 flex-[2] items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary to-[#034d79] text-sm font-bold text-white shadow-md shadow-primary/20 transition hover:opacity-95 cursor-pointer"
                         >
-                            {isBn ? 'পরবর্তী ধাপ' : 'Next Step'}
+                            {t('ecomm_nav_next_step')}
                             <ArrowRight className="h-4 w-4" />
                         </button>
                     ) : (
@@ -656,12 +555,12 @@ export default function CreateEcommerceOrderPage() {
                             {isSubmitting ? (
                                 <>
                                     <Loader2 className="h-4 w-4 animate-spin" />
-                                    {isBn ? 'অর্ডার তৈরি হচ্ছে...' : 'Placing Order...'}
+                                    {t('ecomm_nav_placing_order')}
                                 </>
                             ) : (
                                 <>
                                     <CheckCircle2 className="h-4 w-4" />
-                                    {isBn ? 'অর্ডার কনফার্ম করুন' : 'Confirm & Place Order'}
+                                    {t('ecomm_nav_confirm_order')}
                                 </>
                             )}
                         </button>
@@ -670,13 +569,13 @@ export default function CreateEcommerceOrderPage() {
 
                 {/* Progress dots */}
                 <div className="flex items-center justify-center gap-1.5 mt-2">
-                    {STEPS.map((step) => (
+                    {[1, 2, 3, 4].map((step) => (
                         <div
-                            key={step.id}
+                            key={step}
                             className={`rounded-full transition-all duration-300 ${
-                                step.id === currentStep
+                                step === currentStep
                                     ? 'w-6 h-1.5 bg-primary'
-                                    : step.id < currentStep
+                                    : step < currentStep
                                     ? 'w-1.5 h-1.5 bg-emerald-400'
                                     : 'w-1.5 h-1.5 bg-slate-200'
                             }`}

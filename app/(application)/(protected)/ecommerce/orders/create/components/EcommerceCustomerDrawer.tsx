@@ -21,7 +21,7 @@ import {
     ArrowUpRight,
     Check,
 } from 'lucide-react';
-import { useTranslation } from '@/components/i18n/TranslationProvider';
+import { getTranslation } from '@/i18n';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useGetEcommerceCustomerQuery } from '@/store/features/ecommerce/ecommerceManagementApi';
 import { StatusBadge } from '../../../components/EcommerceBadges';
@@ -47,7 +47,7 @@ export default function EcommerceCustomerDrawer({
     customerId,
     onSelectAddress,
 }: EcommerceCustomerDrawerProps) {
-    const { isBn } = useTranslation();
+    const { t, isBn } = getTranslation();
     const { formatCurrency, formatNumber } = useCurrency();
 
     const { data: customerResponse, isLoading, isError } = useGetEcommerceCustomerQuery(
