@@ -32,10 +32,62 @@ const withPWA = require('@ducanh2912/next-pwa').default({
                 handler: 'NetworkOnly',
             },
             {
-                // App shell pages — lets installed PWA refresh/reopen visited pages while offline.
-                // POS data still comes from the existing IndexedDB cache; this only caches HTML navigation.
+                // Protected business pages should not be kept as offline HTML.
+                // POS offline data lives in IndexedDB; broad HTML caching can expose stale
+                // role/store UI on shared devices after logout or permission changes.
                 urlPattern: ({ request, url }) =>
-                    request.mode === 'navigate' && url.origin === self.location.origin,
+                    request.mode === 'navigate' &&
+                    url.origin === self.location.origin &&
+                    [
+                        '/account',
+                        '/accounting',
+                        '/analytics',
+                        '/audit-logs',
+                        '/brand',
+                        '/business-os',
+                        '/cash-closing',
+                        '/cash-drawer',
+                        '/category',
+                        '/company',
+                        '/compliance-calendar',
+                        '/coupons',
+                        '/customers',
+                        '/data-export',
+                        '/ecommerce',
+                        '/employees',
+                        '/expenses',
+                        '/feedbacks',
+                        '/fiscal-compliance',
+                        '/hr',
+                        '/label',
+                        '/manual-payments',
+                        '/notifications',
+                        '/orders',
+                        '/pay',
+                        '/petty-cash',
+                        '/products',
+                        '/purchases',
+                        '/reports',
+                        '/roles',
+                        '/service-jobs',
+                        '/stock-transfers',
+                        '/store',
+                        '/subscription',
+                        '/suppliers',
+                        '/unauthorized',
+                        '/users',
+                        '/affiliate/portal',
+                        '/affiliate/admin',
+                    ].some((path) => url.pathname === path || url.pathname.startsWith(`${path}/`)),
+                handler: 'NetworkOnly',
+            },
+            {
+                // App shell pages safe to reopen offline. POS business data still comes
+                // from IndexedDB, not cached API/HTML payloads.
+                urlPattern: ({ request, url }) =>
+                    request.mode === 'navigate' &&
+                    url.origin === self.location.origin &&
+                    ['/dashboard', '/pos', '/offline', '/apps'].includes(url.pathname),
                 handler: 'NetworkFirst',
                 options: {
                     cacheName: 'app-pages',

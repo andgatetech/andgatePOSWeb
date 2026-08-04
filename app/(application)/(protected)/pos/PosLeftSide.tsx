@@ -149,7 +149,6 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
         if (!enableOfflinePrefetch || !isOnline || !currentStoreId) return;
         let cancelled = false;
         const PAGE_SIZE = 200;
-        const MAX_PRODUCTS = 1000;
 
         const prefetch = async () => {
             try {
@@ -181,7 +180,7 @@ const PosLeftSide: React.FC<PosLeftSideProps> = ({ children, disableSerialSelect
                     if (pageProducts.length === 0) break;
                     allProducts.push(...pageProducts);
 
-                    if (allProducts.length >= total || allProducts.length >= MAX_PRODUCTS) break;
+                    if (allProducts.length >= total) break;
                     page++;
                 }
 

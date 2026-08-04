@@ -6,8 +6,10 @@ import { usePathname } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { toggleSidebar } from '@/store/themeConfigSlice';
+import { useTranslation } from '@/components/i18n/TranslationProvider';
 
 const MobileBottomNav = () => {
+    const { t } = useTranslation();
     const pathname = usePathname();
     const dispatch = useDispatch();
     const sidebarOpen = useSelector((state: RootState) => state.themeConfig.sidebar);
@@ -57,7 +59,7 @@ const MobileBottomNav = () => {
     type Tab = { label: string; href: string | null; icon: (active: boolean) => React.ReactNode };
     const tabs: Tab[] = [
         {
-            label: 'Home',
+            label: t('mobile_nav_home'),
             href: '/dashboard',
             icon: (active: boolean) => (
                 <svg viewBox="0 0 24 24" fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={active ? 0 : 2} className="w-5 h-5">
@@ -66,7 +68,7 @@ const MobileBottomNav = () => {
             ),
         },
         {
-            label: 'Orders',
+            label: t('mobile_nav_orders'),
             href: '/orders',
             icon: (active: boolean) => (
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
@@ -85,7 +87,7 @@ const MobileBottomNav = () => {
             ),
         },
         {
-            label: 'Products',
+            label: t('mobile_nav_products'),
             href: '/products',
             icon: (active: boolean) => (
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
@@ -95,7 +97,7 @@ const MobileBottomNav = () => {
             ),
         },
         {
-            label: 'Menu',
+            label: t('mobile_nav_menu'),
             href: null,
             icon: (active: boolean) => (
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">

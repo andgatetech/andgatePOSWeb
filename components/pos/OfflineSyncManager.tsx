@@ -46,7 +46,15 @@ export default function OfflineSyncManager() {
     const pendingOrders = queue.filter((o) => o.status === 'pending');
     const failedOrders = queue.filter((o) => o.status === 'failed');
     const syncingOrders = queue.filter((o) => o.status === 'syncing');
+    const otherUserOrders = queue.filter(
+        (o) =>
+            (o.status === 'pending' || o.status === 'failed' || o.status === 'syncing') &&
+            o.userId != null &&
+            currentUserId != null &&
+            o.userId !== currentUserId
+    );
     const totalQueued = pendingOrders.length + failedOrders.length + syncingOrders.length;
+    const syncableQueued = totalQueued - otherUserOrders.length;
 
     const [showSyncedFlash, setShowSyncedFlash] = useState(false);
     const [sessionExpired, setSessionExpired] = useState(false);
@@ -307,10 +315,21 @@ export default function OfflineSyncManager() {
             )}
 
             {/* Pending queue reminder (online, not syncing yet) */}
-            {isOnline && !isSyncing && totalQueued > 0 && failedOrders.length === 0 && (
+            {isOnline && !isSyncing && otherUserOrders.length > 0 && syncableQueued === 0 && !sessionExpired && (
+                <div className="flex items-center justify-between bg-orange-600 px-4 py-2 text-white shadow-lg">
+                    <span className="text-sm font-semibold">
+                        {otherUserOrders.length} {t('pos_offline_orders_waiting_other_user')}
+                    </span>
+                    <Link href="/login" className="shrink-0 rounded-lg bg-white/20 px-3 py-1 text-xs font-bold transition hover:bg-white/30">
+                        {t('login')}
+                    </Link>
+                </div>
+            )}
+
+            {isOnline && !isSyncing && syncableQueued > 0 && failedOrders.length === 0 && (
                 <div className="flex items-center justify-between bg-primary px-4 py-2 text-white shadow-lg">
                     <span className="text-sm font-semibold">
-                        {totalQueued} {t('pos_offline_queued_orders')}
+                        {syncableQueued} {t('pos_offline_queued_orders')}
                     </span>
                     <button
                         onClick={syncAll}
