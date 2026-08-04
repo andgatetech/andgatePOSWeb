@@ -47,6 +47,7 @@ import SplitPaymentModal from './pos-right-side/SplitPaymentModal';
 import { checkCreditLimit, type Customer, type CustomerApiResponse, type PosFormData, type SplitPayment } from './pos-right-side/types';
 import { MEMBERSHIP_DISCOUNTS } from './pos-right-side/types';
 import ReturnQuotePreviewModal from '@/components/pos/ReturnQuotePreviewModal';
+import { getOpenPosDrawerSessions, isOpenPosDrawerSession } from '@/lib/posDrawerSession';
 
 export interface PosRightSideProps {
     mode?: 'pos' | 'return';
@@ -94,8 +95,9 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
     const isOnline = useOnlineStatus();
 
     const isReturnMode = mode === 'return';
-    const { data: cashDrawersResponse } = useGetCashDrawersQuery(currentStoreId || 0, { skip: !currentStoreId || isReturnMode });
-    const cashDrawers = (cashDrawersResponse as any)?.data?.drawers || (cashDrawersResponse as any)?.drawers || [];
+    const { data: cashDrawersResponse, isLoading: isLoadingCashDrawers, isError: isCashDrawersError } = useGetCashDrawersQuery(currentStoreId || 0, { skip: !currentStoreId || isReturnMode });
+    const cashDrawers = useMemo(() => (cashDrawersResponse as any)?.data?.drawers || (cashDrawersResponse as any)?.drawers || [], [cashDrawersResponse]);
+    const openDrawerSessions = useMemo(() => getOpenPosDrawerSessions(cashDrawers, currentStoreId || 0), [cashDrawers, currentStoreId]);
 
     // Select items based on reduxSlice
     // Select raw data from Redux
@@ -1405,6 +1407,15 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                 return;
             }
 
+            const hasCashPayment = formData.isSplitPayment
+                ? formData.splitPayments.some((payment) => payment.payment_type.toLowerCase() === 'cash' && Number(payment.amount) > 0)
+                : formData.paymentMethod.toLowerCase() === 'cash';
+            if (!isReturnMode && hasCashPayment && !isOpenPosDrawerSession(openDrawerSessions, formData.drawerSessionId)) {
+                showMessage(isCashDrawersError || openDrawerSessions.length === 0 ? t('pos_cash_drawer_session_unavailable') : t('pos_cash_drawer_session_required'), 'error');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                return;
+            }
+
             const invalidItems = invoiceItems.filter((item) => !item.productId || item.quantity <= 0);
             if (invalidItems.length > 0) {
                 showMessage(t('msg_select_products_set_quantities'), 'error');
@@ -1540,7 +1551,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                 payment_status: formData.paymentStatus,
                 ...(formData.isSplitPayment ? { payments: formData.splitPayments, payment_method: 'Split' } : { payment_method: formData.paymentMethod }),
                 ...(!isReturnMode && (formData.isSplitPayment ? formData.splitPayments.some((p) => p.payment_type.toLowerCase() === 'cash') : formData.paymentMethod.toLowerCase() === 'cash')
-                    ? { drawer_session_id: formData.drawerSessionId || undefined }
+                    ? { drawer_session_id: Number(formData.drawerSessionId) }
                     : {}),
                 tax: orderTax,
                 discount: orderDiscount,
@@ -2419,6 +2430,8 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                     returnNetAmount={returnNetAmount}
                     onOpenSplitModal={() => setShowSplitModal(true)}
                     cashDrawers={cashDrawers}
+                    isLoadingCashDrawers={isLoadingCashDrawers}
+                    isCashDrawersError={isCashDrawersError}
                 />
 
                 <SplitPaymentModal

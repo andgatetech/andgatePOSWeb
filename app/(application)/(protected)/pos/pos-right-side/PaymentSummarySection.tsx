@@ -29,6 +29,8 @@ interface PaymentSummarySectionProps {
     returnNetAmount?: number;
     onOpenSplitModal?: () => void;
     cashDrawers?: any[];
+    isLoadingCashDrawers?: boolean;
+    isCashDrawersError?: boolean;
 }
 
 // Synthetic event helper so pill buttons can share onInputChange
@@ -99,6 +101,8 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
     returnNetAmount = 0,
     onOpenSplitModal,
     cashDrawers = [],
+    isLoadingCashDrawers = false,
+    isCashDrawersError = false,
 }) => {
     const { t } = getTranslation();
     const { formatCurrency, formatNumber } = useCurrency();
@@ -246,15 +250,20 @@ const PaymentSummarySection: React.FC<PaymentSummarySectionProps> = ({
                         const hasCash = formData.isSplitPayment
                             ? formData.splitPayments.some((p) => String(p.payment_type).toLowerCase() === 'cash' && Number(p.amount) > 0)
                             : formData.paymentMethod.toLowerCase() === 'cash';
-                        const sessions = cashDrawers.flatMap((drawer: any) => (drawer.sessions || []).map((session: any) => ({ ...session, drawerName: drawer.name })));
+                        const sessions = cashDrawers.flatMap((drawer: any) => (drawer.sessions || [])
+                            .filter((session: any) => String(session?.status || '').toLowerCase() === 'open')
+                            .map((session: any) => ({ ...session, drawerName: drawer.name })));
                         if (!hasCash) return null;
                         return (
                             <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3">
                                 <label className="mb-1 block text-xs font-semibold text-amber-900">{t('pos_cash_drawer_session')}</label>
-                                <select name="drawerSessionId" value={formData.drawerSessionId || ''} onChange={onInputChange} className="w-full rounded-md border border-amber-300 bg-white px-2 py-2 text-sm">
+                                <p className="mb-2 text-xs text-amber-800">{t('pos_cash_drawer_session_confirm_hint')}</p>
+                                <select required name="drawerSessionId" value={formData.drawerSessionId || ''} onChange={onInputChange} disabled={isLoadingCashDrawers || isCashDrawersError || sessions.length === 0} className="w-full rounded-md border border-amber-300 bg-white px-2 py-2 text-sm disabled:cursor-not-allowed disabled:bg-amber-100">
                                     <option value="">{t('pos_select_cash_drawer_session')}</option>
                                     {sessions.map((session: any) => <option key={session.id} value={session.id}>{session.drawerName} · #{session.id}</option>)}
                                 </select>
+                                {isLoadingCashDrawers && <p className="mt-2 text-xs text-amber-800">{t('pos_cash_drawer_sessions_loading')}</p>}
+                                {!isLoadingCashDrawers && (isCashDrawersError || sessions.length === 0) && <p className="mt-2 text-xs font-semibold text-red-700">{isCashDrawersError ? t('pos_cash_drawer_sessions_error') : t('pos_cash_drawer_session_unavailable')}</p>}
                             </div>
                         );
                     })()}
