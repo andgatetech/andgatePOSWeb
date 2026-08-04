@@ -12,6 +12,7 @@ import {
     useGetAddonCatalogQuery,
     useGetManualPaymentSummaryQuery,
     useGetManualPaymentsQuery,
+    useGetSubscriptionPaymentHistoryQuery,
     useSubmitAddonPaymentMutation,
     useSubmitManualPaymentMutation,
 } from '@/store/features/manualPayments/manualPaymentsApi';
@@ -35,6 +36,7 @@ export default function ManualPaymentPanel({ notice }: { notice?: ReactNode }) {
     const { data: plansData } = useGetPlansQuery();
     const { data: summaryData } = useGetManualPaymentSummaryQuery();
     const { data: paymentsData } = useGetManualPaymentsQuery();
+    const { data: subscriptionHistoryData } = useGetSubscriptionPaymentHistoryQuery();
     const [submitPayment, { isLoading }] = useSubmitManualPaymentMutation();
     const plans = useMemo(() => plansData?.data || [], [plansData?.data]);
     const [form, setForm] = useState({
@@ -89,7 +91,37 @@ export default function ManualPaymentPanel({ notice }: { notice?: ReactNode }) {
     };
     const latest = summaryData?.data.latest_payment;
     const subscription = summaryData?.data.subscription;
-    const payments = paymentsData?.data?.data || paymentsData?.data || [];
+    const payments = useMemo(() => {
+        const manualPayments = paymentsData?.data?.data || paymentsData?.data || [];
+        const subscriptionPayments = subscriptionHistoryData?.data?.data || [];
+        const linkedSubscriptionPaymentIds = new Set(subscriptionPayments.map((payment: any) => Number(payment.id)).filter(Boolean));
+        const manualRows = manualPayments
+            .filter((payment: any) => !payment.approved_subscription_payment_id || !linkedSubscriptionPaymentIds.has(Number(payment.approved_subscription_payment_id)))
+            .map((payment: any) => ({
+                id: `manual-${payment.id}`,
+                date: payment.payment_date || payment.approved_at || payment.created_at,
+                packageName: payment.package?.name_en || payment.package?.name_bn || t('manual_payments_package'),
+                method: payment.provider || payment.payment_method,
+                transactionId: payment.transaction_id,
+                amount: payment.amount,
+                status: payment.status,
+                note: payment.rejected_reason || payment.admin_note || payment.customer_note,
+                source: t('manual_payments_source_submission'),
+            }));
+        const ledgerRows = subscriptionPayments.map((payment: any) => ({
+            id: `subscription-${payment.id}`,
+            date: payment.payment_date || payment.created_at,
+            packageName: payment.plan_name || t('manual_payments_package'),
+            method: payment.payment_method,
+            transactionId: payment.transaction_ref || payment.invoice_number,
+            amount: payment.total_paid,
+            status: payment.status || 'paid',
+            note: payment.notes,
+            source: t('manual_payments_source_ledger'),
+        }));
+
+        return [...ledgerRows, ...manualRows].sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
+    }, [paymentsData, subscriptionHistoryData, t]);
     // Mirrors PaymentSubmissionService::determineIntent() on the backend — copy-only,
     // the actual intent stored on the request is always derived server-side.
     const isUpgradeIntent = subscription?.status === 'active' && !!subscription?.expire_date && new Date(subscription.expire_date) > new Date();
@@ -114,6 +146,9 @@ export default function ManualPaymentPanel({ notice }: { notice?: ReactNode }) {
             active: t('manual_payments_status_active'),
             expired: t('manual_payments_status_expired'),
             pending: t('manual_payments_status_pending'),
+            paid: t('manual_payments_status_paid'),
+            partial: t('manual_payments_status_partial'),
+            waived: t('manual_payments_status_waived'),
         };
         return statusMap[status] || status.replaceAll('_', ' ');
     };
@@ -466,7 +501,7 @@ export default function ManualPaymentPanel({ notice }: { notice?: ReactNode }) {
                         <div className="rounded-md bg-primary/10 p-2 text-primary"><FileText className="h-4 w-4" /></div>
                         <div>
                             <h2 className="text-sm font-semibold text-gray-900 dark:text-white">{t('manual_payments_history_title')}</h2>
-                            <p className="mt-1 text-xs text-gray-500">{t('manual_payments_history_subtitle')}</p>
+                            <p className="mt-1 text-xs text-gray-500">{t('manual_payments_history_subtitle_all')}</p>
                         </div>
                     </div>
                 </div>
@@ -480,6 +515,7 @@ export default function ManualPaymentPanel({ notice }: { notice?: ReactNode }) {
                                 <th className="px-5 py-3 text-left text-xs font-semibold uppercase text-gray-500">{t('manual_payments_transaction_id')}</th>
                                 <th className="px-5 py-3 text-right text-xs font-semibold uppercase text-gray-500">{t('manual_payments_amount')}</th>
                                 <th className="px-5 py-3 text-left text-xs font-semibold uppercase text-gray-500">{t('manual_payments_status')}</th>
+                                <th className="px-5 py-3 text-left text-xs font-semibold uppercase text-gray-500">{t('manual_payments_source')}</th>
                                 <th className="px-5 py-3 text-left text-xs font-semibold uppercase text-gray-500">{t('manual_payments_admin_note')}</th>
                             </tr>
                         </thead>
@@ -487,22 +523,23 @@ export default function ManualPaymentPanel({ notice }: { notice?: ReactNode }) {
                             {payments.length > 0 ? (
                                 payments.map((payment: any) => (
                                     <tr key={payment.id}>
-                                        <td className="px-5 py-3 text-gray-600 dark:text-gray-300">{payment.payment_date ? new Date(payment.payment_date).toLocaleDateString('en-US') : new Date(payment.created_at).toLocaleDateString('en-US')}</td>
-                                        <td className="px-5 py-3 font-medium text-gray-900 dark:text-white">{payment.package?.name_en || t('manual_payments_package')}</td>
-                                        <td className="px-5 py-3 text-gray-600 dark:text-gray-300">{String(payment.provider || payment.payment_method).replaceAll('_', ' ')}</td>
-                                        <td className="px-5 py-3 text-gray-600 dark:text-gray-300">{payment.transaction_id || t('manual_payments_na')}</td>
+                                        <td className="px-5 py-3 text-gray-600 dark:text-gray-300">{payment.date ? new Date(payment.date).toLocaleDateString('en-US') : t('manual_payments_na')}</td>
+                                        <td className="px-5 py-3 font-medium text-gray-900 dark:text-white">{payment.packageName}</td>
+                                        <td className="px-5 py-3 text-gray-600 dark:text-gray-300">{String(payment.method || t('manual_payments_na')).replaceAll('_', ' ')}</td>
+                                        <td className="px-5 py-3 text-gray-600 dark:text-gray-300">{payment.transactionId || t('manual_payments_na')}</td>
                                         <td className="px-5 py-3 text-right font-semibold text-gray-900 dark:text-white">৳ {Number(payment.amount || 0).toLocaleString('en-US')}</td>
                                         <td className="px-5 py-3">
                                             <span className="rounded-full border border-gray-200 bg-gray-50 px-2.5 py-1 text-xs font-semibold capitalize text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200">
                                                 {statusLabel(payment.status)}
                                             </span>
                                         </td>
-                                        <td className="max-w-xs px-5 py-3 text-gray-600 dark:text-gray-300">{payment.rejected_reason || payment.admin_note || t('manual_payments_na')}</td>
+                                        <td className="px-5 py-3 text-gray-600 dark:text-gray-300">{payment.source}</td>
+                                        <td className="max-w-xs px-5 py-3 text-gray-600 dark:text-gray-300">{payment.note || t('manual_payments_na')}</td>
                                     </tr>
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan={7} className="px-5 py-8 text-center text-sm text-gray-500">
+                                    <td colSpan={8} className="px-5 py-8 text-center text-sm text-gray-500">
                                         {t('manual_payments_no_history')}
                                     </td>
                                 </tr>
