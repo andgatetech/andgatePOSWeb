@@ -16,7 +16,7 @@ import {
 import BarcodeReader from 'react-barcode-reader';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useCurrency } from '@/hooks/useCurrency';
-import { getTranslation } from '@/i18n';
+import { useTranslation } from '@/components/i18n/TranslationProvider';
 import { useGetEcommerceProductsQuery } from '@/store/features/ecommerce/ecommerceManagementApi';
 import { useGetCategoryQuery } from '@/store/features/category/categoryApi';
 import { useGetBrandsQuery } from '@/store/features/brand/brandApi';
@@ -39,7 +39,8 @@ export default function EcommerceProductCatalog({
     onAddToCart,
     cart,
 }: EcommerceProductCatalogProps) {
-    const { t, isBn } = getTranslation();
+    const { t, i18n } = useTranslation();
+    const isBn = i18n.language === 'bn';
     const { formatCurrency, formatNumber } = useCurrency();
     const { currentStoreId } = useCurrentStore();
 
@@ -328,15 +329,15 @@ export default function EcommerceProductCatalog({
                     <div>
                         <div className="flex items-center gap-2">
                             <h2 className="text-sm font-bold text-slate-900">
-                                {isBn ? '১. সক্রিয় পণ্য ক্যাটালগ ও সার্চ' : '1. Active Product Catalog & Search'}
+                                {t('ecomm_catalog_title')}
                             </h2>
                             <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200/60">
                                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                {isBn ? 'শুধু সক্রিয় ই-কমার্স পণ্য' : 'Active Online Products Only'}
+                                {t('ecomm_catalog_active_only')}
                             </span>
                         </div>
                         <p className="text-[11px] text-slate-400">
-                            {isBn ? 'অর্ডারে যুক্ত করতে পণ্যের উপর ক্লিক করুন' : 'Click any product card to add to the order'}
+                            {t('ecomm_catalog_click_hint')}
                         </p>
                     </div>
                 </div>
@@ -344,7 +345,7 @@ export default function EcommerceProductCatalog({
                 {/* Live count */}
                 <div className="text-right">
                     <span className="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-700">
-                        {isBn ? `মোট পণ্য: ${formatNumber(pagination.totalItems)}` : `Catalog: ${formatNumber(pagination.totalItems)} Items`}
+                        {`${t('ecomm_catalog_total_items')}: ${formatNumber(pagination.totalItems)}`}
                     </span>
                 </div>
             </div>
@@ -363,7 +364,7 @@ export default function EcommerceProductCatalog({
                 searchTerm={searchTerm}
                 barcodeEnabled={barcodeEnabled}
                 showCameraScanner={showCameraScanner}
-                placeholder={isBn ? 'পণ্যের নাম, SKU বা বারকোড দিয়ে খুঁজুন...' : 'Search active product name, SKU, or barcode...'}
+                placeholder={t('ecomm_catalog_search_placeholder')}
                 onSearchChange={(val) => {
                     setSearchTerm(val);
                     setCurrentPage(1);
@@ -397,10 +398,10 @@ export default function EcommerceProductCatalog({
                         <Package className="h-6 w-6" />
                     </div>
                     <p className="text-xs font-bold text-slate-700">
-                        {isBn ? 'কোন সক্রিয় ই-কমার্স পণ্য পাওয়া যায়নি' : 'No active online products found'}
+                        {t('ecomm_catalog_empty_title')}
                     </p>
                     <p className="text-[11px] text-slate-400 mt-0.5">
-                        {isBn ? 'অনুগ্রহ করে সার্চ বা ক্যাটাগরি ফিল্টার পরিবর্তন করুন' : 'Try adjusting your search or category filters'}
+                        {t('ecomm_catalog_empty_desc')}
                     </p>
                 </div>
             ) : (
@@ -484,7 +485,7 @@ export default function EcommerceProductCatalog({
                                     {isOut && (
                                         <div className="absolute inset-0 flex items-center justify-center bg-white/70 backdrop-blur-[2px]">
                                             <span className="rounded-md bg-rose-500 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white shadow-xs">
-                                                {isBn ? 'স্টক নেই' : 'Out of Stock'}
+                                                {t('ecomm_catalog_out_of_stock')}
                                             </span>
                                         </div>
                                     )}
@@ -507,7 +508,7 @@ export default function EcommerceProductCatalog({
                                             setIsProductModalOpen(true);
                                         }}
                                         className="absolute right-1.5 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-xs transition hover:bg-black/60 sm:opacity-0 sm:group-hover:opacity-100 cursor-pointer"
-                                        title={isBn ? 'পণ্যের বিস্তারিত দেখুন' : 'View Product Details'}
+                                        title={t('ecomm_catalog_view_details')}
                                     >
                                         <Eye className="h-3.5 w-3.5" />
                                     </button>
@@ -522,7 +523,7 @@ export default function EcommerceProductCatalog({
                                     {/* Multi-variant Tag */}
                                     {isMultiVariant && (
                                         <span className="absolute left-1.5 bottom-1.5 rounded-md bg-slate-900/70 px-1.5 py-0.5 text-[8.5px] font-bold text-white backdrop-blur-xs">
-                                            {isBn ? `${stocks.length} ভ্যারিয়েন্ট` : `${stocks.length} Variants`}
+                                            {`${stocks.length} ${t('ecomm_catalog_variants')}`}
                                         </span>
                                     )}
                                 </div>
@@ -581,9 +582,7 @@ export default function EcommerceProductCatalog({
             {pagination.totalPages > 1 && (
                 <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
                     <p className="text-xs text-slate-500">
-                        {isBn
-                            ? `পৃষ্ঠা ${formatNumber(pagination.currentPage)} / ${formatNumber(pagination.totalPages)}`
-                            : `Page ${formatNumber(pagination.currentPage)} of ${formatNumber(pagination.totalPages)}`}
+                        {`${t('ecomm_catalog_page')} ${formatNumber(pagination.currentPage)} ${t('ecomm_catalog_of')} ${formatNumber(pagination.totalPages)}`}
                     </p>
                     <div className="flex items-center gap-1.5">
                         <button
@@ -593,7 +592,7 @@ export default function EcommerceProductCatalog({
                             className="flex h-8 items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                         >
                             <ChevronLeft className="h-3.5 w-3.5" />
-                            <span>{isBn ? 'আগের' : 'Prev'}</span>
+                            <span>{t('ecomm_catalog_prev')}</span>
                         </button>
                         <button
                             type="button"
@@ -601,7 +600,7 @@ export default function EcommerceProductCatalog({
                             onClick={() => setCurrentPage((p) => p + 1)}
                             className="flex h-8 items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                         >
-                            <span>{isBn ? 'পরের' : 'Next'}</span>
+                            <span>{t('ecomm_catalog_next')}</span>
                             <ChevronRight className="h-3.5 w-3.5" />
                         </button>
                     </div>
@@ -615,7 +614,7 @@ export default function EcommerceProductCatalog({
                         <div className="mb-4 flex items-start justify-between border-b border-slate-100 pb-3">
                             <div>
                                 <h3 className="text-sm font-bold text-slate-900">
-                                    {isBn ? 'পণ্য ভ্যারিয়েন্ট ও স্টক নির্বাচন করুন' : 'Select Product Variant'}
+                                    {t('ecomm_catalog_select_variant')}
                                 </h3>
                                 <p className="text-xs text-slate-500 font-medium">{variantProduct.product_name}</p>
                             </div>
@@ -659,7 +658,7 @@ export default function EcommerceProductCatalog({
                                                         stockQty > 5 ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-600'
                                                     }`}
                                                 >
-                                                    {isBn ? `স্টক: ${formatNumber(stockQty)}` : `Stock: ${formatNumber(stockQty)}`}
+                                                    {`${t('ecomm_catalog_stock_label')}: ${formatNumber(stockQty)}`}
                                                 </span>
                                             </div>
                                         </div>
@@ -672,7 +671,7 @@ export default function EcommerceProductCatalog({
                                                     type="button"
                                                     className="block text-[10px] font-bold text-primary hover:underline mt-0.5"
                                                 >
-                                                    + {isBn ? 'যুক্ত করুন' : 'Add to Order'}
+                                                    + {t('ecomm_catalog_add_to_order')}
                                                 </button>
                                             )}
                                         </div>

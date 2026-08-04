@@ -19,7 +19,7 @@ import {
     X,
     Sparkles,
 } from 'lucide-react';
-import { getTranslation } from '@/i18n';
+import { useTranslation } from '@/components/i18n/TranslationProvider';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useGetEcommerceCustomersQuery } from '@/store/features/ecommerce/ecommerceManagementApi';
 import type { DeliveryPreset } from '../types';
@@ -163,7 +163,8 @@ export default function EcommerceDeliverySection({
     setCustomShippingFeeInput,
     storeId,
 }: EcommerceDeliverySectionProps) {
-    const { t, isBn } = getTranslation();
+    const { t, i18n } = useTranslation();
+    const isBn = i18n.language === 'bn';
     const { formatCurrency, formatNumber } = useCurrency();
     const router = useRouter();
     const [customerSearch, setCustomerSearch] = useState('');
@@ -233,7 +234,7 @@ export default function EcommerceDeliverySection({
                         </div>
                         <div>
                             <h2 className="text-sm font-bold text-slate-900">
-                                {isBn ? '৩. গ্রাহক ও ডেলিভারি ঠিকানা' : '3. Customer & Delivery Address'}
+                                {t('ecomm_delivery_section_title')}
                             </h2>
                             <p className="text-[11px] text-slate-400">
                                 {isBn
@@ -256,7 +257,7 @@ export default function EcommerceDeliverySection({
                                         setShowCustomerDropdown(true);
                                     }}
                                     onFocus={() => setShowCustomerDropdown(true)}
-                                    placeholder={isBn ? 'ই-কমার্স গ্রাহক খুঁজুন (নাম/ফোন)...' : 'Search ecommerce customer...'}
+                                    placeholder={t('ecomm_customer_search_placeholder')}
                                     className="h-8 w-full rounded-lg border border-slate-200 bg-slate-50/70 pl-8 pr-7 text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:border-primary focus:bg-white focus:outline-none"
                                 />
                                 {customerSearch && (
@@ -278,7 +279,7 @@ export default function EcommerceDeliverySection({
                                 <div className="absolute right-0 top-full z-40 mt-1 max-h-60 w-80 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1.5 shadow-xl">
                                     {isSearchingCustomers ? (
                                         <div className="p-3 text-center text-xs text-slate-400">
-                                            {isBn ? 'অনুসন্ধান করা হচ্ছে...' : 'Searching ecommerce users...'}
+                                            {t('ecomm_customer_search_placeholder')}
                                         </div>
                                     ) : ecommerceCustomerList.length > 0 ? (
                                         ecommerceCustomerList.map((cust: any) => (
@@ -304,7 +305,7 @@ export default function EcommerceDeliverySection({
 
                                                 <div className="text-right shrink-0">
                                                     <span className="text-[10px] font-bold text-slate-700 block">
-                                                        {cust.orders_count || 0} {isBn ? 'অর্ডার' : 'orders'}
+                                                        {cust.orders_count || 0} {t('ecomm_customers_col_orders').toLowerCase()}
                                                     </span>
                                                     <span className="text-[10px] font-bold text-primary">Select</span>
                                                 </div>
@@ -312,11 +313,11 @@ export default function EcommerceDeliverySection({
                                         ))
                                     ) : customerSearch.trim().length > 0 ? (
                                         <div className="p-3 text-center text-xs text-slate-400">
-                                            {isBn ? 'কোন গ্রাহক পাওয়া যায়নি।' : 'No ecommerce customer found.'}
+                                            {t('ecomm_customer_not_found')}
                                         </div>
                                     ) : (
                                         <div className="p-3 text-center text-[11px] text-slate-400">
-                                            {isBn ? 'নাম বা ফোন নম্বর দিয়ে খুঁজুন' : 'Type name or phone to search'}
+                                            {t('ecomm_customer_search_placeholder')}
                                         </div>
                                     )}
                                 </div>
@@ -331,7 +332,7 @@ export default function EcommerceDeliverySection({
                                 className="flex items-center gap-1.5 h-8 px-3 rounded-lg bg-primary/10 text-primary border border-primary/20 text-xs font-bold hover:bg-primary hover:text-white transition shadow-2xs shrink-0"
                             >
                                 <History className="h-3.5 w-3.5" />
-                                <span>{isBn ? 'গ্রাহকের অর্ডার ইতিহাস' : 'View Customer Orders'}</span>
+                                <span>{t('ecomm_customer_drawer_order_history')}</span>
                             </button>
                         ) : null}
                     </div>
@@ -343,7 +344,7 @@ export default function EcommerceDeliverySection({
                         <div className="flex items-center gap-2">
                             <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
                             <span className="font-semibold">
-                                {isBn ? 'সংযুক্ত ই-কমার্স গ্রাহক:' : 'Linked Ecommerce Customer:'}{' '}
+                                {t('ecomm_customer_section_title') + ':'}{' '}
                                 <strong className="font-bold text-emerald-950">{customerName}</strong> (#{selectedCustomerId})
                             </span>
                         </div>
@@ -354,7 +355,7 @@ export default function EcommerceDeliverySection({
                                 onClick={() => router.push(`/ecommerce/customers/${selectedCustomerId}`)}
                                 className="text-xs font-bold text-emerald-800 hover:underline flex items-center gap-1"
                             >
-                                <span>{isBn ? 'বিস্তারিত প্রোফাইল' : 'View Profile'}</span>
+                                <span>{t('ecomm_customers_view_profile')}</span>
                                 <ExternalLink className="h-3 w-3" />
                             </button>
                             <button
@@ -381,7 +382,7 @@ export default function EcommerceDeliverySection({
                     <div>
                         <label className="mb-1 block text-xs font-bold text-slate-700 flex items-center gap-1">
                             <Phone className="h-3 w-3 text-primary" />
-                            <span>{isBn ? 'মোবাইল নম্বর' : 'Phone Number'}</span>
+                            <span>{t('ecomm_customer_phone_label')}</span>
                             <span className="text-rose-500">*</span>
                         </label>
                         <input
@@ -398,7 +399,7 @@ export default function EcommerceDeliverySection({
                     <div>
                         <label className="mb-1 block text-xs font-bold text-slate-700 flex items-center gap-1">
                             <User className="h-3 w-3 text-primary" />
-                            <span>{isBn ? 'গ্রাহকের নাম' : 'Customer Name'}</span>
+                            <span>{t('ecomm_customer_name_label')}</span>
                             <span className="text-rose-500">*</span>
                         </label>
                         <input
@@ -406,7 +407,7 @@ export default function EcommerceDeliverySection({
                             required
                             value={customerName}
                             onChange={(e) => setCustomerName(e.target.value)}
-                            placeholder={isBn ? 'গ্রাহকের পূর্ণ নাম' : 'Full Name'}
+                            placeholder={t('ecomm_customer_name_placeholder')}
                             className="h-9 w-full rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                         />
                     </div>
@@ -415,7 +416,7 @@ export default function EcommerceDeliverySection({
                     <div>
                         <label className="mb-1 block text-xs font-semibold text-slate-700 flex items-center gap-1">
                             <Mail className="h-3 w-3 text-slate-400" />
-                            <span>{isBn ? 'ইমেইল (ঐচ্ছিক)' : 'Email (Optional)'}</span>
+                            <span>{t('ecomm_customer_email_label')}</span>
                         </label>
                         <input
                             type="email"
@@ -432,10 +433,10 @@ export default function EcommerceDeliverySection({
                     <div className="flex items-center justify-between">
                         <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
                             <Navigation className="h-3.5 w-3.5 text-primary" />
-                            {isBn ? 'কুরিয়ার ডেলিভারি লোকেশন (Courier Hierarchy)' : 'Courier Delivery Hierarchy'}
+                            {t('ecomm_delivery_address_label')}
                         </span>
                         <span className="text-[10px] font-semibold text-slate-400">
-                            {isBn ? 'ডেলিভারি দ্রুত করতে সিলেক্ট করুন' : 'District > Zone > Area'}
+                            {t('ecomm_delivery_district') + ' > ' + t('ecomm_delivery_zone') + ' > ' + t('ecomm_delivery_area')}
                         </span>
                     </div>
 
@@ -443,7 +444,7 @@ export default function EcommerceDeliverySection({
                         {/* District / City */}
                         <div>
                             <label className="mb-1 block text-[11px] font-bold text-slate-600">
-                                {isBn ? '১. জেলা / সিটি (District)' : '1. District / City'} <span className="text-rose-500">*</span>
+                                {t('ecomm_delivery_district')} <span className="text-rose-500">*</span>
                             </label>
                             <select
                                 value={selectedDistrictId}
@@ -454,7 +455,7 @@ export default function EcommerceDeliverySection({
                                 }}
                                 className="h-9 w-full rounded-lg border border-slate-200 bg-white px-2.5 text-xs font-semibold text-slate-800 focus:border-primary focus:outline-none"
                             >
-                                <option value="">{isBn ? '-- জেলা নির্বাচন করুন --' : '-- Select District --'}</option>
+                                <option value="">{'-- ' + t('ecomm_delivery_district') + ' --'}</option>
                                 {displayCities.map((city: any) => (
                                     <option key={city.city_id || city.id} value={city.city_id || city.id}>
                                         {city.city_name || city.name}
@@ -466,7 +467,7 @@ export default function EcommerceDeliverySection({
                         {/* Zone / Thana */}
                         <div>
                             <label className="mb-1 block text-[11px] font-bold text-slate-600">
-                                {isBn ? '২. জোন / থানা (Zone)' : '2. Zone / Thana'}
+                                {t('ecomm_delivery_zone')}
                             </label>
                             <select
                                 value={selectedZoneId}
@@ -479,8 +480,8 @@ export default function EcommerceDeliverySection({
                             >
                                 <option value="">
                                     {isZonesLoading
-                                        ? (isBn ? 'লোড হচ্ছে...' : 'Loading Zones...')
-                                        : (isBn ? '-- জোন নির্বাচন করুন --' : '-- Select Zone --')}
+                                        ? (t('ecomm_cart_items') + '...')
+                                        : ('-- ' + t('ecomm_delivery_zone') + ' --')}
                                 </option>
                                 {zones.map((zone: any) => (
                                     <option key={zone.zone_id || zone.id} value={zone.zone_id || zone.id}>
@@ -493,7 +494,7 @@ export default function EcommerceDeliverySection({
                         {/* Area */}
                         <div>
                             <label className="mb-1 block text-[11px] font-bold text-slate-600">
-                                {isBn ? '৩. এলাকা (Area / Union)' : '3. Area / Union'}
+                                {t('ecomm_delivery_area')}
                             </label>
                             <select
                                 value={selectedAreaId}
@@ -503,8 +504,8 @@ export default function EcommerceDeliverySection({
                             >
                                 <option value="">
                                     {isAreasLoading
-                                        ? (isBn ? 'লোড হচ্ছে...' : 'Loading Areas...')
-                                        : (isBn ? '-- এলাকা নির্বাচন করুন --' : '-- Select Area --')}
+                                        ? (t('ecomm_cart_items') + '...')
+                                        : ('-- ' + t('ecomm_delivery_area') + ' --')}
                                 </option>
                                 {areas.map((area: any) => (
                                     <option key={area.area_id || area.id} value={area.area_id || area.id}>
@@ -519,7 +520,7 @@ export default function EcommerceDeliverySection({
                     <div>
                         <label className="mb-1 block text-[11px] font-bold text-slate-600 flex items-center gap-1">
                             <Building2 className="h-3 w-3 text-slate-400" />
-                            <span>{isBn ? 'বিস্তারিত ঠিকানা (রোড / বাড়ি / ল্যান্ডমার্ক)' : 'Detailed Street Address / Landmark'}</span>
+                            <span>{t('ecomm_delivery_address_line')}</span>
                             <span className="text-rose-500">*</span>
                         </label>
                         <textarea
@@ -527,7 +528,7 @@ export default function EcommerceDeliverySection({
                             required
                             value={addressLine}
                             onChange={(e) => setAddressLine(e.target.value)}
-                            placeholder={isBn ? 'উদাঃ বাসা # ১২, রোড # ৪, ব্লক-সি, ধানমন্ডি...' : 'e.g. House #12, Road #4, Block C, Dhanmondi...'}
+                            placeholder={t('ecomm_delivery_address_placeholder')}
                             className="w-full rounded-lg border border-slate-200 bg-white p-2 text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                         />
                     </div>
@@ -538,13 +539,13 @@ export default function EcommerceDeliverySection({
                     <div className="mb-2 flex items-center justify-between">
                         <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
                             <Truck className="h-3.5 w-3.5 text-primary" />
-                            <span>{isBn ? 'ডেলিভারি মেথড ও চার্জ' : 'Delivery Method & Shipping Fee'}</span>
+                            <span>{t('ecomm_shipping_fee_label')}</span>
                         </label>
 
                         {/* Custom shipping fee override */}
                         <div className="flex items-center gap-1.5">
                             <span className="text-[11px] font-semibold text-slate-500">
-                                {isBn ? 'কাস্টম চার্জ:' : 'Custom Fee:'}
+                                {t('ecomm_delivery_custom_fee') + ':'}
                             </span>
                             <div className="relative">
                                 <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400">৳</span>
@@ -578,7 +579,17 @@ export default function EcommerceDeliverySection({
                                         <Icon className="h-3.5 w-3.5" />
                                         <span className="text-[9px] font-bold">{preset.badge}</span>
                                     </div>
-                                    <p className="text-xs font-bold truncate">{isBn ? preset.labelBn : preset.label}</p>
+                                    <p className="text-xs font-bold truncate">
+                                        {preset.id === 'inside_dhaka'
+                                            ? t('ecomm_delivery_inside_dhaka')
+                                            : preset.id === 'dhaka_suburbs'
+                                            ? t('ecomm_delivery_dhaka_suburbs')
+                                            : preset.id === 'outside_dhaka'
+                                            ? t('ecomm_delivery_outside_dhaka')
+                                            : preset.id === 'store_pickup'
+                                            ? t('ecomm_delivery_store_pickup')
+                                            : t('ecomm_delivery_custom_fee')}
+                                    </p>
                                     <p className="text-xs font-extrabold text-primary mt-0.5">
                                         {formatCurrency(preset.fee)}
                                     </p>

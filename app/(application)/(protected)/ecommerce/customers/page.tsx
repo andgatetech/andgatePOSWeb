@@ -22,14 +22,15 @@ import {
     ChevronLeft,
     ShieldCheck,
 } from 'lucide-react';
-import { getTranslation } from '@/i18n';
+import { useTranslation } from '@/components/i18n/TranslationProvider';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useGetEcommerceCustomersQuery } from '@/store/features/ecommerce/ecommerceManagementApi';
 import EcommerceCustomerDrawer from '../orders/create/components/EcommerceCustomerDrawer';
 
 export default function EcommerceCustomersPage() {
-    const { t } = getTranslation();
+    const { t, i18n } = useTranslation();
+    const isBn = i18n.language === 'bn';
     const { formatCurrency, formatNumber } = useCurrency();
     const router = useRouter();
     const { currentStoreId } = useCurrentStore();

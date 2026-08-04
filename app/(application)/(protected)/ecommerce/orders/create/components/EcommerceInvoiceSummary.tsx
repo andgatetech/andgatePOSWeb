@@ -9,7 +9,7 @@ import {
     AlertCircle,
     Loader2,
 } from 'lucide-react';
-import { getTranslation } from '@/i18n';
+import { useTranslation } from '@/components/i18n/TranslationProvider';
 import { useCurrency } from '@/hooks/useCurrency';
 import type { CartItem } from '../types';
 
@@ -58,7 +58,8 @@ export default function EcommerceInvoiceSummary({
     isSubmitting,
     onSubmitOrder,
 }: EcommerceInvoiceSummaryProps) {
-    const { t, isBn } = getTranslation();
+    const { t, i18n } = useTranslation();
+    const isBn = i18n.language === 'bn';
     const { formatCurrency, formatNumber } = useCurrency();
 
     return (
@@ -71,16 +72,16 @@ export default function EcommerceInvoiceSummary({
                         <div className="flex items-center gap-2">
                             <Receipt className="h-5 w-5 opacity-90" />
                             <h2 className="font-bold text-sm sm:text-base">
-                                {isBn ? 'চেকআউট ইনভয়েস সামারি' : 'Checkout Order Summary'}
+                                {t('ecomm_invoice_title')}
                             </h2>
                         </div>
                         <span className="rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-bold backdrop-blur-xs">
-                            {formatNumber(cart.length)} {cart.length === 1 ? 'Item' : 'Items'}
+                            {formatNumber(cart.length)} {t('ecomm_cart_items')}
                         </span>
                     </div>
 
                     <div className="flex items-center justify-between mt-1 text-[11px] text-white/80">
-                        <span>{isBn ? 'অর্ডারের মাধ্যম:' : 'Source Channel:'}</span>
+                        <span>{t('ecomm_invoice_source_channel') + ':'}</span>
                         <span className="font-bold text-white bg-white/20 px-1.5 py-0.5 rounded">
                             {selectedSourceName || 'Online Store'}
                         </span>
@@ -91,14 +92,14 @@ export default function EcommerceInvoiceSummary({
                 <div className="p-4 space-y-3 text-xs">
                     {/* Items Subtotal */}
                     <div className="flex justify-between items-center text-slate-600">
-                        <span>{isBn ? 'মোট পণ্যের মূল্য (Subtotal)' : 'Items Subtotal'}</span>
+                        <span>{t('ecomm_invoice_subtotal')}</span>
                         <span className="font-bold text-slate-900">{formatCurrency(subtotal)}</span>
                     </div>
 
                     {/* Discount */}
                     {calculatedDiscount > 0 && (
                         <div className="flex justify-between items-center text-emerald-600 font-semibold">
-                            <span>{isBn ? 'ডিসকাউন্ট (Discount)' : 'Order Discount'}</span>
+                            <span>{t('ecomm_invoice_discount')}</span>
                             <span>- {formatCurrency(calculatedDiscount)}</span>
                         </div>
                     )}
@@ -106,7 +107,7 @@ export default function EcommerceInvoiceSummary({
                     {/* Shipping */}
                     <div className="flex justify-between items-center text-slate-600">
                         <div className="flex items-center gap-1">
-                            <span>{isBn ? 'ডেলিভারি চার্জ (Shipping)' : 'Shipping Fee'}</span>
+                            <span>{t('ecomm_invoice_shipping')}</span>
                             {selectedDeliveryPresetLabel && (
                                 <span className="text-[10px] text-slate-400 font-medium truncate max-w-[110px]">
                                     ({selectedDeliveryPresetLabel})
@@ -118,14 +119,14 @@ export default function EcommerceInvoiceSummary({
 
                     {/* Order Total */}
                     <div className="pt-2 border-t border-slate-100 flex justify-between items-center text-slate-900 font-bold text-sm">
-                        <span>{isBn ? 'সর্বমোট অর্ডার মূল্য' : 'Total Order Value'}</span>
+                        <span>{t('ecomm_invoice_total')}</span>
                         <span className="text-base font-black text-slate-900">{formatCurrency(orderTotal)}</span>
                     </div>
 
                     {/* Advance Paid */}
                     {advancePaid > 0 && (
                         <div className="flex justify-between items-center text-blue-600 font-semibold pt-1 border-t border-dashed border-slate-200">
-                            <span>{isBn ? 'অগ্রিম জমা (Advance Paid)' : 'Advance Payment Paid'}</span>
+                            <span>{t('ecomm_invoice_advance')}</span>
                             <span>- {formatCurrency(advancePaid)}</span>
                         </div>
                     )}
@@ -133,15 +134,13 @@ export default function EcommerceInvoiceSummary({
                     {/* Prominent COD Banner */}
                     <div className="mt-4 rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200/80 p-3.5 text-center">
                         <p className="text-[11px] font-bold uppercase tracking-wider text-emerald-800">
-                            {isBn ? 'ডেলিভারিতে আদায়যোগ্য (COD Amount)' : 'Cash on Delivery (COD) to Collect'}
+                            {t('ecomm_invoice_cod_label')}
                         </p>
                         <div className="text-2xl font-black text-emerald-700 mt-1">
                             {formatCurrency(codAmountToCollect)}
                         </div>
                         <p className="text-[10px] text-emerald-600 font-medium mt-0.5">
-                            {paymentMethod === 'Cash on Delivery'
-                                ? (isBn ? 'কুরিয়ার ডেলিভারির সময় নগদ গ্রহণ করবেন' : 'Collect cash upon delivery')
-                                : (isBn ? `পেমেন্ট মোড: ${paymentMethod}` : `Payment Mode: ${paymentMethod}`)}
+                            {paymentMethod === 'Cash on Delivery' ? t('ecomm_invoice_cod_collect') : `${t('ecomm_invoice_payment_mode')}: ${paymentMethod}`}
                         </p>
                     </div>
                 </div>
@@ -157,12 +156,12 @@ export default function EcommerceInvoiceSummary({
                         {isSubmitting ? (
                             <>
                                 <Loader2 className="h-4 w-4 animate-spin" />
-                                <span>{isBn ? 'অর্ডার তৈরি হচ্ছে...' : 'Placing Order...'}</span>
+                                <span>{t('ecomm_nav_placing_order')}</span>
                             </>
                         ) : (
                             <>
                                 <CheckCircle2 className="h-4 w-4" />
-                                <span>{isBn ? 'অর্ডার কনফার্ম করুন' : 'Confirm & Place Order'}</span>
+                                <span>{t('ecomm_nav_confirm_order')}</span>
                             </>
                         )}
                     </button>

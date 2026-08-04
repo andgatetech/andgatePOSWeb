@@ -4,7 +4,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { showErrorDialog, showSuccessDialog, showToast } from '@/lib/toast';
-import { getTranslation } from '@/i18n';
+import { useTranslation } from '@/components/i18n/TranslationProvider';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { useCurrency } from '@/hooks/useCurrency';
 import {
@@ -35,7 +35,8 @@ import EcommerceInvoiceSummary from './components/EcommerceInvoiceSummary';
 
 // ─── Mobile Step Progress Bar (hidden on lg+) ─────────────────────────────────
 function MobileStepBar({ currentStep }: { currentStep: number }) {
-    const { t } = getTranslation();
+    const { t, i18n } = useTranslation();
+    const isBn = i18n.language === 'bn';
 
     const STEPS = [
         { id: 1, labelKey: 'ecomm_step1_label', icon: ShoppingCart },
@@ -95,7 +96,7 @@ function MobileStepBar({ currentStep }: { currentStep: number }) {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function CreateEcommerceOrderPage() {
     const router = useRouter();
-    const { t } = getTranslation();
+    const { t } = useTranslation();
     const { formatCurrency, formatNumber } = useCurrency();
     const { currentStoreId } = useCurrentStore();
 
@@ -348,7 +349,7 @@ export default function CreateEcommerceOrderPage() {
                 err?.data?.message ||
                 (typeof err?.data?.errors === 'object' ? Object.values(err.data.errors).flat().join(', ') : null) ||
                 t('ecomm_order_create_error');
-            showErrorDialog(t('lbl_error'), errorMsg);
+            showErrorDialog(t('error'), errorMsg);
         } finally {
             setIsSubmitting(false);
         }
@@ -358,8 +359,14 @@ export default function CreateEcommerceOrderPage() {
     const selectedPresetObj = DELIVERY_PRESETS.find((p) => p.id === selectedDeliveryPreset);
     const selectedPresetLabel = isCustomShipping
         ? t('ecomm_delivery_custom_fee')
-        : selectedPresetObj
-        ? t(`ecomm_delivery_${selectedPresetObj.id}`)
+        : selectedPresetObj?.id === 'inside_dhaka'
+        ? t('ecomm_delivery_inside_dhaka')
+        : selectedPresetObj?.id === 'dhaka_suburbs'
+        ? t('ecomm_delivery_dhaka_suburbs')
+        : selectedPresetObj?.id === 'outside_dhaka'
+        ? t('ecomm_delivery_outside_dhaka')
+        : selectedPresetObj?.id === 'store_pickup'
+        ? t('ecomm_delivery_store_pickup')
         : undefined;
 
     // ── Step label for mobile header ──────────────────────────────────────────

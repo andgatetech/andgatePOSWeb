@@ -11,7 +11,7 @@ import {
     FileText,
     MessageSquare,
 } from 'lucide-react';
-import { getTranslation } from '@/i18n';
+import { useTranslation } from '@/components/i18n/TranslationProvider';
 import { useCurrency } from '@/hooks/useCurrency';
 
 interface EcommercePaymentSectionProps {
@@ -66,7 +66,8 @@ export default function EcommercePaymentSection({
     internalNotes,
     setInternalNotes,
 }: EcommercePaymentSectionProps) {
-    const { t, isBn } = getTranslation();
+    const { t, i18n } = useTranslation();
+    const isBn = i18n.language === 'bn';
     const { formatCurrency } = useCurrency();
 
     const paymentMethods = [
@@ -85,10 +86,10 @@ export default function EcommercePaymentSection({
                 </div>
                 <div>
                     <h2 className="text-sm font-bold text-slate-900">
-                        {isBn ? '৪. অর্ডারের উৎস ও পেমেন্ট বিবরণ' : '4. Order Source & Payment Details'}
+                        {t('ecomm_payment_section_title')}
                     </h2>
                     <p className="text-[11px] text-slate-400">
-                        {isBn ? 'বিক্রয় চ্যানেল, পেমেন্ট মেথড ও ডিসকাউন্ট' : 'Select order sales channel, payment type & discounts'}
+                        {t('ecomm_order_source_label')}
                     </p>
                 </div>
             </div>
@@ -99,11 +100,11 @@ export default function EcommercePaymentSection({
                     <div>
                         <label className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
                             <Layers className="h-4 w-4 text-primary" />
-                            <span>{isBn ? 'অর্ডারের উৎস (Order Source / Channel)' : 'Order Source / Channel'}</span>
+                            <span>{t('ecomm_order_source_label')}</span>
                             <span className="text-rose-500">*</span>
                         </label>
                         <p className="text-[11px] text-slate-500">
-                            {isBn ? 'অর্ডারটি কোন চ্যানেল থেকে এসেছে তা নির্বাচন করুন' : 'Select which channel this order originated from'}
+                            {t('ecomm_order_source_label')}
                         </p>
                     </div>
 
@@ -127,7 +128,7 @@ export default function EcommercePaymentSection({
             {/* Payment Method Pills */}
             <div>
                 <label className="mb-1.5 block text-xs font-bold text-slate-700">
-                    {isBn ? 'পেমেন্ট মেথড' : 'Payment Method'}
+                    {t('ecomm_payment_method_label')}
                 </label>
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                     {paymentMethods.map((m) => {
@@ -159,7 +160,7 @@ export default function EcommercePaymentSection({
                     <div className="flex items-center justify-between mb-2">
                         <label className="text-xs font-bold text-slate-700 flex items-center gap-1">
                             <Tag className="h-3.5 w-3.5 text-primary" />
-                            {isBn ? 'অর্ডার ডিসকাউন্ট' : 'Order Discount'}
+                            {t('ecomm_payment_discount_label')}
                         </label>
                         <div className="inline-flex rounded-lg border border-slate-200 p-0.5 bg-white shadow-2xs">
                             <button
@@ -169,7 +170,7 @@ export default function EcommercePaymentSection({
                                     discountType === 'fixed' ? 'bg-primary text-white' : 'text-slate-600'
                                 }`}
                             >
-                                ৳ Fixed
+                                {t('ecomm_payment_discount_fixed')}
                             </button>
                             <button
                                 type="button"
@@ -178,7 +179,7 @@ export default function EcommercePaymentSection({
                                     discountType === 'percent' ? 'bg-primary text-white' : 'text-slate-600'
                                 }`}
                             >
-                                % Percent
+                                {t('ecomm_payment_discount_percent')}
                             </button>
                         </div>
                     </div>
@@ -197,9 +198,7 @@ export default function EcommercePaymentSection({
                     </div>
                     {calculatedDiscount > 0 && (
                         <p className="mt-1 text-[11px] text-emerald-600 font-bold">
-                            {isBn
-                                ? `ছাড় প্রযোজ্য: -${formatCurrency(calculatedDiscount)}`
-                                : `Discount applied: -${formatCurrency(calculatedDiscount)}`}
+                            {`${t('ecomm_invoice_discount')}: -${formatCurrency(calculatedDiscount)}`}
                         </p>
                     )}
                 </div>
@@ -209,7 +208,7 @@ export default function EcommercePaymentSection({
                     <div className="flex items-center justify-between mb-2">
                         <label className="text-xs font-bold text-slate-700 flex items-center gap-1">
                             <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
-                            {isBn ? 'অগ্রিম জমা (Advance Payment)' : 'Advance Payment Received'}
+                            {t('ecomm_payment_advance_label')}
                         </label>
                         {shippingFee > 0 && (
                             <button
@@ -217,7 +216,7 @@ export default function EcommercePaymentSection({
                                 onClick={() => setAdvancePaid(shippingFee)}
                                 className="text-[10px] font-bold text-primary hover:underline"
                             >
-                                {isBn ? `ডেলিভারি চার্জ (${formatCurrency(shippingFee)})` : `Fee (${formatCurrency(shippingFee)})`}
+                                {`${t('ecomm_invoice_shipping')} (${formatCurrency(shippingFee)})`}
                             </button>
                         )}
                     </div>
@@ -238,7 +237,7 @@ export default function EcommercePaymentSection({
                                 type="text"
                                 value={transactionId}
                                 onChange={(e) => setTransactionId(e.target.value)}
-                                placeholder={isBn ? 'bKash/Nagad TrxID বা রসিদ নং...' : 'bKash/Nagad TrxID or Reference...'}
+                                placeholder={t('ecomm_payment_transaction_id')}
                                 className="h-7 w-full rounded-lg border border-slate-200 bg-white px-2 text-[11px] font-medium text-slate-800 focus:border-primary focus:outline-none"
                             />
                         </div>
@@ -251,13 +250,13 @@ export default function EcommercePaymentSection({
                 <div>
                     <label className="mb-1 block text-xs font-semibold text-slate-700 flex items-center gap-1">
                         <FileText className="h-3.5 w-3.5 text-slate-400" />
-                        {isBn ? 'ডেলিভারি সংক্রান্ত নির্দেশনা' : 'Delivery Instructions'}
+                        {t('ecomm_payment_notes_customer')}
                     </label>
                     <textarea
                         rows={2}
                         value={customerNotes}
                         onChange={(e) => setCustomerNotes(e.target.value)}
-                        placeholder={isBn ? 'উদাঃ ৫টার পর ডেলিভারি দিন, কল দিয়ে যাবেন...' : 'e.g. Call before delivery, deliver in afternoon...'}
+                        placeholder={t('ecomm_payment_notes_customer')}
                         className="w-full rounded-xl border border-slate-200 bg-white p-2.5 text-xs text-slate-800 placeholder:text-slate-400 focus:border-primary focus:outline-none"
                     />
                 </div>
@@ -265,13 +264,13 @@ export default function EcommercePaymentSection({
                 <div>
                     <label className="mb-1 block text-xs font-semibold text-slate-700 flex items-center gap-1">
                         <MessageSquare className="h-3.5 w-3.5 text-slate-400" />
-                        {isBn ? 'অভ্যন্তরীণ স্টাফ নোট' : 'Internal Staff Note'}
+                        {t('ecomm_payment_notes_internal')}
                     </label>
                     <textarea
                         rows={2}
                         value={internalNotes}
                         onChange={(e) => setInternalNotes(e.target.value)}
-                        placeholder={isBn ? 'উদাঃ গিফট বক্স ও স্টিকার যুক্ত করুন...' : 'e.g. Fragile item, add protective bubble wrap...'}
+                        placeholder={t('ecomm_payment_notes_internal')}
                         className="w-full rounded-xl border border-slate-200 bg-white p-2.5 text-xs text-slate-800 placeholder:text-slate-400 focus:border-primary focus:outline-none"
                     />
                 </div>

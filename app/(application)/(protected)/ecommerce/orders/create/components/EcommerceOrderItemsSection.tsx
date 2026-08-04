@@ -13,7 +13,7 @@ import {
     AlertCircle,
 } from 'lucide-react';
 import { useCurrency } from '@/hooks/useCurrency';
-import { getTranslation } from '@/i18n';
+import { useTranslation } from '@/components/i18n/TranslationProvider';
 import ItemPreviewModal from '@/app/(application)/(protected)/pos/pos-right-side/ItemPreviewModal';
 import type { CartItem } from '../types';
 
@@ -32,7 +32,8 @@ export default function EcommerceOrderItemsSection({
     onRemoveItem,
     onClearCart,
 }: EcommerceOrderItemsSectionProps) {
-    const { t, isBn } = getTranslation();
+    const { t, i18n } = useTranslation();
+    const isBn = i18n.language === 'bn';
     const { formatCurrency, formatNumber } = useCurrency();
     const [previewItem, setPreviewItem] = useState<any>(null);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -65,14 +66,14 @@ export default function EcommerceOrderItemsSection({
                     <div>
                         <div className="flex items-center gap-2">
                             <h2 className="text-sm font-bold text-slate-900">
-                                {isBn ? '২. অর্ডারে নির্বাচিত পণ্যসমূহ' : '2. Selected Order Items'}
+                                {t('ecomm_order_items_section_title')}
                             </h2>
                             <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-bold text-primary">
-                                {formatNumber(cart.length)} {cart.length === 1 ? 'Item' : 'Items'} ({formatNumber(totalUnits)} {isBn ? 'ইউনিট' : 'Units'})
+                                {formatNumber(cart.length)} {t('ecomm_cart_items')} ({formatNumber(totalUnits)} {t('ecomm_cart_units')})
                             </span>
                         </div>
                         <p className="text-[11px] text-slate-400">
-                            {isBn ? 'পণ্যের পরিমাণ বা বিক্রয়মূল্য পরিবর্তন করুন' : 'Adjust quantities or custom line item rates'}
+                            {t('ecomm_order_items_section_desc')}
                         </p>
                     </div>
                 </div>
@@ -84,7 +85,7 @@ export default function EcommerceOrderItemsSection({
                         className="flex items-center gap-1 text-xs font-semibold text-rose-500 hover:text-rose-700 transition cursor-pointer"
                     >
                         <Trash2 className="h-3.5 w-3.5" />
-                        <span>{isBn ? 'সব মুছুন' : 'Clear All'}</span>
+                        <span>{t('ecomm_cart_clear_all')}</span>
                     </button>
                 )}
             </div>
@@ -96,12 +97,10 @@ export default function EcommerceOrderItemsSection({
                         🛒
                     </div>
                     <p className="text-xs font-bold text-slate-700">
-                        {isBn ? 'অর্ডারে এখনো কোন পণ্য যুক্ত করা হয়নি' : 'No items added to this order yet'}
+                        {t('ecomm_cart_empty_title')}
                     </p>
                     <p className="text-[11px] text-slate-400 mt-0.5 max-w-sm">
-                        {isBn
-                            ? 'উপরের ক্যাটালগ থেকে সক্রিয় পণ্যের উপর ক্লিক করে যুক্ত করুন'
-                            : 'Click on any active product from the catalog above to add items'}
+                        {t('ecomm_cart_empty_desc')}
                     </p>
                 </div>
             ) : (
@@ -112,12 +111,12 @@ export default function EcommerceOrderItemsSection({
                             <thead>
                                 <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-bold uppercase tracking-wider text-slate-500">
                                     <th className="px-3 py-2.5 text-center w-10">#</th>
-                                    <th className="px-3 py-2.5">{isBn ? 'পণ্যের বিবরণ' : 'Item Details'}</th>
-                                    <th className="px-3 py-2.5 text-center w-36">{isBn ? 'পরিমাণ (Qty)' : 'Quantity'}</th>
-                                    <th className="px-3 py-2.5 text-center w-20">{isBn ? 'একক' : 'Unit'}</th>
-                                    <th className="px-3 py-2.5 text-right w-32">{isBn ? 'দর (Rate)' : 'Unit Price'}</th>
-                                    <th className="px-3 py-2.5 text-right w-32">{isBn ? 'মোট মূল্য' : 'Total Amount'}</th>
-                                    <th className="px-3 py-2.5 text-center w-14">{isBn ? 'মুছুন' : 'Action'}</th>
+                                    <th className="px-3 py-2.5">{t('ecomm_col_item_details')}</th>
+                                    <th className="px-3 py-2.5 text-center w-36">{t('ecomm_col_quantity')}</th>
+                                    <th className="px-3 py-2.5 text-center w-20">{t('ecomm_col_unit')}</th>
+                                    <th className="px-3 py-2.5 text-right w-32">{t('ecomm_col_unit_price')}</th>
+                                    <th className="px-3 py-2.5 text-right w-32">{t('ecomm_col_total_amount')}</th>
+                                    <th className="px-3 py-2.5 text-center w-14">{t('ecomm_col_action')}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 text-xs">
@@ -138,7 +137,7 @@ export default function EcommerceOrderItemsSection({
                                                         type="button"
                                                         onClick={() => handlePreview(item)}
                                                         className="flex-shrink-0 rounded-lg bg-blue-50 p-1.5 text-blue-600 transition-colors hover:bg-blue-100 hover:text-blue-800 cursor-pointer"
-                                                        title={isBn ? 'পণ্যের বিবরণ' : 'View Item Details'}
+                                                        title={t('ecomm_view_item_details')}
                                                     >
                                                         <Eye className="h-4 w-4" />
                                                     </button>
@@ -236,7 +235,7 @@ export default function EcommerceOrderItemsSection({
                                                     type="button"
                                                     onClick={() => onRemoveItem(item.stock_id)}
                                                     className="rounded-lg p-1.5 text-slate-400 transition hover:bg-rose-50 hover:text-rose-600 cursor-pointer"
-                                                    title={isBn ? 'আইটেমটি মুছুন' : 'Remove Item'}
+                                                    title={t('ecomm_remove_item')}
                                                 >
                                                     <Trash2 className="h-4 w-4" />
                                                 </button>
@@ -264,7 +263,7 @@ export default function EcommerceOrderItemsSection({
                                                 type="button"
                                                 onClick={() => handlePreview(item)}
                                                 className="flex-shrink-0 rounded-lg bg-blue-50 p-1.5 text-blue-600 transition-colors hover:bg-blue-100 hover:text-blue-800 cursor-pointer"
-                                                title={isBn ? 'পণ্যের বিবরণ' : 'View Item Details'}
+                                                title={t('ecomm_view_item_details')}
                                             >
                                                 <Eye className="h-3.5 w-3.5" />
                                             </button>
@@ -353,17 +352,17 @@ export default function EcommerceOrderItemsSection({
                     <div className="mt-3 flex flex-wrap items-center justify-between rounded-xl bg-slate-50 p-3 border border-slate-100">
                         <div className="flex items-center gap-3 text-xs text-slate-600">
                             <span>
-                                {isBn ? 'মোট পণ্য:' : 'Total Items:'} <strong className="text-slate-900">{formatNumber(cart.length)}</strong>
+                                {t('ecomm_cart_total_items') + ':'} <strong className="text-slate-900">{formatNumber(cart.length)}</strong>
                             </span>
                             <span>•</span>
                             <span>
-                                {isBn ? 'মোট একক:' : 'Total Units:'} <strong className="text-slate-900">{formatNumber(totalUnits)}</strong>
+                                {t('ecomm_cart_total_units') + ':'} <strong className="text-slate-900">{formatNumber(totalUnits)}</strong>
                             </span>
                         </div>
 
                         <div className="flex items-center gap-2">
                             <span className="text-xs font-medium text-slate-500">
-                                {isBn ? 'আইটেম সাবটোটাল:' : 'Items Subtotal:'}
+                                {t('ecomm_cart_subtotal') + ':'}
                             </span>
                             <span className="text-sm font-black text-primary">
                                 {formatCurrency(subtotal)}
