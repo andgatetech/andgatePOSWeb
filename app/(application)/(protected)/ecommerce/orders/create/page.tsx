@@ -34,19 +34,24 @@ import EcommercePaymentSection from './components/EcommercePaymentSection';
 import EcommerceInvoiceSummary from './components/EcommerceInvoiceSummary';
 
 // ─── Mobile Step Progress Bar (hidden on lg+) ─────────────────────────────────
-function MobileStepBar({ currentStep }: { currentStep: number }) {
-    const { t, i18n } = useTranslation();
-    const isBn = i18n.language === 'bn';
+function MobileStepBar({
+    currentStep,
+    onSelectStep,
+}: {
+    currentStep: number;
+    onSelectStep: (step: 1 | 2 | 3 | 4) => void;
+}) {
+    const { t } = useTranslation();
 
     const STEPS = [
-        { id: 1, labelKey: 'ecomm_step1_label', icon: ShoppingCart },
-        { id: 2, labelKey: 'ecomm_step2_label', icon: Truck },
-        { id: 3, labelKey: 'ecomm_step3_label', icon: CreditCard },
-        { id: 4, labelKey: 'ecomm_step4_label', icon: ClipboardCheck },
+        { id: 1 as const, labelKey: 'ecomm_step1_label', icon: ShoppingCart },
+        { id: 2 as const, labelKey: 'ecomm_step2_label', icon: Truck },
+        { id: 3 as const, labelKey: 'ecomm_step3_label', icon: CreditCard },
+        { id: 4 as const, labelKey: 'ecomm_step4_label', icon: ClipboardCheck },
     ];
 
     return (
-        <div className="lg:hidden w-full bg-white border-b border-slate-100 px-3 py-2.5">
+        <div className="lg:hidden w-full bg-white border-b border-slate-100 px-3 py-2">
             <div className="flex items-center justify-between">
                 {STEPS.map((step, idx) => {
                     const Icon = step.icon;
@@ -54,30 +59,37 @@ function MobileStepBar({ currentStep }: { currentStep: number }) {
                     const isActive = currentStep === step.id;
                     return (
                         <React.Fragment key={step.id}>
-                            <div className="flex flex-col items-center gap-0.5 flex-shrink-0">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    onSelectStep(step.id);
+                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                }}
+                                className="flex flex-col items-center gap-0.5 flex-shrink-0 cursor-pointer active:scale-95 transition"
+                            >
                                 <div
                                     className={`flex h-9 w-9 items-center justify-center rounded-full border-2 transition-all duration-300 ${
-                                        isCompleted
-                                            ? 'bg-emerald-500 border-emerald-500 text-white'
-                                            : isActive
-                                            ? 'bg-primary border-primary text-white scale-110 shadow-md shadow-primary/25'
-                                            : 'bg-slate-100 border-slate-200 text-slate-400'
+                                        isActive
+                                            ? 'bg-primary border-primary text-white scale-110 shadow-md shadow-primary/25 ring-2 ring-primary/20'
+                                            : isCompleted
+                                            ? 'bg-emerald-50 border-emerald-500 text-emerald-600'
+                                            : 'bg-slate-100 border-slate-200 text-slate-400 hover:border-slate-300'
                                     }`}
                                 >
                                     {isCompleted ? (
-                                        <CheckCircle2 className="h-4 w-4" />
+                                        <CheckCircle2 className="h-4 w-4 text-emerald-600" />
                                     ) : (
                                         <Icon className="h-3.5 w-3.5" />
                                     )}
                                 </div>
                                 <p
                                     className={`text-[9px] font-bold leading-tight text-center ${
-                                        isActive ? 'text-primary' : isCompleted ? 'text-emerald-600' : 'text-slate-400'
+                                        isActive ? 'text-primary font-black' : isCompleted ? 'text-emerald-600' : 'text-slate-500'
                                     }`}
                                 >
                                     {t(step.labelKey)}
                                 </p>
-                            </div>
+                            </button>
                             {idx < STEPS.length - 1 && (
                                 <div
                                     className={`flex-1 h-0.5 mx-1 mb-4 transition-all duration-500 ${
@@ -266,20 +278,6 @@ export default function CreateEcommerceOrderPage() {
 
     // ── Mobile Step Navigation ────────────────────────────────────────────────
     const handleNext = () => {
-        if (currentStep === 1 && cart.length === 0) {
-            showErrorDialog(t('ecomm_validation_add_item'));
-            return;
-        }
-        if (currentStep === 2) {
-            if (!customerName.trim() || !customerPhone.trim()) {
-                showErrorDialog(t('ecomm_validation_customer_required'));
-                return;
-            }
-            if (!addressLine.trim() && selectedDeliveryPreset !== 'store_pickup') {
-                showErrorDialog(t('ecomm_validation_address_required'));
-                return;
-            }
-        }
         if (currentStep < 4) {
             setCurrentStep((prev) => (prev + 1) as 1 | 2 | 3 | 4);
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -478,7 +476,7 @@ export default function CreateEcommerceOrderPage() {
                 </div>
 
                 {/* Mobile step bar */}
-                <MobileStepBar currentStep={currentStep} />
+                <MobileStepBar currentStep={currentStep} onSelectStep={setCurrentStep} />
             </div>
 
             {/* ══════════ DESKTOP LAYOUT (lg+) ══════════ */}
@@ -503,7 +501,7 @@ export default function CreateEcommerceOrderPage() {
             </div>
 
             {/* ══════════ MOBILE LAYOUT — 4-step wizard ══════════ */}
-            <div className="lg:hidden w-full px-3 py-4 sm:px-4 pb-36">
+            <div className="lg:hidden w-full px-3 py-4 sm:px-4 pb-52">
                 {currentStep === 1 && (
                     <div className="space-y-4">
                         <EcommerceProductCatalog onAddToCart={handleAddToCart} cart={cart} />
@@ -521,14 +519,14 @@ export default function CreateEcommerceOrderPage() {
                 {currentStep === 4 && <EcommerceInvoiceSummary {...invoiceSummaryProps} />}
             </div>
 
-            {/* ══════════ MOBILE ONLY — Sticky Bottom Nav ══════════ */}
-            <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-slate-200 bg-white/95 backdrop-blur-md px-4 py-3">
-                <div className="flex items-center gap-3 max-w-2xl mx-auto">
+            {/* ══════════ MOBILE ONLY — Sticky Bottom Nav (Lifted above main MobileBottomNav) ══════════ */}
+            <div className="lg:hidden fixed bottom-[calc(3.5rem+env(safe-area-inset-bottom,0px))] left-0 right-0 z-[65] border-t border-slate-200 bg-white/95 backdrop-blur-md px-3.5 py-2.5 shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
+                <div className="flex items-center gap-2.5 max-w-2xl mx-auto">
                     {currentStep > 1 ? (
                         <button
                             type="button"
                             onClick={handleBack}
-                            className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white text-sm font-bold text-slate-700 shadow-xs transition hover:bg-slate-50 hover:border-slate-300 cursor-pointer"
+                            className="flex h-11 flex-1 items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white text-xs font-bold text-slate-700 shadow-xs transition active:scale-95 hover:bg-slate-50 cursor-pointer"
                         >
                             <ArrowLeft className="h-4 w-4" />
                             {t('ecomm_nav_back')}
@@ -536,7 +534,7 @@ export default function CreateEcommerceOrderPage() {
                     ) : (
                         <Link
                             href="/ecommerce/orders"
-                            className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white text-sm font-bold text-slate-700 shadow-xs transition hover:bg-slate-50 cursor-pointer"
+                            className="flex h-11 flex-1 items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white text-xs font-bold text-slate-700 shadow-xs transition active:scale-95 hover:bg-slate-50 cursor-pointer"
                         >
                             <ArrowLeft className="h-4 w-4" />
                             {t('ecomm_nav_cancel')}
@@ -547,7 +545,7 @@ export default function CreateEcommerceOrderPage() {
                         <button
                             type="button"
                             onClick={handleNext}
-                            className="flex h-12 flex-[2] items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary to-[#034d79] text-sm font-bold text-white shadow-md shadow-primary/20 transition hover:opacity-95 cursor-pointer"
+                            className="flex h-11 flex-[2] items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-primary to-[#034d79] text-xs font-bold text-white shadow-md shadow-primary/20 transition active:scale-95 hover:opacity-95 cursor-pointer"
                         >
                             {t('ecomm_nav_next_step')}
                             <ArrowRight className="h-4 w-4" />
@@ -557,7 +555,7 @@ export default function CreateEcommerceOrderPage() {
                             type="button"
                             onClick={handleSubmitOrder}
                             disabled={isSubmitting || cart.length === 0}
-                            className="flex h-12 flex-[2] items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-sm font-bold text-white shadow-md shadow-emerald-200 transition hover:opacity-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                            className="flex h-11 flex-[2] items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-xs font-bold text-white shadow-md shadow-emerald-200 transition active:scale-95 hover:opacity-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                         >
                             {isSubmitting ? (
                                 <>
@@ -574,18 +572,22 @@ export default function CreateEcommerceOrderPage() {
                     )}
                 </div>
 
-                {/* Progress dots */}
-                <div className="flex items-center justify-center gap-1.5 mt-2">
-                    {[1, 2, 3, 4].map((step) => (
-                        <div
+                {/* Interactive progress step dots */}
+                <div className="flex items-center justify-center gap-2 mt-1.5">
+                    {([1, 2, 3, 4] as const).map((step) => (
+                        <button
                             key={step}
-                            className={`rounded-full transition-all duration-300 ${
+                            type="button"
+                            onClick={() => {
+                                setCurrentStep(step);
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                            }}
+                            className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
                                 step === currentStep
-                                    ? 'w-6 h-1.5 bg-primary'
-                                    : step < currentStep
-                                    ? 'w-1.5 h-1.5 bg-emerald-400'
-                                    : 'w-1.5 h-1.5 bg-slate-200'
+                                    ? 'w-6 bg-primary'
+                                    : 'w-2 bg-slate-300 hover:bg-primary/50'
                             }`}
+                            aria-label={`Go to step ${step}`}
                         />
                     ))}
                 </div>

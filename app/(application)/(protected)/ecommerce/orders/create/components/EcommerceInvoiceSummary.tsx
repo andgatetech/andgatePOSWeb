@@ -58,8 +58,7 @@ export default function EcommerceInvoiceSummary({
     isSubmitting,
     onSubmitOrder,
 }: EcommerceInvoiceSummaryProps) {
-    const { t, i18n } = useTranslation();
-    const isBn = i18n.language === 'bn';
+    const { t } = useTranslation();
     const { formatCurrency, formatNumber } = useCurrency();
 
     return (
@@ -167,9 +166,7 @@ export default function EcommerceInvoiceSummary({
                     </button>
 
                     <p className="text-center text-[11px] text-slate-400 font-medium">
-                        {isBn
-                            ? 'অর্ডার তৈরি হলে সরাসরি ইনভয়েস প্রিন্ট ও কুরিয়ার বুকিং করা যাবে।'
-                            : 'Order invoice and courier parcel tracking will be created.'}
+                        {t('ecomm_invoice_footer_note')}
                     </p>
                 </div>
             </div>
