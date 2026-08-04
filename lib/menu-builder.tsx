@@ -789,7 +789,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
             {
                 label: 'Employees Management',
                 href: '/employees',
-                ownerOnly: true,
+                requiredPermissions: ['users.view'],
             },
             {
                 label: 'Roles',
@@ -937,7 +937,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
             {
                 label: 'Package & Payments',
                 href: '/manual-payments',
-                ownerOnly: true,
+                requiredPermissions: ['stores.view'],
             },
             {
                 label: 'Data Export',

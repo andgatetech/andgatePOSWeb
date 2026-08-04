@@ -304,10 +304,11 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     // ── Stock Transfers (business_admin bypass, or manager/staff with stock-transfer permission) ────────
     '/stock-transfers': ['stock-transfer.view', 'stock-transfer.manage'],
 
-    // ── Employees Management (subscription owner / business_admin only) ───
-    '/employees': ['subscription.owner'],
-    '/employees/create': ['subscription.owner'],
-    '/employees/edit': ['subscription.owner'],
+    // ── Employees Management (mirrors backend permission:users.* gates — any
+    // role holding these can manage staff, not just business_admin) ───
+    '/employees': ['users.view'],
+    '/employees/create': ['users.create'],
+    '/employees/edit': ['users.edit'],
 
     // ── Roles Management ───────────────────────────────────────
     '/roles': ['users.view'],
@@ -326,8 +327,8 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
     // ── Data Export ────────────────────────────────────────────
     '/data-export': ['stores.view'],
 
-    // ── Package & Payments (subscription owner / business_admin only) ──
-    '/manual-payments': ['subscription.owner'],
+    // ── Package & Payments (mirrors backend permission:stores.view gate) ──
+    '/manual-payments': ['stores.view'],
 
     // ── User Profile & Settings (all authenticated users) ──────
     '/users': [],
