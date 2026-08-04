@@ -966,8 +966,8 @@ function hasAnyPermission(userPermissions: string[] | undefined, requiredPermiss
 /**
  * Check if the account's subscription plan includes the item's gated feature.
  * Only gates on requiredFeature when explicitly set — items without one are left
- * to RBAC alone, so an expired/tier-limited subscription doesn't hide the whole
- * menu (SubscriptionGate blocks the actual page content on click instead).
+ * to RBAC alone. While feature data is still loading, keep the permission-based
+ * menu stable and let RouteAccessGate protect page content.
  */
 function hasFeatureAccess(accessibleFeatures: string[] | undefined, item: MenuItem): boolean {
     // Falling back to requiredPermissions here used to collapse the whole menu to just
@@ -1001,7 +1001,16 @@ function filterMenuItem(item: MenuItem, userPermissions: string[] | undefined, u
         return null;
     }
 
-    const lockedByFeature = !item.ownerOnly && !hasFeatureAccess(accessibleFeatures, item) ? item.requiredFeature : undefined;
+    const missingPackageFeature = !item.ownerOnly && !hasFeatureAccess(accessibleFeatures, item);
+
+    // Owners can see locked package features as upgrade paths. Employees cannot
+    // upgrade the account, so their sidebar should show only what their role and
+    // the active package both allow.
+    if (!isBusinessAdmin && missingPackageFeature) {
+        return null;
+    }
+
+    const lockedByFeature = missingPackageFeature ? item.requiredFeature : undefined;
 
     // If this item has a submenu, filter it recursively
     if (item.subMenu && item.subMenu.length > 0) {
@@ -1034,9 +1043,20 @@ function filterMenuItem(item: MenuItem, userPermissions: string[] | undefined, u
  */
 // Further reduction on top of simplifyMenuForDailyUse — opt-in, same
 // per-owner preference as DashboardExperienceToggle (see useDashboardExperience).
-// Pins what a brand-new seller touches daily; everything else (Purchases, Money,
-// Reports, Team, Online Store, Settings, ...) is still there, just under "More".
-const SIMPLE_MODE_ESSENTIAL_LABELS = ['Dashboard', 'Getting Started', 'Sell', 'Orders', 'Products & Stock', 'Customers'];
+// Pins what shop staff and owners look for every day. "More" is reserved for
+// occasional/admin areas so it does not become a second full sidebar.
+const SIMPLE_MODE_ESSENTIAL_LABELS = [
+    'Dashboard',
+    'Getting Started',
+    'Sell',
+    'Orders',
+    'Products & Stock',
+    'Purchases',
+    'Customers',
+    'Suppliers',
+    'Money',
+    'Reports',
+];
 
 export function pinEssentialsForSimpleMode(items: MenuItem[]): MenuItem[] {
     const essentials = SIMPLE_MODE_ESSENTIAL_LABELS
