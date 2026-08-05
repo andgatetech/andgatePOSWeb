@@ -136,7 +136,7 @@ function simplifyMenuForDailyUse(items: MenuItem[], userRole?: string): MenuItem
     if (orders) result.push(cloneMenuItem(orders));
 
     const productLeaves = leavesFrom(items, ['Product']);
-    const productCoreHrefs = new Set(['/products/create', '/products']);
+    const productCoreHrefs = new Set(['/products/create', '/products', '/products/warranties']);
     const productGroup = nestedGroup('Products', productLeaves.filter((item) => item.href && productCoreHrefs.has(item.href)));
     const stockGroup = nestedGroup('Stock', productLeaves.filter((item) => !item.href || !productCoreHrefs.has(item.href)));
     const categoryGroup = nestedGroup('Category', leavesFrom(items, ['Category']));
@@ -306,6 +306,11 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
             {
                 label: 'Product List',
                 href: '/products',
+                requiredPermissions: ['products.index'],
+            },
+            {
+                label: 'Warranties & Serials',
+                href: '/products/warranties',
                 requiredPermissions: ['products.index'],
             },
             {

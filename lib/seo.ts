@@ -6,7 +6,7 @@ interface SeoMetaProps {
     title: string;
     description?: string;
     keywords?: string[];
-    path: string;
+    path?: string;
     image?: string;
     noIndex?: boolean;
     canonicalUrl?: string;
@@ -16,13 +16,14 @@ export function generateMetadata({
     title,
     description = 'AndgateBOS - SME Business Operating System for managing POS billing, products, orders, customers, inventory, reports and business operations efficiently.',
     keywords = [],
-    path,
+    path = '',
     image = '/images/default-og-image.jpg',
     noIndex = false,
     canonicalUrl,
 }: SeoMetaProps): Metadata {
     const baseUrl = getAppUrl();
-    const fullUrl = `${baseUrl}${path}`;
+    const safePath = path || '';
+    const fullUrl = safePath ? `${baseUrl}${safePath}` : baseUrl;
     const canonical = canonicalUrl || fullUrl;
     const privateAppPrefixes = [
         '/account',
@@ -64,7 +65,7 @@ export function generateMetadata({
         '/suppliers',
         '/users',
     ];
-    const shouldNoIndex = noIndex || privateAppPrefixes.some((prefix) => path === prefix || path.startsWith(`${prefix}/`) || path.startsWith(`/protected${prefix}`));
+    const shouldNoIndex = noIndex || privateAppPrefixes.some((prefix) => safePath === prefix || safePath.startsWith(`${prefix}/`) || safePath.startsWith(`/protected${prefix}`));
 
     const defaultKeywords = ['AndgateBOS', 'SME Business OS', 'business operating system', 'POS system', 'point of sale', 'inventory management', 'sales tracking', 'business management', 'retail software', 'cloud POS'];
 

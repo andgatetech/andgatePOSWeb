@@ -1,6 +1,6 @@
 'use client';
 
-import { Camera, Clock, Coins, CreditCard, Flag, Gift, ListChecks, Package, Receipt, RotateCcw, Settings as SettingsIcon, Shield, Smartphone, Store, Tag, Globe } from 'lucide-react';
+import { Boxes, Camera, Clock, Coins, CreditCard, Flag, Gift, Globe, ListChecks, Package, Receipt, RotateCcw, Settings as SettingsIcon, Shield, Smartphone, Store, Tag } from 'lucide-react';
 import React from 'react';
 import { getTranslation } from '@/i18n';
 

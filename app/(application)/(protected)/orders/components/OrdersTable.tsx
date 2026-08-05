@@ -7,7 +7,7 @@ import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
 import { canVoidOrder } from '@/lib/orderDeletion';
 import { setReturnOrderId } from '@/store/features/Order/OrderReturnSlice';
-import { Download, Edit, Eye, RotateCcw, Trash2 } from 'lucide-react';
+import { Download, Edit, ExternalLink, Eye, Printer, Receipt, RotateCcw, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 import { useDispatch } from 'react-redux';
@@ -35,12 +35,23 @@ interface OrdersTableProps {
     showDelete: boolean;
 }
 
-const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination, sorting, onViewDetails, onOpenInvoicePreview, onThermalReceiptPrint, onDeleteRequest, showDelete }) => {
+const OrdersTable: React.FC<OrdersTableProps> = ({
+    orders,
+    isLoading,
+    pagination,
+    sorting,
+    onViewDetails,
+    onOpenInvoicePreview,
+    onThermalReceiptPrint,
+    onDeleteRequest,
+    showDelete,
+}) => {
     const { t } = getTranslation();
     const router = useRouter();
     const { formatCurrency, formatNumber } = useCurrency();
     const dispatch = useDispatch();
     const { currentStoreId } = useCurrentStore();
+
     const columns: TableColumn[] = useMemo(
         () => [
             {
@@ -48,8 +59,17 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
                 label: t('lbl_invoice'),
                 sortable: true,
                 render: (value, row) => (
-                    <div className="flex flex-col">
-                        <span className="font-semibold text-gray-900">{value || `#${row.id}`}</span>
+                    <div className="flex flex-col items-start gap-1">
+                        <button
+                            type="button"
+                            onClick={() => router.push(`/orders/${row.id}`)}
+                            className="group inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-indigo-50 text-indigo-700 hover:bg-indigo-100 hover:text-indigo-800 transition-colors border border-indigo-200/60 shadow-2xs"
+                            title={t('order_view_title') || 'View Order Details'}
+                        >
+                            <Receipt className="w-3.5 h-3.5 text-indigo-500 group-hover:scale-110 transition-transform" />
+                            <span>{value || `#${row.id}`}</span>
+                            <ExternalLink className="w-2.5 h-2.5 opacity-60 group-hover:opacity-100 transition-opacity" />
+                        </button>
                     </div>
                 ),
             },
@@ -58,22 +78,26 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
                 label: t('lbl_customer'),
                 render: (value, row) => (
                     <div className="flex flex-col">
-                        <span className="font-medium text-gray-900">{row.is_walk_in ? t('pos_walk_in_customer') : value?.name || t('lbl_na')}</span>
-                        {!row.is_walk_in && value?.phone && <span className="text-xs text-gray-500">{value.phone}</span>}
+                        <span className="font-medium text-slate-900">{row.is_walk_in ? t('pos_walk_in_customer') : value?.name || t('lbl_na')}</span>
+                        {!row.is_walk_in && value?.phone && <span className="text-xs text-slate-500">{value.phone}</span>}
                     </div>
                 ),
             },
             {
                 key: 'store',
                 label: t('lbl_store'),
-                render: (value, row) => <span className="text-sm text-gray-700">{value?.name || row.store?.name || t('lbl_na')}</span>,
+                render: (value, row) => <span className="text-sm text-slate-700">{value?.name || row.store?.name || t('lbl_na')}</span>,
             },
             {
                 key: 'items_count',
                 label: t('order_items'),
                 render: (value, row) => {
                     const itemCount = value ?? row.items?.length ?? row.order_items?.length ?? 0;
-                    return <span className="text-sm text-gray-700">{t('msg_item_count', { count: itemCount })}</span>;
+                    return (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
+                            {t('msg_item_count', { count: itemCount })}
+                        </span>
+                    );
                 },
             },
             {
@@ -85,8 +109,12 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
                     const dueAmount = Number(row.financial?.due_amount ?? row.due_amount ?? 0);
                     return (
                         <div className="flex flex-col">
-                            <span className="font-semibold text-gray-900">{formatCurrency(total)}</span>
-                            {dueAmount > 0 && <span className="text-xs font-medium text-danger">{t('lbl_due')}: {formatCurrency(dueAmount)}</span>}
+                            <span className="font-semibold text-slate-900">{formatCurrency(total)}</span>
+                            {dueAmount > 0 ? (
+                                <span className="text-xs font-medium text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded inline-block mt-0.5 border border-rose-200/60">
+                                    {t('lbl_due')}: {formatCurrency(dueAmount)}
+                                </span>
+                            ) : null}
                         </div>
                     );
                 },
@@ -101,7 +129,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
                     return (
                         <div className="flex flex-col gap-1">
                             <PaymentStatusBadge status={status} />
-                            <span className="text-xs capitalize text-gray-500">{method === 'due' ? t('lbl_due') : method}</span>
+                            <span className="text-xs capitalize text-slate-500">{method === 'due' ? t('lbl_due') : method}</span>
                         </div>
                     );
                 },
@@ -112,14 +140,18 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
                 sortable: true,
                 render: (value, row) => {
                     const status = value?.toLowerCase() || 'completed';
-                    const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
-                        completed: { bg: 'bg-green-100', text: 'text-green-800', label: t('status_completed') },
-                        fully_returned: { bg: 'bg-red-100', text: 'text-red-800', label: t('status_fully_returned') },
-                        partially_returned: { bg: 'bg-orange-100', text: 'text-orange-800', label: t('status_partially_returned') },
-                        pending: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: t('status_pending') },
+                    const statusConfig: Record<string, { bg: string; text: string; label: string; border: string }> = {
+                        completed: { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200', label: t('status_completed') },
+                        fully_returned: { bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-200', label: t('status_fully_returned') },
+                        partially_returned: { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200', label: t('status_partially_returned') },
+                        pending: { bg: 'bg-yellow-50', text: 'text-yellow-700', border: 'border-yellow-200', label: t('status_pending') },
                     };
-                    const config = statusConfig[status] || { bg: 'bg-gray-100', text: 'text-gray-800', label: status };
-                    return <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${config.bg} ${config.text}`}>{config.label}</span>;
+                    const config = statusConfig[status] || { bg: 'bg-slate-100', text: 'text-slate-800', border: 'border-slate-200', label: status };
+                    return (
+                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium border ${config.bg} ${config.text} ${config.border}`}>
+                            {config.label}
+                        </span>
+                    );
                 },
             },
             {
@@ -129,13 +161,13 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
                     const hasReturns = value?.has_returns ?? false;
                     const totalReturned = value?.total_returned ?? 0;
                     if (!hasReturns || totalReturned === 0) {
-                        return <span className="text-sm text-gray-400">-</span>;
+                        return <span className="text-sm text-slate-300">-</span>;
                     }
                     return (
                         <div className="flex flex-col">
-                            <span className="font-semibold text-danger">{formatCurrency(totalReturned)}</span>
+                            <span className="font-semibold text-rose-600">{formatCurrency(totalReturned)}</span>
                             {value?.count > 0 && (
-                                <span className="text-xs text-gray-500">
+                                <span className="text-xs text-slate-500">
                                     {t('msg_return_count', { count: value.count })}
                                 </span>
                             )}
@@ -163,10 +195,10 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
 
                     return (
                         <div className="flex flex-col">
-                            <span className="text-sm font-medium text-gray-900">{created.date}</span>
-                            <span className="text-xs text-gray-500">{created.time}</span>
+                            <span className="text-sm font-medium text-slate-900">{created.date}</span>
+                            <span className="text-xs text-slate-500">{created.time}</span>
                             {wasEdited && updated && (
-                                <span className="mt-1 text-[11px] text-gray-400" title={`${t('lbl_updated')}: ${updated.date} ${updated.time}`}>
+                                <span className="mt-1 text-[11px] text-slate-400" title={`${t('lbl_updated')}: ${updated.date} ${updated.time}`}>
                                     {t('lbl_updated')} {updated.date}
                                 </span>
                             )}
@@ -175,37 +207,35 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
                 },
             },
         ],
-        [t, formatCurrency, formatNumber]
+        [t, router, formatCurrency, formatNumber]
     );
 
     const actions: TableAction[] = useMemo(
         () => [
             {
-                label: t('order_action_view'),
-                onClick: onViewDetails,
-                className: 'text-gray-700',
+                label: t('order_action_view') || 'View Order Details',
+                onClick: (order: any) => router.push(`/orders/${order.id}`),
+                className: 'text-indigo-600 font-medium',
                 icon: <Eye className="h-4 w-4" />,
             },
             {
                 label: t('order_action_edit'),
                 onClick: (order: any) => router.push(`/orders/edit/${order.id}`),
-                className: 'text-gray-700',
+                className: 'text-slate-700',
                 icon: <Edit className="h-4 w-4" />,
                 hidden: (order: any) => order.status !== 'draft',
             },
             {
                 label: t('order_action_invoice'),
                 onClick: onOpenInvoicePreview,
-                className: 'text-gray-700',
+                className: 'text-slate-700',
                 icon: <Download className="h-4 w-4" />,
             },
             {
                 label: t('order_action_thermal_receipt'),
                 onClick: onThermalReceiptPrint,
-                className: 'text-gray-700',
-                icon: <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>,
+                className: 'text-slate-700',
+                icon: <Printer className="h-4 w-4" />,
             },
             {
                 label: t('order_action_return'),
@@ -215,14 +245,11 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
                         router.push(`/orders/return/create/${order.id}`);
                     }
                 },
-                className: 'text-warning',
+                className: 'text-amber-600',
                 icon: <RotateCcw className="h-4 w-4" />,
                 hidden: (order: any) => {
-                    // Hide if order is fully returned
                     if (order.status === 'fully_returned') return true;
-                    // Hide if return_status is 'full'
                     if (order.return_status === 'full') return true;
-                    // Hide if all items have been fully returned (returnable_quantity = 0 for all items)
                     if (order.items && order.items.length > 0) {
                         const hasReturnableItems = order.items.some((item: any) => (item.returnable_quantity ?? item.quantity ?? 0) > 0);
                         if (!hasReturnableItems) return true;
@@ -233,7 +260,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
             {
                 label: t('order_action_void') || 'Void & Reverse',
                 onClick: onDeleteRequest,
-                className: 'text-danger',
+                className: 'text-rose-600',
                 icon: <Trash2 className="h-4 w-4" />,
                 hidden: (order: any) => !showDelete || !canVoidOrder(order),
             },
@@ -250,7 +277,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isLoading, pagination
             pagination={pagination}
             sorting={sorting}
             emptyState={{
-                icon: <Eye className="mx-auto h-16 w-16" />,
+                icon: <Receipt className="mx-auto h-16 w-16 text-slate-300" />,
                 title: t('order_no_data'),
                 description: t('order_no_data_desc'),
             }}

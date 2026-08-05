@@ -8,7 +8,8 @@ import { getPaymentStatusConfig, normalizePaymentStatus } from '@/lib/paymentCon
 import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
 import { useSendOrderInvoiceMutation } from '@/store/features/Order/orderApi';
 import { Dialog, Transition } from '@headlessui/react';
-import { AlertCircle, Calendar, Clock, CreditCard, Hash, Mail, Package, Receipt, RotateCcw, Send, Shield, Store, TrendingUp, User, X } from 'lucide-react';
+import { AlertCircle, Calendar, Clock, CreditCard, ExternalLink, Hash, Mail, Package, Receipt, RotateCcw, Send, Shield, Store, TrendingUp, User, X } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { Fragment, useState } from 'react';
 
 interface OrderDetailsModalProps {
@@ -18,6 +19,7 @@ interface OrderDetailsModalProps {
 }
 
 const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, order }) => {
+    const router = useRouter();
     const { formatCurrency, formatNumber } = useCurrency();
     const { t } = getTranslation();
     const { currentStoreId } = useCurrentStore();
@@ -75,9 +77,23 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
                                             {t('order_invoice')}: {order.invoice}
                                         </p>
                                     </div>
-                                    <button onClick={onClose} className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-white hover:text-gray-600">
-                                        <X className="h-5 w-5 sm:h-6 sm:w-6" />
-                                    </button>
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                onClose();
+                                                router.push(`/orders/${order.id}`);
+                                            }}
+                                            className="inline-flex items-center gap-1.5 rounded-lg border border-indigo-200 bg-white px-3 py-1.5 text-xs font-bold text-indigo-700 shadow-2xs hover:bg-indigo-50 transition"
+                                            title="Open Dedicated Full Order Page"
+                                        >
+                                            <ExternalLink className="h-3.5 w-3.5" />
+                                            <span className="hidden sm:inline">Full Page</span>
+                                        </button>
+                                        <button onClick={onClose} className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-white hover:text-gray-600">
+                                            <X className="h-5 w-5 sm:h-6 sm:w-6" />
+                                        </button>
+                                    </div>
                                 </div>
 
                                 {/* Content */}
@@ -320,36 +336,74 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, onClose, 
 
                                                     {/* Warranty */}
                                                     {item.warranty && (
-                                                        <div className="rounded-md bg-green-50 p-3">
-                                                            <div className="mb-2 flex items-center gap-2">
-                                                                <Shield className="h-4 w-4 text-green-600" />
-                                                                <span className="text-xs font-semibold text-green-900">{t('lbl_warranty')}</span>
-                                                            </div>
-                                                            <div className="grid grid-cols-2 gap-3 text-xs">
-                                                                <div>
-                                                                    <span className="text-green-700">{t('lbl_type')}:</span>
-                                                                    <span className="ml-1 font-semibold text-green-900">{item.warranty.warranty_type_name}</span>
+                                                        <div
+                                                            className={`rounded-md p-3.5 ${
+                                                                item.warranty.status === 'expired'
+                                                                    ? 'border border-red-200 bg-red-50/80'
+                                                                    : item.warranty.remaining_days !== null && item.warranty.remaining_days <= 30
+                                                                    ? 'border border-amber-200 bg-amber-50/80'
+                                                                    : 'border border-emerald-200 bg-emerald-50/80'
+                                                            }`}
+                                                        >
+                                                            <div className="mb-2 flex items-center justify-between">
+                                                                <div className="flex items-center gap-2">
+                                                                    <Shield
+                                                                        className={`h-4 w-4 ${
+                                                                            item.warranty.status === 'expired'
+                                                                                ? 'text-red-600'
+                                                                                : item.warranty.remaining_days !== null && item.warranty.remaining_days <= 30
+                                                                                ? 'text-amber-600'
+                                                                                : 'text-emerald-600'
+                                                                        }`}
+                                                                    />
+                                                                    <span className="text-xs font-semibold text-gray-900">
+                                                                        {item.warranty.warranty_type ?? item.warranty.warranty_type_name ?? t('lbl_warranty')}
+                                                                    </span>
                                                                 </div>
+                                                                {item.warranty.status === 'expired' ? (
+                                                                    <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">
+                                                                        Expired
+                                                                    </span>
+                                                                ) : item.warranty.remaining_days !== null ? (
+                                                                    <span
+                                                                        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${
+                                                                            item.warranty.remaining_days <= 30
+                                                                                ? 'bg-amber-100 text-amber-800'
+                                                                                : 'bg-emerald-100 text-emerald-800'
+                                                                        }`}
+                                                                    >
+                                                                        <Clock className="h-3 w-3" />
+                                                                        {item.warranty.remaining_days > 0
+                                                                            ? `${formatNumber(item.warranty.remaining_days)} days left`
+                                                                            : 'Expires today'}
+                                                                    </span>
+                                                                ) : (
+                                                                    <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700">
+                                                                        Active
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                            <div className="grid grid-cols-2 gap-2 text-xs sm:grid-cols-3">
                                                                 <div>
-                                                                    <span className="text-green-700">{t('lbl_duration')}:</span>
-                                                                    <span className="ml-1 font-semibold text-green-900">
-                                                                        {item.warranty.duration_months
-                                                                            ? `${formatNumber(item.warranty.duration_months)} ${t('lbl_months')}`
-                                                                            : item.warranty.duration_days
+                                                                    <span className="text-gray-500">{t('lbl_duration')}:</span>
+                                                                    <span className="ml-1 font-semibold text-gray-900">
+                                                                        {item.warranty.duration_days
                                                                             ? `${formatNumber(item.warranty.duration_days)} ${t('lbl_days')}`
+                                                                            : item.warranty.duration_months
+                                                                            ? `${formatNumber(item.warranty.duration_months)} ${t('lbl_months')}`
                                                                             : t('lbl_lifetime')}
                                                                     </span>
                                                                 </div>
                                                                 {item.warranty.start_date && (
                                                                     <div>
-                                                                        <span className="text-green-700">{t('lbl_start')}:</span>
-                                                                        <span className="ml-1 font-semibold text-green-900">{localizeDigits(item.warranty.start_date.split(' ')[0])}</span>
+                                                                        <span className="text-gray-500">{t('lbl_start')}:</span>
+                                                                        <span className="ml-1 font-semibold text-gray-900">{localizeDigits(item.warranty.start_date.split(' ')[0])}</span>
                                                                     </div>
                                                                 )}
                                                                 {item.warranty.end_date && (
                                                                     <div>
-                                                                        <span className="text-green-700">{t('lbl_end')}:</span>
-                                                                        <span className="ml-1 font-semibold text-green-900">{localizeDigits(item.warranty.end_date.split(' ')[0])}</span>
+                                                                        <span className="text-gray-500">{t('lbl_end')}:</span>
+                                                                        <span className="ml-1 font-semibold text-gray-900">{localizeDigits(item.warranty.end_date.split(' ')[0])}</span>
                                                                     </div>
                                                                 )}
                                                             </div>

@@ -16,8 +16,6 @@ import {
     updateStockItemUnit,
 } from '@/store/features/StockAdjustment/stockAdjustmentSlice';
 import { useDispatch, useSelector } from 'react-redux';
-import { closeReservedPdfWindow, reservePdfWindow } from '@/lib/pdf-mobile-download';
-import { printStockAdjustmentSlip } from './printStockAdjustmentSlip';
 import AdjustmentHeader from './AdjustmentHeader';
 import AdjustmentItem from './AdjustmentItem';
 import AdjustmentSummary from './AdjustmentSummary';
@@ -188,14 +186,6 @@ const StockAdjustment = () => {
             return;
         }
 
-        // Snapshot before clearing (Redux state wiped after clearStockItems)
-        const itemsSnapshot = [...cartItems];
-        const configsSnapshot = { ...configsByItem };
-        const globalSnapshot = { ...globalConfig };
-
-        // Reserve PDF window synchronously before any await — mobile popup blocker fires after async gaps
-        const slipWindow = reservePdfWindow(`stock-adjustment-${new Date().toISOString().slice(0, 10)}.pdf`);
-
         try {
             await createBatchAdjustment({
                 store_id: currentStore?.id,
@@ -205,24 +195,7 @@ const StockAdjustment = () => {
             showSuccessDialog(t('msg_success'), t('msg_saved_success'));
 
             if (currentStoreId) dispatch(clearStockItems(currentStoreId));
-
-            printStockAdjustmentSlip(
-                itemsSnapshot,
-                configsSnapshot,
-                globalSnapshot,
-                {
-                    store_name: currentStore?.store_name,
-                    store_location: currentStore?.store_location,
-                    store_contact: currentStore?.store_contact,
-                    store_email: currentStore?.store_email,
-                },
-                {},
-                slipWindow
-            ).catch(() => {
-                closeReservedPdfWindow(slipWindow);
-            });
         } catch (error: any) {
-            closeReservedPdfWindow(slipWindow);
             showErrorDialog(t('msg_error'), error?.data?.detail || error?.data?.message || error?.message || 'Failed to save stock adjustments');
         }
     };
