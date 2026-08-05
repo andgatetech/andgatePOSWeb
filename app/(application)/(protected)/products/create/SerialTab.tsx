@@ -175,20 +175,55 @@ const SerialTab = ({ formData, productSerials, setProductSerials, productStocks,
         const defaultEntry = { id: undefined, serial_number: '', notes: '', stock_index: 0 };
         const serialLookup = new Map<string, { id?: number; serial_number: string; notes: string; stock_index: number }>();
 
-        previousMetaRef.current.forEach((meta, index) => {
-            const key = `${meta.variantIndex ?? 'base'}-${meta.unitIndex}`;
-            const currentSerial = serialsRef.current[index];
-            if (currentSerial) {
-                serialLookup.set(key, {
-                    id: currentSerial.id,
-                    serial_number: currentSerial.serial_number,
-                    notes: currentSerial.notes,
-                    stock_index: currentSerial.stock_index ?? 0,
-                });
-            } else {
-                serialLookup.set(key, defaultEntry);
-            }
-        });
+        if (previousMetaRef.current.length > 0) {
+            // Later re-renders (e.g. quantity changed): carry forward whatever is
+            // already sitting in each slot, matched by its previous slot position.
+            previousMetaRef.current.forEach((meta, index) => {
+                const key = `${meta.variantIndex ?? 'base'}-${meta.unitIndex}`;
+                const currentSerial = serialsRef.current[index];
+                if (currentSerial) {
+                    serialLookup.set(key, {
+                        id: currentSerial.id,
+                        serial_number: currentSerial.serial_number,
+                        notes: currentSerial.notes,
+                        stock_index: currentSerial.stock_index ?? 0,
+                    });
+                } else {
+                    serialLookup.set(key, defaultEntry);
+                }
+            });
+        } else if (serialsRef.current.length > 0) {
+            // First render with existing serials already loaded from the server (edit
+            // mode) — there's no previous slot layout to match against yet, so seed
+            // slots by grouping the existing serials by stock_index and filling that
+            // variant's unit slots in order. Without this fallback, every existing
+            // serial silently vanished from the form on load (the lookup above found
+            // nothing) and was then treated as removed on the next save.
+            const byVariant = new Map<number, Array<{ id?: number; serial_number: string; notes: string; stock_index?: number }>>();
+            serialsRef.current.forEach((serial) => {
+                const variantKey = serial.stock_index ?? 0;
+                if (!byVariant.has(variantKey)) byVariant.set(variantKey, []);
+                byVariant.get(variantKey)!.push(serial);
+            });
+
+            const consumedCount = new Map<number, number>();
+            serialEntryMeta.forEach((meta) => {
+                const variantKey = meta.variantIndex ?? 0;
+                const key = `${meta.variantIndex ?? 'base'}-${meta.unitIndex}`;
+                const pool = byVariant.get(variantKey);
+                const nextIdx = consumedCount.get(variantKey) ?? 0;
+                if (pool && pool[nextIdx]) {
+                    const existing = pool[nextIdx];
+                    serialLookup.set(key, {
+                        id: existing.id,
+                        serial_number: existing.serial_number,
+                        notes: existing.notes,
+                        stock_index: existing.stock_index ?? 0,
+                    });
+                    consumedCount.set(variantKey, nextIdx + 1);
+                }
+            });
+        }
 
         const newSerials = serialEntryMeta.map((meta) => {
             const key = `${meta.variantIndex ?? 'base'}-${meta.unitIndex}`;

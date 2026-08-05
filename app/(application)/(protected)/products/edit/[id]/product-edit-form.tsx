@@ -605,7 +605,9 @@ const ProductEditForm = () => {
             appendIfChanged('description', formData.description.trim(), original.formData.description);
             appendIfChanged('has_serial', formData.has_serial ? '1' : '0', original.formData.has_serial ? '1' : '0');
             appendIfChanged('has_warranty', formData.has_warranty ? '1' : '0', original.formData.has_warranty ? '1' : '0');
-            appendIfChanged('has_attributes', formData.has_attributes ? '1' : '0', original.formData.has_attributes ? '1' : '0');
+            // Backend field is singular ("has_attribute") — sending the plural key meant this
+            // toggle was silently ignored on update regardless of what the user chose.
+            appendIfChanged('has_attribute', formData.has_attributes ? '1' : '0', original.formData.has_attributes ? '1' : '0');
             appendIfChanged('has_batch', formData.has_batch ? '1' : '0', original.formData.has_batch ? '1' : '0');
             appendIfChanged('has_expiry', formData.has_expiry ? '1' : '0', original.formData.has_expiry ? '1' : '0');
             appendIfChanged('available', formData.available, original.formData.available);
@@ -783,9 +785,10 @@ const ProductEditForm = () => {
                         }
                         fd.append(`serials[${index}][serial_number]`, normalizeValue(serial.serial_number));
                         fd.append(`serials[${index}][notes]`, normalizeValue(serial.notes));
-                        if (!serial.id) {
-                            fd.append(`serials[${index}][stock_index]`, String(serial.stock_index ?? 0));
-                        }
+                        // Must be sent for existing serials too — the backend defaults an
+                        // omitted stock_index to the first variant, silently reassigning any
+                        // existing serial away from whichever variant it actually belonged to.
+                        fd.append(`serials[${index}][stock_index]`, String(serial.stock_index ?? 0));
                     });
             }
 

@@ -46,9 +46,16 @@ const ProductApi = baseApi.injectEndpoints({
 
         updateProduct: builder.mutation({
             query: ({ id, formData }) => {
+                // PHP only auto-parses multipart/form-data into $_POST/$_FILES for a literal
+                // POST request — a real PATCH with a FormData body (needed here for the
+                // stock/variant image uploads) reaches the backend with a completely empty
+                // request body every time. Send it as POST with Laravel's standard _method
+                // override instead, so PHP parses the body correctly while the route still
+                // resolves as PATCH.
+                formData.append('_method', 'PATCH');
                 return {
                     url: `/products/${id}`,
-                    method: 'PATCH',
+                    method: 'POST',
                     body: formData,
                 };
             },
