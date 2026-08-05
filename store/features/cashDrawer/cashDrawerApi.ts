@@ -58,6 +58,14 @@ export const cashDrawerApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['CashDrawer'],
         }),
+        settleDrawerSession: builder.mutation({
+            query: ({ drawerId, sessionId, ...body }: { drawerId: number; sessionId: number; store_id: number; destination_account_id: number; reason: string }) => ({
+                url: `/drawers/${drawerId}/sessions/${sessionId}/settle`,
+                method: 'POST',
+                body,
+            }),
+            invalidatesTags: ['CashDrawer', 'AccountingJournals', 'AccountingCashBook', 'AccountingReports'],
+        }),
     }),
 });
 
@@ -70,4 +78,5 @@ export const {
     useRecordDrawerMovementMutation,
     useReverseDrawerMovementMutation,
     useCloseDrawerMutation,
+    useSettleDrawerSessionMutation,
 } = cashDrawerApi;

@@ -132,6 +132,7 @@ export const PERMISSION_MENU_MAP: Record<string, string[]> = {
     'cash-drawer.movement.create': [],
     'cash-drawer.movement.reverse': [],
     'cash-drawer.manage': [],
+    'cash-drawer.settle': [],
 };
 
 // ─── Action Labels ────────────────────────────────────────────────────────────
