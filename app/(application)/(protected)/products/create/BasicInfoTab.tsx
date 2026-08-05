@@ -220,6 +220,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                                         <div className="border-b border-gray-200 bg-gray-50 p-3">
                                             <div className="relative">
                                                 <input
+                                                    id="category_search_input"
                                                     type="text"
                                                     placeholder={t('lbl_search_categories')}
                                                     value={categorySearchTerm}

@@ -7,6 +7,7 @@ import { useStoreType } from '@/hooks/useStoreType';
 import useSubscriptionError from '@/hooks/useSubscriptionError';
 import { getTranslation } from '@/i18n';
 import { showErrorDialog, showSuccessDialog } from '@/lib/toast';
+import Swal from 'sweetalert2';
 import { useGetStoreAttributesQuery } from '@/store/features/attribute/attribute';
 import { useGetBrandsQuery } from '@/store/features/brand/brandApi';
 import { useGetCategoryQuery } from '@/store/features/category/categoryApi';
@@ -294,6 +295,50 @@ const ProductCreateForm = () => {
         setBrandSearchTerm(''); // Clear search when brand is selected
     };
 
+    const focusFirstError = (errorsObj: Record<string, string>) => {
+        setTimeout(() => {
+            const errorKeys = Object.keys(errorsObj);
+            if (errorKeys.length === 0) return;
+
+            const firstKey = errorKeys[0];
+
+            // Category: auto-open the dropdown then focus the search box
+            if (firstKey === 'category_id') {
+                setShowCategoryDropdown(true);
+                setTimeout(() => {
+                    const searchInput = document.getElementById('category_search_input');
+                    if (searchInput) {
+                        searchInput.focus();
+                        searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }, 100);
+                return;
+            }
+
+            // Variant fields: the variant accordion auto-expands via VariantsTab useEffect,
+            // so we just need to give it a bit more time, then focus the specific field
+            const variantMatch = firstKey.match(/^variant_(\d+)_(.+)$/);
+            if (variantMatch) {
+                setTimeout(() => {
+                    const fieldEl = document.getElementById(firstKey);
+                    if (fieldEl) {
+                        fieldEl.focus();
+                        fieldEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }, 300); // extra delay for accordion to expand first
+                return;
+            }
+
+            // All other fields: focus by id or name
+            const el = document.getElementById(firstKey) || document.getElementsByName(firstKey)[0];
+            if (el) {
+                el.focus();
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }, 150); // slight delay to allow tab render if switched
+    };
+
+
     // Tab navigation handlers with validation check
     const handleNext = () => {
         if (activeTab === 'basic') {
@@ -306,6 +351,7 @@ const ProductCreateForm = () => {
             }
             if (Object.keys(basicErrors).length > 0) {
                 setErrors((prev) => ({ ...prev, ...basicErrors }));
+                focusFirstError(basicErrors);
                 return;
             }
         } else if (activeTab === 'pricing') {
@@ -318,6 +364,7 @@ const ProductCreateForm = () => {
             }
             if (Object.keys(pricingErrors).length > 0) {
                 setErrors((prev) => ({ ...prev, ...pricingErrors }));
+                focusFirstError(pricingErrors);
                 return;
             }
         } else if (activeTab === 'stock') {
@@ -330,6 +377,29 @@ const ProductCreateForm = () => {
             }
             if (Object.keys(stockErrors).length > 0) {
                 setErrors((prev) => ({ ...prev, ...stockErrors }));
+                focusFirstError(stockErrors);
+                return;
+            }
+        } else if (activeTab === 'variants') {
+            const variantErrors: Record<string, string> = {};
+            if (!productStocks || productStocks.length === 0) {
+                variantErrors.variants = t('msg_add_at_least_one_variant');
+            } else {
+                productStocks.forEach((stock, index) => {
+                    if (!stock.unit || stock.unit.trim() === '') {
+                        variantErrors[`variant_${index}_unit`] = t('msg_select_sales_unit');
+                    }
+                    if (!stock.price || parseFloat(stock.price) <= 0) {
+                        variantErrors[`variant_${index}_price`] = t('msg_enter_selling_price');
+                    }
+                    if (stock.quantity === '' || stock.quantity === undefined || parseFloat(stock.quantity) < 0) {
+                        variantErrors[`variant_${index}_quantity`] = t('msg_enter_opening_stock');
+                    }
+                });
+            }
+            if (Object.keys(variantErrors).length > 0) {
+                setErrors((prev) => ({ ...prev, ...variantErrors }));
+                focusFirstError(variantErrors);
                 return;
             }
         }
@@ -471,10 +541,23 @@ const ProductCreateForm = () => {
         const { isValid, newErrors, firstInvalidTab } = validateForm();
         if (!isValid) {
             setErrors(newErrors);
-            showErrorDialog(t('msg_error'), t('msg_please_fill_required_fields'));
             if (firstInvalidTab) {
                 setActiveTab(firstInvalidTab);
             }
+            // Show the error modal and ONLY focus/scroll after user dismisses it
+            Swal.fire({
+                icon: 'error',
+                title: t('msg_error'),
+                html: t('msg_please_fill_required_fields'),
+                confirmButtonColor: '#ef4444',
+                confirmButtonText: 'OK',
+                customClass: {
+                    popup: 'swal2-error-popup',
+                    confirmButton: 'swal2-error-button',
+                },
+            }).then(() => {
+                focusFirstError(newErrors);
+            });
             return;
         }
 

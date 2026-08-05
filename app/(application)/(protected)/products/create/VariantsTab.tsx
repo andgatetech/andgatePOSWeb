@@ -74,6 +74,19 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
     const [expandedVariantIndex, setExpandedVariantIndex] = useState<number | null>(null);
     const maxImagesPerVariant = 5;
 
+    // Auto-expand the first variant that has errors, so user can see and fix them
+    React.useEffect(() => {
+        const errorKeys = Object.keys(errors);
+        const variantErrorKey = errorKeys.find((k) => k.startsWith('variant_'));
+        if (variantErrorKey) {
+            const match = variantErrorKey.match(/^variant_(\d+)_/);
+            if (match) {
+                const errorIndex = parseInt(match[1], 10);
+                setExpandedVariantIndex(errorIndex);
+            }
+        }
+    }, [errors]);
+
     // Get attribute names from AttributesTab
     const attributeNames = productAttributes.map((attr) => attr.attribute_name || '').filter((name) => name.trim() !== '');
 
@@ -314,6 +327,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                                 {t('lbl_price_unit')} <span className="text-red-500">*</span>
                                             </label>
                                             <select
+                                                id={`variant_${index}_unit`}
                                                 value={stock.unit}
                                                 onChange={(e) => handleVariantChange(index, 'unit', e.target.value)}
                                                 className={`w-full rounded-lg border px-3 py-2 transition-all ${
@@ -347,6 +361,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                             <div className="relative">
                                                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">{symbol}</span>
                                                 <input
+                                                    id={`variant_${index}_price`}
                                                     type="number"
                                                     value={stock.price}
                                                     onChange={(e) => handleVariantChange(index, 'price', e.target.value)}
@@ -407,6 +422,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                                 {t('lbl_quantity_required')} <span className="text-red-500">*</span>
                                             </label>
                                             <input
+                                                id={`variant_${index}_quantity`}
                                                 type="number"
                                                 value={stock.quantity}
                                                 onChange={(e) => handleVariantChange(index, 'quantity', e.target.value)}
