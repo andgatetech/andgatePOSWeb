@@ -1,6 +1,7 @@
 'use client';
 
 import { getTranslation } from '@/i18n';
+import { AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
 import UnitConversionsEditor from './UnitConversionsEditor';
@@ -17,6 +18,7 @@ interface StockTabProps {
         purchase_date?: string;
         expiry_date?: string;
     };
+    errors?: Record<string, string>;
     handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void;
     units: any[];
     onPrevious: () => void;
@@ -27,7 +29,7 @@ interface StockTabProps {
     stockId?: number;
 }
 
-const StockTab: React.FC<StockTabProps> = ({ formData, handleChange, units, onPrevious, onNext, onCreateProduct, isCreating, isEditMode = false, stockId }) => {
+const StockTab: React.FC<StockTabProps> = ({ formData, errors = {}, handleChange, units, onPrevious, onNext, onCreateProduct, isCreating, isEditMode = false, stockId }) => {
     const { t } = getTranslation();
     return (
         <div className="space-y-6">
@@ -45,7 +47,11 @@ const StockTab: React.FC<StockTabProps> = ({ formData, handleChange, units, onPr
                         name="units"
                         value={formData.units}
                         onChange={handleChange}
-                        className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-gray-500"
+                        className={`w-full rounded-lg border px-4 py-3 transition-all duration-200 focus:outline-none focus:ring-2 ${
+                            errors.units
+                                ? 'border-red-500 bg-red-50/30 text-gray-900 focus:border-red-500 focus:ring-red-200'
+                                : 'border-gray-300 bg-gray-50 focus:border-transparent focus:bg-white focus:ring-gray-500'
+                        }`}
                     >
                         <option value="">{t('lbl_unit')}</option>
                         <option value="Piece">{t('lbl_piece_default')}</option>
@@ -55,6 +61,12 @@ const StockTab: React.FC<StockTabProps> = ({ formData, handleChange, units, onPr
                             </option>
                         ))}
                     </select>
+                    {errors.units && (
+                        <p className="mt-1.5 flex items-center gap-1 text-xs font-medium text-red-600">
+                            <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" />
+                            <span>{errors.units}</span>
+                        </p>
+                    )}
                     <p className="mt-1 text-xs text-gray-500">{t('lbl_unit_hint')}</p>
                     <Link
                         href="/store/setting"
@@ -80,8 +92,18 @@ const StockTab: React.FC<StockTabProps> = ({ formData, handleChange, units, onPr
                         value={formData.quantity}
                         onChange={handleChange}
                         placeholder="0"
-                        className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-gray-500"
+                        className={`w-full rounded-lg border px-4 py-3 transition-all duration-200 focus:outline-none focus:ring-2 ${
+                            errors.quantity
+                                ? 'border-red-500 bg-red-50/30 text-gray-900 focus:border-red-500 focus:ring-red-200'
+                                : 'border-gray-300 bg-gray-50 focus:border-transparent focus:bg-white focus:ring-gray-500'
+                        }`}
                     />
+                    {errors.quantity && (
+                        <p className="mt-1.5 flex items-center gap-1 text-xs font-medium text-red-600">
+                            <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" />
+                            <span>{errors.quantity}</span>
+                        </p>
+                    )}
                 </div>
 
                 {/* Low Stock Quantity */}

@@ -14,9 +14,10 @@ interface ProductCreateTabsProps {
     activeTab: string;
     onTabChange: (tabId: string) => void;
     visibleTabs: string[];
+    tabErrors?: Record<string, boolean>;
 }
 
-const ProductCreateTabs = ({ activeTab, onTabChange, visibleTabs }: ProductCreateTabsProps) => {
+const ProductCreateTabs = ({ activeTab, onTabChange, visibleTabs, tabErrors = {} }: ProductCreateTabsProps) => {
     const { t } = getTranslation();
     const tabs: Tab[] = [
         { id: 'basic', label: t('lbl_basic_info'), icon: Info, description: t('tab_desc_basic') },
@@ -41,6 +42,7 @@ const ProductCreateTabs = ({ activeTab, onTabChange, visibleTabs }: ProductCreat
                     {displayTabs.map((tab) => {
                         const Icon = tab.icon;
                         const isActive = activeTab === tab.id;
+                        const hasError = !!tabErrors[tab.id];
 
                         return (
                             <button
@@ -49,19 +51,27 @@ const ProductCreateTabs = ({ activeTab, onTabChange, visibleTabs }: ProductCreat
                                 onClick={() => onTabChange(tab.id)}
                                 className={`
                                     group relative flex flex-col items-center gap-1.5 rounded-lg border px-4 py-2.5 transition-all duration-200
-                                    ${isActive ? 'border-gray-300 bg-gray-100 shadow-sm' : 'border-gray-200 bg-gray-50 hover:border-gray-300 hover:bg-gray-100'}
+                                    ${hasError ? 'border-red-300 bg-red-50/40 text-red-700 hover:border-red-400' : isActive ? 'border-gray-300 bg-gray-100 shadow-sm' : 'border-gray-200 bg-gray-50 hover:border-gray-300 hover:bg-gray-100'}
                                 `}
                             >
+                                {hasError && (
+                                    <span className="absolute right-1.5 top-1.5 flex h-2 w-2">
+                                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
+                                        <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500"></span>
+                                    </span>
+                                )}
                                 <div
-                                    className={`rounded-lg p-1.5 transition-colors ${isActive ? 'bg-gray-700 text-white' : 'bg-white text-gray-600 group-hover:bg-gray-200 group-hover:text-gray-800'}`}
+                                    className={`rounded-lg p-1.5 transition-colors ${
+                                        hasError ? 'bg-red-500 text-white' : isActive ? 'bg-gray-700 text-white' : 'bg-white text-gray-600 group-hover:bg-gray-200 group-hover:text-gray-800'
+                                    }`}
                                 >
                                     <Icon className="h-4 w-4" />
                                 </div>
                                 <div className="text-center">
-                                    <p className={`text-xs font-semibold ${isActive ? 'text-gray-900' : 'text-gray-700'}`}>{tab.label}</p>
-                                    <p className={`text-[10px] leading-tight ${isActive ? 'text-gray-600' : 'text-gray-500'}`}>{tab.description}</p>
+                                    <p className={`text-xs font-semibold ${hasError ? 'text-red-700' : isActive ? 'text-gray-900' : 'text-gray-700'}`}>{tab.label}</p>
+                                    <p className={`text-[10px] leading-tight ${hasError ? 'text-red-500' : isActive ? 'text-gray-600' : 'text-gray-500'}`}>{tab.description}</p>
                                 </div>
-                                {isActive && <div className="absolute -bottom-[1px] left-0 h-[2px] w-full bg-gray-700" />}
+                                {isActive && <div className={`absolute -bottom-[1px] left-0 h-[2px] w-full ${hasError ? 'bg-red-500' : 'bg-gray-700'}`} />}
                             </button>
                         );
                     })}

@@ -125,18 +125,31 @@ const ProductCreateForm = () => {
         expiry_date: '',
     });
 
+    // Form Validation Errors State
+    const [errors, setErrors] = useState<Record<string, string>>({});
+
     // Tab completion validation functions
     const isBasicInfoComplete = () => {
-        return formData.product_name.trim() !== '';
+        return formData.product_name.trim() !== '' && formData.category_id.trim() !== '';
     };
 
     const isPricingComplete = () => {
-        return formData.price !== '';
+        return formData.price.trim() !== '' && formData.units.trim() !== '';
     };
 
     const isStockComplete = () => {
-        return formData.units !== '' && formData.quantity !== '';
+        return formData.units.trim() !== '' && formData.quantity.trim() !== '';
     };
+
+    const tabErrors = React.useMemo(() => {
+        const res: Record<string, boolean> = {
+            basic: !!(errors.product_name || errors.category_id),
+            pricing: !!(errors.price || (!formData.has_attributes && errors.units)),
+            stock: !!(errors.quantity || (!formData.has_attributes && errors.units)),
+            variants: !!(errors.variants || Object.keys(errors).some((k) => k.startsWith('variant_'))),
+        };
+        return res;
+    }, [errors, formData.has_attributes]);
 
     // Tab visibility and unlock logic
     const getVisibleTabs = () => {
@@ -242,6 +255,15 @@ const ProductCreateForm = () => {
         } else {
             setFormData((prev) => ({ ...prev, [name]: value }));
         }
+
+        // Clear error for this field when user types or selects
+        if (errors[name]) {
+            setErrors((prev) => {
+                const next = { ...prev };
+                delete next[name];
+                return next;
+            });
+        }
     };
 
     const handleCategorySelect = (category: any) => {
@@ -252,6 +274,14 @@ const ProductCreateForm = () => {
         }));
         setShowCategoryDropdown(false);
         setCategorySearchTerm(''); // Clear search when category is selected
+
+        if (errors.category_id) {
+            setErrors((prev) => {
+                const next = { ...prev };
+                delete next.category_id;
+                return next;
+            });
+        }
     };
 
     const handleBrandSelect = (brand: any) => {
@@ -264,8 +294,46 @@ const ProductCreateForm = () => {
         setBrandSearchTerm(''); // Clear search when brand is selected
     };
 
-    // Tab navigation handlers
+    // Tab navigation handlers with validation check
     const handleNext = () => {
+        if (activeTab === 'basic') {
+            const basicErrors: Record<string, string> = {};
+            if (!formData.product_name || !formData.product_name.trim()) {
+                basicErrors.product_name = t('msg_enter_product_name');
+            }
+            if (!formData.category_id || !formData.category_id.trim()) {
+                basicErrors.category_id = t('msg_select_category');
+            }
+            if (Object.keys(basicErrors).length > 0) {
+                setErrors((prev) => ({ ...prev, ...basicErrors }));
+                return;
+            }
+        } else if (activeTab === 'pricing') {
+            const pricingErrors: Record<string, string> = {};
+            if (!formData.units || !formData.units.trim()) {
+                pricingErrors.units = t('msg_select_sales_unit');
+            }
+            if (!formData.price || parseFloat(formData.price) <= 0) {
+                pricingErrors.price = t('msg_enter_selling_price');
+            }
+            if (Object.keys(pricingErrors).length > 0) {
+                setErrors((prev) => ({ ...prev, ...pricingErrors }));
+                return;
+            }
+        } else if (activeTab === 'stock') {
+            const stockErrors: Record<string, string> = {};
+            if (!formData.units || !formData.units.trim()) {
+                stockErrors.units = t('msg_select_sales_unit');
+            }
+            if (formData.quantity === '' || formData.quantity === undefined || parseFloat(formData.quantity) < 0) {
+                stockErrors.quantity = t('msg_enter_opening_stock');
+            }
+            if (Object.keys(stockErrors).length > 0) {
+                setErrors((prev) => ({ ...prev, ...stockErrors }));
+                return;
+            }
+        }
+
         const visibleTabs = getVisibleTabs();
         const currentIndex = visibleTabs.indexOf(activeTab);
 
@@ -339,91 +407,87 @@ const ProductCreateForm = () => {
         }
     };
 
+    const validateForm = (): { isValid: boolean; newErrors: Record<string, string>; firstInvalidTab: string | null } => {
+        const newErrors: Record<string, string> = {};
+        let firstInvalidTab: string | null = null;
+
+        // Basic Info Validation
+        if (!formData.product_name || !formData.product_name.trim()) {
+            newErrors.product_name = t('msg_enter_product_name');
+            if (!firstInvalidTab) firstInvalidTab = 'basic';
+        }
+        if (!formData.category_id || !formData.category_id.trim()) {
+            newErrors.category_id = t('msg_select_category');
+            if (!firstInvalidTab) firstInvalidTab = 'basic';
+        }
+
+        // Variant vs Simple Validation
+        if (formData.has_attributes) {
+            if (!productStocks || productStocks.length === 0) {
+                newErrors.variants = t('msg_add_at_least_one_variant');
+                if (!firstInvalidTab) firstInvalidTab = 'variants';
+            } else {
+                productStocks.forEach((stock, index) => {
+                    if (!stock.unit || stock.unit.trim() === '') {
+                        newErrors[`variant_${index}_unit`] = t('msg_select_sales_unit');
+                        if (!firstInvalidTab) firstInvalidTab = 'variants';
+                    }
+                    if (!stock.price || parseFloat(stock.price) <= 0) {
+                        newErrors[`variant_${index}_price`] = t('msg_enter_selling_price');
+                        if (!firstInvalidTab) firstInvalidTab = 'variants';
+                    }
+                    if (stock.quantity === '' || stock.quantity === undefined || parseFloat(stock.quantity) < 0) {
+                        newErrors[`variant_${index}_quantity`] = t('msg_enter_opening_stock');
+                        if (!firstInvalidTab) firstInvalidTab = 'variants';
+                    }
+                });
+            }
+        } else {
+            // Pricing Validation
+            if (!formData.units || !formData.units.trim()) {
+                newErrors.units = t('msg_select_sales_unit');
+                if (!firstInvalidTab) firstInvalidTab = 'pricing';
+            }
+            if (!formData.price || parseFloat(formData.price) <= 0) {
+                newErrors.price = t('msg_enter_selling_price');
+                if (!firstInvalidTab) firstInvalidTab = 'pricing';
+            }
+
+            // Stock Validation
+            if (formData.quantity === '' || formData.quantity === undefined || parseFloat(formData.quantity) < 0) {
+                newErrors.quantity = t('msg_enter_opening_stock');
+                if (!firstInvalidTab) firstInvalidTab = 'stock';
+            }
+        }
+
+        return {
+            isValid: Object.keys(newErrors).length === 0,
+            newErrors,
+            firstInvalidTab,
+        };
+    };
+
     const handleSubmit = async () => {
-        // Validation
-        if (!formData.product_name.trim()) {
-            showErrorDialog(t('msg_error'), t('msg_enter_product_name'));
-            setActiveTab('basic');
+        const { isValid, newErrors, firstInvalidTab } = validateForm();
+        if (!isValid) {
+            setErrors(newErrors);
+            showErrorDialog(t('msg_error'), t('msg_please_fill_required_fields'));
+            if (firstInvalidTab) {
+                setActiveTab(firstInvalidTab);
+            }
             return;
         }
 
+        // Clear any previous validation errors
+        setErrors({});
+
         // Check if product has variants (has_attributes enabled)
         if (formData.has_attributes) {
-            // For variant products, validate stocks/variants
-            if (!productStocks || productStocks.length === 0) {
-                showErrorDialog(t('msg_error'), t('msg_add_at_least_one_variant'));
-                setActiveTab('variants');
-                return;
-            }
-
-            // Validate each stock entry
-            for (let i = 0; i < productStocks.length; i++) {
-                const stock = productStocks[i];
-                const variantName = stock.variant_data && Object.keys(stock.variant_data).length > 0 ? Object.values(stock.variant_data).join('-') : `Variant ${i + 1}`;
-
-                if (!stock.price || parseFloat(stock.price) <= 0) {
-                    showErrorDialog(t('msg_error'), `${variantName}: ${t('msg_enter_selling_price')}`);
-                    setActiveTab('variants');
-                    return;
-                }
-                const rawStockPurchasePrice = stock.purchase_price !== undefined && stock.purchase_price !== null ? String(stock.purchase_price).trim() : '';
-                const parsedStockPurchasePrice = rawStockPurchasePrice !== '' ? parseFloat(rawStockPurchasePrice) : 0;
-                if (isNaN(parsedStockPurchasePrice) || parsedStockPurchasePrice < 0) {
-                    showErrorDialog(t('msg_error'), `${variantName}: ${t('msg_enter_purchase_price')}`);
-                    setActiveTab('variants');
-                    return;
-                }
-                if (!stock.quantity || parseFloat(stock.quantity) < 0) {
-                    showErrorDialog(t('msg_error'), `${variantName}: ${t('msg_enter_opening_stock')}`);
-                    setActiveTab('variants');
-                    return;
-                }
-                if (!stock.unit || stock.unit.trim() === '') {
-                    showErrorDialog(t('msg_error'), `${variantName}: ${t('msg_select_sales_unit')}`);
-                    setActiveTab('variants');
-                    return;
-                }
-                if (stock.low_stock_quantity && parseFloat(stock.low_stock_quantity) < 0) {
-                    showErrorDialog(t('msg_error'), `${variantName}: ${t('lbl_minimum_stock')}`);
-                    setActiveTab('variants');
-                    return;
-                }
-                if (stock.tax_rate && (parseFloat(stock.tax_rate) < 0 || parseFloat(stock.tax_rate) > 100)) {
-                    showErrorDialog(t('msg_error'), `${variantName}: ${t('lbl_tax')}`);
-                    setActiveTab('variants');
-                    return;
-                }
-            }
-
-            // Submit with variant stocks
             await submitProductData(productStocks);
             return;
         }
 
-        // For simple products (no variants), validate and auto-create single stock from formData
-        // Validate simple product pricing & stock
-        if (!formData.price || parseFloat(formData.price) <= 0) {
-            showErrorDialog(t('msg_error'), t('msg_enter_selling_price'));
-            setActiveTab('pricing');
-            return;
-        }
         const rawFormPurchasePrice = formData.purchase_price !== undefined && formData.purchase_price !== null ? String(formData.purchase_price).trim() : '';
-        const parsedFormPurchasePrice = rawFormPurchasePrice !== '' ? parseFloat(rawFormPurchasePrice) : 0;
-        if (isNaN(parsedFormPurchasePrice) || parsedFormPurchasePrice < 0) {
-            showErrorDialog(t('msg_error'), t('msg_enter_purchase_price'));
-            setActiveTab('pricing');
-            return;
-        }
-        if (!formData.units) {
-            showErrorDialog(t('msg_error'), t('msg_select_sales_unit'));
-            setActiveTab('stock');
-            return;
-        }
-        if (!formData.quantity || parseFloat(formData.quantity) < 0) {
-            showErrorDialog(t('msg_error'), t('msg_enter_opening_stock'));
-            setActiveTab('stock');
-            return;
-        }
 
         // Auto-create single stock entry from formData
         const singleStock: ProductStock = {
@@ -694,6 +758,21 @@ const ProductCreateForm = () => {
 
             // Don't show Swal for 403 subscription errors - SubscriptionError component will handle it
             if (error?.status !== 403) {
+                const serverErrors = error?.data?.errors || error?.data?.data;
+                if (serverErrors && typeof serverErrors === 'object') {
+                    const mappedBackendErrors: Record<string, string> = {};
+                    Object.entries(serverErrors).forEach(([key, val]) => {
+                        const msg = Array.isArray(val) ? val[0] : String(val);
+                        if (key === 'product_name') mappedBackendErrors.product_name = msg;
+                        else if (key === 'category_id') mappedBackendErrors.category_id = msg;
+                        else if (key === 'price' || key === 'stocks.0.price') mappedBackendErrors.price = msg;
+                        else if (key === 'units' || key === 'pos_units.0.name' || key === 'stocks.0.unit') mappedBackendErrors.units = msg;
+                        else if (key === 'quantity' || key === 'stocks.0.quantity') mappedBackendErrors.quantity = msg;
+                        else mappedBackendErrors[key] = msg;
+                    });
+                    setErrors((prev) => ({ ...prev, ...mappedBackendErrors }));
+                }
+
                 const validationHtml = formatValidationErrors(error?.data?.errors || error?.data?.data);
                 if (validationHtml) {
                     focusTabForValidationErrors(error?.data?.errors || error?.data?.data);
@@ -786,10 +865,10 @@ const ProductCreateForm = () => {
                 </div>
 
                 {/* Tabs - Desktop & Tablet */}
-                <ProductCreateTabs activeTab={activeTab} onTabChange={setActiveTab} visibleTabs={getVisibleTabs()} />
+                <ProductCreateTabs activeTab={activeTab} onTabChange={setActiveTab} visibleTabs={getVisibleTabs()} tabErrors={tabErrors} />
 
                 {/* Mobile FAB */}
-                <MobileTabFAB activeTab={activeTab} onTabChange={setActiveTab} visibleTabs={getVisibleTabs()} />
+                <MobileTabFAB activeTab={activeTab} onTabChange={setActiveTab} visibleTabs={getVisibleTabs()} tabErrors={tabErrors} />
 
                 {/* Main Form Card */}
                 <div className="mb-8 overflow-hidden rounded-lg bg-white shadow-sm">
@@ -798,6 +877,7 @@ const ProductCreateForm = () => {
                         {activeTab === 'basic' && (
                             <BasicInfoTab
                                 formData={formData}
+                                errors={errors}
                                 handleChange={handleChange}
                                 setFormData={setFormData}
                                 showCategoryDropdown={showCategoryDropdown}
@@ -817,12 +897,22 @@ const ProductCreateForm = () => {
                         )}
 
                         {activeTab === 'pricing' && (
-                            <PricingTab formData={formData} handleChange={handleChange} units={units} onPrevious={handlePrevious} onNext={handleNext} onCreateProduct={handleSubmit} isCreating={createLoading} />
+                            <PricingTab
+                                formData={formData}
+                                errors={errors}
+                                handleChange={handleChange}
+                                units={units}
+                                onPrevious={handlePrevious}
+                                onNext={handleNext}
+                                onCreateProduct={handleSubmit}
+                                isCreating={createLoading}
+                            />
                         )}
 
                         {activeTab === 'stock' && (
                             <StockTab
                                 formData={formData}
+                                errors={errors}
                                 handleChange={handleChange}
                                 units={units}
                                 onPrevious={handlePrevious}
@@ -852,6 +942,7 @@ const ProductCreateForm = () => {
                                 units={units}
                                 defaultUnit={formData.units}
                                 formData={formData}
+                                errors={errors}
                                 onPrevious={handlePrevious}
                                 onNext={handleNext}
                                 onCreateProduct={handleSubmit}

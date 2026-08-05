@@ -4416,6 +4416,8 @@
   "flow_step_attributes": "Options",
   "flow_step_variants": "Variants",
   "msg_enter_product_name": "Enter the product name.",
+  "msg_select_category": "Select a product category.",
+  "msg_please_fill_required_fields": "Please fill in the required fields highlighted in red.",
   "msg_add_at_least_one_variant": "Add at least one size, color, or model variant.",
   "msg_enter_selling_price": "Enter the selling price.",
   "msg_enter_purchase_price": "Enter the purchase price so profit reports stay correct.",

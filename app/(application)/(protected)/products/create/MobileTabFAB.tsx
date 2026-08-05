@@ -16,9 +16,10 @@ interface MobileTabFABProps {
     activeTab: string;
     onTabChange: (tabId: string) => void;
     visibleTabs: string[];
+    tabErrors?: Record<string, boolean>;
 }
 
-const MobileTabFAB: React.FC<MobileTabFABProps> = ({ activeTab, onTabChange, visibleTabs }) => {
+const MobileTabFAB: React.FC<MobileTabFABProps> = ({ activeTab, onTabChange, visibleTabs, tabErrors = {} }) => {
     const { t } = getTranslation();
     const [isOpen, setIsOpen] = useState(false);
     const tabs: Tab[] = [
@@ -69,20 +70,31 @@ const MobileTabFAB: React.FC<MobileTabFABProps> = ({ activeTab, onTabChange, vis
                         {displayTabs.map((tab) => {
                             const Icon = tab.icon;
                             const isActive = activeTab === tab.id;
+                            const hasError = !!tabErrors[tab.id];
 
                             return (
                                 <button
                                     key={tab.id}
                                     type="button"
                                     onClick={() => handleTabClick(tab.id)}
-                                    className={`flex flex-col items-center gap-1.5 rounded-xl border-2 p-4 transition-all ${
-                                        isActive ? 'border-gray-500 bg-blue-50' : 'border-gray-200 bg-white hover:border-blue-300'
+                                    className={`relative flex flex-col items-center gap-1.5 rounded-xl border-2 p-4 transition-all ${
+                                        hasError
+                                            ? 'border-red-400 bg-red-50 text-red-700'
+                                            : isActive
+                                            ? 'border-gray-500 bg-blue-50'
+                                            : 'border-gray-200 bg-white hover:border-blue-300'
                                     }`}
                                 >
-                                    <div className={`rounded-lg p-1.5 ${isActive ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-600'}`}>
+                                    {hasError && (
+                                        <span className="absolute right-2 top-2 flex h-2.5 w-2.5">
+                                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
+                                            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-red-500"></span>
+                                        </span>
+                                    )}
+                                    <div className={`rounded-lg p-1.5 ${hasError ? 'bg-red-500 text-white' : isActive ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-600'}`}>
                                         <Icon className="h-4 w-4" />
                                     </div>
-                                    <span className={`text-xs font-medium ${isActive ? 'text-blue-900' : 'text-gray-700'}`}>{tab.label}</span>
+                                    <span className={`text-xs font-medium ${hasError ? 'text-red-700 font-semibold' : isActive ? 'text-blue-900' : 'text-gray-700'}`}>{tab.label}</span>
                                 </button>
                             );
                         })}

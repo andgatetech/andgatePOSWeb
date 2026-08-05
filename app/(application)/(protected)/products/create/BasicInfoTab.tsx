@@ -3,6 +3,7 @@
 import { getTranslation } from '@/i18n';
 import RichTextEditor from '@/components/common/RichTextEditor';
 import { useStoreType } from '@/hooks/useStoreType';
+import { AlertCircle } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
@@ -22,6 +23,7 @@ interface BasicInfoTabProps {
         has_batch: boolean;
         has_expiry: boolean;
     };
+    errors?: Record<string, string>;
     handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void;
     setFormData?: React.Dispatch<React.SetStateAction<any>>;
     categories?: any[];
@@ -48,6 +50,7 @@ interface BasicInfoTabProps {
 
 const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
     formData,
+    errors = {},
     handleChange,
     setFormData,
     categories,
@@ -101,8 +104,18 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                         value={formData.product_name}
                         onChange={handleChange}
                         placeholder={t('lbl_product')}
-                        className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 transition-all duration-200 focus:border-transparent focus:bg-white focus:ring-2 focus:ring-gray-500"
+                        className={`w-full rounded-lg border px-4 py-3 transition-all duration-200 focus:outline-none focus:ring-2 ${
+                            errors.product_name
+                                ? 'border-red-500 bg-red-50/30 text-gray-900 focus:border-red-500 focus:ring-red-200'
+                                : 'border-gray-300 bg-gray-50 focus:border-transparent focus:bg-white focus:ring-gray-500'
+                        }`}
                     />
+                    {errors.product_name && (
+                        <p className="mt-1.5 flex items-center gap-1 text-xs font-medium text-red-600">
+                            <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" />
+                            <span>{errors.product_name}</span>
+                        </p>
+                    )}
                 </div>
 
                 {/* Generic Name — Pharmacy only */}
@@ -163,20 +176,24 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                     {/* Category Selection */}
                     <div>
                         <label className="mb-2 block text-sm font-medium text-gray-700">
-                            {t('lbl_category')} <span className="text-xs font-normal text-gray-400">({t('lbl_optional')})</span>
+                            {t('lbl_category')} <span className="text-red-500">*</span>
                         </label>
                         <div className="relative">
                             <button
                                 type="button"
                                 onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
-                                className={`w-full rounded-lg border px-4 py-3 text-left transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 ${
-                                    formData.category_name ? 'border-blue-300 bg-blue-50 font-medium text-gray-900' : 'border-gray-300 bg-white text-gray-500'
+                                className={`w-full rounded-lg border px-4 py-3 text-left transition-all duration-200 focus:outline-none focus:ring-2 ${
+                                    errors.category_id
+                                        ? 'border-red-500 bg-red-50/30 text-gray-900 focus:border-red-500 focus:ring-red-200'
+                                        : formData.category_name
+                                        ? 'border-blue-300 bg-blue-50 font-medium text-gray-900 focus:ring-gray-500'
+                                        : 'border-gray-300 bg-white text-gray-500 focus:ring-gray-500'
                                 }`}
                             >
                                 <span className="block truncate pr-8">{formData.category_name || t('lbl_select_category')}</span>
                                 <svg
                                     className={`absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 transition-transform duration-200 ${
-                                        showCategoryDropdown ? 'rotate-180 text-gray-600' : 'text-gray-400'
+                                        showCategoryDropdown ? 'rotate-180 text-gray-600' : errors.category_id ? 'text-red-500' : 'text-gray-400'
                                     }`}
                                     fill="none"
                                     stroke="currentColor"
@@ -185,6 +202,12 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                 </svg>
                             </button>
+                            {errors.category_id && (
+                                <p className="mt-1.5 flex items-center gap-1 text-xs font-medium text-red-600">
+                                    <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" />
+                                    <span>{errors.category_id}</span>
+                                </p>
+                            )}
 
                             {/* Category Dropdown */}
                             {showCategoryDropdown && (

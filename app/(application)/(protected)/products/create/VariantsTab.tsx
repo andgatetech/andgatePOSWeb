@@ -3,7 +3,7 @@
 import { getTranslation } from '@/i18n';
 import { useCurrency } from '@/hooks/useCurrency';
 import { compressImage, fileToDataUrl } from '@/lib/image-compress';
-import { ChevronDown, ChevronUp, Copy, Image as ImageIcon, Package, Plus, Trash2, X } from 'lucide-react';
+import { AlertCircle, ChevronDown, ChevronUp, Copy, Image as ImageIcon, Package, Plus, Trash2, X } from 'lucide-react';
 import Image from 'next/image';
 import React, { useState } from 'react';
 import ImageUploading, { ImageListType } from 'react-images-uploading';
@@ -47,6 +47,7 @@ interface VariantsTabProps {
         has_batch?: boolean;
         has_expiry?: boolean;
     };
+    errors?: Record<string, string>;
     onPrevious: () => void;
     onNext: () => void;
     onCreateProduct: () => void;
@@ -61,6 +62,7 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
     units,
     defaultUnit,
     formData,
+    errors = {},
     onPrevious,
     onNext,
     onCreateProduct,
@@ -217,6 +219,12 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                         <span>{t('btn_add_new')}</span>
                     </button>
                 </div>
+                {errors.variants && (
+                    <div className="mt-3 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm font-medium text-red-700">
+                        <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                        <span>{errors.variants}</span>
+                    </div>
+                )}
                 {attributeNames.length === 0 && (
                     <div className="mt-3 rounded-lg border border-yellow-200 bg-yellow-50 p-3 text-sm text-yellow-800">
                         ⚠️ {t('msg_no_attributes_hint_prefix')} <strong>{t('store_attributes_title')}</strong> {t('msg_no_attributes_hint_suffix')}
@@ -308,7 +316,11 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                             <select
                                                 value={stock.unit}
                                                 onChange={(e) => handleVariantChange(index, 'unit', e.target.value)}
-                                                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-[#cde2ef] focus:ring-2 focus:ring-purple-500"
+                                                className={`w-full rounded-lg border px-3 py-2 transition-all ${
+                                                    errors[`variant_${index}_unit`]
+                                                        ? 'border-red-500 bg-red-50/30 text-gray-900 focus:border-red-500 focus:ring-red-200'
+                                                        : 'border-gray-300 focus:border-[#cde2ef] focus:ring-2 focus:ring-purple-500'
+                                                }`}
                                             >
                                                 <option value="">{t('placeholder_select_unit')}</option>
                                                 <option value="Piece">{t('lbl_piece_default')}</option>
@@ -318,7 +330,14 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                                     </option>
                                                 ))}
                                             </select>
-                                            <p className="mt-1 text-xs text-gray-500">{t('hint_price_unit')}</p>
+                                            {errors[`variant_${index}_unit`] ? (
+                                                <p className="mt-1 flex items-center gap-1 text-xs font-medium text-red-600">
+                                                    <AlertCircle className="h-3 w-3 flex-shrink-0" />
+                                                    <span>{errors[`variant_${index}_unit`]}</span>
+                                                </p>
+                                            ) : (
+                                                <p className="mt-1 text-xs text-gray-500">{t('hint_price_unit')}</p>
+                                            )}
                                         </div>
 
                                         <div>
@@ -332,9 +351,19 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                                     value={stock.price}
                                                     onChange={(e) => handleVariantChange(index, 'price', e.target.value)}
                                                     placeholder="0.00"
-                                                    className="w-full rounded-lg border border-gray-300 py-2 pl-8 pr-4 focus:border-[#cde2ef] focus:ring-2 focus:ring-purple-500"
+                                                    className={`w-full rounded-lg border py-2 pl-8 pr-4 transition-all ${
+                                                        errors[`variant_${index}_price`]
+                                                            ? 'border-red-500 bg-red-50/30 text-gray-900 focus:border-red-500 focus:ring-red-200'
+                                                            : 'border-gray-300 focus:border-[#cde2ef] focus:ring-2 focus:ring-purple-500'
+                                                    }`}
                                                 />
                                             </div>
+                                            {errors[`variant_${index}_price`] && (
+                                                <p className="mt-1 flex items-center gap-1 text-xs font-medium text-red-600">
+                                                    <AlertCircle className="h-3 w-3 flex-shrink-0" />
+                                                    <span>{errors[`variant_${index}_price`]}</span>
+                                                </p>
+                                            )}
                                         </div>
 
                                         <div>
@@ -382,8 +411,18 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                                 value={stock.quantity}
                                                 onChange={(e) => handleVariantChange(index, 'quantity', e.target.value)}
                                                 placeholder="0"
-                                                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-[#cde2ef] focus:ring-2 focus:ring-purple-500"
+                                                className={`w-full rounded-lg border px-3 py-2 transition-all ${
+                                                    errors[`variant_${index}_quantity`]
+                                                        ? 'border-red-500 bg-red-50/30 text-gray-900 focus:border-red-500 focus:ring-red-200'
+                                                        : 'border-gray-300 focus:border-[#cde2ef] focus:ring-2 focus:ring-purple-500'
+                                                }`}
                                             />
+                                            {errors[`variant_${index}_quantity`] && (
+                                                <p className="mt-1 flex items-center gap-1 text-xs font-medium text-red-600">
+                                                    <AlertCircle className="h-3 w-3 flex-shrink-0" />
+                                                    <span>{errors[`variant_${index}_quantity`]}</span>
+                                                </p>
+                                            )}
                                         </div>
 
                                         <div>
