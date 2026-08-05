@@ -52,7 +52,11 @@ const MobileTabFAB: React.FC<MobileTabFABProps> = ({ activeTab, onTabChange, vis
             {isOpen && <div className="fixed inset-0 z-[72] bg-black/50 backdrop-blur-sm md:hidden" onClick={() => setIsOpen(false)} />}
 
             {/* Slide-up Menu */}
-            <div className={`fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-[73] transform rounded-t-3xl bg-white shadow-2xl transition-transform duration-300 md:hidden ${isOpen ? 'translate-y-0' : 'translate-y-full'}`}>
+            {/* translate-y-full only offsets by the panel's own height — this panel
+                also rests bottom:3.5rem above the viewport edge, so that alone left
+                its rounded top edge permanently peeking above the bottom nav on every
+                load. The closed transform must clear the panel's height AND that gap. */}
+            <div className={`fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-[73] transform rounded-t-3xl bg-white shadow-2xl transition-transform duration-300 md:hidden ${isOpen ? 'translate-y-0' : 'translate-y-[calc(100%+3.5rem+env(safe-area-inset-bottom))]'}`}>
                 <div className="p-4">
                     <div className="mb-4 flex items-center justify-between">
                         <h3 className="text-base font-bold text-gray-900">{t('product_page_title')}</h3>
