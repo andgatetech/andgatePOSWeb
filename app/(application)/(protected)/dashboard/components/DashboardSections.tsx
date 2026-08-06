@@ -93,10 +93,11 @@ const StatusBadge = ({ status }: { status: string }) => {
         partial: { bg: 'bg-yellow-100', text: 'text-yellow-700', label: t('status_partial') },
         pending: { bg: 'bg-[#046ca9]/10', text: 'text-[#034d79]', label: t('status_pending') },
         cancelled: { bg: 'bg-red-100', text: 'text-red-700', label: t('status_cancelled') },
+        voided: { bg: 'bg-red-100', text: 'text-red-700 line-through', label: 'Voided' },
         onhold: { bg: 'bg-orange-100', text: 'text-orange-700', label: t('status_on_hold') },
     };
 
-    const config = statusConfig[status.toLowerCase()] || statusConfig.pending;
+    const config = statusConfig[status?.toLowerCase?.()] || statusConfig.pending;
 
     return <span className={`rounded-full px-2 py-1 text-xs font-semibold ${config.bg} ${config.text}`}>{config.label}</span>;
 };

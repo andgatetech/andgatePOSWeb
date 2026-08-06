@@ -142,6 +142,8 @@ const OrdersTable: React.FC<OrdersTableProps> = ({
                     const status = value?.toLowerCase() || 'completed';
                     const statusConfig: Record<string, { bg: string; text: string; label: string; border: string }> = {
                         completed: { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200', label: t('status_completed') },
+                        voided: { bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-200', label: 'Voided' },
+                        cancelled: { bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-200', label: 'Cancelled' },
                         fully_returned: { bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-200', label: t('status_fully_returned') },
                         partially_returned: { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200', label: t('status_partially_returned') },
                         pending: { bg: 'bg-yellow-50', text: 'text-yellow-700', border: 'border-yellow-200', label: t('status_pending') },

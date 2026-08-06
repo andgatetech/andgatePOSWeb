@@ -127,8 +127,8 @@ const TransactionReportPage = () => {
         [summary, formatCurrency]
     );
 
-    const summaryItems = useMemo(
-        () => [
+    const summaryItems = useMemo(() => {
+        const items = [
             {
                 label: t('lbl_transactions'),
                 value: formatNumber(summary.total_transactions || 0),
@@ -171,9 +171,19 @@ const TransactionReportPage = () => {
                 icon: <Calculator className="h-4 w-4 text-info" />,
                 role: 'insight' as const,
             },
-        ],
-        [summary, formatCurrency]
-    );
+        ];
+
+        if (summary.total_voided_transactions > 0) {
+            items.push({
+                label: 'Voided Transactions',
+                value: `${formatNumber(summary.total_voided_transactions)} (${formatCurrency(Number(summary.total_voided_amount || 0))})`,
+                icon: <CreditCard className="h-4 w-4 text-warning" />,
+                role: 'neutral' as const,
+            });
+        }
+
+        return items;
+    }, [summary, formatCurrency, formatNumber, t]);
 
     const columns = useMemo(
         () => [
@@ -181,12 +191,18 @@ const TransactionReportPage = () => {
                 key: 'invoice',
                 label: t('lbl_invoice'),
                 sortable: true,
-                render: (value: any) => (
-                    <div className="flex items-center gap-2">
-                        <Hash className="h-3.5 w-3.5 text-gray-400" />
-                        <span className="font-semibold text-gray-900">{value}</span>
-                    </div>
-                ),
+                render: (value: any, row: any) => {
+                    const isVoided = row?.status === 'voided';
+                    return (
+                        <div className="flex flex-col">
+                            <div className="flex items-center gap-2">
+                                <Hash className="h-3.5 w-3.5 text-gray-400" />
+                                <span className={`font-semibold ${isVoided ? 'text-gray-400 line-through' : 'text-gray-900'}`}>{value}</span>
+                            </div>
+                            {isVoided && <span className="text-[10px] font-medium text-danger">Voided ({row?.void_reason || 'Reversed'})</span>}
+                        </div>
+                    );
+                },
             },
             {
                 key: 'store_name',
@@ -212,13 +228,17 @@ const TransactionReportPage = () => {
                 key: 'payment_status',
                 label: t('lbl_status'),
                 sortable: true,
-                render: (value: any) => {
+                render: (value: any, row: any) => {
+                    if (row?.status === 'voided') {
+                        return <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-danger-light text-danger">Voided</span>;
+                    }
                     const status = value?.toLowerCase() || 'pending';
                     const config: Record<string, { bg: string; text: string }> = {
                         paid: { bg: 'bg-success-light', text: 'text-success' },
                         partial: { bg: 'bg-warning-light', text: 'text-warning' },
                         due: { bg: 'bg-danger-light', text: 'text-danger' },
                         pending: { bg: 'bg-warning-light', text: 'text-warning' },
+                        refunded: { bg: 'bg-purple-100', text: 'text-purple-700' },
                     };
                     const { bg, text } = config[status] || { bg: 'bg-gray-100', text: 'text-gray-800' };
                     return <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${bg} ${text}`}>{value}</span>;
@@ -228,14 +248,20 @@ const TransactionReportPage = () => {
                 key: 'amount',
                 label: t('lbl_transaction_amount'),
                 sortable: true,
-                render: (value: any, row: any) => (
-                    <div className="flex flex-col">
-                        <span className="font-bold text-gray-900">{formatCurrency(value)}</span>
-                        <div className="flex items-center gap-1 text-[10px] font-semibold uppercase text-gray-500">
-                            <CreditCard className="h-2.5 w-2.5" /> {row.payment_method || 'N/A'}
+                render: (value: any, row: any) => {
+                    const isVoided = row?.status === 'voided';
+                    const isRefund = row?.type === 'refund' || Number(value) < 0;
+                    return (
+                        <div className="flex flex-col">
+                            <span className={`font-bold ${isVoided ? 'text-gray-400 line-through' : isRefund ? 'text-danger' : 'text-gray-900'}`}>
+                                {formatCurrency(value)}
+                            </span>
+                            <div className="flex items-center gap-1 text-[10px] font-semibold uppercase text-gray-500">
+                                <CreditCard className="h-2.5 w-2.5" /> {row.payment_method || 'N/A'} {row.type === 'refund' ? '(Refund)' : ''}
+                            </div>
                         </div>
-                    </div>
-                ),
+                    );
+                },
             },
             {
                 key: 'created_at',

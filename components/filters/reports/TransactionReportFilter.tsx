@@ -38,7 +38,11 @@ const TransactionReportFilter: React.FC<TransactionReportFilterProps> = ({ onFil
         const additionalParams: Record<string, any> = {};
 
         if (selectedPaymentStatus !== 'all') {
-            additionalParams.payment_status = selectedPaymentStatus;
+            if (selectedPaymentStatus === 'voided') {
+                additionalParams.status = 'voided';
+            } else {
+                additionalParams.payment_status = selectedPaymentStatus;
+            }
         }
         if (selectedPaymentMethod !== 'all') {
             additionalParams.payment_method = selectedPaymentMethod;
@@ -73,16 +77,20 @@ const TransactionReportFilter: React.FC<TransactionReportFilterProps> = ({ onFil
                 >
                     <option value="all">{t('lbl_all_status')}</option>
                     {activePaymentStatuses.length > 0 ? (
-                        activePaymentStatuses.map((status) => (
-                            <option key={status.id} value={status.status_name}>
-                                {status.status_name.charAt(0).toUpperCase() + status.status_name.slice(1)}
-                            </option>
-                        ))
+                        <>
+                            {activePaymentStatuses.map((status) => (
+                                <option key={status.id} value={status.status_name}>
+                                    {status.status_name.charAt(0).toUpperCase() + status.status_name.slice(1)}
+                                </option>
+                            ))}
+                            <option value="voided">Voided</option>
+                        </>
                     ) : (
                         <>
                             <option value="paid">{t('lbl_paid')}</option>
                             <option value="partial">{t('lbl_partial')}</option>
                             <option value="pending">{t('lbl_pending')}</option>
+                            <option value="voided">Voided</option>
                         </>
                     )}
                 </select>

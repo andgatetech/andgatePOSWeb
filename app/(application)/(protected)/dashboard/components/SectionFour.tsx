@@ -86,10 +86,13 @@ const getStatusBadge = (status: string) => {
         paid: 'bg-emerald-100 text-emerald-700',
         partial: 'bg-amber-100 text-amber-700',
         pending: 'bg-yellow-100 text-yellow-700',
+        due: 'bg-rose-100 text-rose-700',
         ordered: 'bg-[#e79237]/10 text-[#9b5a18]',
         sent: 'bg-emerald-100 text-emerald-700',
         received: 'bg-primary/[0.1] text-primary',
         preparing: 'bg-[#034d79]/10 text-[#034d79]',
+        refunded: 'bg-purple-100 text-purple-700',
+        voided: 'bg-rose-100 text-rose-700 line-through',
     };
     return styles[normalizeKey(status)] || styles.pending;
 };
@@ -106,6 +109,8 @@ const getStatusLabel = (status: string, t: (key: string) => string) => {
         preparing: t('lbl_preparing'),
         completed: t('status_completed'),
         cancelled: t('status_cancelled'),
+        refunded: 'Refunded',
+        voided: 'Voided',
     };
     return labels[normalizeKey(status)] || status;
 };
