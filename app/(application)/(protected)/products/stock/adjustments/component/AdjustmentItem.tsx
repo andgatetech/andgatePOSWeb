@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowUp, Eye, Minus, PackageCheck, Plus, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, Eye, Minus, Package, PackageCheck, Plus, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
@@ -78,10 +78,26 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
     const selectedReason = adjustmentReasons.find((r: any) => r.id?.toString() === reason);
 
     const [isSerialModalOpen, setIsSerialModalOpen] = useState(false);
+    const [serialModalTab, setSerialModalTab] = useState<'cut' | 'add' | 'staged'>('cut');
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+
+    const openSerialModal = (tab: 'cut' | 'add' | 'staged') => {
+        setSerialModalTab(tab);
+        setIsSerialModalOpen(true);
+    };
 
     const handleSerialSave = (serials: any[]) => {
         onAdjustmentChange(item.id, 'serialAdjustments', serials);
+        const cutCount = serials.filter((s: any) => s.status !== 'in_stock' || !s.is_new).length;
+        const addCount = serials.filter((s: any) => s.is_new && s.status === 'in_stock').length;
+        const net = addCount - cutCount;
+        if (net !== 0) {
+            onAdjustmentChange(item.id, 'adjustmentType', net > 0 ? 'increase' : 'decrease');
+            onAdjustmentChange(item.id, 'adjustmentQuantity', Math.abs(net));
+        } else if (serials.length > 0) {
+            onAdjustmentChange(item.id, 'adjustmentType', 'increase');
+            onAdjustmentChange(item.id, 'adjustmentQuantity', 0);
+        }
     };
 
     // A misclick on remove shouldn't silently discard a count someone already entered —
@@ -92,9 +108,13 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
         onRemove(item.id);
     };
 
+    const cutSerialsCount = serialAdjustments.filter((s: any) => s.status !== 'in_stock' || !s.is_new).length;
+    const addSerialsCount = serialAdjustments.filter((s: any) => s.is_new && s.status === 'in_stock').length;
+    const serialNetImpact = addSerialsCount - cutSerialsCount;
+
     return (
         <>
-            <div className="group rounded-lg border border-[#d8e4ec] bg-white p-3 shadow-sm transition-all hover:border-[#b9d3e4] sm:p-4">
+            <div className="group rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition-all hover:border-slate-300 sm:p-4">
                 {/* Product Info & Remove Button */}
                 <div className="mb-4 flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
@@ -130,78 +150,93 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
 
                 {/* Serial Number Management (if product has serials) */}
                 {item.has_serial ? (
-                    // Serial Product - Different UI
                     <div className="space-y-3">
-                        <div className="rounded-lg border-2 border-purple-200 bg-purple-50 p-4">
-                            <div className="mb-3 flex items-start justify-between">
-                                <div className="flex-1">
+                        <div className="rounded-xl border border-purple-200 bg-purple-50/50 p-4">
+                            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                <div>
                                     <div className="flex items-center gap-2">
-                                        <svg className="h-5 w-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth={2}
-                                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                                            />
-                                        </svg>
-                                        <p className="text-sm font-bold text-purple-900">{t('stock_adjustment_serial_required')}</p>
+                                        <Package className="h-5 w-5 text-purple-700" />
+                                        <p className="text-sm font-bold text-purple-950">{t('stock_adjustment_serial_required')}</p>
                                     </div>
                                     <p className="mt-1 text-xs text-purple-700">
-                                        {serialAdjustments.length > 0 ? t('stock_adjustment_serials_ready', { count: serialAdjustments.length }) : t('stock_adjustment_serial_manage_hint')}
+                                        {serialAdjustments.length > 0
+                                            ? t('stock_adjustment_serials_ready', { count: serialAdjustments.length })
+                                            : t('stock_adjustment_serial_manage_hint')}
                                     </p>
                                 </div>
-                                <button
-                                    onClick={() => setIsSerialModalOpen(true)}
-                                    className="flex items-center gap-2 rounded-lg bg-purple-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-purple-700"
-                                >
-                                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth={2}
-                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                                        />
-                                    </svg>
-                                    {t('stock_adjustment_manage_serials')}
-                                </button>
+
+                                {/* Direct Quick Actions */}
+                                <div className="flex flex-wrap items-center gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => openSerialModal('cut')}
+                                        className="flex items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-2 text-xs font-bold text-rose-700 shadow-sm transition-all hover:bg-rose-100 active:scale-[0.98]"
+                                    >
+                                        <Minus className="h-3.5 w-3.5 stroke-[3]" />
+                                        <span>{t('stock_adjustment_quick_cut')}</span>
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => openSerialModal('add')}
+                                        className="flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-2 text-xs font-bold text-emerald-700 shadow-sm transition-all hover:bg-emerald-100 active:scale-[0.98]"
+                                    >
+                                        <Plus className="h-3.5 w-3.5 stroke-[3]" />
+                                        <span>{t('stock_adjustment_quick_add')}</span>
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => openSerialModal('staged')}
+                                        className="flex items-center gap-1.5 rounded-xl bg-purple-600 px-3.5 py-2 text-xs font-bold text-white shadow-sm transition-all hover:bg-purple-700 active:scale-[0.98]"
+                                    >
+                                        <Package className="h-3.5 w-3.5" />
+                                        <span>{t('stock_adjustment_manage_serials')}</span>
+                                    </button>
+                                </div>
                             </div>
 
-                            {/* Show serial adjustments summary */}
+                            {/* Show serial adjustments summary with net impact */}
                             {serialAdjustments.length > 0 && (
-                                <div className="mt-3 space-y-1 border-t border-purple-200 pt-3">
-                                    <p className="text-xs font-semibold text-purple-800">{t('stock_adjustment_serials_to_adjust')}</p>
-                                    <div className="max-h-24 space-y-1 overflow-auto">
-                                        {serialAdjustments.slice(0, 5).map((serial: any, idx: number) => (
-                                            <div key={idx} className="flex items-center gap-2 rounded bg-white px-2 py-1 text-xs">
-                                                <span className="font-mono font-medium text-gray-900">{serial.serial_number}</span>
-                                                <span className="text-gray-400">→</span>
-                                                <span
-                                                    className={`rounded px-1.5 py-0.5 font-medium ${
-                                                        serial.status === 'in_stock'
-                                                            ? 'bg-green-100 text-green-700'
-                                                            : serial.status === 'sold'
-                                                            ? 'bg-blue-100 text-blue-700'
-                                                            : serial.status === 'damaged'
-                                                            ? 'bg-red-100 text-red-700'
-                                                            : 'bg-yellow-100 text-yellow-700'
+                                <div className="mt-3 space-y-2 border-t border-purple-200/80 pt-3">
+                                    <div className="flex items-center justify-between">
+                                        <p className="text-xs font-bold text-purple-900">{t('stock_adjustment_staged_summary')}</p>
+                                        <div className="flex items-center gap-2 text-xs font-extrabold">
+                                            {cutSerialsCount > 0 && (
+                                                <span className="rounded-md bg-rose-100 px-2 py-0.5 text-rose-700">
+                                                    -{cutSerialsCount} Cut
+                                                </span>
+                                            )}
+                                            {addSerialsCount > 0 && (
+                                                <span className="rounded-md bg-emerald-100 px-2 py-0.5 text-emerald-700">
+                                                    +{addSerialsCount} Added
+                                                </span>
+                                            )}
+                                            <span className="rounded-md bg-purple-100 px-2 py-0.5 text-purple-800">
+                                                Net: {serialNetImpact > 0 ? `+${serialNetImpact}` : serialNetImpact}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex max-h-24 flex-wrap gap-1.5 overflow-y-auto">
+                                        {serialAdjustments.map((serial: any, idx: number) => {
+                                            const isAdd = serial.is_new && serial.status === 'in_stock';
+                                            return (
+                                                <div
+                                                    key={idx}
+                                                    className={`inline-flex items-center gap-1.5 rounded-lg border px-2 py-1 text-xs font-medium ${
+                                                        isAdd ? 'border-emerald-200 bg-emerald-50 text-emerald-900' : 'border-rose-200 bg-rose-50 text-rose-900'
                                                     }`}
                                                 >
-                                                    {serial.status}
-                                                </span>
-                                                <span className="text-gray-500">({serial.reason})</span>
-                                            </div>
-                                        ))}
-                                        {serialAdjustments.length > 5 && <p className="text-xs text-purple-600">{t('stock_adjustment_and_more', { count: serialAdjustments.length - 5 })}</p>}
+                                                    <span className="font-bold">{isAdd ? '+' : '-'}</span>
+                                                    <span className="font-mono">{serial.serial_number}</span>
+                                                    <span className="text-[10px] opacity-75">({serial.reason})</span>
+                                                </div>
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             )}
-
-                            {/* Info box */}
-                            <div className="mt-3 rounded-md border border-purple-300 bg-purple-100/50 p-2">
-                                <p className="text-xs text-purple-800">
-                                    <strong>{t('stock_adjustment_note')}:</strong> {t('stock_adjustment_serial_note')}
-                                </p>
-                            </div>
                         </div>
                     </div>
                 ) : (
@@ -329,6 +364,7 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
                 stockId={item.stockId}
                 storeId={currentStore?.id}
                 initialSerials={serialAdjustments}
+                initialTab={serialModalTab}
                 onSave={handleSerialSave}
             />
         </>

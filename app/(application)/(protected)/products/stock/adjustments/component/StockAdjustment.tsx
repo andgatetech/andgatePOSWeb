@@ -130,31 +130,35 @@ const StockAdjustment = () => {
 
             if (item.has_serial) {
                 // Serial status updates
-                const statusSerials = (adj?.serialAdjustments || []).filter((s: any) => s.serial_number && s.status && s.reason);
+                const statusSerials = (adj?.serialAdjustments || []).filter((s: any) => s.serial_number && !s.is_new);
                 if (statusSerials.length > 0) {
                     batchAdjustments.push({
                         type: 'serial_status',
                         product_id: item.productId,
                         product_stock_id: item.stockId,
+                        product_adjustment_reason_id: statusSerials[0]?.product_adjustment_reason_id || null,
                         serials: statusSerials.map((s: any) => ({
                             serial_number: s.serial_number,
                             status: s.status,
                             reason: s.reason,
+                            product_adjustment_reason_id: s.product_adjustment_reason_id || null,
                             notes: s.notes || null,
                         })),
                     });
                 }
 
-                // Bulk add new serials (no existing id)
-                const newSerials = (adj?.serialAdjustments || []).filter((s: any) => s.serial_number && !s.id).map((s: any) => s.serial_number);
-                if (newSerials.length > 0) {
+                // Bulk add new serials
+                const newSerialsList = (adj?.serialAdjustments || []).filter((s: any) => s.serial_number && s.is_new);
+                if (newSerialsList.length > 0) {
+                    const firstNew = newSerialsList[0];
                     batchAdjustments.push({
                         type: 'serial_bulk_add',
                         product_id: item.productId,
                         product_stock_id: item.stockId,
-                        serial_numbers: newSerials,
+                        serial_numbers: newSerialsList.map((s: any) => s.serial_number),
                         status: 'in_stock',
-                        reason: adj?.reason || globalConfig.reason || 'bulk_add',
+                        reason: firstNew?.reason || adj?.reason || globalConfig.reason || 'New Stock Arrival',
+                        product_adjustment_reason_id: firstNew?.product_adjustment_reason_id || null,
                         notes: adj?.notes || globalConfig.notes || null,
                     });
                 }
@@ -204,10 +208,18 @@ const StockAdjustment = () => {
     const totalItems = cartItems.length;
     const totalIncrease = cartItems.reduce((sum, item) => {
         const adj = getAdjustment(item.id);
+        if (item.has_serial) {
+            const added = (adj?.serialAdjustments || []).filter((s: any) => s.is_new && s.status === 'in_stock').length;
+            return sum + added;
+        }
         return sum + (adj?.adjustmentType === 'increase' ? adj.adjustmentQuantity : 0);
     }, 0);
     const totalDecrease = cartItems.reduce((sum, item) => {
         const adj = getAdjustment(item.id);
+        if (item.has_serial) {
+            const cut = (adj?.serialAdjustments || []).filter((s: any) => s.status !== 'in_stock' || !s.is_new).length;
+            return sum + cut;
+        }
         return sum + (adj?.adjustmentType === 'decrease' ? adj.adjustmentQuantity : 0);
     }, 0);
 

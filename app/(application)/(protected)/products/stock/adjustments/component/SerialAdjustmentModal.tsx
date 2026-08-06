@@ -1,18 +1,36 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { X } from 'lucide-react';
+import {
+    ArrowDown,
+    ArrowUp,
+    Check,
+    CheckSquare,
+    Minus,
+    Package,
+    PackageMinus,
+    PackagePlus,
+    Plus,
+    RotateCcw,
+    Search,
+    Square,
+    Trash2,
+    X,
+} from 'lucide-react';
 import { getTranslation } from '@/i18n';
 import { showErrorDialog } from '@/lib/toast';
 import { useGetProductSerialsQuery } from '@/store/features/warrenty/ProductSerialApi';
 import { useGetAdjustmentTypesQuery } from '@/store/features/productStockType/productStockTypeApi';
+import { useGetStoreQuery } from '@/store/features/store/storeApi';
 
-interface SerialData {
+export interface SerialData {
     id: number;
     serial_number: string;
     status: 'in_stock' | 'sold' | 'returned' | 'damaged';
     reason: string;
+    product_adjustment_reason_id?: number | null;
     notes: string;
+    is_new?: boolean;
 }
 
 interface SerialAdjustmentModalProps {
@@ -22,57 +40,74 @@ interface SerialAdjustmentModalProps {
     productId: number;
     stockId: number;
     storeId?: number;
-    /** This item's already-saved serial changes — re-shown on open so reopening the
-     * modal to add more never silently discards what was staged in a previous pass. */
     initialSerials?: SerialData[];
+    initialTab?: 'cut' | 'add' | 'staged';
     onSave: (serials: SerialData[]) => void;
 }
 
-const STATUS_OPTIONS = ['in_stock', 'sold', 'returned', 'damaged'] as const;
-type StatusOption = (typeof STATUS_OPTIONS)[number];
-
-const SerialAdjustmentModal = ({ isOpen, onClose, productName, productId, stockId, storeId, initialSerials = [], onSave }: SerialAdjustmentModalProps) => {
+const SerialAdjustmentModal = ({
+    isOpen,
+    onClose,
+    productName,
+    productId,
+    stockId,
+    storeId,
+    initialSerials = [],
+    initialTab = 'cut',
+    onSave,
+}: SerialAdjustmentModalProps) => {
     const { t } = getTranslation();
-    const [activeTab, setActiveTab] = useState<'existing' | 'new'>('existing');
-
-    // Changes staged for this item — seeded from whatever was already saved, plus
-    // anything added in this session. Replacing the old "always starts empty" behavior
-    // that silently wiped previously entered serials every time the modal reopened.
+    const [activeTab, setActiveTab] = useState<'cut' | 'add' | 'staged'>(initialTab);
     const [staged, setStaged] = useState<SerialData[]>(initialSerials);
 
-    // Re-seed only when the modal transitions to open, not on every parent re-render —
-    // otherwise in-progress staging this session would keep getting reset.
+    // Synchronize initialSerials & initialTab when modal opens
     useEffect(() => {
         if (isOpen) {
             setStaged(initialSerials);
+            setActiveTab(initialTab);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isOpen]);
+    }, [isOpen, initialTab]);
 
-    // "Update Existing" tab state
+    // Cut / Remove Tab State
     const [search, setSearch] = useState('');
-    const [selected, setSelected] = useState<Set<string>>(new Set());
-    const [newStatus, setNewStatus] = useState<StatusOption>('sold');
-    const [reason, setReason] = useState('');
-    const [notes, setNotes] = useState('');
+    const [selectedCutSerials, setSelectedCutSerials] = useState<Set<string>>(new Set());
+    const [cutStatus, setCutStatus] = useState<'damaged' | 'sold' | 'returned'>('damaged');
+    const [cutReasonId, setCutReasonId] = useState<string>('');
+    const [cutCustomReason, setCutCustomReason] = useState('');
+    const [cutNotes, setCutNotes] = useState('');
 
-    // "Add New" tab state
+    // Add New Tab State
     const [bulkSerialNumbers, setBulkSerialNumbers] = useState('');
-    const [bulkStatus, setBulkStatus] = useState<StatusOption>('in_stock');
-    const [bulkReason, setBulkReason] = useState('');
-    const [bulkNotes, setBulkNotes] = useState('');
+    const [addReasonId, setAddReasonId] = useState<string>('');
+    const [addCustomReason, setAddCustomReason] = useState('');
+    const [addNotes, setAddNotes] = useState('');
 
-    // The product's real serial numbers for this variant — replaces free-text entry of
-    // an existing serial number (which required memorizing it) with an actual pick list.
+    // Fetch existing serials for this product variant
     const { data: existingData, isFetching: loadingExisting } = useGetProductSerialsQuery(
         { product_id: productId, product_stock_id: stockId, all: true },
         { skip: !isOpen || !productId || !stockId }
     );
     const existingSerials: Array<{ id: number; serial_number: string; status: string }> = existingData?.data?.items || [];
 
-    // "reason" here is a freeform stock-type label (matched against pos_product_stock_types
-    // on save), not the product_adjustment_reason_id used for quantity adjustments — so this
-    // stays a text field, just with autocomplete from labels already used in this store.
+    // Fetch store adjustment reasons for rich dropdowns
+    const { data: storeData } = useGetStoreQuery(storeId ? { store_id: storeId } : undefined, {
+        skip: !isOpen || !storeId,
+    });
+    const storeReasons: Array<{ id: number; name: string; direction: string; is_active: boolean }> =
+        storeData?.data?.store?.adjustment_reasons || [];
+
+    const decreaseReasons = useMemo(
+        () => storeReasons.filter((r) => r.is_active && (!r.direction || r.direction === 'decrease' || r.direction === 'either')),
+        [storeReasons]
+    );
+
+    const increaseReasons = useMemo(
+        () => storeReasons.filter((r) => r.is_active && (!r.direction || r.direction === 'increase' || r.direction === 'either')),
+        [storeReasons]
+    );
+
+    // Freeform suggestion types fallback
     const { data: typesData } = useGetAdjustmentTypesQuery({ store_id: storeId as number }, { skip: !isOpen || !storeId });
     const reasonSuggestions: string[] = useMemo(() => {
         const types = typesData?.data || [];
@@ -81,34 +116,31 @@ const SerialAdjustmentModal = ({ isOpen, onClose, productName, productId, stockI
 
     if (!isOpen) return null;
 
-    const statusLabel = (status: string) => {
-        switch (status) {
-            case 'in_stock':
-                return t('status_in_stock');
-            case 'sold':
-                return t('lbl_sold');
-            case 'returned':
-                return t('status_returned');
-            case 'damaged':
-                return t('lbl_damaged');
-            default:
-                return status;
-        }
-    };
-
-    const statusBadgeClass = (status: string) =>
-        status === 'in_stock' ? 'bg-green-100 text-green-700' : status === 'sold' ? 'bg-blue-100 text-blue-700' : status === 'damaged' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700';
-
+    // Filter available serials (excluding already staged ones)
     const stagedSerialNumbers = new Set(staged.map((s) => s.serial_number.toUpperCase()));
 
-    const pickableSerials = existingSerials.filter((s) => {
-        if (stagedSerialNumbers.has(s.serial_number.toUpperCase())) return false;
+    const inStockSerials = existingSerials.filter((s) => s.status === 'in_stock');
+    const availableInStockSerials = inStockSerials.filter((s) => !stagedSerialNumbers.has(s.serial_number.toUpperCase()));
+
+    const filteredCutSerials = availableInStockSerials.filter((s) => {
         if (!search.trim()) return true;
         return s.serial_number.toLowerCase().includes(search.trim().toLowerCase());
     });
 
-    const toggleSelected = (serialNumber: string) => {
-        setSelected((prev) => {
+    const isAllFilteredSelected = filteredCutSerials.length > 0 && filteredCutSerials.every((s) => selectedCutSerials.has(s.serial_number));
+
+    const toggleSelectAllCut = () => {
+        if (isAllFilteredSelected) {
+            setSelectedCutSerials(new Set());
+        } else {
+            const next = new Set(selectedCutSerials);
+            filteredCutSerials.forEach((s) => next.add(s.serial_number));
+            setSelectedCutSerials(next);
+        }
+    };
+
+    const toggleCutSerial = (serialNumber: string) => {
+        setSelectedCutSerials((prev) => {
             const next = new Set(prev);
             if (next.has(serialNumber)) next.delete(serialNumber);
             else next.add(serialNumber);
@@ -116,53 +148,90 @@ const SerialAdjustmentModal = ({ isOpen, onClose, productName, productId, stockI
         });
     };
 
-    const handleStageExisting = () => {
-        if (selected.size === 0) {
+    // Staged counts & impact
+    const cutStagedCount = staged.filter((s) => s.status !== 'in_stock' || !s.is_new).length;
+    const addedStagedCount = staged.filter((s) => s.is_new && s.status === 'in_stock').length;
+    const netDelta = addedStagedCount - cutStagedCount;
+
+    // Stage Cut Serials
+    const handleStageCut = () => {
+        if (selectedCutSerials.size === 0) {
             showErrorDialog(t('stock_adjustment_incomplete'), t('stock_adjustment_select_serials_error'));
             return;
         }
-        if (!reason.trim()) {
+
+        const selectedReasonObj = storeReasons.find((r) => r.id.toString() === cutReasonId);
+        const resolvedReason = selectedReasonObj ? selectedReasonObj.name : cutCustomReason.trim() || cutStatus;
+
+        if (!resolvedReason) {
             showErrorDialog(t('stock_adjustment_incomplete'), t('stock_adjustment_serial_required_error'));
             return;
         }
 
-        const newlyStaged: SerialData[] = Array.from(selected).map((sn, index) => ({
-            id: Date.now() + index,
+        const newlyStaged: SerialData[] = Array.from(selectedCutSerials).map((sn, idx) => ({
+            id: Date.now() + idx,
             serial_number: sn,
-            status: newStatus,
-            reason: reason.trim(),
-            notes,
+            status: cutStatus,
+            reason: resolvedReason,
+            product_adjustment_reason_id: selectedReasonObj ? selectedReasonObj.id : null,
+            notes: cutNotes.trim(),
+            is_new: false,
         }));
 
         setStaged((prev) => [...prev, ...newlyStaged]);
-        setSelected(new Set());
-        setReason('');
-        setNotes('');
+        setSelectedCutSerials(new Set());
+        setCutCustomReason('');
+        setCutNotes('');
+        setActiveTab('staged');
     };
 
-    const handleStageNew = () => {
-        const serialNumbers = bulkSerialNumbers
-            .split('\n')
-            .map((s) => s.trim())
-            .filter(Boolean);
+    // Stage Add Serials
+    const parseEnteredSerials = (raw: string) => {
+        return Array.from(
+            new Set(
+                raw
+                    .split(/[\n,;]+/)
+                    .map((s) => s.trim())
+                    .filter(Boolean)
+            )
+        );
+    };
 
-        if (serialNumbers.length === 0 || !bulkReason.trim()) {
+    const parsedAddSerials = parseEnteredSerials(bulkSerialNumbers);
+
+    const handleStageAdd = () => {
+        if (parsedAddSerials.length === 0) {
             showErrorDialog(t('stock_adjustment_incomplete'), t('stock_adjustment_bulk_serial_required_error'));
             return;
         }
 
-        const newlyStaged: SerialData[] = serialNumbers.map((sn, index) => ({
-            id: Date.now() + index,
+        const selectedReasonObj = storeReasons.find((r) => r.id.toString() === addReasonId);
+        const resolvedReason = selectedReasonObj ? selectedReasonObj.name : addCustomReason.trim() || 'New Stock Arrival';
+
+        // Check for duplicates with existing database serials
+        const existingSet = new Set(existingSerials.map((s) => s.serial_number.toUpperCase()));
+        const duplicates = parsedAddSerials.filter((s) => existingSet.has(s.toUpperCase()) || stagedSerialNumbers.has(s.toUpperCase()));
+
+        if (duplicates.length > 0) {
+            showErrorDialog('Duplicate Serial Number', `The following serial(s) already exist or are staged: ${duplicates.slice(0, 3).join(', ')}`);
+            return;
+        }
+
+        const newlyStaged: SerialData[] = parsedAddSerials.map((sn, idx) => ({
+            id: Date.now() + idx,
             serial_number: sn,
-            status: bulkStatus,
-            reason: bulkReason.trim(),
-            notes: bulkNotes,
+            status: 'in_stock',
+            reason: resolvedReason,
+            product_adjustment_reason_id: selectedReasonObj ? selectedReasonObj.id : null,
+            notes: addNotes.trim(),
+            is_new: true,
         }));
 
         setStaged((prev) => [...prev, ...newlyStaged]);
         setBulkSerialNumbers('');
-        setBulkReason('');
-        setBulkNotes('');
+        setAddCustomReason('');
+        setAddNotes('');
+        setActiveTab('staged');
     };
 
     const removeStaged = (id: number) => {
@@ -179,208 +248,459 @@ const SerialAdjustmentModal = ({ isOpen, onClose, productName, productId, stockI
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div className="flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-lg bg-white shadow-lg">
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/60 p-0 backdrop-blur-sm transition-all sm:items-center sm:p-4">
+            <div className="flex h-[94vh] w-full max-w-4xl flex-col overflow-hidden rounded-t-2xl bg-white shadow-2xl sm:h-auto sm:max-h-[90vh] sm:rounded-2xl">
                 {/* Header */}
-                <div className="border-b border-gray-200 bg-white px-6 py-4">
-                    <div className="flex items-start justify-between">
-                        <div>
-                            <h2 className="text-xl font-bold text-gray-900">{t('stock_adjustment_serial_title')}</h2>
-                            <p className="mt-1 text-sm text-gray-600">{productName}</p>
+                <div className="border-b border-slate-200 bg-slate-50/80 px-4 py-3 sm:px-6 sm:py-4">
+                    <div className="flex items-center justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-center gap-2">
+                                <span className="inline-flex items-center gap-1 rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-bold text-purple-800">
+                                    <Package className="h-3.5 w-3.5" />
+                                    {t('stock_adjustment_serial_tracked')}
+                                </span>
+                                <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-800">
+                                    {t('stock_adjustment_in_stock_count', { count: inStockSerials.length })}
+                                </span>
+                            </div>
+                            <h2 className="mt-1 truncate text-lg font-bold text-slate-900 sm:text-xl">{productName}</h2>
                         </div>
-                        <button onClick={onClose} className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600">
-                            <X className="h-6 w-6" />
+                        <button
+                            onClick={onClose}
+                            className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition-colors hover:bg-slate-200 hover:text-slate-700"
+                        >
+                            <X className="h-5 w-5" />
                         </button>
                     </div>
 
-                    {/* Tabs */}
-                    <div className="mt-4 flex gap-4">
+                    {/* Segmented Navigation Tabs */}
+                    <div className="mt-3 grid grid-cols-3 gap-1 rounded-xl bg-slate-200/70 p-1 text-xs font-semibold sm:text-sm">
                         <button
-                            onClick={() => setActiveTab('existing')}
-                            className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-                                activeTab === 'existing' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            onClick={() => setActiveTab('cut')}
+                            className={`flex items-center justify-center gap-1.5 rounded-lg py-2 transition-all ${
+                                activeTab === 'cut'
+                                    ? 'bg-rose-600 text-white shadow-sm'
+                                    : 'text-slate-700 hover:bg-white/60 hover:text-rose-700'
                             }`}
                         >
-                            {t('stock_adjustment_update_serial_status')}
+                            <PackageMinus className="h-4 w-4" />
+                            <span>{t('stock_adjustment_cut_serial_tab')}</span>
                         </button>
                         <button
-                            onClick={() => setActiveTab('new')}
-                            className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${activeTab === 'new' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                            onClick={() => setActiveTab('add')}
+                            className={`flex items-center justify-center gap-1.5 rounded-lg py-2 transition-all ${
+                                activeTab === 'add'
+                                    ? 'bg-emerald-600 text-white shadow-sm'
+                                    : 'text-slate-700 hover:bg-white/60 hover:text-emerald-700'
+                            }`}
                         >
-                            {t('stock_adjustment_bulk_add_serials')}
+                            <PackagePlus className="h-4 w-4" />
+                            <span>{t('stock_adjustment_add_serial_tab')}</span>
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('staged')}
+                            className={`relative flex items-center justify-center gap-1.5 rounded-lg py-2 transition-all ${
+                                activeTab === 'staged'
+                                    ? 'bg-primary text-white shadow-sm'
+                                    : 'text-slate-700 hover:bg-white/60 hover:text-primary'
+                            }`}
+                        >
+                            <span>{t('stock_adjustment_staged_summary')}</span>
+                            {staged.length > 0 && (
+                                <span
+                                    className={`flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-bold ${
+                                        activeTab === 'staged' ? 'bg-white text-primary' : 'bg-primary text-white'
+                                    }`}
+                                >
+                                    {staged.length}
+                                </span>
+                            )}
                         </button>
                     </div>
                 </div>
 
-                {/* Staged changes — carried across tab switches and reopen */}
-                {staged.length > 0 && (
-                    <div className="border-b border-gray-200 bg-primary/5 px-6 py-3">
-                        <p className="mb-2 text-xs font-semibold text-gray-800">{t('stock_adjustment_staged_changes', { count: staged.length })}</p>
-                        <div className="flex max-h-20 flex-wrap gap-2 overflow-auto">
-                            {staged.map((s) => (
-                                <span key={s.id} className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-xs shadow-sm">
-                                    <span className="font-mono font-medium text-gray-900">{s.serial_number}</span>
-                                    <span className="text-gray-400">→</span>
-                                    <span className={`rounded px-1.5 py-0.5 font-medium ${statusBadgeClass(s.status)}`}>{statusLabel(s.status)}</span>
-                                    <button onClick={() => removeStaged(s.id)} className="text-gray-400 hover:text-red-600" title={t('stock_adjustment_remove_staged')}>
-                                        <X className="h-3 w-3" />
-                                    </button>
-                                </span>
-                            ))}
-                        </div>
-                    </div>
-                )}
-
-                {/* Content */}
-                <div className="flex-1 overflow-auto p-6">
-                    {activeTab === 'existing' ? (
+                {/* Main Scrollable Body */}
+                <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+                    {/* TAB 1: CUT / REDUCE SERIALS */}
+                    {activeTab === 'cut' && (
                         <div className="space-y-4">
-                            <p className="text-sm text-gray-600">{t('stock_adjustment_update_serial_desc')}</p>
+                            <div className="rounded-xl border border-rose-100 bg-rose-50/60 p-3 text-xs text-rose-900 sm:text-sm">
+                                <p className="font-medium">{t('stock_adjustment_cut_serial_desc')}</p>
+                            </div>
 
-                            <input
-                                type="text"
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                placeholder={t('stock_adjustment_search_serial_placeholder')}
-                                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-                            />
+                            {/* Search & Bulk Select Controls */}
+                            <div className="flex flex-wrap items-center gap-2">
+                                <div className="relative min-w-[200px] flex-1">
+                                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                                    <input
+                                        type="text"
+                                        value={search}
+                                        onChange={(e) => setSearch(e.target.value)}
+                                        placeholder={t('stock_adjustment_search_serial_placeholder')}
+                                        className="h-10 w-full rounded-xl border border-slate-300 bg-white pl-9 pr-8 text-sm placeholder:text-slate-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20"
+                                    />
+                                    {search && (
+                                        <button
+                                            onClick={() => setSearch('')}
+                                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                                        >
+                                            <X className="h-4 w-4" />
+                                        </button>
+                                    )}
+                                </div>
+                                {filteredCutSerials.length > 0 && (
+                                    <button
+                                        type="button"
+                                        onClick={toggleSelectAllCut}
+                                        className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                                    >
+                                        {isAllFilteredSelected ? (
+                                            <>
+                                                <Square className="h-4 w-4 text-slate-400" />
+                                                {t('stock_adjustment_deselect_all')}
+                                            </>
+                                        ) : (
+                                            <>
+                                                <CheckSquare className="h-4 w-4 text-rose-600" />
+                                                {t('stock_adjustment_select_all')} ({filteredCutSerials.length})
+                                            </>
+                                        )}
+                                    </button>
+                                )}
+                            </div>
 
+                            {/* Serials List */}
                             {loadingExisting ? (
-                                <p className="py-8 text-center text-sm text-gray-500">{t('lbl_loading')}...</p>
-                            ) : pickableSerials.length === 0 ? (
-                                <div className="rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-8 text-center">
-                                    <p className="text-sm text-gray-500">{existingSerials.length === 0 ? t('stock_adjustment_no_existing_serials') : t('stock_adjustment_no_matching_serials')}</p>
+                                <div className="py-12 text-center text-sm text-slate-500">{t('lbl_loading')}...</div>
+                            ) : filteredCutSerials.length === 0 ? (
+                                <div className="rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/50 p-8 text-center">
+                                    <Package className="mx-auto h-8 w-8 text-slate-300" />
+                                    <p className="mt-2 text-sm font-medium text-slate-600">
+                                        {availableInStockSerials.length === 0
+                                            ? t('stock_adjustment_no_existing_serials')
+                                            : t('stock_adjustment_no_matching_serials')}
+                                    </p>
                                 </div>
                             ) : (
-                                <div className="max-h-48 space-y-1 overflow-auto rounded-lg border border-gray-200 p-2">
-                                    {pickableSerials.map((s) => (
-                                        <label key={s.id} className="flex cursor-pointer items-center gap-2 rounded-lg p-2 hover:bg-gray-50">
-                                            <input type="checkbox" checked={selected.has(s.serial_number)} onChange={() => toggleSelected(s.serial_number)} className="h-4 w-4" />
-                                            <span className="font-mono text-sm font-medium text-gray-900">{s.serial_number}</span>
-                                            <span className={`ml-auto rounded px-1.5 py-0.5 text-xs font-medium ${statusBadgeClass(s.status)}`}>{statusLabel(s.status)}</span>
-                                        </label>
-                                    ))}
+                                <div className="grid max-h-56 grid-cols-1 gap-2 overflow-y-auto sm:grid-cols-2 lg:grid-cols-3">
+                                    {filteredCutSerials.map((s) => {
+                                        const isSelected = selectedCutSerials.has(s.serial_number);
+                                        return (
+                                            <div
+                                                key={s.id}
+                                                onClick={() => toggleCutSerial(s.serial_number)}
+                                                className={`flex cursor-pointer items-center justify-between rounded-xl border p-3 transition-all ${
+                                                    isSelected
+                                                        ? 'border-rose-500 bg-rose-50/60 shadow-sm'
+                                                        : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50'
+                                                }`}
+                                            >
+                                                <div className="flex items-center gap-2.5">
+                                                    <div
+                                                        className={`flex h-5 w-5 items-center justify-center rounded-md border transition-colors ${
+                                                            isSelected ? 'border-rose-600 bg-rose-600 text-white' : 'border-slate-300 bg-white'
+                                                        }`}
+                                                    >
+                                                        {isSelected && <Check className="h-3.5 w-3.5 stroke-[3]" />}
+                                                    </div>
+                                                    <span className="font-mono text-sm font-semibold text-slate-900">{s.serial_number}</span>
+                                                </div>
+                                                <span className="rounded-md bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-800">
+                                                    {t('status_in_stock')}
+                                                </span>
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             )}
 
-                            {selected.size > 0 && (
-                                <div className="rounded-lg border-2 border-primary/30 bg-primary/5 p-4">
-                                    <p className="mb-3 text-sm font-semibold text-gray-800">{t('stock_adjustment_selected_count', { count: selected.size })}</p>
+                            {/* Cut Reason & Configuration Panel (Active when items selected) */}
+                            {selectedCutSerials.size > 0 && (
+                                <div className="animate-fadeIn rounded-2xl border-2 border-rose-200 bg-rose-50/50 p-4 shadow-sm">
+                                    <div className="mb-3 flex items-center justify-between">
+                                        <h4 className="text-sm font-bold text-rose-950">
+                                            {t('stock_adjustment_selected_count', { count: selectedCutSerials.size })}
+                                        </h4>
+                                        <span className="rounded-full bg-rose-600 px-2.5 py-0.5 text-xs font-bold text-white">
+                                            -{selectedCutSerials.size} {t('stock_adjustment_unit')}
+                                        </span>
+                                    </div>
+
                                     <div className="grid gap-3 sm:grid-cols-3">
                                         <div>
-                                            <label className="mb-1 block text-xs font-medium text-gray-700">{t('stock_adjustment_new_status')} *</label>
-                                            <select value={newStatus} onChange={(e) => setNewStatus(e.target.value as StatusOption)} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
-                                                {STATUS_OPTIONS.map((s) => (
-                                                    <option key={s} value={s}>
-                                                        {statusLabel(s)}
-                                                    </option>
-                                                ))}
+                                            <label className="mb-1.5 block text-xs font-semibold text-slate-700">
+                                                {t('stock_adjustment_new_status')} *
+                                            </label>
+                                            <select
+                                                value={cutStatus}
+                                                onChange={(e) => setCutStatus(e.target.value as any)}
+                                                className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm font-medium text-slate-900 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20"
+                                            >
+                                                <option value="damaged">{t('lbl_damaged')}</option>
+                                                <option value="sold">{t('lbl_sold')}</option>
+                                                <option value="returned">{t('status_returned')}</option>
                                             </select>
                                         </div>
+
                                         <div>
-                                            <label className="mb-1 block text-xs font-medium text-gray-700">{t('reason')} *</label>
-                                            <input
-                                                type="text"
-                                                list="stock-type-suggestions"
-                                                value={reason}
-                                                onChange={(e) => setReason(e.target.value)}
-                                                placeholder={t('stock_adjustment_reason_placeholder')}
-                                                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-                                            />
+                                            <label className="mb-1.5 block text-xs font-semibold text-slate-700">{t('reason')} *</label>
+                                            {decreaseReasons.length > 0 ? (
+                                                <select
+                                                    value={cutReasonId}
+                                                    onChange={(e) => setCutReasonId(e.target.value)}
+                                                    className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm font-medium text-slate-900 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20"
+                                                >
+                                                    <option value="">{t('placeholder_select_reason')}</option>
+                                                    {decreaseReasons.map((r) => (
+                                                        <option key={r.id} value={r.id}>
+                                                            {r.name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            ) : (
+                                                <input
+                                                    type="text"
+                                                    list="serial-stock-reasons"
+                                                    value={cutCustomReason}
+                                                    onChange={(e) => setCutCustomReason(e.target.value)}
+                                                    placeholder={t('stock_adjustment_reason_placeholder')}
+                                                    className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20"
+                                                />
+                                            )}
                                         </div>
+
                                         <div>
-                                            <label className="mb-1 block text-xs font-medium text-gray-700">{t('stock_adjustment_notes')}</label>
+                                            <label className="mb-1.5 block text-xs font-semibold text-slate-700">
+                                                {t('stock_adjustment_notes')}
+                                            </label>
                                             <input
                                                 type="text"
-                                                value={notes}
-                                                onChange={(e) => setNotes(e.target.value)}
+                                                value={cutNotes}
+                                                onChange={(e) => setCutNotes(e.target.value)}
                                                 placeholder={t('optional')}
-                                                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+                                                className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20"
                                             />
                                         </div>
                                     </div>
-                                    <button onClick={handleStageExisting} className="mt-3 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90">
-                                        {t('stock_adjustment_stage_button', { count: selected.size })}
+
+                                    <button
+                                        type="button"
+                                        onClick={handleStageCut}
+                                        className="mt-4 flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-rose-600 px-5 text-sm font-bold text-white shadow-md transition-all hover:bg-rose-700 active:scale-[0.99] sm:w-auto"
+                                    >
+                                        <Minus className="h-4 w-4 stroke-[3]" />
+                                        {t('stock_adjustment_cut_btn', { count: selectedCutSerials.size })}
                                     </button>
                                 </div>
                             )}
                         </div>
-                    ) : (
-                        // Bulk Add Mode — for serial numbers that don't exist in the system yet
+                    )}
+
+                    {/* TAB 2: ADD / INCREASE SERIALS */}
+                    {activeTab === 'add' && (
                         <div className="space-y-4">
-                            <p className="text-sm text-gray-600">{t('stock_adjustment_bulk_add_desc')}</p>
+                            <div className="rounded-xl border border-emerald-100 bg-emerald-50/60 p-3 text-xs text-emerald-900 sm:text-sm">
+                                <p className="font-medium">{t('stock_adjustment_add_serial_desc')}</p>
+                            </div>
 
                             <div>
-                                <label className="mb-2 block text-sm font-medium text-gray-700">{t('stock_adjustment_serial_numbers_one_line')} *</label>
+                                <div className="mb-2 flex items-center justify-between">
+                                    <label className="text-xs font-semibold text-slate-700 sm:text-sm">
+                                        {t('stock_adjustment_serial_numbers_one_line')} *
+                                    </label>
+                                    <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-800">
+                                        {t('stock_adjustment_serial_numbers_entered', { count: parsedAddSerials.length })}
+                                    </span>
+                                </div>
                                 <textarea
                                     value={bulkSerialNumbers}
                                     onChange={(e) => setBulkSerialNumbers(e.target.value)}
-                                    placeholder={'SN001\nSN002\nSN003'}
-                                    rows={6}
-                                    className="w-full rounded-lg border border-gray-300 px-4 py-3 font-mono text-sm"
+                                    placeholder={'SN-1001\nSN-1002\nSN-1003'}
+                                    rows={5}
+                                    className="w-full rounded-xl border border-slate-300 bg-white p-3 font-mono text-sm leading-relaxed placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
                                 />
-                                <p className="mt-1 text-xs text-gray-500">{t('stock_adjustment_serial_numbers_entered', { count: bulkSerialNumbers.split('\n').filter((s) => s.trim()).length })}</p>
                             </div>
 
-                            <div className="grid gap-4 sm:grid-cols-3">
+                            <div className="grid gap-3 sm:grid-cols-2">
                                 <div>
-                                    <label className="mb-2 block text-sm font-medium text-gray-700">{t('status')} *</label>
-                                    <select value={bulkStatus} onChange={(e) => setBulkStatus(e.target.value as StatusOption)} className="w-full rounded-lg border border-gray-300 px-3 py-2">
-                                        {STATUS_OPTIONS.map((s) => (
-                                            <option key={s} value={s}>
-                                                {statusLabel(s)}
-                                            </option>
-                                        ))}
-                                    </select>
+                                    <label className="mb-1.5 block text-xs font-semibold text-slate-700">{t('reason')} *</label>
+                                    {increaseReasons.length > 0 ? (
+                                        <select
+                                            value={addReasonId}
+                                            onChange={(e) => setAddReasonId(e.target.value)}
+                                            className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm font-medium text-slate-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                                        >
+                                            <option value="">{t('placeholder_select_reason')}</option>
+                                            {increaseReasons.map((r) => (
+                                                <option key={r.id} value={r.id}>
+                                                    {r.name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    ) : (
+                                        <input
+                                            type="text"
+                                            list="serial-stock-reasons"
+                                            value={addCustomReason}
+                                            onChange={(e) => setAddCustomReason(e.target.value)}
+                                            placeholder={t('stock_adjustment_new_stock_placeholder')}
+                                            className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                                        />
+                                    )}
                                 </div>
+
                                 <div>
-                                    <label className="mb-2 block text-sm font-medium text-gray-700">{t('reason')} *</label>
+                                    <label className="mb-1.5 block text-xs font-semibold text-slate-700">
+                                        {t('stock_adjustment_notes')}
+                                    </label>
                                     <input
                                         type="text"
-                                        list="stock-type-suggestions"
-                                        value={bulkReason}
-                                        onChange={(e) => setBulkReason(e.target.value)}
-                                        placeholder={t('stock_adjustment_new_stock_placeholder')}
-                                        className="w-full rounded-lg border border-gray-300 px-3 py-2"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="mb-2 block text-sm font-medium text-gray-700">{t('stock_adjustment_notes')}</label>
-                                    <input
-                                        type="text"
-                                        value={bulkNotes}
-                                        onChange={(e) => setBulkNotes(e.target.value)}
-                                        placeholder={t('stock_adjustment_optional_notes')}
-                                        className="w-full rounded-lg border border-gray-300 px-3 py-2"
+                                        value={addNotes}
+                                        onChange={(e) => setAddNotes(e.target.value)}
+                                        placeholder={t('optional')}
+                                        className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
                                     />
                                 </div>
                             </div>
 
-                            <button onClick={handleStageNew} className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90">
-                                {t('stock_adjustment_stage_new_button')}
+                            <button
+                                type="button"
+                                onClick={handleStageAdd}
+                                disabled={parsedAddSerials.length === 0}
+                                className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 text-sm font-bold text-white shadow-md transition-all hover:bg-emerald-700 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+                            >
+                                <Plus className="h-4 w-4 stroke-[3]" />
+                                {t('stock_adjustment_add_btn', { count: Math.max(1, parsedAddSerials.length) })}
                             </button>
+                        </div>
+                    )}
+
+                    {/* TAB 3: STAGED SUMMARY */}
+                    {activeTab === 'staged' && (
+                        <div className="space-y-4">
+                            {/* Net Impact Card */}
+                            <div className="grid grid-cols-3 gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-3 sm:p-4">
+                                <div className="text-center">
+                                    <span className="text-[11px] font-semibold text-slate-500 sm:text-xs">{t('stock_adjustment_current_stock')}</span>
+                                    <p className="mt-0.5 text-base font-extrabold text-slate-800 sm:text-lg">{inStockSerials.length}</p>
+                                </div>
+                                <div className="border-x border-slate-200 text-center">
+                                    <span className="text-[11px] font-semibold text-slate-500 sm:text-xs">{t('stock_adjustment_net_stock_impact')}</span>
+                                    <p
+                                        className={`mt-0.5 flex items-center justify-center gap-0.5 text-base font-extrabold sm:text-lg ${
+                                            netDelta > 0 ? 'text-emerald-600' : netDelta < 0 ? 'text-rose-600' : 'text-slate-700'
+                                        }`}
+                                    >
+                                        {netDelta > 0 ? <ArrowUp className="h-4 w-4" /> : netDelta < 0 ? <ArrowDown className="h-4 w-4" /> : null}
+                                        {netDelta > 0 ? `+${netDelta}` : netDelta}
+                                    </p>
+                                </div>
+                                <div className="text-center">
+                                    <span className="text-[11px] font-semibold text-slate-500 sm:text-xs">{t('stock_adjustment_after_save')}</span>
+                                    <p className="mt-0.5 text-base font-extrabold text-primary sm:text-lg">
+                                        {Math.max(0, inStockSerials.length + netDelta)}
+                                    </p>
+                                </div>
+                            </div>
+
+                            {staged.length === 0 ? (
+                                <div className="rounded-2xl border-2 border-dashed border-slate-200 p-8 text-center">
+                                    <p className="text-sm text-slate-500">{t('stock_adjustment_serial_manage_hint')}</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-2">
+                                    {staged.map((item) => {
+                                        const isAddition = item.is_new && item.status === 'in_stock';
+                                        return (
+                                            <div
+                                                key={item.id}
+                                                className={`flex items-center justify-between rounded-xl border p-3 transition-all ${
+                                                    isAddition ? 'border-emerald-200 bg-emerald-50/40' : 'border-rose-200 bg-rose-50/40'
+                                                }`}
+                                            >
+                                                <div className="flex min-w-0 items-center gap-2.5">
+                                                    <span
+                                                        className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold text-white ${
+                                                            isAddition ? 'bg-emerald-600' : 'bg-rose-600'
+                                                        }`}
+                                                    >
+                                                        {isAddition ? '+' : '-'}
+                                                    </span>
+                                                    <div className="min-w-0">
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="font-mono text-sm font-bold text-slate-900">{item.serial_number}</span>
+                                                            <span
+                                                                className={`rounded px-1.5 py-0.2 text-[10px] font-semibold ${
+                                                                    isAddition
+                                                                        ? 'bg-emerald-100 text-emerald-800'
+                                                                        : item.status === 'damaged'
+                                                                        ? 'bg-rose-100 text-rose-800'
+                                                                        : 'bg-amber-100 text-amber-800'
+                                                                }`}
+                                                            >
+                                                                {item.status}
+                                                            </span>
+                                                        </div>
+                                                        <p className="truncate text-xs text-slate-500">
+                                                            {item.reason}
+                                                            {item.notes ? ` • ${item.notes}` : ''}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    onClick={() => removeStaged(item.id)}
+                                                    className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-white hover:text-rose-600"
+                                                    title={t('stock_adjustment_remove_staged')}
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </button>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
 
-                {/* Footer */}
-                <div className="border-t border-gray-200 bg-gray-50 px-6 py-4">
-                    <div className="flex justify-end gap-3">
-                        <button onClick={onClose} className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">
-                            {t('btn_cancel')}
-                        </button>
-                        <button
-                            onClick={handleSave}
-                            disabled={staged.length === 0}
-                            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
-                        >
-                            {t('stock_adjustment_save_serial_adjustments')}
-                        </button>
+                {/* Footer Action Bar */}
+                <div className="border-t border-slate-200 bg-slate-50/90 px-4 py-3 sm:px-6 sm:py-4">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex items-center gap-2 text-xs font-semibold text-slate-700 sm:text-sm">
+                            <span>{t('stock_adjustment_staged_changes', { count: staged.length })}</span>
+                            {staged.length > 0 && (
+                                <button
+                                    onClick={() => setStaged([])}
+                                    className="inline-flex items-center gap-1 text-xs text-slate-400 hover:text-rose-600"
+                                >
+                                    <RotateCcw className="h-3 w-3" />
+                                    {t('btn_reset')}
+                                </button>
+                            )}
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                className="h-10 flex-1 rounded-xl border border-slate-300 bg-white px-4 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-100 sm:flex-none sm:text-sm"
+                            >
+                                {t('btn_cancel')}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleSave}
+                                disabled={staged.length === 0}
+                                className="h-10 flex-1 rounded-xl bg-primary px-5 text-xs font-bold text-white shadow-md transition-all hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none sm:text-sm"
+                            >
+                                {t('stock_adjustment_save_serial_adjustments')}
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <datalist id="stock-type-suggestions">
+            <datalist id="serial-stock-reasons">
                 {reasonSuggestions.map((r) => (
                     <option key={r} value={r} />
                 ))}
