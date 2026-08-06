@@ -97,7 +97,7 @@ const AdjustmentSummary = ({ totalItems, totalIncrease, totalDecrease, isSaving,
 
     // Mobile / Floating Bottom Footer
     return (
-        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200/90 bg-white/95 backdrop-blur-lg shadow-[0_-8px_30px_rgba(15,23,42,0.15)] pb-[max(env(safe-area-inset-bottom),0.5rem)] transition-all">
+        <div className="fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom,0px))] lg:bottom-0 z-[65] lg:z-40 border-t border-slate-200/90 bg-white/95 backdrop-blur-lg shadow-[0_-8px_30px_rgba(15,23,42,0.15)] pb-1 lg:pb-[max(env(safe-area-inset-bottom),0.5rem)] transition-all">
             {/* Expandable Stats Drawer (Mobile) */}
             {isExpanded && (
                 <div className="border-b border-slate-100 bg-slate-50/90 px-4 py-3 sm:px-6">

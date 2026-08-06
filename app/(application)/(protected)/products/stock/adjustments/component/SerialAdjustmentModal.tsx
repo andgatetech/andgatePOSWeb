@@ -248,10 +248,10 @@ const SerialAdjustmentModal = ({
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/60 p-0 backdrop-blur-sm transition-all sm:items-center sm:p-4">
-            <div className="flex h-[92vh] max-h-[100dvh] w-full max-w-4xl flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl sm:h-auto sm:max-h-[90vh] sm:rounded-3xl">
+        <div className="fixed inset-0 z-[100] flex items-end justify-center bg-slate-900/60 p-0 backdrop-blur-sm transition-all sm:items-center sm:p-4">
+            <div className="flex h-[88dvh] max-h-[88dvh] w-full max-w-4xl flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl sm:h-auto sm:max-h-[90vh] sm:rounded-3xl">
                 {/* Header */}
-                <div className="border-b border-slate-200 bg-slate-50/90 px-4 py-3 sm:px-6 sm:py-4">
+                <div className="shrink-0 border-b border-slate-200 bg-slate-50/95 px-4 py-3 sm:px-6 sm:py-4">
                     <div className="flex items-center justify-between gap-3">
                         <div className="min-w-0 flex-1">
                             <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
@@ -320,7 +320,7 @@ const SerialAdjustmentModal = ({
                 </div>
 
                 {/* Main Scrollable Body */}
-                <div className="flex-1 overflow-y-auto p-3.5 sm:p-6">
+                <div className="min-h-0 flex-1 overflow-y-auto p-3.5 sm:p-6">
                     {/* TAB 1: CUT / REDUCE SERIALS */}
                     {activeTab === 'cut' && (
                         <div className="space-y-3.5 sm:space-y-4">
@@ -664,14 +664,15 @@ const SerialAdjustmentModal = ({
                 </div>
 
                 {/* Footer Action Bar */}
-                <div className="border-t border-slate-200 bg-slate-50/90 px-4 py-3 sm:px-6 sm:py-4 pb-[max(env(safe-area-inset-bottom),0.75rem)]">
+                <div className="shrink-0 border-t border-slate-200 bg-white px-4 pt-3 pb-[max(env(safe-area-inset-bottom),1.5rem)] sm:px-6 sm:py-4 sm:pb-4 shadow-[0_-4px_16px_rgba(0,0,0,0.06)]">
                     <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
                         <div className="flex items-center justify-between sm:justify-start gap-2 text-xs font-semibold text-slate-700 sm:text-sm">
                             <span>{t('stock_adjustment_staged_changes', { count: staged.length })}</span>
                             {staged.length > 0 && (
                                 <button
+                                    type="button"
                                     onClick={() => setStaged([])}
-                                    className="inline-flex items-center gap-1 text-xs font-bold text-slate-400 hover:text-rose-600"
+                                    className="inline-flex items-center gap-1 text-xs font-bold text-slate-400 hover:text-rose-600 transition-colors"
                                 >
                                     <RotateCcw className="h-3 w-3" />
                                     {t('btn_reset')}
@@ -683,7 +684,7 @@ const SerialAdjustmentModal = ({
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="h-10 flex-1 rounded-xl border border-slate-300 bg-white px-3 text-xs font-bold text-slate-700 transition-colors hover:bg-slate-100 active:scale-98 sm:flex-none sm:px-4 sm:text-sm"
+                                className="h-11 sm:h-10 flex-1 rounded-xl border border-slate-300 bg-white px-3 text-xs sm:text-sm font-bold text-slate-700 transition-colors hover:bg-slate-100 active:scale-98 sm:flex-none sm:px-4"
                             >
                                 {t('btn_cancel')}
                             </button>
@@ -691,7 +692,7 @@ const SerialAdjustmentModal = ({
                                 type="button"
                                 onClick={handleSave}
                                 disabled={staged.length === 0}
-                                className="h-10 flex-1 rounded-xl bg-primary px-4 text-xs font-bold text-white shadow-md transition-all hover:bg-primary/90 active:scale-98 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none sm:px-5 sm:text-sm"
+                                className="h-11 sm:h-10 flex-1 rounded-xl bg-[#046ca9] px-4 text-xs sm:text-sm font-bold text-white shadow-md shadow-[#046ca9]/20 transition-all hover:bg-[#034d79] active:scale-98 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none sm:px-5"
                             >
                                 {t('stock_adjustment_save_serial_adjustments')}
                             </button>

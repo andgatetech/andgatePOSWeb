@@ -244,7 +244,7 @@ const StockAdjustment = () => {
             <AdjustmentHeader storeName={currentStore?.store_name} itemCount={totalItems} onClearAll={handleClearAll} />
 
             {/* Items List */}
-            <div className="flex-1 overflow-y-auto overflow-x-hidden px-2.5 pb-28 pt-2.5 sm:px-6 sm:pb-36 sm:pt-5 max-w-full">
+            <div className="flex-1 overflow-y-auto overflow-x-hidden px-2.5 pb-48 sm:px-6 sm:pb-40 lg:pb-36 pt-2.5 sm:pt-5 max-w-full">
                 <div className="mx-auto grid max-w-6xl gap-3 sm:gap-5 xl:grid-cols-[minmax(0,1fr)_340px] w-full min-w-0">
                     <div className="space-y-3 sm:space-y-4 min-w-0 max-w-full">
                         {/* Progressive Workflow Guide */}
