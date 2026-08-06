@@ -114,105 +114,105 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
 
     return (
         <>
-            <div className="group rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition-all hover:border-slate-300 sm:p-4">
+            <div className="group rounded-2xl border border-slate-200/90 bg-white p-3 sm:p-5 shadow-sm transition-all hover:border-slate-300 hover:shadow-md max-w-full overflow-hidden">
                 {/* Product Info & Remove Button */}
-                <div className="mb-4 flex items-start justify-between gap-3">
+                <div className="mb-3 sm:mb-4 flex items-start justify-between gap-2 sm:gap-3 min-w-0">
                     <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-wrap">
                             <button
                                 onClick={() => setIsPreviewOpen(true)}
-                                className="flex-shrink-0 rounded-lg bg-[#eef7fc] p-1.5 text-[#046ca9] transition-colors hover:bg-[#d7e9f5] hover:text-[#034d79]"
+                                className="flex-shrink-0 rounded-xl bg-[#eef7fc] p-1.5 text-[#046ca9] transition-colors hover:bg-[#d7e9f5] hover:text-[#034d79]"
                                 title={t('btn_view_details')}
                             >
                                 <Eye className="h-4 w-4" />
                             </button>
-                            <h3 className="min-w-0 truncate text-base font-semibold text-gray-900 sm:text-lg">{item.title || item.name}</h3>
-                            {item.has_serial && <span className="rounded-md bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-700">{t('stock_adjustment_serial_tracked')}</span>}
+                            <h3 className="min-w-0 truncate text-sm sm:text-base md:text-lg font-bold text-slate-900">{item.title || item.name}</h3>
+                            {item.has_serial && <span className="rounded-md bg-purple-100 px-1.5 py-0.5 text-[10px] sm:text-xs font-bold text-purple-700 shrink-0">{t('stock_adjustment_serial_tracked')}</span>}
                         </div>
-                        <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-gray-600">
-                            {item.sku && <span className="rounded-md bg-gray-100 px-2 py-1 font-medium">SKU: {item.sku}</span>}
-                            <span className="rounded-md bg-[#eef7fc] px-2 py-1 font-medium text-[#034d79]">
+                        <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px] sm:text-xs text-slate-600">
+                            {item.sku && <span className="rounded-md bg-slate-100 px-1.5 py-0.5 font-medium text-slate-700">SKU: {item.sku}</span>}
+                            <span className="rounded-md bg-[#eef7fc] px-1.5 py-0.5 font-semibold text-[#034d79]">
                                 {t('stock_adjustment_current_stock')}: {Number(currentStock.toFixed(4))}
                             </span>
                             {item.unit && (
-                                <span className="rounded-md bg-gray-100 px-2 py-1 font-medium">
+                                <span className="rounded-md bg-slate-100 px-1.5 py-0.5 font-medium text-slate-700">
                                     {t('stock_adjustment_unit')}: {item.unit}
                                 </span>
                             )}
-                            {item.rate && <span className="text-gray-400">•</span>}
-                            {item.rate && <span className="font-medium text-gray-700">{formatCurrency(item.rate)}</span>}
+                            {item.rate && <span className="text-slate-300">•</span>}
+                            {item.rate && <span className="font-semibold text-slate-800">{formatCurrency(item.rate)}</span>}
                         </div>
                     </div>
-                    <button onClick={handleRemove} className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600" title={t('stock_adjustment_remove_item')}>
-                        <Trash2 className="h-5 w-5" />
+                    <button onClick={handleRemove} className="rounded-xl p-1.5 sm:p-2 text-slate-400 shrink-0 transition-colors hover:bg-rose-50 hover:text-rose-600 active:scale-95" title={t('stock_adjustment_remove_item')}>
+                        <Trash2 className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
                     </button>
                 </div>
 
                 {/* Serial Number Management (if product has serials) */}
                 {item.has_serial ? (
-                    <div className="space-y-3">
-                        <div className="rounded-xl border border-purple-200 bg-purple-50/50 p-4">
-                            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                                <div>
-                                    <div className="flex items-center gap-2">
-                                        <Package className="h-5 w-5 text-purple-700" />
-                                        <p className="text-sm font-bold text-purple-950">{t('stock_adjustment_serial_required')}</p>
+                    <div className="space-y-3 min-w-0 max-w-full">
+                        <div className="rounded-2xl border border-purple-200/90 bg-purple-50/40 p-3 sm:p-4 max-w-full overflow-hidden">
+                            <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between min-w-0">
+                                <div className="min-w-0">
+                                    <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                                        <Package className="h-4 w-4 sm:h-4.5 sm:w-4.5 text-purple-700 shrink-0" />
+                                        <p className="text-xs sm:text-sm font-bold text-purple-950 truncate">{t('stock_adjustment_serial_required')}</p>
                                     </div>
-                                    <p className="mt-1 text-xs text-purple-700">
+                                    <p className="mt-0.5 text-[11px] sm:text-xs text-purple-700 truncate">
                                         {serialAdjustments.length > 0
                                             ? t('stock_adjustment_serials_ready', { count: serialAdjustments.length })
-                                            : t('stock_adjustment_serial_manage_hint')}
+                                             : t('stock_adjustment_serial_manage_hint')}
                                     </p>
                                 </div>
 
                                 {/* Direct Quick Actions */}
-                                <div className="flex flex-wrap items-center gap-2">
+                                <div className="grid grid-cols-3 gap-1 sm:gap-2 sm:flex sm:items-center w-full sm:w-auto min-w-0">
                                     <button
                                         type="button"
                                         onClick={() => openSerialModal('cut')}
-                                        className="flex items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-2 text-xs font-bold text-rose-700 shadow-sm transition-all hover:bg-rose-100 active:scale-[0.98]"
+                                        className="flex h-9 items-center justify-center gap-1 rounded-xl border border-rose-200 bg-rose-50 px-1.5 py-1 text-[11px] sm:text-xs font-bold text-rose-700 shadow-sm transition-all hover:bg-rose-100 active:scale-[0.98] sm:px-3 min-w-0"
                                     >
-                                        <Minus className="h-3.5 w-3.5 stroke-[3]" />
-                                        <span>{t('stock_adjustment_quick_cut')}</span>
+                                        <Minus className="h-3 w-3 sm:h-3.5 sm:w-3.5 stroke-[3] shrink-0" />
+                                        <span className="truncate">{t('stock_adjustment_quick_cut')}</span>
                                     </button>
 
                                     <button
                                         type="button"
                                         onClick={() => openSerialModal('add')}
-                                        className="flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-2 text-xs font-bold text-emerald-700 shadow-sm transition-all hover:bg-emerald-100 active:scale-[0.98]"
+                                        className="flex h-9 items-center justify-center gap-1 rounded-xl border border-emerald-200 bg-emerald-50 px-1.5 py-1 text-[11px] sm:text-xs font-bold text-emerald-700 shadow-sm transition-all hover:bg-emerald-100 active:scale-[0.98] sm:px-3 min-w-0"
                                     >
-                                        <Plus className="h-3.5 w-3.5 stroke-[3]" />
-                                        <span>{t('stock_adjustment_quick_add')}</span>
+                                        <Plus className="h-3 w-3 sm:h-3.5 sm:w-3.5 stroke-[3] shrink-0" />
+                                        <span className="truncate">{t('stock_adjustment_quick_add')}</span>
                                     </button>
 
                                     <button
                                         type="button"
                                         onClick={() => openSerialModal('staged')}
-                                        className="flex items-center gap-1.5 rounded-xl bg-purple-600 px-3.5 py-2 text-xs font-bold text-white shadow-sm transition-all hover:bg-purple-700 active:scale-[0.98]"
+                                        className="flex h-9 items-center justify-center gap-1 rounded-xl bg-purple-600 px-1.5 py-1 text-[11px] sm:text-xs font-bold text-white shadow-sm transition-all hover:bg-purple-700 active:scale-[0.98] sm:px-3 min-w-0"
                                     >
-                                        <Package className="h-3.5 w-3.5" />
-                                        <span>{t('stock_adjustment_manage_serials')}</span>
+                                        <Package className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" />
+                                        <span className="truncate">{t('stock_adjustment_manage_serials')}</span>
                                     </button>
                                 </div>
                             </div>
 
                             {/* Show serial adjustments summary with net impact */}
                             {serialAdjustments.length > 0 && (
-                                <div className="mt-3 space-y-2 border-t border-purple-200/80 pt-3">
-                                    <div className="flex items-center justify-between">
-                                        <p className="text-xs font-bold text-purple-900">{t('stock_adjustment_staged_summary')}</p>
-                                        <div className="flex items-center gap-2 text-xs font-extrabold">
+                                <div className="mt-3 space-y-2 border-t border-purple-200/80 pt-3 max-w-full overflow-hidden">
+                                    <div className="flex items-center justify-between gap-2 min-w-0">
+                                        <p className="text-xs font-bold text-purple-900 truncate">{t('stock_adjustment_staged_summary')}</p>
+                                        <div className="flex items-center gap-1 text-[11px] sm:text-xs font-extrabold shrink-0 flex-wrap justify-end">
                                             {cutSerialsCount > 0 && (
-                                                <span className="rounded-md bg-rose-100 px-2 py-0.5 text-rose-700">
+                                                <span className="rounded-md bg-rose-100 px-1.5 py-0.5 text-rose-700">
                                                     -{cutSerialsCount} Cut
                                                 </span>
                                             )}
                                             {addSerialsCount > 0 && (
-                                                <span className="rounded-md bg-emerald-100 px-2 py-0.5 text-emerald-700">
+                                                <span className="rounded-md bg-emerald-100 px-1.5 py-0.5 text-emerald-700">
                                                     +{addSerialsCount} Added
                                                 </span>
                                             )}
-                                            <span className="rounded-md bg-purple-100 px-2 py-0.5 text-purple-800">
+                                            <span className="rounded-md bg-purple-100 px-1.5 py-0.5 text-purple-800">
                                                 Net: {serialNetImpact > 0 ? `+${serialNetImpact}` : serialNetImpact}
                                             </span>
                                         </div>
@@ -224,13 +224,13 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
                                             return (
                                                 <div
                                                     key={idx}
-                                                    className={`inline-flex items-center gap-1.5 rounded-lg border px-2 py-1 text-xs font-medium ${
+                                                    className={`inline-flex items-center gap-1 rounded-lg border px-2 py-0.5 text-xs font-medium max-w-full min-w-0 ${
                                                         isAdd ? 'border-emerald-200 bg-emerald-50 text-emerald-900' : 'border-rose-200 bg-rose-50 text-rose-900'
                                                     }`}
                                                 >
-                                                    <span className="font-bold">{isAdd ? '+' : '-'}</span>
-                                                    <span className="font-mono">{serial.serial_number}</span>
-                                                    <span className="text-[10px] opacity-75">({serial.reason})</span>
+                                                    <span className="font-bold shrink-0">{isAdd ? '+' : '-'}</span>
+                                                    <span className="font-mono truncate max-w-[120px] sm:max-w-[200px]">{serial.serial_number}</span>
+                                                    <span className="text-[10px] opacity-75 truncate max-w-[80px]">({serial.reason})</span>
                                                 </div>
                                             );
                                         })}
@@ -241,71 +241,95 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
                     </div>
                 ) : (
                     // Normal Product - count what's actually on the shelf; direction/delta are derived, not typed.
-                    <div className="space-y-3">
-                        <div className="flex flex-wrap items-center gap-3">
-                            <label className="text-sm font-medium text-gray-700">{t('stock_adjustment_counted_quantity')} *</label>
-                            {unitOptions.length > 1 && (
-                                <select
-                                    value={item.unit || unitOptions[0]?.unit || ''}
-                                    onChange={(e) => {
-                                        const next = unitOptions.find((u: any) => String(u.unit).toLowerCase() === e.target.value.toLowerCase());
-                                        if (next) onUpdateUnit(item.id, next.unit, Number(next.factor || 1));
-                                    }}
-                                    className="h-11 rounded-lg border border-gray-300 bg-white px-3 text-sm font-medium text-gray-900 focus:border-primary focus:ring-2 focus:ring-primary"
-                                >
-                                    {unitOptions.map((u: any) => (
-                                        <option key={u.unit} value={u.unit}>{u.unit}</option>
-                                    ))}
-                                </select>
-                            )}
-                            <div className="flex items-stretch gap-2">
-                                <button
-                                    type="button"
-                                    onClick={() => updateCountedQuantity(countedQuantity - 1)}
-                                    className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-600 transition-colors hover:bg-gray-50"
-                                >
-                                    <Minus className="h-4 w-4" />
-                                </button>
-                                <input
-                                    type="number"
-                                    inputMode="decimal"
-                                    min="0"
-                                    step="0.0001"
-                                    value={countedQuantity}
-                                    onChange={(e) => updateCountedQuantity(e.target.value === '' ? 0 : Number(e.target.value))}
-                                    className={`h-11 w-24 min-w-0 rounded-lg border bg-white px-2 text-center text-lg font-semibold focus:ring-2 ${
-                                        hasDiscrepancy ? 'border-primary text-gray-900 focus:border-primary focus:ring-primary' : 'border-green-300 text-green-700 focus:border-primary focus:ring-primary'
-                                    }`}
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => updateCountedQuantity(countedQuantity + 1)}
-                                    className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-600 transition-colors hover:bg-gray-50"
-                                >
-                                    <Plus className="h-4 w-4" />
-                                </button>
+                    <div className="space-y-3 min-w-0 max-w-full">
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between min-w-0">
+                            <div className="flex items-center justify-between min-w-0">
+                                <label className="text-xs font-bold text-slate-700 sm:text-sm">{t('stock_adjustment_counted_quantity')} *</label>
+                                
+                                {/* Discrepancy indicator badge on mobile header */}
+                                <div className="sm:hidden">
+                                    {hasDiscrepancy ? (
+                                        <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold ${delta > 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}`}>
+                                            {delta > 0 ? <ArrowUp className="h-3 w-3 shrink-0" /> : <ArrowDown className="h-3 w-3 shrink-0" />}
+                                            {delta > 0 ? `+${delta}` : delta}
+                                        </span>
+                                    ) : (
+                                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700">
+                                            <PackageCheck className="h-3 w-3 shrink-0" />
+                                            {t('stock_adjustment_matches')}
+                                        </span>
+                                    )}
+                                </div>
                             </div>
-                            {hasDiscrepancy ? (
-                                <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold ${delta > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                                    {delta > 0 ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
-                                    {delta > 0 ? '+' : ''}
-                                    {delta}
-                                </span>
-                            ) : (
-                                <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2.5 py-1 text-xs font-bold text-green-700">
-                                    <PackageCheck className="h-3 w-3" />
-                                    {t('stock_adjustment_matches')}
-                                </span>
-                            )}
+
+                            <div className="flex items-center gap-2 min-w-0 flex-wrap sm:flex-nowrap">
+                                {unitOptions.length > 1 && (
+                                    <select
+                                        value={item.unit || unitOptions[0]?.unit || ''}
+                                        onChange={(e) => {
+                                            const next = unitOptions.find((u: any) => String(u.unit).toLowerCase() === e.target.value.toLowerCase());
+                                            if (next) onUpdateUnit(item.id, next.unit, Number(next.factor || 1));
+                                        }}
+                                        className="h-9 sm:h-10 rounded-xl border border-slate-300 bg-white px-2 text-xs font-semibold text-slate-800 focus:border-primary focus:ring-2 focus:ring-primary/20 shrink-0"
+                                    >
+                                        {unitOptions.map((u: any) => (
+                                            <option key={u.unit} value={u.unit}>{u.unit}</option>
+                                        ))}
+                                    </select>
+                                )}
+
+                                <div className="flex flex-1 sm:flex-initial items-center justify-between sm:justify-start gap-1 rounded-xl border border-slate-300 bg-slate-50 p-0.5 shadow-inner min-w-0">
+                                    <button
+                                        type="button"
+                                        onClick={() => updateCountedQuantity(countedQuantity - 1)}
+                                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white text-slate-700 shadow-sm transition-all hover:bg-slate-100 active:scale-95"
+                                    >
+                                        <Minus className="h-4 w-4" />
+                                    </button>
+                                    <input
+                                        type="number"
+                                        inputMode="decimal"
+                                        min="0"
+                                        step="0.0001"
+                                        value={countedQuantity}
+                                        onChange={(e) => updateCountedQuantity(e.target.value === '' ? 0 : Number(e.target.value))}
+                                        className={`h-9 w-16 sm:w-20 rounded-lg border-0 bg-transparent text-center text-sm sm:text-base font-bold focus:ring-0 min-w-0 ${
+                                            hasDiscrepancy ? 'text-slate-900' : 'text-emerald-700'
+                                        }`}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => updateCountedQuantity(countedQuantity + 1)}
+                                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white text-slate-700 shadow-sm transition-all hover:bg-slate-100 active:scale-95"
+                                    >
+                                        <Plus className="h-4 w-4" />
+                                    </button>
+                                </div>
+
+                                {/* Discrepancy indicator badge on desktop */}
+                                <div className="hidden sm:inline-flex shrink-0">
+                                    {hasDiscrepancy ? (
+                                        <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold ${delta > 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}`}>
+                                            {delta > 0 ? <ArrowUp className="h-3 w-3 shrink-0" /> : <ArrowDown className="h-3 w-3 shrink-0" />}
+                                            {delta > 0 ? `+${delta}` : delta}
+                                        </span>
+                                    ) : (
+                                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">
+                                            <PackageCheck className="h-3 w-3 shrink-0" />
+                                            {t('stock_adjustment_matches')}
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
                         </div>
 
                         {hasDiscrepancy && (
-                            <div className="grid gap-3 border-t border-dashed border-[#d8e4ec] pt-3 sm:grid-cols-[minmax(220px,1fr)_minmax(180px,0.75fr)]">
+                            <div className="grid gap-2.5 sm:gap-3 border-t border-dashed border-[#d8e4ec] pt-2.5 sm:pt-3 grid-cols-1 sm:grid-cols-[minmax(220px,1fr)_minmax(180px,0.75fr)] max-w-full">
                                 {/* Reason */}
-                                <div className="min-w-0">
-                                    <label className="mb-2 block text-sm font-medium text-gray-700">{t('reason')} *</label>
+                                <div className="min-w-0 max-w-full">
+                                    <label className="mb-1.5 block text-xs font-bold text-slate-700 uppercase tracking-wider">{t('reason')} *</label>
                                     {adjustmentReasons.length === 0 ? (
-                                        <div className="rounded-lg border-2 border-yellow-200 bg-yellow-50 p-3">
+                                        <div className="rounded-lg border-2 border-yellow-200 bg-yellow-50 p-2.5">
                                             <p className="text-xs font-medium text-yellow-800">
                                                 {t('stock_adjustment_no_reason_found')}{' '}
                                                 <Link href="/store/setting?tab=adjustment" className="font-semibold text-yellow-900 underline hover:text-yellow-700">
@@ -314,11 +338,11 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
                                             </p>
                                         </div>
                                     ) : (
-                                        <div className="space-y-1">
+                                        <div className="space-y-1 max-w-full">
                                             <select
                                                 value={reason}
                                                 onChange={(e) => onAdjustmentChange(item.id, 'reason', e.target.value)}
-                                                className="h-11 w-full min-w-0 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-primary focus:ring-2 focus:ring-primary"
+                                                className="h-10 sm:h-11 w-full min-w-0 max-w-full rounded-xl border border-slate-300 bg-white px-3 text-xs sm:text-sm text-slate-900 focus:border-[#046ca9] focus:ring-2 focus:ring-[#046ca9]/20"
                                             >
                                                 <option value="">{t('placeholder_select_reason')}</option>
                                                 {adjustmentReasons
@@ -330,20 +354,20 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
                                                         </option>
                                                     ))}
                                             </select>
-                                            {selectedReason?.description && <p className="text-xs italic text-gray-500">{selectedReason.description}</p>}
+                                            {selectedReason?.description && <p className="text-xs italic text-slate-500 truncate">{selectedReason.description}</p>}
                                         </div>
                                     )}
                                 </div>
 
                                 {/* Notes */}
-                                <div className="min-w-0">
-                                    <label className="mb-2 block text-sm font-medium text-gray-700">{t('stock_adjustment_notes')}</label>
+                                <div className="min-w-0 max-w-full">
+                                    <label className="mb-1.5 block text-xs font-bold text-slate-700 uppercase tracking-wider">{t('stock_adjustment_notes')}</label>
                                     <input
                                         type="text"
                                         value={notes}
                                         onChange={(e) => onAdjustmentChange(item.id, 'notes', e.target.value)}
                                         placeholder={t('optional')}
-                                        className="h-11 w-full min-w-0 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-primary focus:ring-2 focus:ring-primary"
+                                        className="h-10 sm:h-11 w-full min-w-0 max-w-full rounded-xl border border-slate-300 bg-white px-3 text-xs sm:text-sm text-slate-900 focus:border-[#046ca9] focus:ring-2 focus:ring-[#046ca9]/20"
                                     />
                                 </div>
                             </div>

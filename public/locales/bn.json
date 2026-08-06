@@ -8472,5 +8472,7 @@
   "order_confirm_void_btn": "হ্যাঁ, অর্ডার বাতিল করুন",
   "order_voiding_btn": "বাতিল করা হচ্ছে...",
   "lbl_sale_payment": "বিক্রয় পেমেন্ট",
-  "lbl_staff_cashier": "স্টাফ ক্যাশিয়ার"
+  "lbl_staff_cashier": "স্টাফ ক্যাশিয়ার",
+  "stock_adjustment_net_zero": "কোনো পরিবর্তন নেই",
+  "stock_adjustment_summary_title": "স্টক সারসংক্ষেপ"
 }

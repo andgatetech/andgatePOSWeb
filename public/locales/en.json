@@ -8472,5 +8472,7 @@
   "order_confirm_void_btn": "Yes, Void Order",
   "order_voiding_btn": "Voiding...",
   "lbl_sale_payment": "Sale Payment",
-  "lbl_staff_cashier": "Staff Cashier"
+  "lbl_staff_cashier": "Staff Cashier",
+  "stock_adjustment_net_zero": "No Net Change",
+  "stock_adjustment_summary_title": "Stock Summary"
 }

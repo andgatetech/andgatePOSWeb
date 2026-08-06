@@ -249,66 +249,66 @@ const SerialAdjustmentModal = ({
 
     return (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/60 p-0 backdrop-blur-sm transition-all sm:items-center sm:p-4">
-            <div className="flex h-[94vh] w-full max-w-4xl flex-col overflow-hidden rounded-t-2xl bg-white shadow-2xl sm:h-auto sm:max-h-[90vh] sm:rounded-2xl">
+            <div className="flex h-[92vh] max-h-[100dvh] w-full max-w-4xl flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl sm:h-auto sm:max-h-[90vh] sm:rounded-3xl">
                 {/* Header */}
-                <div className="border-b border-slate-200 bg-slate-50/80 px-4 py-3 sm:px-6 sm:py-4">
+                <div className="border-b border-slate-200 bg-slate-50/90 px-4 py-3 sm:px-6 sm:py-4">
                     <div className="flex items-center justify-between gap-3">
                         <div className="min-w-0 flex-1">
-                            <div className="flex flex-wrap items-center gap-2">
-                                <span className="inline-flex items-center gap-1 rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-bold text-purple-800">
-                                    <Package className="h-3.5 w-3.5" />
+                            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                                <span className="inline-flex items-center gap-1 rounded-full bg-purple-100 px-2 py-0.5 text-[11px] font-bold text-purple-800 sm:text-xs">
+                                    <Package className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                                     {t('stock_adjustment_serial_tracked')}
                                 </span>
-                                <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-800">
+                                <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-800 sm:text-xs">
                                     {t('stock_adjustment_in_stock_count', { count: inStockSerials.length })}
                                 </span>
                             </div>
-                            <h2 className="mt-1 truncate text-lg font-bold text-slate-900 sm:text-xl">{productName}</h2>
+                            <h2 className="mt-1 truncate text-base font-bold text-slate-900 sm:text-xl">{productName}</h2>
                         </div>
                         <button
                             onClick={onClose}
-                            className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition-colors hover:bg-slate-200 hover:text-slate-700"
+                            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-slate-400 transition-colors hover:bg-slate-200 hover:text-slate-700 active:scale-95"
                         >
                             <X className="h-5 w-5" />
                         </button>
                     </div>
 
                     {/* Segmented Navigation Tabs */}
-                    <div className="mt-3 grid grid-cols-3 gap-1 rounded-xl bg-slate-200/70 p-1 text-xs font-semibold sm:text-sm">
+                    <div className="mt-2.5 grid grid-cols-3 gap-1 rounded-2xl bg-slate-200/70 p-1 text-xs font-semibold sm:text-sm">
                         <button
                             onClick={() => setActiveTab('cut')}
-                            className={`flex items-center justify-center gap-1.5 rounded-lg py-2 transition-all ${
+                            className={`flex items-center justify-center gap-1 sm:gap-1.5 rounded-xl py-2 px-1 transition-all ${
                                 activeTab === 'cut'
                                     ? 'bg-rose-600 text-white shadow-sm'
                                     : 'text-slate-700 hover:bg-white/60 hover:text-rose-700'
                             }`}
                         >
-                            <PackageMinus className="h-4 w-4" />
-                            <span>{t('stock_adjustment_cut_serial_tab')}</span>
+                            <PackageMinus className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" />
+                            <span className="truncate">{t('stock_adjustment_cut_serial_tab')}</span>
                         </button>
                         <button
                             onClick={() => setActiveTab('add')}
-                            className={`flex items-center justify-center gap-1.5 rounded-lg py-2 transition-all ${
+                            className={`flex items-center justify-center gap-1 sm:gap-1.5 rounded-xl py-2 px-1 transition-all ${
                                 activeTab === 'add'
                                     ? 'bg-emerald-600 text-white shadow-sm'
                                     : 'text-slate-700 hover:bg-white/60 hover:text-emerald-700'
                             }`}
                         >
-                            <PackagePlus className="h-4 w-4" />
-                            <span>{t('stock_adjustment_add_serial_tab')}</span>
+                            <PackagePlus className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" />
+                            <span className="truncate">{t('stock_adjustment_add_serial_tab')}</span>
                         </button>
                         <button
                             onClick={() => setActiveTab('staged')}
-                            className={`relative flex items-center justify-center gap-1.5 rounded-lg py-2 transition-all ${
+                            className={`relative flex items-center justify-center gap-1 sm:gap-1.5 rounded-xl py-2 px-1 transition-all ${
                                 activeTab === 'staged'
                                     ? 'bg-primary text-white shadow-sm'
                                     : 'text-slate-700 hover:bg-white/60 hover:text-primary'
                             }`}
                         >
-                            <span>{t('stock_adjustment_staged_summary')}</span>
+                            <span className="truncate">{t('stock_adjustment_staged_summary')}</span>
                             {staged.length > 0 && (
                                 <span
-                                    className={`flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-bold ${
+                                    className={`flex h-4.5 min-w-4.5 items-center justify-center rounded-full px-1 text-[10px] font-extrabold ${
                                         activeTab === 'staged' ? 'bg-white text-primary' : 'bg-primary text-white'
                                     }`}
                                 >
@@ -320,24 +320,24 @@ const SerialAdjustmentModal = ({
                 </div>
 
                 {/* Main Scrollable Body */}
-                <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+                <div className="flex-1 overflow-y-auto p-3.5 sm:p-6">
                     {/* TAB 1: CUT / REDUCE SERIALS */}
                     {activeTab === 'cut' && (
-                        <div className="space-y-4">
-                            <div className="rounded-xl border border-rose-100 bg-rose-50/60 p-3 text-xs text-rose-900 sm:text-sm">
+                        <div className="space-y-3.5 sm:space-y-4">
+                            <div className="rounded-2xl border border-rose-100 bg-rose-50/70 p-3 text-xs text-rose-900 sm:text-sm">
                                 <p className="font-medium">{t('stock_adjustment_cut_serial_desc')}</p>
                             </div>
 
                             {/* Search & Bulk Select Controls */}
-                            <div className="flex flex-wrap items-center gap-2">
-                                <div className="relative min-w-[200px] flex-1">
+                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                                <div className="relative min-w-0 flex-1">
                                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                                     <input
                                         type="text"
                                         value={search}
                                         onChange={(e) => setSearch(e.target.value)}
                                         placeholder={t('stock_adjustment_search_serial_placeholder')}
-                                        className="h-10 w-full rounded-xl border border-slate-300 bg-white pl-9 pr-8 text-sm placeholder:text-slate-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20"
+                                        className="h-10 w-full rounded-xl border border-slate-300 bg-white pl-9 pr-8 text-xs sm:text-sm placeholder:text-slate-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20"
                                     />
                                     {search && (
                                         <button
@@ -352,17 +352,17 @@ const SerialAdjustmentModal = ({
                                     <button
                                         type="button"
                                         onClick={toggleSelectAllCut}
-                                        className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                                        className="inline-flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3 text-xs font-bold text-slate-700 hover:bg-slate-50 active:scale-98"
                                     >
                                         {isAllFilteredSelected ? (
                                             <>
                                                 <Square className="h-4 w-4 text-slate-400" />
-                                                {t('stock_adjustment_deselect_all')}
+                                                <span>{t('stock_adjustment_deselect_all')}</span>
                                             </>
                                         ) : (
                                             <>
                                                 <CheckSquare className="h-4 w-4 text-rose-600" />
-                                                {t('stock_adjustment_select_all')} ({filteredCutSerials.length})
+                                                <span>{t('stock_adjustment_select_all')} ({filteredCutSerials.length})</span>
                                             </>
                                         )}
                                     </button>
@@ -371,41 +371,41 @@ const SerialAdjustmentModal = ({
 
                             {/* Serials List */}
                             {loadingExisting ? (
-                                <div className="py-12 text-center text-sm text-slate-500">{t('lbl_loading')}...</div>
+                                <div className="py-10 text-center text-xs sm:text-sm text-slate-500">{t('lbl_loading')}...</div>
                             ) : filteredCutSerials.length === 0 ? (
-                                <div className="rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/50 p-8 text-center">
+                                <div className="rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/50 p-6 text-center sm:p-8">
                                     <Package className="mx-auto h-8 w-8 text-slate-300" />
-                                    <p className="mt-2 text-sm font-medium text-slate-600">
+                                    <p className="mt-2 text-xs sm:text-sm font-medium text-slate-600">
                                         {availableInStockSerials.length === 0
                                             ? t('stock_adjustment_no_existing_serials')
                                             : t('stock_adjustment_no_matching_serials')}
                                     </p>
                                 </div>
                             ) : (
-                                <div className="grid max-h-56 grid-cols-1 gap-2 overflow-y-auto sm:grid-cols-2 lg:grid-cols-3">
+                                <div className="grid max-h-[36vh] sm:max-h-60 grid-cols-1 gap-2 overflow-y-auto sm:grid-cols-2 lg:grid-cols-3">
                                     {filteredCutSerials.map((s) => {
                                         const isSelected = selectedCutSerials.has(s.serial_number);
                                         return (
                                             <div
                                                 key={s.id}
                                                 onClick={() => toggleCutSerial(s.serial_number)}
-                                                className={`flex cursor-pointer items-center justify-between rounded-xl border p-3 transition-all ${
+                                                className={`flex cursor-pointer items-center justify-between rounded-xl border p-3 transition-all active:scale-[0.99] ${
                                                     isSelected
-                                                        ? 'border-rose-500 bg-rose-50/60 shadow-sm'
+                                                        ? 'border-rose-500 bg-rose-50/80 shadow-sm'
                                                         : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50'
                                                 }`}
                                             >
-                                                <div className="flex items-center gap-2.5">
+                                                <div className="flex min-w-0 items-center gap-2.5">
                                                     <div
-                                                        className={`flex h-5 w-5 items-center justify-center rounded-md border transition-colors ${
+                                                        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition-colors ${
                                                             isSelected ? 'border-rose-600 bg-rose-600 text-white' : 'border-slate-300 bg-white'
                                                         }`}
                                                     >
                                                         {isSelected && <Check className="h-3.5 w-3.5 stroke-[3]" />}
                                                     </div>
-                                                    <span className="font-mono text-sm font-semibold text-slate-900">{s.serial_number}</span>
+                                                    <span className="truncate font-mono text-xs sm:text-sm font-bold text-slate-900">{s.serial_number}</span>
                                                 </div>
-                                                <span className="rounded-md bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-800">
+                                                <span className="shrink-0 rounded-md bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
                                                     {t('status_in_stock')}
                                                 </span>
                                             </div>
@@ -416,9 +416,9 @@ const SerialAdjustmentModal = ({
 
                             {/* Cut Reason & Configuration Panel (Active when items selected) */}
                             {selectedCutSerials.size > 0 && (
-                                <div className="animate-fadeIn rounded-2xl border-2 border-rose-200 bg-rose-50/50 p-4 shadow-sm">
+                                <div className="animate-fadeIn rounded-2xl border-2 border-rose-200 bg-rose-50/60 p-3.5 sm:p-4 shadow-sm">
                                     <div className="mb-3 flex items-center justify-between">
-                                        <h4 className="text-sm font-bold text-rose-950">
+                                        <h4 className="text-xs sm:text-sm font-bold text-rose-950">
                                             {t('stock_adjustment_selected_count', { count: selectedCutSerials.size })}
                                         </h4>
                                         <span className="rounded-full bg-rose-600 px-2.5 py-0.5 text-xs font-bold text-white">
@@ -426,15 +426,15 @@ const SerialAdjustmentModal = ({
                                         </span>
                                     </div>
 
-                                    <div className="grid gap-3 sm:grid-cols-3">
+                                    <div className="grid gap-3 grid-cols-1 sm:grid-cols-3">
                                         <div>
-                                            <label className="mb-1.5 block text-xs font-semibold text-slate-700">
+                                            <label className="mb-1 block text-xs font-bold text-slate-700">
                                                 {t('stock_adjustment_new_status')} *
                                             </label>
                                             <select
                                                 value={cutStatus}
                                                 onChange={(e) => setCutStatus(e.target.value as any)}
-                                                className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm font-medium text-slate-900 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20"
+                                                className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-xs sm:text-sm font-medium text-slate-900 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20"
                                             >
                                                 <option value="damaged">{t('lbl_damaged')}</option>
                                                 <option value="sold">{t('lbl_sold')}</option>
@@ -443,12 +443,12 @@ const SerialAdjustmentModal = ({
                                         </div>
 
                                         <div>
-                                            <label className="mb-1.5 block text-xs font-semibold text-slate-700">{t('reason')} *</label>
+                                            <label className="mb-1 block text-xs font-bold text-slate-700">{t('reason')} *</label>
                                             {decreaseReasons.length > 0 ? (
                                                 <select
                                                     value={cutReasonId}
                                                     onChange={(e) => setCutReasonId(e.target.value)}
-                                                    className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm font-medium text-slate-900 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20"
+                                                    className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-xs sm:text-sm font-medium text-slate-900 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20"
                                                 >
                                                     <option value="">{t('placeholder_select_reason')}</option>
                                                     {decreaseReasons.map((r) => (
@@ -464,13 +464,13 @@ const SerialAdjustmentModal = ({
                                                     value={cutCustomReason}
                                                     onChange={(e) => setCutCustomReason(e.target.value)}
                                                     placeholder={t('stock_adjustment_reason_placeholder')}
-                                                    className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20"
+                                                    className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-xs sm:text-sm focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20"
                                                 />
                                             )}
                                         </div>
 
                                         <div>
-                                            <label className="mb-1.5 block text-xs font-semibold text-slate-700">
+                                            <label className="mb-1 block text-xs font-bold text-slate-700">
                                                 {t('stock_adjustment_notes')}
                                             </label>
                                             <input
@@ -478,7 +478,7 @@ const SerialAdjustmentModal = ({
                                                 value={cutNotes}
                                                 onChange={(e) => setCutNotes(e.target.value)}
                                                 placeholder={t('optional')}
-                                                className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20"
+                                                className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-xs sm:text-sm focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20"
                                             />
                                         </div>
                                     </div>
@@ -486,10 +486,10 @@ const SerialAdjustmentModal = ({
                                     <button
                                         type="button"
                                         onClick={handleStageCut}
-                                        className="mt-4 flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-rose-600 px-5 text-sm font-bold text-white shadow-md transition-all hover:bg-rose-700 active:scale-[0.99] sm:w-auto"
+                                        className="mt-3.5 flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-rose-600 px-5 text-xs sm:text-sm font-bold text-white shadow-md transition-all hover:bg-rose-700 active:scale-[0.99] sm:w-auto"
                                     >
                                         <Minus className="h-4 w-4 stroke-[3]" />
-                                        {t('stock_adjustment_cut_btn', { count: selectedCutSerials.size })}
+                                        <span>{t('stock_adjustment_cut_btn', { count: selectedCutSerials.size })}</span>
                                     </button>
                                 </div>
                             )}
@@ -498,14 +498,14 @@ const SerialAdjustmentModal = ({
 
                     {/* TAB 2: ADD / INCREASE SERIALS */}
                     {activeTab === 'add' && (
-                        <div className="space-y-4">
-                            <div className="rounded-xl border border-emerald-100 bg-emerald-50/60 p-3 text-xs text-emerald-900 sm:text-sm">
+                        <div className="space-y-3.5 sm:space-y-4">
+                            <div className="rounded-2xl border border-emerald-100 bg-emerald-50/70 p-3 text-xs text-emerald-900 sm:text-sm">
                                 <p className="font-medium">{t('stock_adjustment_add_serial_desc')}</p>
                             </div>
 
                             <div>
-                                <div className="mb-2 flex items-center justify-between">
-                                    <label className="text-xs font-semibold text-slate-700 sm:text-sm">
+                                <div className="mb-1.5 flex items-center justify-between">
+                                    <label className="text-xs font-bold text-slate-700 sm:text-sm">
                                         {t('stock_adjustment_serial_numbers_one_line')} *
                                     </label>
                                     <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-800">
@@ -516,19 +516,19 @@ const SerialAdjustmentModal = ({
                                     value={bulkSerialNumbers}
                                     onChange={(e) => setBulkSerialNumbers(e.target.value)}
                                     placeholder={'SN-1001\nSN-1002\nSN-1003'}
-                                    rows={5}
-                                    className="w-full rounded-xl border border-slate-300 bg-white p-3 font-mono text-sm leading-relaxed placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                                    rows={4}
+                                    className="w-full rounded-2xl border border-slate-300 bg-white p-3 font-mono text-xs sm:text-sm leading-relaxed placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
                                 />
                             </div>
 
-                            <div className="grid gap-3 sm:grid-cols-2">
+                            <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
                                 <div>
-                                    <label className="mb-1.5 block text-xs font-semibold text-slate-700">{t('reason')} *</label>
+                                    <label className="mb-1 block text-xs font-bold text-slate-700">{t('reason')} *</label>
                                     {increaseReasons.length > 0 ? (
                                         <select
                                             value={addReasonId}
                                             onChange={(e) => setAddReasonId(e.target.value)}
-                                            className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm font-medium text-slate-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                                            className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-xs sm:text-sm font-medium text-slate-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
                                         >
                                             <option value="">{t('placeholder_select_reason')}</option>
                                             {increaseReasons.map((r) => (
@@ -544,13 +544,13 @@ const SerialAdjustmentModal = ({
                                             value={addCustomReason}
                                             onChange={(e) => setAddCustomReason(e.target.value)}
                                             placeholder={t('stock_adjustment_new_stock_placeholder')}
-                                            className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                                            className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-xs sm:text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
                                         />
                                     )}
                                 </div>
 
                                 <div>
-                                    <label className="mb-1.5 block text-xs font-semibold text-slate-700">
+                                    <label className="mb-1 block text-xs font-bold text-slate-700">
                                         {t('stock_adjustment_notes')}
                                     </label>
                                     <input
@@ -558,7 +558,7 @@ const SerialAdjustmentModal = ({
                                         value={addNotes}
                                         onChange={(e) => setAddNotes(e.target.value)}
                                         placeholder={t('optional')}
-                                        className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                                        className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-xs sm:text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
                                     />
                                 </div>
                             </div>
@@ -567,70 +567,70 @@ const SerialAdjustmentModal = ({
                                 type="button"
                                 onClick={handleStageAdd}
                                 disabled={parsedAddSerials.length === 0}
-                                className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 text-sm font-bold text-white shadow-md transition-all hover:bg-emerald-700 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+                                className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 text-xs sm:text-sm font-bold text-white shadow-md transition-all hover:bg-emerald-700 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                             >
                                 <Plus className="h-4 w-4 stroke-[3]" />
-                                {t('stock_adjustment_add_btn', { count: Math.max(1, parsedAddSerials.length) })}
+                                <span>{t('stock_adjustment_add_btn', { count: Math.max(1, parsedAddSerials.length) })}</span>
                             </button>
                         </div>
                     )}
 
                     {/* TAB 3: STAGED SUMMARY */}
                     {activeTab === 'staged' && (
-                        <div className="space-y-4">
+                        <div className="space-y-3.5 sm:space-y-4">
                             {/* Net Impact Card */}
-                            <div className="grid grid-cols-3 gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-3 sm:p-4">
+                            <div className="grid grid-cols-3 gap-1.5 sm:gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-2.5 sm:p-4">
                                 <div className="text-center">
-                                    <span className="text-[11px] font-semibold text-slate-500 sm:text-xs">{t('stock_adjustment_current_stock')}</span>
-                                    <p className="mt-0.5 text-base font-extrabold text-slate-800 sm:text-lg">{inStockSerials.length}</p>
+                                    <span className="text-[10px] sm:text-xs font-bold text-slate-500">{t('stock_adjustment_current_stock')}</span>
+                                    <p className="mt-0.5 text-sm sm:text-lg font-black text-slate-800">{inStockSerials.length}</p>
                                 </div>
                                 <div className="border-x border-slate-200 text-center">
-                                    <span className="text-[11px] font-semibold text-slate-500 sm:text-xs">{t('stock_adjustment_net_stock_impact')}</span>
+                                    <span className="text-[10px] sm:text-xs font-bold text-slate-500">{t('stock_adjustment_net_stock_impact')}</span>
                                     <p
-                                        className={`mt-0.5 flex items-center justify-center gap-0.5 text-base font-extrabold sm:text-lg ${
+                                        className={`mt-0.5 flex items-center justify-center gap-0.5 text-sm sm:text-lg font-black ${
                                             netDelta > 0 ? 'text-emerald-600' : netDelta < 0 ? 'text-rose-600' : 'text-slate-700'
                                         }`}
                                     >
-                                        {netDelta > 0 ? <ArrowUp className="h-4 w-4" /> : netDelta < 0 ? <ArrowDown className="h-4 w-4" /> : null}
+                                        {netDelta > 0 ? <ArrowUp className="h-3.5 w-3.5" /> : netDelta < 0 ? <ArrowDown className="h-3.5 w-3.5" /> : null}
                                         {netDelta > 0 ? `+${netDelta}` : netDelta}
                                     </p>
                                 </div>
                                 <div className="text-center">
-                                    <span className="text-[11px] font-semibold text-slate-500 sm:text-xs">{t('stock_adjustment_after_save')}</span>
-                                    <p className="mt-0.5 text-base font-extrabold text-primary sm:text-lg">
+                                    <span className="text-[10px] sm:text-xs font-bold text-slate-500">{t('stock_adjustment_after_save')}</span>
+                                    <p className="mt-0.5 text-sm sm:text-lg font-black text-primary">
                                         {Math.max(0, inStockSerials.length + netDelta)}
                                     </p>
                                 </div>
                             </div>
 
                             {staged.length === 0 ? (
-                                <div className="rounded-2xl border-2 border-dashed border-slate-200 p-8 text-center">
-                                    <p className="text-sm text-slate-500">{t('stock_adjustment_serial_manage_hint')}</p>
+                                <div className="rounded-2xl border-2 border-dashed border-slate-200 p-6 sm:p-8 text-center">
+                                    <p className="text-xs sm:text-sm text-slate-500">{t('stock_adjustment_serial_manage_hint')}</p>
                                 </div>
                             ) : (
-                                <div className="space-y-2">
+                                <div className="space-y-2 max-h-[40vh] sm:max-h-64 overflow-y-auto">
                                     {staged.map((item) => {
                                         const isAddition = item.is_new && item.status === 'in_stock';
                                         return (
                                             <div
                                                 key={item.id}
-                                                className={`flex items-center justify-between rounded-xl border p-3 transition-all ${
-                                                    isAddition ? 'border-emerald-200 bg-emerald-50/40' : 'border-rose-200 bg-rose-50/40'
+                                                className={`flex items-center justify-between rounded-xl border p-2.5 sm:p-3 transition-all ${
+                                                    isAddition ? 'border-emerald-200 bg-emerald-50/50' : 'border-rose-200 bg-rose-50/50'
                                                 }`}
                                             >
-                                                <div className="flex min-w-0 items-center gap-2.5">
+                                                <div className="flex min-w-0 items-center gap-2 sm:gap-2.5">
                                                     <span
-                                                        className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold text-white ${
+                                                        className={`flex h-5.5 w-5.5 sm:h-6 sm:w-6 shrink-0 items-center justify-center rounded-full text-xs font-black text-white ${
                                                             isAddition ? 'bg-emerald-600' : 'bg-rose-600'
                                                         }`}
                                                     >
                                                         {isAddition ? '+' : '-'}
                                                     </span>
                                                     <div className="min-w-0">
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="font-mono text-sm font-bold text-slate-900">{item.serial_number}</span>
+                                                        <div className="flex items-center gap-1.5 sm:gap-2">
+                                                            <span className="truncate font-mono text-xs sm:text-sm font-bold text-slate-900">{item.serial_number}</span>
                                                             <span
-                                                                className={`rounded px-1.5 py-0.2 text-[10px] font-semibold ${
+                                                                className={`rounded px-1.5 py-0.2 text-[9px] sm:text-[10px] font-bold ${
                                                                     isAddition
                                                                         ? 'bg-emerald-100 text-emerald-800'
                                                                         : item.status === 'damaged'
@@ -641,7 +641,7 @@ const SerialAdjustmentModal = ({
                                                                 {item.status}
                                                             </span>
                                                         </div>
-                                                        <p className="truncate text-xs text-slate-500">
+                                                        <p className="truncate text-[11px] sm:text-xs text-slate-500">
                                                             {item.reason}
                                                             {item.notes ? ` • ${item.notes}` : ''}
                                                         </p>
@@ -649,7 +649,7 @@ const SerialAdjustmentModal = ({
                                                 </div>
                                                 <button
                                                     onClick={() => removeStaged(item.id)}
-                                                    className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-white hover:text-rose-600"
+                                                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-white hover:text-rose-600 active:scale-95"
                                                     title={t('stock_adjustment_remove_staged')}
                                                 >
                                                     <Trash2 className="h-4 w-4" />
@@ -664,14 +664,14 @@ const SerialAdjustmentModal = ({
                 </div>
 
                 {/* Footer Action Bar */}
-                <div className="border-t border-slate-200 bg-slate-50/90 px-4 py-3 sm:px-6 sm:py-4">
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                        <div className="flex items-center gap-2 text-xs font-semibold text-slate-700 sm:text-sm">
+                <div className="border-t border-slate-200 bg-slate-50/90 px-4 py-3 sm:px-6 sm:py-4 pb-[max(env(safe-area-inset-bottom),0.75rem)]">
+                    <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex items-center justify-between sm:justify-start gap-2 text-xs font-semibold text-slate-700 sm:text-sm">
                             <span>{t('stock_adjustment_staged_changes', { count: staged.length })}</span>
                             {staged.length > 0 && (
                                 <button
                                     onClick={() => setStaged([])}
-                                    className="inline-flex items-center gap-1 text-xs text-slate-400 hover:text-rose-600"
+                                    className="inline-flex items-center gap-1 text-xs font-bold text-slate-400 hover:text-rose-600"
                                 >
                                     <RotateCcw className="h-3 w-3" />
                                     {t('btn_reset')}
@@ -683,7 +683,7 @@ const SerialAdjustmentModal = ({
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="h-10 flex-1 rounded-xl border border-slate-300 bg-white px-4 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-100 sm:flex-none sm:text-sm"
+                                className="h-10 flex-1 rounded-xl border border-slate-300 bg-white px-3 text-xs font-bold text-slate-700 transition-colors hover:bg-slate-100 active:scale-98 sm:flex-none sm:px-4 sm:text-sm"
                             >
                                 {t('btn_cancel')}
                             </button>
@@ -691,7 +691,7 @@ const SerialAdjustmentModal = ({
                                 type="button"
                                 onClick={handleSave}
                                 disabled={staged.length === 0}
-                                className="h-10 flex-1 rounded-xl bg-primary px-5 text-xs font-bold text-white shadow-md transition-all hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none sm:text-sm"
+                                className="h-10 flex-1 rounded-xl bg-primary px-4 text-xs font-bold text-white shadow-md transition-all hover:bg-primary/90 active:scale-98 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none sm:px-5 sm:text-sm"
                             >
                                 {t('stock_adjustment_save_serial_adjustments')}
                             </button>

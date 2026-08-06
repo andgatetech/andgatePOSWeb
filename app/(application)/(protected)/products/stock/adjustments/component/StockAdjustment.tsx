@@ -228,7 +228,7 @@ const StockAdjustment = () => {
     }
 
     return (
-        <div className="flex h-full flex-col bg-[#f6f8fb]">
+        <div className="flex h-full w-full max-w-full flex-col overflow-x-hidden bg-[#f6f8fb]">
             {/* Full Screen Loading Overlay */}
             {isSaving && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
@@ -244,38 +244,41 @@ const StockAdjustment = () => {
             <AdjustmentHeader storeName={currentStore?.store_name} itemCount={totalItems} onClearAll={handleClearAll} />
 
             {/* Items List */}
-            <div className="flex-1 overflow-auto px-3 pb-28 pt-3 sm:px-5 sm:pb-32 sm:pt-5">
-                <div className="mx-auto grid max-w-6xl gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
-                    <div className="space-y-4">
-                        <div className="rounded-lg border border-[#d8e4ec] bg-white p-3 shadow-sm sm:p-4">
-                            <div className="grid gap-3 text-sm text-gray-700 sm:grid-cols-3">
-                                <div className="flex items-start gap-2">
-                                    <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[#046ca9] text-xs font-bold text-white">1</span>
-                                    <p>{t('stock_adjustment_step_select')}</p>
+            <div className="flex-1 overflow-y-auto overflow-x-hidden px-2.5 pb-28 pt-2.5 sm:px-6 sm:pb-36 sm:pt-5 max-w-full">
+                <div className="mx-auto grid max-w-6xl gap-3 sm:gap-5 xl:grid-cols-[minmax(0,1fr)_340px] w-full min-w-0">
+                    <div className="space-y-3 sm:space-y-4 min-w-0 max-w-full">
+                        {/* Progressive Workflow Guide */}
+                        <div className="rounded-2xl border border-sky-100 bg-gradient-to-r from-sky-50/70 via-indigo-50/40 to-slate-50 p-2.5 sm:p-4 shadow-sm max-w-full overflow-hidden">
+                            <div className="grid gap-2 text-xs sm:text-sm text-slate-700 sm:grid-cols-3">
+                                <div className="flex items-center gap-2 min-w-0">
+                                    <span className="flex h-5 w-5 sm:h-6 sm:w-6 shrink-0 items-center justify-center rounded-full bg-[#046ca9] text-[10px] sm:text-[11px] font-bold text-white shadow-sm shadow-[#046ca9]/20">1</span>
+                                    <p className="font-medium text-slate-800 truncate">{t('stock_adjustment_step_select')}</p>
                                 </div>
-                                <div className="flex items-start gap-2">
-                                    <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[#046ca9] text-xs font-bold text-white">2</span>
-                                    <p>{t('stock_adjustment_step_count')}</p>
+                                <div className="flex items-center gap-2 min-w-0">
+                                    <span className="flex h-5 w-5 sm:h-6 sm:w-6 shrink-0 items-center justify-center rounded-full bg-[#046ca9] text-[10px] sm:text-[11px] font-bold text-white shadow-sm shadow-[#046ca9]/20">2</span>
+                                    <p className="font-medium text-slate-800 truncate">{t('stock_adjustment_step_count')}</p>
                                 </div>
-                                <div className="flex items-start gap-2">
-                                    <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[#046ca9] text-xs font-bold text-white">3</span>
-                                    <p>{t('stock_adjustment_step_review')}</p>
+                                <div className="flex items-center gap-2 min-w-0">
+                                    <span className="flex h-5 w-5 sm:h-6 sm:w-6 shrink-0 items-center justify-center rounded-full bg-[#046ca9] text-[10px] sm:text-[11px] font-bold text-white shadow-sm shadow-[#046ca9]/20">3</span>
+                                    <p className="font-medium text-slate-800 truncate">{t('stock_adjustment_step_review')}</p>
                                 </div>
                             </div>
                         </div>
 
+                        {/* Product Items */}
                         {cartItems.map((item) => (
-                        <AdjustmentItem
+                            <AdjustmentItem
                                 key={item.id}
                                 item={item}
                                 adjustment={getAdjustment(item.id)}
                                 onAdjustmentChange={handleAdjustmentChange}
                                 onRemove={handleRemoveItem}
-                            onUpdateQuantity={handleUpdateQuantity}
-                            onUpdateUnit={handleUpdateUnit}
-                        />
+                                onUpdateQuantity={handleUpdateQuantity}
+                                onUpdateUnit={handleUpdateUnit}
+                            />
                         ))}
 
+                        {/* Global Batch Settings */}
                         <GlobalSettings
                             globalReason={globalConfig.reason}
                             globalNotes={globalConfig.notes}
@@ -285,14 +288,14 @@ const StockAdjustment = () => {
                     </div>
 
                     <div className="hidden xl:block">
-                        <div className="sticky top-5">
+                        <div className="sticky top-20">
                             <AdjustmentSummary totalItems={totalItems} totalIncrease={totalIncrease} totalDecrease={totalDecrease} isSaving={isSaving} onSubmit={handleSubmit} variant="side" />
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Summary Footer */}
+            {/* Summary Footer for Mobile / Tablet */}
             <div className="xl:hidden">
                 <AdjustmentSummary totalItems={totalItems} totalIncrease={totalIncrease} totalDecrease={totalDecrease} isSaving={isSaving} onSubmit={handleSubmit} />
             </div>
