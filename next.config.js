@@ -130,6 +130,10 @@ const nextConfig = {
     turbopack: {
         root: __dirname,
     },
+    // Next.js 15+ blocks _next dev asset requests from origins not on this list, which
+    // silently kills client hydration (forms fall back to native submit) when the app is
+    // loaded via 127.0.0.1 instead of localhost — e.g. Playwright's default baseURL.
+    allowedDevOrigins: ['127.0.0.1', 'localhost'],
     images: {
         // Serve modern formats (WebP/AVIF) automatically
         formats: ['image/avif', 'image/webp'],

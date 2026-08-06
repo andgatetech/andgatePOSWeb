@@ -34,7 +34,8 @@ test.describe.serial('BOS shell smoke', () => {
         await expect(page.locator('nav.sidebar')).toBeVisible({ timeout: 15000 });
         await expect(page.locator('img[alt="AndgateBOS"]').first()).toBeVisible();
 
-        const collapseButton = page.locator('nav.sidebar button[aria-label="Collapse sidebar"]').first();
+        // aria-label is i18n-translated; default cookie language is 'bn', so match either locale.
+        const collapseButton = page.locator('nav.sidebar button[aria-label="Collapse sidebar"], nav.sidebar button[aria-label="সাইড মেনু বন্ধ করুন"]').first();
         await expect(collapseButton).toBeVisible();
         await collapseButton.click();
         await expect(page.locator('nav.sidebar')).toBeAttached();
