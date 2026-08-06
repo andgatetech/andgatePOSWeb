@@ -327,6 +327,8 @@ const AdjustmentItem = ({ item, adjustment, onAdjustmentChange, onRemove, onUpda
                 productName={item.title || item.name}
                 productId={item.productId}
                 stockId={item.stockId}
+                storeId={currentStore?.id}
+                initialSerials={serialAdjustments}
                 onSave={handleSerialSave}
             />
         </>

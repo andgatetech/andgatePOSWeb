@@ -1741,7 +1741,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                         offline: true,
                     },
                 });
-                setAutoPrint(postActionRef.current === 'receipt' ? 'receipt' : null);
+                setAutoPrint(postActionRef.current);
                 setShowPreview(true);
                 showMessage(t('msg_order_queued_offline'), 'success');
                 return;
@@ -1762,7 +1762,7 @@ const PosRightSide: React.FC<PosRightSideProps> = ({ mode = 'pos', reduxSlice = 
                 setQuotePreview(null);
                 clearHeldCart();
                 setOrderResponse(response);
-                setAutoPrint(postActionRef.current === 'receipt' ? 'receipt' : null);
+                setAutoPrint(postActionRef.current);
                 setShowPreview(true);
 
                 refetch();

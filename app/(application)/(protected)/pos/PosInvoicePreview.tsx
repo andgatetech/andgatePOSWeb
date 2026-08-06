@@ -3,7 +3,7 @@
 import { useCurrency } from '@/hooks/useCurrency';
 import { getTranslation } from '@/i18n';
 import { useCurrentStore } from '@/hooks/useCurrentStore';
-import { closeReservedPdfWindow, downloadPdfMake, reservePdfWindow } from '@/lib/pdf-mobile-download';
+import { closeReservedPdfWindow, downloadPdfMake, isMobilePdfDownloadRisk, reservePdfWindow } from '@/lib/pdf-mobile-download';
 import { printInWindow } from '@/lib/printUtil';
 import { useGetStoreLogoQuery, useGetStoreQuery } from '@/store/features/store/storeApi';
 import { RootState } from '@/store';
@@ -442,6 +442,14 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
     useEffect(() => {
         if (!autoPrint || autoTriggered.current) return;
         autoTriggered.current = true;
+
+        // window.open() inside this delayed effect has no user-gesture context left, so
+        // mobile/PWA popup blockers silently swallow it (this is what "invoice doesn't
+        // download after placing an order" on PWA turned out to be). The preview modal
+        // is already visible either way — skip the fragile auto-popup there and let the
+        // user tap Print/Download PDF directly, which use the gesture-safe reserved-window path.
+        if (isMobilePdfDownloadRisk()) return;
+
         const timer = setTimeout(() => {
             if (autoPrint === 'receipt') {
                 setTimeout(() => printWithMode('receipt'), 450);
