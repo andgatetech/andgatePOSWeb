@@ -484,6 +484,7 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
                                     <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
                                     <input
                                         type="text"
+                                        data-testid="universal-filter-search-input"
                                         placeholder={placeholder}
                                         value={localSearch}
                                         onChange={(e) => setLocalSearch(e.target.value)}
@@ -498,6 +499,7 @@ const UniversalFilter: React.FC<UniversalFilterProps> = ({
                                 </div>
                                 <button
                                     onClick={handleSearchClick}
+                                    data-testid="universal-filter-search-submit"
                                     className="flex items-center justify-center rounded-lg bg-primary px-4 py-2.5 text-white transition-colors hover:bg-primary/90"
                                     title={t('lbl_search')}
                                 >

@@ -14,22 +14,32 @@ export async function loginAsDemo(page: Page): Promise<void> {
     await page.waitForURL(/\/(dashboard|business-os)/, { timeout: 20000 });
 }
 
+// Login throttle on POST /api/v1/login is 5/min — cache the token across calls within
+// this worker process instead of re-authenticating per call (e.g. create + delete in the
+// same spec file), so a full suite run doesn't collide with the throttle.
+let cachedApiContext: Promise<{ token: string; storeId: number }> | null = null;
+
 export async function getApiContext(request: APIRequestContext): Promise<{ token: string; storeId: number }> {
-    const loginResp = await request.post(`${API_BASE_URL}/api/v1/login`, {
-        data: { email: DEMO_EMAIL, password: DEMO_PASSWORD },
-        headers: { Accept: 'application/json' },
-    });
-    if (!loginResp.ok()) {
-        throw new Error(`API login failed: ${loginResp.status()} ${await loginResp.text()}`);
+    if (!cachedApiContext) {
+        cachedApiContext = (async () => {
+            const loginResp = await request.post(`${API_BASE_URL}/api/v1/login`, {
+                data: { email: DEMO_EMAIL, password: DEMO_PASSWORD },
+                headers: { Accept: 'application/json' },
+            });
+            if (!loginResp.ok()) {
+                throw new Error(`API login failed: ${loginResp.status()} ${await loginResp.text()}`);
+            }
+            const loginJson = await loginResp.json();
+            const token = loginJson.data?.token || loginJson.token;
+            const user = loginJson.data?.user || loginJson.user;
+            const storeId = user?.stores?.[0]?.id || user?.current_store_id;
+            if (!token || !storeId) {
+                throw new Error('API login response did not return token/store');
+            }
+            return { token, storeId };
+        })();
     }
-    const loginJson = await loginResp.json();
-    const token = loginJson.data?.token || loginJson.token;
-    const user = loginJson.data?.user || loginJson.user;
-    const storeId = user?.stores?.[0]?.id || user?.current_store_id;
-    if (!token || !storeId) {
-        throw new Error('API login response did not return token/store');
-    }
-    return { token, storeId };
+    return cachedApiContext;
 }
 
 export async function createProductViaApi(request: APIRequestContext, payload: Record<string, unknown>): Promise<number> {

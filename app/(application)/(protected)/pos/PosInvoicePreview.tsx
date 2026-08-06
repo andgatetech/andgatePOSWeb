@@ -1058,7 +1058,7 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 print:bg-white print:p-0 sm:bg-gray-100">
+        <div className="min-h-screen bg-gray-50 print:bg-white print:p-0 sm:bg-gray-100" data-testid="invoice-preview">
             <div className="invoice-shell mx-auto max-w-5xl bg-white shadow-lg print:shadow-none sm:my-0">
                 {/* Action Bar */}
                 <div className="sticky top-0 z-10 border-b border-gray-200 bg-white shadow-sm print:hidden">
