@@ -981,6 +981,8 @@ const OrderDetailsPage: React.FC = () => {
                                     tax_rate: item.tax_rate,
                                     serials: item.serials,
                                     warranty: item.warranty,
+                                    has_serial: item.has_serials ?? (item.serials && item.serials.length > 0),
+                                    has_warranty: item.warranty !== null && item.warranty !== undefined,
                                 })),
                                 totals: {
                                     subtotal: order.financial?.subtotal ?? order.subtotal ?? order.total,

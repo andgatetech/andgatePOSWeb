@@ -186,6 +186,11 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
         skip: !currentStoreId || !currentStore?.logo_path,
     });
 
+    // Use bank accounts, MFS accounts, and payment methods from currentStore (loaded at login)
+    const bankAccounts = (currentStore?.bank_accounts || []) as any[];
+    const mfsAccounts = (currentStore?.mfs_accounts || []) as any[];
+    const paymentMethods = (currentStore?.payment_methods || []) as any[];
+
     const {
         customer = {},
         items = [],
@@ -1528,6 +1533,95 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
                             <strong>{t('lbl_in_word')}:</strong> {numberToWords(isReturn ? Math.abs(netTransaction) : grandTotal)}
                         </p>
                     </div>
+
+                    {/* Payment Options */}
+                    {(bankAccounts.length > 0 || mfsAccounts.length > 0 || paymentMethods.length > 0) && (
+                        <div className="mb-4 border-t border-gray-300 pt-3">
+                            <h3 className="mb-2 text-sm font-bold uppercase text-gray-500">{t('lbl_payment_options') || 'Payment Options'}</h3>
+
+                            {bankAccounts.length > 0 && (
+                                <div className="mb-3">
+                                    <h4 className="mb-1 text-xs font-semibold text-gray-700">{t('lbl_bank_accounts') || 'Bank Accounts'}</h4>
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full border-collapse border border-gray-200 text-xs">
+                                            <thead>
+                                                <tr className="bg-gray-100">
+                                                    <th className="border border-gray-200 px-2 py-1 text-left">{t('lbl_bank') || 'Bank'}</th>
+                                                    <th className="border border-gray-200 px-2 py-1 text-left">{t('lbl_branch') || 'Branch'}</th>
+                                                    <th className="border border-gray-200 px-2 py-1 text-left">{t('lbl_account_name') || 'Account Name'}</th>
+                                                    <th className="border border-gray-200 px-2 py-1 text-left">{t('lbl_account_number') || 'Account Number'}</th>
+                                                    <th className="border border-gray-200 px-2 py-1 text-left">{t('lbl_type') || 'Type'}</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {bankAccounts.filter((a: any) => a.is_active !== false).map((account: any, idx: number) => (
+                                                    <tr key={`bank-${idx}`} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                                                        <td className="border border-gray-200 px-2 py-1">{account.bank_name || ''}</td>
+                                                        <td className="border border-gray-200 px-2 py-1">{account.branch_name || ''}</td>
+                                                        <td className="border border-gray-200 px-2 py-1">{account.account_name || ''}</td>
+                                                        <td className="border border-gray-200 px-2 py-1 font-mono">{account.account_number || ''}</td>
+                                                        <td className="border border-gray-200 px-2 py-1">{account.account_type || ''}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            )}
+
+                            {mfsAccounts.length > 0 && (
+                                <div className="mb-3">
+                                    <h4 className="mb-1 text-xs font-semibold text-gray-700">{t('lbl_mfs_accounts') || 'MFS / Mobile Banking'}</h4>
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full border-collapse border border-gray-200 text-xs">
+                                            <thead>
+                                                <tr className="bg-gray-100">
+                                                    <th className="border border-gray-200 px-2 py-1 text-left">{t('lbl_provider') || 'Provider'}</th>
+                                                    <th className="border border-gray-200 px-2 py-1 text-left">{t('lbl_account_name') || 'Account Name'}</th>
+                                                    <th className="border border-gray-200 px-2 py-1 text-left">{t('lbl_account_number') || 'Account Number'}</th>
+                                                    <th className="border border-gray-200 px-2 py-1 text-left">{t('lbl_type') || 'Type'}</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {mfsAccounts.filter((a: any) => a.is_active !== false).map((account: any, idx: number) => (
+                                                    <tr key={`mfs-${idx}`} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                                                        <td className="border border-gray-200 px-2 py-1">{account.provider || ''}</td>
+                                                        <td className="border border-gray-200 px-2 py-1">{account.account_name || ''}</td>
+                                                        <td className="border border-gray-200 px-2 py-1 font-mono">{account.account_number || ''}</td>
+                                                        <td className="border border-gray-200 px-2 py-1">{account.account_type || ''}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            )}
+
+                            {paymentMethods.length > 0 && (
+                                <div>
+                                    <h4 className="mb-1 text-xs font-semibold text-gray-700">{t('lbl_payment_methods') || 'Payment Methods'}</h4>
+                                    <div className="max-w-md">
+                                        <table className="w-full border-collapse border border-gray-200 text-xs">
+                                            <thead>
+                                                <tr className="bg-gray-100">
+                                                    <th className="border border-gray-200 px-2 py-1 text-left">{t('lbl_method') || 'Method'}</th>
+                                                    <th className="border border-gray-200 px-2 py-1 text-left">{t('lbl_details') || 'Account/Details'}</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {paymentMethods.filter((m: any) => m.is_active !== false).map((method: any, idx: number) => (
+                                                    <tr key={`pm-${idx}`} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                                                        <td className="border border-gray-200 px-2 py-1">{method.payment_method_name || ''}</td>
+                                                        <td className="border border-gray-200 px-2 py-1 font-mono">{method.payment_details_number || method.description || ''}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
 
                     {/* Signature Section — single authority signature line */}
                     <div className="mb-4 flex justify-end pt-6 sm:mb-6 sm:pt-8">
