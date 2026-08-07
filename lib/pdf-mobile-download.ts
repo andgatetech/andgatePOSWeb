@@ -120,30 +120,29 @@ export const openPdfBlob = (blob: Blob, filename: string, reservedWindow?: Reser
     return false;
 };
 
-export const downloadPdfMake = (pdfDoc: any, filename: string, reservedWindow?: ReservedPdfWindow): Promise<void> =>
-    new Promise((resolve, reject) => {
-        if (!pdfDoc) {
+export const downloadPdfMake = async (pdfDoc: any, filename: string, reservedWindow?: ReservedPdfWindow): Promise<void> => {
+    if (!pdfDoc) {
+        closeReservedPdfWindow(reservedWindow);
+        throw new Error('PDF document is not ready.');
+    }
+
+    // pdfmake 0.3's getBlob()/download() are async methods that return a Promise directly —
+    // there is no callback parameter. Calling getBlob(callback) silently ignores the callback
+    // and leaves this Promise permanently unresolved, which is why the reserved "Preparing
+    // PDF..." tab used to get stuck forever on every mobile download, unconditionally (not
+    // just under flaky network — verified via a real-browser reproduction, see PDF fix notes).
+    if (reservedWindow || isMobilePdfDownloadRisk()) {
+        const blob: Blob = await pdfDoc.getBlob();
+        const opened = openPdfBlob(blob, filename, reservedWindow);
+        if (!opened) {
             closeReservedPdfWindow(reservedWindow);
-            reject(new Error('PDF document is not ready.'));
-            return;
+            throw new Error('PDF open failed.');
         }
+        return;
+    }
 
-        if (reservedWindow || isMobilePdfDownloadRisk()) {
-            pdfDoc.getBlob((blob: Blob) => {
-                const opened = openPdfBlob(blob, filename, reservedWindow);
-                if (!opened) {
-                    closeReservedPdfWindow(reservedWindow);
-                    reject(new Error('PDF open failed.'));
-                    return;
-                }
-                resolve();
-            });
-            return;
-        }
-
-        pdfDoc.download(filename);
-        resolve();
-    });
+    await pdfDoc.download(filename);
+};
 
 export const downloadJsPdf = (doc: any, filename: string, reservedWindow?: ReservedPdfWindow) => {
     if (reservedWindow || isMobilePdfDownloadRisk()) {

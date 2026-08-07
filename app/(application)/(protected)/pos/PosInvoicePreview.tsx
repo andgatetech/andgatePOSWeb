@@ -96,6 +96,15 @@ const _fixPdfNode = (n: any): any => {
     return o;
 };
 
+// Mobile networks can leave a fetch() hanging indefinitely (no reject, no resolve) —
+// without a timeout that stalls _ensurePdfFonts() forever, which stalls the PDF export
+// button forever since nothing downstream ever gets a chance to fail and recover.
+const _fetchWithTimeout = (url: string, timeoutMs = 8000): Promise<Response> => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    return fetch(url, { signal: controller.signal }).finally(() => clearTimeout(timer));
+};
+
 const _ensurePdfFonts = (): Promise<void> => {
     if (_pdfCache.pm && _pdfCache.bnLoaded) return Promise.resolve();
     if (_pdfLoadPromise) return _pdfLoadPromise;
@@ -118,8 +127,8 @@ const _ensurePdfFonts = (): Promise<void> => {
                 });
 
             const [regResp, boldResp] = await Promise.all([
-                fetch('/fonts/NotoSansBengali-Regular.ttf'),
-                fetch('/fonts/NotoSansBengali-Bold.ttf'),
+                _fetchWithTimeout('/fonts/NotoSansBengali-Regular.ttf'),
+                _fetchWithTimeout('/fonts/NotoSansBengali-Bold.ttf'),
             ]);
             if (regResp.ok && boldResp.ok) {
                 const [regB64, boldB64] = await Promise.all([
@@ -550,17 +559,22 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
         const mobilePdfWindow = reservePdfWindow(filename);
         setIsPrinting(true);
 
-        // Await fonts — resolves immediately if already cached, waits if still loading
-        await _ensurePdfFonts();
-
-        if (!_pdfCache.pm) {
-            closeReservedPdfWindow(mobilePdfWindow);
-            showMessage(t('msg_pdf_loading'), 'warning');
-            setIsPrinting(false);
-            return;
-        }
-
+        // Everything from here on — including the fonts await — is inside the
+        // try/catch/finally below. reservePdfWindow() opens a tab showing "Preparing
+        // PDF...", and it must always end up closed or replaced with the real PDF, no
+        // matter what fails; letting anything between reserve and download escape
+        // unhandled leaves that tab stuck on the loading message forever (see
+        // _fetchWithTimeout for the specific mobile-network case this was found from).
         try {
+            // Await fonts — resolves immediately if already cached, waits if still loading
+            await _ensurePdfFonts();
+
+            if (!_pdfCache.pm) {
+                showMessage(t('msg_pdf_loading'), 'warning');
+                closeReservedPdfWindow(mobilePdfWindow);
+                return;
+            }
+
             const content: Content = [];
 
             // Header with logo and company info
@@ -962,29 +976,19 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
                 fontSize: 9,
             });
 
-            // Signature section
+            // Signature section — single authority signature line (was previously three
+            // separate received/checked/authorized-by lines).
             content.push({
                 columns: [
+                    { text: '', width: '*' },
                     {
                         stack: [
-                            { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 120, y2: 0, lineWidth: 1 }] },
-                            { text: t('lbl_received_by'), alignment: 'center', margin: [0, 5, 0, 0], fontSize: 9, bold: true },
+                            { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 150, y2: 0, lineWidth: 1 }] },
+                            { text: t('lbl_authorized_signature'), alignment: 'center', margin: [0, 5, 0, 0], fontSize: 9, bold: true },
                         ],
-                        width: '33.33%',
-                    },
-                    {
-                        stack: [{ canvas: [{ type: 'line', x1: 0, y1: 0, x2: 120, y2: 0, lineWidth: 1 }] }, { text: t('lbl_checked_by'), alignment: 'center', margin: [0, 5, 0, 0], fontSize: 9, bold: true }],
-                        width: '33.33%',
-                    },
-                    {
-                        stack: [
-                            { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 120, y2: 0, lineWidth: 1 }] },
-                            { text: t('lbl_authorized_by'), alignment: 'center', margin: [0, 5, 0, 0], fontSize: 9, bold: true },
-                        ],
-                        width: '33.33%',
+                        width: 150,
                     },
                 ],
-                columnGap: 10,
                 margin: [0, 30, 0, 20],
             });
 
@@ -1519,16 +1523,10 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
                         </p>
                     </div>
 
-                    {/* Signature Section */}
-                    <div className="mb-4 grid grid-cols-3 gap-2 pt-6 sm:mb-6 sm:gap-4 sm:pt-8">
-                        <div className="border-t border-gray-400 pt-2 text-center">
-                            <p className="text-sm font-semibold">{t('lbl_received_by')}</p>
-                        </div>
-                        <div className="border-t border-gray-400 pt-2 text-center">
-                            <p className="text-sm font-semibold">{t('lbl_checked_by')}</p>
-                        </div>
-                        <div className="border-t border-gray-400 pt-2 text-center">
-                            <p className="text-sm font-semibold">{t('lbl_authorized_by')}</p>
+                    {/* Signature Section — single authority signature line */}
+                    <div className="mb-4 flex justify-end pt-6 sm:mb-6 sm:pt-8">
+                        <div className="w-40 border-t border-gray-400 pt-2 text-center">
+                            <p className="text-sm font-semibold">{t('lbl_authorized_signature')}</p>
                         </div>
                     </div>
 

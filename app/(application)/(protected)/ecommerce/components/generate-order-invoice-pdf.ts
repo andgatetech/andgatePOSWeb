@@ -270,37 +270,33 @@ export const reserveInvoicePrintWindow = (filename = 'invoice.pdf'): Window | nu
     return printWindow;
 };
 
-const printPdfMake = (pdfDoc: any, filename: string, printWindow?: Window | null): Promise<void> =>
-    new Promise((resolve, reject) => {
-        if (!pdfDoc) {
-            reject(new Error('PDF document is not ready.'));
+// pdfmake 0.3's getBlob() is an async method returning a Promise directly — there is no
+// callback parameter. The old getBlob(callback) form here silently ignored the callback
+// and left this Promise permanently unresolved, so printing to a reserved window hung
+// forever (see the matching fix + real-browser verification in lib/pdf-mobile-download.ts).
+const printPdfMake = async (pdfDoc: any, filename: string, printWindow?: Window | null): Promise<void> => {
+    if (!pdfDoc) {
+        throw new Error('PDF document is not ready.');
+    }
+
+    if (!printWindow || printWindow.closed) {
+        try {
+            pdfDoc.print();
+            return;
+        } catch (printError) {
+            await pdfDoc.download(filename);
             return;
         }
+    }
 
-        if (!printWindow || printWindow.closed) {
-            try {
-                pdfDoc.print();
-                resolve();
-                return;
-            } catch (printError) {
-                try {
-                    pdfDoc.download(filename);
-                    resolve();
-                } catch (downloadError) {
-                    reject(downloadError);
-                }
-                return;
-            }
-        }
+    const blob: Blob = await pdfDoc.getBlob();
+    const pdfBlob = blob.type === 'application/pdf' ? blob : new Blob([blob], { type: 'application/pdf' });
+    const url = URL.createObjectURL(pdfBlob);
+    const escapedName = escapeHtml(filename);
 
-        pdfDoc.getBlob((blob: Blob) => {
-            const pdfBlob = blob.type === 'application/pdf' ? blob : new Blob([blob], { type: 'application/pdf' });
-            const url = URL.createObjectURL(pdfBlob);
-            const escapedName = escapeHtml(filename);
-
-            try {
-                printWindow.document.open();
-                printWindow.document.write(`<!doctype html>
+    try {
+        printWindow.document.open();
+        printWindow.document.write(`<!doctype html>
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -328,15 +324,13 @@ const printPdfMake = (pdfDoc: any, filename: string, printWindow?: Window | null
     </script>
 </body>
 </html>`);
-                printWindow.document.close();
-                setTimeout(() => URL.revokeObjectURL(url), 120_000);
-                resolve();
-            } catch (error) {
-                URL.revokeObjectURL(url);
-                reject(error);
-            }
-        });
-    });
+        printWindow.document.close();
+        setTimeout(() => URL.revokeObjectURL(url), 120_000);
+    } catch (error) {
+        URL.revokeObjectURL(url);
+        throw error;
+    }
+};
 
 export async function generateOrderInvoicePDF(payload: InvoicePayload, reservedPdfWindow?: Window | null, options: { action?: InvoicePdfAction } = {}) {
     await _ensureEcPdf();
@@ -526,32 +520,19 @@ export async function generateOrderInvoicePDF(payload: InvoicePayload, reservedP
         });
     }
 
-    // Signatures
+    // Signature — single authority signature line (was previously three separate
+    // received/checked/authorized-by lines).
     content.push({
         columns: [
+            { text: '', width: '*' },
             {
                 stack: [
-                    { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 120, y2: 0, lineWidth: 1 }] },
-                    { text: t('lbl_received_by'), alignment: 'center', margin: [0, 5, 0, 0], fontSize: 9, bold: true },
+                    { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 150, y2: 0, lineWidth: 1 }] },
+                    { text: t('lbl_authorized_signature'), alignment: 'center', margin: [0, 5, 0, 0], fontSize: 9, bold: true },
                 ],
-                width: '33.33%',
-            },
-            {
-                stack: [
-                    { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 120, y2: 0, lineWidth: 1 }] },
-                    { text: t('lbl_checked_by'), alignment: 'center', margin: [0, 5, 0, 0], fontSize: 9, bold: true },
-                ],
-                width: '33.33%',
-            },
-            {
-                stack: [
-                    { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 120, y2: 0, lineWidth: 1 }] },
-                    { text: t('lbl_authorized_by'), alignment: 'center', margin: [0, 5, 0, 0], fontSize: 9, bold: true },
-                ],
-                width: '33.33%',
+                width: 150,
             },
         ],
-        columnGap: 10,
         margin: [0, 30, 0, 20],
     });
 
