@@ -40,7 +40,7 @@ const OrderEditPage = () => {
     // Load order data into Redux when fetched
     useEffect(() => {
         if (order && currentStoreId) {
-            const isDraft = String(order.status || '').trim().toLowerCase() === 'draft';
+            const isDraft = ['draft', 'completed', 'paid'].includes(String(order.status || '').trim().toLowerCase());
             if (!isDraft) {
                 setIsLoadingOrder(false);
                 return;
@@ -141,7 +141,7 @@ const OrderEditPage = () => {
         );
     }
 
-    if (String(order?.status || '').trim().toLowerCase() !== 'draft') {
+    if (!['draft', 'completed', 'paid'].includes(String(order?.status || '').trim().toLowerCase())) {
         return (
             <div className="flex min-h-screen items-center justify-center bg-[#f6f8fb] px-4">
                 <div className="max-w-lg rounded-xl border border-amber-200 bg-white p-8 text-center shadow-sm">

@@ -225,7 +225,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({
                 onClick: (order: any) => router.push(`/orders/edit/${order.id}`),
                 className: 'text-slate-700',
                 icon: <Edit className="h-4 w-4" />,
-                hidden: (order: any) => order.status !== 'draft',
+                hidden: (order: any) => !['draft', 'completed', 'paid'].includes(String(order.status).toLowerCase()),
             },
             {
                 label: t('order_action_invoice'),
