@@ -405,6 +405,8 @@ const Orders = () => {
                     <div class="item-name">${esc(itemName)}</div>
                     <div class="item-details">${esc(itemQty)}x${esc(itemPrice)}</div>
                     ${item.variant_name || item.variant?.name ? `<div class="item-details">Var: ${esc(item.variant_name || item.variant?.name)}</div>` : ''}
+                    ${item.serials && item.serials.length ? `<div class="item-details">SN: ${item.serials.map((s: any) => esc(s.serial_number)).join(', ')}</div>` : ''}
+                    ${item.warranty ? `<div class="item-details">${esc(t('lbl_warranty') || 'Warranty')}: ${esc(item.warranty.warranty_type || item.warranty.warranty_type_name || 'Standard')}</div>` : ''}
                 </div>
                 `;
             }).join('')}
@@ -436,6 +438,10 @@ const Orders = () => {
             ${(order.financial?.due_amount ?? order.due_amount ?? 0) > 0 ? `<div class="total-row">
                 <div class="total-label">${esc(t('lbl_due'))}:</div>
                 <div class="total-value">${esc(formatCurrency(order.financial?.due_amount ?? order.due_amount ?? 0))}</div>
+            </div>` : ''}
+            ${order.payment?.method || order.payment_method ? `<div class="total-row">
+                <div class="total-label">${esc(t('lbl_payment_method') || 'Payment Method')}:</div>
+                <div class="total-value">${esc(order.payment?.method || order.payment_method)}</div>
             </div>` : ''}
         </div>
 
@@ -550,6 +556,8 @@ const Orders = () => {
                                         tax_rate: item.tax_rate,
                                         serials: item.serials,
                                         warranty: item.warranty,
+                                        has_serial: item.has_serials ?? (item.serials && item.serials.length > 0),
+                                        has_warranty: item.warranty !== null && item.warranty !== undefined,
                                     })),
                                     totals: {
                                         subtotal: selectedOrder.financial?.subtotal ?? selectedOrder.subtotal ?? selectedOrder.total,

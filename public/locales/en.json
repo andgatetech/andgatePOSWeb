@@ -1827,6 +1827,7 @@
   "lbl_invoice": "Invoice",
   "lbl_receipt": "Receipt",
   "lbl_payment_method": "Payment Method",
+  "lbl_paid_via": "Paid Via",
   "lbl_unnamed_method": "Unnamed Method",
   "lbl_use_loyalty_points": "Use Loyalty Points",
   "lbl_points_to_use": "Points to use",

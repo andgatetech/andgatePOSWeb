@@ -244,6 +244,26 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
     const balanceDiscount = Number(totals.balanceDiscount ?? data?.balanceDiscount ?? 0);
     const grandTotal = totals.grand_total ?? subtotal + calculatedTax - calculatedDiscount;
 
+    // A fully-settled order should surface only the channel actually used, not the store's
+    // entire catalog of bank/MFS accounts — that catalog is only useful as "how to pay" options
+    // while a balance is still due.
+    const normalizedPaymentMethod = (displayPaymentMethod || '').trim().toLowerCase();
+    const hasOutstandingDue = amountDue > 0;
+    const isCashPayment = !normalizedPaymentMethod || normalizedPaymentMethod === 'cash';
+    const relevantBankAccounts = hasOutstandingDue
+        ? bankAccounts
+        : isCashPayment
+          ? []
+          : bankAccounts.filter((a: any) => normalizedPaymentMethod.includes('bank') || normalizedPaymentMethod.includes((a.bank_name || '').toLowerCase()));
+    const relevantMfsAccounts = hasOutstandingDue
+        ? mfsAccounts
+        : isCashPayment
+          ? []
+          : mfsAccounts.filter((a: any) => (a.provider || '').toLowerCase() === normalizedPaymentMethod);
+    const relevantPaymentMethods = hasOutstandingDue
+        ? paymentMethods
+        : paymentMethods.filter((m: any) => (m.payment_method_name || '').toLowerCase() === normalizedPaymentMethod);
+
     // Tax label & registration number from store settings
     const taxLabel = currentStore?.tax_label || t('lbl_tax');
     const registrationNumber = currentStore?.tax_registration_number;
@@ -443,7 +463,11 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
                         {item.has_serial && item.serials?.length ? (
                             <div className="ml-5 break-words text-[8px]">{t('lbl_serial')}: {item.serials.map((serial) => serial.serial_number).join(', ')}</div>
                         ) : null}
-                        {item.has_warranty && item.warranty ? <div className="ml-5 text-[8px]">{t('lbl_warranty')}: {item.warranty.warranty_type_name || formatWarrantyDuration(item.warranty)}</div> : null}
+                        {item.has_warranty && item.warranty ? (
+                            <div className="ml-5 text-[8px]">
+                                {t('lbl_warranty')}: {item.warranty.warranty_type_name || (item.warranty as any).warranty_type || formatWarrantyDuration(item.warranty)}
+                            </div>
+                        ) : null}
                     </div>
                 ))}
             </div>
@@ -1534,12 +1558,16 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
                         </p>
                     </div>
 
-                    {/* Payment Options */}
-                    {(bankAccounts.length > 0 || mfsAccounts.length > 0 || paymentMethods.length > 0) && (
+                    {/* Payment Options — the full store catalog only when a balance is still due
+                        (so the customer knows how to pay it); a settled order shows only the
+                        specific channel actually used, not every account the store has on file. */}
+                    {(relevantBankAccounts.length > 0 || relevantMfsAccounts.length > 0 || relevantPaymentMethods.length > 0) && (
                         <div className="mb-4 border-t border-gray-300 pt-3">
-                            <h3 className="mb-2 text-sm font-bold uppercase text-gray-500">{t('lbl_payment_options') || 'Payment Options'}</h3>
+                            <h3 className="mb-2 text-sm font-bold uppercase text-gray-500">
+                                {hasOutstandingDue ? t('lbl_payment_options') || 'Payment Options' : t('lbl_paid_via') || 'Paid Via'}
+                            </h3>
 
-                            {bankAccounts.length > 0 && (
+                            {relevantBankAccounts.length > 0 && (
                                 <div className="mb-3">
                                     <h4 className="mb-1 text-xs font-semibold text-gray-700">{t('lbl_bank_accounts') || 'Bank Accounts'}</h4>
                                     <div className="overflow-x-auto">
@@ -1554,7 +1582,7 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {bankAccounts.filter((a: any) => a.is_active !== false).map((account: any, idx: number) => (
+                                                {relevantBankAccounts.filter((a: any) => a.is_active !== false).map((account: any, idx: number) => (
                                                     <tr key={`bank-${idx}`} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                                                         <td className="border border-gray-200 px-2 py-1">{account.bank_name || ''}</td>
                                                         <td className="border border-gray-200 px-2 py-1">{account.branch_name || ''}</td>
@@ -1569,7 +1597,7 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
                                 </div>
                             )}
 
-                            {mfsAccounts.length > 0 && (
+                            {relevantMfsAccounts.length > 0 && (
                                 <div className="mb-3">
                                     <h4 className="mb-1 text-xs font-semibold text-gray-700">{t('lbl_mfs_accounts') || 'MFS / Mobile Banking'}</h4>
                                     <div className="overflow-x-auto">
@@ -1583,7 +1611,7 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {mfsAccounts.filter((a: any) => a.is_active !== false).map((account: any, idx: number) => (
+                                                {relevantMfsAccounts.filter((a: any) => a.is_active !== false).map((account: any, idx: number) => (
                                                     <tr key={`mfs-${idx}`} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                                                         <td className="border border-gray-200 px-2 py-1">{account.provider || ''}</td>
                                                         <td className="border border-gray-200 px-2 py-1">{account.account_name || ''}</td>
@@ -1597,7 +1625,7 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
                                 </div>
                             )}
 
-                            {paymentMethods.length > 0 && (
+                            {relevantPaymentMethods.length > 0 && (
                                 <div>
                                     <h4 className="mb-1 text-xs font-semibold text-gray-700">{t('lbl_payment_methods') || 'Payment Methods'}</h4>
                                     <div className="max-w-md">
@@ -1609,7 +1637,7 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {paymentMethods.filter((m: any) => m.is_active !== false).map((method: any, idx: number) => (
+                                                {relevantPaymentMethods.filter((m: any) => m.is_active !== false).map((method: any, idx: number) => (
                                                     <tr key={`pm-${idx}`} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                                                         <td className="border border-gray-200 px-2 py-1">{method.payment_method_name || ''}</td>
                                                         <td className="border border-gray-200 px-2 py-1 font-mono">{method.payment_details_number || method.description || ''}</td>

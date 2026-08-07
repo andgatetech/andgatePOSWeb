@@ -1683,6 +1683,7 @@
   "lbl_invoice": "চালান",
   "lbl_receipt": "রসিদ",
   "lbl_payment_method": "পেমেন্ট পদ্ধতি",
+  "lbl_paid_via": "যেভাবে পরিশোধ করা হয়েছে",
   "lbl_unnamed_method": "নামহীন পদ্ধতি",
   "lbl_use_loyalty_points": "লয়্যালটি পয়েন্ট ব্যবহার করুন",
   "lbl_points_to_use": "ব্যবহারযোগ্য পয়েন্ট",

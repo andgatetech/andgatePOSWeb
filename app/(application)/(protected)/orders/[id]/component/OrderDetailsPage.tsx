@@ -233,6 +233,7 @@ const OrderDetailsPage: React.FC = () => {
                     <div class="item-name">${esc(itemName)}</div>
                     <div class="item-details">${esc(itemQty)} x ${esc(itemPrice)} = ${esc(formatCurrency(item.subtotal || 0))}</div>
                     ${item.serials && item.serials.length ? `<div class="item-details">SN: ${item.serials.map((s: any) => esc(s.serial_number)).join(', ')}</div>` : ''}
+                    ${item.warranty ? `<div class="item-details">${esc(t('lbl_warranty') || 'Warranty')}: ${esc(item.warranty.warranty_type || item.warranty.warranty_type_name || 'Standard')}</div>` : ''}
                 </div>
                 `;
             }).join('')}
@@ -267,6 +268,11 @@ const OrderDetailsPage: React.FC = () => {
             <div class="total-row">
                 <div class="total-label">${esc(t('lbl_due') || 'Due')}:</div>
                 <div class="total-value">${esc(formatCurrency(order.financial?.due_amount ?? order.due_amount ?? 0))}</div>
+            </div>` : ''}
+            ${order.payment?.method || order.payment_method ? `
+            <div class="total-row">
+                <div class="total-label">${esc(t('lbl_payment_method') || 'Payment Method')}:</div>
+                <div class="total-value">${esc(order.payment?.method || order.payment_method)}</div>
             </div>` : ''}
         </div>
 
