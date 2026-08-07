@@ -2160,6 +2160,7 @@
   "lbl_updating": "আপডেট হচ্ছে...",
   "lbl_ledger": "লেজার",
   "lbl_payment_type": "পেমেন্ট ধরন",
+  "lbl_method": "পদ্ধতি",
   "lbl_details": "বিবরণ",
   "lbl_additional_details": "অতিরিক্ত তথ্য",
   "lbl_expense_id": "খরচ আইডি",

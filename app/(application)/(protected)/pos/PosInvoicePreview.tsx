@@ -1011,6 +1011,100 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
                 fontSize: 9,
             });
 
+            // Payment details — same scoping as the on-screen "Paid Via"/"Payment Options"
+            // block: only the specific channel used once settled, the full catalog while a
+            // balance is still due. The downloadable/printable PDF previously had no payment
+            // section at all, unlike the on-screen preview.
+            if (relevantBankAccounts.length > 0 || relevantMfsAccounts.length > 0 || relevantPaymentMethods.length > 0) {
+                content.push({
+                    text: hasOutstandingDue ? t('lbl_payment_options') : t('lbl_paid_via'),
+                    style: 'sectionHeader',
+                    margin: [0, 5, 0, 5],
+                });
+
+                if (relevantBankAccounts.length > 0) {
+                    content.push({ text: t('lbl_bank_accounts'), bold: true, fontSize: 9, margin: [0, 0, 0, 3] });
+                    content.push({
+                        table: {
+                            headerRows: 1,
+                            widths: ['*', '*', '*', '*', 'auto'],
+                            body: [
+                                [
+                                    { text: t('lbl_bank'), style: 'tableHeader' },
+                                    { text: t('lbl_branch'), style: 'tableHeader' },
+                                    { text: t('lbl_account_name'), style: 'tableHeader' },
+                                    { text: t('lbl_account_number'), style: 'tableHeader' },
+                                    { text: t('lbl_type'), style: 'tableHeader' },
+                                ],
+                                ...relevantBankAccounts
+                                    .filter((a: any) => a.is_active !== false)
+                                    .map((a: any) => [
+                                        { text: a.bank_name || '' },
+                                        { text: a.branch_name || '' },
+                                        { text: a.account_name || '' },
+                                        { text: a.account_number || '' },
+                                        { text: a.account_type || '' },
+                                    ]),
+                            ],
+                        },
+                        fontSize: 8,
+                        margin: [0, 0, 0, 8],
+                    });
+                }
+
+                if (relevantMfsAccounts.length > 0) {
+                    content.push({ text: t('lbl_mfs_accounts'), bold: true, fontSize: 9, margin: [0, 0, 0, 3] });
+                    content.push({
+                        table: {
+                            headerRows: 1,
+                            widths: ['*', '*', '*', 'auto'],
+                            body: [
+                                [
+                                    { text: t('lbl_provider'), style: 'tableHeader' },
+                                    { text: t('lbl_account_name'), style: 'tableHeader' },
+                                    { text: t('lbl_account_number'), style: 'tableHeader' },
+                                    { text: t('lbl_type'), style: 'tableHeader' },
+                                ],
+                                ...relevantMfsAccounts
+                                    .filter((a: any) => a.is_active !== false)
+                                    .map((a: any) => [
+                                        { text: a.provider || '' },
+                                        { text: a.account_name || '' },
+                                        { text: a.account_number || '' },
+                                        { text: a.account_type || '' },
+                                    ]),
+                            ],
+                        },
+                        fontSize: 8,
+                        margin: [0, 0, 0, 8],
+                    });
+                }
+
+                if (relevantPaymentMethods.length > 0) {
+                    content.push({ text: t('lbl_payment_methods'), bold: true, fontSize: 9, margin: [0, 0, 0, 3] });
+                    content.push({
+                        table: {
+                            headerRows: 1,
+                            widths: ['*', '*'],
+                            body: [
+                                [
+                                    { text: t('lbl_method'), style: 'tableHeader' },
+                                    { text: t('lbl_details'), style: 'tableHeader' },
+                                ],
+                                ...relevantPaymentMethods
+                                    .filter((m: any) => m.is_active !== false)
+                                    .map((m: any) => [
+                                        { text: m.payment_method_name || '' },
+                                        { text: m.payment_details_number || m.description || '' },
+                                    ]),
+                            ],
+                        },
+                        fontSize: 8,
+                        margin: [0, 0, 0, 8],
+                    });
+                }
+            }
+
             // Signature section — single authority signature line (was previously three
             // separate received/checked/authorized-by lines).
             content.push({

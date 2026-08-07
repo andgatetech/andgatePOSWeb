@@ -999,8 +999,8 @@ const OrderDetailsPage: React.FC = () => {
                                 invoice: order.invoice,
                                 order_id: order.id,
                                 isOrderCreated: false,
-                                payment_status: order.payment?.status ?? order.payment_status,
-                                payment_method: order.payment?.method ?? order.payment_method,
+                                payment_status: order.payment?.payment_status ?? order.payment_status,
+                                payment_method: order.payment?.payment_method ?? order.payment_method,
                                 amount_paid: order.financial?.amount_paid ?? order.amount_paid,
                                 due_amount: order.financial?.due_amount ?? order.due_amount,
                             }}
