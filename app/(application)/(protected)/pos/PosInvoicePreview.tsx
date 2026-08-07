@@ -599,9 +599,9 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
                 ...((currentStore?.store_location || '').replace(/[\s,;.|/-]/g, '').length > 0 ? [{ text: currentStore!.store_location, style: 'companyInfo' }] : []),
                 {
                     text: [
-                        currentStore?.store_email ? `${currentStore.store_email}` : '',
-                        currentStore?.store_email && currentStore?.store_contact ? ' | ' : '',
-                        currentStore?.store_contact ? `${t('lbl_phone')}: ${currentStore.store_contact}` : '',
+                        { text: currentStore?.store_email ? `${currentStore.store_email}` : '' },
+                        { text: currentStore?.store_email && currentStore?.store_contact ? ' | ' : '' },
+                        { text: currentStore?.store_contact ? `${t('lbl_phone')}: ${currentStore.store_contact}` : '' },
                     ],
                     style: 'companyInfo',
                 },
@@ -635,14 +635,14 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
             const detailsContent: any = {
                 columns: [
                     {
-                        stack: [{ text: [{ text: `${t('lbl_invoice_no')}: `, bold: true }, invoice] }, { text: [{ text: `${t('lbl_date')}: `, bold: true }, `${currentDate} ${currentTime}`] }],
+                        stack: [{ text: [{ text: `${t('lbl_invoice_no')}: `, bold: true }, { text: invoice }] }, { text: [{ text: `${t('lbl_date')}: `, bold: true }, { text: `${currentDate} ${currentTime}` }] }],
                         width: '50%',
                     },
                     {
                         stack: [
-                            { text: [{ text: `${t('lbl_to')}: `, bold: true }, customer.name || t('pos_walk_in_customer')] },
-                            customer.email ? { text: [{ text: `${t('lbl_email')}: `, bold: true }, customer.email] } : {},
-                            customer.phone ? { text: [{ text: `${t('lbl_contact')}: `, bold: true }, customer.phone] } : {},
+                            { text: [{ text: `${t('lbl_to')}: `, bold: true }, { text: customer.name || t('pos_walk_in_customer') }] },
+                            customer.email ? { text: [{ text: `${t('lbl_email')}: `, bold: true }, { text: customer.email }] } : {},
+                            customer.phone ? { text: [{ text: `${t('lbl_contact')}: `, bold: true }, { text: customer.phone }] } : {},
                         ],
                         width: '50%',
                     },
@@ -653,7 +653,7 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
             };
 
             if (order_id) {
-                detailsContent.columns[0].stack.push({ text: [{ text: `${t('lbl_order_id')}: `, bold: true }, `#${order_id}`] });
+                detailsContent.columns[0].stack.push({ text: [{ text: `${t('lbl_order_id')}: `, bold: true }, { text: `#${order_id}` }] });
             }
 
             detailsContent.columns[0].stack.push({
@@ -668,12 +668,12 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
             });
 
             detailsContent.columns[0].stack.push({
-                text: [{ text: `${t('lbl_payment_method')}: `, bold: true }, displayPaymentMethod || t('lbl_cash')],
+                text: [{ text: `${t('lbl_payment_method')}: `, bold: true }, { text: displayPaymentMethod || t('lbl_cash') }],
             });
 
             if (isReturn && original_order_id) {
                 detailsContent.columns[0].stack.push({
-                    text: [{ text: `${t('lbl_original_order')}: `, bold: true }, `#${original_order_id}`],
+                    text: [{ text: `${t('lbl_original_order')}: `, bold: true }, { text: `#${original_order_id}` }],
                 });
             }
 
@@ -969,9 +969,15 @@ const PosInvoicePreview = ({ data, storeId, onClose, autoPrint }: PosInvoicePrev
                 fontSize: 9,
             });
 
-            // Amount in words
+            // Amount in words — the word text must be its own { text: ... } run, not a bare
+            // string: _fixPdfNode() only Bengali-font-routes array elements that already have
+            // a string .text property, so a raw string here silently fell back to the Latin
+            // default font and Bengali words never rendered.
             content.push({
-                text: [{ text: `${t('lbl_in_word')}: `, bold: true }, numberToWords(isReturn ? Math.abs(netTransaction) : grandTotal)],
+                text: [
+                    { text: `${t('lbl_in_word')}: `, bold: true },
+                    { text: numberToWords(isReturn ? Math.abs(netTransaction) : grandTotal) },
+                ],
                 margin: [0, 5, 0, 15],
                 fontSize: 9,
             });

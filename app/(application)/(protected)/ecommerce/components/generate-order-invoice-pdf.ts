@@ -369,9 +369,9 @@ export async function generateOrderInvoicePDF(payload: InvoicePayload, reservedP
             ...((store.store_location || '').replace(/[\s,;.|/-]/g, '').length > 0 ? [{ text: store.store_location!, style: 'companyInfo' }] : []),
             {
                 text: [
-                    store.store_email ? store.store_email : '',
-                    store.store_email && store.store_contact ? ' | ' : '',
-                    store.store_contact ? `${t('lbl_phone')}: ${store.store_contact}` : '',
+                    { text: store.store_email ? store.store_email : '' },
+                    { text: store.store_email && store.store_contact ? ' | ' : '' },
+                    { text: store.store_contact ? `${t('lbl_phone')}: ${store.store_contact}` : '' },
                 ],
                 style: 'companyInfo',
             },
@@ -392,10 +392,10 @@ export async function generateOrderInvoicePDF(payload: InvoicePayload, reservedP
 
     // ---------- Meta + customer ----------
     const leftStack: any[] = [
-        { text: [{ text: `${t('lbl_invoice_no')}: `, bold: true }, invoice] },
-        { text: [{ text: `${t('lbl_date')}: `, bold: true }, `${currentDate} ${currentTime}`] },
+        { text: [{ text: `${t('lbl_invoice_no')}: `, bold: true }, { text: invoice }] },
+        { text: [{ text: `${t('lbl_date')}: `, bold: true }, { text: `${currentDate} ${currentTime}` }] },
     ];
-    if (order_id) leftStack.push({ text: [{ text: `${t('lbl_order_id')}: `, bold: true }, `#${order_id}`] });
+    if (order_id) leftStack.push({ text: [{ text: `${t('lbl_order_id')}: `, bold: true }, { text: `#${order_id}` }] });
     leftStack.push({
         text: [
             { text: `${t('lbl_order_status')}: `, bold: true },
@@ -406,7 +406,7 @@ export async function generateOrderInvoicePDF(payload: InvoicePayload, reservedP
             },
         ],
     });
-    leftStack.push({ text: [{ text: `${t('lbl_payment_method')}: `, bold: true }, paymentMethod || t('lbl_cash')] });
+    leftStack.push({ text: [{ text: `${t('lbl_payment_method')}: `, bold: true }, { text: paymentMethod || t('lbl_cash') }] });
     if (paymentStatus) {
         leftStack.push({
             text: [
@@ -420,9 +420,9 @@ export async function generateOrderInvoicePDF(payload: InvoicePayload, reservedP
         });
     }
 
-    const rightStack: any[] = [{ text: [{ text: `${t('lbl_to')}: `, bold: true }, customer.name || t('pos_walk_in_customer')] }];
-    if (customer.email) rightStack.push({ text: [{ text: `${t('lbl_email')}: `, bold: true }, customer.email] });
-    if (customer.phone) rightStack.push({ text: [{ text: `${t('lbl_contact')}: `, bold: true }, customer.phone] });
+    const rightStack: any[] = [{ text: [{ text: `${t('lbl_to')}: `, bold: true }, { text: customer.name || t('pos_walk_in_customer') }] }];
+    if (customer.email) rightStack.push({ text: [{ text: `${t('lbl_email')}: `, bold: true }, { text: customer.email }] });
+    if (customer.phone) rightStack.push({ text: [{ text: `${t('lbl_contact')}: `, bold: true }, { text: customer.phone }] });
 
     content.push({
         columns: [
@@ -507,14 +507,14 @@ export async function generateOrderInvoicePDF(payload: InvoicePayload, reservedP
     });
 
     content.push({
-        text: [{ text: `${t('lbl_in_word')}: `, bold: true }, numberToWords(store_total)],
+        text: [{ text: `${t('lbl_in_word')}: `, bold: true }, { text: numberToWords(store_total) }],
         margin: [0, 5, 0, 15],
         fontSize: 9,
     });
 
     if (notes) {
         content.push({
-            text: [{ text: `${t('lbl_notes')}: `, bold: true }, notes],
+            text: [{ text: `${t('lbl_notes')}: `, bold: true }, { text: notes }],
             margin: [0, 0, 0, 15],
             fontSize: 9,
         });
